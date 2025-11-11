@@ -1,0 +1,424 @@
+export interface Banner {
+  title: string;
+  subtitle?: string;
+  image?: string;
+  bgClass?: string;
+}
+
+export interface Service {
+  id: string;
+  title: string;
+  priceText?: string;
+  iconName?: string;
+  image?: string;
+}
+
+export interface DemoAppHome {
+  hero: {
+    title?: string;
+    subtitle?: string;
+    image?: string;
+    bgClass?: string;
+  };
+  banners?: Banner[];
+  services?: Service[];
+}
+
+export interface DemoApp {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  image: string;
+  creator: string;
+  likes: string;
+  badge?: string;
+  badgeColor?: string;
+  home?: DemoAppHome;
+}
+
+// Топ-10 самых популярных приложений по лайкам
+export const demoApps: DemoApp[] = [
+  {
+    id: 'clothing-store',
+    title: 'Radiance',
+    description: 'Магазин модной одежды и аксессуаров',
+    category: 'Электронная коммерция',
+    image: '/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg',
+    creator: 'WEB4TG',
+    likes: '12.3k',
+    badge: 'Premium',
+    badgeColor: 'bg-black',
+    home: {
+      hero: {
+        title: 'Digital Fashion',
+        subtitle: 'Sharp design. Strong brands. Clear meaning.',
+        image: '/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg',
+        bgClass: 'bg-black'
+      },
+      banners: [
+        {
+          title: 'Digital Collection',
+          subtitle: 'Radiance.Family',
+          image: '/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg',
+          bgClass: 'bg-black'
+        },
+        {
+          title: 'Premium Design',
+          subtitle: 'Beautiful & meaningful',
+          bgClass: 'bg-gradient-to-r from-gray-900 to-black'
+        }
+      ],
+      services: [
+        { id: 'catalog', title: 'Каталог', priceText: 'Просмотр товаров', iconName: 'grid' },
+        { id: 'favorites', title: 'Избранное', priceText: 'Сохраненные товары', iconName: 'heart' },
+        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
+      ]
+    }
+  },
+  {
+    id: 'electronics',
+    title: 'TechMart',
+    description: 'Магазин электроники и техники',
+    category: 'Электронная коммерция',
+    image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+    creator: 'WEB4TG',
+    likes: '11.8k',
+    badge: 'Хит продаж',
+    badgeColor: 'bg-blue-500',
+    home: {
+      hero: {
+        title: 'Добро пожаловать в TechMart',
+        subtitle: 'Лучшие технологии по доступным ценам',
+        image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+        bgClass: 'bg-gradient-to-r from-blue-500 to-cyan-600'
+      },
+      banners: [
+        {
+          title: 'iPhone 16 Pro',
+          subtitle: 'Новинка уже в продаже',
+          image: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=400&auto=format,compress&q=80&dpr=2',
+          bgClass: 'bg-gradient-to-r from-gray-800 to-gray-900'
+        },
+        {
+          title: 'Черная пятница',
+          subtitle: 'Скидки до 70% на всё',
+          bgClass: 'bg-gradient-to-r from-red-500 to-orange-600'
+        }
+      ],
+      services: [
+        { id: 'catalog', title: 'Каталог', priceText: 'Все товары', iconName: 'smartphone' },
+        { id: 'compare', title: 'Сравнение', priceText: 'Сравнить товары', iconName: 'bar-chart' },
+        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
+      ]
+    }
+  },
+  {
+    id: 'beauty',
+    title: 'GlowSpa',
+    description: 'Салон красоты и SPA-услуги',
+    category: 'Красота и здоровье',
+    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+    creator: 'WEB4TG',
+    likes: '9.7k',
+    badge: 'Премиум',
+    badgeColor: 'bg-pink-500',
+    home: {
+      hero: {
+        title: 'Добро пожаловать в GlowSpa',
+        subtitle: 'Откройте секрет вашей красоты',
+        image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+        bgClass: 'bg-gradient-to-r from-pink-500 to-rose-600'
+      },
+      banners: [
+        {
+          title: 'Новые процедуры',
+          subtitle: 'Anti-age терапия',
+          image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&auto=format,compress&q=80&dpr=2',
+          bgClass: 'bg-gradient-to-r from-purple-500 to-indigo-600'
+        },
+        {
+          title: 'Акция месяца',
+          subtitle: 'Скидка 30% на все услуги',
+          bgClass: 'bg-gradient-to-r from-emerald-500 to-teal-600'
+        }
+      ],
+      services: [
+        { id: 'services', title: 'Услуги', priceText: 'Все процедуры', iconName: 'sparkles' },
+        { id: 'booking', title: 'Запись', priceText: 'Онлайн бронирование', iconName: 'calendar' },
+        { id: 'loyalty', title: 'Программа лояльности', priceText: 'Накопительные скидки', iconName: 'gift' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
+      ]
+    }
+  },
+  {
+    id: 'restaurant',
+    title: 'DeluxeDine',
+    description: 'Ресторан с доставкой',
+    category: 'Еда и рестораны',
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+    creator: 'WEB4TG',
+    likes: '8.9k',
+    badge: 'Мишлен',
+    badgeColor: 'bg-yellow-500',
+    home: {
+      hero: {
+        title: 'Добро пожаловать в DeluxeDine',
+        subtitle: 'Незабываемые вкусы высокой кухни',
+        image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+        bgClass: 'bg-gradient-to-r from-yellow-500 to-orange-600'
+      },
+      banners: [
+        {
+          title: 'Сезонное меню',
+          subtitle: 'Блюда от шеф-повара',
+          image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&auto=format,compress&q=80&dpr=2',
+          bgClass: 'bg-gradient-to-r from-emerald-500 to-teal-600'
+        },
+        {
+          title: 'Бесплатная доставка',
+          subtitle: 'При заказе от 2000₽',
+          bgClass: 'bg-gradient-to-r from-blue-500 to-indigo-600'
+        }
+      ],
+      services: [
+        { id: 'menu', title: 'Меню', priceText: 'Наши блюда', iconName: 'utensils' },
+        { id: 'reservations', title: 'Бронирование', priceText: 'Забронировать стол', iconName: 'calendar' },
+        { id: 'delivery', title: 'Доставка', priceText: 'Заказать на дом', iconName: 'truck' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
+      ]
+    }
+  },
+  {
+    id: 'coffee',
+    title: 'CoffeeCraft',
+    description: 'Кофейня с доставкой',
+    category: 'Еда и рестораны',
+    image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+    creator: 'WEB4TG',
+    likes: '7.5k',
+    badge: 'Авторский кофе',
+    badgeColor: 'bg-amber-600',
+    home: {
+      hero: {
+        title: 'Добро пожаловать в CoffeeCraft',
+        subtitle: 'Искусство кофе в каждой чашке',
+        image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+        bgClass: 'bg-gradient-to-r from-amber-600 to-orange-700'
+      },
+      banners: [
+        {
+          title: 'Новая обжарка',
+          subtitle: 'Эфиопия Сидамо',
+          image: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=400&auto=format,compress&q=80&dpr=2',
+          bgClass: 'bg-gradient-to-r from-brown-500 to-amber-600'
+        },
+        {
+          title: 'Кофе-курсы',
+          subtitle: 'Научитесь варить как бариста',
+          bgClass: 'bg-gradient-to-r from-emerald-500 to-teal-600'
+        }
+      ],
+      services: [
+        { id: 'menu', title: 'Меню', priceText: 'Кофе и десерты', iconName: 'coffee' },
+        { id: 'beans', title: 'Зерно', priceText: 'Купить кофе домой', iconName: 'package' },
+        { id: 'subscription', title: 'Подписка', priceText: 'Кофе каждый месяц', iconName: 'refresh-cw' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
+      ]
+    }
+  },
+  // НОВЫЕ E-COMMERCE ПРИЛОЖЕНИЯ
+  {
+    id: 'luxury-watches',
+    title: 'TimeElite',
+    description: 'Магазин элитных часов',
+    category: 'Электронная коммерция',
+    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+    creator: 'WEB4TG',
+    likes: '15.2k',
+    badge: 'Люкс',
+    badgeColor: 'bg-yellow-600',
+    home: {
+      hero: {
+        title: 'Добро пожаловать в TimeElite',
+        subtitle: 'Эксклюзивные часы для истинных ценителей',
+        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+        bgClass: 'bg-gradient-to-r from-yellow-600 to-amber-700'
+      },
+      banners: [
+        {
+          title: 'Новинка',
+          subtitle: 'Коллекция Rolex 2025',
+          image: 'https://images.unsplash.com/photo-1434056886845-dac89ffe9b56?w=400&auto=format,compress&q=80&dpr=2',
+          bgClass: 'bg-gradient-to-r from-blue-500 to-indigo-600'
+        },
+        {
+          title: 'Эксклюзив',
+          subtitle: 'Лимитированные серии',
+          bgClass: 'bg-gradient-to-r from-purple-500 to-pink-600'
+        }
+      ],
+      services: [
+        { id: 'catalog', title: 'Каталог', priceText: 'Все часы', iconName: 'watch' },
+        { id: 'brands', title: 'Бренды', priceText: 'Rolex, Omega, Cartier', iconName: 'star' },
+        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
+      ]
+    }
+  },
+  {
+    id: 'sneaker-store',
+    title: 'SneakerVault',
+    description: 'Магазин кроссовок',
+    category: 'Электронная коммерция',
+    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+    creator: 'WEB4TG',
+    likes: '18.9k',
+    badge: 'Streetwear',
+    badgeColor: 'bg-red-500',
+    home: {
+      hero: {
+        title: 'Добро пожаловать в SneakerVault',
+        subtitle: 'Редкие дропы и эксклюзивные коллаборации',
+        image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+        bgClass: 'bg-gradient-to-r from-red-500 to-orange-600'
+      },
+      banners: [
+        {
+          title: 'Jordan Retro',
+          subtitle: 'Новый релиз уже в продаже',
+          image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=400&auto=format,compress&q=80&dpr=2',
+          bgClass: 'bg-gradient-to-r from-black to-gray-800'
+        },
+        {
+          title: 'Предзаказ',
+          subtitle: 'Yeezy Boost 350 V3',
+          bgClass: 'bg-gradient-to-r from-purple-500 to-pink-600'
+        }
+      ],
+      services: [
+        { id: 'catalog', title: 'Каталог', priceText: 'Все кроссовки', iconName: 'zap' },
+        { id: 'drops', title: 'Дропы', priceText: 'Новые релизы', iconName: 'lightning' },
+        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
+      ]
+    }
+  },
+  {
+    id: 'tech-gadgets',
+    title: 'GadgetLab',
+    description: 'Магазин гаджетов и новинок',
+    category: 'Электронная коммерция',
+    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+    creator: 'WEB4TG',
+    likes: '16.3k',
+    badge: 'Инновации',
+    badgeColor: 'bg-cyan-500',
+    home: {
+      hero: {
+        title: 'Добро пожаловать в GadgetLab',
+        subtitle: 'Технологии, которые изменят вашу жизнь',
+        image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+        bgClass: 'bg-gradient-to-r from-cyan-500 to-blue-600'
+      },
+      banners: [
+        {
+          title: 'AR очки',
+          subtitle: 'Будущее уже здесь',
+          image: 'https://images.unsplash.com/photo-1592478411213-6153e4ebc696?w=400&auto=format,compress&q=80&dpr=2',
+          bgClass: 'bg-gradient-to-r from-purple-500 to-pink-600'
+        },
+        {
+          title: 'Smart устройства',
+          subtitle: 'Умная экосистема для дома',
+          bgClass: 'bg-gradient-to-r from-green-500 to-emerald-600'
+        }
+      ],
+      services: [
+        { id: 'catalog', title: 'Каталог', priceText: 'Все гаджеты', iconName: 'zap' },
+        { id: 'innovation', title: 'Новинки', priceText: 'Последние разработки', iconName: 'lightning' },
+        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
+      ]
+    }
+  },
+  {
+    id: 'luxury-perfume',
+    title: 'FragranceRoyale',
+    description: 'Магазин премиальной парфюмерии',
+    category: 'Электронная коммерция',
+    image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59d75?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+    creator: 'WEB4TG',
+    likes: '11.7k',
+    badge: 'Премиум',
+    badgeColor: 'bg-purple-500',
+    home: {
+      hero: {
+        title: 'Добро пожаловать в FragranceRoyale',
+        subtitle: 'Откройте для себя последние ароматы премиум класса',
+        image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59d75?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+        bgClass: 'bg-gradient-to-r from-purple-500 to-pink-600'
+      },
+      banners: [
+        {
+          title: 'Новая коллекция',
+          subtitle: 'Весна-Лето 2025',
+          image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400&auto=format,compress&fit=crop&q=80&dpr=2',
+          bgClass: 'bg-gradient-to-r from-pink-500 to-rose-600'
+        },
+        {
+          title: 'Скидки до 50%',
+          subtitle: 'На избранные ароматы',
+          image: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&auto=format,compress&fit=crop&q=80&dpr=2',
+          bgClass: 'bg-gradient-to-r from-orange-500 to-red-600'
+        }
+      ],
+      services: [
+        { id: 'catalog', title: 'Каталог', priceText: 'Просмотр ароматов', iconName: 'grid' },
+        { id: 'favorites', title: 'Избранное', priceText: 'Сохраненные ароматы', iconName: 'heart' },
+        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
+      ]
+    }
+  },
+  {
+    id: 'gaming-gear',
+    title: 'GameForge',
+    description: 'Магазин игрового оборудования',
+    category: 'Электронная коммерция',
+    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+    creator: 'WEB4TG',
+    likes: '19.8k',
+    badge: 'Pro Gaming',
+    badgeColor: 'bg-violet-500',
+    home: {
+      hero: {
+        title: 'Добро пожаловать в GameForge',
+        subtitle: 'Превзойди себя с профессиональным геймингом',
+        image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+        bgClass: 'bg-gradient-to-r from-violet-500 to-purple-600'
+      },
+      banners: [
+        {
+          title: 'RTX 5090',
+          subtitle: 'Новейшая графика от NVIDIA',
+          image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400&auto=format,compress&q=80&dpr=2',
+          bgClass: 'bg-gradient-to-r from-green-500 to-emerald-600'
+        },
+        {
+          title: 'Игровые кресла',
+          subtitle: 'Комфорт для долгих сессий',
+          bgClass: 'bg-gradient-to-r from-red-500 to-orange-600'
+        }
+      ],
+      services: [
+        { id: 'catalog', title: 'Каталог', priceText: 'Все товары', iconName: 'gamepad' },
+        { id: 'pc-builds', title: 'Сборки ПК', priceText: 'Готовые игровые системы', iconName: 'monitor' },
+        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
+      ]
+    }
+  }
+];
