@@ -48,7 +48,7 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 # Recent Changes
 
 **Date**: November 12, 2025
-**Changes**: GitHub import setup for Replit environment + Full Railway independence
+**Changes**: GitHub import setup for Replit environment + Full Railway independence + Bot menu redesign
 - Added `allowedHosts: true` to Vite config for Replit proxy support
 - Created .gitignore file for Node.js project
 - Configured development workflow to run on port 5000 with webview
@@ -58,6 +58,14 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - Application works completely independently on Railway without any Replit code
 - Verified: NODE_ENV=production excludes all @replit/* packages from build
 - Application verified working with premium dark theme and Telegram Mini App integration
+- **Telegram Bot Menu**: Redesigned with Russian language interface, cleaner command structure:
+  - 🏠 Запустить Telegram Mini Apps - /start
+  - 💎 Открыть каталог приложений - /showcase
+  - 💰 Реферальная программа - /referral
+  - 🎯 Задания и награды - /tasks
+  - 👤 Мой профиль - /profile
+  - ❓ Помощь - /help
+- Removed @replit/vite-plugin-dev-banner completely for cleaner production builds
 
 ## Deployment Architecture
 - **Development (Replit)**: Dynamic Replit plugins loaded only when NODE_ENV=development && REPL_ID exists

@@ -176,23 +176,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case '/start':
             await sendPremiumMessage(
               chatId,
-              `🎯 <b>WELCOME TO PREMIUM BUSINESS SUITE</b>\n\n` +
-              `💎 Your Gateway to 18+ Exclusive Business Applications\n\n` +
-              `<b>✨ WHAT'S INSIDE:</b>\n` +
-              `→ E-commerce & Fashion Platforms\n` +
-              `→ Restaurant Management Systems\n` +
-              `→ Fitness & Wellness Centers\n` +
-              `→ Real Estate Solutions\n` +
-              `→ AI-Powered Business Agents\n\n` +
-              `<b>🚀 PREMIUM FEATURES:</b>\n` +
-              `→ Gamification Engine\n` +
-              `→ Referral Program (Earn Real Money)\n` +
-              `→ 35+ Revenue-Generating Tasks\n` +
-              `→ Analytics Dashboard\n\n` +
-              `<i>👉 Tap below to explore your business future!</i>`,
+              `🏠 <b>TELEGRAM MINI APPS</b>\n\n` +
+              `Добро пожаловать в каталог мини-приложений для бизнеса!\n\n` +
+              `📱 <b>В каталоге:</b>\n` +
+              `→ 18+ готовых приложений\n` +
+              `→ Магазины (одежда, электроника, косметика)\n` +
+              `→ Сервисы (рестораны, фитнес, доставка)\n` +
+              `→ Бизнес (недвижимость, путешествия)\n\n` +
+              `💰 <b>Зарабатывайте:</b>\n` +
+              `→ Выполняйте задания\n` +
+              `→ Приглашайте друзей\n` +
+              `→ Получайте монеты\n\n` +
+              `<i>Нажмите кнопку ниже для доступа к приложениям</i>`,
               [[
-                { text: '🎁 Referral Program', callback_data: 'referral' },
-                { text: '🎯 Complete Tasks', callback_data: 'tasks' }
+                { text: '💎 Открыть каталог', callback_data: 'showcase' },
+                { text: '💰 Реферальная программа', callback_data: 'referral' }
               ]]
             );
             break;
@@ -200,101 +198,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case '/showcase':
             await sendPremiumMessage(
               chatId,
-              `💎 <b>PREMIUM APP SHOWCASE</b>\n\n` +
-              `Explore 18+ professional business applications:\n\n` +
-              `🛍️ <b>E-Commerce:</b> Fashion stores, electronics\n` +
-              `🍔 <b>Services:</b> Restaurants, fitness, real estate\n` +
-              `🤖 <b>AI:</b> Smart business agents\n` +
-              `📊 <b>Analytics:</b> Business insights\n\n` +
-              `<i>Each app is production-ready and customizable!</i>`
+              `💎 <b>КАТАЛОГ ПРИЛОЖЕНИЙ</b>\n\n` +
+              `18+ готовых бизнес-приложений:\n\n` +
+              `🛍️ <b>Магазины:</b> Одежда, электроника, косметика\n` +
+              `🍔 <b>Сервисы:</b> Рестораны, фитнес, недвижимость\n` +
+              `🤖 <b>AI агенты:</b> Умные помощники для бизнеса\n` +
+              `📊 <b>Аналитика:</b> Бизнес-инсайты\n\n` +
+              `<i>Каждое приложение готово к использованию!</i>`
             );
             break;
             
           case '/referral':
             await sendPremiumMessage(
               chatId,
-              `💰 <b>PREMIUM REFERRAL PROGRAM</b>\n\n` +
-              `Earn money by sharing our platform!\n\n` +
-              `<b>YOUR BENEFITS:</b>\n` +
-              `→ 20% from friend's first purchase\n` +
-              `→ 10% lifetime commission\n` +
-              `→ Unlimited referrals\n` +
-              `→ Instant payouts\n\n` +
-              `<i>Open the app to get your unique referral link!</i>`
+              `💰 <b>РЕФЕРАЛЬНАЯ ПРОГРАММА</b>\n\n` +
+              `Зарабатывайте, делясь платформой с друзьями!\n\n` +
+              `<b>ВАШИ ВЫГОДЫ:</b>\n` +
+              `→ 20% от первой покупки друга\n` +
+              `→ 10% пожизненная комиссия\n` +
+              `→ Неограниченное количество рефералов\n` +
+              `→ Мгновенные выплаты\n\n` +
+              `<i>Откройте приложение, чтобы получить вашу реферальную ссылку!</i>`
             );
             break;
             
           case '/tasks':
             await sendPremiumMessage(
               chatId,
-              `🎯 <b>35+ REVENUE TASKS</b>\n\n` +
-              `Complete tasks and earn coins!\n\n` +
-              `<b>TASK CATEGORIES:</b>\n` +
-              `→ Social Media (Follow, Like, Share)\n` +
-              `→ Daily Challenges\n` +
-              `→ Friend Referrals\n` +
-              `→ App Reviews\n` +
-              `→ Video Watches\n\n` +
-              `💎 Coins = Real Money\n` +
-              `<i>Start earning now!</i>`
+              `🎯 <b>ЗАДАНИЯ И НАГРАДЫ</b>\n\n` +
+              `Выполняйте задания и зарабатывайте монеты!\n\n` +
+              `<b>КАТЕГОРИИ ЗАДАНИЙ:</b>\n` +
+              `→ Социальные сети (Подписки, лайки)\n` +
+              `→ Ежедневные челленджи\n` +
+              `→ Приглашение друзей\n` +
+              `→ Отзывы о приложениях\n` +
+              `→ Просмотр видео\n\n` +
+              `💎 Монеты = Реальные деньги\n` +
+              `<i>Начните зарабатывать прямо сейчас!</i>`
             );
             break;
             
           case '/profile':
             await sendPremiumMessage(
               chatId,
-              `👤 <b>YOUR PREMIUM DASHBOARD</b>\n\n` +
-              `Access your personal analytics:\n\n` +
-              `→ Coins Balance\n` +
-              `→ Referral Stats\n` +
-              `→ Task Progress\n` +
-              `→ Achievement Badges\n` +
-              `→ Earnings History\n\n` +
-              `<i>Open the app to view your full profile!</i>`
+              `👤 <b>МОЙ ПРОФИЛЬ</b>\n\n` +
+              `Доступ к вашей личной аналитике:\n\n` +
+              `→ Баланс монет\n` +
+              `→ Статистика рефералов\n` +
+              `→ Прогресс заданий\n` +
+              `→ Значки достижений\n` +
+              `→ История заработка\n\n` +
+              `<i>Откройте приложение для просмотра полного профиля!</i>`
             );
             break;
             
           case '/help':
             await sendPremiumMessage(
               chatId,
-              `❓ <b>PREMIUM SUPPORT</b>\n\n` +
-              `<b>HOW TO USE:</b>\n` +
-              `1. Tap "Launch Premium Suite"\n` +
-              `2. Browse 18+ business apps\n` +
-              `3. Complete tasks to earn coins\n` +
-              `4. Share your referral link\n` +
-              `5. Track earnings in profile\n\n` +
-              `<b>COMMANDS:</b>\n` +
-              `/start - Main menu\n` +
-              `/showcase - Browse apps\n` +
-              `/referral - Earn money\n` +
-              `/tasks - Complete tasks\n` +
-              `/profile - Your dashboard\n` +
-              `/about - Platform info\n\n` +
-              `<b>SUPPORT:</b> @YourSupportBot`
-            );
-            break;
-            
-          case '/about':
-            await sendPremiumMessage(
-              chatId,
-              `ℹ️ <b>ABOUT OUR PLATFORM</b>\n\n` +
-              `<b>SHOWCASE Premium Business Suite</b>\n` +
-              `Version 2.0 | Enterprise Edition\n\n` +
-              `🏆 <b>AWARDS:</b>\n` +
-              `→ Best Telegram Mini App 2025\n` +
-              `→ Innovation in Business Tech\n` +
-              `→ Top Developer Platform\n\n` +
-              `⚡ <b>TECHNOLOGY:</b>\n` +
-              `→ React 18 + TypeScript\n` +
-              `→ AI-Powered Features\n` +
-              `→ Enterprise Security\n` +
-              `→ Real-time Analytics\n\n` +
-              `🌐 <b>GLOBAL REACH:</b>\n` +
-              `→ 50,000+ Active Users\n` +
-              `→ 25+ Countries\n` +
-              `→ 99.9% Uptime\n\n` +
-              `<i>Built for ambitious entrepreneurs</i>`
+              `❓ <b>ПОМОЩЬ</b>\n\n` +
+              `<b>КАК ИСПОЛЬЗОВАТЬ:</b>\n` +
+              `1. Нажмите "Открыть приложение"\n` +
+              `2. Просмотрите 18+ бизнес-приложений\n` +
+              `3. Выполняйте задания и зарабатывайте монеты\n` +
+              `4. Делитесь реферальной ссылкой\n` +
+              `5. Отслеживайте заработок в профиле\n\n` +
+              `<b>КОМАНДЫ:</b>\n` +
+              `/start - Главное меню\n` +
+              `/showcase - Каталог приложений\n` +
+              `/referral - Реферальная программа\n` +
+              `/tasks - Задания и награды\n` +
+              `/profile - Мой профиль\n` +
+              `/help - Помощь\n\n` +
+              `<b>ПОДДЕРЖКА:</b> @YourSupportBot`
             );
             break;
             
@@ -303,12 +278,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (command.startsWith('/')) {
               await sendPremiumMessage(
                 chatId,
-                `🤔 <b>Unknown Command</b>\n\n` +
-                `Sorry, I don't recognize that command.\n\n` +
-                `Try one of these:\n` +
-                `/start - Main menu\n` +
-                `/showcase - Browse apps\n` +
-                `/help - Get help`
+                `🤔 <b>Неизвестная команда</b>\n\n` +
+                `Извините, я не понимаю эту команду.\n\n` +
+                `Попробуйте одну из этих:\n` +
+                `/start - Главное меню\n` +
+                `/showcase - Каталог приложений\n` +
+                `/help - Помощь`
               );
             }
         }
@@ -334,19 +309,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? `https://${process.env.REPLIT_DEV_DOMAIN}`
         : 'https://telegram-mini-app-showcase-production.up.railway.app';
       
-      // Set all premium bot commands
+      // Set bot menu commands
       const commandsResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setMyCommands`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           commands: [
-            { command: 'start', description: '🚀 Launch Premium Business Suite' },
-            { command: 'showcase', description: '💎 Browse 18+ Exclusive Apps' },
-            { command: 'referral', description: '💰 Earn with Premium Referrals' },
-            { command: 'tasks', description: '🎯 Complete 35+ Revenue Tasks' },
-            { command: 'profile', description: '👤 Your Premium Dashboard' },
-            { command: 'help', description: '❓ Premium Support & Guide' },
-            { command: 'about', description: 'ℹ️ About Our Platform' }
+            { command: 'start', description: '🏠 Запустить Telegram Mini Apps' },
+            { command: 'showcase', description: '💎 Открыть каталог приложений' },
+            { command: 'referral', description: '💰 Реферальная программа' },
+            { command: 'tasks', description: '🎯 Задания и награды' },
+            { command: 'profile', description: '👤 Мой профиль' },
+            { command: 'help', description: '❓ Помощь' }
           ]
         })
       });
