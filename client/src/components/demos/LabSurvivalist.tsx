@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import fashionImage1 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
+import fashionImage2 from '@assets/stock_images/futuristic_fashion_m_b5d87157.jpg';
 
 interface LabSurvivalistProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -9,19 +11,19 @@ interface LabSurvivalistProps {
 const lookbookItems = [
   {
     id: 1,
-    image: '/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg',
+    image: fashionImage1,
     title: 'Field Vest',
     color: 'Olive'
   },
   {
     id: 2,
-    image: '/attached_assets/stock_images/futuristic_fashion_m_b5d87157.jpg',
+    image: fashionImage2,
     title: 'Tactical Jacket',
     color: 'Black'
   },
   {
     id: 3,
-    image: '/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg',
+    image: fashionImage1,
     title: 'Cargo Pants',
     color: 'Gray'
   }
@@ -33,7 +35,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
 
   if (screen === 'dark') {
     return (
-      <div className="h-full bg-black text-white relative overflow-hidden">
+      <div className="min-h-screen bg-black text-white relative overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -49,7 +51,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
 
             <div className="relative w-[400px] h-[400px] rounded-full overflow-hidden">
               <img
-                src="/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg"
+                src={fashionImage1}
                 alt="Model"
                 className="w-full h-full object-cover"
               />
@@ -84,7 +86,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
   }
 
   return (
-    <div className="h-full bg-white text-black relative overflow-hidden">
+    <div className="min-h-screen bg-white text-black relative overflow-hidden">
       <div className="p-12">
         <div className="mb-12">
           <h1 className="text-6xl font-black tracking-tighter mb-2">LOOK BOOK</h1>
