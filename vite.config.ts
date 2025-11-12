@@ -10,10 +10,10 @@ export default defineConfig({
     react({
       jsxRuntime: 'automatic',
     }),
-    runtimeErrorOverlay(),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
+          runtimeErrorOverlay(),
           await import("@replit/vite-plugin-cartographer").then((m) =>
             m.cartographer(),
           ),
