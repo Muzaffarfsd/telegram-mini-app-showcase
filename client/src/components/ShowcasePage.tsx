@@ -1,874 +1,824 @@
-import { Smartphone, ShoppingCart, Code, Star, Users, Search } from "lucide-react";
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { MotionStagger, MotionBox, HoverScale } from './MotionWrapper';
-import { useTelegram } from '../hooks/useTelegram';
-import { useTrackInteraction } from '@/hooks/useAIRecommendations';
-import { ClothingIcon, ElectronicsIcon, BeautyIcon, RestaurantIcon, FitnessIcon, CarServiceIcon } from './AnimatedBusinessIcons';
-import { LazyVideo } from './LazyVideo';
-import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
-import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
-import storeHomepageImage from "@assets/image_1761735146810.png";
-import sneakerStoreImage from "@assets/image_1761735746522.png";
-import fashionVideo from "@assets/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
-import sneakerVideo from "@assets/ae01958370d099047455d799eba60389_1762352751328.mp4";
-import watchesVideo from "@assets/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4";
-import heroVideo from "@assets/cc8af87f44cca019ef98293eb251fe37_1762774935672.mp4";
-
-// Lazy load heavy components for better initial load performance
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
+import { 
+  Sparkles, 
+  Zap, 
+  Palette, 
+  ShoppingBag, 
+  Coffee, 
+  Smartphone,
+  Heart,
+  Star,
+  TrendingUp,
+  ArrowRight,
+  Grid3x3,
+  Layers,
+  Gem,
+  Crown,
+  Award
+} from 'lucide-react';
+import { useTelegram } from '@/hooks/useTelegram';
+import { demoApps } from '@/data/demoApps';
 
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
   onOpenDemo: (demoId: string) => void;
 }
 
-// SVG Dollar Bill Component
-const DollarSVG = () => (
-  <svg width="90" height="41" viewBox="0 0 120 55" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Main bill background */}
-    <rect width="120" height="55" rx="3" fill="url(#dollarGradient)" stroke="#1a4d2e" strokeWidth="1.5"/>
-    
-    {/* Gradient definition */}
-    <defs>
-      <linearGradient id="dollarGradient" x1="0" y1="0" x2="120" y2="55">
-        <stop offset="0%" stopColor="#85bb65"/>
-        <stop offset="50%" stopColor="#6b9b52"/>
-        <stop offset="100%" stopColor="#85bb65"/>
-      </linearGradient>
-    </defs>
-    
-    {/* Decorative border */}
-    <rect x="4" y="4" width="112" height="47" rx="2" fill="none" stroke="#2d5a3d" strokeWidth="0.8" strokeDasharray="2 2"/>
-    
-    {/* Left portrait circle */}
-    <circle cx="22" cy="27.5" r="12" fill="#2d5a3d" stroke="#1a4d2e" strokeWidth="1"/>
-    <text x="22" y="32" fontSize="10" fontWeight="bold" fill="#85bb65" textAnchor="middle">$</text>
-    
-    {/* Center "100" */}
-    <text x="60" y="34" fontSize="24" fontWeight="900" fill="#1a4d2e" textAnchor="middle">100</text>
-    
-    {/* Top corners */}
-    <text x="8" y="13" fontSize="8" fontWeight="bold" fill="#1a4d2e">100</text>
-    <text x="103" y="13" fontSize="8" fontWeight="bold" fill="#1a4d2e" textAnchor="end">100</text>
-    
-    {/* Bottom text */}
-    <text x="8" y="48" fontSize="6" fill="#2d5a3d">USA</text>
-    <text x="112" y="48" fontSize="6" fill="#2d5a3d" textAnchor="end">$100</text>
-    
-    {/* Right seal */}
-    <circle cx="98" cy="27.5" r="8" fill="#1a4d2e" stroke="#2d5a3d" strokeWidth="0.8"/>
-    <circle cx="98" cy="27.5" r="4" fill="#85bb65"/>
-    
-    {/* Decorative lines */}
-    <line x1="40" y1="15" x2="80" y2="15" stroke="#2d5a3d" strokeWidth="0.5" opacity="0.5"/>
-    <line x1="40" y1="40" x2="80" y2="40" stroke="#2d5a3d" strokeWidth="0.5" opacity="0.5"/>
-  </svg>
-);
+const categories = [
+  { id: 'all', label: 'Все', icon: Grid3x3 },
+  { id: 'premium', label: 'Премиум', icon: Crown },
+  { id: 'ecommerce', label: 'E-commerce', icon: ShoppingBag },
+  { id: 'beauty', label: 'Красота', icon: Sparkles },
+  { id: 'food', label: 'Еда', icon: Coffee },
+  { id: 'tech', label: 'Технологии', icon: Smartphone },
+];
 
-// Generate stable random values for dollar animations (outside component to avoid re-renders)
-const dollarAnimations = Array.from({ length: 8 }, (_, i) => ({
-  left: 5 + Math.random() * 90,
-  top: -(40 + Math.random() * 60),
-  delay: Math.random() * 10,
-  duration: 6 + Math.random() * 4,
-  rotateStart: -15 + Math.random() * 30,
-  driftX1: -10 + Math.random() * 20,
-  rotateIntensity: 1,
-  blurIntensity: 0,
-}));
+const DynamicIslandHero: React.FC<{ onExpand: () => void }> = ({ onExpand }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showContent, setShowContent] = useState(false);
 
-// Video Hero Card Component with lazy loading
-const VideoHeroCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
-  <div 
-    className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
-    onClick={() => onOpenDemo('clothing-store')}
-    data-testid="hero-card-clothing"
-  >
-    <LazyVideo
-      src={fashionVideo}
-      className="absolute inset-0 w-full h-full object-cover"
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="none"
-    />
-    
-    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-    
-    <div className="absolute bottom-0 left-0 right-0 p-8">
-      <div className="text-white text-5xl font-light mb-2"
-        style={{ letterSpacing: '0.4em' }}
-      >
-        A L U R E
-      </div>
-      <div className="text-white/70 text-sm uppercase tracking-widest mb-4">
-        Premium Streetwear
-      </div>
-      <div className="px-4 py-2 bg-[#CDFF38] text-black rounded-full inline-block text-xs font-bold uppercase">
-        NEW COLLECTION
-      </div>
-    </div>
-    
-    <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold"
-      style={{
-        background: 'rgba(205, 255, 56, 0.95)',
-        color: '#0A0A0A'
-      }}
-    >
-      NEW
-    </div>
-  </div>
-);
-
-// Sneaker Demo Card Component - Premium Minimal
-const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
-  <div 
-    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group"
-    onClick={() => onOpenDemo('sneaker-store')}
-    data-testid="demo-card-sneaker-store"
-  >
-    <LazyVideo
-      src={sneakerVideo}
-      className="absolute inset-0 w-full h-full object-cover"
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="none"
-    />
-    
-    {/* Lighter Gradient Overlay - better video visibility */}
-    <div className="absolute inset-0"
-      style={{
-        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.7) 100%)'
-      }}
-    ></div>
-    
-    {/* Content */}
-    <div className="absolute inset-0 p-5 flex flex-col">
-      
-      {/* Top Section - Title and Badge aligned */}
-      <div className="flex items-center justify-between mb-auto">
-        <div>
-          <div className="text-white text-2xl font-light tracking-[0.35em]">
-            S O L E
-          </div>
-          <div className="h-[1px] w-12 mt-1.5"
-            style={{
-              background: 'linear-gradient(90deg, rgba(100, 235, 220, 0.6), transparent)'
-            }}
-          ></div>
-        </div>
-        
-        {/* Exclusive Badge */}
-        <div className="px-2 py-0.5 text-[8px] font-medium tracking-wide whitespace-nowrap"
-          style={{
-            background: 'rgba(100, 235, 220, 0.1)',
-            border: '1px solid rgba(100, 235, 220, 0.25)',
-            borderRadius: '6px',
-            color: '#64EBDC'
-          }}
-        >
-          EXCLUSIVE
-        </div>
-      </div>
-      
-      {/* Bottom Section - Centered content */}
-      <div className="text-center">
-        <div className="text-white/50 text-[10px] uppercase tracking-[0.15em] mb-3 font-light">
-          Premium Sneakers
-        </div>
-        
-        <div className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-[10px] font-semibold tracking-wider uppercase w-full max-w-[200px]"
-          style={{
-            background: 'rgba(100, 235, 220, 0.15)',
-            border: '1px solid rgba(100, 235, 220, 0.3)',
-            borderRadius: '10px',
-            color: '#64EBDC',
-            backdropFilter: 'blur(10px)'
-          }}
-        >
-          <span>EXPLORE</span>
-          <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
-            <path d="M2 6H10M10 6L6 2M10 6L6 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-// Watches Demo Card Component - Premium Minimal
-const WatchesDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
-  <div 
-    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group"
-    onClick={() => onOpenDemo('luxury-watches')}
-    data-testid="demo-card-luxury-watches"
-  >
-    <LazyVideo
-      src={watchesVideo}
-      className="absolute inset-0 w-full h-full object-cover"
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="none"
-    />
-    
-    {/* Lighter Gradient Overlay - better video visibility */}
-    <div className="absolute inset-0"
-      style={{
-        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.7) 100%)'
-      }}
-    ></div>
-    
-    {/* Content - Vertical Layout */}
-    <div className="absolute inset-0 p-5 flex flex-col">
-      
-      {/* Top Section */}
-      <div className="flex items-center justify-between mb-auto">
-        <div>
-          <div className="text-2xl font-light tracking-[0.40em]"
-            style={{
-              background: 'linear-gradient(135deg, #E8D4A0 0%, #D6B980 50%, #C9A870 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}
-          >
-            L U X E
-          </div>
-          <div className="h-[1px] w-12 mt-1.5"
-            style={{
-              background: 'linear-gradient(90deg, rgba(214, 185, 128, 0.4), transparent)'
-            }}
-          ></div>
-        </div>
-        
-        {/* Limited Edition Badge */}
-        <div className="w-1.5 h-1.5 rounded-full"
-          style={{
-            background: '#D6B980',
-            boxShadow: '0 0 8px rgba(214, 185, 128, 0.6)'
-          }}
-        ></div>
-      </div>
-      
-      {/* Bottom Section - Centered */}
-      <div className="text-center">
-        <div className="text-white/50 text-[10px] uppercase tracking-[0.15em] mb-3 font-light">
-          Swiss Timepieces
-        </div>
-        
-        <div className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-[10px] font-semibold tracking-wider uppercase w-full max-w-[200px]"
-          style={{
-            background: 'rgba(214, 185, 128, 0.12)',
-            border: '1px solid rgba(214, 185, 128, 0.25)',
-            borderRadius: '10px',
-            color: '#D6B980',
-            backdropFilter: 'blur(10px)'
-          }}
-        >
-          <span>EXPLORE</span>
-          <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
-            <path d="M2 6H10M10 6L6 2M10 6L6 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-// Demo Card Component
-const DemoCard: React.FC<{ 
-  id: string; 
-  title: string;
-  subtitle: string;
-  videoSrc?: string;
-  imageSrc?: string;
-  onOpenDemo: (id: string) => void;
-}> = ({ id, title, subtitle, videoSrc, imageSrc, onOpenDemo }) => (
-  <div 
-    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group"
-    onClick={() => onOpenDemo(id)}
-    data-testid={`demo-card-${id}`}
-  >
-    {videoSrc && (
-      <video 
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-      >
-        <source src={videoSrc} type="video/mp4" />
-      </video>
-    )}
-    
-    {imageSrc && !videoSrc && (
-      <img 
-        src={imageSrc} 
-        alt={title}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-    )}
-    
-    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
-    
-    <div className="absolute bottom-0 left-0 right-0 p-4">
-      <div className="text-white text-2xl font-light mb-1"
-        style={{ letterSpacing: '0.3em' }}
-      >
-        {title}
-      </div>
-      <div className="text-white/60 text-xs uppercase tracking-wider">
-        {subtitle}
-      </div>
-    </div>
-  </div>
-);
-
-// Stat Card Component
-const StatCard: React.FC<{ title: string; subtitle: string }> = ({ title, subtitle }) => (
-  <div className="relative h-full rounded-2xl overflow-hidden backdrop-blur-3xl"
-    style={{
-      background: 'rgba(10, 10, 10, 0.9)',
-      border: '2px solid rgba(255, 255, 255, 0.15)'
-    }}
-    data-testid={`stat-card-${subtitle.toLowerCase()}`}
-  >
-    <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-      <div className="text-white text-4xl font-black mb-2"
-        style={{ letterSpacing: '0.05em' }}
-      >
-        {title}
-      </div>
-      <div className="text-white/50 text-xs uppercase tracking-widest font-bold">
-        {subtitle}
-      </div>
-    </div>
-  </div>
-);
-
-// AI Assistant Card Component
-const AIAssistantCardPreview: React.FC = () => (
-  <div className="relative h-full rounded-2xl overflow-hidden backdrop-blur-3xl"
-    style={{
-      background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)',
-      border: '2px solid rgba(59, 130, 246, 0.2)'
-    }}
-    data-testid="ai-assistant-card"
-  >
-    <div className="absolute inset-0 flex items-center justify-center p-6">
-      <div className="text-center">
-        <div className="text-4xl mb-3">🤖</div>
-        <div className="text-white text-lg font-bold mb-2 uppercase tracking-wider">
-          AI Ассистент
-        </div>
-        <div className="text-white/60 text-sm">
-          24/7 поддержка и консультации
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
-  const { hapticFeedback } = useTelegram();
-  const trackInteraction = useTrackInteraction();
-  const [showDecorations, setShowDecorations] = useState(false);
-  
-  // Load decorative elements after initial render
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShowDecorations(true);
-    }, 100);
+      setIsExpanded(true);
+      setTimeout(() => setShowContent(true), 300);
+    }, 500);
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
-      {/* Mobile Container */}
-      <div className="max-w-md mx-auto min-h-screen p-4 relative z-10">
-        
-        {/* Premium Dark Minimal Hero Section */}
-        <div className="relative py-12 mb-12 overflow-hidden">
-          
-          {/* Main Container */}
-          <div className="space-y-6">
-            
-            {/* Premium Minimal Hero Block with Video */}
-            <div className="relative rounded-2xl overflow-hidden"
+    <motion.div
+      initial={{ width: 120, height: 40, borderRadius: 40 }}
+      animate={{ 
+        width: isExpanded ? '100%' : 120,
+        height: isExpanded ? 200 : 40,
+        borderRadius: isExpanded ? 40 : 40
+      }}
+      transition={{ 
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+        mass: 0.8
+      }}
+      className="mx-auto mb-8 overflow-hidden relative"
+      style={{
+        background: 'linear-gradient(135deg, #0A0A0B 0%, #1A1A1E 100%)',
+        boxShadow: '0 20px 60px rgba(16, 185, 129, 0.3), 0 0 80px rgba(16, 185, 129, 0.1)',
+      }}
+    >
+      <AnimatePresence>
+        {showContent && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="p-8 h-full flex flex-col justify-center items-center text-center"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ 
+                type: 'spring',
+                stiffness: 400,
+                damping: 15
+              }}
+              className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-4"
               style={{
-                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)'
+                boxShadow: '0 8px 32px rgba(16, 185, 129, 0.4)'
               }}
             >
-              {/* Inner Block */}
-              <div className="relative rounded-2xl overflow-hidden"
-                style={{
-                  background: '#000000'
-                }}
-              >
-                {/* Background Video */}
-                <LazyVideo
-                  src={heroVideo}
-                  className="absolute inset-0 w-full h-full object-cover opacity-50"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="none"
-                />
-                
-                {/* Gradient Overlay for Readability */}
-                <div className="absolute inset-0"
-                  style={{
-                    background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.7) 100%)'
-                  }}
-                ></div>
-                
-                {/* Subtle Top Glow */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px]"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
-                    boxShadow: '0 0 20px rgba(255, 255, 255, 0.1)'
-                  }}
-                />
-              
-              {/* Content - Oldschool Premium Minimal */}
-              <div className="relative px-8 py-16 text-center">
-                
-                {/* Top Decorative Line */}
-                <div className="flex items-center justify-center gap-3 mb-10">
-                  <div className="w-8 h-[1px] bg-white/20"></div>
-                  <div className="text-white/30 text-[9px] tracking-[0.3em] font-light">EST. 2024</div>
-                  <div className="w-8 h-[1px] bg-white/20"></div>
-                </div>
-                
-                {/* Main Headline - Oldschool Typography */}
-                <div className="mb-8">
-                  <div className="text-white/40 text-[11px] tracking-[0.4em] font-light mb-4">
-                    ПРЕМИУМ РЕШЕНИЕ
-                  </div>
-                  
-                  <h1 className="text-5xl font-light tracking-[0.15em] mb-3"
-                    style={{
-                      color: '#FFFFFF',
-                      fontFamily: 'serif',
-                      textTransform: 'uppercase'
-                    }}
-                  >
-                    Telegram
-                  </h1>
-                  
-                  <div className="text-lg font-light tracking-[0.25em] text-white/60 mb-6">
-                    MINI APPLICATIONS
-                  </div>
-                  
-                  {/* Classic Separator */}
-                  <div className="flex items-center justify-center gap-2 mb-6">
-                    <div className="w-3 h-3 border border-white/20 rotate-45"></div>
-                    <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                    <div className="w-3 h-3 border border-white/20 rotate-45"></div>
-                  </div>
-                </div>
-                
-                {/* Tagline - Classic Style */}
-                <div className="space-y-3 mb-10">
-                  <p className="text-[10px] tracking-[0.3em] font-light text-white/50">
-                    ЗАПУСК ЗА 24 ЧАСА
-                  </p>
-                  <p className="text-xs tracking-[0.2em] font-light text-white/60">
-                    БЕЗ КОДА • ПРЕМИУМ КАЧЕСТВО
-                  </p>
-                </div>
-                
-                {/* Bottom Decorative Element */}
-                <div className="flex items-center justify-center gap-4">
-                  <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-white/20"></div>
-                  <div className="w-1 h-1 bg-white/30 rounded-full"></div>
-                  <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-white/20"></div>
-                </div>
-              </div>
-              </div>
-            </div>
+              <Sparkles className="w-8 h-8 text-white" />
+            </motion.div>
 
-            {/* Section Header */}
-            <div className="mb-6 text-center">
-              <h2 className="text-[1.5rem] font-sans font-black uppercase tracking-wider"
-                style={{
-                  color: '#FFFFFF',
-                  letterSpacing: '0.1em'
-                }}
-              >
-                БИЗНЕС-ПРИЛОЖЕНИЯ
-              </h2>
-            </div>
+            <h1 className="text-5xl font-black tracking-tight text-white mb-2">
+              Showcase
+            </h1>
+            
+            <p className="text-white/60 text-sm font-semibold tracking-wide">
+              ПРЕМИУМ ПРИЛОЖЕНИЯ 2025
+            </p>
 
-            {/* Bento Grid Layout */}
-            <div className="grid grid-cols-12 gap-4">
-              
-              {/* Hero - большая плитка */}
-              <div className="col-span-12 md:col-span-8 row-span-2 h-[500px]">
-                <VideoHeroCard onOpenDemo={onOpenDemo} />
-              </div>
-              
-              {/* Средние плитки */}
-              <div className="col-span-6 md:col-span-4 h-[240px]">
-                <SneakerDemoCard onOpenDemo={onOpenDemo} />
-              </div>
-              <div className="col-span-6 md:col-span-4 h-[240px]">
-                <WatchesDemoCard onOpenDemo={onOpenDemo} />
-              </div>
-              
-              {/* Futuristic Fashion Collection - 5 новых приложений */}
-              <div className="col-span-6 md:col-span-4 h-[300px]">
-                <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
-                  onClick={() => onOpenDemo('futuristic-fashion-1')}
-                >
-                  <img
-                    src="/attached_assets/stock_images/futuristic_techwear__e958e42c.jpg"
-                    alt="Rascal"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a2e2a]/90 via-[#1a2e2a]/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-[#7FB069] text-xs mb-2 font-bold">ФУТУРИСТИКА</div>
-                    <h3 className="text-white text-2xl font-bold mb-1">Rascal®</h3>
-                    <p className="text-white/70 text-sm">Waterproof Fashion</p>
-                  </div>
-                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-green-600 to-emerald-700 text-white text-xs font-bold">
-                    NEW
-                  </div>
-                </div>
-              </div>
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-300"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
 
-              <div className="col-span-6 md:col-span-4 h-[300px]">
-                <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
-                  onClick={() => onOpenDemo('futuristic-fashion-2')}
-                >
-                  <img
-                    src="/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg"
-                    alt="STORE"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-white/60 text-xs mb-2 font-bold">МИНИМАЛИЗМ</div>
-                    <h3 className="text-white text-2xl font-bold mb-1">STORE</h3>
-                    <p className="text-white/70 text-sm">Black Minimal</p>
-                  </div>
-                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-black text-white text-xs font-bold">
-                    PREMIUM
-                  </div>
-                </div>
-              </div>
+const CategoryPills: React.FC<{ 
+  selected: string; 
+  onSelect: (id: string) => void;
+}> = ({ selected, onSelect }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-              <div className="col-span-6 md:col-span-4 h-[300px]">
-                <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
-                  onClick={() => onOpenDemo('futuristic-fashion-3')}
-                >
-                  <img
-                    src="/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg"
-                    alt="lab. SURVIVALIST"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-white/60 text-xs mb-2 font-bold">ПРЕМИУМ</div>
-                    <h3 className="text-white text-2xl font-bold mb-1">lab. SURVIVALIST</h3>
-                    <p className="text-white/70 text-sm">Black & White</p>
-                  </div>
-                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gray-900 text-white text-xs font-bold">
-                    LUXURY
-                  </div>
-                </div>
-              </div>
+  return (
+    <div className="mb-12 -mx-4 px-4 overflow-hidden">
+      <div 
+        ref={scrollRef}
+        className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
+        {categories.map((category, index) => {
+          const Icon = category.icon;
+          const isSelected = selected === category.id;
+          
+          return (
+            <motion.button
+              key={category.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              onClick={() => onSelect(category.id)}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-6 py-3 rounded-full whitespace-nowrap transition-all duration-500"
+              style={{
+                background: isSelected 
+                  ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+                  : 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
+                border: isSelected 
+                  ? '2px solid rgba(16, 185, 129, 0.5)'
+                  : '2px solid rgba(255, 255, 255, 0.1)',
+                boxShadow: isSelected
+                  ? '0 8px 32px rgba(16, 185, 129, 0.3)'
+                  : '0 4px 16px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <Icon className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-white/60'}`} />
+              <span className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-white/60'}`}>
+                {category.label}
+              </span>
+            </motion.button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
-              <div className="col-span-6 md:col-span-6 h-[300px]">
-                <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
-                  onClick={() => onOpenDemo('futuristic-fashion-4')}
-                >
-                  <img
-                    src="/attached_assets/stock_images/futuristic_fashion_m_4203db1e.jpg"
-                    alt="Nike ACG"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-white/60 text-xs mb-2 font-bold">ИНТЕРАКТИВ</div>
-                    <h3 className="text-white text-2xl font-bold mb-1">Nike ACG</h3>
-                    <p className="text-white/70 text-sm">3D Card Design</p>
-                  </div>
-                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-gray-800 to-black text-white text-xs font-bold">
-                    3D
-                  </div>
-                </div>
-              </div>
+const BlobShape: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    viewBox="0 0 200 200"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <path
+      fill="currentColor"
+      d="M43.3,-76.2C56.8,-68.5,69.2,-58.1,76.9,-44.8C84.6,-31.6,87.5,-15.8,87.1,-0.3C86.7,15.3,83,30.5,75.3,43.7C67.6,56.8,56,67.8,42.7,75.3C29.4,82.8,14.7,86.7,-0.6,87.8C-15.9,88.9,-31.8,87.2,-45.4,79.8C-59,72.4,-70.3,59.3,-77.8,44.4C-85.3,29.5,-89,12.7,-88.6,-3.9C-88.2,-20.5,-83.7,-41,-74.9,-57.2C-66.1,-73.4,-53,-85.3,-38.2,-92.7C-23.4,-100.1,-7,-103,7.8,-104.8C22.6,-106.6,45.2,-107.3,43.3,-76.2Z"
+      transform="translate(100 100)"
+    />
+  </svg>
+);
 
-              <div className="col-span-6 md:col-span-6 h-[300px]">
-                <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
-                  onClick={() => onOpenDemo('futuristic-fashion-5')}
-                >
-                  <img
-                    src="/attached_assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg"
-                    alt="NEWWAVE"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-900/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-purple-400 text-xs mb-2 font-bold">ТОП-1</div>
-                    <h3 className="text-white text-2xl font-bold mb-1">NEWWAVE</h3>
-                    <p className="text-white/70 text-sm">Purple Gradient Tech</p>
-                  </div>
-                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold">
-                    TOP
-                  </div>
-                </div>
-              </div>
-            </div>
+const LargeAppCard: React.FC<{
+  app: typeof demoApps[0];
+  onOpen: () => void;
+  index: number;
+}> = ({ app, onOpen, index }) => {
+  const { hapticFeedback } = useTelegram();
+  const ref = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  const rotateX = useSpring(useTransform(mouseY, [-100, 100], [5, -5]), {
+    stiffness: 400,
+    damping: 30
+  });
+  const rotateY = useSpring(useTransform(mouseX, [-100, 100], [-5, 5]), {
+    stiffness: 400,
+    damping: 30
+  });
 
-          </div>
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    mouseX.set(e.clientX - centerX);
+    mouseY.set(e.clientY - centerY);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ 
+        delay: index * 0.1,
+        type: 'spring',
+        stiffness: 200,
+        damping: 20
+      }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={() => {
+        hapticFeedback?.medium();
+        onOpen();
+      }}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: 'preserve-3d',
+      }}
+      className="col-span-2 row-span-2 rounded-[40px] overflow-hidden cursor-pointer relative group"
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border-2 border-white/20" />
+      
+      <div className="absolute inset-0 overflow-hidden">
+        <img 
+          src={app.image} 
+          alt={app.title}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+      </div>
+
+      <motion.div
+        className="absolute -top-20 -right-20 w-64 h-64 text-emerald-500/10"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+      >
+        <BlobShape className="w-full h-full" />
+      </motion.div>
+
+      <div className="absolute inset-0 p-8 flex flex-col justify-between z-10">
+        <div className="flex items-start justify-between">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.1 + 0.2 }}
+            className="px-4 py-2 rounded-full text-xs font-black tracking-wide"
+            style={{
+              background: 'rgba(16, 185, 129, 0.9)',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '0 4px 24px rgba(16, 185, 129, 0.4)',
+            }}
+          >
+            {app.badge || 'NEW'}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 + 0.3 }}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-xl"
+          >
+            <Heart className="w-4 h-4 text-white/60" />
+            <span className="text-white font-bold text-sm">{app.likes}</span>
+          </motion.div>
         </div>
 
-        {/* Services Grid */}
-        <MotionStagger className="grid grid-cols-2 gap-4 mt-6 px-4">
+        <div>
+          <motion.h3 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 + 0.4 }}
+            className="text-6xl font-black text-white mb-2 tracking-tight leading-none"
+          >
+            {app.title}
+          </motion.h3>
           
-          {/* Main Services Card - Premium 2025 */}
-          <MotionBox variant="fadeInScale">
-            <HoverScale scale={1.02}>
-              <div 
-                className="col-span-2 relative rounded-3xl p-6 cursor-pointer overflow-hidden group"
-                style={{
-                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
-                }}
-                onClick={() => onNavigate('projects')}
-                data-testid="card-main-services"
-              >
-            {/* Animated Gradient Overlay */}
-            <div className="absolute inset-0 opacity-20"
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 + 0.5 }}
+            className="text-white/70 text-lg font-semibold mb-4"
+          >
+            {app.description}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 + 0.6 }}
+            className="flex items-center gap-2 text-emerald-400 group-hover:gap-4 transition-all duration-500"
+          >
+            <span className="font-black text-sm tracking-wide">ОТКРЫТЬ</span>
+            <ArrowRight className="w-5 h-5" />
+          </motion.div>
+        </div>
+      </div>
+
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: 'radial-gradient(circle at center, rgba(16, 185, 129, 0.1) 0%, transparent 70%)',
+        }}
+      />
+    </motion.div>
+  );
+};
+
+const SmallAppCard: React.FC<{
+  app: typeof demoApps[0];
+  onOpen: () => void;
+  index: number;
+}> = ({ app, onOpen, index }) => {
+  const { hapticFeedback } = useTelegram();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ 
+        delay: index * 0.08,
+        type: 'spring',
+        stiffness: 200,
+        damping: 20
+      }}
+      whileHover={{ 
+        scale: 1.05,
+        rotate: 1,
+        transition: { type: 'spring', stiffness: 400, damping: 15 }
+      }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => {
+        hapticFeedback?.impactOccurred('light');
+        onOpen();
+      }}
+      className="rounded-[32px] overflow-hidden cursor-pointer relative group"
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border-2 border-white/20" />
+      
+      <div className="absolute inset-0 overflow-hidden">
+        <img 
+          src={app.image} 
+          alt={app.title}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+      </div>
+
+      <div className="relative h-48 p-6 flex flex-col justify-between z-10">
+        <div className="flex items-center justify-between">
+          {app.badge && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.08 + 0.2 }}
+              className="w-2 h-2 rounded-full bg-emerald-400"
               style={{
-                background: 'radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.4) 0%, transparent 70%)',
-                animation: 'float 6s ease-in-out infinite'
+                boxShadow: '0 0 16px rgba(16, 185, 129, 0.8)'
               }}
             />
+          )}
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: index * 0.08 + 0.3 }}
+            className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/10 backdrop-blur-xl ml-auto"
+          >
+            <Star className="w-3 h-3 text-emerald-400 fill-emerald-400" />
+            <span className="text-white text-xs font-bold">{app.likes}</span>
+          </motion.div>
+        </div>
+
+        <div>
+          <motion.h4 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.08 + 0.4 }}
+            className="text-2xl font-black text-white mb-1 tracking-tight"
+          >
+            {app.title}
+          </motion.h4>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.08 + 0.5 }}
+            className="text-white/60 text-xs font-semibold truncate"
+          >
+            {app.category}
+          </motion.p>
+        </div>
+      </div>
+
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: 'radial-gradient(circle at center, rgba(16, 185, 129, 0.15) 0%, transparent 60%)',
+        }}
+      />
+    </motion.div>
+  );
+};
+
+const BentoGrid: React.FC<{
+  apps: typeof demoApps;
+  onOpenDemo: (id: string) => void;
+}> = ({ apps, onOpenDemo }) => {
+  const featuredApps = apps.slice(0, 2);
+  const smallApps = apps.slice(2, 6);
+
+  return (
+    <div className="mb-16">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <h2 className="text-5xl font-black text-white mb-2 tracking-tight">
+          Избранное
+        </h2>
+        <p className="text-white/60 font-semibold">
+          Лучшие приложения недели
+        </p>
+      </motion.div>
+
+      <div className="grid grid-cols-2 gap-6 mb-6">
+        {featuredApps.map((app, index) => (
+          <LargeAppCard
+            key={app.id}
+            app={app}
+            onOpen={() => onOpenDemo(app.id)}
+            index={index}
+          />
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-6">
+        {smallApps.map((app, index) => (
+          <SmallAppCard
+            key={app.id}
+            app={app}
+            onOpen={() => onOpenDemo(app.id)}
+            index={index + 2}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const FeaturedSection: React.FC<{
+  apps: typeof demoApps;
+  onOpenDemo: (id: string) => void;
+}> = ({ apps, onOpenDemo }) => {
+  const { hapticFeedback } = useTelegram();
+  const remainingApps = apps.slice(6, 10);
+
+  return (
+    <div className="mb-16">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mb-8"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center"
+            style={{
+              boxShadow: '0 8px 32px rgba(16, 185, 129, 0.4)'
+            }}
+          >
+            <TrendingUp className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-4xl font-black text-white tracking-tight">
+              Популярное
+            </h2>
+            <p className="text-white/60 font-semibold text-sm">
+              Тренды этого месяца
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="grid gap-6">
+        {remainingApps.map((app, index) => (
+          <motion.div
+            key={app.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ 
+              delay: index * 0.1,
+              type: 'spring',
+              stiffness: 200,
+              damping: 25
+            }}
+            whileHover={{ 
+              x: 8,
+              transition: { type: 'spring', stiffness: 400, damping: 20 }
+            }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              hapticFeedback?.impactOccurred('light');
+              onOpenDemo(app.id);
+            }}
+            className="rounded-[32px] overflow-hidden cursor-pointer relative group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-2xl border-2 border-white/20" />
             
-            {/* Top Left Icon with Glow */}
-            <div className="absolute top-4 left-4 z-10">
-              <div className="w-9 h-9 text-black"
-                style={{
-                  filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))'
-                }}
-              >
-                <Star className="w-full h-full" fill="currentColor" />
+            <div className="relative p-6 flex items-center gap-6">
+              <div className="relative w-20 h-20 rounded-[24px] overflow-hidden flex-shrink-0">
+                <img 
+                  src={app.image} 
+                  alt={app.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent" />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <h4 className="text-2xl font-black text-white mb-1 tracking-tight truncate">
+                  {app.title}
+                </h4>
+                <p className="text-white/60 text-sm font-semibold truncate">
+                  {app.description}
+                </p>
+              </div>
+
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-xl">
+                  <Heart className="w-4 h-4 text-emerald-400" />
+                  <span className="text-white font-bold text-sm">{app.likes}</span>
+                </div>
+                
+                <motion.div
+                  className="text-emerald-400"
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ 
+                    repeat: Infinity,
+                    duration: 1.5,
+                    ease: 'easeInOut'
+                  }}
+                >
+                  <ArrowRight className="w-5 h-5" />
+                </motion.div>
               </div>
             </div>
-            
-            {/* Large Number with Shadow */}
-            <div className="relative text-black text-[96px] font-black leading-none mb-2 tracking-tighter"
-              style={{
-                textShadow: '2px 2px 0px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              4
-            </div>
-            
-            <div className="relative text-black font-black text-2xl mb-1 tracking-tight">
-              SERVICES
-            </div>
-            
-            <div className="relative text-black/70 text-sm font-medium">
-              Готовые решения для бизнеса
-            </div>
-            
-            {/* Agency Label with Badge */}
-            <div className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full"
-              style={{
-                background: 'rgba(0, 0, 0, 0.2)',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              <span className="text-white text-xs font-bold tracking-wide whitespace-nowrap">
-                WEB4TG.AGENCY
-              </span>
-            </div>
-          </div>
-            </HoverScale>
-          </MotionBox>
 
-          {/* Service Card 1 - Telegram Apps (Premium Style) */}
-          <MotionBox variant="fadeInUp">
-            <HoverScale scale={1.05}>
-              <div 
-                className="relative rounded-3xl p-4 cursor-pointer overflow-hidden group"
-                style={{
-                  background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
-                  boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3)'
-                }}
-                onClick={() => onOpenDemo('clothing-store')}
-                data-testid="card-telegram-apps"
-              >
-            {/* Shimmer Effect */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500"
+            <div 
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
               style={{
-                background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%)',
-                backgroundSize: '200% 200%',
-                animation: 'shimmerWave 3s ease-in-out infinite'
+                background: 'linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 50%)',
               }}
             />
-            
-            {/* Remote Label */}
-            <div className="absolute top-3 right-3 px-2 py-1 rounded-full"
-              style={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              <span className="text-white text-[10px] font-bold tracking-wide">УДАЛЕННО</span>
-            </div>
-            
-            {/* Card Number */}
-            <div className="text-black text-3xl font-thin mb-2" style={{fontFamily: 'Inter, sans-serif', letterSpacing: '3px'}}>1/4</div>
-            
-            {/* Icon */}
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
-              <Smartphone className="w-5 h-5" style={{color: '#10B981'}} />
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-black text-lg font-bold leading-tight">
-                Telegram-приложения под ключ
-              </h3>
-              <p className="text-black/70 text-xs leading-tight mb-2">
-                Запуск за 24 часа. Все инструменты для продаж и клиентов
-              </p>
-              <p className="text-black/60 text-sm font-medium">
-                ПО ПРЕДОПЛАТЕ
-              </p>
-            </div>
-          </div>
-            </HoverScale>
-          </MotionBox>
-
-          {/* Service Card 2 - E-commerce */}
-          <MotionBox variant="fadeInUp" delay={0.1}>
-            <HoverScale scale={1.05}>
-              <div 
-                className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-4 cursor-pointer"
-            onClick={() => onOpenDemo('electronics')}
-          >
-            {/* Remote Label */}
-            <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
-              REMOTE
-            </div>
-            
-            {/* Card Number */}
-            <div className="text-white text-2xl font-black mb-2">2/4</div>
-            
-            {/* Icon */}
-            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
-              <ShoppingCart className="w-5 h-5 text-white" />
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-white text-lg font-bold leading-tight">
-                E-COMMERCE SOLUTIONS
-              </h3>
-              <p className="text-white/70 text-xs leading-tight mb-2">
-                Полнофункциональные платформы электронной коммерции
-              </p>
-              <p className="text-white/60 text-sm font-medium">
-                FULLTIME
-              </p>
-            </div>
-          </div>
-            </HoverScale>
-          </MotionBox>
-
-          {/* Service Card 3 - Automation */}
-          <MotionBox variant="fadeInUp" delay={0.15}>
-            <HoverScale scale={1.05}>
-              <div 
-                className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-4 cursor-pointer"
-                onClick={() => onOpenDemo('beauty')}
-              >
-            {/* Remote Label */}
-            <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
-              REMOTE
-            </div>
-            
-            {/* Card Number */}
-            <div className="text-white text-2xl font-black mb-2">3/4</div>
-            
-            {/* Icon */}
-            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
-              <Code className="w-5 h-5 text-white" />
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-white text-lg font-bold leading-tight">
-                BUSINESS AUTOMATION
-              </h3>
-              <p className="text-white/70 text-xs leading-tight mb-2">
-                Умные боты и системы для оптимизации работы
-              </p>
-              <p className="text-white/60 text-sm font-medium">
-                PARTTIME
-              </p>
-            </div>
-          </div>
-            </HoverScale>
-          </MotionBox>
-
-          {/* Portfolio Card */}
-          <MotionBox variant="fadeInUp" delay={0.2}>
-            <HoverScale scale={1.05}>
-              <div 
-                className="relative rounded-3xl p-4 cursor-pointer"
-                style={{backgroundColor: '#10B981'}}
-                onClick={() => onNavigate('projects')}
-              >
-            {/* Remote Label */}
-            <div className="absolute top-3 right-3 bg-black/20 text-black text-xs px-2 py-1 rounded-full font-medium">
-              УДАЛЕННО
-            </div>
-            
-            {/* Card Number */}
-            <div className="text-black text-3xl font-thin mb-2" style={{fontFamily: 'Inter, sans-serif', letterSpacing: '3px'}}>4/4</div>
-            
-            {/* Icon */}
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
-              <Users className="w-5 h-5" style={{color: '#10B981'}} />
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-black text-lg font-bold leading-tight">
-                ПОРТФОЛИО И КЕЙСЫ
-              </h3>
-              <p className="text-black/70 text-xs leading-tight mb-2">
-                Успешные проекты и практические решения для бизнеса
-              </p>
-              <p className="text-black/60 text-sm font-medium">
-                ДОСТУПНО
-              </p>
-            </div>
-          </div>
-            </HoverScale>
-          </MotionBox>
-
-        </MotionStagger>
-        
+          </motion.div>
+        ))}
       </div>
-      
+    </div>
+  );
+};
+
+const StatsSection: React.FC = () => {
+  const stats = [
+    { label: 'Приложений', value: '100+', icon: Grid3x3 },
+    { label: 'Скачиваний', value: '1M+', icon: TrendingUp },
+    { label: 'Категорий', value: '12', icon: Layers },
+    { label: 'Рейтинг', value: '4.9', icon: Star },
+  ];
+
+  return (
+    <div className="mb-16">
+      <div className="grid grid-cols-2 gap-6">
+        {stats.map((stat, index) => {
+          const Icon = stat.icon;
+          
+          return (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ 
+                delay: index * 0.1,
+                type: 'spring',
+                stiffness: 200,
+                damping: 20
+              }}
+              whileHover={{ 
+                scale: 1.05,
+                rotate: index % 2 === 0 ? 2 : -2,
+                transition: { type: 'spring', stiffness: 400, damping: 15 }
+              }}
+              className="rounded-[32px] overflow-hidden relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border-2 border-white/20" />
+              
+              <motion.div
+                className="absolute -bottom-10 -right-10 w-32 h-32 text-emerald-500/5"
+                animate={{ rotate: index % 2 === 0 ? 360 : -360 }}
+                transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+              >
+                <BlobShape className="w-full h-full" />
+              </motion.div>
+
+              <div className="relative p-6 text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ 
+                    delay: index * 0.1 + 0.2,
+                    type: 'spring',
+                    stiffness: 400,
+                    damping: 15
+                  }}
+                  className="w-12 h-12 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center"
+                >
+                  <Icon className="w-6 h-6 text-emerald-400" />
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 + 0.3 }}
+                  className="text-4xl font-black text-white mb-1 tracking-tight"
+                >
+                  {stat.value}
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 + 0.4 }}
+                  className="text-white/60 text-sm font-semibold"
+                >
+                  {stat.label}
+                </motion.div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const CTASection: React.FC<{ onNavigate: (section: string) => void }> = ({ onNavigate }) => {
+  const { hapticFeedback } = useTelegram();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.5 }}
+      className="mb-24"
+    >
+      <div className="rounded-[40px] overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-emerald-800" />
+        
+        <motion.div
+          className="absolute -top-20 -left-20 w-64 h-64 text-white/10"
+          animate={{ rotate: 360, scale: [1, 1.2, 1] }}
+          transition={{ 
+            rotate: { duration: 30, repeat: Infinity, ease: 'linear' },
+            scale: { duration: 8, repeat: Infinity, ease: 'easeInOut' }
+          }}
+        >
+          <BlobShape className="w-full h-full" />
+        </motion.div>
+
+        <motion.div
+          className="absolute -bottom-20 -right-20 w-64 h-64 text-white/10"
+          animate={{ rotate: -360, scale: [1, 1.1, 1] }}
+          transition={{ 
+            rotate: { duration: 25, repeat: Infinity, ease: 'linear' },
+            scale: { duration: 6, repeat: Infinity, ease: 'easeInOut' }
+          }}
+        >
+          <BlobShape className="w-full h-full" />
+        </motion.div>
+
+        <div className="relative p-12 text-center">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ 
+              type: 'spring',
+              stiffness: 300,
+              damping: 20,
+              delay: 0.6
+            }}
+            className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-white/20 backdrop-blur-xl flex items-center justify-center"
+            style={{
+              boxShadow: '0 8px 32px rgba(255, 255, 255, 0.2)'
+            }}
+          >
+            <Crown className="w-10 h-10 text-white" />
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="text-5xl font-black text-white mb-4 tracking-tight"
+          >
+            Создай своё
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="text-white/90 text-lg font-semibold mb-8 max-w-md mx-auto"
+          >
+            Начни создавать своё приложение с премиум дизайном уже сегодня
+          </motion.p>
+
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              hapticFeedback?.impactOccurred('heavy');
+              onNavigate('constructor');
+            }}
+            className="px-12 py-5 rounded-full bg-white text-emerald-600 font-black text-lg tracking-wide shadow-2xl shadow-white/30 hover:shadow-white/50 transition-all duration-500"
+          >
+            НАЧАТЬ СЕЙЧАС
+          </motion.button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end']
+  });
+
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+
+  const filteredApps = selectedCategory === 'all' 
+    ? demoApps 
+    : demoApps.filter(app => {
+        if (selectedCategory === 'premium') return app.badge;
+        if (selectedCategory === 'ecommerce') return app.category.includes('коммерц');
+        if (selectedCategory === 'beauty') return app.category.includes('Красота');
+        if (selectedCategory === 'food') return app.category.includes('рестор') || app.category.includes('Еда');
+        if (selectedCategory === 'tech') return app.category.includes('коммерц');
+        return true;
+      });
+
+  return (
+    <div 
+      ref={containerRef}
+      className="min-h-screen relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(180deg, #0A0A0B 0%, #1A1A1E 100%)',
+      }}
+    >
+      <motion.div
+        className="fixed inset-0 opacity-30 pointer-events-none"
+        style={{
+          y: backgroundY,
+          backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%)',
+          backgroundSize: '100% 100%',
+        }}
+      />
+
+      <div className="fixed top-0 left-0 w-full h-96 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
+        }}
+      />
+
+      <div className="relative z-10 max-w-6xl mx-auto px-6 py-8">
+        <DynamicIslandHero onExpand={() => {}} />
+        
+        <CategoryPills 
+          selected={selectedCategory}
+          onSelect={setSelectedCategory}
+        />
+
+        <BentoGrid apps={filteredApps} onOpenDemo={onOpenDemo} />
+
+        <StatsSection />
+
+        <FeaturedSection apps={filteredApps} onOpenDemo={onOpenDemo} />
+
+        <CTASection onNavigate={onNavigate} />
+      </div>
+
+      <div className="fixed bottom-0 left-0 w-full h-96 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle at 50% 100%, rgba(16, 185, 129, 0.1) 0%, transparent 70%)',
+        }}
+      />
     </div>
   );
 }
-
-// Memoize the component for better performance
-export default React.memo(ShowcasePage);
