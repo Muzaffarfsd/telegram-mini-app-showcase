@@ -36,7 +36,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
 
   if (selectedProduct) {
     return (
-      <div className="h-full bg-black text-white p-8 overflow-auto">
+      <div className="min-h-screen bg-black text-white p-8 overflow-auto">
         <button
           onClick={() => setSelectedProduct(null)}
           className="mb-6 text-white/60 hover:text-white transition-colors"
@@ -106,7 +106,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
   }
 
   return (
-    <div className="h-full bg-black text-white p-8 overflow-auto">
+    <div className="min-h-screen bg-black text-white p-8 overflow-auto">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <Grid className="w-8 h-8" style={{ color: '#FFD700' }} />

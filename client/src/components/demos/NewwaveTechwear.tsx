@@ -14,7 +14,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
 
   if (screen === 'login') {
     return (
-      <div className="h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-8">
         <div className="max-w-4xl w-full grid grid-cols-2 gap-12">
           <div className="relative h-[600px] rounded-3xl overflow-hidden shadow-2xl">
             <img
@@ -80,7 +80,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
 
   if (screen === 'dashboard') {
     return (
-      <div className="h-full overflow-auto" style={{ backgroundColor: '#3D2952' }}>
+      <div className="min-h-screen overflow-auto" style={{ backgroundColor: '#3D2952' }}>
         <div className="p-8">
           <div className="mb-8">
             <h1 className="text-4xl font-black text-white mb-2">Dashboard</h1>
@@ -158,7 +158,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
   }
 
   return (
-    <div className="h-full overflow-auto bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen overflow-auto bg-gradient-to-br from-gray-50 to-gray-100">
       <button
         onClick={() => setScreen('dashboard')}
         className="p-6 text-gray-600 hover:text-gray-800"

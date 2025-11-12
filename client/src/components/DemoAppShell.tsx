@@ -103,7 +103,14 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     }
 
     return (
-      <Suspense fallback={null}>
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-gray-300 border-t-gray-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Загрузка...</p>
+          </div>
+        </div>
+      }>
         <DemoComponent activeTab={activeTab} />
       </Suspense>
     );

@@ -64,7 +64,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
   const card = cards[currentCard];
 
   return (
-    <div className="h-full relative overflow-hidden" style={{ backgroundColor: card.bgColor }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: card.bgColor }}>
       <AnimatePresence mode="wait">
         <motion.div
           key={currentCard}

@@ -12,7 +12,7 @@ function RascalStore({ activeTab }: RascalStoreProps) {
 
   if (screen === 'home') {
     return (
-      <div className="h-full relative overflow-hidden" style={{ backgroundColor: '#1a2e2a' }}>
+      <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#1a2e2a' }}>
         <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -83,7 +83,7 @@ function RascalStore({ activeTab }: RascalStoreProps) {
   }
 
   return (
-    <div className="h-full relative overflow-hidden" style={{ backgroundColor: '#1a2e2a' }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#1a2e2a' }}>
       <div className="absolute inset-0 flex flex-col items-center justify-center p-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}

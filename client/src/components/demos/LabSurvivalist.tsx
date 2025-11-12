@@ -35,7 +35,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
 
   if (screen === 'dark') {
     return (
-      <div className="h-full bg-black text-white relative overflow-hidden">
+      <div className="min-h-screen bg-black text-white relative overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -86,7 +86,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
   }
 
   return (
-    <div className="h-full bg-white text-black relative overflow-hidden">
+    <div className="min-h-screen bg-white text-black relative overflow-hidden">
       <div className="p-12">
         <div className="mb-12">
           <h1 className="text-6xl font-black tracking-tighter mb-2">LOOK BOOK</h1>
