@@ -152,6 +152,7 @@ export default defineConfig({
       clientPort: 443,
       overlay: true
     },
+    allowedHosts: true,
     fs: {
       strict: true,
       deny: ["**/.*"],
