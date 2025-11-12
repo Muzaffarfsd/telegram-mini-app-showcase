@@ -48,7 +48,7 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 # Recent Changes
 
 **Date**: November 12, 2025
-**Changes**: GitHub import setup + Railway independence + Premium bot redesign + Full DB sync
+**Changes**: 5 Futuristic Fashion Stores + GitHub import setup + Railway independence + Premium bot redesign + Full DB sync
 - Added `allowedHosts: true` to Vite config for Replit proxy support
 - Created .gitignore file for Node.js project
 - Configured development workflow to run on port 5000 with webview
@@ -78,6 +78,16 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
   - ❓ Помощь - /help
 - **Data Security**: All queries filtered by telegramId - zero cross-user data leakage
 - **Auto-onboarding**: New users automatically initialized with referral code, stats, coin balance
+
+**Futuristic Fashion Collection** (5 Premium Unique Stores):
+- **RascalStore** - Nike waterproof jackets with green theme. Dual-screen design: "Hello Pixie" landing with large model photo, and statistics screen with 3D "hello" text and "67% textile reduction" message. Colors: #7FB069, #1a2e2a.
+- **StoreBlack** - Minimalist black store with 3D object grid (Ludens helmets, accessories). Product detail view with thumbnail gallery, quantity selector, and yellow accent pricing (#FFD700). Pure black aesthetic (#000000).
+- **LabSurvivalist** - Black & white survivalist gear store. Dark hero screen with large circular element and model, transitions to white "LOOK BOOK" with horizontal product carousel. Minimalist monochrome design.
+- **NikeACG** - Vertical full-screen card system with 5 unique cards: "ENTER TO FUTURE", "ONE MORE STEP", product showcase cards, and detail card with $799 pricing. Circular navigation and progress indicators. Colors: #2D3748, #FFFFFF.
+- **NewwaveTechwear** - Purple gradient techwear store with three screens: login/signup interface, dashboard with "New Releases" and "Most Viewed" cards, product detail view. Features "CUTTING EDGE PONCHO" with sizing and £5000 price. Colors: #9333EA, #EC4899, #3D2952.
+- All stores use high-quality cyberpunk/techwear imagery from `/attached_assets/stock_images/`
+- Each store has completely unique layout, visual design, and interaction patterns
+- Registered in DemoRegistry as `futuristic-fashion-1` through `futuristic-fashion-5`
 
 ## Deployment Architecture
 - **Development (Replit)**: Dynamic Replit plugins loaded only when NODE_ENV=development && REPL_ID exists
