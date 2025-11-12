@@ -349,7 +349,7 @@ const SmallAppCard: React.FC<{
       }}
       whileTap={{ scale: 0.95 }}
       onClick={() => {
-        hapticFeedback?.impactOccurred('light');
+        hapticFeedback?.light();
         onOpen();
       }}
       className="rounded-[32px] overflow-hidden cursor-pointer relative group"
@@ -520,7 +520,7 @@ const FeaturedSection: React.FC<{
             }}
             whileTap={{ scale: 0.98 }}
             onClick={() => {
-              hapticFeedback?.impactOccurred('light');
+              hapticFeedback?.light();
               onOpenDemo(app.id);
             }}
             className="rounded-[32px] overflow-hidden cursor-pointer relative group"
@@ -740,7 +740,7 @@ const CTASection: React.FC<{ onNavigate: (section: string) => void }> = ({ onNav
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => {
-              hapticFeedback?.impactOccurred('heavy');
+              hapticFeedback?.heavy();
               onNavigate('constructor');
             }}
             className="px-12 py-5 rounded-full bg-white text-emerald-600 font-black text-lg tracking-wide shadow-2xl shadow-white/30 hover:shadow-white/50 transition-all duration-500"
