@@ -22,26 +22,15 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const { hapticFeedback } = useTelegram();
   
-  // Resolve demo ID: first try exact match, then base type fallback (for variants)
-  const resolveDemoId = (id: string): string => {
-    // First try exact match
-    if (isDemoAvailable(id)) {
-      return id;
-    }
-    // Fall back to base type (e.g., 'clothing-store-2' → 'clothing-store')
-    const baseType = id.replace(/-\d+$/, '');
-    if (isDemoAvailable(baseType)) {
-      return baseType;
-    }
-    // Return original if neither found
-    return id;
+  // Extract base app type from ID to support variants (e.g., 'clothing-store-2' → 'clothing-store')
+  const getBaseAppType = (id: string): string => {
+    // Remove variant suffixes (-2, -3, etc.) to get base type
+    return id.replace(/-\d+$/, '');
   };
-
-  const resolvedDemoId = resolveDemoId(demoId);
 
   // Find demo app - first try exact match, then base type fallback
   const demoApp = demoApps.find(app => app.id === demoId) || 
-                  demoApps.find(app => app.id === resolvedDemoId.replace(/-\d+$/, ''));
+                  demoApps.find(app => app.id === getBaseAppType(demoId));
   
   if (!demoApp) {
     return (
@@ -72,14 +61,16 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const DemoLoader = () => null;
 
   const renderDemoContent = () => {
+    const baseAppType = getBaseAppType(demoId);
+    
     // Check if demo is available in registry
-    if (!isDemoAvailable(resolvedDemoId)) {
+    if (!isDemoAvailable(baseAppType)) {
       return (
         <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="bg-gray-100 rounded-3xl p-6 mx-4 text-center">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Демо недоступно</h3>
             <p className="text-sm text-gray-500">
-              Приложение {resolvedDemoId} временно недоступно
+              Приложение {baseAppType} временно недоступно
             </p>
           </div>
         </div>
@@ -87,7 +78,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     }
 
     // Get dynamic component from registry
-    const DemoComponent = getDemoComponent(resolvedDemoId);
+    const DemoComponent = getDemoComponent(baseAppType);
     
     if (!DemoComponent) {
       return (

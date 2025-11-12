@@ -132,26 +132,26 @@ export const demoRegistry: Record<string, DemoComponent> = {
     preload: () => import('./GadgetLab')
   },
   
-  // Futuristic Fashion Collection (5 premium full stores)
+  // Futuristic Fashion Collection (5 premium designs)
   'futuristic-fashion-1': {
-    component: lazy(() => import('./RascalStore')),
-    preload: () => import('./RascalStore')
+    component: lazy(() => import('./FuturisticFashion1')),
+    preload: () => import('./FuturisticFashion1')
   },
   'futuristic-fashion-2': {
-    component: lazy(() => import('./StoreBlack')),
-    preload: () => import('./StoreBlack')
+    component: lazy(() => import('./FuturisticFashion2')),
+    preload: () => import('./FuturisticFashion2')
   },
   'futuristic-fashion-3': {
-    component: lazy(() => import('./LabSurvivalist')),
-    preload: () => import('./LabSurvivalist')
+    component: lazy(() => import('./FuturisticFashion3')),
+    preload: () => import('./FuturisticFashion3')
   },
   'futuristic-fashion-4': {
-    component: lazy(() => import('./NikeACG')),
-    preload: () => import('./NikeACG')
+    component: lazy(() => import('./FuturisticFashion4')),
+    preload: () => import('./FuturisticFashion4')
   },
   'futuristic-fashion-5': {
-    component: lazy(() => import('./NewwaveTechwear')),
-    preload: () => import('./NewwaveTechwear')
+    component: lazy(() => import('./FuturisticFashion5')),
+    preload: () => import('./FuturisticFashion5')
   }
 };
 
