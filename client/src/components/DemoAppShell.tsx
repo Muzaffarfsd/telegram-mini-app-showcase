@@ -61,7 +61,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const DemoLoader = () => null;
 
   const renderDemoContent = () => {
-    const baseAppType = getBaseAppType(demoId);
+    // First try exact ID match, then fallback to base type
+    const exactMatch = isDemoAvailable(demoId);
+    const baseAppType = exactMatch ? demoId : getBaseAppType(demoId);
     
     // Check if demo is available in registry
     if (!isDemoAvailable(baseAppType)) {

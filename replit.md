@@ -79,15 +79,16 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Data Security**: All queries filtered by telegramId - zero cross-user data leakage
 - **Auto-onboarding**: New users automatically initialized with referral code, stats, coin balance
 
-**Futuristic Fashion Collection** (5 Premium Unique Stores):
-- **RascalStore** - Nike waterproof jackets with green theme. Dual-screen design: "Hello Pixie" landing with large model photo, and statistics screen with 3D "hello" text and "67% textile reduction" message. Colors: #7FB069, #1a2e2a.
-- **StoreBlack** - Minimalist black store with 3D object grid (Ludens helmets, accessories). Product detail view with thumbnail gallery, quantity selector, and yellow accent pricing (#FFD700). Pure black aesthetic (#000000).
-- **LabSurvivalist** - Black & white survivalist gear store. Dark hero screen with large circular element and model, transitions to white "LOOK BOOK" with horizontal product carousel. Minimalist monochrome design.
-- **NikeACG** - Vertical full-screen card system with 5 unique cards: "ENTER TO FUTURE", "ONE MORE STEP", product showcase cards, and detail card with $799 pricing. Circular navigation and progress indicators. Colors: #2D3748, #FFFFFF.
-- **NewwaveTechwear** - Purple gradient techwear store with three screens: login/signup interface, dashboard with "New Releases" and "Most Viewed" cards, product detail view. Features "CUTTING EDGE PONCHO" with sizing and £5000 price. Colors: #9333EA, #EC4899, #3D2952.
-- All stores use high-quality cyberpunk/techwear imagery from `/attached_assets/stock_images/`
-- Each store has completely unique layout, visual design, and interaction patterns
+**Futuristic Fashion Collection** (5 Demo Stores - First Version):
+- **FuturisticFashion1** (Rascal®) - Green-themed waterproof jackets store with dual-screen design. Home page with hero image and branding, catalog page with product cards and statistics. Colors: #7FB069, #1a2e2a.
+- **FuturisticFashion2** (STORE) - Minimalist black ecommerce store with product grid, catalog tabs, and detailed product view with size/quantity selectors. Pure black aesthetic with yellow accent (#FFD700).
+- **FuturisticFashion3** (lab. SURVIVALIST) - Black & white survivalist gear store with circular design element. Two-screen flow: dark hero with circular badge, white lookbook with product carousel. Monochrome minimalism.
+- **FuturisticFashion4** (Nike ACG) - Card-based vertical carousel with 3 full-screen cards: "ENTER TO FUTURE", "ONE MORE STEP", product showcases. Swipe navigation with progress dots. Colors: gray/black gradient.
+- **FuturisticFashion5** (NEWWAVE) - Purple gradient techwear store with three-screen flow: login/signup, product dashboard with category cards, detailed product view. Colors: #9333EA, #EC4899.
+- All stores use `@assets/stock_images/` imports for performance
+- Each component uses `min-h-screen` for proper iframe display
 - Registered in DemoRegistry as `futuristic-fashion-1` through `futuristic-fashion-5`
+- DemoAppShell uses exact ID matching before fallback to base type for proper component loading
 
 ## Deployment Architecture
 - **Development (Replit)**: Dynamic Replit plugins loaded only when NODE_ENV=development && REPL_ID exists

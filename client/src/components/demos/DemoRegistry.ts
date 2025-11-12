@@ -133,10 +133,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
   },
   
   // Futuristic Fashion Collection (5 premium designs)
-  'futuristic-fashion': {
-    component: lazy(() => import('./FuturisticFashion1')),
-    preload: () => import('./FuturisticFashion1')
-  },
   'futuristic-fashion-1': {
     component: lazy(() => import('./FuturisticFashion1')),
     preload: () => import('./FuturisticFashion1')
