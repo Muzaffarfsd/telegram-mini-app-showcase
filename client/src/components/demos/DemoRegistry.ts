@@ -130,28 +130,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
   'pc-builds': {
     component: lazy(() => import('./GadgetLab')),
     preload: () => import('./GadgetLab')
-  },
-  
-  // Futuristic Fashion Collection (5 premium full stores)
-  'futuristic-fashion-1': {
-    component: lazy(() => import('./RascalStore')),
-    preload: () => import('./RascalStore')
-  },
-  'futuristic-fashion-2': {
-    component: lazy(() => import('./StoreBlack')),
-    preload: () => import('./StoreBlack')
-  },
-  'futuristic-fashion-3': {
-    component: lazy(() => import('./LabSurvivalist')),
-    preload: () => import('./LabSurvivalist')
-  },
-  'futuristic-fashion-4': {
-    component: lazy(() => import('./NikeACG')),
-    preload: () => import('./NikeACG')
-  },
-  'futuristic-fashion-5': {
-    component: lazy(() => import('./NewwaveTechwear')),
-    preload: () => import('./NewwaveTechwear')
   }
 };
 
