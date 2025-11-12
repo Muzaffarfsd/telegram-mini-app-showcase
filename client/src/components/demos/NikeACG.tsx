@@ -270,7 +270,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
     const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#2D3748';
     
     return (
-      <div className="h-full text-white overflow-auto" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white overflow-auto" style={{ backgroundColor: bgColor }}>
         <div className="absolute top-0 left-0 right-0 z-10 p-6 flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
@@ -377,7 +377,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
   // HOME PAGE
   if (activeTab === 'home') {
     return (
-      <div className="h-full bg-[#2D3748] text-white overflow-auto pb-24">
+      <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-24">
         {/* Hero Section */}
         <div className="relative h-screen">
           <div className="absolute inset-0">
@@ -580,7 +580,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="h-full bg-[#2D3748] text-white overflow-auto pb-24">
+      <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-24">
         <div className="p-6">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -687,7 +687,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     return (
-      <div className="h-full bg-[#2D3748] text-white overflow-auto pb-32">
+      <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-32">
         <div className="p-6">
           <div className="mb-8">
             <div className="text-xs font-bold tracking-[0.3em] text-white/60 mb-1">NIKE ACG</div>
@@ -756,7 +756,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
   // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="h-full bg-[#2D3748] text-white overflow-auto pb-24">
+      <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-24">
         <div className="p-6 bg-black/20 backdrop-blur-xl border-b border-white/10">
           <div className="flex items-center gap-5 mb-8">
             <div className="w-20 h-20 bg-gradient-to-br from-white to-gray-300 rounded-full flex items-center justify-center">

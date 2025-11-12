@@ -312,7 +312,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
     const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#9333EA';
     
     return (
-      <div className="h-full text-white overflow-auto" style={{ 
+      <div className="min-h-screen text-white overflow-auto" style={{ 
         background: `linear-gradient(180deg, ${bgColor} 0%, #3D2952 100%)` 
       }}>
         <div className="absolute top-0 left-0 right-0 z-10 p-6 flex items-center justify-between">
@@ -425,7 +425,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
   // HOME PAGE
   if (activeTab === 'home') {
     return (
-      <div className="h-full text-white overflow-auto pb-24" style={{
+      <div className="min-h-screen text-white overflow-auto pb-24" style={{
         background: 'linear-gradient(180deg, #3D2952 0%, #1A1A1A 100%)'
       }}>
         {/* Header */}
@@ -634,7 +634,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="h-full text-white overflow-auto pb-24" style={{
+      <div className="min-h-screen text-white overflow-auto pb-24" style={{
         background: 'linear-gradient(180deg, #3D2952 0%, #1A1A1A 100%)'
       }}>
         <div className="p-6">
@@ -736,7 +736,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     return (
-      <div className="h-full text-white overflow-auto pb-32" style={{
+      <div className="min-h-screen text-white overflow-auto pb-32" style={{
         background: 'linear-gradient(180deg, #3D2952 0%, #1A1A1A 100%)'
       }}>
         <div className="p-6">
@@ -805,7 +805,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
   // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="h-full text-white overflow-auto pb-24" style={{
+      <div className="min-h-screen text-white overflow-auto pb-24" style={{
         background: 'linear-gradient(180deg, #3D2952 0%, #1A1A1A 100%)'
       }}>
         <div className="p-6 bg-white/5 backdrop-blur-xl border-b border-white/10">
