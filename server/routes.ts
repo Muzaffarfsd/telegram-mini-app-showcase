@@ -138,32 +138,287 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
         
         // Handle different callback actions
-        if (data === 'referral') {
-          await sendPremiumMessage(
-            chatId,
-            `💰 <b>PREMIUM REFERRAL PROGRAM</b>\n\n` +
-            `Earn money by sharing our platform!\n\n` +
-            `<b>YOUR BENEFITS:</b>\n` +
-            `→ 20% from friend's first purchase\n` +
-            `→ 10% lifetime commission\n` +
-            `→ Unlimited referrals\n` +
-            `→ Instant payouts\n\n` +
-            `<i>Open the app to get your unique referral link!</i>`
-          );
+        if (data === 'showcase') {
+          await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: `💎 <b>ПОРТФОЛИО ЭКСКЛЮЗИВНЫХ РЕШЕНИЙ</b>\n\n` +
+                    `<i>Авторские приложения премиум-класса</i>\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `🏆 <b>FASHION & LUXURY</b>\n` +
+                    `Gucci • Nike • Adidas • Premium Brands\n` +
+                    `Индивидуальный дизайн для каждого бренда\n\n` +
+                    `🍾 <b>HOSPITALITY & WELLNESS</b>\n` +
+                    `Рестораны мирового уровня • Spa • Fitness\n` +
+                    `Безупречный пользовательский опыт\n\n` +
+                    `🤖 <b>AI-POWERED SOLUTIONS</b>\n` +
+                    `Умные агенты • Персонализация • Аналитика\n` +
+                    `Технологии завтрашнего дня — сегодня\n\n` +
+                    `🏡 <b>REAL ESTATE & FINTECH</b>\n` +
+                    `Недвижимость премиум-класса • Инвестиции\n` +
+                    `Элитный сервис для элитных клиентов\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `<i>Откройте приложение для полного погружения</i>`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: '🚀 Открыть приложение', web_app: { url: webAppUrl } }],
+                  [
+                    { text: '💰 Рефералы', callback_data: 'referral' },
+                    { text: '🎯 Задания', callback_data: 'tasks' }
+                  ],
+                  [{ text: '🏠 Главное меню', callback_data: 'start' }]
+                ]
+              }
+            })
+          });
+        } else if (data === 'referral') {
+          const telegramIdRef = Number(chatId);
+          const referralStats = await db.select().from(referrals)
+            .where(eq(referrals.referrerTelegramId, telegramIdRef));
+          const totalReferrals = referralStats.length;
+          const totalEarned = referralStats.reduce((sum, ref) => sum + Number(ref.bonusAmount || 0), 0);
+          
+          await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: `🎁 <b>ПАРТНЁРСКАЯ ПРОГРАММА</b>\n\n` +
+                    `<i>Эксклюзивные условия для наших партнёров</i>\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `💰 <b>ВАША СТАТИСТИКА</b>\n` +
+                    `Приглашено: ${totalReferrals} чел.\n` +
+                    `Заработано: ${totalEarned.toFixed(2)} RUB\n\n` +
+                    `💎 <b>ПРЕМИАЛЬНЫЕ УСЛОВИЯ</b>\n` +
+                    `• 20% от первого заказа партнёра\n` +
+                    `• 10% пожизненные отчисления\n` +
+                    `• Безлимитная партнёрская сеть\n` +
+                    `• Моментальные выплаты\n\n` +
+                    `🏆 <b>VIP СТАТУСЫ</b>\n` +
+                    `Bronze: 5+ партнёров → +2% бонус\n` +
+                    `Silver: 20+ партнёров → +5% бонус\n` +
+                    `Gold: 50+ партнёров → +10% бонус\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `<i>Откройте приложение для вашей реферальной ссылки</i>`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: '🚀 Открыть приложение', web_app: { url: webAppUrl } }],
+                  [
+                    { text: '💎 Портфолио', callback_data: 'showcase' },
+                    { text: '🎯 Задания', callback_data: 'tasks' }
+                  ],
+                  [{ text: '🏠 Главное меню', callback_data: 'start' }]
+                ]
+              }
+            })
+          });
         } else if (data === 'tasks') {
-          await sendPremiumMessage(
-            chatId,
-            `🎯 <b>35+ REVENUE TASKS</b>\n\n` +
-            `Complete tasks and earn coins!\n\n` +
-            `<b>TASK CATEGORIES:</b>\n` +
-            `→ Social Media (Follow, Like, Share)\n` +
-            `→ Daily Challenges\n` +
-            `→ Friend Referrals\n` +
-            `→ App Reviews\n` +
-            `→ Video Watches\n\n` +
-            `💎 Coins = Real Money\n` +
-            `<i>Start earning now!</i>`
-          );
+          const telegramIdTasks = Number(chatId);
+          const userStats = await db.select().from(gamificationStats)
+            .where(eq(gamificationStats.telegramId, telegramIdTasks)).limit(1);
+          const coinsDataTasks = await db.select().from(userCoinsBalance)
+            .where(eq(userCoinsBalance.telegramId, telegramIdTasks)).limit(1);
+          const completedTasks = await db.select().from(tasksProgress)
+            .where(and(
+              eq(tasksProgress.telegramId, telegramIdTasks),
+              eq(tasksProgress.completed, true)
+            ));
+          const availableTasks = await db.select().from(dailyTasks)
+            .where(and(
+              eq(dailyTasks.telegramId, telegramIdTasks),
+              eq(dailyTasks.completed, false)
+            ));
+          
+          const coins = coinsDataTasks[0]?.availableCoins || 0;
+          const level = userStats[0]?.level || 1;
+          const streak = coinsDataTasks[0]?.currentStreak || 0;
+          
+          await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: `🎯 <b>ЗАДАНИЯ & ВОЗНАГРАЖДЕНИЯ</b>\n\n` +
+                    `<i>Эксклюзивная система лояльности</i>\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `💎 <b>ВАШ БАЛАНС</b>\n` +
+                    `${coins} монет • Уровень ${level}\n` +
+                    `Серия: ${streak} дней 🔥\n\n` +
+                    `✅ <b>ПРОГРЕСС</b>\n` +
+                    `Выполнено: ${completedTasks.length} заданий\n` +
+                    `Доступно: ${availableTasks.length} новых\n\n` +
+                    `🏆 <b>КАТЕГОРИИ ЗАДАНИЙ</b>\n` +
+                    `• Социальные сети — до 100 монет\n` +
+                    `• Ежедневные миссии — до 250 монет\n` +
+                    `• Партнёрская программа — до 500 монет\n` +
+                    `• Эксклюзивные задания — до 1000 монет\n\n` +
+                    `💰 <b>МОНЕТЫ → РАЗРАБОТКА</b>\n` +
+                    `Используйте монеты для заказа вашего\n` +
+                    `собственного Telegram приложения!\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `<i>Откройте приложение для выполнения заданий</i>`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: '🚀 Открыть приложение', web_app: { url: webAppUrl } }],
+                  [
+                    { text: '💰 Рефералы', callback_data: 'referral' },
+                    { text: '👤 Профиль', callback_data: 'profile' }
+                  ],
+                  [{ text: '🏠 Главное меню', callback_data: 'start' }]
+                ]
+              }
+            })
+          });
+        } else if (data === 'profile') {
+          const telegramIdProfile = Number(chatId);
+          const profileUser = await db.select().from(users)
+            .where(eq(users.telegramId, telegramIdProfile)).limit(1);
+          const profileStats = await db.select().from(gamificationStats)
+            .where(eq(gamificationStats.telegramId, telegramIdProfile)).limit(1);
+          const coinsDataProfile = await db.select().from(userCoinsBalance)
+            .where(eq(userCoinsBalance.telegramId, telegramIdProfile)).limit(1);
+          const profileReferrals = await db.select().from(referrals)
+            .where(eq(referrals.referrerTelegramId, telegramIdProfile));
+          const profileTasks = await db.select().from(tasksProgress)
+            .where(and(
+              eq(tasksProgress.telegramId, telegramIdProfile),
+              eq(tasksProgress.completed, true)
+            ));
+          
+          const userName = profileUser[0]?.firstName || 'Пользователь';
+          const userCoinsProfile = coinsDataProfile[0]?.availableCoins || 0;
+          const userLevelProfile = profileStats[0]?.level || 1;
+          const userXP = profileStats[0]?.xp || 0;
+          const userStreak = coinsDataProfile[0]?.currentStreak || 0;
+          const totalReferralsProfile = profileReferrals.length;
+          const totalTasksProfile = profileTasks.length;
+          
+          await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: `👤 <b>ЛИЧНЫЙ КАБИНЕТ VIP</b>\n\n` +
+                    `<i>Добро пожаловать, ${userName}</i>\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `💎 <b>СТАТУС & ДОСТИЖЕНИЯ</b>\n` +
+                    `Уровень: ${userLevelProfile} ⭐\n` +
+                    `Опыт: ${userXP} XP\n` +
+                    `Баланс: ${userCoinsProfile} монет\n` +
+                    `Серия: ${userStreak} дней подряд 🔥\n\n` +
+                    `📊 <b>СТАТИСТИКА</b>\n` +
+                    `Выполнено заданий: ${totalTasksProfile}\n` +
+                    `Приглашено партнёров: ${totalReferralsProfile}\n` +
+                    `Активность: ${userStreak > 7 ? 'Высокая 🚀' : userStreak > 3 ? 'Средняя 📈' : 'Начальная 🌱'}\n\n` +
+                    `🏆 <b>ВАШИ ПРИВИЛЕГИИ</b>\n` +
+                    `• Доступ к эксклюзивным заданиям\n` +
+                    `• Приоритетная поддержка 24/7\n` +
+                    `• Персональные скидки на разработку\n` +
+                    `• VIP-статус в партнёрской программе\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `<i>Откройте приложение для полной аналитики</i>`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: '🚀 Открыть приложение', web_app: { url: webAppUrl } }],
+                  [
+                    { text: '💰 Рефералы', callback_data: 'referral' },
+                    { text: '🎯 Задания', callback_data: 'tasks' }
+                  ],
+                  [{ text: '🏠 Главное меню', callback_data: 'start' }]
+                ]
+              }
+            })
+          });
+        } else if (data === 'help') {
+          await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: `❓ <b>РУКОВОДСТВО VIP</b>\n\n` +
+                    `<i>Навигация по эксклюзивной платформе</i>\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `🎯 <b>БЫСТРЫЙ СТАРТ</b>\n` +
+                    `1. Откройте приложение через меню\n` +
+                    `2. Изучите 18+ премиум решений\n` +
+                    `3. Выполняйте задания → зарабатывайте\n` +
+                    `4. Делитесь ссылкой → получайте бонусы\n` +
+                    `5. Тратьте монеты на разработку\n\n` +
+                    `💎 <b>КОМАНДЫ ПЛАТФОРМЫ</b>\n` +
+                    `/start — Главное меню\n` +
+                    `/showcase — Портфолио решений\n` +
+                    `/referral — Партнёрская программа\n` +
+                    `/tasks — Задания & награды\n` +
+                    `/profile — Личный кабинет\n` +
+                    `/help — Это руководство\n\n` +
+                    `🏆 <b>VIP ПОДДЕРЖКА 24/7</b>\n` +
+                    `Telegram: @YourSupportBot\n` +
+                    `Приоритетное обслуживание\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `<i>Создано для амбициозных предпринимателей</i>`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: '🚀 Открыть приложение', web_app: { url: webAppUrl } }],
+                  [
+                    { text: '💎 Портфолио', callback_data: 'showcase' },
+                    { text: '👤 Профиль', callback_data: 'profile' }
+                  ],
+                  [{ text: '🏠 Главное меню', callback_data: 'start' }]
+                ]
+              }
+            })
+          });
+        } else if (data === 'start') {
+          // Back to main menu
+          const telegramIdNum = Number(chatId);
+          const stats = await db.select().from(gamificationStats).where(eq(gamificationStats.telegramId, telegramIdNum)).limit(1);
+          const coinsData = await db.select().from(userCoinsBalance).where(eq(userCoinsBalance.telegramId, telegramIdNum)).limit(1);
+          const userCoins = coinsData[0]?.availableCoins || 0;
+          const userLevel = stats[0]?.level || 1;
+          
+          await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: `✨ <b>ЭКСКЛЮЗИВНАЯ СТУДИЯ</b>\n` +
+                    `<b>TELEGRAM APPLICATIONS</b>\n\n` +
+                    `<i>Создаём будущее вашего бизнеса</i>\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `🎨 <b>АВТОРСКИЙ ВИЗУАЛЬНЫЙ ДИЗАЙН</b>\n` +
+                    `Уникальная эстетика, которой нет ни у кого.\n` +
+                    `Каждый пиксель создан для превосходства.\n\n` +
+                    `💼 <b>18+ ПРЕМИУМ РЕШЕНИЙ</b>\n` +
+                    `Fashion • E-commerce • Wellness • AI\n` +
+                    `Недвижимость • Рестораны • Финтех\n\n` +
+                    `💎 <b>ВАШ СТАТУС</b>\n` +
+                    `Уровень: ${userLevel} | Баланс: ${userCoins} монет\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `<i>Эксклюзивный доступ. Безупречное исполнение.</i>`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: '🚀 Открыть приложение', web_app: { url: webAppUrl } }],
+                  [
+                    { text: '💎 Портфолио', callback_data: 'showcase' },
+                    { text: '🎯 Задания', callback_data: 'tasks' }
+                  ],
+                  [
+                    { text: '💰 Рефералы', callback_data: 'referral' },
+                    { text: '👤 Профиль', callback_data: 'profile' }
+                  ],
+                  [{ text: '❓ Помощь', callback_data: 'help' }]
+                ]
+              }
+            })
+          });
         }
       }
       
@@ -208,27 +463,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const userCoins = coinsData[0]?.availableCoins || 0;
             const userLevel = stats[0]?.level || 1;
             
-            await sendPremiumMessage(
-              chatId,
-              `✨ <b>ЭКСКЛЮЗИВНАЯ СТУДИЯ</b>\n` +
-              `<b>TELEGRAM APPLICATIONS</b>\n\n` +
-              `<i>Создаём будущее вашего бизнеса</i>\n\n` +
-              `━━━━━━━━━━━━━━━━━━━━\n\n` +
-              `🎨 <b>АВТОРСКИЙ ВИЗУАЛЬНЫЙ ДИЗАЙН</b>\n` +
-              `Уникальная эстетика, которой нет ни у кого.\n` +
-              `Каждый пиксель создан для превосходства.\n\n` +
-              `💼 <b>18+ ПРЕМИУМ РЕШЕНИЙ</b>\n` +
-              `Fashion • E-commerce • Wellness • AI\n` +
-              `Недвижимость • Рестораны • Финтех\n\n` +
-              `💎 <b>ВАШ СТАТУС</b>\n` +
-              `Уровень: ${userLevel} | Баланс: ${userCoins} монет\n\n` +
-              `━━━━━━━━━━━━━━━━━━━━\n\n` +
-              `<i>Эксклюзивный доступ. Безупречное исполнение.</i>`,
-              [[
-                { text: '💎 Открыть портфолио', callback_data: 'showcase' },
-                { text: '🎁 Партнёрская программа', callback_data: 'referral' }
-              ]]
-            );
+            // Send message with navigation buttons
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: `✨ <b>ЭКСКЛЮЗИВНАЯ СТУДИЯ</b>\n` +
+                      `<b>TELEGRAM APPLICATIONS</b>\n\n` +
+                      `<i>Создаём будущее вашего бизнеса</i>\n\n` +
+                      `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                      `🎨 <b>АВТОРСКИЙ ВИЗУАЛЬНЫЙ ДИЗАЙН</b>\n` +
+                      `Уникальная эстетика, которой нет ни у кого.\n` +
+                      `Каждый пиксель создан для превосходства.\n\n` +
+                      `💼 <b>18+ ПРЕМИУМ РЕШЕНИЙ</b>\n` +
+                      `Fashion • E-commerce • Wellness • AI\n` +
+                      `Недвижимость • Рестораны • Финтех\n\n` +
+                      `💎 <b>ВАШ СТАТУС</b>\n` +
+                      `Уровень: ${userLevel} | Баланс: ${userCoins} монет\n\n` +
+                      `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                      `<i>Эксклюзивный доступ. Безупречное исполнение.</i>`,
+                parse_mode: 'HTML',
+                reply_markup: {
+                  inline_keyboard: [
+                    [
+                      { text: '🚀 Открыть приложение', web_app: { url: webAppUrl } }
+                    ],
+                    [
+                      { text: '💎 Портфолио', callback_data: 'showcase' },
+                      { text: '🎯 Задания', callback_data: 'tasks' }
+                    ],
+                    [
+                      { text: '💰 Рефералы', callback_data: 'referral' },
+                      { text: '👤 Профиль', callback_data: 'profile' }
+                    ],
+                    [
+                      { text: '❓ Помощь', callback_data: 'help' }
+                    ]
+                  ]
+                }
+              })
+            });
             break;
             
           case '/showcase':
