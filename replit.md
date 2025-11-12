@@ -48,10 +48,19 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 # Recent Changes
 
 **Date**: November 12, 2025
-**Changes**: GitHub import setup for Replit environment
+**Changes**: GitHub import setup for Replit environment + Full Railway independence
 - Added `allowedHosts: true` to Vite config for Replit proxy support
 - Created .gitignore file for Node.js project
 - Configured development workflow to run on port 5000 with webview
 - Database migrations successfully applied via Drizzle Kit
 - Deployment configured for VM target with npm build and start commands
+- **CRITICAL**: All Replit plugins now use dynamic imports - NO Replit dependencies in production
+- Application works completely independently on Railway without any Replit code
+- Verified: NODE_ENV=production excludes all @replit/* packages from build
 - Application verified working with premium dark theme and Telegram Mini App integration
+
+## Deployment Architecture
+- **Development (Replit)**: Dynamic Replit plugins loaded only when NODE_ENV=development && REPL_ID exists
+- **Production (Railway)**: Zero Replit dependencies, pure React + Express app
+- **Build Process**: `npm run build` creates production bundle without any dev tooling
+- **Start Process**: `npm start` runs compiled code with NODE_ENV=production
