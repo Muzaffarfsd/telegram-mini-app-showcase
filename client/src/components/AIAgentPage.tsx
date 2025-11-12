@@ -125,137 +125,90 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(5, 150, 105, 0.5))'
             }}
           >
-            {/* Premium Animated Robot - Jump & Walk Back and Forth */}
+            {/* Dancing Robot - Jump, Spin & Dance! */}
             <div className="absolute z-20 pointer-events-none"
               style={{
-                left: '0',
-                top: '50px',
-                animation: 'robotJumpAndWalk 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite',
+                left: '20px',
+                bottom: '-80px',
+                animation: 'robotJumpSpin 8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite',
                 willChange: 'transform',
                 transform: 'translate3d(0, 0, 0)'
               }}
             >
               <div style={{ 
-                animation: 'robotBodyAndFlip 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite',
+                animation: 'robotBodyDance 8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite',
                 willChange: 'transform',
-                transform: 'translate3d(0, 0, 0)'
+                transform: 'translate3d(0, 0, 0)',
+                transformOrigin: 'center center'
               }}>
-                {/* WALL-E Robot SVG */}
-                <svg width="70" height="70" viewBox="0 0 70 70" className="drop-shadow-2xl">
+                {/* Simple Cute Robot SVG */}
+                <svg width="60" height="70" viewBox="0 0 60 70" className="drop-shadow-2xl">
                   <defs>
-                    <linearGradient id="walleYellow" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <linearGradient id="robotYellow" x1="0%" y1="0%" x2="0%" y2="100%">
                       <stop offset="0%" stopColor="#FFD700" />
-                      <stop offset="100%" stopColor="#F9B208" />
+                      <stop offset="100%" stopColor="#FFA500" />
                     </linearGradient>
-                    <linearGradient id="rust" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#8B4513" opacity="0.3" />
-                      <stop offset="100%" stopColor="#704214" opacity="0.4" />
+                    <linearGradient id="robotGray" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#9E9E9E" />
+                      <stop offset="100%" stopColor="#616161" />
                     </linearGradient>
-                    <filter id="metallic">
-                      <feGaussianBlur stdDeviation="0.5" result="blur"/>
-                      <feSpecularLighting in="blur" surfaceScale="3" specularConstant="0.8" specularExponent="20" result="specOut">
-                        <fePointLight x="-5000" y="-10000" z="20000"/>
-                      </feSpecularLighting>
-                      <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
-                    </filter>
                   </defs>
                   
                   {/* Shadow */}
-                  <ellipse cx="35" cy="65" rx="22" ry="4" fill="#000" opacity="0.4"
-                    style={{ animation: 'shadowPulse 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite' }} />
+                  <ellipse cx="30" cy="66" rx="20" ry="4" fill="#000" opacity="0.4"
+                    className="robot-shadow" />
                   
-                  {/* Tank Tracks (Bottom) */}
+                  {/* Legs */}
                   <g className="robot-leg-left">
-                    <rect x="12" y="50" width="14" height="12" rx="3" fill="#2C2C2C" stroke="#1a1a1a" strokeWidth="1.5" />
-                    <rect x="13" y="51" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="17" y="51" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="21" y="51" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="13" y="54" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="17" y="54" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="21" y="54" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="13" y="58" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="17" y="58" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="21" y="58" width="3" height="2" fill="#444" rx="0.5" />
+                    <rect x="18" y="50" width="8" height="16" rx="2" fill="url(#robotGray)" stroke="#424242" strokeWidth="1.5" />
+                    <rect x="18" y="63" width="8" height="4" rx="1.5" fill="#616161" />
                   </g>
                   
                   <g className="robot-leg-right">
-                    <rect x="44" y="50" width="14" height="12" rx="3" fill="#2C2C2C" stroke="#1a1a1a" strokeWidth="1.5" />
-                    <rect x="45" y="51" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="49" y="51" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="53" y="51" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="45" y="54" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="49" y="54" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="53" y="54" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="45" y="58" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="49" y="58" width="3" height="2" fill="#444" rx="0.5" />
-                    <rect x="53" y="58" width="3" height="2" fill="#444" rx="0.5" />
+                    <rect x="34" y="50" width="8" height="16" rx="2" fill="url(#robotGray)" stroke="#424242" strokeWidth="1.5" />
+                    <rect x="34" y="63" width="8" height="4" rx="1.5" fill="#616161" />
                   </g>
                   
-                  {/* Main Body (Yellow Box) */}
-                  <rect x="18" y="28" width="34" height="24" rx="3" fill="url(#walleYellow)" stroke="#D4A017" strokeWidth="2" filter="url(#metallic)" />
+                  {/* Main Body */}
+                  <rect x="15" y="30" width="30" height="22" rx="3" fill="url(#robotYellow)" stroke="#F57C00" strokeWidth="2" />
                   
-                  {/* Rust weathering overlay */}
-                  <rect x="18" y="28" width="34" height="24" rx="3" fill="url(#rust)" opacity="0.3" />
+                  {/* Chest screen */}
+                  <rect x="21" y="36" width="18" height="10" rx="2" fill="#2196F3" opacity="0.8" stroke="#1976D2" strokeWidth="1" />
+                  <text x="30" y="43" fontSize="8" fill="#FFF" textAnchor="middle" fontFamily="monospace">AI</text>
                   
-                  {/* Rivets on body */}
-                  <circle cx="22" cy="32" r="1.2" fill="#888" />
-                  <circle cx="48" cy="32" r="1.2" fill="#888" />
-                  <circle cx="22" cy="48" r="1.2" fill="#888" />
-                  <circle cx="48" cy="48" r="1.2" fill="#888" />
-                  
-                  {/* Solar Panel / Chest Panel */}
-                  <rect x="24" y="34" width="22" height="8" rx="1.5" fill="#666" opacity="0.7" />
-                  <line x1="25" y1="36" x2="45" y2="36" stroke="#888" strokeWidth="0.5" />
-                  <line x1="25" y1="38" x2="45" y2="38" stroke="#888" strokeWidth="0.5" />
-                  <line x1="25" y1="40" x2="45" y2="40" stroke="#888" strokeWidth="0.5" />
-                  
-                  {/* Energy indicators (9 bars) */}
-                  <rect x="25" y="45" width="1.5" height="3" rx="0.5" fill="#4CAF50" />
-                  <rect x="27" y="45" width="1.5" height="3" rx="0.5" fill="#4CAF50" />
-                  <rect x="29" y="45" width="1.5" height="3" rx="0.5" fill="#4CAF50" />
-                  <rect x="31" y="45" width="1.5" height="3" rx="0.5" fill="#4CAF50" />
-                  <rect x="33" y="45" width="1.5" height="3" rx="0.5" fill="#8BC34A" />
-                  <rect x="35" y="45" width="1.5" height="3" rx="0.5" fill="#CDDC39" />
-                  <rect x="37" y="45" width="1.5" height="3" rx="0.5" fill="#FFC107" />
-                  <rect x="39" y="45" width="1.5" height="3" rx="0.5" fill="#FF9800" />
-                  <rect x="41" y="45" width="1.5" height="3" rx="0.5" fill="#888" opacity="0.3" />
-                  
-                  {/* Telescoping Neck */}
-                  <rect x="31" y="18" width="8" height="11" rx="1" fill="#A9A9A9" stroke="#808080" strokeWidth="1" />
-                  <rect x="32" y="20" width="6" height="8" rx="1" fill="#C0C0C0" stroke="#999" strokeWidth="0.8" />
-                  
-                  {/* Head (Binocular Eyes Housing) */}
-                  <path d="M 23 12 Q 23 8 27 8 L 43 8 Q 47 8 47 12 L 47 22 Q 47 24 45 24 L 25 24 Q 23 24 23 22 Z" 
-                    fill="#D4A017" stroke="#B8860B" strokeWidth="1.5" />
-                  
-                  {/* Iconic Binocular Eyes */}
-                  {/* Left Eye */}
-                  <circle cx="28" cy="15" r="6" fill="#333" stroke="#222" strokeWidth="1.5" />
-                  <circle cx="28" cy="15" r="5" fill="#4A90E2" opacity="0.9" />
-                  <circle cx="28" cy="15" r="3.5" fill="#1a1a1a" className="robot-eye-left" />
-                  <circle cx="29.5" cy="13.5" r="2" fill="#6AB7FF" opacity="0.6" />
-                  <circle cx="29.5" cy="13.5" r="1.2" fill="#FFFFFF" opacity="0.9" />
-                  
-                  {/* Right Eye */}
-                  <circle cx="42" cy="15" r="6" fill="#333" stroke="#222" strokeWidth="1.5" />
-                  <circle cx="42" cy="15" r="5" fill="#4A90E2" opacity="0.9" />
-                  <circle cx="42" cy="15" r="3.5" fill="#1a1a1a" className="robot-eye-right" />
-                  <circle cx="43.5" cy="13.5" r="2" fill="#6AB7FF" opacity="0.6" />
-                  <circle cx="43.5" cy="13.5" r="1.2" fill="#FFFFFF" opacity="0.9" />
-                  
-                  {/* Arms (on U-shaped tracks) */}
+                  {/* Arms */}
                   <g className="robot-arm-left">
-                    <rect x="10" y="32" width="8" height="14" rx="2" fill="#888" stroke="#666" strokeWidth="1.5" />
-                    <rect x="11" y="42" width="6" height="8" rx="1.5" fill="#999" />
-                    <rect x="12" y="48" width="2" height="5" rx="1" fill="#777" />
-                    <rect x="14.5" y="48" width="2" height="5" rx="1" fill="#777" />
+                    <rect x="8" y="34" width="7" height="14" rx="2" fill="url(#robotGray)" stroke="#424242" strokeWidth="1.5" />
+                    <rect x="8" y="46" width="7" height="6" rx="1.5" fill="#757575" />
                   </g>
                   
                   <g className="robot-arm-right">
-                    <rect x="52" y="32" width="8" height="14" rx="2" fill="#888" stroke="#666" strokeWidth="1.5" />
-                    <rect x="53" y="42" width="6" height="8" rx="1.5" fill="#999" />
-                    <rect x="54" y="48" width="2" height="5" rx="1" fill="#777" />
-                    <rect x="56.5" y="48" width="2" height="5" rx="1" fill="#777" />
+                    <rect x="45" y="34" width="7" height="14" rx="2" fill="url(#robotGray)" stroke="#424242" strokeWidth="1.5" />
+                    <rect x="45" y="46" width="7" height="6" rx="1.5" fill="#757575" />
+                  </g>
+                  
+                  {/* Neck */}
+                  <rect x="26" y="22" width="8" height="9" rx="1.5" fill="url(#robotGray)" stroke="#616161" strokeWidth="1" />
+                  
+                  {/* Head */}
+                  <rect x="20" y="8" width="20" height="16" rx="3" fill="url(#robotYellow)" stroke="#F57C00" strokeWidth="2" />
+                  
+                  {/* Eyes */}
+                  <g className="robot-eyes">
+                    <circle cx="25" cy="15" r="3.5" fill="#2196F3" />
+                    <circle cx="25" cy="15" r="2" fill="#0D47A1" className="robot-eye-left" />
+                    <circle cx="26" cy="14" r="1" fill="#FFFFFF" opacity="0.9" />
+                    
+                    <circle cx="35" cy="15" r="3.5" fill="#2196F3" />
+                    <circle cx="35" cy="15" r="2" fill="#0D47A1" className="robot-eye-right" />
+                    <circle cx="36" cy="14" r="1" fill="#FFFFFF" opacity="0.9" />
+                  </g>
+                  
+                  {/* Antenna */}
+                  <g className="robot-antenna">
+                    <line x1="30" y1="8" x2="30" y2="3" stroke="#F57C00" strokeWidth="1.5" strokeLinecap="round" />
+                    <circle cx="30" cy="2" r="2" fill="#FF5722" />
+                    <circle cx="30" cy="2" r="1.2" fill="#FFC107" opacity="0.8" />
                   </g>
                 </svg>
               </div>
@@ -274,345 +227,219 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
                 `
               }}
             >
-              {/* Premium Robot Animation - Jump onto block and walk back & forth */}
+              {/* Robot Dancing Animation */}
               <style>{`
-                /* Main horizontal movement: Jump up → Walk right → Walk left → Repeat */
-                @keyframes robotJumpAndWalk {
-                  /* Starting position - below block */
-                  0% { 
-                    transform: translateX(50px) translateY(50px);
+                /* Jump up and spin 360° */
+                @keyframes robotJumpSpin {
+                  0% {
+                    transform: translateY(0px);
                   }
-                  
-                  /* Jump up onto block (0-10%) */
-                  5% {
-                    transform: translateX(50px) translateY(-80px);
-                  }
-                  10% {
-                    transform: translateX(50px) translateY(-100px);
-                  }
-                  
-                  /* Land on block */
+                  /* Jump up */
                   15% {
-                    transform: translateX(50px) translateY(-100px);
+                    transform: translateY(-80px);
                   }
-                  
-                  /* Walk right across top (15-45%) */
-                  45% {
-                    transform: translateX(var(--robot-path, 300px)) translateY(-100px);
+                  /* Land */
+                  30% {
+                    transform: translateY(0px);
                   }
-                  
-                  /* Pause and turn around (45-50%) */
-                  50% {
-                    transform: translateX(var(--robot-path, 300px)) translateY(-100px);
-                  }
-                  
-                  /* Walk left back (50-80%) */
-                  80% {
-                    transform: translateX(50px) translateY(-100px);
-                  }
-                  
-                  /* Pause and turn around (80-85%) */
-                  85% {
-                    transform: translateX(50px) translateY(-100px);
-                  }
-                  
-                  /* Jump down (85-95%) */
-                  90% {
-                    transform: translateX(50px) translateY(-50px);
-                  }
-                  95% {
-                    transform: translateX(50px) translateY(30px);
-                  }
-                  
-                  /* Return to start */
+                  /* Stay grounded for dance */
                   100% {
-                    transform: translateX(50px) translateY(50px);
+                    transform: translateY(0px);
                   }
                 }
                 
-                /* Body motion with flip for direction change */
-                @keyframes robotBodyAndFlip {
+                /* Body rotation + dance moves */
+                @keyframes robotBodyDance {
                   /* Crouch before jump */
                   0% { 
-                    transform: scaleY(0.9);
+                    transform: scaleY(0.85) rotate(0deg);
                   }
-                  
-                  /* Jump arc up */
-                  5% {
-                    transform: scaleY(1.15) translateY(0px);
-                  }
+                  /* Stretch for takeoff */
                   10% {
-                    transform: scaleY(1.05) translateY(0px);
+                    transform: scaleY(1.1) rotate(0deg);
                   }
-                  
-                  /* Landing squash */
+                  /* Spin 360° in air */
                   15% {
-                    transform: scaleY(0.85) translateY(2px);
+                    transform: scaleY(1) rotate(180deg);
                   }
-                  17% {
-                    transform: scaleY(1.05) translateY(-2px);
+                  22% {
+                    transform: scaleY(1) rotate(360deg);
                   }
-                  20% {
-                    transform: scaleY(1) translateY(0px);
+                  /* Landing squash */
+                  30% {
+                    transform: scaleY(0.8) rotate(360deg);
                   }
-                  
-                  /* Walking right bounce (20-45%) */
-                  22%, 30%, 38% {
-                    transform: scaleY(1) translateY(0px);
+                  35% {
+                    transform: scaleY(1.05) rotate(360deg);
                   }
-                  26%, 34%, 42% {
-                    transform: scaleY(1) translateY(-6px);
+                  40% {
+                    transform: scaleY(1) rotate(360deg);
                   }
-                  
-                  /* Turn around - flip horizontally (45-50%) */
-                  45% {
-                    transform: scaleX(1) scaleY(1);
-                  }
+                  /* Dance - tilt left */
                   50% {
-                    transform: scaleX(-1) scaleY(1);
+                    transform: scaleY(1) rotate(345deg);
                   }
-                  
-                  /* Walking left bounce (50-80%) */
-                  52%, 60%, 68%, 76% {
-                    transform: scaleX(-1) scaleY(1) translateY(0px);
+                  /* Dance - tilt right */
+                  60% {
+                    transform: scaleY(1) rotate(375deg);
                   }
-                  56%, 64%, 72% {
-                    transform: scaleX(-1) scaleY(1) translateY(-6px);
+                  /* Dance - tilt left again */
+                  70% {
+                    transform: scaleY(1) rotate(345deg);
                   }
-                  
-                  /* Turn around back - flip to normal (80-85%) */
+                  /* Dance - tilt right again */
                   80% {
-                    transform: scaleX(-1) scaleY(1);
+                    transform: scaleY(1) rotate(375deg);
                   }
-                  85% {
-                    transform: scaleX(1) scaleY(1);
-                  }
-                  
-                  /* Jump down */
+                  /* Return to normal */
                   90% {
-                    transform: scaleY(1.1);
-                  }
-                  95% {
-                    transform: scaleY(0.9);
+                    transform: scaleY(1) rotate(360deg);
                   }
                   100% {
-                    transform: scaleY(0.9);
+                    transform: scaleY(0.85) rotate(360deg);
                   }
                 }
                 
-                /* Shadow synced with position */
-                @keyframes shadowPulse {
-                  /* Shadow fades during initial jump */
-                  0% {
-                    transform: scale(1.2, 0.9);
-                    opacity: 0.35;
-                  }
-                  5% {
-                    transform: scale(0.8, 0.5);
-                    opacity: 0.2;
-                  }
-                  10% {
-                    transform: scale(0.6, 0.4);
-                    opacity: 0.15;
-                  }
-                  
-                  /* Shadow appears on landing */
-                  15% {
-                    transform: scale(1.5, 1.1);
+                /* Shadow synced with jump */
+                .robot-shadow {
+                  animation: robotShadow 8s ease-in-out infinite;
+                }
+                
+                @keyframes robotShadow {
+                  0%, 100% {
+                    transform: scale(1, 1);
                     opacity: 0.4;
                   }
-                  20% {
-                    transform: scale(1.2, 0.9);
-                    opacity: 0.3;
-                  }
-                  
-                  /* Walking shadow pulses (20-45%) */
-                  22%, 30%, 38% {
-                    transform: scale(1, 0.8);
-                    opacity: 0.3;
-                  }
-                  26%, 34%, 42% {
-                    transform: scale(1.3, 1);
-                    opacity: 0.25;
-                  }
-                  
-                  /* Pause at turn */
-                  45%, 50% {
-                    transform: scale(1, 0.8);
-                    opacity: 0.3;
-                  }
-                  
-                  /* Walking shadow pulses (50-80%) */
-                  52%, 60%, 68%, 76% {
-                    transform: scale(1, 0.8);
-                    opacity: 0.3;
-                  }
-                  56%, 64%, 72% {
-                    transform: scale(1.3, 1);
-                    opacity: 0.25;
-                  }
-                  
-                  /* Pause at turn */
-                  80%, 85% {
-                    transform: scale(1, 0.8);
-                    opacity: 0.3;
-                  }
-                  
-                  /* Shadow during jump down */
-                  90% {
-                    transform: scale(0.8, 0.6);
+                  /* Shadow shrinks during jump */
+                  15% {
+                    transform: scale(0.5, 0.5);
                     opacity: 0.2;
                   }
-                  95%, 100% {
-                    transform: scale(1.2, 0.9);
-                    opacity: 0.35;
+                  /* Shadow expands on landing */
+                  30% {
+                    transform: scale(1.3, 1.3);
+                    opacity: 0.5;
+                  }
+                  35% {
+                    transform: scale(1, 1);
+                    opacity: 0.4;
                   }
                 }
                 
                 /* Antenna wiggle */
+                .robot-antenna {
+                  transform-origin: center bottom;
+                  animation: antennaWiggle 0.5s ease-in-out infinite alternate;
+                }
+                
                 @keyframes antennaWiggle {
-                  0%, 100% { 
-                    transform: rotate(0deg);
+                  0% { 
+                    transform: rotate(-5deg);
                   }
-                  25% { 
-                    transform: rotate(-8deg);
-                  }
-                  75% { 
-                    transform: rotate(8deg);
+                  100% { 
+                    transform: rotate(5deg);
                   }
                 }
                 
-                /* Arms animation with jump gesture */
+                /* Arms dancing animation */
                 .robot-arm-left {
-                  animation: armMotionLeft 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+                  transform-origin: top center;
+                  animation: armDanceLeft 8s ease-in-out infinite;
                 }
                 
                 .robot-arm-right {
-                  animation: armMotionRight 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+                  transform-origin: top center;
+                  animation: armDanceRight 8s ease-in-out infinite;
                 }
                 
-                @keyframes armMotionLeft {
-                  /* Fast walking swing (0-70%) */
-                  0%, 14%, 28%, 42%, 56%, 70% { 
-                    transform: rotate(-20deg);
+                @keyframes armDanceLeft {
+                  0%, 30%, 100% {
+                    transform: rotate(0deg);
                   }
-                  7%, 21%, 35%, 49%, 63% { 
-                    transform: rotate(20deg);
+                  /* Raise during jump */
+                  15% {
+                    transform: rotate(-30deg);
                   }
-                  
-                  /* Jump - arms up (70-85%) */
-                  75% {
-                    transform: rotate(-45deg) translateY(-8px);
+                  /* Dance moves */
+                  50% {
+                    transform: rotate(45deg);
+                  }
+                  60% {
+                    transform: rotate(-45deg);
+                  }
+                  70% {
+                    transform: rotate(45deg);
                   }
                   80% {
-                    transform: rotate(-35deg) translateY(-5px);
-                  }
-                  85% {
-                    transform: rotate(-10deg);
-                  }
-                  
-                  /* Resume walking (85-100%) */
-                  92% {
-                    transform: rotate(20deg);
-                  }
-                  100% {
-                    transform: rotate(-20deg);
+                    transform: rotate(-45deg);
                   }
                 }
                 
-                @keyframes armMotionRight {
-                  /* Fast walking swing (0-70%) */
-                  0%, 14%, 28%, 42%, 56%, 70% { 
-                    transform: rotate(20deg);
+                @keyframes armDanceRight {
+                  0%, 30%, 100% {
+                    transform: rotate(0deg);
                   }
-                  7%, 21%, 35%, 49%, 63% { 
-                    transform: rotate(-20deg);
+                  /* Raise during jump */
+                  15% {
+                    transform: rotate(30deg);
                   }
-                  
-                  /* Jump - arms up (70-85%) */
-                  75% {
-                    transform: rotate(45deg) translateY(-8px);
+                  /* Dance moves - opposite of left arm */
+                  50% {
+                    transform: rotate(-45deg);
+                  }
+                  60% {
+                    transform: rotate(45deg);
+                  }
+                  70% {
+                    transform: rotate(-45deg);
                   }
                   80% {
-                    transform: rotate(35deg) translateY(-5px);
-                  }
-                  85% {
-                    transform: rotate(10deg);
-                  }
-                  
-                  /* Resume walking (85-100%) */
-                  92% {
-                    transform: rotate(-20deg);
-                  }
-                  100% {
-                    transform: rotate(20deg);
+                    transform: rotate(45deg);
                   }
                 }
                 
-                /* Legs animation with jump tuck */
+                /* Legs dancing animation */
                 .robot-leg-left {
-                  animation: legMotionLeft 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+                  transform-origin: top center;
+                  animation: legDanceLeft 8s ease-in-out infinite;
                 }
                 
                 .robot-leg-right {
-                  animation: legMotionRight 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+                  transform-origin: top center;
+                  animation: legDanceRight 8s ease-in-out infinite;
                 }
                 
-                @keyframes legMotionLeft {
-                  /* Fast walking (0-70%) */
-                  0%, 14%, 28%, 42%, 56%, 70% { 
-                    transform: rotate(-10deg) translateY(0px);
+                @keyframes legDanceLeft {
+                  0%, 30%, 100% {
+                    transform: rotate(0deg);
                   }
-                  7%, 21%, 35%, 49%, 63% { 
-                    transform: rotate(10deg) translateY(-3px);
+                  /* Bend for jump */
+                  10% {
+                    transform: rotate(-15deg);
                   }
-                  
-                  /* Jump - legs tuck (70-85%) */
-                  75% {
-                    transform: rotate(-25deg) translateY(-8px);
+                  /* Dance moves */
+                  50% {
+                    transform: rotate(10deg);
                   }
-                  80% {
-                    transform: rotate(-15deg) translateY(-4px);
-                  }
-                  85% {
-                    transform: rotate(0deg) translateY(0px);
-                  }
-                  
-                  /* Resume walking (85-100%) */
-                  92% {
-                    transform: rotate(10deg) translateY(-3px);
-                  }
-                  100% {
-                    transform: rotate(-10deg) translateY(0px);
+                  70% {
+                    transform: rotate(-10deg);
                   }
                 }
                 
-                @keyframes legMotionRight {
-                  /* Fast walking (0-70%) */
-                  0%, 14%, 28%, 42%, 56%, 70% { 
-                    transform: rotate(10deg) translateY(0px);
+                @keyframes legDanceRight {
+                  0%, 30%, 100% {
+                    transform: rotate(0deg);
                   }
-                  7%, 21%, 35%, 49%, 63% { 
-                    transform: rotate(-10deg) translateY(-3px);
+                  /* Bend for jump */
+                  10% {
+                    transform: rotate(15deg);
                   }
-                  
-                  /* Jump - legs tuck (70-85%) */
-                  75% {
-                    transform: rotate(25deg) translateY(-8px);
+                  /* Dance moves - opposite of left */
+                  50% {
+                    transform: rotate(-10deg);
                   }
-                  80% {
-                    transform: rotate(15deg) translateY(-4px);
-                  }
-                  85% {
-                    transform: rotate(0deg) translateY(0px);
-                  }
-                  
-                  /* Resume walking (85-100%) */
-                  92% {
-                    transform: rotate(-10deg) translateY(-3px);
-                  }
-                  100% {
-                    transform: rotate(10deg) translateY(0px);
+                  70% {
+                    transform: rotate(10deg);
                   }
                 }
                 
