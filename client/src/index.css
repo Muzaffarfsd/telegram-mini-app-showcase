@@ -847,7 +847,7 @@
     }
   }
 
-  /* Utility Classes */
+  /* Utility Classes - Native Safe Area */
   .safe-area-top {
     padding-top: env(safe-area-inset-top);
   }
@@ -862,6 +862,38 @@
   
   .safe-area-right {
     padding-right: env(safe-area-inset-right);
+  }
+
+  /* Telegram Safe Area Utilities */
+  .tg-safe-top {
+    padding-top: max(var(--sat, 0px), var(--csat, 0px));
+  }
+  
+  .tg-safe-bottom {
+    padding-bottom: max(var(--sab, 0px), var(--csab, 0px));
+  }
+  
+  .tg-safe-left {
+    padding-left: max(var(--sal, 0px), var(--csal, 0px));
+  }
+  
+  .tg-safe-right {
+    padding-right: max(var(--sar, 0px), var(--csar, 0px));
+  }
+
+  /* Telegram Content Safe Area (для учета Telegram UI элементов) */
+  .tg-content-safe-top {
+    padding-top: var(--csat, 0px);
+  }
+  
+  .tg-content-safe-bottom {
+    padding-bottom: var(--csab, 0px);
+  }
+  
+  /* Telegram Full Height (с учетом safe areas) */
+  .tg-full-height {
+    height: calc(var(--vh, 1vh) * 100);
+    min-height: -webkit-fill-available;
   }
 }
 
