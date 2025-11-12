@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import fieldVestImage from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
+import tacticalJacketImage from '@assets/stock_images/futuristic_fashion_m_b5d87157.jpg';
 
 interface LabSurvivalistProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -9,19 +11,19 @@ interface LabSurvivalistProps {
 const lookbookItems = [
   {
     id: 1,
-    image: '/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg',
+    image: fieldVestImage,
     title: 'Field Vest',
     color: 'Olive'
   },
   {
     id: 2,
-    image: '/attached_assets/stock_images/futuristic_fashion_m_b5d87157.jpg',
+    image: tacticalJacketImage,
     title: 'Tactical Jacket',
     color: 'Black'
   },
   {
     id: 3,
-    image: '/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg',
+    image: fieldVestImage,
     title: 'Cargo Pants',
     color: 'Gray'
   }
@@ -49,7 +51,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
 
             <div className="relative w-[400px] h-[400px] rounded-full overflow-hidden">
               <img
-                src="/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg"
+                src={fieldVestImage}
                 alt="Model"
                 className="w-full h-full object-cover"
               />

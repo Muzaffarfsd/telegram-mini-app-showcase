@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, ShoppingBag, User, Settings, Heart } from "lucide-react";
+import modelImage from '@assets/stock_images/futuristic_techwear__e958e42c.jpg';
 
 interface RascalStoreProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -28,7 +29,7 @@ function RascalStore({ activeTab }: RascalStoreProps) {
             className="relative w-full max-w-md mb-8"
           >
             <img
-              src="/attached_assets/stock_images/futuristic_techwear__e958e42c.jpg"
+              src={modelImage}
               alt="Model in green jacket"
               className="w-full h-[500px] object-cover rounded-3xl shadow-2xl"
             />

@@ -13,6 +13,11 @@ import fashionVideo from "@assets/4e4993d0ac079a607a0bee301af06749_1761775010830
 import sneakerVideo from "@assets/ae01958370d099047455d799eba60389_1762352751328.mp4";
 import watchesVideo from "@assets/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4";
 import heroVideo from "@assets/cc8af87f44cca019ef98293eb251fe37_1762774935672.mp4";
+import rascalStoreImage from '@assets/stock_images/futuristic_techwear__e958e42c.jpg';
+import storeBlackImage from '@assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg';
+import labSurvivalistImage from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
+import nikeACGImage from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
+import newwaveTechwearImage from '@assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg';
 
 // Lazy load heavy components for better initial load performance
 
@@ -528,7 +533,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   onClick={() => onOpenDemo('futuristic-fashion-1')}
                 >
                   <img
-                    src="/attached_assets/stock_images/futuristic_techwear__e958e42c.jpg"
+                    src={rascalStoreImage}
                     alt="Rascal"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -550,7 +555,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   onClick={() => onOpenDemo('futuristic-fashion-2')}
                 >
                   <img
-                    src="/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg"
+                    src={storeBlackImage}
                     alt="STORE"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -572,7 +577,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   onClick={() => onOpenDemo('futuristic-fashion-3')}
                 >
                   <img
-                    src="/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg"
+                    src={labSurvivalistImage}
                     alt="lab. SURVIVALIST"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -594,7 +599,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   onClick={() => onOpenDemo('futuristic-fashion-4')}
                 >
                   <img
-                    src="/attached_assets/stock_images/futuristic_fashion_m_4203db1e.jpg"
+                    src={nikeACGImage}
                     alt="Nike ACG"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -616,7 +621,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   onClick={() => onOpenDemo('futuristic-fashion-5')}
                 >
                   <img
-                    src="/attached_assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg"
+                    src={newwaveTechwearImage}
                     alt="NEWWAVE"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />

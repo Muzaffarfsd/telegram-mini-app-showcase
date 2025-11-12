@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Grid, Minus, Plus, ShoppingCart } from "lucide-react";
+import helmetImage1 from '@assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg';
+import helmetImage2 from '@assets/stock_images/cyberpunk_fashion_ho_663ed3c4.jpg';
 
 interface StoreBlackProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -15,12 +17,12 @@ interface Product {
 }
 
 const products: Product[] = [
-  { id: 1, name: 'Ludens M1 Helmet', category: 'Accessories', price: 374.49, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg' },
-  { id: 2, name: 'Ludens M2 Helmet', category: 'Accessories', price: 429.99, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_663ed3c4.jpg' },
-  { id: 3, name: 'Tech Watch Pro', category: 'Accessories', price: 299.00, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg' },
-  { id: 4, name: 'Carbon Carabiner', category: 'Accessories', price: 89.99, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_663ed3c4.jpg' },
-  { id: 5, name: 'Urban Jacket', category: 'Apparel', price: 549.00, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg' },
-  { id: 6, name: 'Tech Pants', category: 'Apparel', price: 349.00, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_663ed3c4.jpg' },
+  { id: 1, name: 'Ludens M1 Helmet', category: 'Accessories', price: 374.49, image: helmetImage1 },
+  { id: 2, name: 'Ludens M2 Helmet', category: 'Accessories', price: 429.99, image: helmetImage2 },
+  { id: 3, name: 'Tech Watch Pro', category: 'Accessories', price: 299.00, image: helmetImage1 },
+  { id: 4, name: 'Carbon Carabiner', category: 'Accessories', price: 89.99, image: helmetImage2 },
+  { id: 5, name: 'Urban Jacket', category: 'Apparel', price: 549.00, image: helmetImage1 },
+  { id: 6, name: 'Tech Pants', category: 'Apparel', price: 349.00, image: helmetImage2 },
 ];
 
 function StoreBlack({ activeTab }: StoreBlackProps) {

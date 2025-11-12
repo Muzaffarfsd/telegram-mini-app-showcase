@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, TrendingUp, Eye, ShoppingBag } from "lucide-react";
+import modelImage from '@assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg';
+import winterPufferImage from '@assets/stock_images/cyberpunk_fashion_ho_51de6edd.jpg';
 
 interface NewwaveTechwearProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -16,7 +18,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
         <div className="max-w-4xl w-full grid grid-cols-2 gap-12">
           <div className="relative h-[600px] rounded-3xl overflow-hidden shadow-2xl">
             <img
-              src="/attached_assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg"
+              src={modelImage}
               alt="Model"
               className="w-full h-full object-cover"
             />
@@ -129,7 +131,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
             <div className="grid grid-cols-2">
               <div className="relative h-80">
                 <img
-                  src="/attached_assets/stock_images/cyberpunk_fashion_ho_51de6edd.jpg"
+                  src={winterPufferImage}
                   alt="Winter Puffer"
                   className="w-full h-full object-cover"
                 />
@@ -168,7 +170,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
         <div className="max-w-6xl mx-auto grid grid-cols-2 gap-12">
           <div className="relative h-[700px] rounded-3xl overflow-hidden shadow-2xl">
             <img
-              src="/attached_assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg"
+              src={modelImage}
               alt="Cutting Edge Poncho"
               className="w-full h-full object-cover"
             />
