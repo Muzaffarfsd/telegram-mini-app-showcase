@@ -25,8 +25,7 @@ export default defineConfig({
     compression({
       algorithms: ['brotliCompress'],
       exclude: [/\.(br)$/, /\.(gz)$/],
-      threshold: 1024,
-      deleteOriginFile: false
+      threshold: 1024
     }),
     
     // Gzip compression fallback
