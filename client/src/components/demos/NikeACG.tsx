@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Circle, ChevronUp, ChevronDown } from "lucide-react";
+import img1 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
+import img2 from '@assets/stock_images/futuristic_techwear__737df842.jpg';
 
 interface NikeACGProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -13,7 +15,7 @@ const cards = [
     subtitle: '',
     bgColor: '#000000',
     textColor: '#FFFFFF',
-    image: '/attached_assets/stock_images/futuristic_fashion_m_4203db1e.jpg',
+    image: img1,
     type: 'hero'
   },
   {
@@ -22,7 +24,7 @@ const cards = [
     subtitle: 'ACG TRAIL PANTS',
     bgColor: '#FFFFFF',
     textColor: '#2D3748',
-    image: '/attached_assets/stock_images/futuristic_techwear__737df842.jpg',
+    image: img2,
     type: 'product'
   },
   {
@@ -31,7 +33,7 @@ const cards = [
     subtitle: 'JACKET',
     bgColor: '#000000',
     textColor: '#FFFFFF',
-    image: '/attached_assets/stock_images/futuristic_fashion_m_4203db1e.jpg',
+    image: img1,
     type: 'product'
   },
   {
@@ -42,7 +44,7 @@ const cards = [
     description: 'All-conditions gear for outdoor exploration. Waterproof, breathable, and built to last.',
     bgColor: '#2D3748',
     textColor: '#FFFFFF',
-    image: '/attached_assets/stock_images/futuristic_techwear__737df842.jpg',
+    image: img2,
     type: 'detail'
   },
   {
@@ -51,7 +53,7 @@ const cards = [
     subtitle: 'GLOVES',
     bgColor: '#000000',
     textColor: '#FFFFFF',
-    image: '/attached_assets/stock_images/futuristic_fashion_m_4203db1e.jpg',
+    image: img1,
     type: 'product'
   }
 ];
@@ -62,7 +64,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
   const card = cards[currentCard];
 
   return (
-    <div className="h-full relative overflow-hidden" style={{ backgroundColor: card.bgColor }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: card.bgColor }}>
       <AnimatePresence mode="wait">
         <motion.div
           key={currentCard}

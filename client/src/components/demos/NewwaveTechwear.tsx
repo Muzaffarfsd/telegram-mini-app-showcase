@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, TrendingUp, Eye, ShoppingBag } from "lucide-react";
+import img1 from '@assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg';
+import img2 from '@assets/stock_images/cyberpunk_fashion_ho_51de6edd.jpg';
 
 interface NewwaveTechwearProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -12,11 +14,11 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
 
   if (screen === 'login') {
     return (
-      <div className="h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-8">
         <div className="max-w-4xl w-full grid grid-cols-2 gap-12">
           <div className="relative h-[600px] rounded-3xl overflow-hidden shadow-2xl">
             <img
-              src="/attached_assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg"
+              src={img1}
               alt="Model"
               className="w-full h-full object-cover"
             />
@@ -129,7 +131,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
             <div className="grid grid-cols-2">
               <div className="relative h-80">
                 <img
-                  src="/attached_assets/stock_images/cyberpunk_fashion_ho_51de6edd.jpg"
+                  src={img2}
                   alt="Winter Puffer"
                   className="w-full h-full object-cover"
                 />
@@ -156,7 +158,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
   }
 
   return (
-    <div className="h-full overflow-auto bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen overflow-auto bg-gradient-to-br from-gray-50 to-gray-100">
       <button
         onClick={() => setScreen('dashboard')}
         className="p-6 text-gray-600 hover:text-gray-800"
@@ -168,7 +170,7 @@ function NewwaveTechwear({ activeTab }: NewwaveTechwearProps) {
         <div className="max-w-6xl mx-auto grid grid-cols-2 gap-12">
           <div className="relative h-[700px] rounded-3xl overflow-hidden shadow-2xl">
             <img
-              src="/attached_assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg"
+              src={img1}
               alt="Cutting Edge Poncho"
               className="w-full h-full object-cover"
             />

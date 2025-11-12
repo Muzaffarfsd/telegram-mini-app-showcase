@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Grid, Minus, Plus, ShoppingCart } from "lucide-react";
+import img1 from '@assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg';
+import img2 from '@assets/stock_images/cyberpunk_fashion_ho_663ed3c4.jpg';
 
 interface StoreBlackProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -15,12 +17,12 @@ interface Product {
 }
 
 const products: Product[] = [
-  { id: 1, name: 'Ludens M1 Helmet', category: 'Accessories', price: 374.49, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg' },
-  { id: 2, name: 'Ludens M2 Helmet', category: 'Accessories', price: 429.99, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_663ed3c4.jpg' },
-  { id: 3, name: 'Tech Watch Pro', category: 'Accessories', price: 299.00, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg' },
-  { id: 4, name: 'Carbon Carabiner', category: 'Accessories', price: 89.99, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_663ed3c4.jpg' },
-  { id: 5, name: 'Urban Jacket', category: 'Apparel', price: 549.00, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg' },
-  { id: 6, name: 'Tech Pants', category: 'Apparel', price: 349.00, image: '/attached_assets/stock_images/cyberpunk_fashion_ho_663ed3c4.jpg' },
+  { id: 1, name: 'Ludens M1 Helmet', category: 'Accessories', price: 374.49, image: img1 },
+  { id: 2, name: 'Ludens M2 Helmet', category: 'Accessories', price: 429.99, image: img2 },
+  { id: 3, name: 'Tech Watch Pro', category: 'Accessories', price: 299.00, image: img1 },
+  { id: 4, name: 'Carbon Carabiner', category: 'Accessories', price: 89.99, image: img2 },
+  { id: 5, name: 'Urban Jacket', category: 'Apparel', price: 549.00, image: img1 },
+  { id: 6, name: 'Tech Pants', category: 'Apparel', price: 349.00, image: img2 },
 ];
 
 function StoreBlack({ activeTab }: StoreBlackProps) {
@@ -34,7 +36,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
 
   if (selectedProduct) {
     return (
-      <div className="h-full bg-black text-white p-8 overflow-auto">
+      <div className="min-h-screen bg-black text-white p-8 overflow-auto">
         <button
           onClick={() => setSelectedProduct(null)}
           className="mb-6 text-white/60 hover:text-white transition-colors"
@@ -104,7 +106,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
   }
 
   return (
-    <div className="h-full bg-black text-white p-8 overflow-auto">
+    <div className="min-h-screen bg-black text-white p-8 overflow-auto">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <Grid className="w-8 h-8" style={{ color: '#FFD700' }} />

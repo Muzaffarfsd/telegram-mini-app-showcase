@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, ShoppingBag, User, Settings, Heart } from "lucide-react";
+import fashionImg1 from '@assets/stock_images/futuristic_techwear__e958e42c.jpg';
 
 interface RascalStoreProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -11,7 +12,7 @@ function RascalStore({ activeTab }: RascalStoreProps) {
 
   if (screen === 'home') {
     return (
-      <div className="h-full relative overflow-hidden" style={{ backgroundColor: '#1a2e2a' }}>
+      <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#1a2e2a' }}>
         <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -28,7 +29,7 @@ function RascalStore({ activeTab }: RascalStoreProps) {
             className="relative w-full max-w-md mb-8"
           >
             <img
-              src="/attached_assets/stock_images/futuristic_techwear__e958e42c.jpg"
+              src={fashionImg1}
               alt="Model in green jacket"
               className="w-full h-[500px] object-cover rounded-3xl shadow-2xl"
             />
@@ -82,7 +83,7 @@ function RascalStore({ activeTab }: RascalStoreProps) {
   }
 
   return (
-    <div className="h-full relative overflow-hidden" style={{ backgroundColor: '#1a2e2a' }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#1a2e2a' }}>
       <div className="absolute inset-0 flex flex-col items-center justify-center p-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
