@@ -9,7 +9,7 @@ export function FuturisticFashion5() {
   const [selectedSize, setSelectedSize] = useState('42');
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
       {currentPage === 'login' ? (
         <div className="h-full flex items-center justify-center p-4">
           <div className="w-full max-w-sm bg-white rounded-[40px] overflow-hidden shadow-2xl">

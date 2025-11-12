@@ -7,7 +7,7 @@ export function FuturisticFashion1() {
   const [currentPage, setCurrentPage] = useState<'home' | 'catalog'>('home');
 
   return (
-    <div className="h-screen bg-[#1a2e2a] overflow-hidden relative">
+    <div className="min-h-screen bg-[#1a2e2a] overflow-hidden relative">
       {currentPage === 'home' ? (
         <div className="h-full relative">
           <div 

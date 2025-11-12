@@ -7,7 +7,7 @@ export function FuturisticFashion3() {
   const [currentPage, setCurrentPage] = useState<'home' | 'lookbook'>('home');
 
   return (
-    <div className="h-screen overflow-hidden">
+    <div className="min-h-screen overflow-hidden">
       {currentPage === 'home' ? (
         <div className="h-full bg-black text-white relative overflow-y-auto">
           <div className="p-6">

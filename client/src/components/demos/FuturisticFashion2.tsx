@@ -13,7 +13,7 @@ export function FuturisticFashion2() {
   ];
 
   return (
-    <div className="h-screen bg-black text-white overflow-y-auto">
+    <div className="min-h-screen bg-black text-white overflow-y-auto">
       {currentPage === 'catalog' ? (
         <div className="p-6">
           <div className="flex justify-between items-center mb-8">

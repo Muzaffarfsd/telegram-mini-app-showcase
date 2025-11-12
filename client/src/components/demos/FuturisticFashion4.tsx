@@ -34,7 +34,7 @@ export function FuturisticFashion4() {
   ];
 
   return (
-    <div className="h-screen bg-black text-white overflow-hidden">
+    <div className="min-h-screen bg-black text-white overflow-hidden">
       <div className="h-full flex items-center justify-center p-4">
         <div className="relative w-full max-w-md">
           {cards.map((card, index) => (
