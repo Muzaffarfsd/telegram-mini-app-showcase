@@ -183,8 +183,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       </header>
 
 
-      {/* Demo Content Area - Add top padding for fixed header */}
-      <div className="flex-1 pt-16 pb-24" data-testid="demo-content">
+      {/* Demo Content Area - Add top padding for fixed header and Telegram safe area bottom */}
+      <div className="flex-1 pt-16 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
         {renderDemoContent()}
       </div>
 
