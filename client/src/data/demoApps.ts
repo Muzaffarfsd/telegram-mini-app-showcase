@@ -420,5 +420,62 @@ export const demoApps: DemoApp[] = [
         { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
       ]
     }
+  },
+  
+  // Futuristic Fashion Collection - 5 Premium Designs
+  {
+    id: 'futuristic-fashion-1',
+    title: 'Rascal®',
+    description: 'Футуристический магазин waterproof jacket',
+    category: 'Электронная коммерция',
+    image: '/attached_assets/stock_images/futuristic_techwear__e958e42c.jpg',
+    creator: 'WEB4TG',
+    likes: '24.1k',
+    badge: 'Футуристика',
+    badgeColor: 'bg-gradient-to-r from-green-600 to-emerald-700'
+  },
+  {
+    id: 'futuristic-fashion-2',
+    title: 'STORE',
+    description: 'Минималистичный черный магазин',
+    category: 'Электронная коммерция',
+    image: '/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg',
+    creator: 'WEB4TG',
+    likes: '22.8k',
+    badge: 'Минимализм',
+    badgeColor: 'bg-black'
+  },
+  {
+    id: 'futuristic-fashion-3',
+    title: 'lab. SURVIVALIST',
+    description: 'Черно-белый минималистичный магазин',
+    category: 'Электронная коммерция',
+    image: '/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg',
+    creator: 'WEB4TG',
+    likes: '26.5k',
+    badge: 'Премиум',
+    badgeColor: 'bg-gray-900'
+  },
+  {
+    id: 'futuristic-fashion-4',
+    title: 'Nike ACG',
+    description: 'Карточный дизайн с 3D эффектами',
+    category: 'Электронная коммерция',
+    image: '/attached_assets/stock_images/futuristic_fashion_m_4203db1e.jpg',
+    creator: 'WEB4TG',
+    likes: '28.3k',
+    badge: 'Интерактив',
+    badgeColor: 'bg-gradient-to-r from-gray-800 to-black'
+  },
+  {
+    id: 'futuristic-fashion-5',
+    title: 'NEWWAVE',
+    description: 'Фиолетовый градиент techwear магазин',
+    category: 'Электронная коммерция',
+    image: '/attached_assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg',
+    creator: 'WEB4TG',
+    likes: '31.2k',
+    badge: 'Топ-1',
+    badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500'
   }
 ];

@@ -520,6 +520,117 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               <div className="col-span-6 md:col-span-4 h-[240px]">
                 <WatchesDemoCard onOpenDemo={onOpenDemo} />
               </div>
+              
+              {/* Futuristic Fashion Collection - 5 новых приложений */}
+              <div className="col-span-6 md:col-span-4 h-[300px]">
+                <div 
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  onClick={() => onOpenDemo('futuristic-fashion-1')}
+                >
+                  <img
+                    src="/attached_assets/stock_images/futuristic_techwear__e958e42c.jpg"
+                    alt="Rascal"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a2e2a]/90 via-[#1a2e2a]/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-[#7FB069] text-xs mb-2 font-bold">ФУТУРИСТИКА</div>
+                    <h3 className="text-white text-2xl font-bold mb-1">Rascal®</h3>
+                    <p className="text-white/70 text-sm">Waterproof Fashion</p>
+                  </div>
+                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-green-600 to-emerald-700 text-white text-xs font-bold">
+                    NEW
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-6 md:col-span-4 h-[300px]">
+                <div 
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  onClick={() => onOpenDemo('futuristic-fashion-2')}
+                >
+                  <img
+                    src="/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg"
+                    alt="STORE"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-white/60 text-xs mb-2 font-bold">МИНИМАЛИЗМ</div>
+                    <h3 className="text-white text-2xl font-bold mb-1">STORE</h3>
+                    <p className="text-white/70 text-sm">Black Minimal</p>
+                  </div>
+                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-black text-white text-xs font-bold">
+                    PREMIUM
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-6 md:col-span-4 h-[300px]">
+                <div 
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  onClick={() => onOpenDemo('futuristic-fashion-3')}
+                >
+                  <img
+                    src="/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg"
+                    alt="lab. SURVIVALIST"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-white/60 text-xs mb-2 font-bold">ПРЕМИУМ</div>
+                    <h3 className="text-white text-2xl font-bold mb-1">lab. SURVIVALIST</h3>
+                    <p className="text-white/70 text-sm">Black & White</p>
+                  </div>
+                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gray-900 text-white text-xs font-bold">
+                    LUXURY
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-6 md:col-span-6 h-[300px]">
+                <div 
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  onClick={() => onOpenDemo('futuristic-fashion-4')}
+                >
+                  <img
+                    src="/attached_assets/stock_images/futuristic_fashion_m_4203db1e.jpg"
+                    alt="Nike ACG"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-white/60 text-xs mb-2 font-bold">ИНТЕРАКТИВ</div>
+                    <h3 className="text-white text-2xl font-bold mb-1">Nike ACG</h3>
+                    <p className="text-white/70 text-sm">3D Card Design</p>
+                  </div>
+                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-gray-800 to-black text-white text-xs font-bold">
+                    3D
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-6 md:col-span-6 h-[300px]">
+                <div 
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  onClick={() => onOpenDemo('futuristic-fashion-5')}
+                >
+                  <img
+                    src="/attached_assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg"
+                    alt="NEWWAVE"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-900/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-purple-400 text-xs mb-2 font-bold">ТОП-1</div>
+                    <h3 className="text-white text-2xl font-bold mb-1">NEWWAVE</h3>
+                    <p className="text-white/70 text-sm">Purple Gradient Tech</p>
+                  </div>
+                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold">
+                    TOP
+                  </div>
+                </div>
+              </div>
             </div>
 
           </div>
