@@ -44,3 +44,14 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Backend**: Express.js, Stripe (for payment processing), Zod (for validation).
 - **Photo Upload**: Uppy ecosystem (`@uppy/core`, `@uppy/dashboard`, `@uppy/aws-s3`, `@uppy/react`).
 - **Database**: @neondatabase/serverless (PostgreSQL with Drizzle ORM).
+
+# Recent Changes
+
+**Date**: November 12, 2025
+**Changes**: GitHub import setup for Replit environment
+- Added `allowedHosts: true` to Vite config for Replit proxy support
+- Created .gitignore file for Node.js project
+- Configured development workflow to run on port 5000 with webview
+- Database migrations successfully applied via Drizzle Kit
+- Deployment configured for VM target with npm build and start commands
+- Application verified working with premium dark theme and Telegram Mini App integration
