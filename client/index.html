@@ -179,12 +179,24 @@
   <!-- CRITICAL: Defer non-critical scripts -->
   <script type="module" src="/src/main.tsx"></script>
   
+  <!-- CRITICAL: Emergency loader fallback (hide after 5s if React fails) -->
+  <script>
+    setTimeout(() => {
+      const appLoader = document.getElementById('app-loader');
+      if (appLoader && !appLoader.classList.contains('loaded')) {
+        console.warn('[Emergency] Auto-hiding loader after 5s timeout');
+        appLoader.classList.add('loaded');
+        setTimeout(() => appLoader.remove(), 500);
+      }
+    }, 5000);
+  </script>
+  
   <!-- Service Worker Registration -->
   <script>
     // Only register Service Worker in production (not in dev with Vite HMR)
     const isProduction = !window.location.hostname.includes('localhost') && 
                         !window.location.hostname.includes('127.0.0.1') &&
-                        !window.location.port;
+                        !window.location.hostname.includes('replit');
     
     if ('serviceWorker' in navigator && isProduction) {
       window.addEventListener('load', () => {
