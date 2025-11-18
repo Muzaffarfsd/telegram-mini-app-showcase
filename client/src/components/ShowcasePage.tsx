@@ -1,180 +1,874 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { Heart, Star, TrendingUp, Sparkles } from "lucide-react";
+import { Smartphone, ShoppingCart, Code, Star, Users, Search } from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { MotionStagger, MotionBox, HoverScale } from './MotionWrapper';
 import { useTelegram } from '../hooks/useTelegram';
-import { demoApps } from '@/data/demoApps';
+import { useTrackInteraction } from '@/hooks/useAIRecommendations';
+import { ClothingIcon, ElectronicsIcon, BeautyIcon, RestaurantIcon, FitnessIcon, CarServiceIcon } from './AnimatedBusinessIcons';
+import { LazyVideo } from './LazyVideo';
+import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
+import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
+import storeHomepageImage from "@assets/image_1761735146810.png";
+import sneakerStoreImage from "@assets/image_1761735746522.png";
+import fashionVideo from "@assets/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
+import sneakerVideo from "@assets/ae01958370d099047455d799eba60389_1762352751328.mp4";
+import watchesVideo from "@assets/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4";
+import heroVideo from "@assets/cc8af87f44cca019ef98293eb251fe37_1762774935672.mp4";
+
+// Lazy load heavy components for better initial load performance
 
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
   onOpenDemo: (demoId: string) => void;
 }
 
-// Простая карточка приложения
-const AppCard: React.FC<{
-  app: typeof demoApps[0];
-  onOpen: () => void;
-  index: number;
-}> = ({ app, onOpen, index }) => {
-  const { hapticFeedback } = useTelegram();
+// SVG Dollar Bill Component
+const DollarSVG = () => (
+  <svg width="90" height="41" viewBox="0 0 120 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Main bill background */}
+    <rect width="120" height="55" rx="3" fill="url(#dollarGradient)" stroke="#1a4d2e" strokeWidth="1.5"/>
+    
+    {/* Gradient definition */}
+    <defs>
+      <linearGradient id="dollarGradient" x1="0" y1="0" x2="120" y2="55">
+        <stop offset="0%" stopColor="#85bb65"/>
+        <stop offset="50%" stopColor="#6b9b52"/>
+        <stop offset="100%" stopColor="#85bb65"/>
+      </linearGradient>
+    </defs>
+    
+    {/* Decorative border */}
+    <rect x="4" y="4" width="112" height="47" rx="2" fill="none" stroke="#2d5a3d" strokeWidth="0.8" strokeDasharray="2 2"/>
+    
+    {/* Left portrait circle */}
+    <circle cx="22" cy="27.5" r="12" fill="#2d5a3d" stroke="#1a4d2e" strokeWidth="1"/>
+    <text x="22" y="32" fontSize="10" fontWeight="bold" fill="#85bb65" textAnchor="middle">$</text>
+    
+    {/* Center "100" */}
+    <text x="60" y="34" fontSize="24" fontWeight="900" fill="#1a4d2e" textAnchor="middle">100</text>
+    
+    {/* Top corners */}
+    <text x="8" y="13" fontSize="8" fontWeight="bold" fill="#1a4d2e">100</text>
+    <text x="103" y="13" fontSize="8" fontWeight="bold" fill="#1a4d2e" textAnchor="end">100</text>
+    
+    {/* Bottom text */}
+    <text x="8" y="48" fontSize="6" fill="#2d5a3d">USA</text>
+    <text x="112" y="48" fontSize="6" fill="#2d5a3d" textAnchor="end">$100</text>
+    
+    {/* Right seal */}
+    <circle cx="98" cy="27.5" r="8" fill="#1a4d2e" stroke="#2d5a3d" strokeWidth="0.8"/>
+    <circle cx="98" cy="27.5" r="4" fill="#85bb65"/>
+    
+    {/* Decorative lines */}
+    <line x1="40" y1="15" x2="80" y2="15" stroke="#2d5a3d" strokeWidth="0.5" opacity="0.5"/>
+    <line x1="40" y1="40" x2="80" y2="40" stroke="#2d5a3d" strokeWidth="0.5" opacity="0.5"/>
+  </svg>
+);
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      onClick={() => {
-        hapticFeedback?.light();
-        onOpen();
+// Generate stable random values for dollar animations (outside component to avoid re-renders)
+const dollarAnimations = Array.from({ length: 8 }, (_, i) => ({
+  left: 5 + Math.random() * 90,
+  top: -(40 + Math.random() * 60),
+  delay: Math.random() * 10,
+  duration: 6 + Math.random() * 4,
+  rotateStart: -15 + Math.random() * 30,
+  driftX1: -10 + Math.random() * 20,
+  rotateIntensity: 1,
+  blurIntensity: 0,
+}));
+
+// Video Hero Card Component with lazy loading
+const VideoHeroCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
+  <div 
+    className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+    onClick={() => onOpenDemo('clothing-store')}
+    data-testid="hero-card-clothing"
+  >
+    <LazyVideo
+      src={fashionVideo}
+      className="absolute inset-0 w-full h-full object-cover"
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="none"
+    />
+    
+    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+    
+    <div className="absolute bottom-0 left-0 right-0 p-8">
+      <div className="text-white text-5xl font-light mb-2"
+        style={{ letterSpacing: '0.4em' }}
+      >
+        A L U R E
+      </div>
+      <div className="text-white/70 text-sm uppercase tracking-widest mb-4">
+        Premium Streetwear
+      </div>
+      <div className="px-4 py-2 bg-[#CDFF38] text-black rounded-full inline-block text-xs font-bold uppercase">
+        NEW COLLECTION
+      </div>
+    </div>
+    
+    <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold"
+      style={{
+        background: 'rgba(205, 255, 56, 0.95)',
+        color: '#0A0A0A'
       }}
-      className="bg-white/5 backdrop-blur-xl rounded-3xl overflow-hidden cursor-pointer hover:bg-white/10 transition-all duration-300 border border-white/10"
     >
-      <div className="relative h-48 overflow-hidden">
-        <img 
-          src={app.image} 
-          alt={app.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-        
-        {app.badge && (
-          <div 
-            className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold ${app.badgeColor || 'bg-emerald-500'} text-white`}
-          >
-            {app.badge}
-          </div>
-        )}
-      </div>
+      NEW
+    </div>
+  </div>
+);
 
-      <div className="p-6">
-        <h3 className="text-xl font-bold text-white mb-2">{app.title}</h3>
-        <p className="text-white/60 text-sm mb-4">{app.description}</p>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 text-white/50 text-sm">
-              <Heart className="w-4 h-4" />
-              <span>{app.likes}</span>
-            </div>
-            <div className="w-1 h-1 rounded-full bg-white/30" />
-            <span className="text-white/50 text-sm">{app.category}</span>
+// Sneaker Demo Card Component - Premium Minimal
+const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
+  <div 
+    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group"
+    onClick={() => onOpenDemo('sneaker-store')}
+    data-testid="demo-card-sneaker-store"
+  >
+    <LazyVideo
+      src={sneakerVideo}
+      className="absolute inset-0 w-full h-full object-cover"
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="none"
+    />
+    
+    {/* Lighter Gradient Overlay - better video visibility */}
+    <div className="absolute inset-0"
+      style={{
+        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.7) 100%)'
+      }}
+    ></div>
+    
+    {/* Content */}
+    <div className="absolute inset-0 p-5 flex flex-col">
+      
+      {/* Top Section - Title and Badge aligned */}
+      <div className="flex items-center justify-between mb-auto">
+        <div>
+          <div className="text-white text-2xl font-light tracking-[0.35em]">
+            S O L E
           </div>
-          
-          <Star className="w-5 h-5 text-yellow-400" />
+          <div className="h-[1px] w-12 mt-1.5"
+            style={{
+              background: 'linear-gradient(90deg, rgba(100, 235, 220, 0.6), transparent)'
+            }}
+          ></div>
+        </div>
+        
+        {/* Exclusive Badge */}
+        <div className="px-2 py-0.5 text-[8px] font-medium tracking-wide whitespace-nowrap"
+          style={{
+            background: 'rgba(100, 235, 220, 0.1)',
+            border: '1px solid rgba(100, 235, 220, 0.25)',
+            borderRadius: '6px',
+            color: '#64EBDC'
+          }}
+        >
+          EXCLUSIVE
         </div>
       </div>
-    </motion.div>
-  );
-};
+      
+      {/* Bottom Section - Centered content */}
+      <div className="text-center">
+        <div className="text-white/50 text-[10px] uppercase tracking-[0.15em] mb-3 font-light">
+          Premium Sneakers
+        </div>
+        
+        <div className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-[10px] font-semibold tracking-wider uppercase w-full max-w-[200px]"
+          style={{
+            background: 'rgba(100, 235, 220, 0.15)',
+            border: '1px solid rgba(100, 235, 220, 0.3)',
+            borderRadius: '10px',
+            color: '#64EBDC',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          <span>EXPLORE</span>
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6H10M10 6L6 2M10 6L6 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
-export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+// Watches Demo Card Component - Premium Minimal
+const WatchesDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
+  <div 
+    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group"
+    onClick={() => onOpenDemo('luxury-watches')}
+    data-testid="demo-card-luxury-watches"
+  >
+    <LazyVideo
+      src={watchesVideo}
+      className="absolute inset-0 w-full h-full object-cover"
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="none"
+    />
+    
+    {/* Lighter Gradient Overlay - better video visibility */}
+    <div className="absolute inset-0"
+      style={{
+        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.7) 100%)'
+      }}
+    ></div>
+    
+    {/* Content - Vertical Layout */}
+    <div className="absolute inset-0 p-5 flex flex-col">
+      
+      {/* Top Section */}
+      <div className="flex items-center justify-between mb-auto">
+        <div>
+          <div className="text-2xl font-light tracking-[0.40em]"
+            style={{
+              background: 'linear-gradient(135deg, #E8D4A0 0%, #D6B980 50%, #C9A870 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}
+          >
+            L U X E
+          </div>
+          <div className="h-[1px] w-12 mt-1.5"
+            style={{
+              background: 'linear-gradient(90deg, rgba(214, 185, 128, 0.4), transparent)'
+            }}
+          ></div>
+        </div>
+        
+        {/* Limited Edition Badge */}
+        <div className="w-1.5 h-1.5 rounded-full"
+          style={{
+            background: '#D6B980',
+            boxShadow: '0 0 8px rgba(214, 185, 128, 0.6)'
+          }}
+        ></div>
+      </div>
+      
+      {/* Bottom Section - Centered */}
+      <div className="text-center">
+        <div className="text-white/50 text-[10px] uppercase tracking-[0.15em] mb-3 font-light">
+          Swiss Timepieces
+        </div>
+        
+        <div className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-[10px] font-semibold tracking-wider uppercase w-full max-w-[200px]"
+          style={{
+            background: 'rgba(214, 185, 128, 0.12)',
+            border: '1px solid rgba(214, 185, 128, 0.25)',
+            borderRadius: '10px',
+            color: '#D6B980',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          <span>EXPLORE</span>
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6H10M10 6L6 2M10 6L6 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
-  const categories = [
-    { id: 'all', label: 'Все', icon: '📱' },
-    { id: 'ecommerce', label: 'Магазины', icon: '🛍️' },
-    { id: 'services', label: 'Услуги', icon: '⚡' },
-    { id: 'premium', label: 'Премиум', icon: '💎' },
-  ];
+// Demo Card Component
+const DemoCard: React.FC<{ 
+  id: string; 
+  title: string;
+  subtitle: string;
+  videoSrc?: string;
+  imageSrc?: string;
+  onOpenDemo: (id: string) => void;
+}> = ({ id, title, subtitle, videoSrc, imageSrc, onOpenDemo }) => (
+  <div 
+    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group"
+    onClick={() => onOpenDemo(id)}
+    data-testid={`demo-card-${id}`}
+  >
+    {videoSrc && (
+      <video 
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src={videoSrc} type="video/mp4" />
+      </video>
+    )}
+    
+    {imageSrc && !videoSrc && (
+      <img 
+        src={imageSrc} 
+        alt={title}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    )}
+    
+    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+    
+    <div className="absolute bottom-0 left-0 right-0 p-4">
+      <div className="text-white text-2xl font-light mb-1"
+        style={{ letterSpacing: '0.3em' }}
+      >
+        {title}
+      </div>
+      <div className="text-white/60 text-xs uppercase tracking-wider">
+        {subtitle}
+      </div>
+    </div>
+  </div>
+);
 
-  const filteredApps = selectedCategory === 'all' 
-    ? demoApps 
-    : demoApps.filter(app => {
-        if (selectedCategory === 'premium') return app.badge;
-        if (selectedCategory === 'ecommerce') return app.category.includes('коммерц');
-        if (selectedCategory === 'services') return app.category.includes('Услуг') || app.category.includes('Сервис');
-        return true;
-      });
+// Stat Card Component
+const StatCard: React.FC<{ title: string; subtitle: string }> = ({ title, subtitle }) => (
+  <div className="relative h-full rounded-2xl overflow-hidden backdrop-blur-3xl"
+    style={{
+      background: 'rgba(10, 10, 10, 0.9)',
+      border: '2px solid rgba(255, 255, 255, 0.15)'
+    }}
+    data-testid={`stat-card-${subtitle.toLowerCase()}`}
+  >
+    <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+      <div className="text-white text-4xl font-black mb-2"
+        style={{ letterSpacing: '0.05em' }}
+      >
+        {title}
+      </div>
+      <div className="text-white/50 text-xs uppercase tracking-widest font-bold">
+        {subtitle}
+      </div>
+    </div>
+  </div>
+);
+
+// AI Assistant Card Component
+const AIAssistantCardPreview: React.FC = () => (
+  <div className="relative h-full rounded-2xl overflow-hidden backdrop-blur-3xl"
+    style={{
+      background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)',
+      border: '2px solid rgba(59, 130, 246, 0.2)'
+    }}
+    data-testid="ai-assistant-card"
+  >
+    <div className="absolute inset-0 flex items-center justify-center p-6">
+      <div className="text-center">
+        <div className="text-4xl mb-3">🤖</div>
+        <div className="text-white text-lg font-bold mb-2 uppercase tracking-wider">
+          AI Ассистент
+        </div>
+        <div className="text-white/60 text-sm">
+          24/7 поддержка и консультации
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
+  const { hapticFeedback } = useTelegram();
+  const trackInteraction = useTrackInteraction();
+  const [showDecorations, setShowDecorations] = useState(false);
+  
+  // Load decorative elements after initial render
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowDecorations(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0A0A0B] to-[#1A1A1E] tg-content-safe-bottom">
-      {/* Header */}
-      <div className="sticky top-0 z-50 bg-[#0A0A0B]/80 backdrop-blur-xl border-b border-white/10">
-        <div className="p-6">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-4 mb-6"
-          >
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">Витрина</h1>
-              <p className="text-white/50 text-sm">15 готовых приложений</p>
-            </div>
-          </motion.div>
-
-          {/* Categories */}
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((category, index) => (
-              <motion.button
-                key={category.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05 }}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`
-                  px-4 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition-all
-                  ${selectedCategory === category.id 
-                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30' 
-                    : 'bg-white/5 text-white/60 hover:bg-white/10'
-                  }
-                `}
+    <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
+      {/* Mobile Container */}
+      <div className="max-w-md mx-auto min-h-screen p-4 relative z-10">
+        
+        {/* Premium Dark Minimal Hero Section */}
+        <div className="relative py-12 mb-12 overflow-hidden">
+          
+          {/* Main Container */}
+          <div className="space-y-6">
+            
+            {/* Premium Minimal Hero Block with Video */}
+            <div className="relative rounded-2xl overflow-hidden"
+              style={{
+                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)'
+              }}
+            >
+              {/* Inner Block */}
+              <div className="relative rounded-2xl overflow-hidden"
+                style={{
+                  background: '#000000'
+                }}
               >
-                {category.icon} {category.label}
-              </motion.button>
-            ))}
+                {/* Background Video */}
+                <LazyVideo
+                  src={heroVideo}
+                  className="absolute inset-0 w-full h-full object-cover opacity-50"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="none"
+                />
+                
+                {/* Gradient Overlay for Readability */}
+                <div className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.7) 100%)'
+                  }}
+                ></div>
+                
+                {/* Subtle Top Glow */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px]"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                    boxShadow: '0 0 20px rgba(255, 255, 255, 0.1)'
+                  }}
+                />
+              
+              {/* Content - Oldschool Premium Minimal */}
+              <div className="relative px-8 py-16 text-center">
+                
+                {/* Top Decorative Line */}
+                <div className="flex items-center justify-center gap-3 mb-10">
+                  <div className="w-8 h-[1px] bg-white/20"></div>
+                  <div className="text-white/30 text-[9px] tracking-[0.3em] font-light">EST. 2024</div>
+                  <div className="w-8 h-[1px] bg-white/20"></div>
+                </div>
+                
+                {/* Main Headline - Oldschool Typography */}
+                <div className="mb-8">
+                  <div className="text-white/40 text-[11px] tracking-[0.4em] font-light mb-4">
+                    ПРЕМИУМ РЕШЕНИЕ
+                  </div>
+                  
+                  <h1 className="text-5xl font-light tracking-[0.15em] mb-3"
+                    style={{
+                      color: '#FFFFFF',
+                      fontFamily: 'serif',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    Telegram
+                  </h1>
+                  
+                  <div className="text-lg font-light tracking-[0.25em] text-white/60 mb-6">
+                    MINI APPLICATIONS
+                  </div>
+                  
+                  {/* Classic Separator */}
+                  <div className="flex items-center justify-center gap-2 mb-6">
+                    <div className="w-3 h-3 border border-white/20 rotate-45"></div>
+                    <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                    <div className="w-3 h-3 border border-white/20 rotate-45"></div>
+                  </div>
+                </div>
+                
+                {/* Tagline - Classic Style */}
+                <div className="space-y-3 mb-10">
+                  <p className="text-[10px] tracking-[0.3em] font-light text-white/50">
+                    ЗАПУСК ЗА 24 ЧАСА
+                  </p>
+                  <p className="text-xs tracking-[0.2em] font-light text-white/60">
+                    БЕЗ КОДА • ПРЕМИУМ КАЧЕСТВО
+                  </p>
+                </div>
+                
+                {/* Bottom Decorative Element */}
+                <div className="flex items-center justify-center gap-4">
+                  <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-white/20"></div>
+                  <div className="w-1 h-1 bg-white/30 rounded-full"></div>
+                  <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-white/20"></div>
+                </div>
+              </div>
+              </div>
+            </div>
+
+            {/* Section Header */}
+            <div className="mb-6 text-center">
+              <h2 className="text-[1.5rem] font-sans font-black uppercase tracking-wider"
+                style={{
+                  color: '#FFFFFF',
+                  letterSpacing: '0.1em'
+                }}
+              >
+                БИЗНЕС-ПРИЛОЖЕНИЯ
+              </h2>
+            </div>
+
+            {/* Bento Grid Layout */}
+            <div className="grid grid-cols-12 gap-4">
+              
+              {/* Hero - большая плитка */}
+              <div className="col-span-12 md:col-span-8 row-span-2 h-[500px]">
+                <VideoHeroCard onOpenDemo={onOpenDemo} />
+              </div>
+              
+              {/* Средние плитки */}
+              <div className="col-span-6 md:col-span-4 h-[240px]">
+                <SneakerDemoCard onOpenDemo={onOpenDemo} />
+              </div>
+              <div className="col-span-6 md:col-span-4 h-[240px]">
+                <WatchesDemoCard onOpenDemo={onOpenDemo} />
+              </div>
+              
+              {/* Futuristic Fashion Collection - 5 новых приложений */}
+              <div className="col-span-6 md:col-span-4 h-[300px]">
+                <div 
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  onClick={() => onOpenDemo('futuristic-fashion-1')}
+                >
+                  <img
+                    src="/attached_assets/stock_images/futuristic_techwear__e958e42c.jpg"
+                    alt="Rascal"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a2e2a]/90 via-[#1a2e2a]/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-[#7FB069] text-xs mb-2 font-bold">ФУТУРИСТИКА</div>
+                    <h3 className="text-white text-2xl font-bold mb-1">Rascal®</h3>
+                    <p className="text-white/70 text-sm">Waterproof Fashion</p>
+                  </div>
+                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-green-600 to-emerald-700 text-white text-xs font-bold">
+                    NEW
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-6 md:col-span-4 h-[300px]">
+                <div 
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  onClick={() => onOpenDemo('futuristic-fashion-2')}
+                >
+                  <img
+                    src="/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg"
+                    alt="STORE"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-white/60 text-xs mb-2 font-bold">МИНИМАЛИЗМ</div>
+                    <h3 className="text-white text-2xl font-bold mb-1">STORE</h3>
+                    <p className="text-white/70 text-sm">Black Minimal</p>
+                  </div>
+                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-black text-white text-xs font-bold">
+                    PREMIUM
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-6 md:col-span-4 h-[300px]">
+                <div 
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  onClick={() => onOpenDemo('futuristic-fashion-3')}
+                >
+                  <img
+                    src="/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg"
+                    alt="lab. SURVIVALIST"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-white/60 text-xs mb-2 font-bold">ПРЕМИУМ</div>
+                    <h3 className="text-white text-2xl font-bold mb-1">lab. SURVIVALIST</h3>
+                    <p className="text-white/70 text-sm">Black & White</p>
+                  </div>
+                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gray-900 text-white text-xs font-bold">
+                    LUXURY
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-6 md:col-span-6 h-[300px]">
+                <div 
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  onClick={() => onOpenDemo('futuristic-fashion-4')}
+                >
+                  <img
+                    src="/attached_assets/stock_images/futuristic_fashion_m_4203db1e.jpg"
+                    alt="Nike ACG"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-white/60 text-xs mb-2 font-bold">ИНТЕРАКТИВ</div>
+                    <h3 className="text-white text-2xl font-bold mb-1">Nike ACG</h3>
+                    <p className="text-white/70 text-sm">3D Card Design</p>
+                  </div>
+                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-gray-800 to-black text-white text-xs font-bold">
+                    3D
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-6 md:col-span-6 h-[300px]">
+                <div 
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  onClick={() => onOpenDemo('futuristic-fashion-5')}
+                >
+                  <img
+                    src="/attached_assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg"
+                    alt="NEWWAVE"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-900/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-purple-400 text-xs mb-2 font-bold">ТОП-1</div>
+                    <h3 className="text-white text-2xl font-bold mb-1">NEWWAVE</h3>
+                    <p className="text-white/70 text-sm">Purple Gradient Tech</p>
+                  </div>
+                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold">
+                    TOP
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
-      </div>
 
-      {/* Apps Grid */}
-      <div className="p-6 space-y-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-white">
-            {selectedCategory === 'all' ? 'Все приложения' : categories.find(c => c.id === selectedCategory)?.label}
-          </h2>
-          <div className="flex items-center gap-2 text-white/50 text-sm">
-            <TrendingUp className="w-4 h-4" />
-            <span>{filteredApps.length} шт</span>
+        {/* Services Grid */}
+        <MotionStagger className="grid grid-cols-2 gap-4 mt-6 px-4">
+          
+          {/* Main Services Card - Premium 2025 */}
+          <MotionBox variant="fadeInScale">
+            <HoverScale scale={1.02}>
+              <div 
+                className="col-span-2 relative rounded-3xl p-6 cursor-pointer overflow-hidden group"
+                style={{
+                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
+                }}
+                onClick={() => onNavigate('projects')}
+                data-testid="card-main-services"
+              >
+            {/* Animated Gradient Overlay */}
+            <div className="absolute inset-0 opacity-20"
+              style={{
+                background: 'radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.4) 0%, transparent 70%)',
+                animation: 'float 6s ease-in-out infinite'
+              }}
+            />
+            
+            {/* Top Left Icon with Glow */}
+            <div className="absolute top-4 left-4 z-10">
+              <div className="w-9 h-9 text-black"
+                style={{
+                  filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))'
+                }}
+              >
+                <Star className="w-full h-full" fill="currentColor" />
+              </div>
+            </div>
+            
+            {/* Large Number with Shadow */}
+            <div className="relative text-black text-[96px] font-black leading-none mb-2 tracking-tighter"
+              style={{
+                textShadow: '2px 2px 0px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              4
+            </div>
+            
+            <div className="relative text-black font-black text-2xl mb-1 tracking-tight">
+              SERVICES
+            </div>
+            
+            <div className="relative text-black/70 text-sm font-medium">
+              Готовые решения для бизнеса
+            </div>
+            
+            {/* Agency Label with Badge */}
+            <div className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full"
+              style={{
+                background: 'rgba(0, 0, 0, 0.2)',
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              <span className="text-white text-xs font-bold tracking-wide whitespace-nowrap">
+                WEB4TG.AGENCY
+              </span>
+            </div>
           </div>
-        </div>
+            </HoverScale>
+          </MotionBox>
 
-        {filteredApps.map((app, index) => (
-          <AppCard
-            key={app.id}
-            app={app}
-            onOpen={() => onOpenDemo(app.id)}
-            index={index}
-          />
-        ))}
-
-        {filteredApps.length === 0 && (
-          <div className="text-center py-20">
-            <div className="text-white/30 text-sm">Приложений не найдено</div>
+          {/* Service Card 1 - Telegram Apps (Premium Style) */}
+          <MotionBox variant="fadeInUp">
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative rounded-3xl p-4 cursor-pointer overflow-hidden group"
+                style={{
+                  background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                  boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3)'
+                }}
+                onClick={() => onOpenDemo('clothing-store')}
+                data-testid="card-telegram-apps"
+              >
+            {/* Shimmer Effect */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500"
+              style={{
+                background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%)',
+                backgroundSize: '200% 200%',
+                animation: 'shimmerWave 3s ease-in-out infinite'
+              }}
+            />
+            
+            {/* Remote Label */}
+            <div className="absolute top-3 right-3 px-2 py-1 rounded-full"
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              <span className="text-white text-[10px] font-bold tracking-wide">УДАЛЕННО</span>
+            </div>
+            
+            {/* Card Number */}
+            <div className="text-black text-3xl font-thin mb-2" style={{fontFamily: 'Inter, sans-serif', letterSpacing: '3px'}}>1/4</div>
+            
+            {/* Icon */}
+            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
+              <Smartphone className="w-5 h-5" style={{color: '#10B981'}} />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-black text-lg font-bold leading-tight">
+                Telegram-приложения под ключ
+              </h3>
+              <p className="text-black/70 text-xs leading-tight mb-2">
+                Запуск за 24 часа. Все инструменты для продаж и клиентов
+              </p>
+              <p className="text-black/60 text-sm font-medium">
+                ПО ПРЕДОПЛАТЕ
+              </p>
+            </div>
           </div>
-        )}
-      </div>
+            </HoverScale>
+          </MotionBox>
 
-      {/* Bottom CTA */}
-      <div className="p-6 pb-32">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl p-8 text-center"
-        >
-          <Sparkles className="w-12 h-12 text-white mx-auto mb-4" />
-          <h3 className="text-2xl font-black text-white mb-2">Создай своё приложение</h3>
-          <p className="text-white/90 mb-6">Начни с готового шаблона уже сегодня</p>
-          <button
-            onClick={() => onNavigate('constructor')}
-            className="px-8 py-4 bg-white text-emerald-600 rounded-full font-bold hover:shadow-xl transition-all"
+          {/* Service Card 2 - E-commerce */}
+          <MotionBox variant="fadeInUp" delay={0.1}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-4 cursor-pointer"
+            onClick={() => onOpenDemo('electronics')}
           >
-            Начать сейчас
-          </button>
-        </motion.div>
+            {/* Remote Label */}
+            <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
+              REMOTE
+            </div>
+            
+            {/* Card Number */}
+            <div className="text-white text-2xl font-black mb-2">2/4</div>
+            
+            {/* Icon */}
+            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+              <ShoppingCart className="w-5 h-5 text-white" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-white text-lg font-bold leading-tight">
+                E-COMMERCE SOLUTIONS
+              </h3>
+              <p className="text-white/70 text-xs leading-tight mb-2">
+                Полнофункциональные платформы электронной коммерции
+              </p>
+              <p className="text-white/60 text-sm font-medium">
+                FULLTIME
+              </p>
+            </div>
+          </div>
+            </HoverScale>
+          </MotionBox>
+
+          {/* Service Card 3 - Automation */}
+          <MotionBox variant="fadeInUp" delay={0.15}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-4 cursor-pointer"
+                onClick={() => onOpenDemo('beauty')}
+              >
+            {/* Remote Label */}
+            <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
+              REMOTE
+            </div>
+            
+            {/* Card Number */}
+            <div className="text-white text-2xl font-black mb-2">3/4</div>
+            
+            {/* Icon */}
+            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+              <Code className="w-5 h-5 text-white" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-white text-lg font-bold leading-tight">
+                BUSINESS AUTOMATION
+              </h3>
+              <p className="text-white/70 text-xs leading-tight mb-2">
+                Умные боты и системы для оптимизации работы
+              </p>
+              <p className="text-white/60 text-sm font-medium">
+                PARTTIME
+              </p>
+            </div>
+          </div>
+            </HoverScale>
+          </MotionBox>
+
+          {/* Portfolio Card */}
+          <MotionBox variant="fadeInUp" delay={0.2}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative rounded-3xl p-4 cursor-pointer"
+                style={{backgroundColor: '#10B981'}}
+                onClick={() => onNavigate('projects')}
+              >
+            {/* Remote Label */}
+            <div className="absolute top-3 right-3 bg-black/20 text-black text-xs px-2 py-1 rounded-full font-medium">
+              УДАЛЕННО
+            </div>
+            
+            {/* Card Number */}
+            <div className="text-black text-3xl font-thin mb-2" style={{fontFamily: 'Inter, sans-serif', letterSpacing: '3px'}}>4/4</div>
+            
+            {/* Icon */}
+            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
+              <Users className="w-5 h-5" style={{color: '#10B981'}} />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-black text-lg font-bold leading-tight">
+                ПОРТФОЛИО И КЕЙСЫ
+              </h3>
+              <p className="text-black/70 text-xs leading-tight mb-2">
+                Успешные проекты и практические решения для бизнеса
+              </p>
+              <p className="text-black/60 text-sm font-medium">
+                ДОСТУПНО
+              </p>
+            </div>
+          </div>
+            </HoverScale>
+          </MotionBox>
+
+        </MotionStagger>
+        
       </div>
+      
     </div>
   );
 }
+
+// Memoize the component for better performance
+export default React.memo(ShowcasePage);
