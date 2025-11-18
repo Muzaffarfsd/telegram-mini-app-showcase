@@ -76,43 +76,6 @@ export default defineConfig({
     
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Vendor chunks
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
-            }
-            if (id.includes('framer-motion')) {
-              return 'animation-vendor';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'ui-vendor';
-            }
-            if (id.includes('lucide-react')) {
-              return 'icons';
-            }
-            return 'vendor';
-          }
-          
-          // Route-based splitting
-          if (id.includes('/src/components/ShowcasePage')) {
-            return 'showcase';
-          }
-          if (id.includes('/src/components/ProjectsPage')) {
-            return 'projects';
-          }
-          if (id.includes('/src/components/demos/')) {
-            // Группируем демо по категориям
-            if (id.includes('Clothing') || id.includes('Electronics') || id.includes('Gadget')) {
-              return 'demos-ecommerce';
-            }
-            if (id.includes('Beauty') || id.includes('Restaurant') || id.includes('Hotel')) {
-              return 'demos-services';
-            }
-            return 'demos-other';
-          }
-        },
-        
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'
