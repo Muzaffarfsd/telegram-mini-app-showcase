@@ -91,15 +91,6 @@ function App() {
   const [orderData, setOrderData] = useState<any>(null);
   const { hapticFeedback } = useTelegram();
   
-  // Hide loader when React is mounted
-  useEffect(() => {
-    const appLoader = document.getElementById('app-loader');
-    if (appLoader) {
-      appLoader.classList.add('loaded');
-      setTimeout(() => appLoader.remove(), 500);
-    }
-  }, []);
-  
   // Initialize route after mount to ensure showcase is default
   useEffect(() => {
     setRoute(parseHash());
