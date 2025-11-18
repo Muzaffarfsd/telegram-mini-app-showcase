@@ -7,19 +7,13 @@ import { RewardsProvider } from "./contexts/RewardsContext";
 import { XPNotificationProvider } from "./contexts/XPNotificationContext";
 import { HelmetProvider } from "react-helmet-async";
 import { useTelegram } from "./hooks/useTelegram";
+import { Home, ShoppingCart, Briefcase, CircleUser, Bot } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 import { LazyMotionProvider } from "./utils/LazyMotionProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 // Import ShowcasePage eagerly (landing page)
 import ShowcasePage from "./components/ShowcasePage";
-
-// Lazy load icons
-const Home = lazy(() => import("lucide-react").then(m => ({ default: m.Home })));
-const ShoppingCart = lazy(() => import("lucide-react").then(m => ({ default: m.ShoppingCart })));
-const Briefcase = lazy(() => import("lucide-react").then(m => ({ default: m.Briefcase })));
-const CircleUser = lazy(() => import("lucide-react").then(m => ({ default: m.CircleUser })));
-const Bot = lazy(() => import("lucide-react").then(m => ({ default: m.Bot })));
 
 // Lazy load ALL pages except ShowcasePage
 const ProjectsPage = lazy(() => import("./components/ProjectsPage"));
@@ -96,6 +90,15 @@ function App() {
   const [route, setRoute] = useState<Route>({ path: '/', component: 'showcase', params: {} });
   const [orderData, setOrderData] = useState<any>(null);
   const { hapticFeedback } = useTelegram();
+  
+  // Hide loader when React is mounted
+  useEffect(() => {
+    const appLoader = document.getElementById('app-loader');
+    if (appLoader) {
+      appLoader.classList.add('loaded');
+      setTimeout(() => appLoader.remove(), 500);
+    }
+  }, []);
   
   // Initialize route after mount to ensure showcase is default
   useEffect(() => {

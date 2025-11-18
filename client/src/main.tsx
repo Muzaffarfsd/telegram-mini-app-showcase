@@ -5,15 +5,6 @@ import { initWebVitals } from "./utils/webVitals";
 import { errorMonitor } from "./utils/errorMonitoring";
 import { initTelegramWebApp } from "./lib/telegram";
 
-// Hide loader when React renders
-function hideLoader() {
-  const appLoader = document.getElementById('app-loader');
-  if (appLoader) {
-    appLoader.classList.add('loaded');
-    setTimeout(() => appLoader.remove(), 300);
-  }
-}
-
 // Initialize and render immediately
 if (typeof window !== 'undefined') {
   // Init Telegram ASAP (ready() already called in HTML)
@@ -32,8 +23,3 @@ if (typeof window !== 'undefined') {
 
 // Render React app immediately
 createRoot(document.getElementById("root")!).render(<App />);
-
-// Hide loader immediately (React is rendering)
-if (typeof window !== 'undefined') {
-  hideLoader();
-}

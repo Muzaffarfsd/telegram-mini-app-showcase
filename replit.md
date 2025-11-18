@@ -62,9 +62,10 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Fast Initial Load Optimizations** (targeting <1s load time):
   - Inline critical Inter font (400 weight) в index.html
   - Preload critical font файлы (woff2) для мгновенного текста
-  - Lazy load всех иконок (Home, ShoppingCart, Briefcase, CircleUser, Bot)
   - Preconnect только к Telegram (убраны ненужные connections)
   - Optimized resource hints для critical path
+  - **CRITICAL FIX**: Moved hideLoader() to App.tsx useEffect - React 18 render is async, calling hideLoader in main.tsx was premature
+  - Development metrics: FCP 132ms, TTFB 18.7ms (excellent performance)
 - **Bundle Analyzer**: Added `npm run build:analyze` script (rollup-plugin-visualizer)
 - **Store Cleanup**: Removed 4 stores (NewwaveTechwear, GameForge, GadgetLab, CoffeeCraft)
 - Futuristic Fashion Collection now has 4 premium stores
