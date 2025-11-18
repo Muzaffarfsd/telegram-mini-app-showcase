@@ -11,7 +11,6 @@ import { Home, ShoppingCart, Briefcase, CircleUser, Bot } from "lucide-react";
 import { preloadCriticalDemos } from "./components/demos/DemoRegistry";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { trackDemoView } from "./hooks/useGamification";
-import { LazyMotionProvider } from "./utils/LazyMotionProvider";
 
 // Import ShowcasePage eagerly (it's the landing page, needs to load fast)
 import ShowcasePage from "./components/ShowcasePage";
@@ -247,16 +246,15 @@ function App() {
     <ErrorBoundary>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
-          <LazyMotionProvider>
-            <RewardsProvider>
-              <XPNotificationProvider>
-                <TooltipProvider>
-                  <div className="relative min-h-screen">
-                    <div className="floating-elements"></div>
-                    
-                    <div className="pb-24">
-                      {renderRoute()}
-                    </div>
+          <RewardsProvider>
+            <XPNotificationProvider>
+              <TooltipProvider>
+                <div className="relative min-h-screen">
+                  <div className="floating-elements"></div>
+                  
+                  <div className="pb-24">
+                    {renderRoute()}
+                  </div>
             
                 {/* Liquid Glass Bottom Navigation */}
                 {shouldShowBottomNav && (
@@ -438,7 +436,6 @@ function App() {
       </TooltipProvider>
       </XPNotificationProvider>
       </RewardsProvider>
-      </LazyMotionProvider>
     </QueryClientProvider>
     </HelmetProvider>
     </ErrorBoundary>

@@ -1,4 +1,5 @@
-import { motion, HTMLMotionProps, Variants } from 'framer-motion';
+import { HTMLMotionProps, Variants } from 'framer-motion';
+import { m } from '@/utils/LazyMotionProvider';
 import { ReactNode } from 'react';
 
 // Spring animation presets
@@ -80,7 +81,7 @@ export function MotionBox({
   ...props 
 }: MotionBoxProps) {
   return (
-    <motion.div
+    <m.div
       variants={animationVariants[variant]}
       initial="hidden"
       animate="visible"
@@ -89,20 +90,20 @@ export function MotionBox({
       {...props}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
 export function MotionStagger({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <motion.div
+    <m.div
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -115,14 +116,14 @@ interface HoverScaleProps {
 
 export function HoverScale({ children, scale = 1.05, className = '' }: HoverScaleProps) {
   return (
-    <motion.div
+    <m.div
       whileHover={{ scale }}
       whileTap={{ scale: scale - 0.02 }}
       transition={springPresets.bouncy}
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -134,12 +135,12 @@ interface TapScaleProps {
 
 export function TapScale({ children, className = '' }: TapScaleProps) {
   return (
-    <motion.div
+    <m.div
       whileTap={{ scale: 0.95 }}
       transition={springPresets.snappy}
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
