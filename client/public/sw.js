@@ -1,194 +1,59 @@
-// Service Worker for Progressive Web App (PWA)
-// Provides offline functionality and caching strategies
+// POISON PILL SERVICE WORKER - Auto-destroys old cached versions
+// This SW self-destructs to fix black screen issue on Railway
 
-const CACHE_VERSION = 'v4';
-const STATIC_CACHE = `static-${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
-const IMAGE_CACHE = `images-${CACHE_VERSION}`;
+const CACHE_VERSION = 'v2';
 
-// Static assets to cache on install
-const STATIC_ASSETS = [
-  '/',
-  '/manifest.json'
-  // Note: Third-party scripts like Telegram WebApp are not precached
-  // due to CORS restrictions. They will be cached on first use via fetch handler.
-];
-
-// Install event - cache static assets
+// Install immediately without waiting
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Service Worker v3...');
-  
-  event.waitUntil(
-    // First, delete ALL old caches immediately
-    caches.keys()
-      .then(cacheNames => {
-        console.log('[SW] Deleting all old caches:', cacheNames);
-        return Promise.all(
-          cacheNames.map(cacheName => caches.delete(cacheName))
-        );
-      })
-      .then(() => caches.open(STATIC_CACHE))
-      .then(cache => {
-        console.log('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
-        console.log('[SW] Skip waiting and take control immediately');
-        return self.skipWaiting();
-      })
-  );
+  console.log('[Poison SW] Installing - will destroy old caches');
+  self.skipWaiting(); // Activate immediately
 });
 
-// Activate event - clean old caches
+// On activation: destroy everything and unregister
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating Service Worker...');
+  console.log('[Poison SW] Activated - checking for old caches');
   
   event.waitUntil(
-    caches.keys()
-      .then(cacheNames => {
-        return Promise.all(
-          cacheNames
-            .filter(cacheName => {
-              // Remove old caches
-              return cacheName !== STATIC_CACHE && 
-                     cacheName !== DYNAMIC_CACHE && 
-                     cacheName !== IMAGE_CACHE;
-            })
-            .map(cacheName => {
-              console.log('[SW] Deleting old cache:', cacheName);
+    (async () => {
+      try {
+        // Check if there are old caches to clean
+        const cacheNames = await caches.keys();
+        const hasOldCaches = cacheNames.length > 0;
+        
+        if (hasOldCaches) {
+          console.log('[Poison SW] Found old caches - cleaning up:', cacheNames);
+          
+          // Delete ALL caches
+          await Promise.all(
+            cacheNames.map(cacheName => {
+              console.log('[Poison SW] Deleting cache:', cacheName);
               return caches.delete(cacheName);
             })
-        );
-      })
-      .then(() => {
-        console.log('[SW] Claiming clients');
-        return self.clients.claim();
-      })
-  );
-});
-
-// Fetch event - caching strategies
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-  
-  // Skip non-GET requests
-  if (request.method !== 'GET') {
-    return;
-  }
-  
-  // Skip Telegram WebApp API calls
-  if (url.hostname === 'telegram.org') {
-    return;
-  }
-  
-  // API requests - Network First with cache fallback
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          // Cache successful responses
-          if (response && response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(DYNAMIC_CACHE)
-              .then(cache => cache.put(request, responseClone));
-          }
-          return response;
-        })
-        .catch(() => {
-          // Fallback to cache if network fails
-          return caches.match(request);
-        })
-    );
-    return;
-  }
-  
-  // Images - Cache First with network fallback (same-origin only)
-  if (request.destination === 'image' || url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|avif)$/i)) {
-    event.respondWith(
-      caches.match(request)
-        .then(cached => {
-          if (cached) {
-            return cached;
-          }
+          );
           
-          return fetch(request)
-            .then(response => {
-              // SECURITY: Only cache same-origin responses to prevent credential leakage
-              // type === "basic" means same-origin, non-opaque response
-              if (response && response.status === 200 && response.type === 'basic') {
-                const responseClone = response.clone();
-                caches.open(IMAGE_CACHE)
-                  .then(cache => cache.put(request, responseClone));
-              }
-              return response;
-            });
-        })
-    );
-    return;
-  }
-  
-  // Static assets (/assets/*) - Cache First (same-origin only)
-  if (url.pathname.startsWith('/assets/')) {
-    event.respondWith(
-      caches.match(request)
-        .then(cached => {
-          return cached || fetch(request)
-            .then(response => {
-              // SECURITY: Only cache same-origin responses
-              if (response && response.type === 'basic') {
-                const responseClone = response.clone();
-                caches.open(STATIC_CACHE)
-                  .then(cache => cache.put(request, responseClone));
-              }
-              return response;
-            });
-        })
-    );
-    return;
-  }
-  
-  // Everything else - Network First with cache fallback (same-origin only)
-  event.respondWith(
-    fetch(request)
-      .then(response => {
-        // SECURITY: Only cache same-origin responses to prevent credential leakage
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseClone = response.clone();
-          caches.open(DYNAMIC_CACHE)
-            .then(cache => cache.put(request, responseClone));
-        }
-        return response;
-      })
-      .catch(() => {
-        // Fallback to cache if network fails
-        return caches.match(request)
-          .then(cached => {
-            return cached || new Response('Offline - resource not available', {
-              status: 503,
-              statusText: 'Service Unavailable',
-              headers: new Headers({
-                'Content-Type': 'text/plain'
-              })
-            });
+          // Take control of all clients immediately
+          await self.clients.claim();
+          
+          // Force reload all clients with cache-busting (ONLY if we cleaned caches)
+          const clients = await self.clients.matchAll({ type: 'window' });
+          clients.forEach(client => {
+            console.log('[Poison SW] Reloading client:', client.url);
+            client.navigate(client.url + '?sw-reset=' + Date.now());
           });
-      })
+        } else {
+          console.log('[Poison SW] No old caches found - clean install');
+        }
+        
+        // Self-destruct - unregister this service worker
+        console.log('[Poison SW] Unregistering self');
+        await self.registration.unregister();
+        
+      } catch (error) {
+        console.error('[Poison SW] Error during cleanup:', error);
+      }
+    })()
   );
 });
 
-// Message event - handle commands from clients
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-  
-  if (event.data && event.data.type === 'CACHE_URLS') {
-    const urlsToCache = event.data.urls;
-    event.waitUntil(
-      caches.open(DYNAMIC_CACHE)
-        .then(cache => cache.addAll(urlsToCache))
-    );
-  }
-});
-
-console.log('[SW] Service Worker loaded');
+// NO FETCH HANDLER - all requests go directly to network
+// This ensures fresh content loads immediately
