@@ -9,8 +9,9 @@ const IMAGE_CACHE = `images-${CACHE_VERSION}`;
 // Static assets to cache on install
 const STATIC_ASSETS = [
   '/',
-  '/manifest.json',
-  'https://telegram.org/js/telegram-web-app.js'
+  '/manifest.json'
+  // Note: Third-party scripts like Telegram WebApp are not precached
+  // due to CORS restrictions. They will be cached on first use via fetch handler.
 ];
 
 // Install event - cache static assets
