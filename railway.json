@@ -4,6 +4,8 @@
     "builder": "RAILPACK"
   },
   "deploy": {
-    "startCommand": null
+    "startCommand": null,
+    "healthcheckPath": "/",
+    "healthcheckTimeout": 100
   }
 }
