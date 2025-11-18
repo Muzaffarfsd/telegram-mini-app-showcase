@@ -191,44 +191,6 @@ export const demoApps: DemoApp[] = [
       ]
     }
   },
-  {
-    id: 'coffee',
-    title: 'CoffeeCraft',
-    description: 'Кофейня с доставкой',
-    category: 'Еда и рестораны',
-    image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-    creator: 'WEB4TG',
-    likes: '7.5k',
-    badge: 'Авторский кофе',
-    badgeColor: 'bg-amber-600',
-    home: {
-      hero: {
-        title: 'Добро пожаловать в CoffeeCraft',
-        subtitle: 'Искусство кофе в каждой чашке',
-        image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-        bgClass: 'bg-gradient-to-r from-amber-600 to-orange-700'
-      },
-      banners: [
-        {
-          title: 'Новая обжарка',
-          subtitle: 'Эфиопия Сидамо',
-          image: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=400&auto=format,compress&q=80&dpr=2',
-          bgClass: 'bg-gradient-to-r from-brown-500 to-amber-600'
-        },
-        {
-          title: 'Кофе-курсы',
-          subtitle: 'Научитесь варить как бариста',
-          bgClass: 'bg-gradient-to-r from-emerald-500 to-teal-600'
-        }
-      ],
-      services: [
-        { id: 'menu', title: 'Меню', priceText: 'Кофе и десерты', iconName: 'coffee' },
-        { id: 'beans', title: 'Зерно', priceText: 'Купить кофе домой', iconName: 'package' },
-        { id: 'subscription', title: 'Подписка', priceText: 'Кофе каждый месяц', iconName: 'refresh-cw' },
-        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
-      ]
-    }
-  },
   // НОВЫЕ E-COMMERCE ПРИЛОЖЕНИЯ
   {
     id: 'luxury-watches',

@@ -48,8 +48,8 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 # Recent Changes
 
 **Date**: November 18, 2025
-**Changes**: Cleaned up demo showcase - Removed 3 stores (NewwaveTechwear, GameForge, GadgetLab)
-- Permanently deleted NewwaveTechwear (futuristic-fashion-5), GameForge, and GadgetLab stores
+**Changes**: Cleaned up demo showcase - Removed 4 stores (NewwaveTechwear, GameForge, GadgetLab, CoffeeCraft)
+- Permanently deleted NewwaveTechwear (futuristic-fashion-5), GameForge, GadgetLab, and CoffeeCraft stores
 - Updated DemoRegistry and demoApps to remove all references
 - Futuristic Fashion Collection now has 4 premium stores (was 5)
 - All remaining stores verified working after cleanup

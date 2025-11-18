@@ -37,10 +37,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./Banking')),
     preload: () => import('./Banking')
   },
-  'coffee': {
-    component: lazy(() => import('./Coffee')),
-    preload: () => import('./Coffee')
-  },
   'bookstore': {
     component: lazy(() => import('./Bookstore')),
     preload: () => import('./Bookstore')
