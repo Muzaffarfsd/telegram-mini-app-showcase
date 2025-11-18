@@ -6,11 +6,19 @@ export function initTelegramWebApp() {
   // Continue with other setup
   
   // Request fullscreen mode (hides bot name header)
+  // Only available in WebApp API version 8.0+
   try {
-    if (WebApp.requestFullscreen) {
-      WebApp.requestFullscreen();
+    if (WebApp.requestFullscreen && typeof WebApp.requestFullscreen === 'function') {
+      // Check if method is actually supported (not just present)
+      const isSupported = WebApp.isVersionAtLeast && WebApp.isVersionAtLeast('8.0');
+      if (isSupported) {
+        WebApp.requestFullscreen();
+      } else {
+        console.debug('[Telegram] Fullscreen not supported in this version');
+      }
     }
   } catch (e) {
+    // Silently ignore errors - feature not critical
     console.debug('[Telegram] Fullscreen not supported');
   }
   

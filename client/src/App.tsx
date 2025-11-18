@@ -14,6 +14,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 
 // Import ShowcasePage eagerly (landing page)
 import ShowcasePage from "./components/ShowcasePage";
+import { SpotlightCursor } from "./components/SpotlightCursor";
 
 // Lazy load ALL pages except ShowcasePage
 const ProjectsPage = lazy(() => import("./components/ProjectsPage"));
@@ -248,6 +249,7 @@ function App() {
               <XPNotificationProvider>
                 <TooltipProvider>
                   <div className="relative min-h-screen">
+                    <SpotlightCursor />
                     <div className="floating-elements"></div>
                     
                     <div className="pb-24">

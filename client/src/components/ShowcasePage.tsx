@@ -5,6 +5,8 @@ import { useTelegram } from '../hooks/useTelegram';
 import { useTrackInteraction } from '@/hooks/useAIRecommendations';
 import { ClothingIcon, ElectronicsIcon, BeautyIcon, RestaurantIcon, FitnessIcon, CarServiceIcon } from './AnimatedBusinessIcons';
 import { LazyVideo } from './LazyVideo';
+import { StatsSection } from './StatsSection';
+import { InteractiveCTA } from './InteractiveCTA';
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
 import storeHomepageImage from "@assets/image_1761735146810.png";
@@ -451,9 +453,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     ПРЕМИУМ РЕШЕНИЕ
                   </div>
                   
-                  <h1 className="text-5xl font-light tracking-[0.15em] mb-3"
+                  <h1 className="text-5xl font-light tracking-[0.15em] mb-3 gradient-text-2025"
                     style={{
-                      color: '#FFFFFF',
                       fontFamily: 'serif',
                       textTransform: 'uppercase'
                     }}
@@ -461,7 +462,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     Telegram
                   </h1>
                   
-                  <div className="text-lg font-light tracking-[0.25em] text-white/60 mb-6">
+                  <div className="text-lg font-light tracking-[0.25em] mb-6 gradient-text-2025">
                     MINI APPLICATIONS
                   </div>
                   
@@ -489,9 +490,30 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   <div className="w-1 h-1 bg-white/30 rounded-full"></div>
                   <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-white/20"></div>
                 </div>
+                
+                {/* Animated Scroll Indicator */}
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 scroll-indicator">
+                  <svg
+                    className="w-6 h-6 text-[#00D9FF]"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                  </svg>
+                </div>
               </div>
               </div>
             </div>
+
+            {/* Stats Section - 2025 Feature */}
+            <StatsSection />
+
+            {/* Interactive CTA - 2025 Feature */}
+            <InteractiveCTA />
 
             {/* Section Header */}
             <div className="mb-6 text-center">

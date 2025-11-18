@@ -2949,3 +2949,89 @@
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
+/* === 2025 TRENDY EFFECTS === */
+
+/* Neon Glow 2025 - Cyan Theme */
+.neon-glow-2025 {
+  box-shadow: 
+    0 0 20px rgba(0, 217, 255, 0.4),
+    0 0 40px rgba(0, 217, 255, 0.2),
+    0 0 80px rgba(0, 217, 255, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.neon-glow-2025:hover {
+  box-shadow: 
+    0 0 30px rgba(0, 217, 255, 0.6),
+    0 0 60px rgba(0, 217, 255, 0.4),
+    0 0 100px rgba(0, 217, 255, 0.2);
+  animation: pulse-glow-cyan 2s infinite;
+}
+
+/* Neon Glow Purple */
+.neon-glow-purple {
+  box-shadow: 
+    0 0 20px rgba(189, 0, 255, 0.4),
+    0 0 40px rgba(189, 0, 255, 0.2),
+    0 0 80px rgba(189, 0, 255, 0.1);
+}
+
+.neon-glow-purple:hover {
+  box-shadow: 
+    0 0 30px rgba(189, 0, 255, 0.6),
+    0 0 60px rgba(189, 0, 255, 0.4),
+    0 0 100px rgba(189, 0, 255, 0.2);
+}
+
+@keyframes pulse-glow-cyan {
+  0%, 100% { 
+    box-shadow: 
+      0 0 20px rgba(0, 217, 255, 0.4),
+      0 0 40px rgba(0, 217, 255, 0.2),
+      0 0 80px rgba(0, 217, 255, 0.1);
+  }
+  50% { 
+    box-shadow: 
+      0 0 30px rgba(0, 217, 255, 0.6),
+      0 0 60px rgba(0, 217, 255, 0.4),
+      0 0 100px rgba(0, 217, 255, 0.2);
+  }
+}
+
+/* Glassmorphism 2.0 - Enhanced */
+.glass-2025 {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Gradient Text - Cyan to Purple */
+.gradient-text-2025 {
+  background: linear-gradient(135deg, #00D9FF, #BD00FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Magnetic Button Effect (prepare for hover) */
+.magnetic-button {
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+/* Animated Scroll Indicator */
+@keyframes bounce-smooth {
+  0%, 100% { 
+    transform: translateY(0);
+  }
+  50% { 
+    transform: translateY(10px);
+  }
+}
+
+.scroll-indicator {
+  animation: bounce-smooth 1.5s ease-in-out infinite;
+}
