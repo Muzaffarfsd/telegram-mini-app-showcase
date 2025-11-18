@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { 
   Smartphone, 
   Heart, 
@@ -419,7 +419,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
           
           <div className="absolute bottom-0 left-0 right-0 p-8">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -443,13 +443,13 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
               >
                 Смотреть новинки
               </button>
-            </motion.div>
+            </m.div>
           </div>
         </div>
 
         <div className="px-6 space-y-4">
           {filteredProducts.slice(0, 3).map((product, idx) => (
-            <motion.div
+            <m.div
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -519,7 +519,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
                   <p className="text-lg font-bold text-white">{formatPrice(product.price)}</p>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
@@ -564,7 +564,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
 
           <div className="grid grid-cols-2 gap-4">
             {filteredProducts.map((product) => (
-              <motion.div
+              <m.div
                 key={product.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openProduct(product)}
@@ -609,7 +609,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Search, Menu, ChevronUp, ChevronDown } from "lucide-react";
 
 import img1 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
@@ -391,7 +391,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
 
           {/* Hero Content */}
           <div className="relative h-full flex flex-col items-center justify-center p-8">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
@@ -410,7 +410,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
               <button className="px-10 py-5 bg-white text-black font-black rounded-full text-lg hover:bg-white/90 transition-all shadow-2xl tracking-wider">
                 ИССЛЕДОВАТЬ
               </button>
-            </motion.div>
+            </m.div>
           </div>
 
           {/* Scroll Indicator */}
@@ -441,7 +441,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
               label: 'FULL SYSTEM'
             },
           ].map((item, idx) => (
-            <motion.div
+            <m.div
               key={item.product.id}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -520,7 +520,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
                   style={{ color: item.text }}
                 />
               </button>
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
@@ -529,7 +529,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
           <h2 className="text-3xl font-black mb-8 tracking-tight">ВСЕ ПРОДУКТЫ</h2>
           <div className="grid grid-cols-2 gap-4">
             {products.slice(3).map((product) => (
-              <motion.div
+              <m.div
                 key={product.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openProduct(product)}
@@ -569,7 +569,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
                   <p className="text-sm font-bold mb-2 truncate">{product.name}</p>
                   <p className="text-lg font-black">{formatPrice(product.price)}</p>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>
@@ -623,7 +623,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
           {/* Products Grid */}
           <div className="grid grid-cols-2 gap-5">
             {filteredProducts.map((product) => (
-              <motion.div
+              <m.div
                 key={product.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openProduct(product)}
@@ -674,7 +674,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>

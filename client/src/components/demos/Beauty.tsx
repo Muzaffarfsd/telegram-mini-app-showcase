@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { 
   Heart, 
   Star, 
@@ -254,7 +254,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
           {/* Collections Grid - Liquid Glass Cards */}
           <div className="space-y-4 pt-4">
             {collections.map((collection, idx) => (
-              <motion.div
+              <m.div
                 key={collection.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -302,7 +302,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                     <p className="text-sm text-white/80">{collection.subtitle}</p>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
 
@@ -320,7 +320,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
 
             <div className="grid grid-cols-2 gap-4">
               {services.filter(s => s.isPopular).slice(0, 4).map((service) => (
-                <motion.div
+                <m.div
                   key={service.id}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => openService(service)}
@@ -373,7 +373,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                       <p className="text-xs text-white/40">{service.duration}</p>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </div>
@@ -432,7 +432,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
           {/* Services Grid */}
           <div className="grid grid-cols-2 gap-4">
             {filteredServices.map((service) => (
-              <motion.div
+              <m.div
                 key={service.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openService(service)}
@@ -475,7 +475,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                     <p className="text-xs text-white/40">{service.duration}</p>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { 
   Wallet, 
   Heart, 
@@ -120,7 +120,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
           <div className="absolute inset-0 backdrop-blur-xl bg-gradient-to-t from-black/60 to-transparent" />
           
           <div className="relative h-full flex flex-col justify-end p-6 pb-8">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="space-y-2"
@@ -143,7 +143,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
                   <p className="text-white text-lg font-bold">+{gainPercent}%</p>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         </div>
 
@@ -171,7 +171,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
             </div>
             <div className="grid gap-3">
               {portfolios.map((portfolio) => (
-                <motion.div
+                <m.div
                   key={portfolio.id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -195,7 +195,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </div>
@@ -207,7 +207,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               {assets.filter(a => a.isPopular).map((asset) => (
-                <motion.div
+                <m.div
                   key={asset.id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -241,7 +241,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
                       <span className="text-xs text-muted-foreground">{asset.symbol}</span>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </div>
@@ -356,7 +356,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
 
         <div className="p-4 grid grid-cols-2 gap-3">
           {filteredAssets.map((asset) => (
-            <motion.div
+            <m.div
               key={asset.id}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -398,7 +398,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
                   <span className="text-xs text-muted-foreground">{asset.symbol}</span>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import greenNikeImage from "@assets/загруженное-_4__1761733573240.jpg";
@@ -425,7 +425,7 @@ function SneakerVault({ activeTab, onNavigate }: SneakerVaultProps) {
           
           {/* Content Overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-8">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -447,14 +447,14 @@ function SneakerVault({ activeTab, onNavigate }: SneakerVaultProps) {
               >
                 Смотреть коллекцию
               </button>
-            </motion.div>
+            </m.div>
           </div>
         </div>
 
         {/* Featured Sneaker Cards */}
         <div className="px-6 space-y-4">
           {filteredSneakers.slice(0, 3).map((sneaker, idx) => (
-            <motion.div
+            <m.div
               key={sneaker.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -529,7 +529,7 @@ function SneakerVault({ activeTab, onNavigate }: SneakerVaultProps) {
                   <p className="text-lg font-bold">{formatPrice(sneaker.price)}</p>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
@@ -577,7 +577,7 @@ function SneakerVault({ activeTab, onNavigate }: SneakerVaultProps) {
           {/* Sneakers Grid */}
           <div className="grid grid-cols-2 gap-4">
             {filteredSneakers.map((sneaker) => (
-              <motion.div
+              <m.div
                 key={sneaker.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openSneaker(sneaker)}
@@ -625,7 +625,7 @@ function SneakerVault({ activeTab, onNavigate }: SneakerVaultProps) {
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>

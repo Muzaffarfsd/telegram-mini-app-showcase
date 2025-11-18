@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { 
   Dumbbell, 
   Heart, 
@@ -143,7 +143,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
           <div className="absolute inset-0 backdrop-blur-xl bg-gradient-to-t from-black/60 to-transparent" />
           
           <div className="relative h-full flex flex-col justify-end p-6 pb-8">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="space-y-2"
@@ -166,7 +166,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                   <p className="text-white text-lg font-bold">{stats.caloriesBurned.toLocaleString('ru-RU')}</p>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         </div>
 
@@ -201,7 +201,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
             </div>
             <div className="grid gap-3">
               {collections.map((collection) => (
-                <motion.div
+                <m.div
                   key={collection.id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -224,7 +224,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                       ))}
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </div>
@@ -236,7 +236,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               {workouts.filter(w => w.isPopular).map((workout) => (
-                <motion.div
+                <m.div
                   key={workout.id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -276,7 +276,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </div>
@@ -384,7 +384,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
 
         <div className="p-4 grid grid-cols-2 gap-3">
           {filteredWorkouts.map((workout) => (
-            <motion.div
+            <m.div
               key={workout.id}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -432,7 +432,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>

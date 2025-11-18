@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Flower2, Crown, Droplets } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 
@@ -432,7 +432,7 @@ function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
           
           <div className="absolute bottom-0 left-0 right-0 p-8">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -456,13 +456,13 @@ function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
               >
                 Смотреть коллекцию
               </button>
-            </motion.div>
+            </m.div>
           </div>
         </div>
 
         <div className="px-6 space-y-4">
           {filteredPerfumes.slice(0, 3).map((perfume, idx) => (
-            <motion.div
+            <m.div
               key={perfume.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -532,7 +532,7 @@ function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
                   <p className="text-lg font-bold text-white">{formatPrice(perfume.price)}</p>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
@@ -577,7 +577,7 @@ function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
 
           <div className="grid grid-cols-2 gap-4">
             {filteredPerfumes.map((perfume) => (
-              <motion.div
+              <m.div
                 key={perfume.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openPerfume(perfume)}
@@ -622,7 +622,7 @@ function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>

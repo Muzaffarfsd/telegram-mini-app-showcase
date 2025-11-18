@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
@@ -444,7 +444,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
           
           {/* Content Overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-8">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -466,14 +466,14 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
               >
                 Смотреть коллекцию
               </button>
-            </motion.div>
+            </m.div>
           </div>
         </div>
 
         {/* Featured Product Cards */}
         <div className="px-6 space-y-4">
           {filteredProducts.slice(0, 3).map((product, idx) => (
-            <motion.div
+            <m.div
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -548,7 +548,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                   <p className="text-lg font-bold">{formatPrice(product.price)}</p>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
@@ -596,7 +596,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
           {/* Products Grid */}
           <div className="grid grid-cols-2 gap-4">
             {filteredProducts.map((product) => (
-              <motion.div
+              <m.div
                 key={product.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openProduct(product)}
@@ -643,7 +643,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>
