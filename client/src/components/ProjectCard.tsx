@@ -23,7 +23,7 @@ export default function ProjectCard({
 }: ProjectCardProps) {
   return (
     <button
-      className="group relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-system-blue/20 shadow-sm hover:shadow-lg w-full neon-glow-2025"
+      className="group relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-system-blue/30 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-system-blue/20 shadow-sm hover:shadow-lg w-full"
       onClick={onClick}
       data-testid={`card-demo-${id}`}
       aria-label={`Open ${title} demo - ${description}`}
