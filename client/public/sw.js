@@ -95,7 +95,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Images - Cache First with network fallback
+  // Images - Cache First with network fallback (same-origin only)
   if (request.destination === 'image' || url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|avif)$/i)) {
     event.respondWith(
       caches.match(request)
@@ -106,8 +106,9 @@ self.addEventListener('fetch', (event) => {
           
           return fetch(request)
             .then(response => {
-              // Cache successful image responses
-              if (response && response.status === 200) {
+              // SECURITY: Only cache same-origin responses to prevent credential leakage
+              // type === "basic" means same-origin, non-opaque response
+              if (response && response.status === 200 && response.type === 'basic') {
                 const responseClone = response.clone();
                 caches.open(IMAGE_CACHE)
                   .then(cache => cache.put(request, responseClone));
@@ -119,16 +120,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Static assets (/assets/*) - Cache First
+  // Static assets (/assets/*) - Cache First (same-origin only)
   if (url.pathname.startsWith('/assets/')) {
     event.respondWith(
       caches.match(request)
         .then(cached => {
           return cached || fetch(request)
             .then(response => {
-              const responseClone = response.clone();
-              caches.open(STATIC_CACHE)
-                .then(cache => cache.put(request, responseClone));
+              // SECURITY: Only cache same-origin responses
+              if (response && response.type === 'basic') {
+                const responseClone = response.clone();
+                caches.open(STATIC_CACHE)
+                  .then(cache => cache.put(request, responseClone));
+              }
               return response;
             });
         })
@@ -136,12 +140,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Everything else - Network First with cache fallback
+  // Everything else - Network First with cache fallback (same-origin only)
   event.respondWith(
     fetch(request)
       .then(response => {
-        // Cache successful responses
-        if (response && response.status === 200) {
+        // SECURITY: Only cache same-origin responses to prevent credential leakage
+        if (response && response.status === 200 && response.type === 'basic') {
           const responseClone = response.clone();
           caches.open(DYNAMIC_CACHE)
             .then(cache => cache.put(request, responseClone));
