@@ -118,5 +118,9 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 ## Deployment Architecture
 - **Development (Replit)**: Dynamic Replit plugins loaded only when NODE_ENV=development && REPL_ID exists
 - **Production (Railway)**: Zero Replit dependencies, pure React + Express app
+- **Telegram Bot**: Uses Railway domain (telegram-mini-app-showcase-production.up.railway.app) with fallback to Replit for development
+  - Priority: RAILWAY_PUBLIC_DOMAIN → REPLIT_DEV_DOMAIN → hardcoded Railway URL
+  - Webhook: Automatically configured to Railway production domain
+  - Mini App URL: Always points to Railway in production
 - **Build Process**: `npm run build` creates production bundle without any dev tooling
 - **Start Process**: `npm start` runs compiled code with NODE_ENV=production

@@ -737,7 +737,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Set webhook
       const webhookUrl = process.env.RAILWAY_PUBLIC_DOMAIN 
         ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}/api/telegram/webhook`
-        : `https://${process.env.REPLIT_DEV_DOMAIN}/api/telegram/webhook`;
+        : process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}/api/telegram/webhook`
+        : 'https://telegram-mini-app-showcase-production.up.railway.app/api/telegram/webhook';
       const webhookResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -772,9 +774,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe`);
       const botInfo = await response.json();
       
+      const webAppUrl = process.env.RAILWAY_PUBLIC_DOMAIN 
+        ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+        : process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+        : 'https://telegram-mini-app-showcase-production.up.railway.app';
+      
       res.json({
         bot: botInfo.result,
-        webAppUrl: `https://${process.env.REPLIT_DEV_DOMAIN || 'localhost:5000'}`,
+        webAppUrl,
         configured: true
       });
     } catch (error: any) {
