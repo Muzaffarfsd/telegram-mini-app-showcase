@@ -69,6 +69,8 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
   - Development metrics: FCP 132ms, TTFB 18.7ms (excellent performance)
 - **Bundle Analyzer**: Added `npm run build:analyze` script (rollup-plugin-visualizer)
 - **CACHE_VERSION v3**: Incremented to v3 to force all clients to fetch new code with hideLoader fix
+- **Emergency Loader Fallback**: Added 5-second timeout to auto-hide loader if React fails to mount (prevents infinite loading screen on Railway)
+- **Fixed Service Worker Production Detection**: Removed faulty `!window.location.port` check, now only checks hostname for localhost/127.0.0.1/replit
 - **Store Cleanup**: Removed 4 stores (NewwaveTechwear, GameForge, GadgetLab, CoffeeCraft)
 - Futuristic Fashion Collection now has 4 premium stores
 - All optimizations verified in production build (35.18s build time, 103.4KB server bundle)
