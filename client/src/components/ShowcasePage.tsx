@@ -2,6 +2,7 @@ import { Smartphone, ShoppingCart, Code, Star, Users, Search } from "lucide-reac
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { MotionStagger, MotionBox, HoverScale } from './MotionWrapper';
 import { useTelegram } from '../hooks/useTelegram';
+import { useHaptic } from '../hooks/useHaptic';
 import { useTrackInteraction } from '@/hooks/useAIRecommendations';
 import { ClothingIcon, ElectronicsIcon, BeautyIcon, RestaurantIcon, FitnessIcon, CarServiceIcon } from './AnimatedBusinessIcons';
 import { LazyVideo } from './LazyVideo';
@@ -79,7 +80,7 @@ const dollarAnimations = Array.from({ length: 8 }, (_, i) => ({
 // Video Hero Card Component with lazy loading
 const VideoHeroCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
   <div 
-    className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+    className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
     onClick={() => onOpenDemo('clothing-store')}
     data-testid="hero-card-clothing"
   >
@@ -123,7 +124,7 @@ const VideoHeroCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenD
 // Sneaker Demo Card Component - Premium Minimal
 const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
   <div 
-    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group"
+    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group tg-interactive"
     onClick={() => onOpenDemo('sneaker-store')}
     data-testid="demo-card-sneaker-store"
   >
@@ -201,7 +202,7 @@ const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpe
 // Watches Demo Card Component - Premium Minimal
 const WatchesDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
   <div 
-    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group"
+    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group tg-interactive"
     onClick={() => onOpenDemo('luxury-watches')}
     data-testid="demo-card-luxury-watches"
   >
@@ -289,7 +290,7 @@ const DemoCard: React.FC<{
   onOpenDemo: (id: string) => void;
 }> = ({ id, title, subtitle, videoSrc, imageSrc, onOpenDemo }) => (
   <div 
-    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group"
+    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group tg-interactive"
     onClick={() => onOpenDemo(id)}
     data-testid={`demo-card-${id}`}
   >
@@ -375,8 +376,15 @@ const AIAssistantCardPreview: React.FC = () => (
 
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const { hapticFeedback } = useTelegram();
+  const haptic = useHaptic();
   const trackInteraction = useTrackInteraction();
   const [showDecorations, setShowDecorations] = useState(false);
+  
+  // Обработчик с haptic feedback для открытия демо
+  const handleOpenDemo = useCallback((demoId: string) => {
+    haptic.light(); // Легкая вибрация при нажатии
+    onOpenDemo(demoId);
+  }, [haptic, onOpenDemo]);
   
   // Load decorative elements after initial render
   useEffect(() => {
@@ -510,21 +518,21 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               
               {/* Hero - большая плитка */}
               <div className="col-span-12 md:col-span-8 row-span-2 h-[500px]">
-                <VideoHeroCard onOpenDemo={onOpenDemo} />
+                <VideoHeroCard onOpenDemo={handleOpenDemo} />
               </div>
               
               {/* Средние плитки */}
               <div className="col-span-6 md:col-span-4 h-[240px]">
-                <SneakerDemoCard onOpenDemo={onOpenDemo} />
+                <SneakerDemoCard onOpenDemo={handleOpenDemo} />
               </div>
               <div className="col-span-6 md:col-span-4 h-[240px]">
-                <WatchesDemoCard onOpenDemo={onOpenDemo} />
+                <WatchesDemoCard onOpenDemo={handleOpenDemo} />
               </div>
               
               {/* Futuristic Fashion Collection - 5 новых приложений */}
               <div className="col-span-6 md:col-span-4 h-[300px]">
                 <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-1')}
                 >
                   <img
@@ -546,7 +554,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
               <div className="col-span-6 md:col-span-4 h-[300px]">
                 <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-2')}
                 >
                   <img
@@ -568,7 +576,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
               <div className="col-span-6 md:col-span-4 h-[300px]">
                 <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-3')}
                 >
                   <img
@@ -590,7 +598,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
               <div className="col-span-6 md:col-span-6 h-[300px]">
                 <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-4')}
                 >
                   <img
@@ -612,7 +620,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
               <div className="col-span-6 md:col-span-6 h-[300px]">
                 <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group"
+                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-5')}
                 >
                   <img
@@ -643,7 +651,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInScale">
             <HoverScale scale={1.02}>
               <div 
-                className="col-span-2 relative rounded-3xl p-6 cursor-pointer overflow-hidden group"
+                className="col-span-2 relative rounded-3xl p-6 cursor-pointer overflow-hidden group tg-interactive"
                 style={{
                   background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
                   boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
@@ -706,7 +714,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInUp">
             <HoverScale scale={1.05}>
               <div 
-                className="relative rounded-3xl p-4 cursor-pointer overflow-hidden group"
+                className="relative rounded-3xl p-4 cursor-pointer overflow-hidden group tg-interactive"
                 style={{
                   background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
                   boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3)'
@@ -760,7 +768,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInUp" delay={0.1}>
             <HoverScale scale={1.05}>
               <div 
-                className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-4 cursor-pointer"
+                className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
             onClick={() => onOpenDemo('electronics')}
           >
             {/* Remote Label */}
@@ -795,7 +803,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInUp" delay={0.15}>
             <HoverScale scale={1.05}>
               <div 
-                className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-4 cursor-pointer"
+                className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
                 onClick={() => onOpenDemo('beauty')}
               >
             {/* Remote Label */}
@@ -830,7 +838,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInUp" delay={0.2}>
             <HoverScale scale={1.05}>
               <div 
-                className="relative rounded-3xl p-4 cursor-pointer"
+                className="relative rounded-3xl p-4 cursor-pointer tg-interactive"
                 style={{backgroundColor: '#10B981'}}
                 onClick={() => onNavigate('projects')}
               >
