@@ -47,8 +47,15 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 
 # Recent Changes
 
+**Date**: November 18, 2025
+**Changes**: Cleaned up demo showcase - Removed 3 stores (NewwaveTechwear, GameForge, GadgetLab)
+- Permanently deleted NewwaveTechwear (futuristic-fashion-5), GameForge, and GadgetLab stores
+- Updated DemoRegistry and demoApps to remove all references
+- Futuristic Fashion Collection now has 4 premium stores (was 5)
+- All remaining stores verified working after cleanup
+
 **Date**: November 12, 2025
-**Changes**: 5 Futuristic Fashion Stores + GitHub import setup + Railway independence + Premium bot redesign + Full DB sync
+**Changes**: 4 Futuristic Fashion Stores + GitHub import setup + Railway independence + Premium bot redesign + Full DB sync
 - Added `allowedHosts: true` to Vite config for Replit proxy support
 - Created .gitignore file for Node.js project
 - Configured development workflow to run on port 5000 with webview
@@ -79,16 +86,15 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Data Security**: All queries filtered by telegramId - zero cross-user data leakage
 - **Auto-onboarding**: New users automatically initialized with referral code, stats, coin balance
 
-**Futuristic Fashion Collection** (5 Premium Full E-Commerce Stores):
+**Futuristic Fashion Collection** (4 Premium Full E-Commerce Stores):
 - **RascalStore** (futuristic-fashion-1) - Full-featured green waterproof jacket store with hero section, product catalog, cart functionality, and checkout flow. Features Rascal® branding, "Hello Pixie" hero text, and sustainability messaging (67% textile reduction). ~148 lines. Colors: #7FB069, #1a2e2a.
 - **StoreBlack** (futuristic-fashion-2) - Minimalist black e-commerce store with complete shopping experience. Grid-based product catalog with Ludens helmets, detailed product views, thumbnail gallery, quantity selectors, and yellow accent pricing. ~161 lines. Colors: #000000, #FFD700.
 - **LabSurvivalist** (futuristic-fashion-3) - Black & white survivalist gear store with two-screen experience. Dark hero page with large circular design element and model photography, transitioning to white lookbook with horizontal product carousel. ~160 lines. Monochrome design.
 - **NikeACG** (futuristic-fashion-4) - Full-screen vertical card system inspired by Nike ACG. 5 unique cards with swipe navigation: "ENTER TO FUTURE", "ONE MORE STEP", product showcases, and detail view with $799 pricing. Circular progress indicators. ~186 lines. Colors: #2D3748, #FFFFFF.
-- **NewwaveTechwear** (futuristic-fashion-5) - Purple gradient techwear store with three-screen flow: login/signup interface, product dashboard with "New Releases" and "Most Viewed" sections, and detailed product view. Features "CUTTING EDGE PONCHO" with sizing options and £5000 pricing. ~231 lines. Colors: #9333EA, #EC4899, #3D2952.
 - Built using PremiumFashionStore architecture as template
 - All stores use high-quality cyberpunk/techwear imagery from `@assets/stock_images/`
 - Each store includes hero, catalog, cart, and checkout functionality
-- Registered in DemoRegistry as `futuristic-fashion-1` through `futuristic-fashion-5`
+- Registered in DemoRegistry as `futuristic-fashion-1` through `futuristic-fashion-4`
 - DemoAppShell uses exact ID matching before fallback to base type
 
 ## Deployment Architecture

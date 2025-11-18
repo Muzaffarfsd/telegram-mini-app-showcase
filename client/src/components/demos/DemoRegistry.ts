@@ -85,14 +85,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./TimeElite')),
     preload: () => import('./TimeElite')
   },
-  'gadget-lab': {
-    component: lazy(() => import('./GadgetLab')),
-    preload: () => import('./GadgetLab')
-  },
-  'game-forge': {
-    component: lazy(() => import('./GameForge')),
-    preload: () => import('./GameForge')
-  },
   'interior-lux': {
     component: lazy(() => import('./InteriorLux')),
     preload: () => import('./InteriorLux')
@@ -115,24 +107,12 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./TeaHouse')),
     preload: () => import('./TeaHouse')
   },
-  'tech-gadgets': {
-    component: lazy(() => import('./GadgetLab')),
-    preload: () => import('./GadgetLab')
-  },
   'luxury-perfume': {
     component: lazy(() => import('./FragranceRoyale')),
     preload: () => import('./FragranceRoyale')
   },
-  'gaming-gear': {
-    component: lazy(() => import('./GameForge')),
-    preload: () => import('./GameForge')
-  },
-  'pc-builds': {
-    component: lazy(() => import('./GadgetLab')),
-    preload: () => import('./GadgetLab')
-  },
   
-  // Futuristic Fashion Collection (5 premium full stores)
+  // Futuristic Fashion Collection (4 premium full stores)
   'futuristic-fashion-1': {
     component: lazy(() => import('./RascalStore')),
     preload: () => import('./RascalStore')
@@ -148,10 +128,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
   'futuristic-fashion-4': {
     component: lazy(() => import('./NikeACG')),
     preload: () => import('./NikeACG')
-  },
-  'futuristic-fashion-5': {
-    component: lazy(() => import('./NewwaveTechwear')),
-    preload: () => import('./NewwaveTechwear')
   }
 };
 

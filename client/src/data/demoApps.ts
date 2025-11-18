@@ -307,44 +307,6 @@ export const demoApps: DemoApp[] = [
     }
   },
   {
-    id: 'tech-gadgets',
-    title: 'GadgetLab',
-    description: 'Магазин гаджетов и новинок',
-    category: 'Электронная коммерция',
-    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-    creator: 'WEB4TG',
-    likes: '16.3k',
-    badge: 'Инновации',
-    badgeColor: 'bg-cyan-500',
-    home: {
-      hero: {
-        title: 'Добро пожаловать в GadgetLab',
-        subtitle: 'Технологии, которые изменят вашу жизнь',
-        image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-        bgClass: 'bg-gradient-to-r from-cyan-500 to-blue-600'
-      },
-      banners: [
-        {
-          title: 'AR очки',
-          subtitle: 'Будущее уже здесь',
-          image: 'https://images.unsplash.com/photo-1592478411213-6153e4ebc696?w=400&auto=format,compress&q=80&dpr=2',
-          bgClass: 'bg-gradient-to-r from-purple-500 to-pink-600'
-        },
-        {
-          title: 'Smart устройства',
-          subtitle: 'Умная экосистема для дома',
-          bgClass: 'bg-gradient-to-r from-green-500 to-emerald-600'
-        }
-      ],
-      services: [
-        { id: 'catalog', title: 'Каталог', priceText: 'Все гаджеты', iconName: 'zap' },
-        { id: 'innovation', title: 'Новинки', priceText: 'Последние разработки', iconName: 'lightning' },
-        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
-        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
-      ]
-    }
-  },
-  {
     id: 'luxury-perfume',
     title: 'FragranceRoyale',
     description: 'Магазин премиальной парфюмерии',
@@ -383,46 +345,8 @@ export const demoApps: DemoApp[] = [
       ]
     }
   },
-  {
-    id: 'gaming-gear',
-    title: 'GameForge',
-    description: 'Магазин игрового оборудования',
-    category: 'Электронная коммерция',
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-    creator: 'WEB4TG',
-    likes: '19.8k',
-    badge: 'Pro Gaming',
-    badgeColor: 'bg-violet-500',
-    home: {
-      hero: {
-        title: 'Добро пожаловать в GameForge',
-        subtitle: 'Превзойди себя с профессиональным геймингом',
-        image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-        bgClass: 'bg-gradient-to-r from-violet-500 to-purple-600'
-      },
-      banners: [
-        {
-          title: 'RTX 5090',
-          subtitle: 'Новейшая графика от NVIDIA',
-          image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400&auto=format,compress&q=80&dpr=2',
-          bgClass: 'bg-gradient-to-r from-green-500 to-emerald-600'
-        },
-        {
-          title: 'Игровые кресла',
-          subtitle: 'Комфорт для долгих сессий',
-          bgClass: 'bg-gradient-to-r from-red-500 to-orange-600'
-        }
-      ],
-      services: [
-        { id: 'catalog', title: 'Каталог', priceText: 'Все товары', iconName: 'gamepad' },
-        { id: 'pc-builds', title: 'Сборки ПК', priceText: 'Готовые игровые системы', iconName: 'monitor' },
-        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
-        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
-      ]
-    }
-  },
   
-  // Futuristic Fashion Collection - 5 Premium Designs
+  // Futuristic Fashion Collection - 4 Premium Designs
   {
     id: 'futuristic-fashion-1',
     title: 'Rascal®',
@@ -467,15 +391,4 @@ export const demoApps: DemoApp[] = [
     badge: 'Интерактив',
     badgeColor: 'bg-gradient-to-r from-gray-800 to-black'
   },
-  {
-    id: 'futuristic-fashion-5',
-    title: 'NEWWAVE',
-    description: 'Фиолетовый градиент techwear магазин',
-    category: 'Электронная коммерция',
-    image: '/attached_assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg',
-    creator: 'WEB4TG',
-    likes: '31.2k',
-    badge: 'Топ-1',
-    badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500'
-  }
 ];
