@@ -79,20 +79,15 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunks
+          // Vendor chunks - keep React in main vendor to avoid loading order issues
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
-            }
             if (id.includes('framer-motion')) {
               return 'animation-vendor';
             }
             if (id.includes('@radix-ui')) {
               return 'ui-vendor';
             }
-            if (id.includes('lucide-react')) {
-              return 'icons';
-            }
+            // All other vendor code including React stays in main vendor chunk
             return 'vendor';
           }
           
