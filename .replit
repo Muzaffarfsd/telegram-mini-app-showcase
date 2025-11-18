@@ -16,15 +16,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Server"
+args = "dev"
 
 [[workflows.workflow]]
-name = "Server"
+name = "dev"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production npm start"
+args = "npm run dev"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
@@ -33,6 +33,14 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 44023
+externalPort = 3000
+
+[[ports]]
+localPort = 45791
+externalPort = 3001
 
 [deployment]
 deploymentTarget = "vm"
