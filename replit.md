@@ -68,7 +68,14 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
   - **CRITICAL FIX**: Moved hideLoader() to App.tsx useEffect - React 18 render is async, calling hideLoader in main.tsx was premature
   - Development metrics: FCP 132ms, TTFB 18.7ms (excellent performance)
 - **Bundle Analyzer**: Added `npm run build:analyze` script (rollup-plugin-visualizer)
-- **Service Worker Temporarily Disabled**: CRITICAL FIX for Railway black screen - SW registration disabled and auto-unregister script added to clear all old caches
+- **Service Worker Completely Removed from Production**: CRITICAL FIX for Railway black screen
+  - sw.js excluded from production build (build script removes it after Vite build)
+  - Kill switch in index.html unregisters old SW and clears caches, then forces reload
+  - After reload, app runs without SW - no caching issues
+  - Browser auto-disables old SW when it can't find sw.js (404 response)
+  - **Clear-Site-Data header** on index.html forces browser to clear all caches and storage on every load (server/vite.ts)
+  - **`/sw-reset` endpoint** (server/routes.ts) - Emergency reset page served outside SW control for users stuck on black screen
+    - Users visit `https://railway-domain.com/sw-reset` → automatic SW unregister → caches cleared → redirect to home
 - **Emergency Loader Fallback**: Added 5-second timeout to auto-hide loader if React fails to mount (prevents infinite loading screen on Railway)
 - **Store Cleanup**: Removed 4 stores (NewwaveTechwear, GameForge, GadgetLab, CoffeeCraft)
 - Futuristic Fashion Collection now has 4 premium stores

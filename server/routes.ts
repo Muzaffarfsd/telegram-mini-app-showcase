@@ -764,6 +764,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Service Worker Reset Endpoint - CRITICAL for Railway black screen fix
+  // This endpoint is served with headers that prevent SW caching
+  // It helps users escape from stuck service workers
+  app.get("/sw-reset", (_req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.setHeader('Clear-Site-Data', '"cache", "storage"');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    
+    res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resetting...</title>
+  <meta charset="UTF-8">
+  <style>
+    body { 
+      background: #0A0A0B; 
+      color: #10B981; 
+      font-family: system-ui; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      height: 100vh; 
+      margin: 0; 
+    }
+    .container { text-align: center; }
+    .spinner { 
+      border: 4px solid rgba(16, 185, 129, 0.3);
+      border-top: 4px solid #10B981;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="spinner"></div>
+    <h2>Clearing cache and reloading...</h2>
+    <p>Please wait a moment</p>
+  </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        Promise.all(regs.map(reg => reg.unregister()))
+          .then(() => console.log('[SW-Reset] Unregistered all workers'));
+      });
+      
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          Promise.all(names.map(name => caches.delete(name)))
+            .then(() => console.log('[SW-Reset] Cleared all caches'));
+        });
+      }
+    }
+    
+    // Redirect to home after 2 seconds
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 2000);
+  </script>
+</body>
+</html>
+    `);
+  });
+
   // Get Telegram bot info
   app.get("/api/telegram/info", async (req, res) => {
     if (!TELEGRAM_BOT_TOKEN) {
