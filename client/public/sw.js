@@ -1,7 +1,7 @@
 // Service Worker for Progressive Web App (PWA)
 // Provides offline functionality and caching strategies
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 const IMAGE_CACHE = `images-${CACHE_VERSION}`;
@@ -16,16 +16,24 @@ const STATIC_ASSETS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Service Worker...');
+  console.log('[SW] Installing Service Worker v3...');
   
   event.waitUntil(
-    caches.open(STATIC_CACHE)
+    // First, delete ALL old caches immediately
+    caches.keys()
+      .then(cacheNames => {
+        console.log('[SW] Deleting all old caches:', cacheNames);
+        return Promise.all(
+          cacheNames.map(cacheName => caches.delete(cacheName))
+        );
+      })
+      .then(() => caches.open(STATIC_CACHE))
       .then(cache => {
         console.log('[SW] Caching static assets');
         return cache.addAll(STATIC_ASSETS);
       })
       .then(() => {
-        console.log('[SW] Skip waiting');
+        console.log('[SW] Skip waiting and take control immediately');
         return self.skipWaiting();
       })
   );
