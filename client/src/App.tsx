@@ -12,10 +12,11 @@ import { trackDemoView } from "./hooks/useGamification";
 import { LazyMotionProvider } from "./utils/LazyMotionProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
-// Import ShowcasePage eagerly (landing page)
+// Import HomePage and ShowcasePage eagerly (landing pages)
+import HomePage from "./pages/Home";
 import ShowcasePage from "./components/ShowcasePage";
 
-// Lazy load ALL pages except ShowcasePage
+// Lazy load ALL pages except Home and ShowcasePage
 const ProjectsPage = lazy(() => import("./components/ProjectsPage"));
 const DemoAppLanding = lazy(() => import("./components/DemoAppLanding"));
 const ConstructorPage = lazy(() => import("./components/ConstructorPage"));
@@ -56,7 +57,8 @@ const parseHash = (): Route => {
   
   // Regular routes
   const routeMap: Record<string, string> = {
-    '/': 'showcase',
+    '/': 'home',
+    '/showcase': 'showcase',
     '/projects': 'projects',
     '/constructor': 'constructor',
     '/profile': 'profile',
@@ -70,10 +72,10 @@ const parseHash = (): Route => {
     '/earning': 'earning'
   };
   
-  // Always default to showcase page if route not found
+  // Always default to home page if route not found
   return {
     path,
-    component: routeMap[path] || 'showcase',
+    component: routeMap[path] || 'home',
     params: {}
   };
 };
@@ -158,6 +160,9 @@ function App() {
       <Suspense fallback={null}>
         {(() => {
           switch (route.component) {
+            case 'home':
+              return <HomePage onNavigate={handleNavigate} />;
+            
             case 'showcase':
               return <ShowcasePage onOpenDemo={handleOpenDemo} onNavigate={handleNavigate} />;
             

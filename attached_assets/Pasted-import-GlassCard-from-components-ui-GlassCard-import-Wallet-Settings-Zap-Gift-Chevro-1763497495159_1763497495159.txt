@@ -1,0 +1,79 @@
+import { GlassCard } from "@/components/ui/GlassCard";
+import { Wallet, Settings, Zap, Gift, ChevronRight } from "lucide-react"; // Установи lucide-react
+
+export const IndexPage = () => {
+  return (
+    <div className="min-h-screen p-5 pt-8 pb-24 space-y-8">
+      
+      {/* 1. Header с приветствием */}
+      <div className="flex items-center justify-between px-1">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">
+            Hello, User
+          </h1>
+          <p className="text-gray-500 text-sm font-medium mt-1">Welcome back</p>
+        </div>
+        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 border-2 border-black shadow-lg shadow-blue-500/20" />
+      </div>
+
+      {/* 2. Блок Баланса (Большая карточка) */}
+      <GlassCard className="flex flex-col gap-6 py-6 relative group">
+        {/* Фоновый градиент внутри карточки */}
+        <div className="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/20 blur-[50px] rounded-full pointer-events-none" />
+        
+        <div className="flex items-center gap-2 text-gray-400 text-sm font-medium uppercase tracking-wider">
+          <Wallet size={16} />
+          <span>Total Balance</span>
+        </div>
+        <div>
+          <span className="text-5xl font-bold tracking-tighter drop-shadow-sm">12,450</span>
+          <span className="text-2xl text-gray-500 font-semibold ml-2">TON</span>
+        </div>
+        <div className="flex gap-3 mt-2">
+             <button className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-semibold shadow-lg shadow-blue-900/20 transition-all active:scale-95">
+                Deposit
+             </button>
+             <button className="flex-1 bg-white/10 hover:bg-white/15 text-white py-3 rounded-xl font-semibold backdrop-blur-md transition-all active:scale-95">
+                Send
+             </button>
+        </div>
+      </GlassCard>
+
+      {/* 3. Bento Grid (Сетка меню) */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Карточка "Задания" */}
+        <GlassCard className="aspect-square flex flex-col justify-between hover:border-blue-500/30 transition-colors">
+          <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400">
+            <Zap size={20} />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg">Tasks</h3>
+            <p className="text-xs text-gray-500">3 new available</p>
+          </div>
+        </GlassCard>
+
+        {/* Карточка "Друзья" */}
+        <GlassCard className="aspect-square flex flex-col justify-between hover:border-purple-500/30 transition-colors">
+          <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400">
+            <Gift size={20} />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg">Friends</h3>
+            <p className="text-xs text-gray-500">Invite & Earn</p>
+          </div>
+        </GlassCard>
+
+        {/* Длинная карточка настроек */}
+        <GlassCard className="col-span-2 flex items-center justify-between py-4">
+           <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-gray-700/50 flex items-center justify-center text-gray-300">
+                <Settings size={20} />
+              </div>
+              <span className="font-semibold">Settings</span>
+           </div>
+           <ChevronRight className="text-gray-600" />
+        </GlassCard>
+      </div>
+    </div>
+  );
+};
