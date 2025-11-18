@@ -22,6 +22,29 @@ if (!fs.existsSync(CLIENT_DIST)) {
   );
 }
 
+app.use((req, res, next) => {
+  const filePath = path.join(CLIENT_DIST, req.path);
+  const ext = path.extname(filePath).toLowerCase();
+  
+  if (ext === '.js' || ext === '.mjs') {
+    res.type('application/javascript');
+  } else if (ext === '.css') {
+    res.type('text/css');
+  } else if (ext === '.json') {
+    res.type('application/json');
+  } else if (ext === '.svg') {
+    res.type('image/svg+xml');
+  } else if (ext === '.woff') {
+    res.type('font/woff');
+  } else if (ext === '.woff2') {
+    res.type('font/woff2');
+  } else if (ext === '.html') {
+    res.type('text/html');
+  }
+  
+  next();
+});
+
 app.use('/assets', express.static(path.join(CLIENT_DIST, 'assets'), {
   maxAge: '1y',
   immutable: true,
