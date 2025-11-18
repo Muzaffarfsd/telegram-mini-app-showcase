@@ -22,36 +22,15 @@ if (!fs.existsSync(CLIENT_DIST)) {
   );
 }
 
-// Serve static files with proper MIME types
+// Serve static files - let Express handle MIME types and compression automatically
 app.use(express.static(CLIENT_DIST, {
-  maxAge: '1h',
   etag: true,
   lastModified: true,
-  setHeaders: (res, filepath) => {
-    // HTML files - no cache
-    if (filepath.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    }
-    // JavaScript files - correct MIME type
-    else if (filepath.endsWith('.js') || filepath.endsWith('.mjs')) {
-      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-    }
-    // CSS files
-    else if (filepath.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css; charset=utf-8');
-    }
-    // JSON files
-    else if (filepath.endsWith('.json')) {
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    }
-  }
+  index: 'index.html'
 }));
 
-// Fallback to index.html for client-side routing
+// Fallback to index.html for client-side routing (React Router)
 app.get("*", (_req, res) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.sendFile(path.resolve(CLIENT_DIST, "index.html"));
 });
 
