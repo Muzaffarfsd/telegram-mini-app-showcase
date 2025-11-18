@@ -156,7 +156,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
   if (activeTab === 'catalog' && selectedService) {
     return (
       <div className="h-full bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto">
-        <div className="absolute top-0 left-0 right-0 z-10 p-6 flex items-center justify-between">
+        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedService(null)}
             className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"

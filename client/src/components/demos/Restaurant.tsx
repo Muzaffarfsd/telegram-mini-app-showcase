@@ -156,7 +156,7 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
   if (activeTab === 'catalog' && selectedDish) {
     return (
       <div className="h-full bg-gradient-to-br from-gray-900 via-amber-950 to-black text-white overflow-auto">
-        <div className="absolute top-0 left-0 right-0 z-10 p-6 flex items-center justify-between">
+        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedDish(null)}
             className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"

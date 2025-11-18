@@ -264,7 +264,7 @@ function SneakerVault({ activeTab, onNavigate }: SneakerVaultProps) {
   if (activeTab === 'catalog' && selectedSneaker) {
     return (
       <div className="h-full bg-[#0A0A0A] text-white overflow-auto">
-        <div className="absolute top-0 left-0 right-0 z-10 p-6 flex items-center justify-between">
+        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedSneaker(null)}
             className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center border border-white/20"

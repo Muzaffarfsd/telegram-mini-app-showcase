@@ -262,7 +262,7 @@ function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
     
     return (
       <div className="h-full text-white overflow-auto" style={{ backgroundColor: bgColor }}>
-        <div className="absolute top-0 left-0 right-0 z-10 p-6 flex items-center justify-between">
+        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedPerfume(null)}
             className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
