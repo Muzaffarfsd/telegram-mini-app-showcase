@@ -22,53 +22,36 @@ if (!fs.existsSync(CLIENT_DIST)) {
   );
 }
 
-app.use((req, res, next) => {
-  const filePath = path.join(CLIENT_DIST, req.path);
-  const ext = path.extname(filePath).toLowerCase();
-  
-  if (ext === '.js' || ext === '.mjs') {
-    res.type('application/javascript');
-  } else if (ext === '.css') {
-    res.type('text/css');
-  } else if (ext === '.json') {
-    res.type('application/json');
-  } else if (ext === '.svg') {
-    res.type('image/svg+xml');
-  } else if (ext === '.woff') {
-    res.type('font/woff');
-  } else if (ext === '.woff2') {
-    res.type('font/woff2');
-  } else if (ext === '.html') {
-    res.type('text/html');
-  }
-  
-  next();
-});
-
-app.use('/assets', express.static(path.join(CLIENT_DIST, 'assets'), {
-  maxAge: '1y',
-  immutable: true,
-  etag: true,
-  lastModified: true,
-  setHeaders: (res, filepath) => {
-    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-  }
-}));
-
+// Serve static files with proper MIME types
 app.use(express.static(CLIENT_DIST, {
   maxAge: '1h',
   etag: true,
   lastModified: true,
   setHeaders: (res, filepath) => {
+    // HTML files - no cache
     if (filepath.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    }
+    // JavaScript files - correct MIME type
+    else if (filepath.endsWith('.js') || filepath.endsWith('.mjs')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    }
+    // CSS files
+    else if (filepath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css; charset=utf-8');
+    }
+    // JSON files
+    else if (filepath.endsWith('.json')) {
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
     }
   }
 }));
 
-app.use("*", (_req, res) => {
+// Fallback to index.html for client-side routing
+app.get("*", (_req, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Clear-Site-Data', '"cache", "storage"');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.sendFile(path.resolve(CLIENT_DIST, "index.html"));
 });
 

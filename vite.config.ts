@@ -5,6 +5,7 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { compression } from "vite-plugin-compression2";
 
 export default defineConfig({
+  base: '/',
   plugins: [
     react({
       jsxRuntime: 'automatic',
