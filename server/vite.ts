@@ -76,10 +76,34 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  // Serve static assets with aggressive caching
+  app.use('/assets', express.static(path.join(distPath, 'assets'), {
+    maxAge: '1y', // 1 year for hashed assets
+    immutable: true,
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filepath) => {
+      // Hashed assets never change
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+  }));
+
+  // Serve other static files with moderate caching
+  app.use(express.static(distPath, {
+    maxAge: '1h', // 1 hour for other files
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filepath) => {
+      // HTML files should not be cached (SPA routing)
+      if (filepath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      }
+    }
+  }));
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
