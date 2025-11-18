@@ -52,6 +52,9 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Compression**: Express Brotli/Gzip middleware (compression@1.7.4, level 6, 1KB threshold)
 - **Caching**: Production static asset caching (1-year for /assets/*, no-cache for HTML, 1-hour for other files)
 - **LazyMotion**: Optimized Framer Motion with dynamic feature loading (~35KB gzipped vs ~60-80KB)
+  - Created centralized `LazyMotionProvider.tsx` with `m as motion` export
+  - Replaced all 27 files importing `framer-motion` to use `@/utils/LazyMotionProvider`
+  - Bundle size reduction: ~40-50KB (~40-60% reduction in animation bundle)
 - **Service Worker**: Offline-first PWA with cache strategies (cache-first for static/images, network-first for API)
   - SECURITY FIX: Added `response.type === 'basic'` check to prevent caching cross-origin opaque responses
   - Only same-origin resources are cached to prevent credential leakage

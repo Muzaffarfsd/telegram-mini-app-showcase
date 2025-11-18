@@ -1,4 +1,4 @@
-import { LazyMotion, domAnimation, m, MotionConfig } from '@/utils/LazyMotionProvider';
+import { LazyMotion, domAnimation, m, MotionConfig } from 'framer-motion';
 import { ReactNode } from 'react';
 import { appleEasing } from './motionConfig';
 
@@ -36,7 +36,7 @@ export {
   useScroll,
   useInView,
   useReducedMotion
-} from '@/utils/LazyMotionProvider';
+} from 'framer-motion';
 
 // Export 'm' as 'motion' for easier migration
 export { m as motion };
