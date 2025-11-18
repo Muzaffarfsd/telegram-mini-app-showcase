@@ -35,9 +35,23 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Gamification Engine**: Exponential XP-based level progression, daily streak tracking, task rewards, global leaderboards.
 
 ## Deployment Architecture (Production - Railway)
-- **Server**: Simple Express.js static server (server.js) serving `dist/public/`.
-- **Purpose**: Acts as a universal static file server with SPA fallback routing and caching headers.
-- **Nature**: Frontend-only, with no database, Telegram bot, or API endpoints on the production server.
+- **Builder**: Railpack (Railway's modern builder, replacing Nixpacks)
+- **Server**: Caddy (automatic static file server with SPA routing)
+- **Build Process**: `npm run build` → creates optimized `dist/` folder
+- **Serving**: Caddy automatically serves `dist/` with proper MIME types and SPA fallback
+- **Health Checks**: Configured to check `/` with 100s timeout
+- **Configuration**: `railway.json` with Railpack builder and healthcheck settings
+- **Environment**: `RAILPACK_SPA_OUTPUT_DIR=dist` tells Railpack where to find built files
+- **Nature**: Frontend-only SPA, no backend services on Railway (Telegram bot runs on Replit)
+- **Performance**: Optimized chunk splitting with React in main vendor bundle for proper load order
+- **URL**: https://w4tg.up.railway.app
+
+### Migration Notes (Nov 2024)
+Successfully migrated from Replit Agent environment to Railway production. Key learnings documented in RAILWAY_DEPLOYMENT.md including:
+- Proper Vite chunk configuration to prevent React loading order issues
+- Railpack SPA auto-detection setup
+- Health check configuration
+- Avoiding common pitfalls with manual modulepreload and chunk splitting
 
 # External Dependencies
 
