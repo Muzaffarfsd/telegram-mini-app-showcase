@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useInView } from '@/utils/LazyMotionProvider';
 import { cn } from '@/lib/utils';
 
 // === PREMIUM HERO SECTION ===

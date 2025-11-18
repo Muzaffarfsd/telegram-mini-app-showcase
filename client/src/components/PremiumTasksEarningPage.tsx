@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/utils/LazyMotionProvider';
 import { useState, useEffect, useMemo, memo, useCallback, useRef } from 'react';
 import { 
   Coins, CheckCircle, Heart, Share2, Eye, Users, MessageCircle, 

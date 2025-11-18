@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from '@/utils/LazyMotionProvider';
 import { cn } from '@/lib/utils';
 
 // === BENTO GRID ===

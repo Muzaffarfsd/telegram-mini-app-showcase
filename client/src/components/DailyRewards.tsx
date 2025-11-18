@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from '@/utils/LazyMotionProvider';
 import { Calendar, Gift, Sparkles, CheckCircle2, Lock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';

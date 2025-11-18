@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from '@/utils/LazyMotionProvider';
 import { hoverScale, tapScale } from '@/utils/motionConfig';
 
 interface ButtonProps {

@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/utils/LazyMotionProvider';
 import { RefreshCw } from 'lucide-react';
 
 interface PullToRefreshIndicatorProps {

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from '@/utils/LazyMotionProvider';
 import { Copy, Check, Users, Gift, TrendingUp, Share2, X } from 'lucide-react';
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { cn } from '@/lib/utils';

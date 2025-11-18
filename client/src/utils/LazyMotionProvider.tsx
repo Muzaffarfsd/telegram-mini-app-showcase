@@ -1,4 +1,4 @@
-import { LazyMotion, domAnimation, m, MotionConfig } from 'framer-motion';
+import { LazyMotion, domAnimation, m, MotionConfig } from '@/utils/LazyMotionProvider';
 import { ReactNode } from 'react';
 import { appleEasing } from './motionConfig';
 
@@ -9,7 +9,7 @@ import { appleEasing } from './motionConfig';
  * Usage:
  * - Wrap your app with <LazyMotionProvider>
  * - Use 'm' instead of 'motion' for animated components
- * - Import domAnimation for DOM-specific features
+ * - Import all framer-motion exports from this file
  */
 export function LazyMotionProvider({ children }: { children: ReactNode }) {
   return (
@@ -24,8 +24,22 @@ export function LazyMotionProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Export optimized motion component
+// Export optimized motion component and all necessary utilities
 export { m };
+
+// Re-export all commonly used framer-motion utilities
+export {
+  AnimatePresence,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useScroll,
+  useInView,
+  useReducedMotion
+} from '@/utils/LazyMotionProvider';
+
+// Export 'm' as 'motion' for easier migration
+export { m as motion };
 
 /**
  * Bundle size comparison:

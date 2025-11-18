@@ -1,4 +1,4 @@
-import { motion, HTMLMotionProps } from 'framer-motion';
+import { motion, HTMLMotionProps } from '@/utils/LazyMotionProvider';
 import { hoverScale } from '@/utils/motionConfig';
 
 interface CardProps extends HTMLMotionProps<'div'> {

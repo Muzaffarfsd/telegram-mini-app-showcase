@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from '@/utils/LazyMotionProvider';
 import { cn } from '@/lib/utils';
 import { useTelegram } from '@/hooks/useTelegram';
 

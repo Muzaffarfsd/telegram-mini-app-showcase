@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from '@/utils/LazyMotionProvider';
 import { cn } from '@/lib/utils';
 
 // === GLASS CARD ===

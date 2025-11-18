@@ -1,4 +1,4 @@
-import { motion, useSpring, useTransform } from 'framer-motion';
+import { motion, useSpring, useTransform } from '@/utils/LazyMotionProvider';
 import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 

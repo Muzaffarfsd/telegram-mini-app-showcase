@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/utils/LazyMotionProvider';
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Coins, CheckCircle, Heart, Share2, Eye, Users, MessageCircle, ArrowLeft, Sparkles, Award } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';

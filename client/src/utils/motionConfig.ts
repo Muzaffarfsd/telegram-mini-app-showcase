@@ -1,4 +1,4 @@
-import { MotionConfig } from 'framer-motion';
+import { MotionConfig } from '@/utils/LazyMotionProvider';
 import { DesignTokens } from '@/design-tokens';
 
 export const appleEasing = {
