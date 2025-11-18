@@ -1,0 +1,82 @@
+1. 🔥 Глобальный CSS (Фон и Шрифты)
+Убираем "плоский" цвет. Делаем глубокий, дорогой черный фон.
+Замени содержимое src/index.css:
+code
+CSS
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  /* Глубокий темный фон вместо стандартного черного */
+  background-color: #0f0f11; 
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Добавляем свечение на фон (Ambient Light) */
+body::before {
+  content: '';
+  position: fixed;
+  top: -100px;
+  left: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(0,0,0,0) 70%);
+  filter: blur(60px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(0,0,0,0) 70%);
+  filter: blur(60px);
+  z-index: -1;
+  pointer-events: none;
+}
+Эффект: Экран больше не выглядит "мертвым". Появилась глубина и едва заметное цветное свечение по углам.
+2. 💎 Компонент "Стеклянная Карточка" (Glass Card)
+Вместо белых квадратов делаем полупрозрачные панели с размытием. Это тренд №1 в Telegram.
+Создай src/components/ui/GlassCard.tsx:
+code
+Tsx
+import { ReactNode } from "react";
+
+interface Props {
+  children: ReactNode;
+  className?: string;
+  onClick?: () => void;
+}
+
+export const GlassCard = ({ children, className = "", onClick }: Props) => {
+  return (
+    <div 
+      onClick={onClick}
+      className={`
+        relative overflow-hidden
+        bg-white/[0.03] /* Прозрачность 3% */
+        backdrop-blur-xl /* Сильное размытие фона под карточкой */
+        border border-white/[0.08] /* Тонкая полупрозрачная рамка */
+        rounded-[24px] /* Сильное скругление (Squircle) */
+        p-5
+        transition-all duration-300 ease-out
+        active:scale-[0.98] /* Эффект нажатия */
+        active:bg-white/[0.06]
+        ${className}
+      `}
+    >
+      {/* Блик сверху (Highlight) */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      
+      {children}
+    </div>
+  );
+};

@@ -25,8 +25,8 @@
   /* === 2025 PREMIUM COLOR PALETTE === */
   
   /* Core Background Colors (not pure black - better for modern displays) */
-  --background: #0A0A0B;           /* Deep black with warm tone */
-  --background-primary: #0A0A0B;
+  --background: #0f0f11;           /* Deep premium black */
+  --background-primary: #0f0f11;
   --background-secondary: #111113;   /* For cards */
   --background-tertiary: #1A1A1E;    /* For modals */
   --background-elevated: #242429;    /* For hover states */
@@ -374,6 +374,34 @@
     font-family: var(--font-system);
     min-height: 100vh;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Ambient Light Effects - Premium 2025 */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -100px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(0,0,0,0) 70%);
+    filter: blur(60px);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(0,0,0,0) 70%);
+    filter: blur(60px);
+    z-index: -1;
+    pointer-events: none;
   }
 }
 
