@@ -7,16 +7,21 @@ import { RewardsProvider } from "./contexts/RewardsContext";
 import { XPNotificationProvider } from "./contexts/XPNotificationContext";
 import { HelmetProvider } from "react-helmet-async";
 import { useTelegram } from "./hooks/useTelegram";
-import { Home, ShoppingCart, Briefcase, CircleUser, Bot } from "lucide-react";
-import { preloadCriticalDemos } from "./components/demos/DemoRegistry";
-import { ErrorBoundary } from "./components/ErrorBoundary";
 import { trackDemoView } from "./hooks/useGamification";
 import { LazyMotionProvider } from "./utils/LazyMotionProvider";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
-// Import ShowcasePage eagerly (it's the landing page, needs to load fast)
+// Import ShowcasePage eagerly (landing page)
 import ShowcasePage from "./components/ShowcasePage";
 
-// Lazy loading other pages for better performance
+// Lazy load icons
+const Home = lazy(() => import("lucide-react").then(m => ({ default: m.Home })));
+const ShoppingCart = lazy(() => import("lucide-react").then(m => ({ default: m.ShoppingCart })));
+const Briefcase = lazy(() => import("lucide-react").then(m => ({ default: m.Briefcase })));
+const CircleUser = lazy(() => import("lucide-react").then(m => ({ default: m.CircleUser })));
+const Bot = lazy(() => import("lucide-react").then(m => ({ default: m.Bot })));
+
+// Lazy load ALL pages except ShowcasePage
 const ProjectsPage = lazy(() => import("./components/ProjectsPage"));
 const DemoAppLanding = lazy(() => import("./components/DemoAppLanding"));
 const ConstructorPage = lazy(() => import("./components/ConstructorPage"));

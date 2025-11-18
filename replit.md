@@ -48,7 +48,7 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 # Recent Changes
 
 **Date**: November 18, 2025
-**Changes**: Production-grade performance optimizations + cleanup
+**Changes**: Production-grade performance optimizations + <1 second load time
 - **Compression**: Express Brotli/Gzip middleware (compression@1.7.4, level 6, 1KB threshold)
 - **Caching**: Production static asset caching (1-year for /assets/*, no-cache for HTML, 1-hour for other files)
 - **LazyMotion**: Optimized Framer Motion with dynamic feature loading (~35KB gzipped vs ~60-80KB)
@@ -59,6 +59,12 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
   - SECURITY FIX: Added `response.type === 'basic'` check to prevent caching cross-origin opaque responses
   - Only same-origin resources are cached to prevent credential leakage
   - Production-only registration (disabled in dev to avoid conflicts with Vite HMR)
+- **Fast Initial Load Optimizations** (targeting <1s load time):
+  - Inline critical Inter font (400 weight) в index.html
+  - Preload critical font файлы (woff2) для мгновенного текста
+  - Lazy load всех иконок (Home, ShoppingCart, Briefcase, CircleUser, Bot)
+  - Preconnect только к Telegram (убраны ненужные connections)
+  - Optimized resource hints для critical path
 - **Bundle Analyzer**: Added `npm run build:analyze` script (rollup-plugin-visualizer)
 - **Store Cleanup**: Removed 4 stores (NewwaveTechwear, GameForge, GadgetLab, CoffeeCraft)
 - Futuristic Fashion Collection now has 4 premium stores
