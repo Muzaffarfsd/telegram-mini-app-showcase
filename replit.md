@@ -68,22 +68,33 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
   - **CRITICAL FIX**: Moved hideLoader() to App.tsx useEffect - React 18 render is async, calling hideLoader in main.tsx was premature
   - Development metrics: FCP 132ms, TTFB 18.7ms (excellent performance)
 - **Bundle Analyzer**: Added `npm run build:analyze` script (rollup-plugin-visualizer)
-- **POISON PILL SERVICE WORKER**: ULTIMATE FIX for Railway black screen - automatic self-destruction
+- **POISON PILL SERVICE WORKER v3**: ULTIMATE FIX for Railway black screen - automatic self-destruction
+  - **Version**: poison-v3 (enhanced with detailed logging and force update)
   - **How it works**: Browsers ALWAYS update sw.js file (even with old SW active)
-  - **Poison pill SW** (client/public/sw.js): self-destructs on activation
+  - **Poison pill SW v3** (client/public/sw.js - 3.3KB):
     1. `skipWaiting()` - activates immediately
-    2. Deletes ALL caches
-    3. `clients.claim()` - takes control
-    4. Reloads all clients with cache-busting query param
-    5. `self.registration.unregister()` - self-destructs
-    6. NO fetch handler - all requests go to network
-  - **Build**: sw.js now INCLUDED in production (package.json - removed deletion step)
+    2. Detects old caches (any cache = old cache)
+    3. Deletes ALL caches with detailed logging
+    4. `clients.claim()` - takes control of all clients
+    5. Reloads all clients with cache-busting query param (`?sw-reset=timestamp`)
+    6. `includeUncontrolled: true` - catches ALL windows
+    7. Force SW update check after unregister
+    8. `self.registration.unregister()` - self-destructs
+    9. NO fetch handler - all requests go to network
+    10. DEBUG mode with comprehensive console logging
+  - **Kill Switch v3** (client/index.html):
+    - Enhanced with reload counter (max 2 attempts)
+    - Detailed logging for each step
+    - Cache-busting reload (`?v=timestamp`)
+    - sessionStorage flags: `sw-killed-v3`, `sw-reload-count`
+    - Auto-cleanup after 2 seconds on success
+  - **Build**: sw.js INCLUDED in production (package.json line 11)
   - **Result**: Old users get poison pill → auto-cleanup → fresh app load
   - **After cleanup**: Future deploys can remove sw.js again (one-time fix)
   - **Backup systems**:
     - **Clear-Site-Data header** on index.html (server/vite.ts)
     - **`/sw-reset` endpoint** (server/routes.ts) - Manual emergency reset
-    - **Kill switch** in index.html - Client-side cleanup
+    - **Emergency loader fallback** - 5s timeout auto-hide
 - **Emergency Loader Fallback**: Added 5-second timeout to auto-hide loader if React fails to mount (prevents infinite loading screen on Railway)
 - **Store Cleanup**: Removed 4 stores (NewwaveTechwear, GameForge, GadgetLab, CoffeeCraft)
 - Futuristic Fashion Collection now has 4 premium stores

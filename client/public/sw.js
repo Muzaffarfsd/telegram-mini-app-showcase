@@ -1,59 +1,101 @@
-// POISON PILL SERVICE WORKER - Auto-destroys old cached versions
-// This SW self-destructs to fix black screen issue on Railway
+// POISON PILL SERVICE WORKER v3 - Ultimate black screen fix
+// Auto-destroys old cached versions and self-unregisters
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'poison-v3';
+const DEBUG = true;
+
+function log(msg, data) {
+  if (DEBUG) {
+    console.log(`[Poison SW v3] ${msg}`, data || '');
+  }
+}
 
 // Install immediately without waiting
 self.addEventListener('install', (event) => {
-  console.log('[Poison SW] Installing - will destroy old caches');
-  self.skipWaiting(); // Activate immediately
+  log('Installing - will destroy old caches immediately');
+  event.waitUntil(self.skipWaiting());
 });
 
 // On activation: destroy everything and unregister
 self.addEventListener('activate', (event) => {
-  console.log('[Poison SW] Activated - checking for old caches');
+  log('Activated - starting cleanup process');
   
   event.waitUntil(
     (async () => {
       try {
-        // Check if there are old caches to clean
+        // Get all cache names
         const cacheNames = await caches.keys();
+        log('Found caches:', cacheNames);
+        
         const hasOldCaches = cacheNames.length > 0;
         
         if (hasOldCaches) {
-          console.log('[Poison SW] Found old caches - cleaning up:', cacheNames);
+          log('OLD CACHES DETECTED - initiating cleanup', cacheNames);
           
           // Delete ALL caches
-          await Promise.all(
-            cacheNames.map(cacheName => {
-              console.log('[Poison SW] Deleting cache:', cacheName);
-              return caches.delete(cacheName);
-            })
-          );
-          
-          // Take control of all clients immediately
-          await self.clients.claim();
-          
-          // Force reload all clients with cache-busting (ONLY if we cleaned caches)
-          const clients = await self.clients.matchAll({ type: 'window' });
-          clients.forEach(client => {
-            console.log('[Poison SW] Reloading client:', client.url);
-            client.navigate(client.url + '?sw-reset=' + Date.now());
+          const deletePromises = cacheNames.map(cacheName => {
+            log('Deleting cache:', cacheName);
+            return caches.delete(cacheName);
           });
+          
+          await Promise.all(deletePromises);
+          log('All caches deleted successfully');
+          
+          // Take control of all clients
+          await self.clients.claim();
+          log('Claimed all clients');
+          
+          // Get all window clients
+          const clients = await self.clients.matchAll({ 
+            type: 'window',
+            includeUncontrolled: true 
+          });
+          
+          log('Active clients count:', clients.length);
+          
+          // Force reload each client with cache-busting
+          if (clients.length > 0) {
+            const timestamp = Date.now();
+            clients.forEach((client, index) => {
+              const url = new URL(client.url);
+              url.searchParams.set('sw-reset', timestamp);
+              log(`Reloading client ${index + 1}/${clients.length}:`, client.url);
+              client.navigate(url.toString());
+            });
+          } else {
+            log('No active clients to reload');
+          }
+          
         } else {
-          console.log('[Poison SW] No old caches found - clean install');
+          log('No old caches found - clean installation');
         }
         
         // Self-destruct - unregister this service worker
-        console.log('[Poison SW] Unregistering self');
-        await self.registration.unregister();
+        log('Self-destructing - unregistering service worker');
+        const unregistered = await self.registration.unregister();
+        log('Unregistration result:', unregistered);
+        
+        // Force update check for any remaining SW
+        if (self.registration && self.registration.update) {
+          await self.registration.update();
+          log('Forced SW update check');
+        }
         
       } catch (error) {
-        console.error('[Poison SW] Error during cleanup:', error);
+        console.error('[Poison SW v3] CRITICAL ERROR during cleanup:', error);
+        // Try to unregister even if cleanup failed
+        try {
+          await self.registration.unregister();
+          log('Emergency unregister successful after error');
+        } catch (e) {
+          console.error('[Poison SW v3] Failed to unregister after error:', e);
+        }
       }
     })()
   );
 });
 
 // NO FETCH HANDLER - all requests go directly to network
-// This ensures fresh content loads immediately
+// This ensures fresh content loads immediately without SW interference
+
+log('Service Worker script loaded successfully');

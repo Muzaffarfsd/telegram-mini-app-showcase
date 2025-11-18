@@ -191,40 +191,63 @@
     }, 5000);
   </script>
   
-  <!-- Service Worker Kill Switch - Forces unregister and reload -->
+  <!-- Service Worker Kill Switch v3 - Enhanced cleanup -->
   <script>
-    // CRITICAL FIX: Service Worker causes black screen on Railway
-    // This code unregisters SW, clears caches, and forces hard reload
+    // CRITICAL FIX v3: Service Worker black screen prevention
+    // Enhanced cleanup with detailed logging and force reload
     
     if ('serviceWorker' in navigator) {
-      const hasReloaded = sessionStorage.getItem('sw-killed');
+      const hasReloaded = sessionStorage.getItem('sw-killed-v3');
+      const reloadCount = parseInt(sessionStorage.getItem('sw-reload-count') || '0');
       
-      if (!hasReloaded) {
+      // Prevent infinite reload loops (max 2 reloads)
+      if (reloadCount > 2) {
+        console.warn('[Kill Switch v3] Max reload attempts reached - stopping');
+        sessionStorage.removeItem('sw-killed-v3');
+        sessionStorage.removeItem('sw-reload-count');
+      } else if (!hasReloaded) {
+        console.log('[Kill Switch v3] Starting cleanup process...');
+        
         // Mark that we've started the kill process
-        sessionStorage.setItem('sw-killed', 'true');
+        sessionStorage.setItem('sw-killed-v3', 'true');
+        sessionStorage.setItem('sw-reload-count', (reloadCount + 1).toString());
         
         // Kill all service workers and caches, then hard reload
         Promise.all([
-          navigator.serviceWorker.getRegistrations().then(regs => 
-            Promise.all(regs.map(reg => reg.unregister()))
-          ),
-          caches.keys().then(names => 
-            Promise.all(names.map(name => caches.delete(name)))
-          )
+          navigator.serviceWorker.getRegistrations().then(regs => {
+            console.log(`[Kill Switch v3] Found ${regs.length} service worker(s)`);
+            return Promise.all(regs.map((reg, i) => {
+              console.log(`[Kill Switch v3] Unregistering SW ${i + 1}/${regs.length}`);
+              return reg.unregister();
+            }));
+          }),
+          caches.keys().then(names => {
+            console.log(`[Kill Switch v3] Found ${names.length} cache(s):`, names);
+            return Promise.all(names.map(name => {
+              console.log(`[Kill Switch v3] Deleting cache: ${name}`);
+              return caches.delete(name);
+            }));
+          })
         ]).then(() => {
-          console.log('[SW] Killed all workers and caches - forcing hard reload');
-          // Force hard reload to load fresh content without SW
-          window.location.reload(true);
+          console.log('[Kill Switch v3] ✅ All workers and caches killed - forcing hard reload');
+          // Force hard reload with cache-busting
+          window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now();
         }).catch(err => {
-          console.error('[SW] Kill failed:', err);
-          // Reload anyway
-          window.location.reload(true);
+          console.error('[Kill Switch v3] ❌ Cleanup failed:', err);
+          // Reload anyway with cache-busting
+          window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now();
         });
       } else {
-        console.log('[SW] Temporarily disabled - running without Service Worker');
-        // Clear the flag after successful load
-        setTimeout(() => sessionStorage.removeItem('sw-killed'), 1000);
+        console.log('[Kill Switch v3] ✅ Running clean - no Service Worker active');
+        // Clear the flags after successful load
+        setTimeout(() => {
+          sessionStorage.removeItem('sw-killed-v3');
+          sessionStorage.removeItem('sw-reload-count');
+          console.log('[Kill Switch v3] Cleanup flags cleared');
+        }, 2000);
       }
+    } else {
+      console.log('[Kill Switch v3] Service Worker not supported in this browser');
     }
   </script>
 </body>
