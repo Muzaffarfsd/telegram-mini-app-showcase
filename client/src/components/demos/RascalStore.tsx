@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
+import { ConfirmDrawer } from "../ui/modern-drawer";
 import fashionImg1 from '@assets/stock_images/futuristic_techwear__e958e42c.jpg';
 import fashionImg2 from '@assets/stock_images/futuristic_techwear__737df842.jpg';
 import fashionImg3 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
@@ -403,14 +404,23 @@ function RascalStore({ activeTab }: RascalStoreProps) {
             </div>
           </div>
 
-          <button
-            onClick={addToCart}
-            className="w-full text-black font-bold py-4 rounded-full transition-all hover:opacity-90"
-            style={{ backgroundColor: '#7FB069' }}
-            data-testid="button-buy-now"
-          >
-            Добавить в корзину
-          </button>
+          <ConfirmDrawer
+            trigger={
+              <button
+                className="w-full text-black font-bold py-4 rounded-full transition-all hover:opacity-90"
+                style={{ backgroundColor: '#7FB069' }}
+                data-testid="button-buy-now"
+              >
+                Добавить в корзину
+              </button>
+            }
+            title="Добавить в корзину?"
+            description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
+            confirmText="Добавить"
+            cancelText="Отмена"
+            variant="default"
+            onConfirm={addToCart}
+          />
         </div>
       </div>
     );

@@ -1,7 +1,9 @@
 import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Grid, Minus, Plus } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Grid, Minus, Plus, Shirt } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
+import { ConfirmDrawer, SelectDrawer } from "../ui/modern-drawer";
+import { HapticButton } from "../ui/haptic-button";
 import img1 from '@assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg';
 import img2 from '@assets/stock_images/cyberpunk_fashion_ho_663ed3c4.jpg';
 import img3 from '@assets/stock_images/cyberpunk_fashion_ho_055adfe8.jpg';
@@ -426,14 +428,23 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
             </div>
           </div>
 
-          <button
-            onClick={addToCart}
-            className="w-full font-bold py-4 rounded-full transition-all hover:scale-105 shadow-lg shadow-[#FFD700]/30"
-            style={{ backgroundColor: '#FFD700', color: '#000000' }}
-            data-testid="button-buy-now"
-          >
-            Добавить в корзину • {formatPrice(selectedProduct.price * quantity)}
-          </button>
+          <ConfirmDrawer
+            trigger={
+              <button
+                className="w-full font-bold py-4 rounded-full transition-all hover:scale-105 shadow-lg shadow-[#FFD700]/30"
+                style={{ backgroundColor: '#FFD700', color: '#000000' }}
+                data-testid="button-buy-now"
+              >
+                Добавить в корзину • {formatPrice(selectedProduct.price * quantity)}
+              </button>
+            }
+            title="Добавить в корзину?"
+            description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize} • ${quantity} шт.`}
+            confirmText="Добавить"
+            cancelText="Отмена"
+            variant="default"
+            onConfirm={addToCart}
+          />
 
           <div className="grid grid-cols-3 gap-3 pt-4">
             <div className="bg-white/5 border border-white/10 rounded-xl p-3 text-center">

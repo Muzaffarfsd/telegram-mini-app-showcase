@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Flower2, Crown, Droplets } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
+import { ConfirmDrawer } from "../ui/modern-drawer";
 
 interface FragranceRoyaleProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -347,13 +348,22 @@ function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
             </div>
           </div>
 
-          <button
-            onClick={addToCart}
-            className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
-            data-testid="button-buy-now"
-          >
-            Добавить в корзину
-          </button>
+          <ConfirmDrawer
+            trigger={
+              <button
+                className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
+                data-testid="button-buy-now"
+              >
+                Добавить в корзину
+              </button>
+            }
+            title="Добавить в корзину?"
+            description={`${selectedPerfume.name} • ${selectedConcentration} • ${selectedVolume}`}
+            confirmText="Добавить"
+            cancelText="Отмена"
+            variant="default"
+            onConfirm={addToCart}
+          />
         </div>
       </div>
     );

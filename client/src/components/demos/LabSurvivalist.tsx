@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Shield, Target } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
+import { ConfirmDrawer } from "../ui/modern-drawer";
 import img1 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
 import img2 from '@assets/stock_images/futuristic_fashion_m_b5d87157.jpg';
 import img3 from '@assets/stock_images/futuristic_fashion_m_472b5d38.jpg';
@@ -395,14 +396,23 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
             </div>
           </div>
 
-          <button
-            onClick={addToCart}
-            className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-white/90 transition-all uppercase tracking-wider text-sm flex items-center justify-center gap-2"
-            data-testid="button-buy-now"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            Добавить в корзину
-          </button>
+          <ConfirmDrawer
+            trigger={
+              <button
+                className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-white/90 transition-all uppercase tracking-wider text-sm flex items-center justify-center gap-2"
+                data-testid="button-buy-now"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                Добавить в корзину
+              </button>
+            }
+            title="Добавить в корзину?"
+            description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
+            confirmText="Добавить"
+            cancelText="Отмена"
+            variant="default"
+            onConfirm={addToCart}
+          />
         </div>
       </div>
     );

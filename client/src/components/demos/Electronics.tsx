@@ -26,6 +26,7 @@ import {
   Filter,
   Menu
 } from "lucide-react";
+import { ConfirmDrawer } from "../ui/modern-drawer";
 
 interface ElectronicsProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -333,14 +334,23 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
             </div>
           </div>
 
-          <button
-            onClick={addToCart}
-            className="w-full bg-[#00D4FF] text-black font-bold py-4 rounded-full hover:bg-[#00BFEB] transition-all flex items-center justify-center gap-2"
-            data-testid="button-buy-now"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            Добавить в корзину
-          </button>
+          <ConfirmDrawer
+            trigger={
+              <button
+                className="w-full bg-[#00D4FF] text-black font-bold py-4 rounded-full hover:bg-[#00BFEB] transition-all flex items-center justify-center gap-2"
+                data-testid="button-buy-now"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                Добавить в корзину
+              </button>
+            }
+            title="Добавить в корзину?"
+            description={`${selectedProduct.name} — ${new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', minimumFractionDigits: 0 }).format(selectedProduct.price)}`}
+            confirmText="Добавить"
+            cancelText="Отмена"
+            variant="default"
+            onConfirm={addToCart}
+          />
         </div>
       </div>
     );

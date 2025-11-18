@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
+import { ConfirmDrawer } from "../ui/modern-drawer";
 import greenNikeImage from "@assets/загруженное-_4__1761733573240.jpg";
 import blueNikeImage from "@assets/загруженное-_3__1761733577054.jpg";
 import whiteJordanImage from "@assets/загруженное-_2__1761733579316.jpg";
@@ -329,13 +330,22 @@ function SneakerVault({ activeTab, onNavigate }: SneakerVaultProps) {
             </div>
           </div>
 
-          <button
-            onClick={addToCart}
-            className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
-            data-testid="button-buy-now"
-          >
-            Добавить в корзину
-          </button>
+          <ConfirmDrawer
+            trigger={
+              <button
+                className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
+                data-testid="button-buy-now"
+              >
+                Добавить в корзину
+              </button>
+            }
+            title="Добавить в корзину?"
+            description={`${selectedSneaker.name} • ${selectedSneaker.brand} • Размер ${selectedSize}`}
+            confirmText="Добавить"
+            cancelText="Отмена"
+            variant="default"
+            onConfirm={addToCart}
+          />
         </div>
       </div>
     );

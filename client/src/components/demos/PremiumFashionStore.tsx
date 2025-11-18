@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
+import { ConfirmDrawer } from "../ui/modern-drawer";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
 import fashionVideo from "@assets/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -352,13 +353,22 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
             </div>
           </div>
 
-          <button
-            onClick={addToCart}
-            className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
-            data-testid="button-buy-now"
-          >
-            Добавить в корзину
-          </button>
+          <ConfirmDrawer
+            trigger={
+              <button
+                className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
+                data-testid="button-buy-now"
+              >
+                Добавить в корзину
+              </button>
+            }
+            title="Добавить в корзину?"
+            description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
+            confirmText="Добавить"
+            cancelText="Отмена"
+            variant="default"
+            onConfirm={addToCart}
+          />
         </div>
       </div>
     );

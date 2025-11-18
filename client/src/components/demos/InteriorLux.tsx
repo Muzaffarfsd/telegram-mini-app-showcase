@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
+import { ConfirmDrawer } from "../ui/modern-drawer";
 
 interface InteriorLuxProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -395,12 +396,22 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
             </div>
 
             {/* Add to Cart Button */}
-            <button 
-              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300"
-              data-testid="button-add-to-cart"
-            >
-              Добавить в корзину
-            </button>
+            <ConfirmDrawer
+              trigger={
+                <button 
+                  className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300"
+                  data-testid="button-add-to-cart"
+                >
+                  Добавить в корзину
+                </button>
+              }
+              title="Добавить в корзину?"
+              description={`${selectedProduct.name} — ${new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(selectedProduct.price)}`}
+              confirmText="Добавить"
+              cancelText="Отмена"
+              variant="default"
+              onConfirm={() => setSelectedProduct(null)}
+            />
           </div>
         </div>
       </div>
