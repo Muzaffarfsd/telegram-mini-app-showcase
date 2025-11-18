@@ -59,6 +59,7 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
   - SECURITY FIX: Added `response.type === 'basic'` check to prevent caching cross-origin opaque responses
   - Only same-origin resources are cached to prevent credential leakage
   - Production-only registration (disabled in dev to avoid conflicts with Vite HMR)
+  - **CACHE VERSION v2**: Updated to force cache refresh on production deploy
 - **Fast Initial Load Optimizations** (targeting <1s load time):
   - Inline critical Inter font (400 weight) в index.html
   - Preload critical font файлы (woff2) для мгновенного текста
