@@ -1,0 +1,26 @@
+{
+  "name": "WEB4TG - Telegram Mini Apps Portfolio",
+  "short_name": "WEB4TG",
+  "description": "Showcase of full-featured Telegram Mini Apps for various business verticals",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0B",
+  "theme_color": "#10B981",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "shopping"],
+  "screenshots": []
+}
