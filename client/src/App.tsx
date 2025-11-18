@@ -110,9 +110,6 @@ function App() {
     
     window.addEventListener('hashchange', handleHashChange);
     
-    // Preload critical demos for better performance
-    preloadCriticalDemos();
-    
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
