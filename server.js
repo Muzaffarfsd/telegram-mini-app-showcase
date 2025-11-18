@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const CLIENT_DIST = path.join(__dirname, "dist", "public");
+const CLIENT_DIST = path.join(__dirname, "dist");
 
 if (!fs.existsSync(CLIENT_DIST)) {
   throw new Error(
