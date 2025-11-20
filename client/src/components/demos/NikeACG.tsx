@@ -1,7 +1,6 @@
 import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Search, Menu, ChevronUp, ChevronDown } from "lucide-react";
-
 import img1 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
 import img2 from '@assets/stock_images/futuristic_techwear__737df842.jpg';
 import img3 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';

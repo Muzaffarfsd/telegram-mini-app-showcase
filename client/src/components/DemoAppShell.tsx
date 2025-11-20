@@ -1,8 +1,10 @@
 import { useState, Suspense, memo } from "react";
+import { useLocation } from "wouter";
 import { ArrowLeft, Share2, Home, Grid3X3, ShoppingCart, User } from "lucide-react";
 import { demoApps } from "../data/demoApps";
 import { useTelegram } from "../hooks/useTelegram";
 import { getDemoComponent, isDemoAvailable } from "./demos/DemoRegistry";
+import { LiquidHomeButton } from "./ui/liquid-home-button";
 
 interface DemoAppShellProps {
   demoId: string;
@@ -20,6 +22,7 @@ const navItems: { id: TabType; icon: any; label: string }[] = [
 
 const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShellProps) {
   const [activeTab, setActiveTab] = useState<TabType>('home');
+  const [, setLocation] = useLocation();
   const { hapticFeedback } = useTelegram();
   
   // Extract base app type from ID to support variants (e.g., 'clothing-store-2' → 'clothing-store')
@@ -55,6 +58,14 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const handleStringNavigation = (tab: string) => {
     const tabType = tab as TabType;
     handleTabSwitch(tabType);
+  };
+
+  // Navigate to main app (showcase page) using wouter
+  const handleNavigateHome = () => {
+    setLocation('/');
+    if (hapticFeedback?.medium) {
+      hapticFeedback.medium();
+    }
   };
 
   // No loading screen - instant load
@@ -163,6 +174,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       <div className="flex-1 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
         {renderDemoContent()}
       </div>
+
+      {/* Liquid Home Button - Positioned above bottom nav */}
+      <LiquidHomeButton onNavigateHome={handleNavigateHome} />
 
       {/* Liquid Glass Bottom Navigation - Same style as main page */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
