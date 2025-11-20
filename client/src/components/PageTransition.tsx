@@ -1,5 +1,3 @@
-import { AnimatePresence } from 'framer-motion';
-import { m } from 'framer-motion';
 import { ReactNode } from 'react';
 
 interface PageTransitionProps {
@@ -7,45 +5,10 @@ interface PageTransitionProps {
   routeKey: string;
 }
 
-const pageVariants = {
-  initial: {
-    opacity: 0,
-    scale: 0.96,
-    y: 30,
-  },
-  in: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-  },
-  out: {
-    opacity: 0,
-    scale: 1.04,
-    y: -30,
-  },
-};
-
-const pageTransition = {
-  type: 'spring',
-  damping: 25,
-  stiffness: 300,
-  mass: 0.6,
-};
-
-export function PageTransition({ children, routeKey }: PageTransitionProps) {
+export function PageTransition({ children }: PageTransitionProps) {
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <m.div
-        key={routeKey}
-        initial="initial"
-        animate="in"
-        exit="out"
-        variants={pageVariants}
-        transition={pageTransition}
-        className="h-full w-full"
-      >
-        {children}
-      </m.div>
-    </AnimatePresence>
+    <div className="h-full w-full">
+      {children}
+    </div>
   );
 }

@@ -98,6 +98,19 @@
   
   <!-- CRITICAL: Call ready() immediately to stop Telegram loading screen -->
   <script>
+    // Detect Telegram WebApp environment
+    function isTelegramWebApp() {
+      return !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
+    }
+    
+    // Apply fixed desktop viewport ONLY for Telegram mobile
+    if (isTelegramWebApp()) {
+      const viewport = document.querySelector('meta[name="viewport"]');
+      if (viewport) {
+        viewport.setAttribute('content', 'width=1200, initial-scale=1.0, viewport-fit=cover, user-scalable=no');
+      }
+    }
+    
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();

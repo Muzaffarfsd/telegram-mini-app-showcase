@@ -15,13 +15,15 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Styling**: Tailwind CSS with a 2025 premium design system, including a global dark theme, glassmorphism, neumorphism, gradients, and micro-interactions.
 - **UI Components**: Shadcn/ui (Radix UI), Lucide React, Phosphor Icons.
 - **State Management**: React Query for server state.
-- **Design System**: Mobile-first, responsive, minimalist aesthetics, full-screen layouts, and an 8px spacing grid.
+- **Design System**: Responsive mobile-first design with desktop layout in Telegram (1200px viewport), minimalist aesthetics, full-screen layouts, and an 8px spacing grid.
 - **Structure**: Main App router, `ShowcasePage`, `DemoAppShell` for universal navigation, and individual Demo Components for business simulations.
 - **Navigation**: Ultra-minimal glassmorphic bottom navigation.
 - **Technical Implementations**: Custom hooks, `ErrorBoundary`, performance optimizations (`React.memo`, `useMemo`, `useCallback`), `OptimizedImage`, `ModernAnimatedIcons`, and vertical stack card layouts.
-- **Page Transitions**: Modern 2025 page transition animations using `PageTransition` component with fade, slide, and scale effects. Powered by Framer Motion with spring physics (damping: 25, stiffness: 300, mass: 0.6) for fast, smooth animations.
+- **Page Transitions**: None (removed for instant navigation - PageTransition component returns plain div wrapper).
+- **Viewport Configuration**: Dual-mode viewport system - responsive `width=device-width` for Replit/browsers, automatically switches to fixed `width=1200` ONLY in Telegram WebApp via JavaScript detection (`window.Telegram.WebApp.initData`).
 - **Video Optimization**: Smart lazy loading with `useVideoLazyLoad` hook - videos automatically pause/play based on visibility (IntersectionObserver), preload="metadata" for faster loading, canplay event listener for reliable playback control.
-- **Performance Metrics**: First Contentful Paint (FCP) optimized to 1200ms through component memoization, lazy loading, and optimized video playback control.
+- **Layout Philosophy**: Mobile-first responsive design with Tailwind breakpoints (sm:, md:). In Telegram, JavaScript automatically sets viewport to 1200px, triggering desktop layout via existing breakpoints.
+- **Performance Metrics**: First Contentful Paint (FCP) ~1200-2244ms through component memoization, lazy loading, and optimized video playback control.
 - **Advanced Interactions**: Voice UI (`VoiceSearch`), WebGL Particle Background, 3D Parallax Cards, Liquid Button Effects, Pull-to-Refresh.
 - **AI Personalization System**: `AIAssistant` (context-aware chat), `PersonalizedRecommendations` (ML-based engine), `useAIRecommendations` (behavior tracking).
 - **Gamification System**: `useGamification` (achievements, XP, daily tasks), `GamificationHub` (UI for leaderboards, progress).
