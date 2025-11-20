@@ -446,11 +446,11 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 />
               
               {/* Content - Mobile-First 2025 Style */}
-              <div className="relative px-4 sm:px-6 py-12 sm:py-16 md:py-20 text-center flex items-center justify-center min-h-[70vh] sm:min-h-[80vh]">
+              <div className="relative px-4 sm:px-6 py-8 sm:py-12 md:py-16 text-center flex items-center justify-center min-h-[50vh] sm:min-h-[55vh]">
                 
                 {/* Glassmorphic Container - Mobile Optimized */}
                 <div 
-                  className="relative rounded-2xl sm:rounded-3xl px-5 sm:px-8 py-8 sm:py-10 mx-auto w-full max-w-[320px] sm:max-w-sm"
+                  className="relative rounded-2xl sm:rounded-3xl px-4 sm:px-6 py-6 sm:py-8 mx-auto w-full max-w-[300px] sm:max-w-sm"
                   style={{
                     background: 'rgba(0, 0, 0, 0.15)',
                     backdropFilter: 'blur(4px)',
@@ -461,7 +461,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 >
                   {/* Accent Badge */}
                   <div 
-                    className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-full mb-4 sm:mb-6 text-xs font-bold tracking-wider"
+                    className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-full mb-3 sm:mb-4 text-xs font-bold tracking-wider"
                     style={{
                       background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
                       color: '#FFFFFF',
@@ -473,7 +473,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   
                   {/* Main Headline - Mobile Responsive */}
                   <h1 
-                    className="text-4xl sm:text-5xl md:text-6xl font-black mb-3 sm:mb-4 leading-tight"
+                    className="text-3xl sm:text-4xl md:text-5xl font-black mb-2 sm:mb-3 leading-tight"
                     style={{
                       color: '#FFFFFF',
                       textShadow: '0 2px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.2)',
@@ -485,7 +485,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   
                   {/* Subtitle with Accent Color */}
                   <div 
-                    className="text-xl sm:text-2xl font-bold tracking-wide mb-4 sm:mb-6"
+                    className="text-lg sm:text-xl md:text-2xl font-bold tracking-wide mb-3 sm:mb-4"
                     style={{
                       background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
                       WebkitBackgroundClip: 'text',
@@ -498,7 +498,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   
                   {/* Clean Separator Line */}
                   <div 
-                    className="w-12 sm:w-16 h-0.5 mx-auto mb-4 sm:mb-6 rounded-full"
+                    className="w-12 sm:w-14 h-0.5 mx-auto mb-3 sm:mb-4 rounded-full"
                     style={{
                       background: 'linear-gradient(90deg, transparent, #10B981, transparent)'
                     }}
@@ -515,7 +515,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     ЗАПУСК ЗА 24 ЧАСА
                   </p>
                   <p 
-                    className="text-[10px] sm:text-xs font-medium tracking-wider mt-1.5 sm:mt-2"
+                    className="text-[10px] sm:text-xs font-medium tracking-wider mt-1 sm:mt-1.5"
                     style={{
                       color: 'rgba(255, 255, 255, 0.7)'
                     }}
