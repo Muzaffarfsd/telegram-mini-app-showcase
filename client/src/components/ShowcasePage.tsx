@@ -1,5 +1,6 @@
 import { Smartphone, ShoppingCart, Code, Star, Users, Search } from "lucide-react";
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { m } from 'framer-motion';
 import { MotionStagger, MotionBox, HoverScale } from './MotionWrapper';
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
@@ -23,6 +24,72 @@ interface ShowcasePageProps {
   onNavigate: (section: string) => void;
   onOpenDemo: (demoId: string) => void;
 }
+
+// 3D Perspective Container (use once at parent level to avoid nested contexts)
+const Perspective3DContainer: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
+  children, 
+  className = '' 
+}) => {
+  return (
+    <div 
+      style={{ 
+        perspective: 1000,
+        transformStyle: 'preserve-3d'
+      }}
+      className={className}
+    >
+      {children}
+    </div>
+  );
+};
+
+// Enhanced 3D Card Animation Wrapper with Glassmorphism (2025 Trend)
+// NOTE: Must be used inside Perspective3DContainer for 3D effects
+const Glass3DCard: React.FC<{ 
+  children: React.ReactNode; 
+  onClick?: () => void;
+  delay?: number;
+  accentColor?: string;
+}> = ({ children, onClick, delay = 0, accentColor = 'var(--tg-theme-accent, #00ffff)' }) => {
+  return (
+    <m.div
+      initial={{ opacity: 0, y: 20, rotateX: -10 }}
+      animate={{ opacity: 1, y: 0, rotateX: 0 }}
+      transition={{ 
+        duration: 0.5, 
+        delay,
+        ease: [0.25, 0.1, 0.25, 1]
+      }}
+      whileHover={{ 
+        scale: 1.03,
+        rotateY: 5,
+        rotateX: 5,
+        z: 50,
+        transition: { 
+          type: "spring", 
+          stiffness: 300,
+          damping: 20
+        }
+      }}
+      whileTap={{ scale: 0.98 }}
+      style={{
+        transformStyle: 'preserve-3d'
+      }}
+      className="group relative cursor-pointer"
+      onClick={onClick}
+    >
+      {/* Neon glow effect on hover */}
+      <div 
+        className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
+        style={{
+          background: `radial-gradient(circle at center, ${accentColor}40 0%, transparent 70%)`,
+          zIndex: -1
+        }}
+      />
+      {children}
+    </m.div>
+  );
+};
 
 // SVG Dollar Bill Component
 const DollarSVG = () => (
@@ -79,13 +146,17 @@ const dollarAnimations = Array.from({ length: 8 }, (_, i) => ({
   blurIntensity: 0,
 }));
 
-// Video Hero Card Component with lazy loading
+// Video Hero Card Component with lazy loading (Enhanced with Glass3D effects)
 const VideoHeroCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
-  <div 
-    className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
+  <Glass3DCard 
     onClick={() => onOpenDemo('clothing-store')}
-    data-testid="hero-card-clothing"
+    delay={0}
+    accentColor="var(--tg-theme-accent-3, #39ff14)"
   >
+    <div 
+      className="relative h-full rounded-3xl overflow-hidden group tg-interactive"
+      data-testid="hero-card-clothing"
+    >
     <LazyVideo
       src={fashionVideo}
       className="absolute inset-0 w-full h-full object-cover"
@@ -121,13 +192,18 @@ const VideoHeroCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenD
       NEW
     </div>
   </div>
+  </Glass3DCard>
 );
 
-// Sneaker Demo Card Component - Premium Minimal
+// Sneaker Demo Card Component - Premium Minimal (Enhanced with Glass3D effects)
 const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
-  <div 
-    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group tg-interactive"
+  <Glass3DCard 
     onClick={() => onOpenDemo('sneaker-store')}
+    delay={0.05}
+    accentColor="var(--tg-theme-accent, #00ffff)"
+  >
+  <div 
+    className="relative h-full rounded-2xl overflow-hidden group tg-interactive"
     data-testid="demo-card-sneaker-store"
   >
     <LazyVideo
@@ -199,13 +275,18 @@ const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpe
       </div>
     </div>
   </div>
+  </Glass3DCard>
 );
 
-// Watches Demo Card Component - Premium Minimal
+// Watches Demo Card Component - Premium Minimal (Enhanced with Glass3D effects)
 const WatchesDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
-  <div 
-    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group tg-interactive"
+  <Glass3DCard 
     onClick={() => onOpenDemo('luxury-watches')}
+    delay={0.1}
+    accentColor="var(--tg-theme-accent-2, #ff00ff)"
+  >
+  <div 
+    className="relative h-full rounded-2xl overflow-hidden group tg-interactive"
     data-testid="demo-card-luxury-watches"
   >
     <LazyVideo
@@ -280,6 +361,7 @@ const WatchesDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpe
       </div>
     </div>
   </div>
+  </Glass3DCard>
 );
 
 // Demo Card Component
@@ -377,7 +459,7 @@ const AIAssistantCardPreview: React.FC = () => (
 );
 
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
-  const { hapticFeedback } = useTelegram();
+  const { hapticFeedback, isDark, colorScheme } = useTelegram();
   const haptic = useHaptic();
   const trackInteraction = useTrackInteraction();
   const [showDecorations, setShowDecorations] = useState(false);
@@ -539,8 +621,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </h2>
             </div>
 
-            {/* Bento Grid Layout - Mobile First */}
-            <div className="grid grid-cols-2 sm:grid-cols-6 md:grid-cols-12 gap-3 sm:gap-4">
+            {/* Bento Grid Layout - Mobile First (with 3D Perspective) */}
+            <Perspective3DContainer className="grid grid-cols-2 sm:grid-cols-6 md:grid-cols-12 gap-3 sm:gap-4">
               
               {/* Hero - большая плитка */}
               <div className="col-span-2 sm:col-span-6 md:col-span-8 h-[400px] sm:h-[450px] md:h-[500px]">
@@ -665,7 +747,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   </div>
                 </div>
               </div>
-            </div>
+            </Perspective3DContainer>
 
           </div>
         </div>
