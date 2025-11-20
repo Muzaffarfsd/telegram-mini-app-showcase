@@ -79,15 +79,13 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunks - keep React in main vendor to avoid loading order issues
+          // Vendor chunks - keep React AND Radix in main vendor to avoid loading order issues
           if (id.includes('node_modules')) {
             if (id.includes('framer-motion')) {
               return 'animation-vendor';
             }
-            if (id.includes('@radix-ui')) {
-              return 'ui-vendor';
-            }
-            // All other vendor code including React stays in main vendor chunk
+            // Keep React, React-DOM, and Radix UI together in main vendor
+            // This prevents "Cannot read 'forwardRef' of undefined" errors
             return 'vendor';
           }
           
