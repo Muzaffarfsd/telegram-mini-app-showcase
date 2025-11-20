@@ -1,8 +1,7 @@
-import { HTMLMotionProps, Variants } from '@/utils/LazyMotionProvider';
 import { m as motion } from '@/utils/LazyMotionProvider';
 import { ReactNode } from 'react';
 
-// Spring animation presets
+// Spring animation presets (kept for HoverScale/TapScale)
 export const springPresets = {
   gentle: { type: 'spring', stiffness: 100, damping: 15, mass: 0.5 },
   bouncy: { type: 'spring', stiffness: 200, damping: 10, mass: 0.8 },
@@ -10,68 +9,13 @@ export const springPresets = {
   smooth: { type: 'spring', stiffness: 120, damping: 18, mass: 0.6 },
 } as const;
 
-// Animation variants
-export const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: springPresets.gentle
-  }
-};
-
-export const fadeInScale: Variants = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: { 
-    opacity: 1, 
-    scale: 1,
-    transition: springPresets.smooth
-  }
-};
-
-export const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.1
-    }
-  }
-};
-
-export const slideInRight: Variants = {
-  hidden: { x: 100, opacity: 0 },
-  visible: {
-    x: 0,
-    opacity: 1,
-    transition: springPresets.gentle
-  }
-};
-
-export const slideInLeft: Variants = {
-  hidden: { x: -100, opacity: 0 },
-  visible: {
-    x: 0,
-    opacity: 1,
-    transition: springPresets.gentle
-  }
-};
-
 // Reusable Motion Components
-interface MotionBoxProps extends Omit<HTMLMotionProps<'div'>, 'variants'> {
+interface MotionBoxProps {
   children: ReactNode;
-  variant?: keyof typeof animationVariants;
+  variant?: string;
   delay?: number;
   className?: string;
 }
-
-const animationVariants = {
-  fadeInUp,
-  fadeInScale,
-  slideInRight,
-  slideInLeft
-};
 
 export function MotionBox({ 
   children, 
