@@ -1,5 +1,4 @@
 import { useState, Suspense, memo } from "react";
-import { useLocation } from "wouter";
 import { ArrowLeft, Share2, Home, Grid3X3, ShoppingCart, User } from "lucide-react";
 import { demoApps } from "../data/demoApps";
 import { useTelegram } from "../hooks/useTelegram";
@@ -22,7 +21,6 @@ const navItems: { id: TabType; icon: any; label: string }[] = [
 
 const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShellProps) {
   const [activeTab, setActiveTab] = useState<TabType>('home');
-  const [, setLocation] = useLocation();
   const { hapticFeedback } = useTelegram();
   
   // Extract base app type from ID to support variants (e.g., 'clothing-store-2' → 'clothing-store')
@@ -60,9 +58,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     handleTabSwitch(tabType);
   };
 
-  // Navigate to main app (showcase page) using wouter
+  // Navigate to main app (showcase page) using hash-based routing
   const handleNavigateHome = () => {
-    setLocation('/');
+    window.location.hash = '#/';
     if (hapticFeedback?.medium) {
       hapticFeedback.medium();
     }
