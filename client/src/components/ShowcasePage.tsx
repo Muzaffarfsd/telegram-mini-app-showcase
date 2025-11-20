@@ -443,12 +443,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   }}
                 />
               
-              {/* Content - 2025 Minimal Bold Style */}
-              <div className="relative px-6 py-20 text-center">
+              {/* Content - Mobile-First 2025 Style */}
+              <div className="relative px-4 sm:px-6 py-12 sm:py-16 md:py-20 text-center flex items-center justify-center min-h-[70vh] sm:min-h-[80vh]">
                 
-                {/* Glassmorphic Container - Very transparent to show video */}
+                {/* Glassmorphic Container - Mobile Optimized */}
                 <div 
-                  className="relative rounded-3xl px-8 py-10 mx-auto max-w-sm"
+                  className="relative rounded-2xl sm:rounded-3xl px-5 sm:px-8 py-8 sm:py-10 mx-auto w-full max-w-[320px] sm:max-w-sm"
                   style={{
                     background: 'rgba(0, 0, 0, 0.15)',
                     backdropFilter: 'blur(4px)',
@@ -459,7 +459,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 >
                   {/* Accent Badge */}
                   <div 
-                    className="inline-block px-4 py-1.5 rounded-full mb-6 text-xs font-bold tracking-wider"
+                    className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-full mb-4 sm:mb-6 text-xs font-bold tracking-wider"
                     style={{
                       background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
                       color: '#FFFFFF',
@@ -469,9 +469,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     2025
                   </div>
                   
-                  {/* Main Headline - Bold Sans-Serif */}
+                  {/* Main Headline - Mobile Responsive */}
                   <h1 
-                    className="text-6xl font-black mb-4 leading-tight"
+                    className="text-4xl sm:text-5xl md:text-6xl font-black mb-3 sm:mb-4 leading-tight"
                     style={{
                       color: '#FFFFFF',
                       textShadow: '0 2px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.2)',
@@ -483,7 +483,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   
                   {/* Subtitle with Accent Color */}
                   <div 
-                    className="text-2xl font-bold tracking-wide mb-6"
+                    className="text-xl sm:text-2xl font-bold tracking-wide mb-4 sm:mb-6"
                     style={{
                       background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
                       WebkitBackgroundClip: 'text',
@@ -496,15 +496,15 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   
                   {/* Clean Separator Line */}
                   <div 
-                    className="w-16 h-0.5 mx-auto mb-6 rounded-full"
+                    className="w-12 sm:w-16 h-0.5 mx-auto mb-4 sm:mb-6 rounded-full"
                     style={{
                       background: 'linear-gradient(90deg, transparent, #10B981, transparent)'
                     }}
                   />
                   
-                  {/* Tagline - Clean & Bold */}
+                  {/* Tagline - Mobile Optimized */}
                   <p 
-                    className="text-sm font-semibold tracking-wide"
+                    className="text-xs sm:text-sm font-semibold tracking-wide"
                     style={{
                       color: 'rgba(255, 255, 255, 0.9)',
                       textShadow: '0 1px 4px rgba(0, 0, 0, 0.5)'
@@ -513,7 +513,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     ЗАПУСК ЗА 24 ЧАСА
                   </p>
                   <p 
-                    className="text-xs font-medium tracking-wider mt-2"
+                    className="text-[10px] sm:text-xs font-medium tracking-wider mt-1.5 sm:mt-2"
                     style={{
                       color: 'rgba(255, 255, 255, 0.7)'
                     }}
@@ -525,9 +525,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </div>
             </div>
 
-            {/* Section Header */}
-            <div className="mb-6 text-center">
-              <h2 className="text-[1.5rem] font-sans font-black uppercase tracking-wider"
+            {/* Section Header - Mobile Optimized */}
+            <div className="mb-4 sm:mb-6 text-center px-4">
+              <h2 className="text-xl sm:text-2xl md:text-[1.5rem] font-sans font-black uppercase tracking-wider"
                 style={{
                   color: '#FFFFFF',
                   letterSpacing: '0.1em'
@@ -537,26 +537,26 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </h2>
             </div>
 
-            {/* Bento Grid Layout */}
-            <div className="grid grid-cols-12 gap-4">
+            {/* Bento Grid Layout - Mobile First */}
+            <div className="grid grid-cols-2 sm:grid-cols-6 md:grid-cols-12 gap-3 sm:gap-4">
               
               {/* Hero - большая плитка */}
-              <div className="col-span-12 md:col-span-8 row-span-2 h-[500px]">
+              <div className="col-span-2 sm:col-span-6 md:col-span-8 h-[400px] sm:h-[450px] md:h-[500px]">
                 <VideoHeroCard onOpenDemo={handleOpenDemo} />
               </div>
               
               {/* Средние плитки */}
-              <div className="col-span-6 md:col-span-4 h-[240px]">
+              <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[195px] sm:h-[220px] md:h-[240px]">
                 <SneakerDemoCard onOpenDemo={handleOpenDemo} />
               </div>
-              <div className="col-span-6 md:col-span-4 h-[240px]">
+              <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[195px] sm:h-[220px] md:h-[240px]">
                 <WatchesDemoCard onOpenDemo={handleOpenDemo} />
               </div>
               
               {/* Futuristic Fashion Collection - 5 новых приложений */}
-              <div className="col-span-6 md:col-span-4 h-[300px]">
+              <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[260px] sm:h-[280px] md:h-[300px]">
                 <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
+                  className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-1')}
                 >
                   <img
@@ -565,20 +565,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a2e2a]/90 via-[#1a2e2a]/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-[#7FB069] text-xs mb-2 font-bold">ФУТУРИСТИКА</div>
-                    <h3 className="text-white text-2xl font-bold mb-1">Rascal®</h3>
-                    <p className="text-white/70 text-sm">Waterproof Fashion</p>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
+                    <div className="text-[#7FB069] text-[10px] sm:text-xs mb-1 sm:mb-2 font-bold">ФУТУРИСТИКА</div>
+                    <h3 className="text-white text-base sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">Rascal®</h3>
+                    <p className="text-white/70 text-xs sm:text-sm">Waterproof Fashion</p>
                   </div>
-                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-green-600 to-emerald-700 text-white text-xs font-bold">
+                  <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-green-600 to-emerald-700 text-white text-[10px] sm:text-xs font-bold">
                     NEW
                   </div>
                 </div>
               </div>
 
-              <div className="col-span-6 md:col-span-4 h-[300px]">
+              <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[260px] sm:h-[280px] md:h-[300px]">
                 <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
+                  className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-2')}
                 >
                   <img
@@ -587,20 +587,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-white/60 text-xs mb-2 font-bold">МИНИМАЛИЗМ</div>
-                    <h3 className="text-white text-2xl font-bold mb-1">STORE</h3>
-                    <p className="text-white/70 text-sm">Black Minimal</p>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
+                    <div className="text-white/60 text-[10px] sm:text-xs mb-1 sm:mb-2 font-bold">МИНИМАЛИЗМ</div>
+                    <h3 className="text-white text-base sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">STORE</h3>
+                    <p className="text-white/70 text-xs sm:text-sm">Black Minimal</p>
                   </div>
-                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-black text-white text-xs font-bold">
+                  <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-black text-white text-[10px] sm:text-xs font-bold">
                     PREMIUM
                   </div>
                 </div>
               </div>
 
-              <div className="col-span-6 md:col-span-4 h-[300px]">
+              <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[260px] sm:h-[280px] md:h-[300px]">
                 <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
+                  className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-3')}
                 >
                   <img
@@ -609,20 +609,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-white/60 text-xs mb-2 font-bold">ПРЕМИУМ</div>
-                    <h3 className="text-white text-2xl font-bold mb-1">lab. SURVIVALIST</h3>
-                    <p className="text-white/70 text-sm">Black & White</p>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
+                    <div className="text-white/60 text-[10px] sm:text-xs mb-1 sm:mb-2 font-bold">ПРЕМИУМ</div>
+                    <h3 className="text-white text-base sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">lab. SURVIVALIST</h3>
+                    <p className="text-white/70 text-xs sm:text-sm">Black & White</p>
                   </div>
-                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gray-900 text-white text-xs font-bold">
+                  <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gray-900 text-white text-[10px] sm:text-xs font-bold">
                     LUXURY
                   </div>
                 </div>
               </div>
 
-              <div className="col-span-6 md:col-span-6 h-[300px]">
+              <div className="col-span-1 sm:col-span-3 md:col-span-6 h-[260px] sm:h-[280px] md:h-[300px]">
                 <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
+                  className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-4')}
                 >
                   <img
@@ -631,20 +631,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-white/60 text-xs mb-2 font-bold">ИНТЕРАКТИВ</div>
-                    <h3 className="text-white text-2xl font-bold mb-1">Nike ACG</h3>
-                    <p className="text-white/70 text-sm">3D Card Design</p>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
+                    <div className="text-white/60 text-[10px] sm:text-xs mb-1 sm:mb-2 font-bold">ИНТЕРАКТИВ</div>
+                    <h3 className="text-white text-base sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">Nike ACG</h3>
+                    <p className="text-white/70 text-xs sm:text-sm">3D Card Design</p>
                   </div>
-                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-gray-800 to-black text-white text-xs font-bold">
+                  <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-gray-800 to-black text-white text-[10px] sm:text-xs font-bold">
                     3D
                   </div>
                 </div>
               </div>
 
-              <div className="col-span-6 md:col-span-6 h-[300px]">
+              <div className="col-span-1 sm:col-span-3 md:col-span-6 h-[260px] sm:h-[280px] md:h-[300px]">
                 <div 
-                  className="relative h-full rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
+                  className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-5')}
                 >
                   <img
@@ -653,12 +653,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-900/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-purple-400 text-xs mb-2 font-bold">ТОП-1</div>
-                    <h3 className="text-white text-2xl font-bold mb-1">NEWWAVE</h3>
-                    <p className="text-white/70 text-sm">Purple Gradient Tech</p>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
+                    <div className="text-purple-400 text-[10px] sm:text-xs mb-1 sm:mb-2 font-bold">ТОП-1</div>
+                    <h3 className="text-white text-base sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">NEWWAVE</h3>
+                    <p className="text-white/70 text-xs sm:text-sm">Purple Gradient Tech</p>
                   </div>
-                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold">
+                  <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] sm:text-xs font-bold">
                     TOP
                   </div>
                 </div>
@@ -668,14 +668,14 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           </div>
         </div>
 
-        {/* Services Grid */}
-        <MotionStagger className="grid grid-cols-2 gap-4 mt-6 px-4">
+        {/* Services Grid - Mobile Optimized */}
+        <MotionStagger className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6 px-3 sm:px-4">
           
-          {/* Main Services Card - Premium 2025 */}
+          {/* Main Services Card - Mobile Optimized */}
           <MotionBox variant="fadeInScale">
             <HoverScale scale={1.02}>
               <div 
-                className="col-span-2 relative rounded-3xl p-6 cursor-pointer overflow-hidden group tg-interactive"
+                className="sm:col-span-2 relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 cursor-pointer overflow-hidden group tg-interactive"
                 style={{
                   background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
                   boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
@@ -692,8 +692,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             />
             
             {/* Top Left Icon with Glow */}
-            <div className="absolute top-4 left-4 z-10">
-              <div className="w-9 h-9 text-black"
+            <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
+              <div className="w-7 sm:w-9 h-7 sm:h-9 text-black"
                 style={{
                   filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))'
                 }}
@@ -702,8 +702,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </div>
             </div>
             
-            {/* Large Number with Shadow */}
-            <div className="relative text-black text-[96px] font-black leading-none mb-2 tracking-tighter"
+            {/* Large Number with Shadow - Responsive */}
+            <div className="relative text-black text-[72px] sm:text-[96px] font-black leading-none mb-1 sm:mb-2 tracking-tighter"
               style={{
                 textShadow: '2px 2px 0px rgba(0, 0, 0, 0.1)'
               }}
@@ -711,22 +711,22 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               4
             </div>
             
-            <div className="relative text-black font-black text-2xl mb-1 tracking-tight">
+            <div className="relative text-black font-black text-xl sm:text-2xl mb-0.5 sm:mb-1 tracking-tight">
               SERVICES
             </div>
             
-            <div className="relative text-black/70 text-sm font-medium">
+            <div className="relative text-black/70 text-xs sm:text-sm font-medium">
               Готовые решения для бизнеса
             </div>
             
             {/* Agency Label with Badge */}
-            <div className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full"
+            <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full"
               style={{
                 background: 'rgba(0, 0, 0, 0.2)',
                 backdropFilter: 'blur(10px)'
               }}
             >
-              <span className="text-white text-xs font-bold tracking-wide whitespace-nowrap">
+              <span className="text-white text-[10px] sm:text-xs font-bold tracking-wide whitespace-nowrap">
                 WEB4TG.AGENCY
               </span>
             </div>
