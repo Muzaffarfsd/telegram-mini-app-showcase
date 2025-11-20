@@ -155,14 +155,13 @@ const VideoHeroCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenD
     data-testid="hero-card-clothing"
     onClick={() => onOpenDemo('clothing-store')}
   >
-      <LazyVideo
+      <video
         src={fashionVideo}
-        className="absolute inset-0 w-full h-full object-cover"
         autoPlay
         loop
         muted
         playsInline
-        preload="none"
+        className="absolute inset-0 w-full h-full object-cover"
       />
       
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
@@ -194,23 +193,18 @@ const VideoHeroCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenD
 
 // Sneaker Demo Card Component - Premium Minimal
 const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
-  <Glass3DCard 
+  <div 
+    className="relative h-full rounded-2xl overflow-hidden group tg-interactive cursor-pointer"
+    data-testid="demo-card-sneaker-store"
     onClick={() => onOpenDemo('sneaker-store')}
-    delay={0.05}
-    accentColor="var(--tg-theme-accent, #00ffff)"
   >
-    <div 
-      className="relative h-full rounded-2xl overflow-hidden group tg-interactive"
-      data-testid="demo-card-sneaker-store"
-    >
-      <LazyVideo
+      <video
         src={sneakerVideo}
-        className="absolute inset-0 w-full h-full object-cover"
         autoPlay
         loop
         muted
         playsInline
-        preload="none"
+        className="absolute inset-0 w-full h-full object-cover"
       />
     
     {/* Lighter Gradient Overlay - better video visibility */}
@@ -272,28 +266,22 @@ const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpe
       </div>
     </div>
   </div>
-  </Glass3DCard>
 );
 
 // Watches Demo Card Component - Premium Minimal
 const WatchesDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
-  <Glass3DCard 
+  <div 
+    className="relative h-full rounded-2xl overflow-hidden group tg-interactive cursor-pointer"
+    data-testid="demo-card-luxury-watches"
     onClick={() => onOpenDemo('luxury-watches')}
-    delay={0.1}
-    accentColor="var(--tg-theme-accent-2, #ff00ff)"
   >
-    <div 
-      className="relative h-full rounded-2xl overflow-hidden group tg-interactive"
-      data-testid="demo-card-luxury-watches"
-    >
-      <LazyVideo
+      <video
         src={watchesVideo}
-        className="absolute inset-0 w-full h-full object-cover"
         autoPlay
         loop
         muted
         playsInline
-        preload="none"
+        className="absolute inset-0 w-full h-full object-cover"
       />
     
     {/* Lighter Gradient Overlay - better video visibility */}
@@ -358,7 +346,6 @@ const WatchesDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpe
       </div>
     </div>
   </div>
-  </Glass3DCard>
 );
 
 // Demo Card Component
