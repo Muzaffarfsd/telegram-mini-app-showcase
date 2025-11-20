@@ -446,14 +446,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               {/* Content - 2025 Minimal Bold Style */}
               <div className="relative px-6 py-20 text-center">
                 
-                {/* Glassmorphic Container */}
+                {/* Minimal Text Container - No blocking background */}
                 <div 
-                  className="relative backdrop-blur-md rounded-3xl px-8 py-10 mx-auto max-w-sm"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                  }}
+                  className="relative px-8 py-10 mx-auto max-w-sm"
                 >
                   {/* Accent Badge */}
                   <div 
