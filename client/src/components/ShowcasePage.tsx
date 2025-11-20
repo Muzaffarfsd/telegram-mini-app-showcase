@@ -443,59 +443,81 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   }}
                 />
               
-              {/* Content - Oldschool Premium Minimal */}
-              <div className="relative px-8 py-16 text-center">
+              {/* Content - 2025 Minimal Bold Style */}
+              <div className="relative px-6 py-20 text-center">
                 
-                {/* Top Decorative Line */}
-                <div className="flex items-center justify-center gap-3 mb-10">
-                  <div className="w-8 h-[1px] bg-white/20"></div>
-                  <div className="text-white/30 text-[9px] tracking-[0.3em] font-light">EST. 2024</div>
-                  <div className="w-8 h-[1px] bg-white/20"></div>
-                </div>
-                
-                {/* Main Headline - Oldschool Typography */}
-                <div className="mb-8">
-                  <div className="text-white/40 text-[11px] tracking-[0.4em] font-light mb-4">
-                    ПРЕМИУМ РЕШЕНИЕ
-                  </div>
-                  
-                  <h1 className="text-5xl font-light tracking-[0.15em] mb-3"
+                {/* Glassmorphic Container */}
+                <div 
+                  className="relative backdrop-blur-md rounded-3xl px-8 py-10 mx-auto max-w-sm"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                  }}
+                >
+                  {/* Accent Badge */}
+                  <div 
+                    className="inline-block px-4 py-1.5 rounded-full mb-6 text-xs font-bold tracking-wider"
                     style={{
+                      background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
                       color: '#FFFFFF',
-                      fontFamily: 'serif',
-                      textTransform: 'uppercase'
+                      boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)'
                     }}
                   >
-                    Telegram
+                    2025
+                  </div>
+                  
+                  {/* Main Headline - Bold Sans-Serif */}
+                  <h1 
+                    className="text-6xl font-black mb-4 leading-tight"
+                    style={{
+                      color: '#FFFFFF',
+                      textShadow: '0 2px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.2)',
+                      letterSpacing: '-0.02em'
+                    }}
+                  >
+                    TELEGRAM
                   </h1>
                   
-                  <div className="text-lg font-light tracking-[0.25em] text-white/60 mb-6">
+                  {/* Subtitle with Accent Color */}
+                  <div 
+                    className="text-lg font-bold tracking-wide mb-6"
+                    style={{
+                      background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}
+                  >
                     MINI APPLICATIONS
                   </div>
                   
-                  {/* Classic Separator */}
-                  <div className="flex items-center justify-center gap-2 mb-6">
-                    <div className="w-3 h-3 border border-white/20 rotate-45"></div>
-                    <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                    <div className="w-3 h-3 border border-white/20 rotate-45"></div>
-                  </div>
-                </div>
-                
-                {/* Tagline - Classic Style */}
-                <div className="space-y-3 mb-10">
-                  <p className="text-[10px] tracking-[0.3em] font-light text-white/50">
+                  {/* Clean Separator Line */}
+                  <div 
+                    className="w-16 h-0.5 mx-auto mb-6 rounded-full"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent, #10B981, transparent)'
+                    }}
+                  />
+                  
+                  {/* Tagline - Clean & Bold */}
+                  <p 
+                    className="text-sm font-semibold tracking-wide"
+                    style={{
+                      color: 'rgba(255, 255, 255, 0.9)',
+                      textShadow: '0 1px 4px rgba(0, 0, 0, 0.5)'
+                    }}
+                  >
                     ЗАПУСК ЗА 24 ЧАСА
                   </p>
-                  <p className="text-xs tracking-[0.2em] font-light text-white/60">
+                  <p 
+                    className="text-xs font-medium tracking-wider mt-2"
+                    style={{
+                      color: 'rgba(255, 255, 255, 0.7)'
+                    }}
+                  >
                     БЕЗ КОДА • ПРЕМИУМ КАЧЕСТВО
                   </p>
-                </div>
-                
-                {/* Bottom Decorative Element */}
-                <div className="flex items-center justify-center gap-4">
-                  <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-white/20"></div>
-                  <div className="w-1 h-1 bg-white/30 rounded-full"></div>
-                  <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-white/20"></div>
                 </div>
               </div>
               </div>
