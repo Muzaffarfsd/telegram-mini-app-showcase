@@ -75,7 +75,7 @@ const Glass3DCard: React.FC<{
       style={{
         transformStyle: 'preserve-3d'
       }}
-      className="group relative cursor-pointer"
+      className="flex group relative cursor-pointer h-full w-full"
       onClick={onClick}
     >
       {/* Neon glow effect on hover */}
@@ -146,75 +146,70 @@ const dollarAnimations = Array.from({ length: 8 }, (_, i) => ({
   blurIntensity: 0,
 }));
 
-// Video Hero Card Component with lazy loading (Enhanced with Glass3D effects)
+// Video Hero Card Component with lazy loading
 const VideoHeroCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
-  <Glass3DCard 
+  <div 
+    className="relative h-full rounded-3xl overflow-hidden group tg-interactive cursor-pointer"
+    data-testid="hero-card-clothing"
     onClick={() => onOpenDemo('clothing-store')}
-    delay={0}
-    accentColor="var(--tg-theme-accent-3, #39ff14)"
   >
-    <div 
-      className="relative h-full rounded-3xl overflow-hidden group tg-interactive"
-      data-testid="hero-card-clothing"
-    >
-    <LazyVideo
-      src={fashionVideo}
-      className="absolute inset-0 w-full h-full object-cover"
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="none"
-    />
-    
-    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-    
-    <div className="absolute bottom-0 left-0 right-0 p-8">
-      <div className="text-white text-5xl font-light mb-2"
-        style={{ letterSpacing: '0.4em' }}
+      <LazyVideo
+        src={fashionVideo}
+        className="absolute inset-0 w-full h-full object-cover"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="none"
+      />
+      
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+      
+      <div className="absolute bottom-0 left-0 right-0 p-8">
+        <div className="text-white text-5xl font-light mb-2"
+          style={{ letterSpacing: '0.4em' }}
+        >
+          A L U R E
+        </div>
+        <div className="text-white/70 text-sm uppercase tracking-widest mb-4">
+          Premium Streetwear
+        </div>
+        <div className="px-4 py-2 bg-[#CDFF38] text-black rounded-full inline-block text-xs font-bold uppercase">
+          NEW COLLECTION
+        </div>
+      </div>
+      
+      <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold"
+        style={{
+          background: 'rgba(205, 255, 56, 0.95)',
+          color: '#0A0A0A'
+        }}
       >
-        A L U R E
+        NEW
       </div>
-      <div className="text-white/70 text-sm uppercase tracking-widest mb-4">
-        Premium Streetwear
-      </div>
-      <div className="px-4 py-2 bg-[#CDFF38] text-black rounded-full inline-block text-xs font-bold uppercase">
-        NEW COLLECTION
-      </div>
-    </div>
-    
-    <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold"
-      style={{
-        background: 'rgba(205, 255, 56, 0.95)',
-        color: '#0A0A0A'
-      }}
-    >
-      NEW
-    </div>
   </div>
-  </Glass3DCard>
 );
 
-// Sneaker Demo Card Component - Premium Minimal (Enhanced with Glass3D effects)
+// Sneaker Demo Card Component - Premium Minimal
 const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
   <Glass3DCard 
     onClick={() => onOpenDemo('sneaker-store')}
     delay={0.05}
     accentColor="var(--tg-theme-accent, #00ffff)"
   >
-  <div 
-    className="relative h-full rounded-2xl overflow-hidden group tg-interactive"
-    data-testid="demo-card-sneaker-store"
-  >
-    <LazyVideo
-      src={sneakerVideo}
-      className="absolute inset-0 w-full h-full object-cover"
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="none"
-    />
+    <div 
+      className="relative h-full rounded-2xl overflow-hidden group tg-interactive"
+      data-testid="demo-card-sneaker-store"
+    >
+      <LazyVideo
+        src={sneakerVideo}
+        className="absolute inset-0 w-full h-full object-cover"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="none"
+      />
     
     {/* Lighter Gradient Overlay - better video visibility */}
     <div className="absolute inset-0"
@@ -278,26 +273,26 @@ const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpe
   </Glass3DCard>
 );
 
-// Watches Demo Card Component - Premium Minimal (Enhanced with Glass3D effects)
+// Watches Demo Card Component - Premium Minimal
 const WatchesDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
   <Glass3DCard 
     onClick={() => onOpenDemo('luxury-watches')}
     delay={0.1}
     accentColor="var(--tg-theme-accent-2, #ff00ff)"
   >
-  <div 
-    className="relative h-full rounded-2xl overflow-hidden group tg-interactive"
-    data-testid="demo-card-luxury-watches"
-  >
-    <LazyVideo
-      src={watchesVideo}
-      className="absolute inset-0 w-full h-full object-cover"
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="none"
-    />
+    <div 
+      className="relative h-full rounded-2xl overflow-hidden group tg-interactive"
+      data-testid="demo-card-luxury-watches"
+    >
+      <LazyVideo
+        src={watchesVideo}
+        className="absolute inset-0 w-full h-full object-cover"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="none"
+      />
     
     {/* Lighter Gradient Overlay - better video visibility */}
     <div className="absolute inset-0"
@@ -621,13 +616,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </h2>
             </div>
 
-            {/* Bento Grid Layout - Mobile First (with 3D Perspective) */}
-            <Perspective3DContainer className="grid grid-cols-2 sm:grid-cols-6 md:grid-cols-12 gap-3 sm:gap-4">
+            {/* Bento Grid Layout - Mobile First */}
+            <div className="grid grid-cols-2 sm:grid-cols-6 md:grid-cols-12 gap-3 sm:gap-4 px-4">
               
-              {/* Hero - большая плитка */}
-              <div className="col-span-2 sm:col-span-6 md:col-span-8 h-[400px] sm:h-[450px] md:h-[500px]">
-                <VideoHeroCard onOpenDemo={handleOpenDemo} />
-              </div>
+                {/* Hero - большая плитка */}
+                <div className="col-span-2 sm:col-span-6 md:col-span-8 h-[400px] sm:h-[450px] md:h-[500px]">
+                  <VideoHeroCard onOpenDemo={handleOpenDemo} />
+                </div>
               
               {/* Средние плитки */}
               <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[195px] sm:h-[220px] md:h-[240px]">
@@ -747,7 +742,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   </div>
                 </div>
               </div>
-            </Perspective3DContainer>
+            </div>
 
           </div>
         </div>
