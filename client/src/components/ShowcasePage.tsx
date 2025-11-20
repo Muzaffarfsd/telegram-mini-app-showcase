@@ -198,16 +198,13 @@ const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpe
     data-testid="demo-card-sneaker-store"
     onClick={() => onOpenDemo('sneaker-store')}
   >
-      <video
-        src={sneakerVideo}
-        autoPlay
-        loop
-        muted
-        playsInline
+      <img
+        src="/images/nike-acg.jpg"
+        alt="Nike ACG"
         className="absolute inset-0 w-full h-full object-cover"
       />
     
-    {/* Lighter Gradient Overlay - better video visibility */}
+    {/* Lighter Gradient Overlay - better image visibility */}
     <div className="absolute inset-0"
       style={{
         background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.7) 100%)'
@@ -615,10 +612,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               
               {/* Средние плитки */}
               <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[195px] sm:h-[220px] md:h-[240px]">
-                <WatchesDemoCard onOpenDemo={handleOpenDemo} />
+                <SneakerDemoCard onOpenDemo={handleOpenDemo} />
               </div>
               <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[195px] sm:h-[220px] md:h-[240px]">
-                <SneakerDemoCard onOpenDemo={handleOpenDemo} />
+                <WatchesDemoCard onOpenDemo={handleOpenDemo} />
               </div>
               
               {/* Futuristic Fashion Collection - 5 новых приложений */}
