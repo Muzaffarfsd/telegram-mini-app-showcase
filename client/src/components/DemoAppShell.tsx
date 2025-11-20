@@ -168,18 +168,23 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       {/* Mobile Container - Max width for desktop view */}
       <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
         
-      {/* Demo Content Area - Telegram safe area bottom */}
-      <div className="flex-1 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
-        {renderDemoContent()}
-      </div>
+        {/* Demo Content Area - Telegram safe area bottom */}
+        <div className="flex-1 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
+          {renderDemoContent()}
+        </div>
 
-      {/* Liquid Home Button Container - Sticky positioning within container */}
-      <div className="sticky bottom-0 left-0 right-0 pointer-events-none" style={{ zIndex: 60 }}>
-        <div className="absolute bottom-0 right-0 pointer-events-auto" style={{ 
-          marginRight: '20px',
-          marginBottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))'
-        }}>
-          <LiquidHomeButton onNavigateHome={handleNavigateHome} />
+        {/* Sticky Home Button - positioned within container */}
+        <div 
+          className="sticky right-5 z-50 pointer-events-none"
+          style={{
+            bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
+            marginLeft: 'auto',
+            width: 'fit-content'
+          }}
+        >
+          <div className="pointer-events-auto">
+            <LiquidHomeButton onNavigateHome={handleNavigateHome} />
+          </div>
         </div>
       </div>
 
@@ -372,7 +377,6 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
             </nav>
           </div>
         </div>
-      </div>
       </div>
     </div>
   );
