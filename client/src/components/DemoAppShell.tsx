@@ -3,6 +3,7 @@ import { ArrowLeft, Share2, Home, Grid3X3, ShoppingCart, User } from "lucide-rea
 import { demoApps } from "../data/demoApps";
 import { useTelegram } from "../hooks/useTelegram";
 import { getDemoComponent, isDemoAvailable } from "./demos/DemoRegistry";
+import { GlassHeader } from "./GlassHeader";
 
 interface DemoAppShellProps {
   demoId: string;
@@ -158,33 +159,12 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-gray-100'}`}>
       {/* Mobile Container - Max width for desktop view */}
       <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
-        {/* iOS Navigation Bar - Transparent to adapt to app theme */}
-        <header className={`absolute top-0 left-0 right-0 z-30 ${isDarkTheme ? 'bg-black/60' : 'bg-white/80'} backdrop-blur-xl ${isDarkTheme ? 'border-b border-white/10' : 'border-b border-gray-200'}`} data-testid="header-demo">
-        <div className="flex items-center justify-between px-4 py-3">
-          <button
-            onClick={onClose}
-            className={`flex items-center justify-center w-10 h-10 rounded-full ${isDarkTheme ? 'hover:bg-white/10' : 'hover:bg-gray-100'} transition-colors`}
-            data-testid="button-back"
-          >
-            <ArrowLeft className={`w-5 h-5 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`} />
-          </button>
-          
-          <h1 className={`text-lg font-semibold ${isDarkTheme ? 'text-white' : 'text-gray-900'} text-center flex-1`} data-testid="text-demo-title">
-            {demoApp.title}
-          </h1>
-          
-          <button
-            className={`flex items-center justify-center w-10 h-10 rounded-full ${isDarkTheme ? 'hover:bg-white/10' : 'hover:bg-gray-100'} transition-colors`}
-            data-testid="button-share"
-          >
-            <Share2 className={`w-5 h-5 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`} />
-          </button>
-        </div>
-      </header>
+        {/* Premium Glass Header with WEB4TG */}
+        <GlassHeader />
 
 
       {/* Demo Content Area - Add top padding for fixed header and Telegram safe area bottom */}
-      <div className="flex-1 pt-16 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
+      <div className="flex-1 pt-20 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
         {renderDemoContent()}
       </div>
 
