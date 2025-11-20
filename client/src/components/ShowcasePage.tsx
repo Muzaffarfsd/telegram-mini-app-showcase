@@ -204,20 +204,17 @@ const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpe
         className="absolute inset-0 w-full h-full object-cover"
       />
     
-    {/* Lighter Gradient Overlay - better image visibility */}
-    <div className="absolute inset-0"
-      style={{
-        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.7) 100%)'
-      }}
-    ></div>
-    
     {/* Content */}
     <div className="absolute inset-0 p-5 flex flex-col">
       
       {/* Top Section - Title and Badge aligned */}
       <div className="flex items-center justify-between mb-auto">
         <div>
-          <div className="text-white text-2xl font-light tracking-[0.35em]">
+          <div className="text-white text-2xl font-light tracking-[0.35em]"
+            style={{
+              textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.6)'
+            }}
+          >
             S O L E
           </div>
           <div className="h-[1px] w-12 mt-1.5"
@@ -242,14 +239,18 @@ const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpe
       
       {/* Bottom Section - Centered content */}
       <div className="text-center">
-        <div className="text-white/50 text-[10px] uppercase tracking-[0.15em] mb-3 font-light">
+        <div className="text-white/70 text-[10px] uppercase tracking-[0.15em] mb-3 font-light"
+          style={{
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)'
+          }}
+        >
           Premium Sneakers
         </div>
         
         <div className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-[10px] font-semibold tracking-wider uppercase w-full max-w-[200px]"
           style={{
-            background: 'rgba(100, 235, 220, 0.15)',
-            border: '1px solid rgba(100, 235, 220, 0.3)',
+            background: 'rgba(100, 235, 220, 0.25)',
+            border: '1px solid rgba(100, 235, 220, 0.4)',
             borderRadius: '10px',
             color: '#64EBDC',
             backdropFilter: 'blur(10px)'
