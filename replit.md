@@ -19,7 +19,7 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Structure**: Main App router, `ShowcasePage`, `DemoAppShell` for universal navigation, and individual Demo Components for business simulations.
 - **Navigation**: Ultra-minimal glassmorphic bottom navigation.
 - **Technical Implementations**: Custom hooks, `ErrorBoundary`, performance optimizations (`React.memo`, `useMemo`, `useCallback`), `OptimizedImage`, `ModernAnimatedIcons`, and vertical stack card layouts.
-- **Page Transitions**: None (removed for instant navigation - PageTransition component returns plain div wrapper).
+- **Page Transitions**: None (removed for instant navigation - PageTransition, MotionBox, and MotionStagger components return plain div wrappers without animations).
 - **Viewport Configuration**: Dual-mode viewport system - responsive `width=device-width` for Replit/browsers, automatically switches to fixed `width=1200` ONLY in Telegram WebApp via JavaScript detection (`window.Telegram.WebApp.initData`).
 - **Video Optimization**: Smart lazy loading with `useVideoLazyLoad` hook - videos automatically pause/play based on visibility (IntersectionObserver), preload="metadata" for faster loading, canplay event listener for reliable playback control.
 - **Layout Philosophy**: Mobile-first responsive design with Tailwind breakpoints (sm:, md:). In Telegram, JavaScript automatically sets viewport to 1200px, triggering desktop layout via existing breakpoints.

@@ -81,29 +81,17 @@ export function MotionBox({
   ...props 
 }: MotionBoxProps) {
   return (
-    <motion.div
-      variants={animationVariants[variant]}
-      initial="hidden"
-      animate="visible"
-      transition={{ delay }}
-      className={className}
-      {...props}
-    >
+    <div className={className} {...props}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
 export function MotionStagger({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <motion.div
-      variants={staggerContainer}
-      initial="hidden"
-      animate="visible"
-      className={className}
-    >
+    <div className={className}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
