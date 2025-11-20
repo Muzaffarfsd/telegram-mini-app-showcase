@@ -11,7 +11,6 @@ import { Home, ShoppingCart, Briefcase, CircleUser, Bot } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 import { LazyMotionProvider } from "./utils/LazyMotionProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { GlassHeader } from "./components/GlassHeader";
 
 // Import ShowcasePage eagerly (landing page)
 import ShowcasePage from "./components/ShowcasePage";
@@ -251,11 +250,7 @@ function App() {
                   <div className="relative min-h-screen">
                     <div className="floating-elements"></div>
                     
-                    {/* Premium Glass Header - везде на всех страницах */}
-                    <GlassHeader />
-                    
-                    {/* Main content with padding for header and bottom nav */}
-                    <div className="pt-20 pb-24">
+                    <div className="pb-24">
                       {renderRoute()}
                     </div>
             

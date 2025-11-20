@@ -3,7 +3,6 @@ import { ArrowLeft, Share2, Home, Grid3X3, ShoppingCart, User } from "lucide-rea
 import { demoApps } from "../data/demoApps";
 import { useTelegram } from "../hooks/useTelegram";
 import { getDemoComponent, isDemoAvailable } from "./demos/DemoRegistry";
-import { GlassHeader } from "./GlassHeader";
 
 interface DemoAppShellProps {
   demoId: string;
@@ -159,12 +158,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-gray-100'}`}>
       {/* Mobile Container - Max width for desktop view */}
       <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
-        {/* Premium Glass Header with WEB4TG */}
-        <GlassHeader />
-
-
-      {/* Demo Content Area - Add top padding for fixed header and Telegram safe area bottom */}
-      <div className="flex-1 pt-20 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
+        
+      {/* Demo Content Area - Telegram safe area bottom */}
+      <div className="flex-1 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
         {renderDemoContent()}
       </div>
 
