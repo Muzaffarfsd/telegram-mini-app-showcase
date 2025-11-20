@@ -166,19 +166,20 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   return (
     <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-gray-100'}`}>
       {/* Mobile Container - Max width for desktop view */}
-      <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl overflow-hidden`}>
+      <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
         
       {/* Demo Content Area - Telegram safe area bottom */}
       <div className="flex-1 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
         {renderDemoContent()}
       </div>
 
-      {/* Liquid Home Button - Positioned inside container, above bottom nav */}
-      <div className="absolute inset-x-0 bottom-0 pointer-events-none">
-        <div className="relative w-full h-0">
-          <div className="absolute bottom-0 right-0 pointer-events-auto">
-            <LiquidHomeButton onNavigateHome={handleNavigateHome} />
-          </div>
+      {/* Liquid Home Button Container - Sticky positioning within container */}
+      <div className="sticky bottom-0 left-0 right-0 pointer-events-none" style={{ zIndex: 60 }}>
+        <div className="absolute bottom-0 right-0 pointer-events-auto" style={{ 
+          marginRight: '20px',
+          marginBottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))'
+        }}>
+          <LiquidHomeButton onNavigateHome={handleNavigateHome} />
         </div>
       </div>
 
