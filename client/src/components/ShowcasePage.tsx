@@ -446,9 +446,16 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               {/* Content - 2025 Minimal Bold Style */}
               <div className="relative px-6 py-20 text-center">
                 
-                {/* Minimal Text Container - No blocking background */}
+                {/* Glassmorphic Container - Very transparent to show video */}
                 <div 
-                  className="relative px-8 py-10 mx-auto max-w-sm"
+                  className="relative rounded-3xl px-8 py-10 mx-auto max-w-sm"
+                  style={{
+                    background: 'rgba(0, 0, 0, 0.15)',
+                    backdropFilter: 'blur(4px)',
+                    WebkitBackdropFilter: 'blur(4px)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+                  }}
                 >
                   {/* Accent Badge */}
                   <div 
