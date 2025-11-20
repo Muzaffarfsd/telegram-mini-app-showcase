@@ -19,7 +19,7 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Structure**: Main App router, `ShowcasePage`, `DemoAppShell` for universal navigation, and individual Demo Components for business simulations.
 - **Navigation**: Ultra-minimal glassmorphic bottom navigation.
 - **Technical Implementations**: Custom hooks, `ErrorBoundary`, performance optimizations (`React.memo`, `useMemo`, `useCallback`), `OptimizedImage`, `ModernAnimatedIcons`, and vertical stack card layouts.
-- **Page Transitions**: Modern 2025 page transition animations using `PageTransition` component with fade, slide, and scale effects. Powered by Framer Motion with spring physics (damping: 30, stiffness: 200, mass: 0.8) for smooth, natural animations.
+- **Page Transitions**: Modern 2025 page transition animations using `PageTransition` component with fade, slide, and scale effects. Powered by Framer Motion with spring physics (damping: 25, stiffness: 300, mass: 0.6) for fast, smooth animations.
 - **Video Optimization**: Smart lazy loading with `useVideoLazyLoad` hook - videos automatically pause/play based on visibility (IntersectionObserver), preload="metadata" for faster loading, canplay event listener for reliable playback control.
 - **Performance Metrics**: First Contentful Paint (FCP) optimized to 1200ms through component memoization, lazy loading, and optimized video playback control.
 - **Advanced Interactions**: Voice UI (`VoiceSearch`), WebGL Particle Background, 3D Parallax Cards, Liquid Button Effects, Pull-to-Refresh.

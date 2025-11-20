@@ -27,9 +27,9 @@ const pageVariants = {
 
 const pageTransition = {
   type: 'spring',
-  damping: 30,
-  stiffness: 200,
-  mass: 0.8,
+  damping: 25,
+  stiffness: 300,
+  mass: 0.6,
 };
 
 export function PageTransition({ children, routeKey }: PageTransitionProps) {
