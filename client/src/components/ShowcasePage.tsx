@@ -1,5 +1,5 @@
 import { Smartphone, ShoppingCart, Code, Star, Users, Search } from "lucide-react";
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, memo, useMemo } from "react";
 import { m } from 'framer-motion';
 import { MotionStagger, MotionBox, HoverScale } from './MotionWrapper';
 import { useTelegram } from '../hooks/useTelegram';
@@ -7,6 +7,7 @@ import { useHaptic } from '../hooks/useHaptic';
 import { useTrackInteraction } from '@/hooks/useAIRecommendations';
 import { ClothingIcon, ElectronicsIcon, BeautyIcon, RestaurantIcon, FitnessIcon, CarServiceIcon } from './AnimatedBusinessIcons';
 import { LazyVideo } from './LazyVideo';
+import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
 import storeHomepageImage from "@assets/image_1761735146810.png";
@@ -149,18 +150,22 @@ const dollarAnimations = Array.from({ length: 8 }, (_, i) => ({
 }));
 
 // Video Hero Card Component with lazy loading
-const VideoHeroCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
-  <div 
-    className="relative h-full rounded-3xl overflow-hidden group tg-interactive cursor-pointer"
-    data-testid="hero-card-clothing"
-    onClick={() => onOpenDemo('clothing-store')}
-  >
+const VideoHeroCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }) => {
+  const videoRef = useVideoLazyLoad();
+  
+  return (
+    <div 
+      className="relative h-full rounded-3xl overflow-hidden group tg-interactive cursor-pointer"
+      data-testid="hero-card-clothing"
+      onClick={() => onOpenDemo('clothing-store')}
+    >
       <video
+        ref={videoRef}
         src={fashionVideo}
-        autoPlay
         loop
         muted
         playsInline
+        preload="metadata"
         className="absolute inset-0 w-full h-full object-cover"
       />
       
@@ -188,11 +193,12 @@ const VideoHeroCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenD
       >
         NEW
       </div>
-  </div>
-);
+    </div>
+  );
+});
 
 // Sneaker Demo Card Component - Premium Minimal
-const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
+const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }) => (
   <div 
     className="relative h-full rounded-2xl overflow-hidden group tg-interactive cursor-pointer"
     data-testid="demo-card-sneaker-store"
@@ -264,21 +270,25 @@ const SneakerDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpe
       </div>
     </div>
   </div>
-);
+));
 
 // Watches Demo Card Component - Premium Minimal
-const WatchesDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpenDemo }) => (
+const WatchesDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }) => {
+  const videoRef = useVideoLazyLoad();
+  
+  return (
   <div 
     className="relative h-full rounded-2xl overflow-hidden group tg-interactive cursor-pointer"
     data-testid="demo-card-luxury-watches"
     onClick={() => onOpenDemo('luxury-watches')}
   >
       <video
+        ref={videoRef}
         src={watchesVideo}
-        autoPlay
         loop
         muted
         playsInline
+        preload="metadata"
         className="absolute inset-0 w-full h-full object-cover"
       />
     
@@ -344,59 +354,65 @@ const WatchesDemoCard: React.FC<{ onOpenDemo: (id: string) => void }> = ({ onOpe
       </div>
     </div>
   </div>
-);
+  );
+});
 
 // Demo Card Component
-const DemoCard: React.FC<{ 
+const DemoCard = memo<{ 
   id: string; 
   title: string;
   subtitle: string;
   videoSrc?: string;
   imageSrc?: string;
   onOpenDemo: (id: string) => void;
-}> = ({ id, title, subtitle, videoSrc, imageSrc, onOpenDemo }) => (
-  <div 
-    className="relative h-full rounded-2xl overflow-hidden cursor-pointer group tg-interactive"
-    onClick={() => onOpenDemo(id)}
-    data-testid={`demo-card-${id}`}
-  >
-    {videoSrc && (
-      <video 
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-      >
-        <source src={videoSrc} type="video/mp4" />
-      </video>
-    )}
-    
-    {imageSrc && !videoSrc && (
-      <img 
-        src={imageSrc} 
-        alt={title}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-    )}
-    
-    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
-    
-    <div className="absolute bottom-0 left-0 right-0 p-4">
-      <div className="text-white text-2xl font-light mb-1"
-        style={{ letterSpacing: '0.3em' }}
-      >
-        {title}
-      </div>
-      <div className="text-white/60 text-xs uppercase tracking-wider">
-        {subtitle}
+}>(({ id, title, subtitle, videoSrc, imageSrc, onOpenDemo }) => {
+  const videoRef = useVideoLazyLoad();
+  
+  return (
+    <div 
+      className="relative h-full rounded-2xl overflow-hidden cursor-pointer group tg-interactive"
+      onClick={() => onOpenDemo(id)}
+      data-testid={`demo-card-${id}`}
+    >
+      {videoSrc && (
+        <video 
+          ref={videoRef}
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={videoSrc} type="video/mp4" />
+        </video>
+      )}
+      
+      {imageSrc && !videoSrc && (
+        <img 
+          src={imageSrc} 
+          alt={title}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+      
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+      
+      <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="text-white text-2xl font-light mb-1"
+          style={{ letterSpacing: '0.3em' }}
+        >
+          {title}
+        </div>
+        <div className="text-white/60 text-xs uppercase tracking-wider">
+          {subtitle}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+});
 
 // Stat Card Component
-const StatCard: React.FC<{ title: string; subtitle: string }> = ({ title, subtitle }) => (
+const StatCard = memo<{ title: string; subtitle: string }>(({ title, subtitle }) => (
   <div className="relative h-full rounded-2xl overflow-hidden backdrop-blur-3xl"
     style={{
       background: 'rgba(10, 10, 10, 0.9)',
@@ -415,10 +431,10 @@ const StatCard: React.FC<{ title: string; subtitle: string }> = ({ title, subtit
       </div>
     </div>
   </div>
-);
+));
 
 // AI Assistant Card Component
-const AIAssistantCardPreview: React.FC = () => (
+const AIAssistantCardPreview = memo(() => (
   <div className="relative h-full rounded-2xl overflow-hidden backdrop-blur-3xl"
     style={{
       background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)',
@@ -438,7 +454,7 @@ const AIAssistantCardPreview: React.FC = () => (
       </div>
     </div>
   </div>
-);
+));
 
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const { hapticFeedback, isDark, colorScheme } = useTelegram();

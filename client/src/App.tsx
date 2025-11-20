@@ -11,6 +11,7 @@ import { Home, ShoppingCart, Briefcase, CircleUser, Bot } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 import { LazyMotionProvider } from "./utils/LazyMotionProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { PageTransition } from "./components/PageTransition";
 
 // Import ShowcasePage eagerly (landing page)
 import ShowcasePage from "./components/ShowcasePage";
@@ -251,7 +252,9 @@ function App() {
                     <div className="floating-elements"></div>
                     
                     <div className="pb-24">
-                      {renderRoute()}
+                      <PageTransition routeKey={`${route.component}-${route.params?.id ?? ''}`}>
+                        {renderRoute()}
+                      </PageTransition>
                     </div>
             
                 {/* Liquid Glass Bottom Navigation */}
