@@ -420,7 +420,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 {/* Background Video */}
                 <LazyVideo
                   src={heroVideo}
-                  className="absolute inset-0 w-full h-full object-cover opacity-50"
+                  className="absolute inset-0 w-full h-full object-cover opacity-80"
                   autoPlay
                   loop
                   muted
@@ -431,7 +431,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 {/* Gradient Overlay for Readability */}
                 <div className="absolute inset-0"
                   style={{
-                    background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.7) 100%)'
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%)'
                   }}
                 ></div>
                 
