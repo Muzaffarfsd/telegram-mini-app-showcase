@@ -483,7 +483,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   
                   {/* Subtitle with Accent Color */}
                   <div 
-                    className="text-lg font-bold tracking-wide mb-6"
+                    className="text-lg font-bold tracking-wide mb-3"
                     style={{
                       background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
                       WebkitBackgroundClip: 'text',
@@ -493,6 +493,19 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   >
                     MINI APPLICATIONS
                   </div>
+                  
+                  {/* Value Proposition - Clear business message */}
+                  <p 
+                    className="text-base font-semibold mb-6 leading-relaxed px-4"
+                    style={{
+                      color: 'rgba(255, 255, 255, 0.95)',
+                      textShadow: '0 2px 8px rgba(0, 0, 0, 0.6)'
+                    }}
+                  >
+                    Разработка бизнес-приложений<br/>
+                    для автоматизации продаж<br/>
+                    внутри Telegram
+                  </p>
                   
                   {/* Clean Separator Line */}
                   <div 
