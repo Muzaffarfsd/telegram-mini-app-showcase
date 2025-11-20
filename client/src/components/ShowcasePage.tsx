@@ -10,10 +10,12 @@ import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_176173272227
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
 import storeHomepageImage from "@assets/image_1761735146810.png";
 import sneakerStoreImage from "@assets/image_1761735746522.png";
-import fashionVideo from "@assets/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
-import sneakerVideo from "@assets/ae01958370d099047455d799eba60389_1762352751328.mp4";
-import watchesVideo from "@assets/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4";
-import heroVideo from "@assets/1341996d8f73172cbc77930dc818d88e_t4_1763643600785.mp4";
+
+// Videos served from public/videos/ to reduce Docker image size for Railway deployment
+const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
+const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
+const watchesVideo = "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4";
+const heroVideo = "/videos/1341996d8f73172cbc77930dc818d88e_t4_1763643600785.mp4";
 
 // Lazy load heavy components for better initial load performance
 

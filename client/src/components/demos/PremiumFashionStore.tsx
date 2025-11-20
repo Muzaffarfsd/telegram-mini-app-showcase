@@ -5,7 +5,9 @@ import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
-import fashionVideo from "@assets/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
+
+// Video served from public/videos/ to reduce Docker image size  
+const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
 
 interface PremiumFashionStoreProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';

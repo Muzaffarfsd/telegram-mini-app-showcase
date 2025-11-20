@@ -7,7 +7,9 @@ import greenNikeImage from "@assets/загруженное-_4__1761733573240.jpg
 import blueNikeImage from "@assets/загруженное-_3__1761733577054.jpg";
 import whiteJordanImage from "@assets/загруженное-_2__1761733579316.jpg";
 import tealJordanImage from "@assets/NIKE-AIR-JORDAN-V2-e-V3-_designer_designergrafico-_design-_nikeair-_airjordan-_socialmedia-_natural-_1761733582395.jpg";
-import sneakerVideo from "@assets/ae01958370d099047455d799eba60389_1762352751328.mp4";
+
+// Video served from public/videos/ to reduce Docker image size
+const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
 
 interface SneakerVaultProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
