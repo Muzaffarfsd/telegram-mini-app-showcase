@@ -13,7 +13,7 @@ import sneakerStoreImage from "@assets/image_1761735746522.png";
 import fashionVideo from "@assets/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
 import sneakerVideo from "@assets/ae01958370d099047455d799eba60389_1762352751328.mp4";
 import watchesVideo from "@assets/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4";
-import heroVideo from "@assets/cc8af87f44cca019ef98293eb251fe37_1762774935672.mp4";
+import heroVideo from "@assets/1341996d8f73172cbc77930dc818d88e_t4_1763643600785.mp4";
 
 // Lazy load heavy components for better initial load performance
 
