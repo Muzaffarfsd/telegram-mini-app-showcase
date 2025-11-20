@@ -11,6 +11,8 @@ import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_176173272227
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
 import storeHomepageImage from "@assets/image_1761735146810.png";
 import sneakerStoreImage from "@assets/image_1761735746522.png";
+import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
+import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 
 // Videos served from public/videos/ to reduce Docker image size for Railway deployment
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -638,10 +640,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-1')}
                 >
-                  <img
-                    src="/attached_assets/stock_images/futuristic_techwear__e958e42c.jpg"
-                    alt="Rascal"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  <video
+                    src="/videos/rascal.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a2e2a]/90 via-[#1a2e2a]/40 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
@@ -661,7 +666,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   onClick={() => onOpenDemo('futuristic-fashion-2')}
                 >
                   <img
-                    src="/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg"
+                    src={nikeDestinyImage}
                     alt="STORE"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -683,7 +688,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   onClick={() => onOpenDemo('futuristic-fashion-3')}
                 >
                   <img
-                    src="/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg"
+                    src={nikeGreenImage}
                     alt="lab. SURVIVALIST"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -721,27 +726,6 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 </div>
               </div>
 
-              <div className="col-span-1 sm:col-span-3 md:col-span-6 h-[260px] sm:h-[280px] md:h-[300px]">
-                <div 
-                  className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
-                  onClick={() => onOpenDemo('futuristic-fashion-5')}
-                >
-                  <img
-                    src="/attached_assets/stock_images/cyberpunk_fashion_ho_b350f945.jpg"
-                    alt="NEWWAVE"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-900/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
-                    <div className="text-purple-400 text-[10px] sm:text-xs mb-1 sm:mb-2 font-bold">ТОП-1</div>
-                    <h3 className="text-white text-base sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">NEWWAVE</h3>
-                    <p className="text-white/70 text-xs sm:text-sm">Purple Gradient Tech</p>
-                  </div>
-                  <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] sm:text-xs font-bold">
-                    TOP
-                  </div>
-                </div>
-              </div>
             </div>
 
           </div>
