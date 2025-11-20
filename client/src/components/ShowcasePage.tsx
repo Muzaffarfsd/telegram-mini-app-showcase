@@ -615,10 +615,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               
               {/* Средние плитки */}
               <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[195px] sm:h-[220px] md:h-[240px]">
-                <SneakerDemoCard onOpenDemo={handleOpenDemo} />
+                <WatchesDemoCard onOpenDemo={handleOpenDemo} />
               </div>
               <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[195px] sm:h-[220px] md:h-[240px]">
-                <WatchesDemoCard onOpenDemo={handleOpenDemo} />
+                <SneakerDemoCard onOpenDemo={handleOpenDemo} />
               </div>
               
               {/* Futuristic Fashion Collection - 5 новых приложений */}
