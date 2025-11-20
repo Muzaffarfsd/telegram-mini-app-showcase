@@ -9,11 +9,11 @@ export function LiquidHomeButton({ onNavigateHome }: LiquidHomeButtonProps) {
   return (
     <m.button
       onClick={onNavigateHome}
-      className="fixed right-4 z-40 flex items-center justify-center w-14 h-14 rounded-full overflow-hidden group"
+      className="relative z-40 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden group"
       style={{
-        // Position above bottom nav (which is at bottom-6 = 24px)
-        // Add extra space for safe areas: 24px (nav bottom) + 76px (nav height + gap) = 100px
-        bottom: 'calc(100px + max(0px, var(--csab, 0px)))',
+        // Position inside container with safe margins
+        marginRight: 'max(12px, env(safe-area-inset-right, 12px))',
+        marginBottom: 'calc(100px + max(0px, var(--csab, 0px)))',
         background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
@@ -34,10 +34,9 @@ export function LiquidHomeButton({ onNavigateHome }: LiquidHomeButtonProps) {
         }}
       />
       
-      {/* Icon */}
+      {/* Icon - responsive sizing */}
       <Home 
-        className="relative z-10 text-white drop-shadow-lg" 
-        size={24}
+        className="relative z-10 text-white drop-shadow-lg w-5 h-5 sm:w-6 sm:h-6" 
         strokeWidth={2.5}
       />
 

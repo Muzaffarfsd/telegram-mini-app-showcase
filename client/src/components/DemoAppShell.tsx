@@ -166,15 +166,21 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   return (
     <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-gray-100'}`}>
       {/* Mobile Container - Max width for desktop view */}
-      <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
+      <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl overflow-hidden`}>
         
       {/* Demo Content Area - Telegram safe area bottom */}
       <div className="flex-1 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
         {renderDemoContent()}
       </div>
 
-      {/* Liquid Home Button - Positioned above bottom nav */}
-      <LiquidHomeButton onNavigateHome={handleNavigateHome} />
+      {/* Liquid Home Button - Positioned inside container, above bottom nav */}
+      <div className="absolute inset-x-0 bottom-0 pointer-events-none">
+        <div className="relative w-full h-0">
+          <div className="absolute bottom-0 right-0 pointer-events-auto">
+            <LiquidHomeButton onNavigateHome={handleNavigateHome} />
+          </div>
+        </div>
+      </div>
 
       {/* Liquid Glass Bottom Navigation - Same style as main page */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
