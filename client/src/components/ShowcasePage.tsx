@@ -199,15 +199,22 @@ const VideoHeroCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }
 });
 
 // Sneaker Demo Card Component - Premium Minimal
-const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }) => (
+const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }) => {
+  const videoRef = useVideoLazyLoad();
+  
+  return (
   <div 
     className="relative h-full rounded-2xl overflow-hidden group tg-interactive cursor-pointer"
     data-testid="demo-card-sneaker-store"
     onClick={() => onOpenDemo('sneaker-store')}
   >
-      <img
-        src={nikeAcgImage}
-        alt="Nike ACG"
+      <video
+        ref={videoRef}
+        src={sneakerVideo}
+        loop
+        muted
+        playsInline
+        preload="metadata"
         className="absolute inset-0 w-full h-full object-cover"
       />
     
@@ -271,7 +278,8 @@ const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo
       </div>
     </div>
   </div>
-));
+  );
+});
 
 // Watches Demo Card Component - Premium Minimal
 const WatchesDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }) => {
