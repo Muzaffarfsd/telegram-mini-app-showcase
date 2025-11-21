@@ -15,6 +15,7 @@ import sneakerStoreImage from "@assets/image_1761735746522.png";
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import nikeAcgImage from "@assets/acc835fff3bb452f0c3b534056fbe1ea_1763719574494.jpg";
+import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
 
 // Videos served from public/videos/ to reduce Docker image size for Railway deployment
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -650,15 +651,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
                   onClick={() => onOpenDemo('futuristic-fashion-1')}
                 >
-                  <video
-                    src="/videos/rascal.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="absolute inset-0 w-full h-full object-cover"
+                  <img
+                    src={rascalImage}
+                    alt="Rascal"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a2e2a]/90 via-[#1a2e2a]/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a2e2a]/70 via-[#1a2e2a]/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
                     <div className="text-[#7FB069] text-[10px] sm:text-xs mb-1 sm:mb-2 font-bold">ФУТУРИСТИКА</div>
                     <h3 className="text-white text-base sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">Rascal®</h3>
