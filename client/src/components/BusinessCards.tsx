@@ -1,5 +1,6 @@
 import { Smartphone, Code, Zap, ArrowRight, Users, ShoppingCart } from "lucide-react";
 import { Card3D } from './Card3D';
+import { preloadDemo } from './demos/DemoRegistry';
 
 interface BusinessCardsProps {
   onOpenDemo: (demoId: string) => void;
@@ -25,7 +26,7 @@ const businessApps = [
     visual: "cart"
   },
   {
-    id: "tech-gadgets",
+    id: "beauty",
     title: "AI-помощник для бизнеса",
     description: "24/7 автоматизация",
     categories: ["AI", "AUTOMATION"],
@@ -45,6 +46,8 @@ export default function BusinessCards({ onOpenDemo }: BusinessCardsProps) {
       >
       <div 
         className="relative bg-black rounded-3xl p-6 overflow-hidden cursor-pointer group transition-all duration-300"
+        onMouseEnter={() => preloadDemo('clothing-store')}
+        onTouchStart={() => preloadDemo('clothing-store')}
         style={{
           backgroundImage: `
             radial-gradient(circle at 20% 20%, rgba(77, 208, 225, 0.05) 0%, transparent 50%),
@@ -111,6 +114,8 @@ export default function BusinessCards({ onOpenDemo }: BusinessCardsProps) {
       <Card3D onClick={() => onOpenDemo('electronics')} intensity={12}>
       <div 
         className="relative bg-black rounded-3xl p-4 overflow-hidden cursor-pointer group transition-all duration-300"
+        onMouseEnter={() => preloadDemo('electronics')}
+        onTouchStart={() => preloadDemo('electronics')}
         style={{
           backgroundImage: `radial-gradient(circle at 70% 30%, rgba(255, 179, 0, 0.08) 0%, transparent 60%)`
         }}
@@ -150,9 +155,11 @@ export default function BusinessCards({ onOpenDemo }: BusinessCardsProps) {
       </Card3D>
 
       {/* Automation Card */}
-      <Card3D onClick={() => onOpenDemo('tech-gadgets')} intensity={12}>
+      <Card3D onClick={() => onOpenDemo('beauty')} intensity={12}>
       <div 
         className="relative bg-black rounded-3xl p-4 overflow-hidden cursor-pointer group transition-all duration-300"
+        onMouseEnter={() => preloadDemo('beauty')}
+        onTouchStart={() => preloadDemo('beauty')}
         style={{
           backgroundImage: `radial-gradient(circle at 30% 70%, rgba(239, 83, 80, 0.06) 0%, transparent 60%)`
         }}

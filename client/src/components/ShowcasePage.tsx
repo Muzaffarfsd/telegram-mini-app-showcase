@@ -8,6 +8,7 @@ import { useTrackInteraction } from '@/hooks/useAIRecommendations';
 import { ClothingIcon, ElectronicsIcon, BeautyIcon, RestaurantIcon, FitnessIcon, CarServiceIcon } from './AnimatedBusinessIcons';
 import { LazyVideo } from './LazyVideo';
 import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
+import { preloadDemo } from './demos/DemoRegistry';
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
 import storeHomepageImage from "@assets/image_1761735146810.png";
@@ -160,6 +161,8 @@ const VideoHeroCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }
       className="relative h-full rounded-3xl overflow-hidden group tg-interactive cursor-pointer"
       data-testid="hero-card-clothing"
       onClick={() => onOpenDemo('clothing-store')}
+      onMouseEnter={() => preloadDemo('clothing-store')}
+      onTouchStart={() => preloadDemo('clothing-store')}
     >
       <video
         ref={videoRef}
@@ -167,7 +170,7 @@ const VideoHeroCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }
         loop
         muted
         playsInline
-        preload="metadata"
+        preload="none"
         className="absolute inset-0 w-full h-full object-cover"
       />
       
@@ -208,6 +211,8 @@ const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo
     className="relative h-full rounded-2xl overflow-hidden group tg-interactive cursor-pointer"
     data-testid="demo-card-sneaker-store"
     onClick={() => onOpenDemo('sneaker-store')}
+    onMouseEnter={() => preloadDemo('sneaker-store')}
+    onTouchStart={() => preloadDemo('sneaker-store')}
   >
       <video
         ref={videoRef}
@@ -215,7 +220,7 @@ const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo
         loop
         muted
         playsInline
-        preload="metadata"
+        preload="none"
         className="absolute inset-0 w-full h-full object-cover"
       />
     
@@ -291,6 +296,8 @@ const WatchesDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo
     className="relative h-full rounded-2xl overflow-hidden group tg-interactive cursor-pointer"
     data-testid="demo-card-luxury-watches"
     onClick={() => onOpenDemo('luxury-watches')}
+    onMouseEnter={() => preloadDemo('luxury-watches')}
+    onTouchStart={() => preloadDemo('luxury-watches')}
   >
       <video
         ref={videoRef}
@@ -298,7 +305,7 @@ const WatchesDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo
         loop
         muted
         playsInline
-        preload="metadata"
+        preload="none"
         className="absolute inset-0 w-full h-full object-cover"
       />
     
@@ -382,6 +389,8 @@ const DemoCard = memo<{
     <div 
       className="relative h-full rounded-2xl overflow-hidden cursor-pointer group tg-interactive"
       onClick={() => onOpenDemo(id)}
+      onMouseEnter={() => preloadDemo(id)}
+      onTouchStart={() => preloadDemo(id)}
       data-testid={`demo-card-${id}`}
     >
       {videoSrc && (
@@ -390,7 +399,7 @@ const DemoCard = memo<{
           loop
           muted
           playsInline
-          preload="metadata"
+          preload="none"
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src={videoSrc} type="video/mp4" />

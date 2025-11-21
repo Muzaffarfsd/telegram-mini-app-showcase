@@ -157,3 +157,13 @@ export const getDemoComponent = (demoId: string): ComponentType<any> | null => {
 export const isDemoAvailable = (demoId: string): boolean => {
   return demoId in demoRegistry;
 };
+
+// Preload a specific demo component on hover
+export const preloadDemo = (demoId: string): void => {
+  const demo = demoRegistry[demoId];
+  if (demo?.preload) {
+    demo.preload().catch(() => {
+      // Silently fail if preload fails
+    });
+  }
+};
