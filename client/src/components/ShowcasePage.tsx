@@ -14,6 +14,7 @@ import storeHomepageImage from "@assets/image_1761735146810.png";
 import sneakerStoreImage from "@assets/image_1761735746522.png";
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
+import nikeAcgImage from "@assets/acc835fff3bb452f0c3b534056fbe1ea_1763719574494.jpg";
 
 // Videos served from public/videos/ to reduce Docker image size for Railway deployment
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -205,7 +206,7 @@ const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo
     onClick={() => onOpenDemo('sneaker-store')}
   >
       <img
-        src="/attached_assets/acc835fff3bb452f0c3b534056fbe1ea_1763719574494.jpg"
+        src={nikeAcgImage}
         alt="Nike ACG"
         className="absolute inset-0 w-full h-full object-cover"
       />
@@ -711,7 +712,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   onClick={() => onOpenDemo('futuristic-fashion-4')}
                 >
                   <img
-                    src="/attached_assets/acc835fff3bb452f0c3b534056fbe1ea_1763719574494.jpg"
+                    src={nikeAcgImage}
                     alt="Nike ACG"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
