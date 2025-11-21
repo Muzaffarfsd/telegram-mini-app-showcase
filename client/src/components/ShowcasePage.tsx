@@ -205,7 +205,7 @@ const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo
     onClick={() => onOpenDemo('sneaker-store')}
   >
       <img
-        src="/images/nike-acg.jpg"
+        src="/attached_assets/acc835fff3bb452f0c3b534056fbe1ea_1763719574494.jpg"
         alt="Nike ACG"
         className="absolute inset-0 w-full h-full object-cover"
       />
@@ -711,7 +711,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   onClick={() => onOpenDemo('futuristic-fashion-4')}
                 >
                   <img
-                    src="/attached_assets/stock_images/futuristic_fashion_m_4203db1e.jpg"
+                    src="/attached_assets/acc835fff3bb452f0c3b534056fbe1ea_1763719574494.jpg"
                     alt="Nike ACG"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
