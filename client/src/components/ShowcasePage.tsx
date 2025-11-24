@@ -8,6 +8,7 @@ import { useTrackInteraction } from '@/hooks/useAIRecommendations';
 import { ClothingIcon, ElectronicsIcon, BeautyIcon, RestaurantIcon, FitnessIcon, CarServiceIcon } from './AnimatedBusinessIcons';
 import { LazyVideo } from './LazyVideo';
 import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
+import { useVideoPreload } from '../hooks/useVideoPreload';
 import { preloadDemo } from './demos/DemoRegistry';
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
@@ -161,9 +162,9 @@ const dollarAnimations = Array.from({ length: 8 }, (_, i) => ({
   blurIntensity: 0,
 }));
 
-// Video Hero Card Component with lazy loading
+// Video Hero Card Component with immediate preload
 const VideoHeroCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }) => {
-  const videoRef = useVideoLazyLoad();
+  const videoRef = useVideoPreload();
   
   return (
     <div 
@@ -211,9 +212,9 @@ const VideoHeroCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }
   );
 });
 
-// Sneaker Demo Card Component - Premium Minimal
+// Sneaker Demo Card Component - Premium Minimal with immediate preload
 const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }) => {
-  const videoRef = useVideoLazyLoad();
+  const videoRef = useVideoPreload();
   
   return (
   <div 
