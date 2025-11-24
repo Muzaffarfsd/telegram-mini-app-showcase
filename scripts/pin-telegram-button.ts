@@ -33,7 +33,7 @@ async function sendAndPinMessage() {
         reply_markup: {
           inline_keyboard: [[
             {
-              text: '📱 Открыть приложение',
+              text: '💎 Открыть приложение',
               url: APP_URL
             }
           ]]
