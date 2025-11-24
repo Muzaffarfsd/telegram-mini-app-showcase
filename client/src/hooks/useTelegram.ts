@@ -58,6 +58,13 @@ interface TelegramWebApp {
   // 2025 Home Screen Shortcuts API
   addToHomeScreen: () => void;
   checkHomeScreenStatus: (callback: (status: 'unsupported' | 'unknown' | 'added' | 'missed') => void) => void;
+  
+  // Version checking
+  isVersionAtLeast: (version: string) => boolean;
+  
+  // Swipe behavior control (Bot API 7.7+)
+  disableVerticalSwipes: () => void;
+  enableVerticalSwipes: () => void;
 }
 
 declare global {
@@ -204,6 +211,15 @@ export function useTelegram() {
       
       tg.ready();
       tg.expand();
+      
+      // CRITICAL FIX: Disable vertical swipes to prevent app collapse on scroll (Bot API 7.7+)
+      // This prevents Telegram from interpreting downward scroll as "close app" gesture
+      if (typeof tg.isVersionAtLeast === 'function' && tg.isVersionAtLeast('7.7')) {
+        if (typeof tg.disableVerticalSwipes === 'function') {
+          tg.disableVerticalSwipes();
+          console.log('[Telegram] Vertical swipes disabled - smooth scrolling enabled');
+        }
+      }
       
       return () => {
         // Cleanup event listeners
