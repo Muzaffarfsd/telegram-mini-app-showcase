@@ -44,23 +44,6 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           />
           
           <div className="relative z-10">
-            {/* New badge - iOS style */}
-            <div className="flex justify-center mb-6 scroll-fade-in">
-              <div 
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
-                style={{
-                  background: 'rgba(59, 130, 246, 0.15)',
-                  backdropFilter: 'blur(10px)',
-                  border: '0.5px solid rgba(59, 130, 246, 0.3)'
-                }}
-              >
-                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                <span className="text-xs font-semibold tracking-wider text-blue-400">
-                  НОВОЕ
-                </span>
-              </div>
-            </div>
-            
             {/* Hero headline - Apple SF Pro style */}
             <h1 
               className="text-center mb-4 scroll-fade-in-delay-1"
