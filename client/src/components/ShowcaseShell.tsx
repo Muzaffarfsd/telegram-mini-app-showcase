@@ -13,85 +13,88 @@ const ShowcaseShell = memo<ShowcaseShellProps>(() => {
   return (
     <div className="relative min-h-screen bg-black text-white overflow-hidden">
       
-      {/* Hero Section - Static skeleton */}
-      <div className="relative h-screen flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black"></div>
-        
-        <div className="relative z-10 text-center px-6">
+      {/* Hero Section - Rich content for fast LCP */}
+      <div className="relative min-h-screen flex items-center justify-center">
+        {/* Background gradient - no images for instant paint */}
+        <div className="absolute inset-0">
           <div 
-            className="inline-block px-4 py-2 rounded-full mb-6"
+            className="absolute inset-0" 
+            style={{ 
+              background: 'radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 50%), radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.1) 0%, transparent 40%), linear-gradient(180deg, #000 0%, #0a0a0a 50%, #000 100%)'
+            }}
+          />
+        </div>
+        
+        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+          <div 
+            className="inline-block px-6 py-2 rounded-full mb-8"
             style={{ 
               background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+              boxShadow: '0 0 40px rgba(16, 185, 129, 0.3)',
             }}
           >
-            <span className="text-sm font-bold text-white tracking-wider">2025</span>
+            <span className="text-sm font-bold text-white tracking-widest">2025</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
+          <h1 
+            className="text-6xl md:text-8xl font-black mb-8 leading-tight"
+            style={{
+              background: 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
             TELEGRAM
             <br />
-            <span style={{ color: '#10b981' }}>для БИЗНЕСА</span>
+            <span 
+              style={{ 
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              для БИЗНЕСА
+            </span>
           </h1>
           
-          <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 mb-4 font-medium">
             ЗАПУСК ЗА 24 ЧАСА
-            <br />
+          </p>
+          <p className="text-base text-gray-500 mb-12">
             БЕЗ КОДА • ПРЕМИУМ КАЧЕСТВО
           </p>
           
-          {/* Loading indicator */}
-          <div className="flex items-center justify-center gap-2">
-            <div 
-              className="w-2 h-2 rounded-full bg-emerald-500"
-              style={{ 
-                animation: 'bounce 1s infinite'
-              }}
-            />
-            <div 
-              className="w-2 h-2 rounded-full bg-emerald-500"
-              style={{ 
-                animation: 'bounce 1s infinite 0.1s'
-              }}
-            />
-            <div 
-              className="w-2 h-2 rounded-full bg-emerald-500"
-              style={{ 
-                animation: 'bounce 1s infinite 0.2s'
-              }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Business Apps Section - Static skeleton */}
-      <div className="relative py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-black text-center mb-16">
-            БИЗНЕС-ПРИЛОЖЕНИЯ
-          </h2>
-          
-          {/* Grid skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+          {/* Feature cards for LCP content */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-16 max-w-3xl mx-auto">
+            {[
+              { title: 'AI АГЕНТЫ', desc: '24/7 поддержка' },
+              { title: 'E-COMMERCE', desc: 'Готовые решения' },
+              { title: 'АВТОМАТИЗАЦИЯ', desc: 'Умные боты' }
+            ].map((item, i) => (
               <div 
                 key={i}
-                className="aspect-video rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 animate-pulse"
-              />
+                className="p-6 rounded-2xl"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                <div className="text-emerald-500 text-sm font-bold mb-2">{item.title}</div>
+                <div className="text-gray-400 text-xs">{item.desc}</div>
+              </div>
             ))}
           </div>
         </div>
       </div>
 
       <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
-        }
-        
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
+        /* Faster animations */
+        @keyframes shimmer {
+          0% { opacity: 0.5; }
+          50% { opacity: 1; }
+          100% { opacity: 0.5; }
         }
       `}</style>
     </div>
