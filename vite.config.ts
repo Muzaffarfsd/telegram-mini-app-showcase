@@ -68,30 +68,37 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunks - aggressive splitting for faster initial load
+          // Vendor chunks - careful splitting to avoid initialization issues
           if (id.includes('node_modules')) {
-            // Core React + Radix UI MUST be together to prevent loading order issues
-            if (id.includes('react/') || id.includes('react-dom/') || id.includes('scheduler') || id.includes('@radix-ui')) {
+            // ✅ Core React + ALL React ecosystem in ONE chunk
+            // This prevents "Cannot access before initialization" errors
+            if (id.includes('react') || id.includes('scheduler')) {
               return 'vendor';
             }
             
-            // Framer Motion - lazy loaded
+            // ✅ Radix UI depends on React, separate chunk loaded after vendor
+            if (id.includes('@radix-ui')) {
+              return 'ui-vendor';
+            }
+            
+            // ✅ Framer Motion - lazy loaded, heavy animation lib
             if (id.includes('framer-motion')) {
               return 'animation-vendor';
             }
             
-            // React Query - separate chunk
-            if (id.includes('@tanstack/react-query')) {
-              return 'react-query';
+            // ✅ TanStack - separate ecosystem
+            if (id.includes('@tanstack')) {
+              return 'tanstack-vendor';
             }
             
-            // Lucide icons - separate chunk
-            if (id.includes('lucide-react')) {
-              return 'lucide-icons';
+            // ✅ Icons - can be separate
+            if (id.includes('lucide-react') || id.includes('react-icons')) {
+              return 'icons-vendor';
             }
             
-            // Other vendors - utilities and smaller libs
-            return 'vendor-utils';
+            // ✅ All other utilities - NO React dependencies here
+            // Things like: date-fns, lodash, utility libraries
+            return 'utils-vendor';
           }
           
           // ✅ Let Rollup auto-split ShowcasePage into smaller chunks
