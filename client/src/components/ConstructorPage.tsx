@@ -297,7 +297,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
         
         {/* Payment Model Section */}
         <section>
-          <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-7 overflow-hidden">
+          <div className="relative bg-black backdrop-blur-xl rounded-3xl border border-white/20 p-7 overflow-hidden">
             {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-system-blue/5 via-transparent to-system-purple/5 pointer-events-none"/>
             
