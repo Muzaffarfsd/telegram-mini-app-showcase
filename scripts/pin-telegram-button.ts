@@ -34,7 +34,7 @@ async function sendAndPinMessage() {
           inline_keyboard: [[
             {
               text: '🤖 Открыть через бота',
-              url: 'https://t.me/web4_tg_bot'
+              url: 'https://t.me/w4tg_bot'
             }
           ]]
         }
