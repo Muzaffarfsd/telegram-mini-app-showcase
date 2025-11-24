@@ -79,17 +79,38 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunks - keep React AND Radix in main vendor to avoid loading order issues
+          // Vendor chunks - aggressive splitting for faster initial load
           if (id.includes('node_modules')) {
+            // Core React must be together for proper loading order
+            if (id.includes('react/') || id.includes('react-dom/') || id.includes('scheduler')) {
+              return 'react-core';
+            }
+            
+            // Framer Motion - lazy loaded
             if (id.includes('framer-motion')) {
               return 'animation-vendor';
             }
-            // Keep React, React-DOM, and Radix UI together in main vendor
-            // This prevents "Cannot read 'forwardRef' of undefined" errors
-            return 'vendor';
+            
+            // Radix UI - separate chunk since it's large
+            if (id.includes('@radix-ui')) {
+              return 'radix-ui';
+            }
+            
+            // React Query - separate chunk
+            if (id.includes('@tanstack/react-query')) {
+              return 'react-query';
+            }
+            
+            // Lucide icons - separate chunk
+            if (id.includes('lucide-react')) {
+              return 'lucide-icons';
+            }
+            
+            // Other vendors - utilities and smaller libs
+            return 'vendor-utils';
           }
           
-          // Route-based splitting
+          // Route-based splitting - ShowcasePage is now lazy loaded
           if (id.includes('/src/components/ShowcasePage')) {
             return 'showcase';
           }
@@ -97,7 +118,7 @@ export default defineConfig({
             return 'projects';
           }
           if (id.includes('/src/components/demos/')) {
-            // Группируем демо по категориям
+            // Group demos by category
             if (id.includes('Clothing') || id.includes('Electronics') || id.includes('Gadget')) {
               return 'demos-ecommerce';
             }

@@ -13,10 +13,11 @@ import { LazyMotionProvider } from "./utils/LazyMotionProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PageTransition } from "./components/PageTransition";
 
-// Import ShowcasePage eagerly (landing page)
-import ShowcasePage from "./components/ShowcasePage";
+// Lightweight shell for instant first paint
+import ShowcaseShell from "./components/ShowcaseShell";
 
-// Lazy load ALL pages except ShowcasePage
+// Lazy load ALL pages including ShowcasePage for optimal bundle splitting
+const ShowcasePage = lazy(() => import("./components/ShowcasePage"));
 const ProjectsPage = lazy(() => import("./components/ProjectsPage"));
 const DemoAppLanding = lazy(() => import("./components/DemoAppLanding"));
 const ConstructorPage = lazy(() => import("./components/ConstructorPage"));
@@ -153,10 +154,10 @@ function App() {
   // No loading screen - instant load
   const PageLoader = useCallback(() => null, []);
 
-  // Route component rendering with Suspense
+  // Route component rendering with Suspense - use lightweight shell for instant first paint
   const renderRoute = () => {
     return (
-      <Suspense fallback={null}>
+      <Suspense fallback={route.component === 'showcase' ? <ShowcaseShell /> : null}>
         {(() => {
           switch (route.component) {
             case 'showcase':
