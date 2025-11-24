@@ -23,23 +23,57 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
         </div>
 
         <div className="space-y-3">
-          {topApps.map((app) => (
+          {topApps.map((app, index) => (
             <div
               key={app.id}
               onClick={() => onOpenDemo(app.id)}
-              className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all"
+              className="relative cursor-pointer group"
               data-testid={`card-app-${app.id}`}
+              style={{
+                // Задержка анимации для эффекта каскада
+                animationDelay: `${index * 0.05}s`
+              }}
             >
-              <h3 className="text-lg font-semibold text-white mb-2" data-testid={`text-title-${app.id}`}>
-                {app.title}
-              </h3>
-              <p className="text-sm text-white/70" data-testid={`text-description-${app.id}`}>
-                {app.description}
-              </p>
+              {/* Animated gradient border */}
+              <div 
+                className="absolute -inset-[1px] rounded-2xl opacity-75 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background: 'linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335, #4285f4)',
+                  backgroundSize: '300% 100%',
+                  animation: 'gradient-shift 3s ease infinite',
+                  filter: 'blur(0.5px)'
+                }}
+              />
+              
+              {/* Card content */}
+              <div 
+                className="relative bg-black rounded-2xl p-4 transition-all duration-300 group-hover:bg-white/5"
+              >
+                <h3 className="text-lg font-semibold text-white mb-2" data-testid={`text-title-${app.id}`}>
+                  {app.title}
+                </h3>
+                <p className="text-sm text-white/70" data-testid={`text-description-${app.id}`}>
+                  {app.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>
       </div>
+
+      <style>{`
+        @keyframes gradient-shift {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+      `}</style>
     </div>
   );
 }
