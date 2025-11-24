@@ -6,11 +6,11 @@ import {
   Zap,
   Shield,
   Globe,
-  MessageSquare,
-  Clock,
+  Brain,
   TrendingUp,
-  Users,
-  BarChart
+  Clock,
+  BarChart,
+  Users
 } from "lucide-react";
 
 interface AIAgentPageProps {
@@ -32,396 +32,476 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
 
   return (
     <div className="min-h-screen bg-[#000000] pb-24 overflow-hidden">
-      <div className="max-w-md mx-auto">
+      
+      {/* HERO SECTION - Full height dramatic intro */}
+      <section className="relative min-h-[85vh] flex items-center justify-center px-6">
+        {/* Multi-layer parallax background */}
+        <div 
+          className="absolute inset-0 opacity-30"
+          style={{
+            background: 'radial-gradient(ellipse 120% 80% at 50% -20%, rgba(59, 130, 246, 0.3) 0%, rgba(139, 92, 246, 0.2) 40%, transparent 80%)',
+            transform: `translateY(${scrollY * 0.4}px) scale(${1 + scrollY * 0.0005})`,
+          }}
+        />
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{
+            background: 'radial-gradient(circle at 30% 70%, rgba(139, 92, 246, 0.25) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(59, 130, 246, 0.25) 0%, transparent 50%)',
+            transform: `translateY(${scrollY * 0.25}px)`,
+          }}
+        />
+
+        {/* Animated grid */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+            transform: `translateY(${scrollY * 0.15}px)`,
+          }}
+        />
         
-        {/* Apple-Perfect Hero Section with Parallax */}
-        <section className="relative px-6 pt-20 pb-20">
-          {/* Dynamic gradient with parallax */}
-          <div 
-            className="absolute inset-0 opacity-35 pointer-events-none"
-            style={{
-              background: 'radial-gradient(ellipse 100% 60% at 50% -10%, rgba(59, 130, 246, 0.25) 0%, rgba(139, 92, 246, 0.15) 40%, transparent 70%)',
-              transform: `translateY(${scrollY * 0.2}px) scale(${1 + scrollY * 0.0003})`,
-              transition: 'transform 0.1s ease-out'
-            }}
-          />
-
-          {/* Animated particles */}
-          <div 
-            className="absolute inset-0 opacity-20 pointer-events-none"
-            style={{
-              background: 'radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.2) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.2) 0%, transparent 50%)',
-              transform: `translateY(${scrollY * 0.15}px)`,
-            }}
-          />
-          
-          <div className="relative z-10">
-            {/* Premium Badge */}
-            <div className="flex justify-center mb-6 scroll-fade-in">
-              <div 
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)',
-                  border: '1px solid rgba(139, 92, 246, 0.3)',
-                  backdropFilter: 'blur(20px)'
-                }}
-              >
-                <Sparkles className="w-4 h-4 text-[#8B5CF6]" />
-                <span 
-                  style={{
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    letterSpacing: '0.02em'
-                  }}
-                >
-                  ИСКУССТВЕННЫЙ ИНТЕЛЛЕКТ
-                </span>
-              </div>
-            </div>
-
-            {/* Hero headline - Gradient text */}
-            <h1 
-              className="text-center mb-5 scroll-fade-in-delay-1"
-              style={{ 
-                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                fontSize: 'clamp(44px, 12vw, 56px)',
-                fontWeight: 800,
-                letterSpacing: '-0.055em',
-                lineHeight: '0.95',
-                background: 'linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 50%, rgba(255, 255, 255, 0.6) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                marginBottom: '20px'
-              }}
-            >
-              ИИ агент.
-              <br />
-              Для вашего
-              <br />
-              бизнеса.
-            </h1>
-            
-            {/* Subtitle with gradient accent */}
-            <p 
-              className="text-center mb-10 scroll-fade-in-delay-2"
+        <div className="relative z-10 text-center max-w-4xl">
+          {/* Premium Badge */}
+          <div className="flex justify-center mb-8 scroll-fade-in">
+            <div 
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full backdrop-blur-xl"
               style={{
-                fontSize: '20px',
-                lineHeight: '1.4',
-                fontWeight: 500,
-                color: 'rgba(255, 255, 255, 0.7)',
-                letterSpacing: '-0.015em'
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%)',
+                border: '1px solid rgba(139, 92, 246, 0.25)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 32px rgba(139, 92, 246, 0.15)'
               }}
             >
-              Автоматизация, которая работает 24/7
-              <br />
-              <span style={{ 
-                background: 'linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}>
-                и окупается за 6 месяцев
-              </span>
-            </p>
-            
-            {/* CTA with premium styling */}
-            <div className="flex flex-col items-center gap-3 scroll-fade-in-delay-3">
-              <button
-                onClick={handleNavigateProcess}
-                className="w-full py-4 bg-white text-black font-semibold rounded-full transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group"
-                style={{
-                  fontSize: '17px',
-                  letterSpacing: '-0.02em',
-                  boxShadow: '0 4px 24px rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
-                }}
-                data-testid="button-start-trial"
-              >
-                <span className="flex items-center justify-center gap-2">
-                  Попробовать бесплатно
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                </span>
-              </button>
-              
-              <p 
-                className="text-center"
+              <Sparkles className="w-4 h-4 text-[#8B5CF6]" />
+              <span 
                 style={{
                   fontSize: '13px',
-                  color: 'rgba(255, 255, 255, 0.5)',
-                  letterSpacing: '0.01em'
+                  fontWeight: 600,
+                  background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase'
                 }}
               >
-                Бесплатно 7 дней · Без привязки карты
-              </p>
+                Искусственный интеллект для бизнеса
+              </span>
             </div>
           </div>
-        </section>
 
-        {/* Stats Card - Premium glassmorphism */}
-        <section className="px-6 py-8">
-          <div 
-            className="rounded-[32px] p-8 scroll-fade-in relative overflow-hidden"
+          {/* Main headline - Apple style */}
+          <h1 
+            className="mb-8 scroll-fade-in-delay-1"
+            style={{ 
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              fontSize: 'clamp(48px, 14vw, 72px)',
+              fontWeight: 800,
+              letterSpacing: '-0.06em',
+              lineHeight: '0.9',
+              background: 'linear-gradient(180deg, #FFFFFF 20%, #FFFFFF 60%, rgba(255, 255, 255, 0.5) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              paddingBottom: '8px'
+            }}
+          >
+            ИИ агент.
+            <br />
+            <span style={{
+              background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}>
+              Для вашего бизнеса.
+            </span>
+          </h1>
+          
+          {/* Subtitle */}
+          <p 
+            className="mb-12 scroll-fade-in-delay-2"
             style={{
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
+              fontSize: '22px',
+              lineHeight: '1.4',
+              fontWeight: 500,
+              color: 'rgba(255, 255, 255, 0.75)',
+              letterSpacing: '-0.02em',
+              maxWidth: '600px',
+              margin: '0 auto 48px'
+            }}
+          >
+            Автоматизация клиентской поддержки,
+            <br />
+            которая работает 24/7 и окупается
+            <br />
+            <span style={{ 
+              background: 'linear-gradient(90deg, #10B981 0%, #34D399 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontWeight: 700
+            }}>
+              за 6 месяцев
+            </span>
+          </p>
+          
+          {/* CTA */}
+          <div className="flex flex-col items-center gap-4 scroll-fade-in-delay-3">
+            <button
+              onClick={handleNavigateProcess}
+              className="group relative px-12 py-5 rounded-full font-semibold overflow-hidden"
+              style={{
+                fontSize: '18px',
+                letterSpacing: '-0.02em',
+                background: 'linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)',
+                color: '#000000',
+                boxShadow: '0 4px 24px rgba(255, 255, 255, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+              data-testid="button-start-trial"
+            >
+              <span className="relative z-10 flex items-center gap-3">
+                Начать бесплатно
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5" />
+              </span>
+              <div 
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)'
+                }}
+              />
+            </button>
+            
+            <p 
+              style={{
+                fontSize: '14px',
+                color: 'rgba(255, 255, 255, 0.5)',
+                letterSpacing: '0.02em'
+              }}
+            >
+              7 дней бесплатно · Без привязки карты
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* STATS SECTION - Floating glass card */}
+      <section className="px-6 py-16">
+        <div className="max-w-2xl mx-auto">
+          <div 
+            className="rounded-[40px] p-10 relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)',
+              backdropFilter: 'blur(60px) saturate(200%)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
               boxShadow: `
-                inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                0 20px 60px rgba(0, 0, 0, 0.4),
-                0 2px 8px rgba(0, 0, 0, 0.25)
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+                0 30px 80px rgba(0, 0, 0, 0.5),
+                0 8px 16px rgba(0, 0, 0, 0.3)
               `
             }}
           >
-            {/* Gradient overlay */}
+            {/* Decorative gradient orbs */}
             <div 
-              className="absolute top-0 left-0 right-0 h-32 opacity-40"
+              className="absolute -top-24 -left-24 w-48 h-48 rounded-full opacity-30"
               style={{
-                background: 'radial-gradient(ellipse at top, rgba(139, 92, 246, 0.3) 0%, transparent 70%)',
-                pointerEvents: 'none'
+                background: 'radial-gradient(circle, rgba(139, 92, 246, 0.6) 0%, transparent 70%)',
+                filter: 'blur(50px)'
+              }}
+            />
+            <div 
+              className="absolute -bottom-24 -right-24 w-48 h-48 rounded-full opacity-30"
+              style={{
+                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 70%)',
+                filter: 'blur(50px)'
               }}
             />
 
-            <div className="relative z-10 space-y-8">
-              <StatRowPremium 
-                number="192%" 
-                label="Средний ROI за первый год"
-                gradient="linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)"
-              />
-              <div className="h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-              <StatRowPremium 
-                number="24/7" 
-                label="Работает без выходных"
-                gradient="linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%)"
-              />
-              <div className="h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-              <StatRowPremium 
-                number="80%" 
-                label="Запросов автоматически"
-                gradient="linear-gradient(135deg, #10B981 0%, #34D399 100%)"
-              />
+            <div className="relative z-10">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-3 gap-8 mb-8">
+                <StatCircle number="192%" label="ROI" gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)" />
+                <StatCircle number="24/7" label="Работа" gradient="linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)" />
+                <StatCircle number="80%" label="Авто" gradient="linear-gradient(135deg, #10B981 0%, #059669 100%)" />
+              </div>
+
+              <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-8" />
+
+              {/* Description */}
+              <p 
+                className="text-center"
+                style={{
+                  fontSize: '15px',
+                  lineHeight: '1.6',
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  letterSpacing: '-0.01em'
+                }}
+              >
+                Средний ROI за первый год составляет 192%.
+                <br />
+                Система работает круглосуточно и автоматизирует до 80% запросов.
+              </p>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Features - Premium cards */}
-        <section className="px-6 py-8">
-          <h2 
-            className="text-center mb-8"
-            style={{
-              fontSize: '32px',
-              fontWeight: 700,
-              letterSpacing: '-0.04em',
-              color: '#FFFFFF',
-              lineHeight: '1.1'
-            }}
-          >
-            Возможности
-          </h2>
-          
-          <div className="space-y-4">
-            <FeatureCardPremium
-              icon={<Zap className="w-6 h-6" />}
+      {/* CAPABILITIES SECTION */}
+      <section className="px-6 py-16">
+        <div className="max-w-2xl mx-auto">
+          {/* Section title */}
+          <div className="text-center mb-12">
+            <h2 
+              style={{
+                fontSize: '44px',
+                fontWeight: 700,
+                letterSpacing: '-0.05em',
+                color: '#FFFFFF',
+                lineHeight: '1',
+                marginBottom: '16px'
+              }}
+            >
+              Возможности
+            </h2>
+            <p 
+              style={{
+                fontSize: '18px',
+                color: 'rgba(255, 255, 255, 0.6)',
+                letterSpacing: '-0.01em'
+              }}
+            >
+              Всё, что нужно для автоматизации поддержки
+            </p>
+          </div>
+
+          {/* Capabilities cards */}
+          <div className="space-y-6">
+            <CapabilityCard
+              icon={<Zap className="w-7 h-7" />}
               title="Мгновенный запуск"
-              description="Настройка за 10 минут. Интеграция с вашими системами."
-              gradient="linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)"
+              description="Настройка занимает 10 минут. Полная интеграция с вашими системами — CRM, базами знаний, мессенджерами."
+              gradient="linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)"
             />
             
-            <FeatureCardPremium
-              icon={<Shield className="w-6 h-6" />}
-              title="Безопасность"
-              description="Полное шифрование данных. Соответствие GDPR."
-              gradient="linear-gradient(135deg, #10B981 0%, #059669 100%)"
+            <CapabilityCard
+              icon={<Shield className="w-7 h-7" />}
+              title="Корпоративная безопасность"
+              description="Полное шифрование данных end-to-end. Соответствие GDPR, ISO 27001. Данные хранятся на серверах в вашей юрисдикции."
+              gradient="linear-gradient(135deg, #10B981 0%, #047857 100%)"
             />
             
-            <FeatureCardPremium
-              icon={<Globe className="w-6 h-6" />}
+            <CapabilityCard
+              icon={<Globe className="w-7 h-7" />}
               title="150+ языков"
-              description="Общается с клиентами на их родном языке."
+              description="Автоматическое определение языка клиента. Поддержка всех популярных языков с правильной грамматикой и контекстом."
               gradient="linear-gradient(135deg, #F59E0B 0%, #D97706 100%)"
             />
             
-            <FeatureCardPremium
-              icon={<MessageSquare className="w-6 h-6" />}
-              title="Умная аналитика"
-              description="Понимает контекст и учится на каждом разговоре."
-              gradient="linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)"
+            <CapabilityCard
+              icon={<Brain className="w-7 h-7" />}
+              title="Глубокое понимание"
+              description="ИИ понимает контекст разговора, эмоции клиента и сложные запросы. Обучается на каждом диалоге."
+              gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)"
             />
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Benefits - Elevated list */}
-        <section className="px-6 py-8">
+      {/* WHY CHOOSE SECTION */}
+      <section className="px-6 py-16">
+        <div className="max-w-2xl mx-auto">
           <h2 
-            className="text-center mb-8"
+            className="text-center mb-12"
             style={{
-              fontSize: '32px',
+              fontSize: '44px',
               fontWeight: 700,
-              letterSpacing: '-0.04em',
+              letterSpacing: '-0.05em',
               color: '#FFFFFF',
-              lineHeight: '1.1'
+              lineHeight: '1'
             }}
           >
-            Почему выбирают нас
+            Почему мы
           </h2>
-          
-          <div className="space-y-3">
-            <BenefitRowPremium 
-              icon={<Clock className="w-5 h-5" />}
-              text="Работает 24/7 без отпусков и больничных" 
+
+          <div className="space-y-4">
+            <BenefitLine 
+              icon={<Clock className="w-6 h-6" />}
+              text="Работает 24/7 без отпусков, больничных и перерывов на обед"
             />
-            <BenefitRowPremium 
-              icon={<Zap className="w-5 h-5" />}
-              text="Обрабатывает запросы мгновенно — ответ меньше 2 секунд" 
+            <BenefitLine 
+              icon={<Zap className="w-6 h-6" />}
+              text="Обрабатывает запросы мгновенно — средний ответ меньше 2 секунд"
             />
-            <BenefitRowPremium 
-              icon={<TrendingUp className="w-5 h-5" />}
-              text="Окупается за 6-12 месяцев — 74% вернули инвестиции" 
+            <BenefitLine 
+              icon={<TrendingUp className="w-6 h-6" />}
+              text="Окупается за 6-12 месяцев — 74% клиентов вернули инвестиции за год"
             />
-            <BenefitRowPremium 
-              icon={<BarChart className="w-5 h-5" />}
-              text="Интеграция с любыми системами — CRM, ERP, мессенджеры" 
+            <BenefitLine 
+              icon={<BarChart className="w-6 h-6" />}
+              text="Интеграция с любыми системами — API для CRM, ERP, складов, мессенджеров"
+            />
+            <BenefitLine 
+              icon={<Users className="w-6 h-6" />}
+              text="Масштабируется мгновенно — от 10 до 10,000 клиентов одновременно"
             />
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Final CTA - Premium with animation */}
-        <section className="px-6 py-12">
+      {/* FINAL CTA SECTION - Dramatic */}
+      <section className="px-6 py-20">
+        <div className="max-w-2xl mx-auto">
           <div 
-            className="rounded-[32px] p-8 text-center relative overflow-hidden"
+            className="rounded-[48px] p-12 text-center relative overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
-              boxShadow: '0 20px 60px rgba(139, 92, 246, 0.3)'
+              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(59, 130, 246, 0.2) 100%)',
+              backdropFilter: 'blur(40px)',
+              border: '1px solid rgba(139, 92, 246, 0.4)',
+              boxShadow: '0 30px 90px rgba(139, 92, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
             }}
           >
-            {/* Animated gradient overlay */}
+            {/* Animated gradient background */}
             <div 
-              className="absolute inset-0 opacity-40"
+              className="absolute inset-0 opacity-50"
               style={{
-                background: 'radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.4) 0%, transparent 70%)',
-                animation: 'pulse 4s ease-in-out infinite'
+                background: 'radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.5) 0%, transparent 70%)',
+                animation: 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite'
               }}
             />
 
-            {/* Decorative blur circles */}
+            {/* Floating orbs */}
             <div 
-              className="absolute -top-20 -left-20 w-40 h-40 rounded-full opacity-20"
+              className="absolute top-0 left-1/4 w-32 h-32 rounded-full opacity-30"
               style={{
                 background: 'radial-gradient(circle, rgba(139, 92, 246, 0.8) 0%, transparent 70%)',
-                filter: 'blur(40px)'
+                filter: 'blur(40px)',
+                animation: 'float 6s ease-in-out infinite'
               }}
             />
             <div 
-              className="absolute -bottom-20 -right-20 w-40 h-40 rounded-full opacity-20"
+              className="absolute bottom-0 right-1/4 w-32 h-32 rounded-full opacity-30"
               style={{
                 background: 'radial-gradient(circle, rgba(59, 130, 246, 0.8) 0%, transparent 70%)',
-                filter: 'blur(40px)'
+                filter: 'blur(40px)',
+                animation: 'float 8s ease-in-out infinite reverse'
               }}
             />
             
             <div className="relative z-10">
               <h2 
                 style={{
-                  fontSize: '36px',
+                  fontSize: '48px',
                   fontWeight: 700,
-                  letterSpacing: '-0.04em',
+                  letterSpacing: '-0.05em',
                   color: '#FFFFFF',
-                  lineHeight: '1.1',
-                  marginBottom: '16px'
+                  lineHeight: '1',
+                  marginBottom: '20px'
                 }}
               >
-                Начните
-                <br />
-                сегодня
+                Готовы начать?
               </h2>
               
               <p 
                 style={{
-                  fontSize: '18px',
+                  fontSize: '20px',
                   lineHeight: '1.5',
-                  color: 'rgba(255, 255, 255, 0.75)',
-                  letterSpacing: '-0.015em',
-                  marginBottom: '32px'
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  letterSpacing: '-0.02em',
+                  marginBottom: '40px',
+                  maxWidth: '500px',
+                  margin: '0 auto 40px'
                 }}
               >
-                Присоединяйтесь к 85% компаний,
-                <br />
-                которые уже внедрили ИИ
+                Присоединяйтесь к сотням компаний,
+                которые уже автоматизировали поддержку с помощью ИИ
               </p>
               
               <button
                 onClick={handleNavigateProcess}
-                className="w-full py-4 bg-white text-black font-semibold rounded-full transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group mb-4"
+                className="group relative px-12 py-5 rounded-full font-semibold overflow-hidden"
                 style={{
-                  fontSize: '17px',
+                  fontSize: '18px',
                   letterSpacing: '-0.02em',
-                  boxShadow: '0 8px 32px rgba(255, 255, 255, 0.25)'
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)',
+                  color: '#000000',
+                  boxShadow: '0 8px 32px rgba(255, 255, 255, 0.3)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
                 data-testid="button-start-cta"
               >
-                <span className="flex items-center justify-center gap-2">
+                <span className="relative z-10 flex items-center gap-3">
                   Запустить ИИ агента
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5" />
                 </span>
               </button>
               
               <p 
+                className="mt-6"
                 style={{
-                  fontSize: '13px',
+                  fontSize: '14px',
                   color: 'rgba(255, 255, 255, 0.5)',
-                  letterSpacing: '0.01em'
+                  letterSpacing: '0.02em'
                 }}
               >
-                7 дней бесплатно · Без кредитной карты
+                7 дней бесплатно · Настройка за 10 минут · Без кредитной карты
               </p>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-      </div>
+      {/* Floating animation keyframes */}
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) translateX(0px); }
+          33% { transform: translateY(-20px) translateX(10px); }
+          66% { transform: translateY(-10px) translateX(-10px); }
+        }
+      `}</style>
+
     </div>
   );
 });
 
 AIAgentPage.displayName = 'AIAgentPage';
 
-// Premium Stat Row with gradient
-const StatRowPremium = memo(({ number, label, gradient }: { number: string; label: string; gradient: string }) => (
+// Circular Stat Component
+const StatCircle = memo(({ number, label, gradient }: { number: string; label: string; gradient: string }) => (
   <div className="text-center">
     <div 
+      className="w-20 h-20 rounded-full mx-auto mb-3 flex items-center justify-center"
       style={{
-        fontSize: '56px',
-        fontWeight: 800,
-        letterSpacing: '-0.05em',
         background: gradient,
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        lineHeight: '1',
-        marginBottom: '12px'
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
       }}
     >
-      {number}
+      <span 
+        style={{
+          fontSize: '20px',
+          fontWeight: 800,
+          color: '#FFFFFF',
+          letterSpacing: '-0.03em'
+        }}
+      >
+        {number}
+      </span>
     </div>
     <p 
       style={{
-        fontSize: '16px',
-        lineHeight: '1.4',
-        color: 'rgba(255, 255, 255, 0.7)',
-        letterSpacing: '-0.01em',
-        fontWeight: 500
+        fontSize: '13px',
+        color: 'rgba(255, 255, 255, 0.6)',
+        letterSpacing: '0.03em',
+        textTransform: 'uppercase',
+        fontWeight: 600
       }}
     >
       {label}
     </p>
   </div>
 ));
-StatRowPremium.displayName = 'StatRowPremium';
+StatCircle.displayName = 'StatCircle';
 
-// Premium Feature Card with gradient icon
-const FeatureCardPremium = memo(({ 
+// Capability Card Component
+const CapabilityCard = memo(({ 
   icon, 
   title, 
   description,
@@ -433,51 +513,51 @@ const FeatureCardPremium = memo(({
   gradient: string;
 }) => (
   <div 
-    className="rounded-[24px] p-6 interactive-smooth active:scale-[0.98] relative overflow-hidden group"
+    className="group rounded-[28px] p-8 relative overflow-hidden transition-all duration-500"
     style={{
-      background: 'rgba(255, 255, 255, 0.04)',
+      background: 'rgba(255, 255, 255, 0.03)',
       backdropFilter: 'blur(20px)',
-      border: '0.5px solid rgba(255, 255, 255, 0.1)',
-      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.25)',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+      boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
     }}
   >
-    {/* Gradient line accent */}
+    {/* Gradient accent bar */}
     <div 
-      className="absolute top-0 left-0 right-0 h-1 opacity-70"
+      className="absolute top-0 left-0 right-0 h-1.5 opacity-80"
       style={{ background: gradient }}
     />
 
-    <div className="flex items-start gap-4">
+    <div className="flex gap-6">
+      {/* Icon */}
       <div 
-        className="flex-shrink-0 flex items-center justify-center rounded-2xl"
+        className="flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110"
         style={{
-          width: '52px',
-          height: '52px',
           background: gradient,
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
         }}
       >
         <div style={{ color: 'white' }}>
           {icon}
         </div>
       </div>
+
+      {/* Content */}
       <div className="flex-1 pt-1">
         <h3 
           style={{
-            fontSize: '19px',
-            fontWeight: 600,
-            letterSpacing: '-0.02em',
+            fontSize: '22px',
+            fontWeight: 700,
+            letterSpacing: '-0.03em',
             color: '#FFFFFF',
-            marginBottom: '6px'
+            marginBottom: '8px'
           }}
         >
           {title}
         </h3>
         <p 
           style={{
-            fontSize: '15px',
-            lineHeight: '1.5',
+            fontSize: '16px',
+            lineHeight: '1.6',
             color: 'rgba(255, 255, 255, 0.65)',
             letterSpacing: '-0.01em'
           }}
@@ -488,24 +568,21 @@ const FeatureCardPremium = memo(({
     </div>
   </div>
 ));
-FeatureCardPremium.displayName = 'FeatureCardPremium';
+CapabilityCard.displayName = 'CapabilityCard';
 
-// Premium Benefit Row with icon
-const BenefitRowPremium = memo(({ icon, text }: { icon: React.ReactNode; text: string }) => (
+// Benefit Line Component
+const BenefitLine = memo(({ icon, text }: { icon: React.ReactNode; text: string }) => (
   <div 
-    className="flex items-center gap-4 py-4 px-5 rounded-[20px] interactive-smooth active:scale-[0.98] group"
+    className="group flex items-center gap-5 py-5 px-6 rounded-2xl transition-all duration-300"
     style={{
-      background: 'rgba(255, 255, 255, 0.03)',
-      border: '0.5px solid rgba(255, 255, 255, 0.08)',
-      transition: 'all 0.3s ease'
+      background: 'rgba(255, 255, 255, 0.02)',
+      border: '1px solid rgba(255, 255, 255, 0.06)',
     }}
   >
     <div 
-      className="flex-shrink-0 flex items-center justify-center rounded-full transition-transform group-hover:scale-110"
+      className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
       style={{
-        width: '32px',
-        height: '32px',
-        background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.25) 0%, rgba(48, 209, 88, 0.25) 100%)',
+        background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%)',
         border: '1px solid rgba(52, 199, 89, 0.3)'
       }}
     >
@@ -515,7 +592,7 @@ const BenefitRowPremium = memo(({ icon, text }: { icon: React.ReactNode; text: s
     </div>
     <p 
       style={{
-        fontSize: '16px',
+        fontSize: '17px',
         lineHeight: '1.5',
         color: 'rgba(255, 255, 255, 0.9)',
         letterSpacing: '-0.01em',
@@ -526,6 +603,6 @@ const BenefitRowPremium = memo(({ icon, text }: { icon: React.ReactNode; text: s
     </p>
   </div>
 ));
-BenefitRowPremium.displayName = 'BenefitRowPremium';
+BenefitLine.displayName = 'BenefitLine';
 
 export default AIAgentPage;
