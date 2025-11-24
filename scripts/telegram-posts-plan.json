@@ -1,62 +1,62 @@
 [
   {
     "id": 1,
-    "image": "attached_assets/generated_images/premium_iphone_telegram_app.png",
-    "text": "Ваш сайт.\nМёртв.\n\nБудущее в Telegram.\n\nМы строим его.",
-    "style": "Apple минимализм - провокация + решение"
+    "image": "attached_assets/generated_images/3d_telegram_business_dashboard.png",
+    "text": "920 миллионов пользователей.\nНулевые затраты на рекламу.\n\nВаш бизнес уже должен быть здесь.\n\nМы делаем это за 14 дней.",
+    "style": "Notion - данные + срочность (inspired by Notion's minimal data-driven posts)"
   },
   {
     "id": 2,
-    "image": "attached_assets/generated_images/before_after_business_solution.png",
-    "text": "Было: 5 сотрудников.\nСтало: 1 приложение.\n\nРазработка: 14 дней.\nЭкономия: навсегда.",
-    "style": "До/после - конкретные цифры"
+    "image": "attached_assets/generated_images/before_after_business_transformation.png",
+    "text": "Чем отличается салон за $5000/месяц от салона за $50,000/месяц?\n\nПриложением в Telegram.\n\nДанные наших клиентов.",
+    "style": "HubSpot - образовательная провокация (inspired by HubSpot's thought leadership)"
   },
   {
     "id": 3,
-    "image": "attached_assets/generated_images/14_days_timeline_infographic.png",
-    "text": "14 дней.\n\nОт идеи до запуска.\n\nБез компромиссов в качестве.",
-    "style": "Один факт - Apple стиль"
+    "image": "attached_assets/generated_images/development_timeline_infographic.png",
+    "text": "Самое дорогое решение - не принимать его.\n\nПока вы думаете, ваш конкурент уже запустился.\n\n14 дней. Всё включено. Работает.",
+    "style": "Linear - минималистичная срочность (inspired by Linear's clean urgency)"
   },
   {
     "id": 4,
-    "image": "attached_assets/generated_images/developer_workspace_behind_scenes.png",
-    "text": "Каждая строка кода.\nКаждый пиксель.\nИдеально.\n\nПотому что ваш бизнес это заслужил.",
-    "style": "За кадром - эмоциональная связь"
+    "image": "attached_assets/generated_images/entrepreneur_working_lifestyle_photo.png",
+    "text": "За кадром:\n\n4 утра. Кофе. Код.\n\nМы строим не просто приложения.\nМы строим ваш следующий источник дохода.",
+    "style": "Basecamp - behind the scenes authenticity (inspired by Basecamp's real moments)"
   },
   {
     "id": 5,
-    "image": "attached_assets/generated_images/client_testimonial_revenue_growth.png",
-    "text": "\"Запустили за 2 недели.\nВыручка +280% за месяц.\"\n\n— Андрей, владелец салона красоты",
-    "style": "Реальный кейс - социальное доказательство"
+    "image": "attached_assets/generated_images/client_testimonial_card_design.png",
+    "text": "\"Раньше клиенты уходили к конкурентам.\n\nТеперь конкуренты копируют наше приложение.\"\n\n— Елена, владелец сети кофеен",
+    "style": "Mailchimp - user stories (inspired by Mailchimp's customer storytelling)"
   },
   {
     "id": 6,
-    "image": "attached_assets/generated_images/cost_savings_statistics_visual.png",
-    "text": "$47,000.\n\nЭкономия на зарплатах.\nВ первый же год.\n\nОдно приложение заменило отдел.",
-    "style": "Шокирующая цифра - ROI фокус"
+    "image": "attached_assets/generated_images/roi_statistics_data_visualization.png",
+    "text": "$127,000 дополнительной выручки за год.\n\nНе магия.\nАвтоматизация через Telegram.\n\nКейс реального клиента. Проверяемые цифры.",
+    "style": "Drift - thought leadership data (inspired by Drift's conversion data posts)"
   },
   {
     "id": 7,
-    "image": "attached_assets/generated_images/telegram_app_3d_product_shot.png",
-    "text": "Не просто приложение.\nПремиальный инструмент для роста.\n\nКаждая деталь продумана.",
-    "style": "Продукт как искусство - Apple подход"
+    "image": "attached_assets/generated_images/success_stories_collage_grid.png",
+    "text": "11 разных бизнесов.\n1 платформа.\n\nОт ресторанов до фитнес-клубов.\nВсе получили рост от 180% до 340%.\n\nЧто их объединяет? Они не ждали.",
+    "style": "ClickUp - user success compilation (inspired by ClickUp viral challenges)"
   },
   {
     "id": 8,
-    "image": "attached_assets/generated_images/provocative_industry_challenge_poster.png",
-    "text": "Ваш сайт умер в 2020.\n\nДобро пожаловать в эру Telegram.\n\n920 млн активных пользователей ждут.",
-    "style": "Провокация - стиль Air (Dropbox needs botox)"
+    "image": "attached_assets/generated_images/provocative_marketing_poster.png",
+    "text": "Ваши конкуренты уже здесь.\n\nПока вы читаете это,\nони обслуживают ваших клиентов.\n\nВ Telegram.",
+    "style": "Air - provocative competitor angle (inspired by Air's 'Dropbox needs botox')"
   },
   {
     "id": 9,
-    "image": "attached_assets/generated_images/brand_manifesto_typography.png",
-    "text": "Premium.\nFast.\nProfitable.\n\nТри слова.\nОдин стандарт.",
-    "style": "Манифест - Tesla дерзость"
+    "image": "attached_assets/generated_images/premium_product_shot_mockup.png",
+    "text": "Telegram Mini Apps.\n\nНе сайт. Не мобильное приложение.\nЧто-то лучше.\n\nБыстрее. Удобнее. Прибыльнее.",
+    "style": "Apple - product positioning (inspired by Apple's 'Not a computer. Something better.')"
   },
   {
     "id": 10,
-    "image": "attached_assets/generated_images/entrepreneur_using_app_lifestyle.png",
-    "text": "Управляйте бизнесом из кармана.\n\n24/7. Автоматизация. Аналитика.\n\nВсё в одном месте.",
-    "style": "Lifestyle - эмоциональная выгода"
+    "image": "attached_assets/generated_images/educational_carousel_slide_design.png",
+    "text": "Почему Telegram?\n\n920M пользователей не устанавливают ничего.\n0₽ на AppStore/Google Play.\n24/7 продажи на автопилоте.\n\nВопросы?",
+    "style": "Figma - educational carousel format (inspired by Figma's 'Why Figma?' series)"
   }
 ]
