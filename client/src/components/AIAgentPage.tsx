@@ -17,8 +17,8 @@ interface AIAgentPageProps {
 const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
   const [scrollY, setScrollY] = useState(0);
   
-  const handleNavigateConstructor = useCallback(() => {
-    onNavigate('constructor');
+  const handleNavigateProcess = useCallback(() => {
+    onNavigate('ai-process');
   }, [onNavigate]);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
             {/* CTA - Apple blue */}
             <div className="flex flex-col items-center gap-3 scroll-fade-in-delay-3">
               <button
-                onClick={handleNavigateConstructor}
+                onClick={handleNavigateProcess}
                 className="button-apple w-full py-3.5 bg-[#0071E3] text-white font-semibold rounded-full transition-all duration-200 active:scale-[0.97]"
                 style={{
                   fontSize: '17px',
@@ -237,7 +237,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
             </p>
             
             <button
-              onClick={handleNavigateConstructor}
+              onClick={handleNavigateProcess}
               className="button-apple w-full py-3.5 bg-[#0071E3] text-white font-semibold rounded-full transition-all duration-200 active:scale-[0.97]"
               style={{
                 fontSize: '17px',

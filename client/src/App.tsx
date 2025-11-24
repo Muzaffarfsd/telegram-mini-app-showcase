@@ -22,6 +22,7 @@ const DemoAppShell = lazy(() => import("./components/DemoAppShell"));
 const HelpPage = lazy(() => import("./components/HelpPage"));
 const ReviewPage = lazy(() => import("./components/ReviewPage"));
 const AIAgentPage = lazy(() => import("./components/AIAgentPage"));
+const AIProcessPage = lazy(() => import("./components/AIProcessPage"));
 const PhotoGallery = lazy(() => import("./pages/PhotoGallery"));
 const ReferralProgram = lazy(() => import("./components/ReferralProgram").then(m => ({ default: m.ReferralProgram })));
 const GamificationHub = lazy(() => import("./components/GamificationHub").then(m => ({ default: m.GamificationHub })));
@@ -61,6 +62,7 @@ const parseHash = (): Route => {
     '/review': 'review',
     '/checkout': 'checkout',
     '/ai-agent': 'aiAgent',
+    '/ai-process': 'aiProcess',
     '/photo-gallery': 'photoGallery',
     '/referral': 'referral',
     '/rewards': 'rewards',
@@ -219,6 +221,9 @@ function App() {
             
             case 'aiAgent':
               return <AIAgentPage onNavigate={handleNavigate} />;
+            
+            case 'aiProcess':
+              return <AIProcessPage onNavigate={handleNavigate} />;
             
             case 'photoGallery':
               return <PhotoGallery />;
