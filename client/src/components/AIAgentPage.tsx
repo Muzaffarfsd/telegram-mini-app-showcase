@@ -2,15 +2,12 @@ import { memo, useCallback, useState, useEffect } from "react";
 import { 
   Sparkles, 
   ArrowRight,
-  Check,
   Zap,
   Shield,
   Globe,
   Brain,
   TrendingUp,
-  Clock,
-  BarChart,
-  Users
+  Clock
 } from "lucide-react";
 
 interface AIAgentPageProps {
@@ -31,288 +28,285 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#000000] pb-24 overflow-hidden">
+    <div className="min-h-screen bg-[#000000] overflow-hidden">
       
-      {/* HERO SECTION - Full height dramatic intro */}
-      <section className="relative min-h-[85vh] flex items-center justify-center px-6">
-        {/* Multi-layer parallax background */}
+      {/* ===============================================
+          HERO SECTION - Full Screen Dramatic Intro
+          =============================================== */}
+      <section className="relative min-h-screen flex items-center justify-center px-6">
+        {/* Animated gradient background - multi-layer parallax */}
         <div 
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 opacity-25"
           style={{
-            background: 'radial-gradient(ellipse 120% 80% at 50% -20%, rgba(59, 130, 246, 0.3) 0%, rgba(139, 92, 246, 0.2) 40%, transparent 80%)',
-            transform: `translateY(${scrollY * 0.4}px) scale(${1 + scrollY * 0.0005})`,
-          }}
-        />
-        <div 
-          className="absolute inset-0 opacity-20"
-          style={{
-            background: 'radial-gradient(circle at 30% 70%, rgba(139, 92, 246, 0.25) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(59, 130, 246, 0.25) 0%, transparent 50%)',
-            transform: `translateY(${scrollY * 0.25}px)`,
-          }}
-        />
-
-        {/* Animated grid */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-            transform: `translateY(${scrollY * 0.15}px)`,
+            background: 'radial-gradient(ellipse 140% 100% at 50% -30%, rgba(59, 130, 246, 0.35) 0%, rgba(139, 92, 246, 0.25) 50%, transparent 100%)',
+            transform: `translateY(${scrollY * 0.5}px) scale(${1 + scrollY * 0.0007})`,
           }}
         />
         
-        <div className="relative z-10 text-center max-w-4xl">
+        <div 
+          className="absolute inset-0 opacity-15"
+          style={{
+            background: 'radial-gradient(circle at 25% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 60%), radial-gradient(circle at 75% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 60%)',
+            transform: `translateY(${scrollY * 0.3}px)`,
+          }}
+        />
+        
+        <div className="relative z-10 text-center w-full">
           {/* Premium Badge */}
-          <div className="flex justify-center mb-8 scroll-fade-in">
+          <div className="flex justify-center mb-8">
             <div 
-              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full backdrop-blur-xl"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full backdrop-blur-2xl"
               style={{
-                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%)',
-                border: '1px solid rgba(139, 92, 246, 0.25)',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 32px rgba(139, 92, 246, 0.15)'
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.12) 100%)',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 32px rgba(139, 92, 246, 0.2)'
               }}
             >
-              <Sparkles className="w-4 h-4 text-[#8B5CF6]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6]" />
               <span 
                 style={{
-                  fontSize: '13px',
-                  fontWeight: 600,
+                  fontSize: '11px',
+                  fontWeight: 700,
                   background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  letterSpacing: '0.05em',
+                  letterSpacing: '0.08em',
                   textTransform: 'uppercase'
                 }}
               >
-                Искусственный интеллект для бизнеса
+                Искусственный интеллект
               </span>
             </div>
           </div>
 
-          {/* Main headline - Apple style */}
+          {/* Main headline - Dramatic Apple style */}
           <h1 
-            className="mb-8 scroll-fade-in-delay-1"
+            className="mb-6 px-4"
             style={{ 
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: 'clamp(48px, 14vw, 72px)',
+              fontSize: 'clamp(52px, 15vw, 80px)',
               fontWeight: 800,
-              letterSpacing: '-0.06em',
-              lineHeight: '0.9',
-              background: 'linear-gradient(180deg, #FFFFFF 20%, #FFFFFF 60%, rgba(255, 255, 255, 0.5) 100%)',
+              letterSpacing: '-0.065em',
+              lineHeight: '0.88',
+              background: 'linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 40%, rgba(255, 255, 255, 0.45) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
-              paddingBottom: '8px'
             }}
           >
-            ИИ агент.
-            <br />
-            <span style={{
-              background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}>
-              Для вашего бизнеса.
-            </span>
+            ИИ агент
           </h1>
+
+          {/* Gradient accent line */}
+          <div 
+            className="h-1 w-20 mx-auto mb-6 rounded-full"
+            style={{
+              background: 'linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%)',
+              boxShadow: '0 4px 16px rgba(139, 92, 246, 0.5)'
+            }}
+          />
           
           {/* Subtitle */}
           <p 
-            className="mb-12 scroll-fade-in-delay-2"
+            className="mb-10 px-6"
             style={{
               fontSize: '22px',
-              lineHeight: '1.4',
+              lineHeight: '1.35',
               fontWeight: 500,
               color: 'rgba(255, 255, 255, 0.75)',
-              letterSpacing: '-0.02em',
-              maxWidth: '600px',
-              margin: '0 auto 48px'
+              letterSpacing: '-0.025em',
             }}
           >
-            Автоматизация клиентской поддержки,
+            Автоматизация,
             <br />
-            которая работает 24/7 и окупается
-            <br />
-            <span style={{ 
+            которая работает 24/7
+          </p>
+          
+          <p 
+            className="mb-12 px-6"
+            style={{
+              fontSize: '19px',
+              lineHeight: '1.4',
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
               background: 'linear-gradient(90deg, #10B981 0%, #34D399 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              fontWeight: 700
-            }}>
-              за 6 месяцев
-            </span>
+            }}
+          >
+            Окупается за 6 месяцев
           </p>
           
           {/* CTA */}
-          <div className="flex flex-col items-center gap-4 scroll-fade-in-delay-3">
+          <div className="flex flex-col items-center gap-3 px-6">
             <button
               onClick={handleNavigateProcess}
-              className="group relative px-12 py-5 rounded-full font-semibold overflow-hidden"
+              className="w-full max-w-xs group relative py-4 rounded-full font-semibold overflow-hidden"
               style={{
-                fontSize: '18px',
+                fontSize: '17px',
                 letterSpacing: '-0.02em',
-                background: 'linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)',
+                background: '#FFFFFF',
                 color: '#000000',
-                boxShadow: '0 4px 24px rgba(255, 255, 255, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                boxShadow: '0 8px 32px rgba(255, 255, 255, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
               data-testid="button-start-trial"
             >
-              <span className="relative z-10 flex items-center gap-3">
-                Начать бесплатно
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5" />
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                Начать
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </span>
-              <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)'
-                }}
-              />
             </button>
             
             <p 
               style={{
-                fontSize: '14px',
-                color: 'rgba(255, 255, 255, 0.5)',
-                letterSpacing: '0.02em'
+                fontSize: '13px',
+                color: 'rgba(255, 255, 255, 0.45)',
+                letterSpacing: '0.01em'
               }}
             >
-              7 дней бесплатно · Без привязки карты
+              Бесплатно 7 дней
             </p>
           </div>
         </div>
+
+        {/* Scroll indicator */}
+        <div 
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          style={{
+            opacity: Math.max(0, 1 - scrollY / 300)
+          }}
+        >
+          <div 
+            className="w-1 h-12 rounded-full"
+            style={{
+              background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%)',
+              animation: 'bounce 2s infinite'
+            }}
+          />
+        </div>
       </section>
 
-      {/* STATS SECTION - Floating glass card */}
-      <section className="px-6 py-16">
-        <div className="max-w-2xl mx-auto">
-          <div 
-            className="rounded-[40px] p-10 relative overflow-hidden"
+      {/* ===============================================
+          STATS SECTION - Minimal & Powerful
+          =============================================== */}
+      <section 
+        className="relative py-24 px-6"
+        style={{
+          background: 'radial-gradient(ellipse 100% 50% at 50% 50%, rgba(139, 92, 246, 0.03) 0%, transparent 100%)'
+        }}
+      >
+        <div className="max-w-sm mx-auto">
+          {/* Title */}
+          <h2 
+            className="text-center mb-16"
             style={{
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)',
-              backdropFilter: 'blur(60px) saturate(200%)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              boxShadow: `
-                inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.1),
-                0 30px 80px rgba(0, 0, 0, 0.5),
-                0 8px 16px rgba(0, 0, 0, 0.3)
-              `
+              fontSize: '40px',
+              fontWeight: 700,
+              letterSpacing: '-0.05em',
+              color: '#FFFFFF',
+              lineHeight: '1'
             }}
           >
-            {/* Decorative gradient orbs */}
-            <div 
-              className="absolute -top-24 -left-24 w-48 h-48 rounded-full opacity-30"
-              style={{
-                background: 'radial-gradient(circle, rgba(139, 92, 246, 0.6) 0%, transparent 70%)',
-                filter: 'blur(50px)'
-              }}
+            В цифрах
+          </h2>
+
+          {/* Stats */}
+          <div className="space-y-12">
+            <StatCard
+              number="192%"
+              label="Средний ROI за год"
+              gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)"
             />
-            <div 
-              className="absolute -bottom-24 -right-24 w-48 h-48 rounded-full opacity-30"
-              style={{
-                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 70%)',
-                filter: 'blur(50px)'
-              }}
+            <StatCard
+              number="24/7"
+              label="Работа без выходных"
+              gradient="linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)"
             />
-
-            <div className="relative z-10">
-              {/* Stats Grid */}
-              <div className="grid grid-cols-3 gap-8 mb-8">
-                <StatCircle number="192%" label="ROI" gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)" />
-                <StatCircle number="24/7" label="Работа" gradient="linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)" />
-                <StatCircle number="80%" label="Авто" gradient="linear-gradient(135deg, #10B981 0%, #059669 100%)" />
-              </div>
-
-              <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-8" />
-
-              {/* Description */}
-              <p 
-                className="text-center"
-                style={{
-                  fontSize: '15px',
-                  lineHeight: '1.6',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  letterSpacing: '-0.01em'
-                }}
-              >
-                Средний ROI за первый год составляет 192%.
-                <br />
-                Система работает круглосуточно и автоматизирует до 80% запросов.
-              </p>
-            </div>
+            <StatCard
+              number="80%"
+              label="Запросов автоматом"
+              gradient="linear-gradient(135deg, #10B981 0%, #059669 100%)"
+            />
           </div>
         </div>
       </section>
 
-      {/* CAPABILITIES SECTION */}
-      <section className="px-6 py-16">
-        <div className="max-w-2xl mx-auto">
-          {/* Section title */}
-          <div className="text-center mb-12">
-            <h2 
-              style={{
-                fontSize: '44px',
-                fontWeight: 700,
-                letterSpacing: '-0.05em',
-                color: '#FFFFFF',
-                lineHeight: '1',
-                marginBottom: '16px'
-              }}
-            >
-              Возможности
-            </h2>
-            <p 
-              style={{
-                fontSize: '18px',
-                color: 'rgba(255, 255, 255, 0.6)',
-                letterSpacing: '-0.01em'
-              }}
-            >
-              Всё, что нужно для автоматизации поддержки
-            </p>
-          </div>
+      {/* ===============================================
+          FEATURES SECTION - One at a time focus
+          =============================================== */}
+      <section className="py-24 px-6">
+        <div className="max-w-sm mx-auto">
+          <h2 
+            className="text-center mb-4"
+            style={{
+              fontSize: '40px',
+              fontWeight: 700,
+              letterSpacing: '-0.05em',
+              color: '#FFFFFF',
+              lineHeight: '1'
+            }}
+          >
+            Возможности
+          </h2>
+          
+          <p 
+            className="text-center mb-16"
+            style={{
+              fontSize: '17px',
+              color: 'rgba(255, 255, 255, 0.55)',
+              letterSpacing: '-0.01em'
+            }}
+          >
+            Всё для автоматизации
+          </p>
 
-          {/* Capabilities cards */}
-          <div className="space-y-6">
-            <CapabilityCard
-              icon={<Zap className="w-7 h-7" />}
+          <div className="space-y-8">
+            <FeatureBlock
+              icon={<Zap className="w-8 h-8" />}
               title="Мгновенный запуск"
-              description="Настройка занимает 10 минут. Полная интеграция с вашими системами — CRM, базами знаний, мессенджерами."
+              description="Настройка 10 минут. Интеграция с вашими системами."
               gradient="linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)"
             />
             
-            <CapabilityCard
-              icon={<Shield className="w-7 h-7" />}
-              title="Корпоративная безопасность"
-              description="Полное шифрование данных end-to-end. Соответствие GDPR, ISO 27001. Данные хранятся на серверах в вашей юрисдикции."
+            <FeatureBlock
+              icon={<Shield className="w-8 h-8" />}
+              title="Безопасность"
+              description="Полное шифрование. Соответствие GDPR и ISO 27001."
               gradient="linear-gradient(135deg, #10B981 0%, #047857 100%)"
             />
             
-            <CapabilityCard
-              icon={<Globe className="w-7 h-7" />}
+            <FeatureBlock
+              icon={<Globe className="w-8 h-8" />}
               title="150+ языков"
-              description="Автоматическое определение языка клиента. Поддержка всех популярных языков с правильной грамматикой и контекстом."
+              description="Общается на родном языке вашего клиента."
               gradient="linear-gradient(135deg, #F59E0B 0%, #D97706 100%)"
             />
             
-            <CapabilityCard
-              icon={<Brain className="w-7 h-7" />}
-              title="Глубокое понимание"
-              description="ИИ понимает контекст разговора, эмоции клиента и сложные запросы. Обучается на каждом диалоге."
+            <FeatureBlock
+              icon={<Brain className="w-8 h-8" />}
+              title="Умная аналитика"
+              description="Понимает контекст и учится на разговорах."
               gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)"
             />
           </div>
         </div>
       </section>
 
-      {/* WHY CHOOSE SECTION */}
-      <section className="px-6 py-16">
-        <div className="max-w-2xl mx-auto">
+      {/* ===============================================
+          WHY SECTION - Clean list
+          =============================================== */}
+      <section 
+        className="py-24 px-6"
+        style={{
+          background: 'radial-gradient(ellipse 100% 50% at 50% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 100%)'
+        }}
+      >
+        <div className="max-w-sm mx-auto">
           <h2 
-            className="text-center mb-12"
+            className="text-center mb-16"
             style={{
-              fontSize: '44px',
+              fontSize: '40px',
               fontWeight: 700,
               letterSpacing: '-0.05em',
               color: '#FFFFFF',
@@ -322,139 +316,122 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
             Почему мы
           </h2>
 
-          <div className="space-y-4">
-            <BenefitLine 
+          <div className="space-y-6">
+            <BenefitItem 
               icon={<Clock className="w-6 h-6" />}
-              text="Работает 24/7 без отпусков, больничных и перерывов на обед"
+              text="Работает круглосуточно без перерывов"
             />
-            <BenefitLine 
+            <BenefitItem 
               icon={<Zap className="w-6 h-6" />}
-              text="Обрабатывает запросы мгновенно — средний ответ меньше 2 секунд"
+              text="Ответ меньше 2 секунд"
             />
-            <BenefitLine 
+            <BenefitItem 
               icon={<TrendingUp className="w-6 h-6" />}
-              text="Окупается за 6-12 месяцев — 74% клиентов вернули инвестиции за год"
-            />
-            <BenefitLine 
-              icon={<BarChart className="w-6 h-6" />}
-              text="Интеграция с любыми системами — API для CRM, ERP, складов, мессенджеров"
-            />
-            <BenefitLine 
-              icon={<Users className="w-6 h-6" />}
-              text="Масштабируется мгновенно — от 10 до 10,000 клиентов одновременно"
+              text="74% вернули инвестиции за год"
             />
           </div>
         </div>
       </section>
 
-      {/* FINAL CTA SECTION - Dramatic */}
-      <section className="px-6 py-20">
-        <div className="max-w-2xl mx-auto">
-          <div 
-            className="rounded-[48px] p-12 text-center relative overflow-hidden"
+      {/* ===============================================
+          FINAL CTA - Dramatic closer
+          =============================================== */}
+      <section className="relative py-32 px-6 pb-32">
+        {/* Background gradient */}
+        <div 
+          className="absolute inset-0 opacity-30"
+          style={{
+            background: 'radial-gradient(ellipse 100% 80% at 50% 50%, rgba(139, 92, 246, 0.25) 0%, transparent 80%)'
+          }}
+        />
+
+        {/* Animated orbs */}
+        <div 
+          className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full opacity-20"
+          style={{
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.8) 0%, transparent 70%)',
+            filter: 'blur(50px)',
+            animation: 'float 8s ease-in-out infinite'
+          }}
+        />
+        <div 
+          className="absolute bottom-1/4 right-1/4 w-32 h-32 rounded-full opacity-20"
+          style={{
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.8) 0%, transparent 70%)',
+            filter: 'blur(50px)',
+            animation: 'float 10s ease-in-out infinite reverse'
+          }}
+        />
+        
+        <div className="relative z-10 text-center max-w-sm mx-auto">
+          <h2 
+            className="mb-6"
             style={{
-              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(59, 130, 246, 0.2) 100%)',
-              backdropFilter: 'blur(40px)',
-              border: '1px solid rgba(139, 92, 246, 0.4)',
-              boxShadow: '0 30px 90px rgba(139, 92, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+              fontSize: '52px',
+              fontWeight: 700,
+              letterSpacing: '-0.055em',
+              color: '#FFFFFF',
+              lineHeight: '0.95'
             }}
           >
-            {/* Animated gradient background */}
-            <div 
-              className="absolute inset-0 opacity-50"
-              style={{
-                background: 'radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.5) 0%, transparent 70%)',
-                animation: 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-              }}
-            />
-
-            {/* Floating orbs */}
-            <div 
-              className="absolute top-0 left-1/4 w-32 h-32 rounded-full opacity-30"
-              style={{
-                background: 'radial-gradient(circle, rgba(139, 92, 246, 0.8) 0%, transparent 70%)',
-                filter: 'blur(40px)',
-                animation: 'float 6s ease-in-out infinite'
-              }}
-            />
-            <div 
-              className="absolute bottom-0 right-1/4 w-32 h-32 rounded-full opacity-30"
-              style={{
-                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.8) 0%, transparent 70%)',
-                filter: 'blur(40px)',
-                animation: 'float 8s ease-in-out infinite reverse'
-              }}
-            />
-            
-            <div className="relative z-10">
-              <h2 
-                style={{
-                  fontSize: '48px',
-                  fontWeight: 700,
-                  letterSpacing: '-0.05em',
-                  color: '#FFFFFF',
-                  lineHeight: '1',
-                  marginBottom: '20px'
-                }}
-              >
-                Готовы начать?
-              </h2>
-              
-              <p 
-                style={{
-                  fontSize: '20px',
-                  lineHeight: '1.5',
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  letterSpacing: '-0.02em',
-                  marginBottom: '40px',
-                  maxWidth: '500px',
-                  margin: '0 auto 40px'
-                }}
-              >
-                Присоединяйтесь к сотням компаний,
-                которые уже автоматизировали поддержку с помощью ИИ
-              </p>
-              
-              <button
-                onClick={handleNavigateProcess}
-                className="group relative px-12 py-5 rounded-full font-semibold overflow-hidden"
-                style={{
-                  fontSize: '18px',
-                  letterSpacing: '-0.02em',
-                  background: 'linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)',
-                  color: '#000000',
-                  boxShadow: '0 8px 32px rgba(255, 255, 255, 0.3)',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-                data-testid="button-start-cta"
-              >
-                <span className="relative z-10 flex items-center gap-3">
-                  Запустить ИИ агента
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5" />
-                </span>
-              </button>
-              
-              <p 
-                className="mt-6"
-                style={{
-                  fontSize: '14px',
-                  color: 'rgba(255, 255, 255, 0.5)',
-                  letterSpacing: '0.02em'
-                }}
-              >
-                7 дней бесплатно · Настройка за 10 минут · Без кредитной карты
-              </p>
-            </div>
-          </div>
+            Готовы
+            <br />
+            начать?
+          </h2>
+          
+          <p 
+            className="mb-12"
+            style={{
+              fontSize: '19px',
+              lineHeight: '1.45',
+              color: 'rgba(255, 255, 255, 0.7)',
+              letterSpacing: '-0.02em'
+            }}
+          >
+            Присоединяйтесь к сотням компаний, которые уже автоматизировали поддержку
+          </p>
+          
+          <button
+            onClick={handleNavigateProcess}
+            className="w-full group relative py-5 rounded-full font-semibold overflow-hidden mb-4"
+            style={{
+              fontSize: '18px',
+              letterSpacing: '-0.02em',
+              background: '#FFFFFF',
+              color: '#000000',
+              boxShadow: '0 12px 48px rgba(255, 255, 255, 0.25)',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+            data-testid="button-start-cta"
+          >
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              Запустить ИИ агента
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </span>
+          </button>
+          
+          <p 
+            style={{
+              fontSize: '14px',
+              color: 'rgba(255, 255, 255, 0.45)',
+              letterSpacing: '0.01em'
+            }}
+          >
+            7 дней бесплатно · Без карты
+          </p>
         </div>
       </section>
 
-      {/* Floating animation keyframes */}
+      {/* Animations */}
       <style>{`
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-12px); }
+        }
         @keyframes float {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          33% { transform: translateY(-20px) translateX(10px); }
-          66% { transform: translateY(-10px) translateX(-10px); }
+          0%, 100% { transform: translate(0, 0); }
+          33% { transform: translate(-15px, -20px); }
+          66% { transform: translate(15px, -10px); }
         }
       `}</style>
 
@@ -464,44 +441,40 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
 
 AIAgentPage.displayName = 'AIAgentPage';
 
-// Circular Stat Component
-const StatCircle = memo(({ number, label, gradient }: { number: string; label: string; gradient: string }) => (
+// Stat Card Component - Clean & Minimal
+const StatCard = memo(({ number, label, gradient }: { number: string; label: string; gradient: string }) => (
   <div className="text-center">
     <div 
-      className="w-20 h-20 rounded-full mx-auto mb-3 flex items-center justify-center"
+      className="mb-4"
       style={{
+        fontSize: '72px',
+        fontWeight: 800,
+        letterSpacing: '-0.055em',
+        lineHeight: '1',
         background: gradient,
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
       }}
     >
-      <span 
-        style={{
-          fontSize: '20px',
-          fontWeight: 800,
-          color: '#FFFFFF',
-          letterSpacing: '-0.03em'
-        }}
-      >
-        {number}
-      </span>
+      {number}
     </div>
     <p 
       style={{
-        fontSize: '13px',
-        color: 'rgba(255, 255, 255, 0.6)',
-        letterSpacing: '0.03em',
-        textTransform: 'uppercase',
-        fontWeight: 600
+        fontSize: '17px',
+        lineHeight: '1.4',
+        color: 'rgba(255, 255, 255, 0.65)',
+        letterSpacing: '-0.01em',
+        fontWeight: 500
       }}
     >
       {label}
     </p>
   </div>
 ));
-StatCircle.displayName = 'StatCircle';
+StatCard.displayName = 'StatCard';
 
-// Capability Card Component
-const CapabilityCard = memo(({ 
+// Feature Block - One feature at a time
+const FeatureBlock = memo(({ 
   icon, 
   title, 
   description,
@@ -512,78 +485,56 @@ const CapabilityCard = memo(({
   description: string;
   gradient: string;
 }) => (
-  <div 
-    className="group rounded-[28px] p-8 relative overflow-hidden transition-all duration-500"
-    style={{
-      background: 'rgba(255, 255, 255, 0.03)',
-      backdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
-    }}
-  >
-    {/* Gradient accent bar */}
+  <div className="text-center">
+    {/* Icon */}
     <div 
-      className="absolute top-0 left-0 right-0 h-1.5 opacity-80"
-      style={{ background: gradient }}
-    />
-
-    <div className="flex gap-6">
-      {/* Icon */}
-      <div 
-        className="flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110"
-        style={{
-          background: gradient,
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
-        }}
-      >
-        <div style={{ color: 'white' }}>
-          {icon}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 pt-1">
-        <h3 
-          style={{
-            fontSize: '22px',
-            fontWeight: 700,
-            letterSpacing: '-0.03em',
-            color: '#FFFFFF',
-            marginBottom: '8px'
-          }}
-        >
-          {title}
-        </h3>
-        <p 
-          style={{
-            fontSize: '16px',
-            lineHeight: '1.6',
-            color: 'rgba(255, 255, 255, 0.65)',
-            letterSpacing: '-0.01em'
-          }}
-        >
-          {description}
-        </p>
+      className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5"
+      style={{
+        background: gradient,
+        boxShadow: '0 12px 40px rgba(0, 0, 0, 0.35)'
+      }}
+    >
+      <div style={{ color: 'white' }}>
+        {icon}
       </div>
     </div>
+
+    {/* Title */}
+    <h3 
+      className="mb-3"
+      style={{
+        fontSize: '24px',
+        fontWeight: 700,
+        letterSpacing: '-0.03em',
+        color: '#FFFFFF'
+      }}
+    >
+      {title}
+    </h3>
+
+    {/* Description */}
+    <p 
+      style={{
+        fontSize: '17px',
+        lineHeight: '1.5',
+        color: 'rgba(255, 255, 255, 0.6)',
+        letterSpacing: '-0.015em'
+      }}
+    >
+      {description}
+    </p>
   </div>
 ));
-CapabilityCard.displayName = 'CapabilityCard';
+FeatureBlock.displayName = 'FeatureBlock';
 
-// Benefit Line Component
-const BenefitLine = memo(({ icon, text }: { icon: React.ReactNode; text: string }) => (
-  <div 
-    className="group flex items-center gap-5 py-5 px-6 rounded-2xl transition-all duration-300"
-    style={{
-      background: 'rgba(255, 255, 255, 0.02)',
-      border: '1px solid rgba(255, 255, 255, 0.06)',
-    }}
-  >
+// Benefit Item - Minimal with icon
+const BenefitItem = memo(({ icon, text }: { icon: React.ReactNode; text: string }) => (
+  <div className="flex items-center gap-4 py-4">
     <div 
-      className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+      className="flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center"
       style={{
-        background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%)',
-        border: '1px solid rgba(52, 199, 89, 0.3)'
+        background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%)',
+        border: '1px solid rgba(52, 199, 89, 0.25)'
       }}
     >
       <div style={{ color: '#34C759' }}>
@@ -593,9 +544,9 @@ const BenefitLine = memo(({ icon, text }: { icon: React.ReactNode; text: string 
     <p 
       style={{
         fontSize: '17px',
-        lineHeight: '1.5',
-        color: 'rgba(255, 255, 255, 0.9)',
-        letterSpacing: '-0.01em',
+        lineHeight: '1.4',
+        color: 'rgba(255, 255, 255, 0.85)',
+        letterSpacing: '-0.015em',
         fontWeight: 500
       }}
     >
@@ -603,6 +554,6 @@ const BenefitLine = memo(({ icon, text }: { icon: React.ReactNode; text: string 
     </p>
   </div>
 ));
-BenefitLine.displayName = 'BenefitLine';
+BenefitItem.displayName = 'BenefitItem';
 
 export default AIAgentPage;
