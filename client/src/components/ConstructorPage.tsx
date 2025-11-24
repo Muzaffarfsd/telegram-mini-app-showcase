@@ -123,155 +123,151 @@ const availableFeatures = [
   { id: 'crm-system', name: 'CRM', price: 40000, category: 'Управление', icon: Users, included: false },
   
   { id: 'booking-system', name: 'Бронирование', price: 18000, category: 'Бронирование', icon: Calendar, included: false },
-  { id: 'progress-tracking', name: 'Трекинг прогресса', price: 12000, category: 'Бронирование', icon: TrendingUp, included: false },
+  { id: 'queue-management', name: 'Очереди', price: 15000, category: 'Бронирование', icon: Clock, included: false },
+  { id: 'calendar-sync', name: 'Календарь', price: 10000, category: 'Бронирование', icon: Calendar, included: false },
+  
+  { id: 'progress-tracking', name: 'Прогресс', price: 15000, category: 'Управление', icon: BarChart, included: false }
 ];
 
+const categories = ['Основные', 'Платежи', 'Доставка', 'Коммуникации', 'Маркетинг', 'Управление', 'Бронирование'];
+
 // Memoized Template Card Component
-const TemplateCard = memo(({ template, onSelect }: { 
-  template: typeof appTemplates[0], 
-  onSelect: () => void 
-}) => {
+const TemplateCard = memo(({ template, onSelect }: any) => {
   const IconComponent = template.icon;
-  
   return (
     <div
-      className="relative group cursor-pointer"
+      className="ios-list-item cursor-pointer"
       onClick={onSelect}
       data-testid={`template-${template.id}`}
     >
-      {/* Hover Glow Effect */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-[#06b6d4]/20 via-[#8b5cf6]/20 to-[#10b981]/20 rounded-[1.75rem] opacity-0 group-hover:opacity-100 blur-xl transition-all duration-700" />
-      
-      {/* Glass Card */}
-      <div className="relative bg-white/[0.06] backdrop-blur-[40px] rounded-3xl border border-white/[0.08] p-6 transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:scale-[1.02] group-hover:border-white/20 group-hover:shadow-[0_20px_60px_-12px_rgba(6,182,212,0.15)]">
-        {/* Popular Badge */}
-        {template.popular && (
-          <div className="absolute -top-3 -right-3 z-10">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] rounded-full blur-md opacity-75" />
-              <div className="relative bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-lg">
-                <Sparkles className="w-3 h-3 text-white" />
-                <span className="text-[11px] font-bold text-white tracking-wide uppercase">Хит</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="flex items-start gap-4">
-          {/* Embossed Icon Container */}
-          <div className="relative shrink-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#06b6d4]/30 to-[#10b981]/30 rounded-2xl blur-lg" />
-            <div className="relative w-14 h-14 bg-gradient-to-br from-white/[0.08] to-white/[0.02] rounded-2xl flex items-center justify-center border border-white/10 shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)] backdrop-blur-sm">
-              <IconComponent className="w-7 h-7 text-white/90" />
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-[17px] font-semibold text-white tracking-[-0.02em] mb-1">
-              {template.name}
-            </h3>
-            <p className="text-[13px] text-white/65 leading-relaxed mb-3">
-              {template.description}
-            </p>
-            
-            {/* Price and Time */}
-            <div className="flex items-center gap-4 text-[13px]">
-              <div className="flex items-center gap-1.5">
-                <div className="font-mono font-semibold text-transparent bg-gradient-to-r from-[#06b6d4] to-[#10b981] bg-clip-text">
-                  {template.estimatedPrice.toLocaleString()} ₽
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 text-white/50">
-                <Clock className="w-3.5 h-3.5" />
-                <span>{template.developmentTime}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Arrow */}
-          <ChevronRight className="w-5 h-5 text-white/30 shrink-0 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white/60" />
+      <div className="flex items-center space-x-3">
+        <div className="w-10 h-10 bg-system-blue/10 rounded-medium flex items-center justify-center">
+          <IconComponent className="w-5 h-5 text-system-blue" />
         </div>
+        <div className="flex-1">
+          <div className="flex items-center space-x-2">
+            <span className="ios-headline font-semibold text-white">{template.name}</span>
+            {template.popular && (
+              <span className="px-2 py-0.5 bg-system-orange/10 rounded-full">
+                <span className="ios-caption2 text-system-orange font-semibold">Популярно</span>
+              </span>
+            )}
+          </div>
+          <div className="ios-footnote text-white/70">{template.description}</div>
+          <div className="ios-footnote text-white/70 flex items-center space-x-1 mt-1">
+            <Clock className="w-3 h-3" />
+            <span>{template.developmentTime}</span>
+            <span>•</span>
+            <span>от {template.estimatedPrice.toLocaleString()} ₽</span>
+          </div>
+        </div>
+        <ChevronRight className="w-5 h-5 text-white/30" />
       </div>
     </div>
   );
 });
-
 TemplateCard.displayName = 'TemplateCard';
 
 function ConstructorPage({ onNavigate }: ConstructorPageProps) {
-  const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof appTemplates[0] | null>(null);
   const [selectedFeatures, setSelectedFeatures] = useState<SelectedFeature[]>([]);
-  const [projectName, setProjectName] = useState("");
-  const [activeCategory, setActiveCategory] = useState("Основные");
+  const [activeCategory, setActiveCategory] = useState('Основные');
+  const [projectName, setProjectName] = useState('');
+  const [currentStep, setCurrentStep] = useState(1);
 
-  const categories = useMemo(() => 
-    Array.from(new Set(availableFeatures.map(f => f.category))),
-    []
-  );
-
-  const filteredFeatures = useMemo(() => 
-    availableFeatures.filter(f => f.category === activeCategory),
-    [activeCategory]
-  );
-
-  const totalPrice = useMemo(() => {
-    if (!selectedTemplate) return 0;
+  // Memoized select template handler
+  const selectTemplate = useCallback((template: typeof appTemplates[0]) => {
+    setSelectedTemplate(template);
+    setProjectName(`Мой ${template.name}`);
     
-    const templateIncludedFeatures = selectedTemplate.features;
-    const additionalCost = selectedFeatures
+    const templateFeatures = template.features.map(featureId => {
+      const feature = availableFeatures.find(f => f.id === featureId);
+      if (feature) {
+        return {
+          id: feature.id,
+          name: feature.name,
+          price: feature.price,
+          category: feature.category
+        };
+      }
+      return null;
+    }).filter(Boolean) as SelectedFeature[];
+    
+    setSelectedFeatures(templateFeatures);
+    setCurrentStep(2);
+  }, []);
+
+  // Track project creation when user first enters a name
+  const hasTrackedProjectRef = useRef(false);
+  useEffect(() => {
+    if (projectName.trim().length > 0 && !hasTrackedProjectRef.current) {
+      hasTrackedProjectRef.current = true;
+      trackProjectCreation();
+    }
+  }, [projectName]);
+
+  // Memoized toggle feature handler
+  const toggleFeature = useCallback((feature: typeof availableFeatures[0]) => {
+    if (feature.included) return;
+    if (selectedTemplate?.features.includes(feature.id)) return;
+    
+    const isSelected = selectedFeatures.find(f => f.id === feature.id);
+    if (isSelected) {
+      setSelectedFeatures(prev => prev.filter(f => f.id !== feature.id));
+    } else {
+      setSelectedFeatures(prev => [...prev, {
+        id: feature.id,
+        name: feature.name,
+        price: feature.price,
+        category: feature.category
+      }]);
+      // Track feature addition for gamification
+      trackFeatureAdded();
+    }
+  }, [selectedFeatures, selectedTemplate]);
+
+  // Memoized total calculation
+  const calculateTotal = useCallback(() => {
+    const basePrice = selectedTemplate?.estimatedPrice || 0;
+    const templateIncludedFeatures = selectedTemplate?.features || [];
+    
+    const featuresPrice = selectedFeatures
       .filter(f => {
         const feature = availableFeatures.find(af => af.id === f.id);
         const isIncluded = feature?.included;
         const isInTemplate = templateIncludedFeatures.includes(f.id);
         return !isIncluded && !isInTemplate;
       })
-      .reduce((sum, f) => sum + f.price, 0);
+      .reduce((sum, feature) => sum + feature.price, 0);
     
-    return selectedTemplate.estimatedPrice + additionalCost;
+    return basePrice + featuresPrice;
   }, [selectedTemplate, selectedFeatures]);
 
-  const selectTemplate = useCallback((template: typeof appTemplates[0]) => {
-    setSelectedTemplate(template);
-    setProjectName(`${template.name} - Мой проект`);
-    setCurrentStep(2);
-  }, []);
+  const totalPrice = useMemo(() => calculateTotal(), [calculateTotal]);
 
-  const toggleFeature = useCallback((feature: typeof availableFeatures[0]) => {
-    setSelectedFeatures(prev => {
-      const exists = prev.find(f => f.id === feature.id);
-      if (exists) {
-        return prev.filter(f => f.id !== feature.id);
-      }
-      
-      trackFeatureAdded();
-      
-      return [...prev, {
-        id: feature.id,
-        name: feature.name,
-        price: feature.price,
-        category: feature.category
-      }];
-    });
-  }, []);
-
-  const goToStep = useCallback((step: number) => {
-    setCurrentStep(step);
-  }, []);
-
+  // Memoized order handler
   const handleOrderClick = useCallback(() => {
-    if (!selectedTemplate) return;
+    if (!selectedTemplate || !projectName.trim()) return;
     
-    trackProjectCreation();
+    const orderData = {
+      projectName: projectName.trim(),
+      selectedFeatures,
+      selectedTemplate: selectedTemplate.name,
+      totalAmount: totalPrice,
+      estimatedDevelopmentTime: selectedTemplate.developmentTime
+    };
     
-    onNavigate('order-success', {
-      template: selectedTemplate,
-      features: selectedFeatures,
-      totalPrice,
-      projectName
-    });
-  }, [selectedTemplate, selectedFeatures, totalPrice, projectName, onNavigate]);
+    onNavigate('checkout', orderData);
+  }, [selectedTemplate, projectName, selectedFeatures, totalPrice, onNavigate]);
+
+  // Memoized step navigation
+  const goToStep = useCallback((step: number) => setCurrentStep(step), []);
+
+  // Memoized filtered features
+  const filteredFeatures = useMemo(() => 
+    availableFeatures.filter(f => f.category === activeCategory),
+    [activeCategory]
+  );
 
   // Memoized template handlers
   const templateHandlers = useMemo(() => 
@@ -296,161 +292,108 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
   }, [selectedFeatures, selectedTemplate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d0d12] to-[#0f0f14] text-white pb-32">
-      <div className="max-w-md mx-auto px-4 py-8 space-y-8">
+    <div className="min-h-screen bg-black text-white pb-32">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
-        {/* Payment Model Section - Premium Apple Keynote Style */}
+        {/* Payment Model Section */}
         <section>
-          <div className="relative overflow-hidden rounded-[2rem]">
-            {/* Aurora Gradient Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#06b6d4]/8 via-[#8b5cf6]/5 to-[#10b981]/8" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#06b6d4]/10 via-transparent to-transparent" />
+          <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-7 overflow-hidden">
+            {/* Subtle gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-system-blue/5 via-transparent to-system-purple/5 pointer-events-none"/>
             
-            {/* Glass Panel */}
-            <div className="relative bg-black/60 backdrop-blur-[60px] border border-white/[0.08] p-8">
-              {/* Header with Gradient Text */}
-              <div className="text-center mb-8">
-                <h3 className="text-[28px] font-bold mb-3 leading-tight tracking-[-0.03em]">
-                  <span className="text-transparent bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text">
-                    Прозрачная оплата
-                  </span>
-                </h3>
-                <p className="text-[15px] text-white/65 max-w-xs mx-auto leading-relaxed">
+            <div className="relative z-10">
+              {/* Header */}
+              <div className="text-center mb-6">
+                <h3 className="ios-title2 mb-2 text-white font-bold">Прозрачная оплата</h3>
+                <p className="ios-subheadline text-white/70 max-w-xs mx-auto">
                   Платите поэтапно — минимальный риск, максимальный контроль
                 </p>
               </div>
 
-              {/* Payment Track with Luminous Stages */}
-              <div className="relative mb-8">
-                {/* Vertical Gradient Track */}
-                <div className="absolute left-[27px] top-8 bottom-8 w-[2px] bg-gradient-to-b from-[#10b981]/40 via-[#06b6d4]/40 to-[#10b981]/40" />
-                
-                <div className="space-y-6">
-                  {/* Stage 1 - 35% Prepayment */}
-                  <div className="relative group">
-                    {/* Hover Glow */}
-                    <div className="absolute -inset-2 bg-gradient-to-r from-[#10b981]/15 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 blur-2xl transition-all duration-700" />
-                    
-                    {/* Glass Card */}
-                    <div className="relative bg-white/[0.04] backdrop-blur-[40px] rounded-2xl border border-white/[0.06] p-6 transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:scale-[1.01] group-hover:border-[#10b981]/20 group-hover:shadow-[0_20px_40px_-12px_rgba(16,185,129,0.15)]">
-                      <div className="flex items-start gap-5">
-                        {/* Luminous Orb */}
-                        <div className="relative shrink-0">
-                          <div className="absolute inset-0 bg-[#10b981] rounded-2xl blur-xl opacity-40" />
-                          <div className="relative w-[56px] h-[56px] bg-gradient-to-br from-[#10b981]/25 to-[#10b981]/10 rounded-2xl flex items-center justify-center border border-[#10b981]/30 shadow-[inset_0_1px_2px_rgba(16,185,129,0.2),0_0_20px_rgba(16,185,129,0.15)] backdrop-blur-sm">
-                            <Zap className="w-7 h-7 text-[#10b981]" />
+              {/* Payment Stages */}
+              <div className="space-y-3 mb-6">
+                {/* Stage 1 - 35% Prepayment */}
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-system-green/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
+                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-green/40 transition-all">
+                    <div className="flex items-start space-x-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-system-green/30 rounded-xl blur-md"/>
+                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-green/30 to-system-green/10 rounded-xl flex items-center justify-center border border-system-green/30">
+                          <Zap className="w-6 h-6 text-system-green" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <div className="ios-headline font-bold text-white mb-0.5">35% предоплата</div>
+                            <div className="ios-caption1 text-system-green font-semibold">Запуск разработки</div>
+                          </div>
+                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
+                            <span className="ios-caption2 font-bold text-system-green">1</span>
                           </div>
                         </div>
-                        
-                        {/* Content */}
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <div className="text-[17px] font-semibold text-white tracking-[-0.02em] mb-1">
-                                35% предоплата
-                              </div>
-                              <div className="text-[13px] font-semibold text-[#10b981]">
-                                Запуск разработки
-                              </div>
-                            </div>
-                            {/* Step Number Orb */}
-                            <div className="relative">
-                              <div className="absolute inset-0 bg-[#10b981]/30 rounded-full blur-md" />
-                              <div className="relative w-9 h-9 bg-[#10b981]/15 rounded-full flex items-center justify-center border border-[#10b981]/30 backdrop-blur-sm">
-                                <span className="text-[13px] font-bold text-[#10b981]">1</span>
-                              </div>
-                            </div>
-                          </div>
-                          <p className="text-[13px] text-white/65 leading-relaxed">
-                            Мы начинаем создавать ваше приложение сразу после внесения предоплаты
-                          </p>
-                        </div>
+                        <p className="ios-footnote text-white/70 leading-relaxed">
+                          Мы начинаем создавать ваше приложение сразу после внесения предоплаты
+                        </p>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Stage 2 - 65% After Delivery */}
-                  <div className="relative group">
-                    {/* Hover Glow */}
-                    <div className="absolute -inset-2 bg-gradient-to-r from-[#06b6d4]/15 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 blur-2xl transition-all duration-700" />
-                    
-                    {/* Glass Card */}
-                    <div className="relative bg-white/[0.04] backdrop-blur-[40px] rounded-2xl border border-white/[0.06] p-6 transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:scale-[1.01] group-hover:border-[#06b6d4]/20 group-hover:shadow-[0_20px_40px_-12px_rgba(6,182,212,0.15)]">
-                      <div className="flex items-start gap-5">
-                        {/* Luminous Orb */}
-                        <div className="relative shrink-0">
-                          <div className="absolute inset-0 bg-[#06b6d4] rounded-2xl blur-xl opacity-40" />
-                          <div className="relative w-[56px] h-[56px] bg-gradient-to-br from-[#06b6d4]/25 to-[#06b6d4]/10 rounded-2xl flex items-center justify-center border border-[#06b6d4]/30 shadow-[inset_0_1px_2px_rgba(6,182,212,0.2),0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-sm">
-                            <CheckCircle className="w-7 h-7 text-[#06b6d4]" />
+                {/* Stage 2 - 65% After Delivery */}
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-system-blue/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
+                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-blue/40 transition-all">
+                    <div className="flex items-start space-x-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-system-blue/30 rounded-xl blur-md"/>
+                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-blue/30 to-system-blue/10 rounded-xl flex items-center justify-center border border-system-blue/30">
+                          <CheckCircle className="w-6 h-6 text-system-blue" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <div className="ios-headline font-bold text-white mb-0.5">65% при получении</div>
+                            <div className="ios-caption1 text-system-blue font-semibold">Готовое приложение</div>
+                          </div>
+                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
+                            <span className="ios-caption2 font-bold text-system-green">2</span>
                           </div>
                         </div>
-                        
-                        {/* Content */}
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <div className="text-[17px] font-semibold text-white tracking-[-0.02em] mb-1">
-                                65% при получении
-                              </div>
-                              <div className="text-[13px] font-semibold text-[#06b6d4]">
-                                Готовое приложение
-                              </div>
-                            </div>
-                            {/* Step Number Orb */}
-                            <div className="relative">
-                              <div className="absolute inset-0 bg-[#10b981]/30 rounded-full blur-md" />
-                              <div className="relative w-9 h-9 bg-[#10b981]/15 rounded-full flex items-center justify-center border border-[#10b981]/30 backdrop-blur-sm">
-                                <span className="text-[13px] font-bold text-[#10b981]">2</span>
-                              </div>
-                            </div>
-                          </div>
-                          <p className="text-[13px] text-white/65 leading-relaxed">
-                            Оплачиваете остаток только после тестирования и принятия работы
-                          </p>
-                        </div>
+                        <p className="ios-footnote text-white/70 leading-relaxed">
+                          Оплачиваете остаток только после тестирования и принятия работы
+                        </p>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Stage 3 - Monthly Subscription */}
-                  <div className="relative group">
-                    {/* Hover Glow */}
-                    <div className="absolute -inset-2 bg-gradient-to-r from-[#10b981]/15 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 blur-2xl transition-all duration-700" />
-                    
-                    {/* Glass Card */}
-                    <div className="relative bg-white/[0.04] backdrop-blur-[40px] rounded-2xl border border-white/[0.06] p-6 transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:scale-[1.01] group-hover:border-[#10b981]/20 group-hover:shadow-[0_20px_40px_-12px_rgba(16,185,129,0.15)]">
-                      <div className="flex items-start gap-5">
-                        {/* Luminous Orb */}
-                        <div className="relative shrink-0">
-                          <div className="absolute inset-0 bg-[#10b981] rounded-2xl blur-xl opacity-40" />
-                          <div className="relative w-[56px] h-[56px] bg-gradient-to-br from-[#10b981]/25 to-[#10b981]/10 rounded-2xl flex items-center justify-center border border-[#10b981]/30 shadow-[inset_0_1px_2px_rgba(16,185,129,0.2),0_0_20px_rgba(16,185,129,0.15)] backdrop-blur-sm">
-                            <TrendingUp className="w-7 h-7 text-[#10b981]" />
+                {/* Stage 3 - Monthly Subscription */}
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-system-green/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
+                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-green/40 transition-all">
+                    <div className="flex items-start space-x-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-system-green/30 rounded-xl blur-md"/>
+                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-green/30 to-system-green/10 rounded-xl flex items-center justify-center border border-system-green/30">
+                          <TrendingUp className="w-6 h-6 text-system-green" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <div className="ios-headline font-bold text-white mb-0.5">Поддержка и развитие</div>
+                            <div className="ios-caption1 text-system-green font-semibold">Ежемесячная подписка</div>
+                          </div>
+                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
+                            <span className="ios-caption2 font-bold text-system-green">3</span>
                           </div>
                         </div>
-                        
-                        {/* Content */}
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <div className="text-[17px] font-semibold text-white tracking-[-0.02em] mb-1">
-                                Поддержка и развитие
-                              </div>
-                              <div className="text-[13px] font-semibold text-[#10b981]">
-                                Ежемесячная подписка
-                              </div>
-                            </div>
-                            {/* Step Number Orb */}
-                            <div className="relative">
-                              <div className="absolute inset-0 bg-[#10b981]/30 rounded-full blur-md" />
-                              <div className="relative w-9 h-9 bg-[#10b981]/15 rounded-full flex items-center justify-center border border-[#10b981]/30 backdrop-blur-sm">
-                                <span className="text-[13px] font-bold text-[#10b981]">3</span>
-                              </div>
-                            </div>
-                          </div>
-                          <p className="text-[13px] text-white/65 leading-relaxed">
-                            Стабильная работа, обновления и поддержка вашего бизнеса 24/7
-                          </p>
-                        </div>
+                        <p className="ios-footnote text-white/70 leading-relaxed">
+                          Стабильная работа, обновления и поддержка вашего бизнеса 24/7
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -458,57 +401,63 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               </div>
 
               {/* Monthly Subscription Details */}
-              <div className="relative mt-8 pt-8 border-t border-white/[0.08]">
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center justify-center px-4 py-2 bg-[#10b981]/10 border border-[#10b981]/20 rounded-full mb-4 backdrop-blur-sm">
-                    <Rocket className="w-4 h-4 text-[#10b981] mr-2.5" />
-                    <span className="text-[13px] text-[#10b981] font-semibold tracking-wide">Что входит в подписку</span>
+              <div className="relative mt-6 pt-6 border-t border-white/10">
+                <div className="text-center mb-5">
+                  <div className="inline-flex items-center justify-center px-3 py-1 bg-system-green/10 border border-system-green/30 rounded-full mb-3">
+                    <Rocket className="w-3.5 h-3.5 text-system-green mr-2" />
+                    <span className="ios-caption1 text-system-green font-semibold">Что входит в подписку</span>
                   </div>
                 </div>
                 
                 {/* What's included - Grid Layout */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  {[
-                    'Хостинг и сервера',
-                    'Поддержка 24/7',
-                    'Обновления',
-                    'Резервные копии'
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex items-start gap-2.5">
-                      <div className="relative shrink-0 mt-0.5">
-                        <div className="absolute inset-0 bg-[#10b981]/20 rounded-full blur-sm" />
-                        <div className="relative w-5 h-5 bg-[#10b981]/15 rounded-full flex items-center justify-center border border-[#10b981]/25">
-                          <Check className="w-3 h-3 text-[#10b981]" />
-                        </div>
-                      </div>
-                      <span className="text-[13px] text-white/85 leading-tight">{item}</span>
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-system-green" />
                     </div>
-                  ))}
+                    <span className="ios-caption1 text-white/90 leading-tight">Хостинг и сервера</span>
+                  </div>
+                  <div className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-system-green" />
+                    </div>
+                    <span className="ios-caption1 text-white/90 leading-tight">Поддержка 24/7</span>
+                  </div>
+                  <div className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-system-green" />
+                    </div>
+                    <span className="ios-caption1 text-white/90 leading-tight">Обновления</span>
+                  </div>
+                  <div className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-system-green" />
+                    </div>
+                    <span className="ios-caption1 text-white/90 leading-tight">Резервные копии</span>
+                  </div>
                 </div>
 
-                {/* Price Card - Apple Pricing Style */}
+                {/* Price Card */}
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#06b6d4]/15 via-[#8b5cf6]/10 to-[#10b981]/15 rounded-3xl blur-2xl" />
-                  <div className="relative bg-gradient-to-br from-white/[0.08] to-white/[0.03] backdrop-blur-[50px] rounded-3xl border border-white/[0.12] p-8 text-center shadow-[0_20px_60px_-12px_rgba(6,182,212,0.2)]">
+                  <div className="absolute inset-0 bg-gradient-to-r from-system-blue/20 via-system-purple/20 to-system-green/20 rounded-2xl blur-xl"/>
+                  <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border border-white/30 p-6 text-center">
                     {/* Free Month Badge */}
-                    <div className="inline-flex items-center justify-center px-4 py-2 bg-[#10b981]/15 border border-[#10b981]/30 rounded-full mb-5 backdrop-blur-sm">
-                      <Gift className="w-4 h-4 text-[#10b981] mr-2" />
-                      <span className="text-[13px] text-[#10b981] font-bold tracking-wide">Первый месяц в подарок</span>
+                    <div className="inline-flex items-center justify-center px-4 py-1.5 bg-system-green/20 border border-system-green/40 rounded-full mb-4">
+                      <Gift className="w-3.5 h-3.5 text-system-green mr-2" />
+                      <span className="ios-caption1 text-system-green font-bold">Первый месяц в подарок</span>
                     </div>
                     
-                    {/* Price with Tabular Numerals */}
-                    <div className="mb-4">
-                      <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-[48px] font-bold text-transparent bg-gradient-to-r from-[#10b981] to-[#06b6d4] bg-clip-text tracking-tight" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                          5,999
-                        </span>
-                        <span className="text-[24px] font-semibold text-transparent bg-gradient-to-r from-[#10b981] to-[#06b6d4] bg-clip-text">₽</span>
+                    {/* Price */}
+                    <div className="mb-3">
+                      <div className="flex items-baseline justify-center space-x-1">
+                        <span className="ios-title1 font-bold text-system-green">5,999</span>
+                        <span className="ios-body text-system-green">₽</span>
                       </div>
-                      <div className="text-[13px] text-white/50 mt-2">в месяц со второго месяца</div>
+                      <div className="ios-footnote text-white/60 mt-1">в месяц со второго месяца</div>
                     </div>
 
                     {/* Value proposition */}
-                    <div className="text-[12px] text-white/40 tracking-wide">
+                    <div className="ios-caption2 text-white/50">
                       Всё включено • Без скрытых платежей
                     </div>
                   </div>
@@ -584,7 +533,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="ios-list">
               {appTemplates.map((template, idx) => (
                 <TemplateCard
                   key={template.id}
@@ -594,17 +543,14 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               ))}
             </div>
 
-            <div className="relative overflow-hidden rounded-2xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#06b6d4]/5 to-transparent" />
-              <div className="relative bg-white/[0.04] backdrop-blur-[30px] rounded-2xl border border-[#06b6d4]/20 p-5">
-                <div className="flex items-start gap-3.5">
-                  <Info className="w-5 h-5 text-[#06b6d4] shrink-0 mt-0.5" />
-                  <div>
-                    <div className="text-[15px] font-semibold text-[#06b6d4] mb-1">Подсказка</div>
-                    <div className="text-[13px] text-white/65 leading-relaxed">
-                      Выберите тип, наиболее близкий к вашему бизнесу. 
-                      Позже можно будет добавить дополнительные функции.
-                    </div>
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-4 bg-system-blue/10 border-system-blue/20">
+              <div className="flex items-start space-x-3">
+                <Info className="w-5 h-5 text-system-blue mt-0.5" />
+                <div>
+                  <div className="ios-body font-semibold text-system-blue">Подсказка</div>
+                  <div className="ios-footnote text-white/70">
+                    Выберите тип, наиболее близкий к вашему бизнесу. 
+                    Позже можно будет добавить дополнительные функции.
                   </div>
                 </div>
               </div>
