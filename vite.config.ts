@@ -94,10 +94,10 @@ export default defineConfig({
             return 'vendor-utils';
           }
           
-          // Route-based splitting - ShowcasePage is now lazy loaded
-          if (id.includes('/src/components/ShowcasePage')) {
-            return 'showcase';
-          }
+          // ✅ Let Rollup auto-split ShowcasePage into smaller chunks
+          // Don't force entire ShowcasePage into single chunk
+          
+          // Route-based splitting for other pages
           if (id.includes('/src/components/ProjectsPage')) {
             return 'projects';
           }
