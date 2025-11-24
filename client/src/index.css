@@ -26,6 +26,9 @@ html {
   /* Smooth scrolling with momentum (iOS-like) */
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  
+  /* Optimize scroll performance */
+  scroll-padding-top: 0;
 }
 
 body {
@@ -37,6 +40,32 @@ body {
   /* Prevent layout shifts */
   overflow-x: hidden;
   overscroll-behavior-y: none;
+  
+  /* GPU acceleration for smooth scrolling */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  
+  /* Optimize repaints during scroll */
+  will-change: scroll-position;
+}
+
+/* Optimize all scrollable containers */
+* {
+  /* Smooth scrolling for all elements */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Optimize main scrollable area for best performance */
+main, [role="main"], .scroll-container {
+  /* CSS Containment for better scroll performance */
+  contain: layout style paint;
+  
+  /* Hint browser about scroll changes */
+  will-change: transform;
+  
+  /* Hardware acceleration */
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
 
 :root {
