@@ -24,7 +24,9 @@ import {
   Clock,
   User,
   Shield,
-  ChevronRight
+  ChevronRight,
+  TrendingUp,
+  Gift
 } from "lucide-react";
 
 interface ConstructorPageProps {
@@ -804,6 +806,65 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               </div>
             </div>
 
+            {/* Payment schedule - Professional monochrome cards */}
+            <div 
+              className="rounded-[18px] p-5 backdrop-blur-xl"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '0.5px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+              }}
+            >
+              <h3 
+                style={{
+                  fontSize: '17px',
+                  fontWeight: 700,
+                  color: '#FFFFFF',
+                  letterSpacing: '-0.02em',
+                  marginBottom: '16px'
+                }}
+              >
+                График оплаты
+              </h3>
+
+              <div className="space-y-3">
+                <PaymentCard
+                  number="1"
+                  title="35% Старт"
+                  subtitle="Начинаем создавать"
+                  description="Мы начинаем работать сразу после внесения предоплаты"
+                  gradient="linear-gradient(135deg, #30D158 0%, #248A3D 100%)"
+                  icon={<Zap className="w-5 h-5" strokeWidth={2.5} />}
+                />
+                
+                <PaymentCard
+                  number="2"
+                  title="65% Готово"
+                  subtitle="Тестируете, принимаете"
+                  description="Оплачиваете после тестирования и принятия работы"
+                  gradient="linear-gradient(135deg, #007AFF 0%, #0051D5 100%)"
+                  icon={<CheckCircle className="w-5 h-5" strokeWidth={2.5} />}
+                />
+                
+                <PaymentCard
+                  number="3"
+                  title="5,999₽ / мес"
+                  subtitle="Всё включено"
+                  description="Хостинг, поддержка, обновления и резервные копии"
+                  gradient="linear-gradient(135deg, #5E5CE6 0%, #3634A3 100%)"
+                  icon={<TrendingUp className="w-5 h-5" strokeWidth={2.5} />}
+                  badge={
+                    <div className="flex items-center gap-1.5">
+                      <Gift className="w-3 h-3" strokeWidth={2.5} />
+                      <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.02em' }}>
+                        Первый месяц бесплатно
+                      </span>
+                    </div>
+                  }
+                />
+              </div>
+            </div>
+
             {/* Action buttons */}
             <div className="space-y-3">
               <button
@@ -903,5 +964,124 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
     </div>
   );
 }
+
+// PaymentCard component - Professional monochrome style
+const PaymentCard = memo(({ 
+  number, 
+  title, 
+  subtitle,
+  description,
+  gradient,
+  icon,
+  badge
+}: { 
+  number: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  gradient: string;
+  icon: React.ReactNode;
+  badge?: React.ReactNode;
+}) => (
+  <div 
+    className="rounded-[16px] p-4 backdrop-blur-xl relative overflow-hidden group"
+    style={{
+      background: 'rgba(255, 255, 255, 0.04)',
+      border: '0.5px solid rgba(255, 255, 255, 0.08)',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+      transition: 'all 0.3s ease'
+    }}
+  >
+    <div className="relative z-10 flex gap-3.5">
+      {/* Icon */}
+      <div 
+        className="w-11 h-11 rounded-[14px] flex items-center justify-center flex-shrink-0"
+        style={{
+          background: gradient,
+          boxShadow: '0 6px 20px rgba(0, 0, 0, 0.25)'
+        }}
+      >
+        <div style={{ color: 'white' }}>
+          {icon}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1">
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <div 
+              style={{
+                fontSize: '16px',
+                fontWeight: 700,
+                color: '#FFFFFF',
+                letterSpacing: '-0.02em',
+                marginBottom: '3px'
+              }}
+            >
+              {title}
+            </div>
+            <div 
+              style={{
+                fontSize: '13px',
+                color: 'rgba(255, 255, 255, 0.6)',
+                letterSpacing: '-0.01em'
+              }}
+            >
+              {subtitle}
+            </div>
+          </div>
+
+          {/* Number badge */}
+          <div 
+            className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '0.5px solid rgba(255, 255, 255, 0.15)'
+            }}
+          >
+            <span 
+              style={{
+                fontSize: '12px',
+                fontWeight: 800,
+                color: 'rgba(255, 255, 255, 0.8)'
+              }}
+            >
+              {number}
+            </span>
+          </div>
+        </div>
+
+        {/* Badge */}
+        {badge && (
+          <div 
+            className="inline-flex items-center px-2.5 py-1 rounded-full mb-2"
+            style={{
+              background: 'rgba(52, 199, 89, 0.12)',
+              border: '0.5px solid rgba(52, 199, 89, 0.2)'
+            }}
+          >
+            <div style={{ color: '#30D158', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {badge}
+            </div>
+          </div>
+        )}
+
+        {/* Description */}
+        <p 
+          style={{
+            fontSize: '13px',
+            color: 'rgba(255, 255, 255, 0.65)',
+            letterSpacing: '-0.01em',
+            lineHeight: '1.4'
+          }}
+        >
+          {description}
+        </p>
+      </div>
+    </div>
+  </div>
+));
+PaymentCard.displayName = 'PaymentCard';
 
 export default memo(ConstructorPage);
