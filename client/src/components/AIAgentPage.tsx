@@ -6,8 +6,8 @@ import {
   Zap,
   Shield,
   Globe,
-  Clock,
-  TrendingUp
+  MessageSquare,
+  Clock
 } from "lucide-react";
 
 interface AIAgentPageProps {
@@ -28,225 +28,253 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#000000] pb-24">
+    <div className="min-h-screen bg-[#000000] pb-24 overflow-hidden">
       <div className="max-w-md mx-auto">
         
-        {/* Apple-style Hero Section - Massive whitespace, minimal text */}
-        <section className="relative min-h-[85vh] flex items-center justify-center px-6 pt-20 pb-32">
-          {/* Subtle gradient overlay */}
+        {/* Apple-Perfect Hero Section */}
+        <section className="relative px-6 pt-16 pb-20">
+          {/* Subtle radial gradient - Apple style */}
           <div 
-            className="absolute inset-0 opacity-40"
+            className="absolute inset-0 opacity-30 pointer-events-none"
             style={{
-              background: 'radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%)',
-              transform: `translateY(${scrollY * 0.3}px)`
+              background: 'radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 60%)',
+              transform: `translateY(${scrollY * 0.2}px)`,
+              transition: 'transform 0.1s ease-out'
             }}
           />
           
-          <div className="relative z-10 text-center max-w-4xl mx-auto">
-            {/* Tiny label - Apple style */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-950/30 mb-8">
-              <Sparkles className="w-4 h-4 text-blue-400" />
-              <span className="text-sm font-medium text-blue-400">
-                Новое
-              </span>
+          <div className="relative z-10">
+            {/* New badge - iOS style */}
+            <div className="flex justify-center mb-6 scroll-fade-in">
+              <div 
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
+                style={{
+                  background: 'rgba(59, 130, 246, 0.15)',
+                  backdropFilter: 'blur(10px)',
+                  border: '0.5px solid rgba(59, 130, 246, 0.3)'
+                }}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                <span className="text-xs font-semibold tracking-wider text-blue-400">
+                  НОВОЕ
+                </span>
+              </div>
             </div>
             
-            {/* Massive headline - 72px */}
+            {/* Hero headline - Apple SF Pro style */}
             <h1 
-              className="text-5xl sm:text-6xl font-semibold tracking-tight mb-6"
+              className="text-center mb-4 scroll-fade-in-delay-1"
               style={{ 
                 fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                letterSpacing: '-0.03em',
-                lineHeight: '1.05'
+                fontSize: 'clamp(40px, 11vw, 56px)',
+                fontWeight: 700,
+                letterSpacing: '-0.04em',
+                lineHeight: '1.05',
+                color: '#FFFFFF'
               }}
             >
-              <span className="text-white">ИИ агент.</span>
+              ИИ агент.
               <br />
-              <span className="text-white">Для вашего</span>
+              Для вашего
               <br />
-              <span className="text-white">бизнеса.</span>
+              бизнеса.
             </h1>
             
-            {/* Subtle description - light weight */}
-            <p className="text-lg sm:text-xl font-normal text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-              Автоматизация, которая работает 24/7 и окупается за 6 месяцев
+            {/* Subtitle - Apple weight */}
+            <p 
+              className="text-center mb-8 scroll-fade-in-delay-2"
+              style={{
+                fontSize: '19px',
+                lineHeight: '1.42',
+                fontWeight: 400,
+                color: 'rgba(255, 255, 255, 0.7)',
+                letterSpacing: '-0.01em'
+              }}
+            >
+              Автоматизация, которая работает 24/7
+              <br />
+              и окупается за 6 месяцев
             </p>
             
-            {/* Single clear CTA - Apple blue */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {/* CTA - Apple blue */}
+            <div className="flex flex-col items-center gap-3 scroll-fade-in-delay-3">
               <button
                 onClick={handleNavigateConstructor}
-                className="group px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
+                className="button-apple w-full py-3.5 bg-[#0071E3] text-white font-semibold rounded-full transition-all duration-200 active:scale-[0.97]"
+                style={{
+                  fontSize: '17px',
+                  letterSpacing: '-0.02em',
+                  boxShadow: '0 2px 8px rgba(0, 113, 227, 0.3)'
+                }}
                 data-testid="button-start-trial"
               >
                 Попробовать бесплатно
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </button>
               
-              <button 
-                className="px-8 py-4 text-blue-400 font-medium rounded-full hover:bg-gray-900 transition-colors"
-                data-testid="button-learn-more"
+              <p 
+                className="text-center"
+                style={{
+                  fontSize: '13px',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  letterSpacing: '-0.01em'
+                }}
               >
-                Узнать больше
-              </button>
+                Бесплатно 7 дней · Без привязки карты
+              </p>
             </div>
-            
-            {/* Tiny caption */}
-            <p className="text-sm text-gray-600 mt-6">
-              Бесплатно 7 дней. Без привязки карты.
-            </p>
           </div>
         </section>
 
-        {/* Product Showcase - Large visuals like Apple */}
-        <section className="px-6 py-20">
-          <div className="mx-auto">
-            {/* Floating card with product visual */}
-            <div 
-              className="relative rounded-3xl overflow-hidden"
+        {/* Stats Card - Apple glassmorphism */}
+        <section className="px-6 py-8">
+          <div 
+            className="glass-apple rounded-[28px] p-8 scroll-fade-in"
+            style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              border: '0.5px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: `
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                0 8px 32px rgba(0, 0, 0, 0.35),
+                0 1px 2px rgba(0, 0, 0, 0.2)
+              `
+            }}
+          >
+            <div className="space-y-8">
+              <StatRow number="192%" label="Средний ROI за первый год" />
+              <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              <StatRow number="24/7" label="Работает без выходных" />
+              <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              <StatRow number="80%" label="Запросов автоматически" />
+            </div>
+          </div>
+        </section>
+
+        {/* Features - iOS cards */}
+        <section className="px-6 py-8">
+          <h2 
+            className="text-center mb-6"
+            style={{
+              fontSize: '28px',
+              fontWeight: 700,
+              letterSpacing: '-0.03em',
+              color: '#FFFFFF'
+            }}
+          >
+            Возможности
+          </h2>
+          
+          <div className="space-y-3">
+            <FeatureCard
+              icon={<Zap className="w-5 h-5" />}
+              title="Мгновенный запуск"
+              description="Настройка за 10 минут. Интеграция с вашими системами."
+              accentColor="rgba(0, 122, 255, 0.15)"
+              iconColor="#007AFF"
+            />
+            
+            <FeatureCard
+              icon={<Shield className="w-5 h-5" />}
+              title="Безопасность"
+              description="Полное шифрование данных. Соответствие GDPR."
+              accentColor="rgba(52, 199, 89, 0.15)"
+              iconColor="#34C759"
+            />
+            
+            <FeatureCard
+              icon={<Globe className="w-5 h-5" />}
+              title="150+ языков"
+              description="Общается с клиентами на их родном языке."
+              accentColor="rgba(255, 159, 10, 0.15)"
+              iconColor="#FF9F0A"
+            />
+            
+            <FeatureCard
+              icon={<MessageSquare className="w-5 h-5" />}
+              title="Умная аналитика"
+              description="Понимает контекст и учится на каждом разговоре."
+              accentColor="rgba(191, 90, 242, 0.15)"
+              iconColor="#BF5AF2"
+            />
+          </div>
+        </section>
+
+        {/* Benefits - Apple list */}
+        <section className="px-6 py-8">
+          <h2 
+            className="text-center mb-6"
+            style={{
+              fontSize: '28px',
+              fontWeight: 700,
+              letterSpacing: '-0.03em',
+              color: '#FFFFFF'
+            }}
+          >
+            Почему выбирают нас
+          </h2>
+          
+          <div className="space-y-2">
+            <BenefitRow text="Работает 24/7 без отпусков и больничных" />
+            <BenefitRow text="Обрабатывает запросы мгновенно — ответ меньше 2 секунд" />
+            <BenefitRow text="Окупается за 6-12 месяцев — 74% вернули инвестиции" />
+            <BenefitRow text="Интеграция с любыми системами — CRM, ERP, мессенджеры" />
+          </div>
+        </section>
+
+        {/* Final CTA - Apple style */}
+        <section className="px-6 py-12">
+          <div className="text-center">
+            <h2 
+              className="mb-3"
               style={{
-                background: 'rgba(20, 20, 20, 0.6)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 4px 24px rgba(0, 0, 0, 0.4)'
+                fontSize: '32px',
+                fontWeight: 700,
+                letterSpacing: '-0.03em',
+                color: '#FFFFFF',
+                lineHeight: '1.1'
               }}
             >
-              <div className="relative p-8">
-                {/* Stats grid - clean, minimal */}
-                <div className="grid grid-cols-1 gap-6">
-                  <div className="text-center">
-                    <div className="text-5xl font-semibold text-white mb-2">
-                      192%
-                    </div>
-                    <p className="text-base text-gray-400">
-                      Средний ROI за первый год
-                    </p>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="text-5xl font-semibold text-white mb-2">
-                      24/7
-                    </div>
-                    <p className="text-base text-gray-400">
-                      Работает без выходных
-                    </p>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="text-5xl font-semibold text-white mb-2">
-                      80%
-                    </div>
-                    <p className="text-base text-gray-400">
-                      Запросов автоматически
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features - Apple grid layout */}
-        <section className="px-6 py-20">
-          <div className="mx-auto">
-            <div className="grid grid-cols-1 gap-4">
-              
-              {/* Feature card 1 */}
-              <FeatureCard
-                icon={<Zap className="w-6 h-6" />}
-                title="Мгновенный запуск"
-                description="Настройка за 10 минут. Интеграция с вашими системами."
-                gradient="from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20"
-                iconColor="text-blue-600 dark:text-blue-400"
-              />
-              
-              {/* Feature card 2 */}
-              <FeatureCard
-                icon={<Shield className="w-6 h-6" />}
-                title="Безопасность"
-                description="Полное шифрование данных. Соответствие GDPR."
-                gradient="from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20"
-                iconColor="text-green-600 dark:text-green-400"
-              />
-              
-              {/* Feature card 3 */}
-              <FeatureCard
-                icon={<Globe className="w-6 h-6" />}
-                title="150+ языков"
-                description="Общается с клиентами на их родном языке."
-                gradient="from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20"
-                iconColor="text-purple-600 dark:text-purple-400"
-              />
-              
-              {/* Feature card 4 */}
-              <FeatureCard
-                icon={<TrendingUp className="w-6 h-6" />}
-                title="Умная аналитика"
-                description="Понимает контекст и учится на каждом разговоре."
-                gradient="from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20"
-                iconColor="text-orange-600 dark:text-orange-400"
-              />
-              
-            </div>
-          </div>
-        </section>
-
-        {/* Benefits - Clean list like Apple */}
-        <section className="px-6 py-20">
-          <div className="mx-auto">
-            <h2 className="text-3xl sm:text-4xl font-semibold text-white mb-12 text-center">
-              Почему выбирают нас
+              Начните
+              <br />
+              сегодня
             </h2>
             
-            <div className="space-y-6">
-              <BenefitRow
-                icon={<Check className="w-6 h-6" />}
-                title="Работает 24/7 без отпусков"
-                description="Никогда не устаёт, не болеет, не уходит в отпуск"
-              />
-              
-              <BenefitRow
-                icon={<Check className="w-6 h-6" />}
-                title="Обрабатывает запросы мгновенно"
-                description="Средний ответ меньше 2 секунд"
-              />
-              
-              <BenefitRow
-                icon={<Check className="w-6 h-6" />}
-                title="Окупается за 6-12 месяцев"
-                description="74% компаний вернули инвестиции в первый год"
-              />
-              
-              <BenefitRow
-                icon={<Check className="w-6 h-6" />}
-                title="Интеграция с любыми системами"
-                description="CRM, ERP, мессенджеры, соцсети"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Final CTA - Apple style minimalism */}
-        <section className="px-6 py-20">
-          <div className="mx-auto text-center">
-            <h2 className="text-3xl sm:text-4xl font-semibold text-white mb-6">
-              Начните сегодня
-            </h2>
-            
-            <p className="text-lg text-gray-400 mb-12">
-              Присоединяйтесь к 85% компаний, которые уже внедрили ИИ
+            <p 
+              className="mb-8"
+              style={{
+                fontSize: '17px',
+                lineHeight: '1.47',
+                color: 'rgba(255, 255, 255, 0.7)',
+                letterSpacing: '-0.01em'
+              }}
+            >
+              Присоединяйтесь к 85% компаний,
+              <br />
+              которые уже внедрили ИИ
             </p>
             
             <button
               onClick={handleNavigateConstructor}
-              className="group px-10 py-5 bg-blue-600 hover:bg-blue-700 text-white text-lg font-medium rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] inline-flex items-center gap-3"
+              className="button-apple w-full py-3.5 bg-[#0071E3] text-white font-semibold rounded-full transition-all duration-200 active:scale-[0.97]"
+              style={{
+                fontSize: '17px',
+                letterSpacing: '-0.02em',
+                boxShadow: '0 2px 8px rgba(0, 113, 227, 0.3)'
+              }}
               data-testid="button-start-cta"
             >
               Запустить ИИ агента
-              <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
             </button>
             
-            <p className="text-sm text-gray-600 mt-8">
-              7 дней бесплатно · Без кредитной карты · Настройка за 10 минут
+            <p 
+              className="mt-4"
+              style={{
+                fontSize: '13px',
+                color: 'rgba(255, 255, 255, 0.5)',
+                letterSpacing: '-0.01em'
+              }}
+            >
+              7 дней бесплатно · Без кредитной карты
             </p>
           </div>
         </section>
@@ -258,63 +286,129 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
 
 AIAgentPage.displayName = 'AIAgentPage';
 
-// Feature Card Component
-const FeatureCard = memo(({ 
-  icon, 
-  title, 
-  description, 
-  gradient, 
-  iconColor 
-}: { 
-  icon: React.ReactNode; 
-  title: string; 
-  description: string; 
-  gradient: string;
-  iconColor: string;
-}) => (
-  <div 
-    className="group relative p-6 rounded-3xl transition-all duration-300 hover:scale-[1.02] cursor-default"
-    style={{
-      background: 'rgba(20, 20, 20, 0.5)',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      boxShadow: '0 2px 12px rgba(0, 0, 0, 0.3)'
-    }}
-  >
-    <div className={`${iconColor} mb-4`}>
-      {icon}
+// Stat Row Component - Apple numbers
+const StatRow = memo(({ number, label }: { number: string; label: string }) => (
+  <div className="text-center">
+    <div 
+      style={{
+        fontSize: '48px',
+        fontWeight: 700,
+        letterSpacing: '-0.04em',
+        color: '#FFFFFF',
+        lineHeight: '1',
+        marginBottom: '8px'
+      }}
+    >
+      {number}
     </div>
-    <h3 className="text-lg font-semibold text-white mb-2">
-      {title}
-    </h3>
-    <p className="text-base text-gray-400 leading-relaxed">
-      {description}
+    <p 
+      style={{
+        fontSize: '15px',
+        lineHeight: '1.4',
+        color: 'rgba(255, 255, 255, 0.6)',
+        letterSpacing: '-0.01em'
+      }}
+    >
+      {label}
     </p>
   </div>
 ));
-FeatureCard.displayName = 'FeatureCard';
+StatRow.displayName = 'StatRow';
 
-// Benefit Row Component
-const BenefitRow = memo(({ 
+// Feature Card - iOS style
+const FeatureCard = memo(({ 
   icon, 
   title, 
-  description 
+  description,
+  accentColor,
+  iconColor
 }: { 
   icon: React.ReactNode; 
   title: string; 
   description: string;
+  accentColor: string;
+  iconColor: string;
 }) => (
-  <div className="flex items-start gap-4 p-5 rounded-2xl hover:bg-gray-900/50 transition-colors">
-    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-900/30 flex items-center justify-center text-blue-400">
-      {icon}
+  <div 
+    className="interactive-smooth rounded-[20px] p-5 active:scale-[0.98]"
+    style={{
+      background: 'rgba(255, 255, 255, 0.05)',
+      backdropFilter: 'blur(20px)',
+      border: '0.5px solid rgba(255, 255, 255, 0.1)',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+      transition: 'all 0.2s cubic-bezier(0.42, 0, 0.58, 1)'
+    }}
+  >
+    <div className="flex items-start gap-4">
+      <div 
+        className="flex-shrink-0 flex items-center justify-center rounded-full"
+        style={{
+          width: '40px',
+          height: '40px',
+          background: accentColor,
+          color: iconColor
+        }}
+      >
+        {icon}
+      </div>
+      <div className="flex-1 pt-1">
+        <h3 
+          style={{
+            fontSize: '17px',
+            fontWeight: 600,
+            letterSpacing: '-0.02em',
+            color: '#FFFFFF',
+            marginBottom: '2px'
+          }}
+        >
+          {title}
+        </h3>
+        <p 
+          style={{
+            fontSize: '15px',
+            lineHeight: '1.4',
+            color: 'rgba(255, 255, 255, 0.6)',
+            letterSpacing: '-0.01em'
+          }}
+        >
+          {description}
+        </p>
+      </div>
     </div>
-    <div className="flex-1">
-      <h4 className="text-base font-semibold text-white mb-1">
-        {title}
-      </h4>
-      <p className="text-sm text-gray-400">
-        {description}
-      </p>
+  </div>
+));
+FeatureCard.displayName = 'FeatureCard';
+
+// Benefit Row - Simple Apple list
+const BenefitRow = memo(({ text }: { text: string }) => (
+  <div 
+    className="flex items-center gap-3 py-3 px-4 rounded-[16px] interactive-smooth active:scale-[0.98]"
+    style={{
+      background: 'rgba(255, 255, 255, 0.03)',
+      border: '0.5px solid rgba(255, 255, 255, 0.08)'
+    }}
+  >
+    <div 
+      className="flex-shrink-0 flex items-center justify-center rounded-full"
+      style={{
+        width: '24px',
+        height: '24px',
+        background: 'rgba(52, 199, 89, 0.2)',
+        color: '#34C759'
+      }}
+    >
+      <Check className="w-4 h-4" />
     </div>
+    <p 
+      style={{
+        fontSize: '15px',
+        lineHeight: '1.4',
+        color: 'rgba(255, 255, 255, 0.85)',
+        letterSpacing: '-0.01em'
+      }}
+    >
+      {text}
+    </p>
   </div>
 ));
 BenefitRow.displayName = 'BenefitRow';
