@@ -34,7 +34,7 @@ async function sendAndPinMessage() {
           inline_keyboard: [[
             {
               text: '📱 Открыть приложение',
-              web_app: { url: APP_URL }
+              url: APP_URL
             }
           ]]
         }
