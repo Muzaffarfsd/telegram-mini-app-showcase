@@ -66,25 +66,15 @@
     /* Full screen layout - CRITICAL for Telegram */
     html, body {
       width: 100%;
-      height: 100%;
       min-height: 100vh;
       min-height: 100dvh;
       overflow-x: hidden;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
     }
     
     #root {
       width: 100%;
-      height: 100%;
       min-height: 100vh;
       min-height: 100dvh;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
     }
   </style>
   
@@ -128,20 +118,6 @@
       setTimeout(() => tg.expand(), 100);
       setTimeout(() => tg.expand(), 300);
       setTimeout(() => tg.expand(), 500);
-      
-      // Set full viewport height
-      if (tg.viewportHeight) {
-        document.documentElement.style.height = tg.viewportHeight + 'px';
-        document.body.style.height = tg.viewportHeight + 'px';
-      }
-      
-      // Listen for viewport changes
-      tg.onEvent('viewportChanged', function() {
-        if (tg.viewportHeight) {
-          document.documentElement.style.height = tg.viewportHeight + 'px';
-          document.body.style.height = tg.viewportHeight + 'px';
-        }
-      });
     }
   </script>
   
@@ -157,6 +133,27 @@
   <!-- Service Worker cleanup disabled - was causing infinite reload loops on Railway production -->
   <script>
     console.log('[Info] Service Worker cleanup disabled for stable production deployment');
+  </script>
+  
+  <!-- CRITICAL: Set viewport height after DOM loaded -->
+  <script>
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      
+      // Set full viewport height after DOM is ready
+      function setViewportHeight() {
+        if (tg.viewportHeight) {
+          document.documentElement.style.height = tg.viewportHeight + 'px';
+          document.body.style.height = tg.viewportHeight + 'px';
+        }
+      }
+      
+      // Set immediately
+      setViewportHeight();
+      
+      // Update on viewport changes
+      tg.onEvent('viewportChanged', setViewportHeight);
+    }
   </script>
 </body>
 </html>
