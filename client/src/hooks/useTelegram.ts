@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ensureTelegramPolyfill } from '../lib/telegram';
 
 // Telegram WebApp SDK types (complete as per official documentation + 2025 features)
 interface SafeAreaInset {
@@ -177,6 +178,9 @@ export function useTelegram() {
 
   useEffect(() => {
     if (window.Telegram?.WebApp) {
+      // CRITICAL: Apply polyfill FIRST before using any methods
+      ensureTelegramPolyfill();
+      
       const tg = window.Telegram.WebApp;
       setWebApp(tg);
       setUser(tg.initDataUnsafe.user || null);

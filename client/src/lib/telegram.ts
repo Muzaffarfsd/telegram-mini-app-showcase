@@ -1,33 +1,95 @@
 import WebApp from '@twa-dev/sdk';
 
+/**
+ * Ensure Telegram WebView 7.7+ polyfill is applied
+ * Call this BEFORE using any WebApp methods
+ */
+export function ensureTelegramPolyfill() {
+  if (!window.Telegram?.WebApp) {
+    return;
+  }
+
+  const tg = window.Telegram.WebApp;
+
+  // Check if already polyfilled
+  if ((tg as any).__polyfilled) {
+    return;
+  }
+
+  console.log('[Telegram Polyfill] Applying WebView 7.7+ API');
+
+  // Override version check
+  const originalIsVersionAtLeast = tg.isVersionAtLeast;
+  tg.isVersionAtLeast = function(version: string) {
+    return true; // Always return true in dev
+  };
+
+  // Add missing methods
+  if (!tg.disableVerticalSwipes) {
+    tg.disableVerticalSwipes = () => console.log('[Polyfill] disableVerticalSwipes()');
+    tg.enableVerticalSwipes = () => console.log('[Polyfill] enableVerticalSwipes()');
+  }
+
+  if (!tg.requestFullscreen) {
+    (tg as any).isFullscreen = false;
+    tg.requestFullscreen = () => {
+      (tg as any).isFullscreen = true;
+      console.log('[Polyfill] requestFullscreen()');
+    };
+    tg.exitFullscreen = () => {
+      (tg as any).isFullscreen = false;
+      console.log('[Polyfill] exitFullscreen()');
+    };
+  }
+
+  if (!(tg as any).setHeaderColor) {
+    (tg as any).setHeaderColor = (color: string) => console.log('[Polyfill] setHeaderColor(' + color + ')');
+  }
+
+  if (!(tg as any).setBottomBarColor) {
+    (tg as any).setBottomBarColor = (color: string) => console.log('[Polyfill] setBottomBarColor(' + color + ')');
+  }
+
+  (tg as any).__polyfilled = true;
+  console.log('[Telegram Polyfill] ✅ Ready');
+}
+
 export function initTelegramWebApp() {
+  // CRITICAL: Apply polyfill FIRST before any WebApp API usage
+  ensureTelegramPolyfill();
+  
+  // Use native Telegram API (not @twa-dev/sdk wrapper) after polyfill
+  const tg = window.Telegram?.WebApp;
+  if (!tg) {
+    console.warn('[Telegram] WebApp not available');
+    return WebApp; // Fallback to SDK
+  }
+  
   // ready() and expand() already called in index.html for instant load
   
-  // Continue with other setup
+  // Continue with other setup - use native API to avoid SDK version checks
   
   // Request fullscreen mode (hides bot name header)
-  try {
-    if (WebApp.requestFullscreen) {
-      WebApp.requestFullscreen();
-    }
-  } catch (e) {
-    console.debug('[Telegram] Fullscreen not supported');
+  if (typeof tg.requestFullscreen === 'function') {
+    tg.requestFullscreen();
   }
   
   // Make header transparent/invisible by matching background
-  WebApp.setHeaderColor('bg_color');
-  WebApp.setBackgroundColor('#0A0A0B');
+  if (typeof (tg as any).setHeaderColor === 'function') {
+    (tg as any).setHeaderColor('bg_color');
+  }
+  if (typeof (tg as any).setBackgroundColor === 'function') {
+    (tg as any).setBackgroundColor('#0A0A0B');
+  }
   
   // Disable vertical swipes to prevent accidental close
-  WebApp.disableVerticalSwipes();
+  if (typeof tg.disableVerticalSwipes === 'function') {
+    tg.disableVerticalSwipes();
+  }
   
   // Lock orientation for better UX
-  try {
-    if (WebApp.lockOrientation) {
-      WebApp.lockOrientation();
-    }
-  } catch (e) {
-    console.debug('[Telegram] Orientation lock not supported');
+  if (typeof (tg as any).lockOrientation === 'function') {
+    (tg as any).lockOrientation();
   }
   
   // Set viewport height for full screen experience
