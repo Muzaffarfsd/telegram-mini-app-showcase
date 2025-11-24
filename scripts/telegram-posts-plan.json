@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "image": "attached_assets/generated_images/premium_iphone_telegram_app.png",
+    "text": "Ваш сайт.\nМёртв.\n\nБудущее в Telegram.\n\nМы строим его.",
+    "style": "Apple минимализм - провокация + решение"
+  },
+  {
+    "id": 2,
+    "image": "attached_assets/generated_images/before_after_business_solution.png",
+    "text": "Было: 5 сотрудников.\nСтало: 1 приложение.\n\nРазработка: 14 дней.\nЭкономия: навсегда.",
+    "style": "До/после - конкретные цифры"
+  },
+  {
+    "id": 3,
+    "image": "attached_assets/generated_images/14_days_timeline_infographic.png",
+    "text": "14 дней.\n\nОт идеи до запуска.\n\nБез компромиссов в качестве.",
+    "style": "Один факт - Apple стиль"
+  },
+  {
+    "id": 4,
+    "image": "attached_assets/generated_images/developer_workspace_behind_scenes.png",
+    "text": "Каждая строка кода.\nКаждый пиксель.\nИдеально.\n\nПотому что ваш бизнес это заслужил.",
+    "style": "За кадром - эмоциональная связь"
+  },
+  {
+    "id": 5,
+    "image": "attached_assets/generated_images/client_testimonial_revenue_growth.png",
+    "text": "\"Запустили за 2 недели.\nВыручка +280% за месяц.\"\n\n— Андрей, владелец салона красоты",
+    "style": "Реальный кейс - социальное доказательство"
+  },
+  {
+    "id": 6,
+    "image": "attached_assets/generated_images/cost_savings_statistics_visual.png",
+    "text": "$47,000.\n\nЭкономия на зарплатах.\nВ первый же год.\n\nОдно приложение заменило отдел.",
+    "style": "Шокирующая цифра - ROI фокус"
+  },
+  {
+    "id": 7,
+    "image": "attached_assets/generated_images/telegram_app_3d_product_shot.png",
+    "text": "Не просто приложение.\nПремиальный инструмент для роста.\n\nКаждая деталь продумана.",
+    "style": "Продукт как искусство - Apple подход"
+  },
+  {
+    "id": 8,
+    "image": "attached_assets/generated_images/provocative_industry_challenge_poster.png",
+    "text": "Ваш сайт умер в 2020.\n\nДобро пожаловать в эру Telegram.\n\n920 млн активных пользователей ждут.",
+    "style": "Провокация - стиль Air (Dropbox needs botox)"
+  },
+  {
+    "id": 9,
+    "image": "attached_assets/generated_images/brand_manifesto_typography.png",
+    "text": "Premium.\nFast.\nProfitable.\n\nТри слова.\nОдин стандарт.",
+    "style": "Манифест - Tesla дерзость"
+  },
+  {
+    "id": 10,
+    "image": "attached_assets/generated_images/entrepreneur_using_app_lifestyle.png",
+    "text": "Управляйте бизнесом из кармана.\n\n24/7. Автоматизация. Аналитика.\n\nВсё в одном месте.",
+    "style": "Lifestyle - эмоциональная выгода"
+  }
+]
