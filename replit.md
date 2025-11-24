@@ -52,12 +52,26 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Performance**: Optimized chunk splitting with React in main vendor bundle for proper load order
 - **URL**: https://w4tg.up.railway.app
 
-### Migration Notes (Nov 2024)
-Successfully migrated from Replit Agent environment to Railway production. Key learnings documented in RAILWAY_DEPLOYMENT.md including:
-- Proper Vite chunk configuration to prevent React loading order issues
-- Railpack SPA auto-detection setup
-- Health check configuration
-- Avoiding common pitfalls with manual modulepreload and chunk splitting
+### Migration Notes & Performance Fixes (Nov 2024)
+Successfully migrated from Replit Agent environment to Railway production with critical performance optimizations:
+
+**Critical Vite Chunk Splitting Fix:**
+- Problem: "Cannot read properties of undefined (reading 'useState')" crash on Railway production
+- Cause: React-dependent libraries (zustand, @uppy/react, swiper, cmdk) were in `utils-vendor` chunk that loaded BEFORE `vendor` chunk containing React
+- Solution: Explicitly whitelist all React-dependent libraries to load in `vendor` chunk, use whitelist-only approach for `utils-vendor` (date-fns, zod, clsx only)
+- Result: FCP improved from 22s to 3-4s, zero initialization errors
+
+**Railway SPA Deployment:**
+- Removed `"start"` script from package.json to trigger Caddy SPA auto-detection
+- Added `RAILPACK_SPA_OUTPUT_DIR=dist` environment variable
+- Configured `railway.json` with RAILPACK builder and healthcheck
+- Result: Automatic static file serving with proper SPA routing
+
+**Key Learnings:**
+- Never use catch-all `return 'utils-vendor'` in manualChunks - causes initialization order issues
+- All React ecosystem libraries MUST be in vendor chunk or loaded after it
+- Railway auto-deploys on push when properly configured
+- Clear build cache if seeing old version after successful deploy
 
 # External Dependencies
 
