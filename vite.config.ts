@@ -10,17 +10,6 @@ export default defineConfig({
     react({
       jsxRuntime: 'automatic',
     }),
-    ...(process.env.NODE_ENV !== "production" &&
-    process.env.REPL_ID !== undefined
-      ? [
-          await import("@replit/vite-plugin-runtime-error-modal").then((m) =>
-            m.default(),
-          ),
-          await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer(),
-          ),
-        ]
-      : []),
     
     // Brotli compression
     compression({
@@ -162,7 +151,7 @@ export default defineConfig({
     strictPort: true,
     hmr: {
       clientPort: 443,
-      overlay: true
+      overlay: false
     },
     allowedHosts: true,
     fs: {
