@@ -1,9 +1,10 @@
 import { useState, Suspense, memo } from "react";
-import { ArrowLeft, Share2, Home, Grid3X3, ShoppingCart, User } from "lucide-react";
+import { ArrowLeft, Share2, Home, Grid3X3, ShoppingCart, User, Maximize2, Minimize2 } from "lucide-react";
 import { demoApps } from "../data/demoApps";
 import { useTelegram } from "../hooks/useTelegram";
 import { getDemoComponent, isDemoAvailable } from "./demos/DemoRegistry";
 import { LiquidHomeButton } from "./ui/liquid-home-button";
+import { Button } from "./ui/button";
 
 interface DemoAppShellProps {
   demoId: string;
@@ -21,7 +22,7 @@ const navItems: { id: TabType; icon: any; label: string }[] = [
 
 const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShellProps) {
   const [activeTab, setActiveTab] = useState<TabType>('home');
-  const { hapticFeedback } = useTelegram();
+  const { hapticFeedback, fullscreen } = useTelegram();
   
   // Extract base app type from ID to support variants (e.g., 'clothing-store-2' → 'clothing-store')
   const getBaseAppType = (id: string): string => {
@@ -63,6 +64,18 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     window.location.hash = '#/';
     if (hapticFeedback?.medium) {
       hapticFeedback.medium();
+    }
+  };
+  
+  // FULLSCREEN MODE: Toggle fullscreen for immersive experience
+  const handleToggleFullscreen = () => {
+    if (fullscreen?.isActive) {
+      fullscreen.exit();
+    } else {
+      fullscreen?.request();
+    }
+    if (hapticFeedback?.light) {
+      hapticFeedback.light();
     }
   };
 
@@ -173,15 +186,33 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
           {renderDemoContent()}
         </div>
 
-        {/* Sticky Home Button - positioned within container */}
+        {/* Sticky Action Buttons - Home & Fullscreen */}
         <div 
-          className="sticky right-5 z-50 pointer-events-none"
+          className="sticky right-5 z-50 pointer-events-none flex flex-col gap-3"
           style={{
             bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
             marginLeft: 'auto',
             width: 'fit-content'
           }}
         >
+          {/* Fullscreen Toggle Button */}
+          <div className="pointer-events-auto">
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={handleToggleFullscreen}
+              className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-xl border-white/20 hover:bg-white/20 transition-all shadow-lg"
+              data-testid="button-fullscreen-toggle"
+            >
+              {fullscreen?.isActive ? (
+                <Minimize2 className="w-5 h-5 text-white" />
+              ) : (
+                <Maximize2 className="w-5 h-5 text-white" />
+              )}
+            </Button>
+          </div>
+          
+          {/* Home Button */}
           <div className="pointer-events-auto">
             <LiquidHomeButton onNavigateHome={handleNavigateHome} />
           </div>

@@ -51,26 +51,33 @@ const Perspective3DContainer: React.FC<{ children: React.ReactNode; className?: 
 
 // Enhanced 3D Card Animation Wrapper with Glassmorphism (2025 Trend)
 // NOTE: Must be used inside Perspective3DContainer for 3D effects
+// ADAPTIVE: Performance-aware - disables heavy effects on low-end devices
 const Glass3DCard: React.FC<{ 
   children: React.ReactNode; 
   onClick?: () => void;
   delay?: number;
   accentColor?: string;
-}> = ({ children, onClick, delay = 0, accentColor = 'var(--tg-theme-accent, #00ffff)' }) => {
+  devicePerformance?: 'low' | 'medium' | 'high';
+}> = ({ children, onClick, delay = 0, accentColor = 'var(--tg-theme-accent, #00ffff)', devicePerformance = 'high' }) => {
+  
+  // ADAPTIVE QUALITY: Reduce effects on low/medium devices
+  const isLowPerformance = devicePerformance === 'low';
+  const isMediumPerformance = devicePerformance === 'medium';
+  
   return (
     <m.div
-      initial={{ opacity: 0, y: 20, rotateX: -10 }}
+      initial={isLowPerformance ? { opacity: 0 } : { opacity: 0, y: 20, rotateX: -10 }}
       animate={{ opacity: 1, y: 0, rotateX: 0 }}
       transition={{ 
-        duration: 0.5, 
-        delay,
+        duration: isLowPerformance ? 0.2 : 0.5, 
+        delay: isLowPerformance ? 0 : delay,
         ease: [0.25, 0.1, 0.25, 1]
       }}
-      whileHover={{ 
-        scale: 1.03,
-        rotateY: 5,
-        rotateX: 5,
-        z: 50,
+      whileHover={isLowPerformance ? { scale: 1.01 } : { 
+        scale: isMediumPerformance ? 1.02 : 1.03,
+        rotateY: isMediumPerformance ? 0 : 5,
+        rotateX: isMediumPerformance ? 0 : 5,
+        z: isMediumPerformance ? 0 : 50,
         transition: { 
           type: "spring", 
           stiffness: 300,
@@ -79,19 +86,21 @@ const Glass3DCard: React.FC<{
       }}
       whileTap={{ scale: 0.98 }}
       style={{
-        transformStyle: 'preserve-3d'
+        transformStyle: isLowPerformance ? 'flat' : 'preserve-3d'
       }}
       className="flex group relative cursor-pointer h-full w-full"
       onClick={onClick}
     >
-      {/* Neon glow effect on hover */}
-      <div 
-        className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
-        style={{
-          background: `radial-gradient(circle at center, ${accentColor}40 0%, transparent 70%)`,
-          zIndex: -1
-        }}
-      />
+      {/* Neon glow effect on hover - disabled on low performance */}
+      {!isLowPerformance && (
+        <div 
+          className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
+          style={{
+            background: `radial-gradient(circle at center, ${accentColor}40 0%, transparent 70%)`,
+            zIndex: -1
+          }}
+        />
+      )}
       {children}
     </m.div>
   );
@@ -480,10 +489,21 @@ const AIAssistantCardPreview = memo(() => (
 ));
 
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
-  const { hapticFeedback, isDark, colorScheme } = useTelegram();
+  const { hapticFeedback, isDark, colorScheme, devicePerformance } = useTelegram();
   const haptic = useHaptic();
   const trackInteraction = useTrackInteraction();
   const [showDecorations, setShowDecorations] = useState(false);
+  
+  // ADAPTIVE QUALITY: Detect device performance for adaptive effects
+  const isLowPerformance = devicePerformance === 'low';
+  const isMediumPerformance = devicePerformance === 'medium';
+  
+  // ADAPTIVE QUALITY: Reduce animation delays on low-end devices
+  const animationConfig = useMemo(() => ({
+    duration: isLowPerformance ? 0.2 : 0.5,
+    delay: isLowPerformance ? 0 : 0.1,
+    stagger: isLowPerformance ? 0 : 0.05,
+  }), [isLowPerformance]);
   
   // Обработчик с haptic feedback для открытия демо
   const handleOpenDemo = useCallback((demoId: string) => {
