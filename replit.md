@@ -20,9 +20,9 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Navigation**: Ultra-minimal glassmorphic bottom navigation.
 - **Technical Implementations**: Custom hooks, `ErrorBoundary`, performance optimizations (`React.memo`, `useMemo`, `useCallback`), `OptimizedImage`, `ModernAnimatedIcons`, and vertical stack card layouts.
 - **Page Transitions**: None (removed for instant navigation - PageTransition, MotionBox, and MotionStagger components return plain div wrappers without animations).
-- **Viewport Configuration**: Dual-mode viewport system - responsive `width=device-width` for Replit/browsers, automatically switches to fixed `width=1200` ONLY in Telegram WebApp via JavaScript detection (`window.Telegram.WebApp.initData`).
+- **Viewport Configuration**: Responsive `width=device-width` viewport for all platforms including Telegram WebApp - ensures correct display on all devices (mobile and desktop).
 - **Video Optimization**: Smart lazy loading with `useVideoLazyLoad` hook - videos automatically pause/play based on visibility (IntersectionObserver), preload="none" for minimal initial load (videos load only when needed), canplay event listener for reliable playback control. Component prefetching implemented via `preloadDemo()` function - demo components preload on hover/touch for instant transitions.
-- **Layout Philosophy**: Mobile-first responsive design with Tailwind breakpoints (sm:, md:). In Telegram, JavaScript automatically sets viewport to 1200px, triggering desktop layout via existing breakpoints.
+- **Layout Philosophy**: Mobile-first responsive design with Tailwind breakpoints (sm:, md:, lg:, xl:). Layout automatically adapts based on device screen size.
 - **Performance Metrics**: First Contentful Paint (FCP) ~1200-2244ms through component memoization, lazy loading, and optimized video playback control.
 - **Advanced Interactions**: Voice UI (`VoiceSearch`), WebGL Particle Background, 3D Parallax Cards, Liquid Button Effects, Pull-to-Refresh.
 - **AI Personalization System**: `AIAssistant` (context-aware chat), `PersonalizedRecommendations` (ML-based engine), `useAIRecommendations` (behavior tracking).
