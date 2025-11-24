@@ -97,12 +97,23 @@ const applyTelegramTheme = (tg: TelegramWebApp) => {
 };
 
 // Helper to apply safe area padding dynamically (2025 API)
+// Uses CSS variables for better performance and flexibility
 const applySafeAreaPadding = (inset: SafeAreaInset) => {
+  const root = document.documentElement;
+  
+  // Set CSS variables for safe area (can be used anywhere in CSS)
+  root.style.setProperty('--tg-safe-area-top', `${inset.top}px`);
+  root.style.setProperty('--tg-safe-area-bottom', `${inset.bottom}px`);
+  root.style.setProperty('--tg-safe-area-left', `${inset.left}px`);
+  root.style.setProperty('--tg-safe-area-right', `${inset.right}px`);
+  
+  // Apply to body for backwards compatibility
   const body = document.body;
   body.style.paddingTop = `${inset.top}px`;
   body.style.paddingBottom = `${inset.bottom}px`;
   body.style.paddingLeft = `${inset.left}px`;
   body.style.paddingRight = `${inset.right}px`;
+  
   console.log('[2025 API] Applied safe area padding:', inset);
 };
 
@@ -116,12 +127,47 @@ const resetSafeAreaPadding = () => {
   console.log('[2025 API] Reset safe area padding');
 };
 
+// Helper to apply viewport height CSS variables
+const applyViewportVariables = (tg: TelegramWebApp) => {
+  const root = document.documentElement;
+  
+  // @ts-ignore - These properties exist on TelegramWebApp
+  const viewportHeight = tg.viewportHeight || window.innerHeight;
+  // @ts-ignore
+  const viewportStableHeight = tg.viewportStableHeight || window.innerHeight;
+  
+  root.style.setProperty('--tg-viewport-height', `${viewportHeight}px`);
+  root.style.setProperty('--tg-viewport-stable-height', `${viewportStableHeight}px`);
+  
+  // Also set to CSS viewport units for better compatibility
+  root.style.setProperty('--vh', `${viewportHeight * 0.01}px`);
+};
+
+// Helper to detect device performance (for adaptive quality)
+const detectDevicePerformance = (tg: TelegramWebApp): 'low' | 'medium' | 'high' => {
+  // @ts-ignore
+  const platform = tg.platform || 'unknown';
+  
+  // Check if mobile
+  const isMobile = /android|ios|iphone|ipad/i.test(platform);
+  
+  // Basic performance detection based on hardware concurrency
+  const cores = navigator.hardwareConcurrency || 2;
+  const memory = (navigator as any).deviceMemory || 4; // GB
+  
+  if (!isMobile) return 'high'; // Desktop is always high
+  if (cores >= 8 && memory >= 6) return 'high';
+  if (cores >= 4 && memory >= 4) return 'medium';
+  return 'low';
+};
+
 export function useTelegram() {
   const [webApp, setWebApp] = useState<TelegramWebApp | null>(null);
   const [user, setUser] = useState<any>(null);
   const [initData, setInitData] = useState<string>('');
   const [colorScheme, setColorScheme] = useState<'light' | 'dark'>('dark');
   const [themeParams, setThemeParams] = useState<TelegramWebApp['themeParams']>({});
+  const [devicePerformance, setDevicePerformance] = useState<'low' | 'medium' | 'high'>('medium');
   
   // 2025 Features State
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
@@ -140,6 +186,14 @@ export function useTelegram() {
       
       // Apply theme on initial load
       applyTelegramTheme(tg);
+      
+      // CRITICAL: Apply viewport height CSS variables
+      applyViewportVariables(tg);
+      
+      // CRITICAL: Detect device performance for adaptive quality
+      const performance = detectDevicePerformance(tg);
+      setDevicePerformance(performance);
+      console.log('[Performance] Device class:', performance);
       
       // Initialize fullscreen state (2025)
       if (typeof tg.isFullscreen !== 'undefined') {
@@ -200,6 +254,8 @@ export function useTelegram() {
         if (tg.contentSafeAreaInset) {
           setContentSafeArea(tg.contentSafeAreaInset);
         }
+        // Update viewport height variables on viewport change
+        applyViewportVariables(tg);
         console.log('[2025 API] Viewport Changed');
       };
       
@@ -297,5 +353,8 @@ export function useTelegram() {
     homeScreen,
     safeArea,
     contentSafeArea,
+    
+    // Performance Optimization
+    devicePerformance, // 'low' | 'medium' | 'high' for adaptive quality
   };
 }
