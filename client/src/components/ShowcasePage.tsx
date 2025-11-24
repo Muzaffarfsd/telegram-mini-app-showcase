@@ -410,6 +410,7 @@ const DemoCard = memo<{
         <img 
           src={imageSrc} 
           alt={title}
+          loading="lazy"
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
@@ -665,6 +666,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   <img
                     src={rascalImage}
                     alt="Rascal"
+                    loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a2e2a]/70 via-[#1a2e2a]/20 to-transparent" />
@@ -687,6 +689,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   <img
                     src={nikeDestinyImage}
                     alt="STORE"
+                    loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
@@ -709,6 +712,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   <img
                     src={nikeGreenImage}
                     alt="lab. SURVIVALIST"
+                    loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
@@ -731,6 +735,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   <img
                     src={nikeAcgImage}
                     alt="Nike ACG"
+                    loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />

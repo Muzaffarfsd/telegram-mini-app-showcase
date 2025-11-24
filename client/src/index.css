@@ -22,13 +22,6 @@
 @tailwind utilities;
 
 /* === PERFORMANCE OPTIMIZATIONS FOR TELEGRAM === */
-* {
-  /* Hardware acceleration for smooth scrolling */
-  -webkit-transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  -webkit-perspective: 1000;
-}
-
 html {
   /* Smooth scrolling with momentum (iOS-like) */
   scroll-behavior: smooth;
