@@ -6,6 +6,9 @@ interface ProjectsPageProps {
 }
 
 export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
+  // Показываем только топ-11 самых популярных приложений
+  const topApps = demoApps.slice(0, 11);
+
   return (
     <div className="min-h-screen bg-black text-white pb-24">
       <div className="max-w-md mx-auto p-4">
@@ -15,12 +18,12 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             Витрина
           </h1>
           <p className="text-white/60 text-sm">
-            {demoApps.length} готовых приложений
+            11 готовых приложений
           </p>
         </div>
 
         <div className="space-y-3">
-          {demoApps.map((app) => (
+          {topApps.map((app) => (
             <div
               key={app.id}
               onClick={() => onOpenDemo(app.id)}
