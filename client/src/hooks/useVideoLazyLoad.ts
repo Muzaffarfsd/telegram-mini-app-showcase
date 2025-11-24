@@ -1,45 +1,71 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 export function useVideoLazyLoad() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isReady, setIsReady] = useState(false);
+  const loadedRef = useRef(false);
+  const isIntersectingRef = useRef(false);
+  const canplayHandlerRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Wait for video to be ready before playing
-    const handleCanPlay = () => {
-      setIsReady(true);
-    };
-
-    video.addEventListener('canplay', handleCanPlay);
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && isReady) {
-            video.play().catch(() => {
-              // Autoplay blocked, ignore
-            });
+          isIntersectingRef.current = entry.isIntersecting;
+          
+          if (entry.isIntersecting) {
+            // Start loading video if not already loaded
+            if (!loadedRef.current && video.readyState === 0) {
+              loadedRef.current = true;
+              video.load(); // Force load for preload="none" videos
+            }
+            
+            // Try to play when ready
+            if (video.readyState >= 2) {
+              video.play().catch(() => {
+                // Autoplay blocked, ignore
+              });
+            } else {
+              // Wait for canplay event if not ready yet
+              if (!canplayHandlerRef.current) {
+                canplayHandlerRef.current = () => {
+                  // Only play if still intersecting
+                  if (isIntersectingRef.current) {
+                    video.play().catch(() => {
+                      // Autoplay blocked, ignore
+                    });
+                  }
+                };
+                video.addEventListener('canplay', canplayHandlerRef.current, { once: true });
+              }
+            }
           } else {
+            // Remove pending canplay handler when leaving viewport
+            if (canplayHandlerRef.current) {
+              video.removeEventListener('canplay', canplayHandlerRef.current);
+              canplayHandlerRef.current = null;
+            }
             video.pause();
           }
         });
       },
       {
-        threshold: 0.5, // Play when 50% visible
-        rootMargin: '50px', // Start loading earlier
+        threshold: 0.1, // Play when 10% visible
+        rootMargin: '200px', // Start loading earlier
       }
     );
 
     observer.observe(video);
 
     return () => {
-      video.removeEventListener('canplay', handleCanPlay);
       observer.disconnect();
+      if (canplayHandlerRef.current) {
+        video.removeEventListener('canplay', canplayHandlerRef.current);
+      }
     };
-  }, [isReady]);
+  }, []);
 
   return videoRef;
 }
