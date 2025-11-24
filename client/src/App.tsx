@@ -100,12 +100,19 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       setRoute(parseHash());
+      // Scroll to top on every navigation
+      window.scrollTo(0, 0);
     };
     
     window.addEventListener('hashchange', handleHashChange);
     
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
+
+  // Scroll to top whenever route changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [route.component, route.params?.id]);
 
   // Navigation handlers - memoized for better performance with React.memo children
   const handleNavigate = useCallback((section: string, data?: any) => {
