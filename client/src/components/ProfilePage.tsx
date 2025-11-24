@@ -604,11 +604,19 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
               className="p-4 cursor-pointer hover:bg-white/5 transition-colors"
               onClick={() => {
                 if (homeScreen) {
-                  homeScreen.add();
-                  toast({
-                    title: "Добавление на главный экран",
-                    description: "Следуйте инструкциям браузера для добавления ярлыка приложения",
-                  });
+                  try {
+                    homeScreen.add();
+                    toast({
+                      title: "Добавление на главный экран",
+                      description: "Следуйте инструкциям браузера для добавления ярлыка приложения",
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "Функция недоступна",
+                      description: "Ваша версия Telegram не поддерживает эту функцию",
+                      variant: "destructive",
+                    });
+                  }
                 } else {
                   toast({
                     title: "Функция недоступна",

@@ -17,7 +17,8 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **State Management**: React Query for server state.
 - **Design System**: Responsive mobile-first design with desktop layout in Telegram (1200px viewport), minimalist aesthetics, full-screen layouts, and an 8px spacing grid.
 - **Structure**: Main App router, `ShowcasePage`, `DemoAppShell` for universal navigation, and individual Demo Components for business simulations.
-- **Navigation**: Ultra-minimal glassmorphic bottom navigation.
+- **Navigation**: Ultra-minimal glassmorphic bottom navigation with Telegram user avatar integration (`UserAvatar` component with photo_url support, initials fallback).
+- **Telegram Integration**: Home screen shortcut support (`homeScreen.add()` with error handling and toast notifications for unsupported versions).
 - **Technical Implementations**: Custom hooks, `ErrorBoundary`, performance optimizations (`React.memo`, `useMemo`, `useCallback`), `OptimizedImage`, `ModernAnimatedIcons`, and vertical stack card layouts.
 - **Page Transitions**: None (removed for instant navigation - PageTransition, MotionBox, and MotionStagger components return plain div wrappers without animations).
 - **Viewport Configuration**: Responsive `width=device-width` viewport for all platforms including Telegram WebApp - ensures correct display on all devices (mobile and desktop).
