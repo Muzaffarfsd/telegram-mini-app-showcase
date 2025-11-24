@@ -31,102 +31,91 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
     <div className="min-h-screen bg-[#000000] overflow-hidden">
       
       {/* ===============================================
-          HERO SECTION - Breathtaking intro
+          HERO - Full screen dramatic intro
           =============================================== */}
-      <section className="relative min-h-screen flex items-center justify-center px-6">
-        {/* Multi-layer parallax - Depth & atmosphere */}
+      <section className="relative min-h-screen flex items-center justify-center px-5">
+        {/* Parallax backgrounds - optimized for mobile */}
         <div 
-          className="absolute inset-0 opacity-28"
+          className="absolute inset-0 opacity-30"
           style={{
-            background: 'radial-gradient(ellipse 150% 100% at 50% -20%, rgba(59, 130, 246, 0.4) 0%, rgba(139, 92, 246, 0.3) 45%, transparent 100%)',
-            transform: `translateY(${scrollY * 0.5}px) scale(${1 + scrollY * 0.0008})`,
+            background: 'radial-gradient(ellipse 180% 100% at 50% -15%, rgba(59, 130, 246, 0.4) 0%, rgba(139, 92, 246, 0.35) 40%, transparent 100%)',
+            transform: `translateY(${scrollY * 0.5}px)`,
           }}
         />
         
         <div 
-          className="absolute inset-0 opacity-18"
+          className="absolute inset-0 opacity-20"
           style={{
-            background: 'radial-gradient(circle at 20% 85%, rgba(139, 92, 246, 0.35) 0%, transparent 55%), radial-gradient(circle at 80% 15%, rgba(59, 130, 246, 0.35) 0%, transparent 55%)',
-            transform: `translateY(${scrollY * 0.35}px)`,
-          }}
-        />
-
-        {/* Subtle grid overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)',
-            backgroundSize: '80px 80px',
-            transform: `translateY(${scrollY * 0.2}px)`,
+            background: 'radial-gradient(circle at 15% 90%, rgba(139, 92, 246, 0.4) 0%, transparent 50%), radial-gradient(circle at 85% 10%, rgba(59, 130, 246, 0.4) 0%, transparent 50%)',
+            transform: `translateY(${scrollY * 0.3}px)`,
           }}
         />
         
         <div className="relative z-10 text-center w-full">
-          {/* Badge - Minimalist perfection */}
-          <div className="flex justify-center mb-10">
+          {/* Badge */}
+          <div className="flex justify-center mb-8">
             <div 
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full backdrop-blur-3xl"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full backdrop-blur-3xl"
               style={{
-                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.18) 0%, rgba(59, 130, 246, 0.14) 100%)',
-                border: '1px solid rgba(139, 92, 246, 0.35)',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 10px 40px rgba(139, 92, 246, 0.25)'
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%)',
+                border: '1px solid rgba(139, 92, 246, 0.4)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 10px 40px rgba(139, 92, 246, 0.3)'
               }}
             >
               <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6]" strokeWidth={2.5} />
               <span 
                 style={{
-                  fontSize: '11px',
+                  fontSize: '10px',
                   fontWeight: 700,
                   background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  letterSpacing: '0.1em',
+                  letterSpacing: '0.12em',
                   textTransform: 'uppercase'
                 }}
               >
-                Новая эра поддержки
+                Новая эра
               </span>
             </div>
           </div>
 
-          {/* Headline - Pure drama */}
+          {/* Main headline - Mobile optimized */}
           <h1 
-            className="mb-3 px-4"
+            className="mb-4 px-3"
             style={{ 
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: 'clamp(56px, 16vw, 88px)',
+              fontSize: 'clamp(48px, 18vw, 72px)',
               fontWeight: 800,
               letterSpacing: '-0.07em',
-              lineHeight: '0.85',
-              background: 'linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 35%, rgba(255, 255, 255, 0.4) 100%)',
+              lineHeight: '0.88',
+              background: 'linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 30%, rgba(255, 255, 255, 0.35) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
             }}
           >
             ИИ агент
           </h1>
 
-          {/* Accent line - Visual break */}
-          <div className="flex justify-center mb-6">
+          {/* Gradient line */}
+          <div className="flex justify-center mb-5">
             <div 
-              className="h-1.5 w-24 rounded-full"
+              className="h-1.5 w-20 rounded-full"
               style={{
                 background: 'linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%)',
-                boxShadow: '0 0 24px rgba(139, 92, 246, 0.6), 0 0 48px rgba(59, 130, 246, 0.4)'
+                boxShadow: '0 0 20px rgba(139, 92, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.5)'
               }}
             />
           </div>
           
-          {/* Subheadline - Powerful simplicity */}
+          {/* Subheadline */}
           <p 
-            className="mb-4 px-6"
+            className="mb-3 px-5"
             style={{
-              fontSize: '24px',
-              lineHeight: '1.3',
+              fontSize: '21px',
+              lineHeight: '1.25',
               fontWeight: 600,
-              color: 'rgba(255, 255, 255, 0.8)',
-              letterSpacing: '-0.03em',
+              color: 'rgba(255, 255, 255, 0.82)',
+              letterSpacing: '-0.035em',
             }}
           >
             Работает.
@@ -134,12 +123,12 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
             Пока вы спите.
           </p>
           
-          {/* Value prop - Gradient emphasis */}
+          {/* Value prop */}
           <p 
-            className="mb-14 px-6"
+            className="mb-12 px-5"
             style={{
-              fontSize: '20px',
-              lineHeight: '1.4',
+              fontSize: '18px',
+              lineHeight: '1.35',
               fontWeight: 700,
               letterSpacing: '-0.025em',
               background: 'linear-gradient(90deg, #10B981 0%, #34D399 100%)',
@@ -150,32 +139,32 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
             Окупается за полгода
           </p>
           
-          {/* CTA - Clean & confident */}
-          <div className="flex flex-col items-center gap-4 px-6">
+          {/* CTA */}
+          <div className="flex flex-col items-center gap-3.5 px-5">
             <button
               onClick={handleNavigateProcess}
-              className="w-full max-w-xs group relative py-4.5 rounded-full font-semibold overflow-hidden active:scale-95"
+              className="w-full max-w-[280px] group relative py-4 rounded-full font-semibold active:scale-[0.96]"
               style={{
-                fontSize: '17px',
+                fontSize: '16px',
                 letterSpacing: '-0.015em',
                 background: '#FFFFFF',
                 color: '#000000',
-                boxShadow: '0 10px 40px rgba(255, 255, 255, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.12) inset',
-                transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+                boxShadow: '0 12px 48px rgba(255, 255, 255, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15) inset',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
               data-testid="button-start-trial"
             >
-              <span className="relative z-10 flex items-center justify-center gap-2.5">
+              <span className="relative z-10 flex items-center justify-center gap-2">
                 Попробовать
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5 duration-300" strokeWidth={2.5} />
+                <ArrowRight className="w-4.5 h-4.5 transition-transform group-hover:translate-x-1 duration-300" strokeWidth={2.5} />
               </span>
             </button>
             
             <p 
               style={{
-                fontSize: '13px',
-                color: 'rgba(255, 255, 255, 0.4)',
-                letterSpacing: '0.015em'
+                fontSize: '12px',
+                color: 'rgba(255, 255, 255, 0.38)',
+                letterSpacing: '0.02em'
               }}
             >
               Бесплатно 7 дней
@@ -183,39 +172,33 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           </div>
         </div>
 
-        {/* Scroll hint - Elegant guide */}
+        {/* Scroll indicator */}
         <div 
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
           style={{
             opacity: Math.max(0, 1 - scrollY / 400),
-            transition: 'opacity 0.3s ease'
           }}
         >
           <div 
-            className="w-1 h-14 rounded-full"
+            className="w-1 h-12 rounded-full"
             style={{
-              background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, transparent 100%)',
-              animation: 'bounce 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+              background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%)',
+              animation: 'bounce 2.5s ease-in-out infinite'
             }}
           />
         </div>
       </section>
 
       {/* ===============================================
-          STATS SECTION - Numbers that matter
+          STATS - Clean numbers
           =============================================== */}
-      <section 
-        className="relative py-28 px-6"
-        style={{
-          background: 'radial-gradient(ellipse 110% 50% at 50% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 100%)'
-        }}
-      >
-        <div className="max-w-sm mx-auto">
-          {/* Title - Editorial style */}
+      <section className="relative py-20 px-5">
+        <div className="max-w-xs mx-auto">
+          {/* Title */}
           <h2 
-            className="text-center mb-20"
+            className="text-center mb-16"
             style={{
-              fontSize: '42px',
+              fontSize: '36px',
               fontWeight: 700,
               letterSpacing: '-0.055em',
               color: '#FFFFFF',
@@ -225,8 +208,8 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
             В цифрах
           </h2>
 
-          {/* Stats - Bold statements */}
-          <div className="space-y-16">
+          {/* Stats */}
+          <div className="space-y-14">
             <StatCard
               number="192%"
               label="ROI за год"
@@ -250,14 +233,14 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
       </section>
 
       {/* ===============================================
-          FEATURES SECTION - What makes it great
+          FEATURES - One at a time
           =============================================== */}
-      <section className="py-28 px-6">
-        <div className="max-w-sm mx-auto">
+      <section className="py-20 px-5">
+        <div className="max-w-xs mx-auto">
           <h2 
-            className="text-center mb-5"
+            className="text-center mb-4"
             style={{
-              fontSize: '42px',
+              fontSize: '36px',
               fontWeight: 700,
               letterSpacing: '-0.055em',
               color: '#FFFFFF',
@@ -268,42 +251,42 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           </h2>
           
           <p 
-            className="text-center mb-20"
+            className="text-center mb-16"
             style={{
-              fontSize: '18px',
-              color: 'rgba(255, 255, 255, 0.5)',
+              fontSize: '16px',
+              color: 'rgba(255, 255, 255, 0.48)',
               letterSpacing: '-0.015em'
             }}
           >
             Всё для успеха
           </p>
 
-          <div className="space-y-12">
+          <div className="space-y-10">
             <FeatureBlock
-              icon={<Zap className="w-9 h-9" strokeWidth={2} />}
+              icon={<Zap className="w-8 h-8" strokeWidth={2} />}
               title="Мгновенный запуск"
-              description="10 минут — и готово. Интеграция с любыми системами."
+              description="10 минут — и готово"
               gradient="linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)"
             />
             
             <FeatureBlock
-              icon={<Shield className="w-9 h-9" strokeWidth={2} />}
-              title="Полная безопасность"
-              description="Шифрование данных. GDPR, ISO 27001."
+              icon={<Shield className="w-8 h-8" strokeWidth={2} />}
+              title="Безопасность"
+              description="Шифрование и GDPR"
               gradient="linear-gradient(135deg, #10B981 0%, #047857 100%)"
             />
             
             <FeatureBlock
-              icon={<Globe className="w-9 h-9" strokeWidth={2} />}
-              title="Говорит на 150+ языках"
-              description="Понимает клиента на его родном языке."
+              icon={<Globe className="w-8 h-8" strokeWidth={2} />}
+              title="150+ языков"
+              description="Понимает всех"
               gradient="linear-gradient(135deg, #F59E0B 0%, #D97706 100%)"
             />
             
             <FeatureBlock
-              icon={<Brain className="w-9 h-9" strokeWidth={2} />}
+              icon={<Brain className="w-8 h-8" strokeWidth={2} />}
               title="Учится сам"
-              description="Понимает контекст. Становится умнее с каждым днём."
+              description="Становится умнее"
               gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)"
             />
           </div>
@@ -311,19 +294,14 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
       </section>
 
       {/* ===============================================
-          WHY SECTION - Real benefits
+          WHY - Simple benefits
           =============================================== */}
-      <section 
-        className="py-28 px-6"
-        style={{
-          background: 'radial-gradient(ellipse 110% 50% at 50% 50%, rgba(59, 130, 246, 0.04) 0%, transparent 100%)'
-        }}
-      >
-        <div className="max-w-sm mx-auto">
+      <section className="py-20 px-5">
+        <div className="max-w-xs mx-auto">
           <h2 
-            className="text-center mb-20"
+            className="text-center mb-16"
             style={{
-              fontSize: '42px',
+              fontSize: '36px',
               fontWeight: 700,
               letterSpacing: '-0.055em',
               color: '#FFFFFF',
@@ -333,65 +311,65 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
             Почему мы
           </h2>
 
-          <div className="space-y-7">
+          <div className="space-y-6">
             <BenefitItem 
-              icon={<Clock className="w-6 h-6" strokeWidth={2.5} />}
+              icon={<Clock className="w-5.5 h-5.5" strokeWidth={2.5} />}
               text="Никогда не спит"
               subtext="24/7 без перерывов"
             />
             <BenefitItem 
-              icon={<Zap className="w-6 h-6" strokeWidth={2.5} />}
+              icon={<Zap className="w-5.5 h-5.5" strokeWidth={2.5} />}
               text="Отвечает мгновенно"
               subtext="Меньше 2 секунд"
             />
             <BenefitItem 
-              icon={<TrendingUp className="w-6 h-6" strokeWidth={2.5} />}
+              icon={<TrendingUp className="w-5.5 h-5.5" strokeWidth={2.5} />}
               text="Окупается быстро"
-              subtext="74% за первый год"
+              subtext="74% за год"
             />
           </div>
         </div>
       </section>
 
       {/* ===============================================
-          FINAL CTA - The moment of truth
+          FINAL CTA - Closer
           =============================================== */}
-      <section className="relative py-36 px-6 pb-40">
-        {/* Atmospheric background */}
+      <section className="relative py-28 px-5 pb-32">
+        {/* Background */}
         <div 
-          className="absolute inset-0 opacity-35"
+          className="absolute inset-0 opacity-40"
           style={{
-            background: 'radial-gradient(ellipse 120% 80% at 50% 50%, rgba(139, 92, 246, 0.28) 0%, transparent 85%)'
+            background: 'radial-gradient(ellipse 140% 80% at 50% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 90%)'
           }}
         />
 
-        {/* Floating orbs - Living atmosphere */}
+        {/* Animated orbs */}
         <div 
-          className="absolute top-1/4 left-1/4 w-40 h-40 rounded-full opacity-25"
+          className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full opacity-30"
           style={{
-            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.85) 0%, transparent 70%)',
-            filter: 'blur(60px)',
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.9) 0%, transparent 70%)',
+            filter: 'blur(50px)',
             animation: 'float 9s ease-in-out infinite'
           }}
         />
         <div 
-          className="absolute bottom-1/3 right-1/4 w-40 h-40 rounded-full opacity-25"
+          className="absolute bottom-1/3 right-1/4 w-32 h-32 rounded-full opacity-30"
           style={{
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.85) 0%, transparent 70%)',
-            filter: 'blur(60px)',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.9) 0%, transparent 70%)',
+            filter: 'blur(50px)',
             animation: 'float 11s ease-in-out infinite reverse'
           }}
         />
         
-        <div className="relative z-10 text-center max-w-sm mx-auto">
+        <div className="relative z-10 text-center max-w-xs mx-auto">
           <h2 
-            className="mb-8"
+            className="mb-6"
             style={{
-              fontSize: '56px',
+              fontSize: '48px',
               fontWeight: 700,
-              letterSpacing: '-0.06em',
+              letterSpacing: '-0.065em',
               color: '#FFFFFF',
-              lineHeight: '0.9'
+              lineHeight: '0.88'
             }}
           >
             Начните
@@ -400,28 +378,30 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           </h2>
           
           <p 
-            className="mb-14"
+            className="mb-12"
             style={{
-              fontSize: '20px',
+              fontSize: '18px',
               lineHeight: '1.4',
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(255, 255, 255, 0.68)',
               letterSpacing: '-0.025em',
               fontWeight: 500
             }}
           >
-            Сотни компаний уже доверились нам
+            Сотни компаний уже
+            <br />
+            доверились нам
           </p>
           
           <button
             onClick={handleNavigateProcess}
-            className="w-full group relative py-5 rounded-full font-semibold overflow-hidden mb-5 active:scale-95"
+            className="w-full group relative py-4.5 rounded-full font-semibold mb-4 active:scale-[0.96]"
             style={{
-              fontSize: '18px',
+              fontSize: '17px',
               letterSpacing: '-0.02em',
               background: '#FFFFFF',
               color: '#000000',
-              boxShadow: '0 16px 56px rgba(255, 255, 255, 0.3)',
-              transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+              boxShadow: '0 20px 60px rgba(255, 255, 255, 0.35)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
             data-testid="button-start-cta"
           >
@@ -433,9 +413,9 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           
           <p 
             style={{
-              fontSize: '14px',
-              color: 'rgba(255, 255, 255, 0.4)',
-              letterSpacing: '0.015em'
+              fontSize: '13px',
+              color: 'rgba(255, 255, 255, 0.38)',
+              letterSpacing: '0.02em'
             }}
           >
             7 дней бесплатно · Без карты
@@ -443,16 +423,16 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
         </div>
       </section>
 
-      {/* Animations - Smooth & natural */}
+      {/* Animations */}
       <style>{`
         @keyframes bounce {
-          0%, 100% { transform: translateY(0); opacity: 0.35; }
-          50% { transform: translateY(-16px); opacity: 0.2; }
+          0%, 100% { transform: translateY(0); opacity: 0.4; }
+          50% { transform: translateY(-14px); opacity: 0.2; }
         }
         @keyframes float {
           0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-18px, -25px) scale(1.05); }
-          66% { transform: translate(18px, -12px) scale(0.95); }
+          33% { transform: translate(-20px, -25px) scale(1.08); }
+          66% { transform: translate(20px, -15px) scale(0.92); }
         }
       `}</style>
 
@@ -462,7 +442,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
 
 AIAgentPage.displayName = 'AIAgentPage';
 
-// Stat Card - Editorial precision
+// Stat Card - Mobile optimized
 const StatCard = memo(({ number, label, sublabel, gradient }: { 
   number: string; 
   label: string; 
@@ -471,11 +451,11 @@ const StatCard = memo(({ number, label, sublabel, gradient }: {
 }) => (
   <div className="text-center">
     <div 
-      className="mb-5"
+      className="mb-4"
       style={{
-        fontSize: '80px',
+        fontSize: '68px',
         fontWeight: 800,
-        letterSpacing: '-0.06em',
+        letterSpacing: '-0.065em',
         lineHeight: '0.9',
         background: gradient,
         WebkitBackgroundClip: 'text',
@@ -486,20 +466,20 @@ const StatCard = memo(({ number, label, sublabel, gradient }: {
     </div>
     <p 
       style={{
-        fontSize: '19px',
+        fontSize: '17px',
         lineHeight: '1.3',
         color: 'rgba(255, 255, 255, 0.75)',
-        letterSpacing: '-0.015em',
+        letterSpacing: '-0.02em',
         fontWeight: 600,
-        marginBottom: '6px'
+        marginBottom: '5px'
       }}
     >
       {label}
     </p>
     <p 
       style={{
-        fontSize: '15px',
-        color: 'rgba(255, 255, 255, 0.45)',
+        fontSize: '14px',
+        color: 'rgba(255, 255, 255, 0.42)',
         letterSpacing: '-0.01em'
       }}
     >
@@ -509,7 +489,7 @@ const StatCard = memo(({ number, label, sublabel, gradient }: {
 ));
 StatCard.displayName = 'StatCard';
 
-// Feature Block - Clear & focused
+// Feature Block - Mobile focused
 const FeatureBlock = memo(({ 
   icon, 
   title, 
@@ -522,12 +502,12 @@ const FeatureBlock = memo(({
   gradient: string;
 }) => (
   <div className="text-center">
-    {/* Icon - Bold & beautiful */}
+    {/* Icon */}
     <div 
-      className="w-24 h-24 rounded-[28px] flex items-center justify-center mx-auto mb-6"
+      className="w-20 h-20 rounded-[24px] flex items-center justify-center mx-auto mb-5"
       style={{
         background: gradient,
-        boxShadow: '0 16px 48px rgba(0, 0, 0, 0.4)'
+        boxShadow: '0 16px 48px rgba(0, 0, 0, 0.45)'
       }}
     >
       <div style={{ color: 'white' }}>
@@ -535,26 +515,26 @@ const FeatureBlock = memo(({
       </div>
     </div>
 
-    {/* Title - Confident */}
+    {/* Title */}
     <h3 
-      className="mb-4"
+      className="mb-2.5"
       style={{
-        fontSize: '26px',
+        fontSize: '22px',
         fontWeight: 700,
-        letterSpacing: '-0.035em',
+        letterSpacing: '-0.04em',
         color: '#FFFFFF',
-        lineHeight: '1.1'
+        lineHeight: '1.15'
       }}
     >
       {title}
     </h3>
 
-    {/* Description - Clear value */}
+    {/* Description */}
     <p 
       style={{
-        fontSize: '17px',
-        lineHeight: '1.5',
-        color: 'rgba(255, 255, 255, 0.6)',
+        fontSize: '15px',
+        lineHeight: '1.45',
+        color: 'rgba(255, 255, 255, 0.58)',
         letterSpacing: '-0.015em'
       }}
     >
@@ -564,18 +544,18 @@ const FeatureBlock = memo(({
 ));
 FeatureBlock.displayName = 'FeatureBlock';
 
-// Benefit Item - Two-tier info
+// Benefit Item - Compact mobile
 const BenefitItem = memo(({ icon, text, subtext }: { 
   icon: React.ReactNode; 
   text: string;
   subtext: string;
 }) => (
-  <div className="flex items-center gap-5 py-5">
+  <div className="flex items-center gap-4 py-4">
     <div 
-      className="flex-shrink-0 w-14 h-14 rounded-[20px] flex items-center justify-center"
+      className="flex-shrink-0 w-12 h-12 rounded-[18px] flex items-center justify-center"
       style={{
-        background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.18) 0%, rgba(16, 185, 129, 0.18) 100%)',
-        border: '1px solid rgba(52, 199, 89, 0.3)'
+        background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%)',
+        border: '1px solid rgba(52, 199, 89, 0.35)'
       }}
     >
       <div style={{ color: '#34C759' }}>
@@ -585,10 +565,10 @@ const BenefitItem = memo(({ icon, text, subtext }: {
     <div className="flex-1">
       <p 
         style={{
-          fontSize: '18px',
-          lineHeight: '1.3',
-          color: 'rgba(255, 255, 255, 0.9)',
-          letterSpacing: '-0.02em',
+          fontSize: '16px',
+          lineHeight: '1.25',
+          color: 'rgba(255, 255, 255, 0.88)',
+          letterSpacing: '-0.025em',
           fontWeight: 600,
           marginBottom: '3px'
         }}
@@ -597,8 +577,8 @@ const BenefitItem = memo(({ icon, text, subtext }: {
       </p>
       <p 
         style={{
-          fontSize: '15px',
-          color: 'rgba(255, 255, 255, 0.5)',
+          fontSize: '14px',
+          color: 'rgba(255, 255, 255, 0.48)',
           letterSpacing: '-0.01em'
         }}
       >
