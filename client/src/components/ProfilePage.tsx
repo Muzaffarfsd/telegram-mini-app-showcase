@@ -37,6 +37,7 @@ import {
   Coins
 } from "lucide-react";
 import { useTelegram } from "../hooks/useTelegram";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProfilePageProps {
   onNavigate: (section: string) => void;
@@ -310,7 +311,8 @@ ProjectsVirtualList.displayName = 'ProjectsVirtualList';
 
 // Profile Page Component
 function ProfilePage({ onNavigate }: ProfilePageProps) {
-  const { user, isAvailable } = useTelegram();
+  const { user, isAvailable, homeScreen } = useTelegram();
+  const { toast } = useToast();
   const [userProjects, setUserProjects] = useState<any[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
@@ -585,7 +587,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
               </div>
             </div>
 
-            <div className="p-4 cursor-pointer hover:bg-white/5 transition-colors">
+            <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-system-orange/20 rounded-xl flex items-center justify-center">
                   <Settings className="w-5 h-5 text-system-orange" />
@@ -593,6 +595,36 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Тема оформления</div>
                   <div className="ios-footnote text-white/70">Темная тема (автоматически)</div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-white/40" />
+              </div>
+            </div>
+
+            <div 
+              className="p-4 cursor-pointer hover:bg-white/5 transition-colors"
+              onClick={() => {
+                if (homeScreen) {
+                  homeScreen.add();
+                  toast({
+                    title: "Добавление на главный экран",
+                    description: "Следуйте инструкциям браузера для добавления ярлыка приложения",
+                  });
+                } else {
+                  toast({
+                    title: "Функция недоступна",
+                    description: "Ваш браузер не поддерживает добавление на главный экран",
+                    variant: "destructive",
+                  });
+                }
+              }}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                  <Smartphone className="w-5 h-5 text-emerald-500" />
+                </div>
+                <div className="flex-1">
+                  <div className="ios-body text-white font-semibold">Добавить на главный экран</div>
+                  <div className="ios-footnote text-white/70">Быстрый доступ к приложению</div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-white/40" />
               </div>

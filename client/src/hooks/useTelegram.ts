@@ -40,6 +40,7 @@ interface TelegramWebApp {
       last_name?: string;
       username?: string;
       language_code?: string;
+      photo_url?: string;
     };
   };
   onEvent: (eventType: string, callback: () => void) => void;

@@ -7,11 +7,12 @@ import { RewardsProvider } from "./contexts/RewardsContext";
 import { XPNotificationProvider } from "./contexts/XPNotificationContext";
 import { HelmetProvider } from "react-helmet-async";
 import { useTelegram } from "./hooks/useTelegram";
-import { Home, ShoppingCart, Briefcase, CircleUser, Bot } from "lucide-react";
+import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 import { LazyMotionProvider } from "./utils/LazyMotionProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PageTransition } from "./components/PageTransition";
+import UserAvatar from "./components/UserAvatar";
 
 // Lightweight shell for instant first paint
 import ShowcaseShell from "./components/ShowcaseShell";
@@ -91,7 +92,7 @@ const goBack = () => {
 function App() {
   const [route, setRoute] = useState<Route>({ path: '/', component: 'showcase', params: {} });
   const [orderData, setOrderData] = useState<any>(null);
-  const { hapticFeedback } = useTelegram();
+  const { hapticFeedback, user } = useTelegram();
   
   // Initialize route after mount to ensure showcase is default
   useEffect(() => {
@@ -417,14 +418,17 @@ function App() {
                             aria-label="Профиль пользователя"
                             aria-current={route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning' ? 'page' : undefined}
                           >
-                            <CircleUser
-                              className={`transition-all duration-300 ${
-                                route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning'
-                                  ? 'w-6 h-6 text-white' 
-                                  : 'w-5 h-5 text-white/70 hover:text-white'
-                              }`}
-                              strokeWidth={2}
-                            />
+                            <div className={`transition-all duration-300 ${
+                              route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning'
+                                ? 'scale-110' 
+                                : 'scale-100'
+                            }`}>
+                              <UserAvatar
+                                photoUrl={user?.photo_url}
+                                firstName={user?.first_name}
+                                size="sm"
+                              />
+                            </div>
                           </button>
                     
                   </nav>
