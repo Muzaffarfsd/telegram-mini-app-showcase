@@ -1,4 +1,4 @@
-import { useState, Suspense, memo } from "react";
+import { useState, Suspense, memo, useEffect } from "react";
 import { ArrowLeft, Share2, Home, Grid3X3, ShoppingCart, User, Maximize2, Minimize2 } from "lucide-react";
 import { demoApps } from "../data/demoApps";
 import { useTelegram } from "../hooks/useTelegram";
@@ -23,6 +23,22 @@ const navItems: { id: TabType; icon: any; label: string }[] = [
 const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShellProps) {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const { hapticFeedback, fullscreen } = useTelegram();
+  
+  // Force scroll to top when demo app opens
+  useEffect(() => {
+    // Multiple attempts to ensure scroll happens after render
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+    
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [demoId]);
   
   // Extract base app type from ID to support variants (e.g., 'clothing-store-2' → 'clothing-store')
   const getBaseAppType = (id: string): string => {

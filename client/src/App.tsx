@@ -100,8 +100,15 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       setRoute(parseHash());
-      // Scroll to top on every navigation
-      window.scrollTo(0, 0);
+      // Scroll to top immediately
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      // And again after a short delay to ensure content is rendered
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }, 50);
+      });
     };
     
     window.addEventListener('hashchange', handleHashChange);
@@ -109,9 +116,22 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Scroll to top whenever route changes
+  // Scroll to top whenever route changes - multiple attempts for reliability
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Immediate scroll
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    
+    // After paint
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+    
+    // After small delay to ensure content is mounted
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [route.component, route.params?.id]);
 
   // Navigation handlers - memoized for better performance with React.memo children
