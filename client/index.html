@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <!-- CRITICAL: Telegram-optimized viewport (official recommendation) -->
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,shrink-to-fit=no,viewport-fit=cover">
+  <!-- CRITICAL: Full-screen viewport for Telegram Mini App -->
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover,height=device-height">
   <meta name="theme-color" content="#000000">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -63,10 +63,28 @@
       to { transform: rotate(360deg); }
     }
     
-    /* Prevent layout shift */
-    #root {
+    /* Full screen layout - CRITICAL for Telegram */
+    html, body {
+      width: 100%;
+      height: 100%;
       min-height: 100vh;
       min-height: 100dvh;
+      overflow-x: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    
+    #root {
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
     }
   </style>
   
@@ -97,11 +115,33 @@
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   
-  <!-- CRITICAL: Call ready() immediately to stop Telegram loading screen -->
+  <!-- CRITICAL: Call ready() and expand() immediately for fullscreen -->
   <script>
     if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
+      const tg = window.Telegram.WebApp;
+      
+      // Instant fullscreen mode
+      tg.ready();
+      tg.expand();
+      
+      // Force fullscreen repeatedly to ensure it works
+      setTimeout(() => tg.expand(), 100);
+      setTimeout(() => tg.expand(), 300);
+      setTimeout(() => tg.expand(), 500);
+      
+      // Set full viewport height
+      if (tg.viewportHeight) {
+        document.documentElement.style.height = tg.viewportHeight + 'px';
+        document.body.style.height = tg.viewportHeight + 'px';
+      }
+      
+      // Listen for viewport changes
+      tg.onEvent('viewportChanged', function() {
+        if (tg.viewportHeight) {
+          document.documentElement.style.height = tg.viewportHeight + 'px';
+          document.body.style.height = tg.viewportHeight + 'px';
+        }
+      });
     }
   </script>
   
