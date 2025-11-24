@@ -5,21 +5,6 @@ interface ProjectsPageProps {
   onOpenDemo: (demoId: string) => void;
 }
 
-// Уникальные градиенты для каждой карточки
-const gradients = [
-  'linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335, #4285f4)', // Google colors
-  'linear-gradient(90deg, #667eea, #764ba2, #f093fb, #4facfe, #667eea)', // Purple-Blue
-  'linear-gradient(90deg, #f093fb, #f5576c, #feca57, #48dbfb, #f093fb)', // Pink-Yellow
-  'linear-gradient(90deg, #fa709a, #fee140, #30cfd0, #330867, #fa709a)', // Sunset
-  'linear-gradient(90deg, #4facfe, #00f2fe, #43e97b, #38f9d7, #4facfe)', // Ocean
-  'linear-gradient(90deg, #f857a6, #ff5858, #f6d365, #fda085, #f857a6)', // Warm
-  'linear-gradient(90deg, #a8edea, #fed6e3, #fbc2eb, #a6c1ee, #a8edea)', // Pastel
-  'linear-gradient(90deg, #ff9a56, #ff6a88, #fcb69f, #ff9a9e, #ff9a56)', // Coral
-  'linear-gradient(90deg, #00c6ff, #0072ff, #00d2ff, #3a7bd5, #00c6ff)', // Sky
-  'linear-gradient(90deg, #f093fb, #f5576c, #4facfe, #00f2fe, #f093fb)', // Vibrant
-  'linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c, #667eea)', // Deep Purple
-];
-
 export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
   // Показываем только топ-11 самых популярных приложений
   const topApps = demoApps.slice(0, 11);
@@ -29,10 +14,24 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
       <div className="max-w-md mx-auto p-4">
         
         <div className="text-center mb-8 mt-6">
-          <h1 className="text-4xl font-bold text-white mb-2">
+          <h1 
+            style={{
+              fontSize: '36px',
+              fontWeight: 700,
+              letterSpacing: '-0.04em',
+              color: '#FFFFFF',
+              marginBottom: '8px'
+            }}
+          >
             Витрина
           </h1>
-          <p className="text-white/60 text-sm">
+          <p 
+            style={{
+              fontSize: '14px',
+              color: 'rgba(255, 255, 255, 0.5)',
+              fontWeight: 400
+            }}
+          >
             11 готовых приложений
           </p>
         </div>
@@ -42,47 +41,66 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             <div
               key={app.id}
               onClick={() => onOpenDemo(app.id)}
-              className="relative cursor-pointer group"
+              className="luxury-card group"
               data-testid={`card-app-${app.id}`}
+              style={{
+                position: 'relative',
+                cursor: 'pointer',
+                borderRadius: '20px',
+                padding: '20px',
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)',
+                backdropFilter: 'blur(20px) saturate(120%)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: `
+                  0 1px 3px rgba(0, 0, 0, 0.3),
+                  0 8px 24px rgba(0, 0, 0, 0.15),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.05)
+                `,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
             >
-              {/* Animated gradient border - толще и уникальный градиент */}
-              <div 
-                className="absolute -inset-[2.5px] rounded-2xl opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+              <h3 
+                className="text-lg font-semibold text-white mb-2" 
+                data-testid={`text-title-${app.id}`}
                 style={{
-                  background: gradients[index % gradients.length],
-                  backgroundSize: '300% 100%',
-                  animation: 'gradient-shift 4s ease infinite',
-                  filter: 'blur(0.5px)'
+                  fontSize: '17px',
+                  fontWeight: 600,
+                  letterSpacing: '-0.02em',
+                  color: '#FFFFFF'
                 }}
-              />
-              
-              {/* Card content */}
-              <div 
-                className="relative bg-black rounded-2xl p-4 transition-all duration-300 group-hover:bg-white/5"
               >
-                <h3 className="text-lg font-semibold text-white mb-2" data-testid={`text-title-${app.id}`}>
-                  {app.title}
-                </h3>
-                <p className="text-sm text-white/70" data-testid={`text-description-${app.id}`}>
-                  {app.description}
-                </p>
-              </div>
+                {app.title}
+              </h3>
+              <p 
+                className="text-sm" 
+                data-testid={`text-description-${app.id}`}
+                style={{
+                  fontSize: '14px',
+                  lineHeight: '1.5',
+                  color: 'rgba(255, 255, 255, 0.6)',
+                  letterSpacing: '-0.01em'
+                }}
+              >
+                {app.description}
+              </p>
             </div>
           ))}
         </div>
       </div>
 
       <style>{`
-        @keyframes gradient-shift {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
+        .luxury-card:hover {
+          transform: translateY(-2px);
+          border-color: rgba(255, 255, 255, 0.12);
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+          box-shadow: 
+            0 2px 6px rgba(0, 0, 0, 0.25),
+            0 12px 32px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .luxury-card:active {
+          transform: translateY(-1px);
         }
       `}</style>
     </div>
