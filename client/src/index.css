@@ -21,6 +21,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === PERFORMANCE OPTIMIZATIONS FOR TELEGRAM === */
+* {
+  /* Hardware acceleration for smooth scrolling */
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
+}
+
+html {
+  /* Smooth scrolling with momentum (iOS-like) */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  /* Optimize text rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Prevent layout shifts */
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+}
+
 :root {
   /* === 2025 PREMIUM COLOR PALETTE === */
   

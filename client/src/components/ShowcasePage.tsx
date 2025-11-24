@@ -430,12 +430,13 @@ const DemoCard = memo<{
   );
 });
 
-// Stat Card Component
+// Stat Card Component - Optimized without heavy blur
 const StatCard = memo<{ title: string; subtitle: string }>(({ title, subtitle }) => (
-  <div className="relative h-full rounded-2xl overflow-hidden backdrop-blur-3xl"
+  <div className="relative h-full rounded-2xl overflow-hidden"
     style={{
-      background: 'rgba(10, 10, 10, 0.9)',
-      border: '2px solid rgba(255, 255, 255, 0.15)'
+      background: 'rgba(10, 10, 10, 0.95)',
+      border: '2px solid rgba(255, 255, 255, 0.15)',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
     }}
     data-testid={`stat-card-${subtitle.toLowerCase()}`}
   >
@@ -452,12 +453,13 @@ const StatCard = memo<{ title: string; subtitle: string }>(({ title, subtitle })
   </div>
 ));
 
-// AI Assistant Card Component
+// AI Assistant Card Component - Optimized without heavy blur
 const AIAssistantCardPreview = memo(() => (
-  <div className="relative h-full rounded-2xl overflow-hidden backdrop-blur-3xl"
+  <div className="relative h-full rounded-2xl overflow-hidden"
     style={{
-      background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)',
-      border: '2px solid rgba(59, 130, 246, 0.2)'
+      background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)',
+      border: '2px solid rgba(59, 130, 246, 0.2)',
+      boxShadow: '0 8px 32px rgba(16, 185, 129, 0.2)'
     }}
     data-testid="ai-assistant-card"
   >
@@ -872,7 +874,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInUp" delay={0.1}>
             <HoverScale scale={1.05}>
               <div 
-                className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                className="relative bg-white/15 border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)' }}
             onClick={() => onOpenDemo('electronics')}
           >
             {/* Remote Label */}
@@ -907,7 +910,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInUp" delay={0.15}>
             <HoverScale scale={1.05}>
               <div 
-                className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                className="relative bg-white/15 border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)' }}
                 onClick={() => onOpenDemo('beauty')}
               >
             {/* Remote Label */}
