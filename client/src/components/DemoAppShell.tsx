@@ -24,20 +24,11 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const { hapticFeedback, fullscreen } = useTelegram();
   
-  // Force scroll to top when demo app opens
+  // Scroll to top when demo opens - single optimized call
   useEffect(() => {
-    // Multiple attempts to ensure scroll happens after render
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    
     requestAnimationFrame(() => {
       window.scrollTo({ top: 0, behavior: 'instant' });
     });
-    
-    const timer = setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    }, 100);
-    
-    return () => clearTimeout(timer);
   }, [demoId]);
   
   // Extract base app type from ID to support variants (e.g., 'clothing-store-2' → 'clothing-store')
