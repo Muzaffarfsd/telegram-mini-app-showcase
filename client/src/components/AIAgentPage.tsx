@@ -17,8 +17,8 @@ interface AIAgentPageProps {
 const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
   const [scrollY, setScrollY] = useState(0);
   
-  const handleNavigateConstructor = useCallback(() => {
-    onNavigate('constructor');
+  const handleNavigateProcess = useCallback(() => {
+    onNavigate('ai-process');
   }, [onNavigate]);
 
   useEffect(() => {
