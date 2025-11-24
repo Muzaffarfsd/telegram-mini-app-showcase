@@ -16,9 +16,7 @@ import {
   Dumbbell,
   Palette,
   Smartphone,
-  Star,
-  Target,
-  Rocket
+  Star
 } from "lucide-react";
 
 interface ConstructorPageProps {
@@ -36,7 +34,7 @@ const ConstructorPage = memo(({ onNavigate }: ConstructorPageProps) => {
 
   return (
     <div className="min-h-screen bg-[#000000] pb-32 relative overflow-hidden">
-      {/* Premium background gradient - Apple style */}
+      {/* Premium background gradient */}
       <div 
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -75,46 +73,35 @@ const ConstructorPage = memo(({ onNavigate }: ConstructorPageProps) => {
               </span>
             </div>
 
-            {/* Hero headline - Apple precision */}
+            {/* Hero headline */}
             <h1 
               className="scroll-fade-in-delay-1"
               style={{ 
                 fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                fontSize: 'clamp(44px, 12vw, 56px)',
+                fontSize: 'clamp(40px, 11vw, 48px)',
                 fontWeight: 700,
-                letterSpacing: '-0.05em',
-                lineHeight: '1.05',
-                color: '#FFFFFF',
-                textShadow: '0 2px 40px rgba(255, 255, 255, 0.1)'
+                letterSpacing: '-0.04em',
+                lineHeight: '1.08',
+                color: '#FFFFFF'
               }}
             >
-              ИИ агент.
-              <br />
-              <span style={{ 
-                background: 'linear-gradient(135deg, #0071E3 0%, #00A3FF 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>
-                Работает сам.
-              </span>
+              Как это работает
             </h1>
             
-            {/* Subtitle - refined */}
+            {/* Subtitle */}
             <p 
               className="scroll-fade-in-delay-2"
               style={{
-                fontSize: '19px',
-                lineHeight: '1.52',
+                fontSize: '17px',
+                lineHeight: '1.47',
                 fontWeight: 400,
-                color: 'rgba(255, 255, 255, 0.8)',
-                letterSpacing: '-0.011em',
-                maxWidth: '340px',
-                margin: '0 auto'
+                color: 'rgba(255, 255, 255, 0.7)',
+                letterSpacing: '-0.011em'
               }}
             >
-              Автоматизация для вашего Telegram-бизнеса. 
-              Запуск за 10 минут.
+              ИИ агент интегрируется в ваше Telegram-приложение
+              <br />
+              и начинает работать за 10 минут
             </p>
           </div>
         </section>
@@ -124,69 +111,109 @@ const ConstructorPage = memo(({ onNavigate }: ConstructorPageProps) => {
           <PremiumStepCard
             number={1}
             icon={<Smartphone className="w-6 h-6" />}
-            title="Готовое приложение"
-            description="Полноценный магазин в Telegram с каталогом товаров, корзиной и приёмом платежей"
+            title="Ваше приложение уже готово"
+            description="Мы создали для вас полноценное бизнес-приложение в Telegram с каталогом, корзиной и оплатой"
             accentColor="#007AFF"
           />
 
           <PremiumStepCard
             number={2}
             icon={<Bot className="w-6 h-6" />}
-            title="Интеграция агента"
-            description="Умный помощник встраивается в чат вашего приложения одной кнопкой"
+            title="Добавляем AI агента в чат"
+            description="Интегрируем умного помощника прямо в интерфейс вашего приложения — он появляется как кнопка чата"
             accentColor="#AF52DE"
           />
 
           <PremiumStepCard
             number={3}
-            icon={<Rocket className="w-6 h-6" />}
-            title="Автопилот продаж"
-            description="Агент консультирует клиентов, оформляет заказы и принимает оплату 24/7"
+            icon={<Zap className="w-6 h-6" />}
+            title="Агент начинает работать"
+            description="Отвечает на вопросы клиентов, помогает выбрать товар, оформляет заказы и принимает оплату — всё автоматически"
             accentColor="#30D158"
           />
         </section>
 
-        {/* Capabilities Section - Premium cards */}
+        {/* What AI Agent Does */}
         <section className="mb-16">
           <h2 
-            className="mb-8 text-center"
+            className="mb-8"
             style={{
-              fontSize: '32px',
+              fontSize: '28px',
               fontWeight: 700,
-              letterSpacing: '-0.04em',
+              letterSpacing: '-0.03em',
               color: '#FFFFFF'
             }}
           >
-            Возможности
+            Что умеет агент
           </h2>
 
           <div className="space-y-4">
             <PremiumCapability
               icon={<MessageSquare className="w-5 h-5" />}
-              title="Мгновенные ответы"
-              description="Консультирует клиентов по товарам, ценам и наличию без задержек"
-              gradient="from-blue-500/20 to-cyan-500/20"
+              title="Консультирует клиентов 24/7"
+              description="Отвечает на вопросы о товарах, услугах и ценах мгновенно"
             />
             
             <PremiumCapability
-              icon={<Target className="w-5 h-5" />}
-              title="Умные рекомендации"
-              description="Подбирает товары на основе интересов и истории покупок"
-              gradient="from-purple-500/20 to-pink-500/20"
+              icon={<ShoppingBag className="w-5 h-5" />}
+              title="Помогает с выбором"
+              description="Рекомендует товары на основе предпочтений клиента"
             />
 
             <PremiumCapability
-              icon={<ShoppingBag className="w-5 h-5" />}
-              title="Автоматические заказы"
-              description="Собирает корзину, оформляет доставку и проводит оплату"
-              gradient="from-green-500/20 to-emerald-500/20"
+              icon={<CheckCircle2 className="w-5 h-5" />}
+              title="Оформляет заказы"
+              description="Собирает корзину, оформляет доставку и принимает оплату"
             />
 
             <PremiumCapability
               icon={<BarChart3 className="w-5 h-5" />}
-              title="Аналитика поведения"
-              description="Отслеживает интересы клиентов и показывает точки роста"
-              gradient="from-orange-500/20 to-yellow-500/20"
+              title="Собирает аналитику"
+              description="Показывает что интересует клиентов и где они уходят"
+            />
+
+            <PremiumCapability
+              icon={<Users className="w-5 h-5" />}
+              title="Персонализирует общение"
+              description="Запоминает историю и предпочтения каждого клиента"
+            />
+          </div>
+        </section>
+
+        {/* Business Examples */}
+        <section className="mb-16">
+          <h2 
+            className="mb-8"
+            style={{
+              fontSize: '28px',
+              fontWeight: 700,
+              letterSpacing: '-0.03em',
+              color: '#FFFFFF'
+            }}
+          >
+            Работает для любого бизнеса
+          </h2>
+
+          <div className="grid grid-cols-2 gap-4">
+            <BusinessExample
+              icon={<ShoppingBag className="w-5 h-5" />}
+              title="Магазины"
+              accentColor="#FF2D55"
+            />
+            <BusinessExample
+              icon={<Coffee className="w-5 h-5" />}
+              title="Рестораны"
+              accentColor="#FF9F0A"
+            />
+            <BusinessExample
+              icon={<Dumbbell className="w-5 h-5" />}
+              title="Фитнес"
+              accentColor="#30D158"
+            />
+            <BusinessExample
+              icon={<Palette className="w-5 h-5" />}
+              title="Салоны красоты"
+              accentColor="#BF5AF2"
             />
           </div>
         </section>
@@ -254,7 +281,7 @@ const ConstructorPage = memo(({ onNavigate }: ConstructorPageProps) => {
                 <PremiumStat
                   icon={<TrendingUp className="w-5 h-5" />}
                   value="+40%"
-                  label="Рост конверсии"
+                  label="Рост конверсии в продажи"
                   accentColor="#30D158"
                 />
                 
@@ -266,9 +293,9 @@ const ConstructorPage = memo(({ onNavigate }: ConstructorPageProps) => {
                 />
                 
                 <PremiumStat
-                  icon={<Zap className="w-5 h-5" />}
+                  icon={<Clock className="w-5 h-5" />}
                   value="80%"
-                  label="Запросов автоматически"
+                  label="Запросов обрабатывает автоматически"
                   accentColor="#007AFF"
                 />
                 
@@ -280,9 +307,9 @@ const ConstructorPage = memo(({ onNavigate }: ConstructorPageProps) => {
                 />
                 
                 <PremiumStat
-                  icon={<Clock className="w-5 h-5" />}
+                  icon={<Users className="w-5 h-5" />}
                   value="24/7"
-                  label="Без выходных"
+                  label="Работает без выходных"
                   accentColor="#AF52DE"
                 />
               </div>
@@ -335,7 +362,7 @@ const ConstructorPage = memo(({ onNavigate }: ConstructorPageProps) => {
               letterSpacing: '-0.01em'
             }}
           >
-            Первые 7 дней бесплатно • Без привязки карты
+            Первые 7 дней бесплатно · Без привязки карты
           </p>
         </section>
 
@@ -452,10 +479,9 @@ const PremiumCapability = memo<{
   icon: React.ReactNode;
   title: string;
   description: string;
-  gradient: string;
-}>(({ icon, title, description, gradient }) => (
+}>(({ icon, title, description }) => (
   <div
-    className={`rounded-[20px] p-5 relative overflow-hidden group transition-all duration-200 hover:scale-[1.01]`}
+    className="rounded-[20px] p-5 relative overflow-hidden group transition-all duration-200 hover:scale-[1.01]"
     style={{
       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
       backdropFilter: 'blur(20px)',
@@ -505,6 +531,49 @@ const PremiumCapability = memo<{
 ));
 
 PremiumCapability.displayName = 'PremiumCapability';
+
+// Business Example Component
+const BusinessExample = memo<{
+  icon: React.ReactNode;
+  title: string;
+  accentColor: string;
+}>(({ icon, title, accentColor }) => (
+  <div
+    className="rounded-[20px] p-5 flex flex-col items-center gap-3 transition-all duration-200 hover:scale-[1.02]"
+    style={{
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
+      backdropFilter: 'blur(20px)',
+      border: '0.5px solid rgba(255, 255, 255, 0.08)',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+    }}
+  >
+    <div 
+      className="flex items-center justify-center rounded-[14px]"
+      style={{
+        width: '52px',
+        height: '52px',
+        background: `linear-gradient(135deg, ${accentColor}20 0%, ${accentColor}10 100%)`,
+        border: `0.5px solid ${accentColor}30`,
+        color: accentColor
+      }}
+    >
+      {icon}
+    </div>
+    <span 
+      style={{
+        fontSize: '15px',
+        fontWeight: 500,
+        color: 'rgba(255, 255, 255, 0.85)',
+        textAlign: 'center',
+        letterSpacing: '-0.01em'
+      }}
+    >
+      {title}
+    </span>
+  </div>
+));
+
+BusinessExample.displayName = 'BusinessExample';
 
 // Premium Stat Component
 const PremiumStat = memo<{
