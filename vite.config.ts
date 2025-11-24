@@ -70,19 +70,14 @@ export default defineConfig({
         manualChunks: (id) => {
           // Vendor chunks - aggressive splitting for faster initial load
           if (id.includes('node_modules')) {
-            // Core React must be together for proper loading order
-            if (id.includes('react/') || id.includes('react-dom/') || id.includes('scheduler')) {
-              return 'react-core';
+            // Core React + Radix UI MUST be together to prevent loading order issues
+            if (id.includes('react/') || id.includes('react-dom/') || id.includes('scheduler') || id.includes('@radix-ui')) {
+              return 'vendor';
             }
             
             // Framer Motion - lazy loaded
             if (id.includes('framer-motion')) {
               return 'animation-vendor';
-            }
-            
-            // Radix UI - separate chunk since it's large
-            if (id.includes('@radix-ui')) {
-              return 'radix-ui';
             }
             
             // React Query - separate chunk
