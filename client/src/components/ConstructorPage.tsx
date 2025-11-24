@@ -1,628 +1,779 @@
-import { memo, useState, useEffect } from "react";
+import { useState, useCallback, useMemo, memo, useEffect, useRef } from "react";
+import { trackProjectCreation, trackFeatureAdded } from "@/hooks/useGamification";
 import { 
-  MessageSquare,
-  Sparkles,
-  Zap,
-  BarChart3,
-  Shield,
-  CheckCircle2,
+  Wrench,
+  Eye,
+  ShoppingCart,
+  Home,
+  Calculator,
+  User,
   ArrowRight,
-  Bot,
-  Users,
-  Clock,
-  TrendingUp,
-  ShoppingBag,
+  Check,
+  Package,
   Coffee,
   Dumbbell,
-  Palette,
+  GraduationCap,
+  Heart,
+  Settings,
+  CreditCard,
+  Truck,
+  Bell,
+  Crown,
+  BarChart,
+  Calendar,
+  Users,
+  Zap,
+  Star,
+  MessageSquare,
+  Globe,
   Smartphone,
-  Star
+  Clock,
+  Info,
+  ChevronRight,
+  Plus,
+  Sparkles,
+  Rocket,
+  UserCircle2,
+  DollarSign,
+  TrendingUp,
+  CheckCircle,
+  Gift
 } from "lucide-react";
 
 interface ConstructorPageProps {
-  onNavigate: (path: string) => void;
+  onNavigate: (section: string, data?: any) => void;
 }
 
-const ConstructorPage = memo(({ onNavigate }: ConstructorPageProps) => {
-  const [scrollY, setScrollY] = useState(0);
+interface SelectedFeature {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+}
 
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+const appTemplates = [
+  {
+    id: 'ecommerce-basic',
+    name: 'Интернет-магазин',
+    icon: ShoppingCart,
+    description: 'Продажа товаров онлайн',
+    features: ['catalog', 'cart', 'auth', 'payments'],
+    estimatedPrice: 45000,
+    developmentTime: '7-10 дней',
+    popular: true
+  },
+  {
+    id: 'restaurant',
+    name: 'Ресторан',
+    icon: Coffee,
+    description: 'Меню и заказы еды',
+    features: ['catalog', 'cart', 'auth', 'booking-system'],
+    estimatedPrice: 55000,
+    developmentTime: '10-12 дней',
+    popular: false
+  },
+  {
+    id: 'fitness-center',
+    name: 'Фитнес-клуб',
+    icon: Dumbbell,
+    description: 'Тренировки и абонементы',
+    features: ['booking-system', 'auth', 'subscriptions', 'progress-tracking'],
+    estimatedPrice: 65000,
+    developmentTime: '12-15 дней',
+    popular: false
+  },
+  {
+    id: 'services',
+    name: 'Услуги',
+    icon: Settings,
+    description: 'Бронирование услуг',
+    features: ['catalog', 'booking-system', 'auth', 'payments'],
+    estimatedPrice: 50000,
+    developmentTime: '8-12 дней',
+    popular: false
+  }
+];
 
+const availableFeatures = [
+  { id: 'catalog', name: 'Каталог', price: 8000, category: 'Основные', icon: Package, included: true },
+  { id: 'cart', name: 'Корзина', price: 6000, category: 'Основные', icon: ShoppingCart, included: true },
+  { id: 'auth', name: 'Авторизация', price: 4000, category: 'Основные', icon: User, included: true },
+  { id: 'search', name: 'Поиск', price: 7000, category: 'Основные', icon: Zap, included: false },
+  { id: 'favorites', name: 'Избранное', price: 4000, category: 'Основные', icon: Star, included: false },
+  { id: 'reviews', name: 'Отзывы', price: 8000, category: 'Основные', icon: Star, included: false },
+  
+  { id: 'payments', name: 'Платежи', price: 15000, category: 'Платежи', icon: CreditCard, included: false },
+  { id: 'subscriptions', name: 'Подписки', price: 18000, category: 'Платежи', icon: CreditCard, included: false },
+  { id: 'installments', name: 'Рассрочка', price: 12000, category: 'Платежи', icon: CreditCard, included: false },
+  
+  { id: 'delivery-basic', name: 'Доставка', price: 10000, category: 'Доставка', icon: Truck, included: false },
+  { id: 'pickup-points', name: 'Самовывоз', price: 12000, category: 'Доставка', icon: Package, included: false },
+  { id: 'express-delivery', name: 'Экспресс', price: 8000, category: 'Доставка', icon: Truck, included: false },
+  
+  { id: 'push-notifications', name: 'Уведомления', price: 8000, category: 'Коммуникации', icon: Bell, included: false },
+  { id: 'chat-support', name: 'Чат поддержки', price: 15000, category: 'Коммуникации', icon: MessageSquare, included: false },
+  { id: 'video-calls', name: 'Видеозвонки', price: 20000, category: 'Коммуникации', icon: Smartphone, included: false },
+  
+  { id: 'loyalty-program', name: 'Бонусы', price: 22000, category: 'Маркетинг', icon: Crown, included: false },
+  { id: 'promo-codes', name: 'Промокоды', price: 10000, category: 'Маркетинг', icon: Crown, included: false },
+  { id: 'referral-system', name: 'Рефералы', price: 18000, category: 'Маркетинг', icon: Users, included: false },
+  
+  { id: 'basic-analytics', name: 'Аналитика', price: 15000, category: 'Управление', icon: BarChart, included: false },
+  { id: 'admin-panel', name: 'Админ панель', price: 25000, category: 'Управление', icon: Settings, included: false },
+  { id: 'crm-system', name: 'CRM', price: 40000, category: 'Управление', icon: Users, included: false },
+  
+  { id: 'booking-system', name: 'Бронирование', price: 18000, category: 'Бронирование', icon: Calendar, included: false },
+  { id: 'queue-management', name: 'Очереди', price: 15000, category: 'Бронирование', icon: Clock, included: false },
+  { id: 'calendar-sync', name: 'Календарь', price: 10000, category: 'Бронирование', icon: Calendar, included: false },
+  
+  { id: 'progress-tracking', name: 'Прогресс', price: 15000, category: 'Управление', icon: BarChart, included: false }
+];
+
+const categories = ['Основные', 'Платежи', 'Доставка', 'Коммуникации', 'Маркетинг', 'Управление', 'Бронирование'];
+
+// Memoized Template Card Component
+const TemplateCard = memo(({ template, onSelect }: any) => {
+  const IconComponent = template.icon;
   return (
-    <div className="min-h-screen bg-[#000000] pb-32 relative overflow-hidden">
-      {/* Premium background gradient */}
-      <div 
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle at 50% 0%, rgba(0, 113, 227, 0.12) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(52, 199, 89, 0.08) 0%, transparent 50%)',
-          transform: `translateY(${scrollY * 0.3}px)`,
-          opacity: 0.6
-        }}
-      />
-
-      <div className="max-w-md mx-auto px-6 relative z-10">
-        
-        {/* Premium Hero Section */}
-        <section className="pt-20 pb-16">
-          <div className="text-center space-y-6">
-            
-            {/* Premium badge */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full scroll-fade-in"
-              style={{
-                background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.15) 0%, rgba(48, 209, 88, 0.1) 100%)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                border: '0.5px solid rgba(52, 199, 89, 0.4)',
-                boxShadow: '0 8px 32px rgba(52, 199, 89, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-              }}
-            >
-              <Sparkles className="w-4 h-4" style={{ color: '#30D158' }} />
-              <span 
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  letterSpacing: '0.06em',
-                  color: '#30D158',
-                  textTransform: 'uppercase'
-                }}
-              >
-                Бесплатно 7 дней
+    <div
+      className="ios-list-item cursor-pointer"
+      onClick={onSelect}
+      data-testid={`template-${template.id}`}
+    >
+      <div className="flex items-center space-x-3">
+        <div className="w-10 h-10 bg-system-blue/10 rounded-medium flex items-center justify-center">
+          <IconComponent className="w-5 h-5 text-system-blue" />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center space-x-2">
+            <span className="ios-headline font-semibold text-white">{template.name}</span>
+            {template.popular && (
+              <span className="px-2 py-0.5 bg-system-orange/10 rounded-full">
+                <span className="ios-caption2 text-system-orange font-semibold">Популярно</span>
               </span>
-            </div>
-
-            {/* Hero headline */}
-            <h1 
-              className="scroll-fade-in-delay-1"
-              style={{ 
-                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                fontSize: 'clamp(40px, 11vw, 48px)',
-                fontWeight: 700,
-                letterSpacing: '-0.04em',
-                lineHeight: '1.08',
-                color: '#FFFFFF'
-              }}
-            >
-              Как это работает
-            </h1>
-            
-            {/* Subtitle */}
-            <p 
-              className="scroll-fade-in-delay-2"
-              style={{
-                fontSize: '17px',
-                lineHeight: '1.47',
-                fontWeight: 400,
-                color: 'rgba(255, 255, 255, 0.7)',
-                letterSpacing: '-0.011em'
-              }}
-            >
-              ИИ агент интегрируется в ваше Telegram-приложение
-              <br />
-              и начинает работать за 10 минут
-            </p>
+            )}
           </div>
-        </section>
-
-        {/* Premium Integration Flow */}
-        <section className="mb-16 space-y-5">
-          <PremiumStepCard
-            number={1}
-            icon={<Smartphone className="w-6 h-6" />}
-            title="Ваше приложение уже готово"
-            description="Мы создали для вас полноценное бизнес-приложение в Telegram с каталогом, корзиной и оплатой"
-            accentColor="#007AFF"
-          />
-
-          <PremiumStepCard
-            number={2}
-            icon={<Bot className="w-6 h-6" />}
-            title="Добавляем AI агента в чат"
-            description="Интегрируем умного помощника прямо в интерфейс вашего приложения — он появляется как кнопка чата"
-            accentColor="#AF52DE"
-          />
-
-          <PremiumStepCard
-            number={3}
-            icon={<Zap className="w-6 h-6" />}
-            title="Агент начинает работать"
-            description="Отвечает на вопросы клиентов, помогает выбрать товар, оформляет заказы и принимает оплату — всё автоматически"
-            accentColor="#30D158"
-          />
-        </section>
-
-        {/* What AI Agent Does */}
-        <section className="mb-16">
-          <h2 
-            className="mb-8"
-            style={{
-              fontSize: '28px',
-              fontWeight: 700,
-              letterSpacing: '-0.03em',
-              color: '#FFFFFF'
-            }}
-          >
-            Что умеет агент
-          </h2>
-
-          <div className="space-y-4">
-            <PremiumCapability
-              icon={<MessageSquare className="w-5 h-5" />}
-              title="Консультирует клиентов 24/7"
-              description="Отвечает на вопросы о товарах, услугах и ценах мгновенно"
-            />
-            
-            <PremiumCapability
-              icon={<ShoppingBag className="w-5 h-5" />}
-              title="Помогает с выбором"
-              description="Рекомендует товары на основе предпочтений клиента"
-            />
-
-            <PremiumCapability
-              icon={<CheckCircle2 className="w-5 h-5" />}
-              title="Оформляет заказы"
-              description="Собирает корзину, оформляет доставку и принимает оплату"
-            />
-
-            <PremiumCapability
-              icon={<BarChart3 className="w-5 h-5" />}
-              title="Собирает аналитику"
-              description="Показывает что интересует клиентов и где они уходят"
-            />
-
-            <PremiumCapability
-              icon={<Users className="w-5 h-5" />}
-              title="Персонализирует общение"
-              description="Запоминает историю и предпочтения каждого клиента"
-            />
+          <div className="ios-footnote text-white/70">{template.description}</div>
+          <div className="ios-footnote text-white/70 flex items-center space-x-1 mt-1">
+            <Clock className="w-3 h-3" />
+            <span>{template.developmentTime}</span>
+            <span>•</span>
+            <span>от {template.estimatedPrice.toLocaleString()} ₽</span>
           </div>
-        </section>
-
-        {/* Business Examples */}
-        <section className="mb-16">
-          <h2 
-            className="mb-8"
-            style={{
-              fontSize: '28px',
-              fontWeight: 700,
-              letterSpacing: '-0.03em',
-              color: '#FFFFFF'
-            }}
-          >
-            Работает для любого бизнеса
-          </h2>
-
-          <div className="grid grid-cols-2 gap-4">
-            <BusinessExample
-              icon={<ShoppingBag className="w-5 h-5" />}
-              title="Магазины"
-              accentColor="#FF2D55"
-            />
-            <BusinessExample
-              icon={<Coffee className="w-5 h-5" />}
-              title="Рестораны"
-              accentColor="#FF9F0A"
-            />
-            <BusinessExample
-              icon={<Dumbbell className="w-5 h-5" />}
-              title="Фитнес"
-              accentColor="#30D158"
-            />
-            <BusinessExample
-              icon={<Palette className="w-5 h-5" />}
-              title="Салоны красоты"
-              accentColor="#BF5AF2"
-            />
-          </div>
-        </section>
-
-        {/* Results Card - Premium glassmorphism */}
-        <section className="mb-16">
-          <div 
-            className="rounded-[32px] p-10 relative overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%)',
-              backdropFilter: 'blur(60px) saturate(200%)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              boxShadow: `
-                0 20px 60px rgba(0, 0, 0, 0.4),
-                0 1px 2px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.1)
-              `
-            }}
-          >
-            {/* Subtle gradient overlay */}
-            <div 
-              className="absolute inset-0 opacity-30 pointer-events-none"
-              style={{
-                background: 'radial-gradient(circle at 30% 20%, rgba(0, 113, 227, 0.2) 0%, transparent 50%)'
-              }}
-            />
-
-            <div className="relative z-10">
-              <div className="text-center mb-8">
-                <div 
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-3"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    border: '0.5px solid rgba(255, 255, 255, 0.2)'
-                  }}
-                >
-                  <Star className="w-3.5 h-3.5" style={{ color: '#FFD60A' }} />
-                  <span 
-                    style={{
-                      fontSize: '11px',
-                      fontWeight: 600,
-                      letterSpacing: '0.06em',
-                      color: 'rgba(255, 255, 255, 0.9)',
-                      textTransform: 'uppercase'
-                    }}
-                  >
-                    Результаты
-                  </span>
-                </div>
-                
-                <h3 
-                  style={{
-                    fontSize: '28px',
-                    fontWeight: 700,
-                    letterSpacing: '-0.03em',
-                    color: '#FFFFFF'
-                  }}
-                >
-                  Через месяц
-                </h3>
-              </div>
-
-              <div className="space-y-7">
-                <PremiumStat
-                  icon={<TrendingUp className="w-5 h-5" />}
-                  value="+40%"
-                  label="Рост конверсии в продажи"
-                  accentColor="#30D158"
-                />
-                
-                <div 
-                  className="h-px"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%)'
-                  }}
-                />
-                
-                <PremiumStat
-                  icon={<Clock className="w-5 h-5" />}
-                  value="80%"
-                  label="Запросов обрабатывает автоматически"
-                  accentColor="#007AFF"
-                />
-                
-                <div 
-                  className="h-px"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%)'
-                  }}
-                />
-                
-                <PremiumStat
-                  icon={<Users className="w-5 h-5" />}
-                  value="24/7"
-                  label="Работает без выходных"
-                  accentColor="#AF52DE"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Premium CTA */}
-        <section className="mb-10">
-          <button
-            className="w-full py-4 rounded-full transition-all duration-300 active:scale-[0.98] relative overflow-hidden group"
-            style={{
-              background: 'linear-gradient(135deg, #0071E3 0%, #005BB5 100%)',
-              boxShadow: `
-                0 8px 24px rgba(0, 113, 227, 0.35),
-                0 2px 8px rgba(0, 0, 0, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15)
-              `
-            }}
-            data-testid="button-start-setup"
-          >
-            {/* Shimmer effect */}
-            <div 
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{
-                background: 'linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%)'
-              }}
-            />
-            
-            <div className="relative flex items-center justify-center gap-2">
-              <span 
-                style={{
-                  fontSize: '17px',
-                  fontWeight: 600,
-                  letterSpacing: '-0.02em',
-                  color: '#FFFFFF'
-                }}
-              >
-                Начать настройку
-              </span>
-              <ArrowRight className="w-5 h-5 text-white group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          </button>
-
-          <p 
-            className="text-center mt-4"
-            style={{
-              fontSize: '13px',
-              color: 'rgba(255, 255, 255, 0.5)',
-              letterSpacing: '-0.01em'
-            }}
-          >
-            Первые 7 дней бесплатно · Без привязки карты
-          </p>
-        </section>
-
-        {/* Trust indicators */}
-        <section className="flex items-center justify-center gap-8 pb-4">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4" style={{ color: 'rgba(255, 255, 255, 0.4)' }} />
-            <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.4)', fontWeight: 500 }}>
-              Безопасно
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4" style={{ color: 'rgba(255, 255, 255, 0.4)' }} />
-            <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.4)', fontWeight: 500 }}>
-              Без карты
-            </span>
-          </div>
-        </section>
-
+        </div>
+        <ChevronRight className="w-5 h-5 text-white/30" />
       </div>
     </div>
   );
 });
+TemplateCard.displayName = 'TemplateCard';
 
-ConstructorPage.displayName = 'ConstructorPage';
+function ConstructorPage({ onNavigate }: ConstructorPageProps) {
+  const [selectedTemplate, setSelectedTemplate] = useState<typeof appTemplates[0] | null>(null);
+  const [selectedFeatures, setSelectedFeatures] = useState<SelectedFeature[]>([]);
+  const [activeCategory, setActiveCategory] = useState('Основные');
+  const [projectName, setProjectName] = useState('');
+  const [currentStep, setCurrentStep] = useState(1);
 
-// Premium Step Card Component
-const PremiumStepCard = memo<{
-  number: number;
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  accentColor: string;
-}>(({ number, icon, title, description, accentColor }) => (
-  <div
-    className="rounded-[24px] p-6 relative overflow-hidden group transition-all duration-300 hover:scale-[1.01]"
-    style={{
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.03) 100%)',
-      backdropFilter: 'blur(30px) saturate(150%)',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      boxShadow: `
-        0 8px 32px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08)
-      `
-    }}
-  >
-    {/* Accent glow on hover */}
-    <div 
-      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-      style={{
-        background: `radial-gradient(circle at 30% 30%, ${accentColor}15 0%, transparent 60%)`
-      }}
-    />
-
-    <div className="relative z-10 flex items-start gap-5">
-      {/* Number badge */}
-      <div 
-        className="flex-shrink-0 flex items-center justify-center rounded-[14px] relative overflow-hidden"
-        style={{
-          width: '44px',
-          height: '44px',
-          background: `linear-gradient(135deg, ${accentColor}20 0%, ${accentColor}10 100%)`,
-          border: `1px solid ${accentColor}30`,
-          boxShadow: `0 4px 16px ${accentColor}15`
-        }}
-      >
-        <span 
-          style={{
-            fontSize: '18px',
-            fontWeight: 700,
-            color: accentColor
-          }}
-        >
-          {number}
-        </span>
-      </div>
-
-      <div className="flex-1 min-w-0 pt-1">
-        <div className="flex items-center gap-2.5 mb-2.5">
-          <div style={{ color: accentColor }}>
-            {icon}
-          </div>
-          <h3 
-            style={{
-              fontSize: '18px',
-              fontWeight: 600,
-              letterSpacing: '-0.02em',
-              color: '#FFFFFF'
-            }}
-          >
-            {title}
-          </h3>
-        </div>
-        
-        <p 
-          style={{
-            fontSize: '15px',
-            lineHeight: '1.5',
-            color: 'rgba(255, 255, 255, 0.65)',
-            letterSpacing: '-0.011em'
-          }}
-        >
-          {description}
-        </p>
-      </div>
-    </div>
-  </div>
-));
-
-PremiumStepCard.displayName = 'PremiumStepCard';
-
-// Premium Capability Card
-const PremiumCapability = memo<{
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}>(({ icon, title, description }) => (
-  <div
-    className="rounded-[20px] p-5 relative overflow-hidden group transition-all duration-200 hover:scale-[1.01]"
-    style={{
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
-      backdropFilter: 'blur(20px)',
-      border: '0.5px solid rgba(255, 255, 255, 0.08)',
-      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
-    }}
-  >
-    <div className="flex items-start gap-4">
-      <div 
-        className="flex-shrink-0 flex items-center justify-center rounded-[12px] mt-0.5"
-        style={{
-          width: '40px',
-          height: '40px',
-          background: 'linear-gradient(135deg, rgba(0, 122, 255, 0.15) 0%, rgba(0, 122, 255, 0.08) 100%)',
-          border: '0.5px solid rgba(0, 122, 255, 0.2)',
-          color: '#007AFF'
-        }}
-      >
-        {icon}
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <h4 
-          className="mb-1.5"
-          style={{
-            fontSize: '16px',
-            fontWeight: 600,
-            letterSpacing: '-0.02em',
-            color: '#FFFFFF'
-          }}
-        >
-          {title}
-        </h4>
-        <p 
-          style={{
-            fontSize: '14px',
-            lineHeight: '1.5',
-            color: 'rgba(255, 255, 255, 0.6)',
-            letterSpacing: '-0.011em'
-          }}
-        >
-          {description}
-        </p>
-      </div>
-    </div>
-  </div>
-));
-
-PremiumCapability.displayName = 'PremiumCapability';
-
-// Business Example Component
-const BusinessExample = memo<{
-  icon: React.ReactNode;
-  title: string;
-  accentColor: string;
-}>(({ icon, title, accentColor }) => (
-  <div
-    className="rounded-[20px] p-5 flex flex-col items-center gap-3 transition-all duration-200 hover:scale-[1.02]"
-    style={{
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
-      backdropFilter: 'blur(20px)',
-      border: '0.5px solid rgba(255, 255, 255, 0.08)',
-      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
-    }}
-  >
-    <div 
-      className="flex items-center justify-center rounded-[14px]"
-      style={{
-        width: '52px',
-        height: '52px',
-        background: `linear-gradient(135deg, ${accentColor}20 0%, ${accentColor}10 100%)`,
-        border: `0.5px solid ${accentColor}30`,
-        color: accentColor
-      }}
-    >
-      {icon}
-    </div>
-    <span 
-      style={{
-        fontSize: '15px',
-        fontWeight: 500,
-        color: 'rgba(255, 255, 255, 0.85)',
-        textAlign: 'center',
-        letterSpacing: '-0.01em'
-      }}
-    >
-      {title}
-    </span>
-  </div>
-));
-
-BusinessExample.displayName = 'BusinessExample';
-
-// Premium Stat Component
-const PremiumStat = memo<{
-  icon: React.ReactNode;
-  value: string;
-  label: string;
-  accentColor: string;
-}>(({ icon, value, label, accentColor }) => (
-  <div className="flex items-center gap-5">
-    <div 
-      className="flex-shrink-0 flex items-center justify-center rounded-[14px]"
-      style={{
-        width: '52px',
-        height: '52px',
-        background: `linear-gradient(135deg, ${accentColor}20 0%, ${accentColor}10 100%)`,
-        border: `1px solid ${accentColor}30`,
-        color: accentColor,
-        boxShadow: `0 4px 16px ${accentColor}15`
-      }}
-    >
-      {icon}
-    </div>
+  // Memoized select template handler
+  const selectTemplate = useCallback((template: typeof appTemplates[0]) => {
+    setSelectedTemplate(template);
+    setProjectName(`Мой ${template.name}`);
     
-    <div className="flex-1">
-      <div 
-        style={{
-          fontSize: '34px',
-          fontWeight: 700,
-          letterSpacing: '-0.04em',
-          color: '#FFFFFF',
-          marginBottom: '2px',
-          lineHeight: 1
-        }}
-      >
-        {value}
+    const templateFeatures = template.features.map(featureId => {
+      const feature = availableFeatures.find(f => f.id === featureId);
+      if (feature) {
+        return {
+          id: feature.id,
+          name: feature.name,
+          price: feature.price,
+          category: feature.category
+        };
+      }
+      return null;
+    }).filter(Boolean) as SelectedFeature[];
+    
+    setSelectedFeatures(templateFeatures);
+    setCurrentStep(2);
+  }, []);
+
+  // Track project creation when user first enters a name
+  const hasTrackedProjectRef = useRef(false);
+  useEffect(() => {
+    if (projectName.trim().length > 0 && !hasTrackedProjectRef.current) {
+      hasTrackedProjectRef.current = true;
+      trackProjectCreation();
+    }
+  }, [projectName]);
+
+  // Memoized toggle feature handler
+  const toggleFeature = useCallback((feature: typeof availableFeatures[0]) => {
+    if (feature.included) return;
+    if (selectedTemplate?.features.includes(feature.id)) return;
+    
+    const isSelected = selectedFeatures.find(f => f.id === feature.id);
+    if (isSelected) {
+      setSelectedFeatures(prev => prev.filter(f => f.id !== feature.id));
+    } else {
+      setSelectedFeatures(prev => [...prev, {
+        id: feature.id,
+        name: feature.name,
+        price: feature.price,
+        category: feature.category
+      }]);
+      // Track feature addition for gamification
+      trackFeatureAdded();
+    }
+  }, [selectedFeatures, selectedTemplate]);
+
+  // Memoized total calculation
+  const calculateTotal = useCallback(() => {
+    const basePrice = selectedTemplate?.estimatedPrice || 0;
+    const templateIncludedFeatures = selectedTemplate?.features || [];
+    
+    const featuresPrice = selectedFeatures
+      .filter(f => {
+        const feature = availableFeatures.find(af => af.id === f.id);
+        const isIncluded = feature?.included;
+        const isInTemplate = templateIncludedFeatures.includes(f.id);
+        return !isIncluded && !isInTemplate;
+      })
+      .reduce((sum, feature) => sum + feature.price, 0);
+    
+    return basePrice + featuresPrice;
+  }, [selectedTemplate, selectedFeatures]);
+
+  const totalPrice = useMemo(() => calculateTotal(), [calculateTotal]);
+
+  // Memoized order handler
+  const handleOrderClick = useCallback(() => {
+    if (!selectedTemplate || !projectName.trim()) return;
+    
+    const orderData = {
+      projectName: projectName.trim(),
+      selectedFeatures,
+      selectedTemplate: selectedTemplate.name,
+      totalAmount: totalPrice,
+      estimatedDevelopmentTime: selectedTemplate.developmentTime
+    };
+    
+    onNavigate('checkout', orderData);
+  }, [selectedTemplate, projectName, selectedFeatures, totalPrice, onNavigate]);
+
+  // Memoized step navigation
+  const goToStep = useCallback((step: number) => setCurrentStep(step), []);
+
+  // Memoized filtered features
+  const filteredFeatures = useMemo(() => 
+    availableFeatures.filter(f => f.category === activeCategory),
+    [activeCategory]
+  );
+
+  // Memoized template handlers
+  const templateHandlers = useMemo(() => 
+    appTemplates.map(template => ({
+      id: template.id,
+      handler: () => selectTemplate(template)
+    })),
+    [selectTemplate]
+  );
+
+  // Memoized additional features price
+  const additionalFeaturesPrice = useMemo(() => {
+    const templateIncludedFeatures = selectedTemplate?.features || [];
+    return selectedFeatures
+      .filter(f => {
+        const feature = availableFeatures.find(af => af.id === f.id);
+        const isIncluded = feature?.included;
+        const isInTemplate = templateIncludedFeatures.includes(f.id);
+        return !isIncluded && !isInTemplate;
+      })
+      .reduce((sum, f) => sum + f.price, 0);
+  }, [selectedFeatures, selectedTemplate]);
+
+  return (
+    <div className="min-h-screen bg-black text-white pb-32">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        
+        {/* Payment Model Section */}
+        <section>
+          <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-7 overflow-hidden">
+            {/* Subtle gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-system-blue/5 via-transparent to-system-purple/5 pointer-events-none"/>
+            
+            <div className="relative z-10">
+              {/* Header */}
+              <div className="text-center mb-6">
+                <h3 className="ios-title2 mb-2 text-white font-bold">Прозрачная оплата</h3>
+                <p className="ios-subheadline text-white/70 max-w-xs mx-auto">
+                  Платите поэтапно — минимальный риск, максимальный контроль
+                </p>
+              </div>
+
+              {/* Payment Stages */}
+              <div className="space-y-3 mb-6">
+                {/* Stage 1 - 35% Prepayment */}
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-system-green/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
+                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-green/40 transition-all">
+                    <div className="flex items-start space-x-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-system-green/30 rounded-xl blur-md"/>
+                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-green/30 to-system-green/10 rounded-xl flex items-center justify-center border border-system-green/30">
+                          <Zap className="w-6 h-6 text-system-green" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <div className="ios-headline font-bold text-white mb-0.5">35% предоплата</div>
+                            <div className="ios-caption1 text-system-green font-semibold">Запуск разработки</div>
+                          </div>
+                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
+                            <span className="ios-caption2 font-bold text-system-green">1</span>
+                          </div>
+                        </div>
+                        <p className="ios-footnote text-white/70 leading-relaxed">
+                          Мы начинаем создавать ваше приложение сразу после внесения предоплаты
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Stage 2 - 65% After Delivery */}
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-system-blue/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
+                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-blue/40 transition-all">
+                    <div className="flex items-start space-x-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-system-blue/30 rounded-xl blur-md"/>
+                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-blue/30 to-system-blue/10 rounded-xl flex items-center justify-center border border-system-blue/30">
+                          <CheckCircle className="w-6 h-6 text-system-blue" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <div className="ios-headline font-bold text-white mb-0.5">65% при получении</div>
+                            <div className="ios-caption1 text-system-blue font-semibold">Готовое приложение</div>
+                          </div>
+                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
+                            <span className="ios-caption2 font-bold text-system-green">2</span>
+                          </div>
+                        </div>
+                        <p className="ios-footnote text-white/70 leading-relaxed">
+                          Оплачиваете остаток только после тестирования и принятия работы
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Stage 3 - Monthly Subscription */}
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-system-green/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
+                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-green/40 transition-all">
+                    <div className="flex items-start space-x-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-system-green/30 rounded-xl blur-md"/>
+                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-green/30 to-system-green/10 rounded-xl flex items-center justify-center border border-system-green/30">
+                          <TrendingUp className="w-6 h-6 text-system-green" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <div className="ios-headline font-bold text-white mb-0.5">Поддержка и развитие</div>
+                            <div className="ios-caption1 text-system-green font-semibold">Ежемесячная подписка</div>
+                          </div>
+                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
+                            <span className="ios-caption2 font-bold text-system-green">3</span>
+                          </div>
+                        </div>
+                        <p className="ios-footnote text-white/70 leading-relaxed">
+                          Стабильная работа, обновления и поддержка вашего бизнеса 24/7
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Monthly Subscription Details */}
+              <div className="relative mt-6 pt-6 border-t border-white/10">
+                <div className="text-center mb-5">
+                  <div className="inline-flex items-center justify-center px-3 py-1 bg-system-green/10 border border-system-green/30 rounded-full mb-3">
+                    <Rocket className="w-3.5 h-3.5 text-system-green mr-2" />
+                    <span className="ios-caption1 text-system-green font-semibold">Что входит в подписку</span>
+                  </div>
+                </div>
+                
+                {/* What's included - Grid Layout */}
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-system-green" />
+                    </div>
+                    <span className="ios-caption1 text-white/90 leading-tight">Хостинг и сервера</span>
+                  </div>
+                  <div className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-system-green" />
+                    </div>
+                    <span className="ios-caption1 text-white/90 leading-tight">Поддержка 24/7</span>
+                  </div>
+                  <div className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-system-green" />
+                    </div>
+                    <span className="ios-caption1 text-white/90 leading-tight">Обновления</span>
+                  </div>
+                  <div className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-system-green" />
+                    </div>
+                    <span className="ios-caption1 text-white/90 leading-tight">Резервные копии</span>
+                  </div>
+                </div>
+
+                {/* Price Card */}
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-system-blue/20 via-system-purple/20 to-system-green/20 rounded-2xl blur-xl"/>
+                  <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border border-white/30 p-6 text-center">
+                    {/* Free Month Badge */}
+                    <div className="inline-flex items-center justify-center px-4 py-1.5 bg-system-green/20 border border-system-green/40 rounded-full mb-4">
+                      <Gift className="w-3.5 h-3.5 text-system-green mr-2" />
+                      <span className="ios-caption1 text-system-green font-bold">Первый месяц в подарок</span>
+                    </div>
+                    
+                    {/* Price */}
+                    <div className="mb-3">
+                      <div className="flex items-baseline justify-center space-x-1">
+                        <span className="ios-title1 font-bold text-system-green">5,999</span>
+                        <span className="ios-body text-system-green">₽</span>
+                      </div>
+                      <div className="ios-footnote text-white/60 mt-1">в месяц со второго месяца</div>
+                    </div>
+
+                    {/* Value proposition */}
+                    <div className="ios-caption2 text-white/50">
+                      Всё включено • Без скрытых платежей
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Progress Steps */}
+        <section>
+          <div className="ios-list">
+            <div className="ios-list-item">
+              <div className="flex items-center space-x-3">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  currentStep >= 1 ? 'bg-system-blue' : 'bg-white/10'
+                }`}>
+                  {currentStep > 1 ? (
+                    <Check className="w-3 h-3 text-white/90" />
+                  ) : (
+                    <span className="ios-caption2 text-white font-bold">1</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="ios-body font-semibold text-white">Выберите тип приложения</div>
+                  <div className="ios-footnote text-white/70">Готовый шаблон под ваш бизнес</div>
+                </div>
+                {currentStep === 1 && <div className="w-2 h-2 bg-system-blue rounded-full" />}
+              </div>
+            </div>
+            <div className="ios-list-item">
+              <div className="flex items-center space-x-3">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  currentStep >= 2 ? 'bg-system-blue' : 'bg-white/10'
+                }`}>
+                  {currentStep > 2 ? (
+                    <Check className="w-3 h-3 text-white/90" />
+                  ) : (
+                    <span className="ios-caption2 text-white font-bold">2</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="ios-body font-semibold text-white">Добавьте функции</div>
+                  <div className="ios-footnote text-white/70">Расширьте возможности</div>
+                </div>
+                {currentStep === 2 && <div className="w-2 h-2 bg-system-blue rounded-full" />}
+              </div>
+            </div>
+            <div className="ios-list-item">
+              <div className="flex items-center space-x-3">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  currentStep >= 3 ? 'bg-system-blue' : 'bg-white/10'
+                }`}>
+                  <span className="ios-caption2 text-white font-bold">3</span>
+                </div>
+                <div className="flex-1">
+                  <div className="ios-body font-semibold text-white">Оформите заказ</div>
+                  <div className="ios-footnote text-white/70">Запустите разработку</div>
+                </div>
+                {currentStep === 3 && <div className="w-2 h-2 bg-system-blue rounded-full" />}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Step 1: Template Selection */}
+        {currentStep === 1 && (
+          <section className="space-y-6">
+            <div className="text-center">
+              <h2 className="ios-title3 mb-2 text-white">Шаг 1: Выберите тип</h2>
+              <p className="ios-subheadline text-white/70">
+                Готовые решения для разных сфер бизнеса
+              </p>
+            </div>
+
+            <div className="ios-list">
+              {appTemplates.map((template, idx) => (
+                <TemplateCard
+                  key={template.id}
+                  template={template}
+                  onSelect={templateHandlers[idx].handler}
+                />
+              ))}
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-4 bg-system-blue/10 border-system-blue/20">
+              <div className="flex items-start space-x-3">
+                <Info className="w-5 h-5 text-system-blue mt-0.5" />
+                <div>
+                  <div className="ios-body font-semibold text-system-blue">Подсказка</div>
+                  <div className="ios-footnote text-white/70">
+                    Выберите тип, наиболее близкий к вашему бизнесу. 
+                    Позже можно будет добавить дополнительные функции.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Step 2: Features Selection */}
+        {currentStep === 2 && selectedTemplate && (
+          <section className="space-y-6">
+            <div className="text-center">
+              <h2 className="ios-title3 mb-2 text-white">Шаг 2: Настройте функции</h2>
+              <p className="ios-subheadline text-white/70">
+                Добавьте нужные возможности для вашего приложения
+              </p>
+            </div>
+
+            {/* Project Name */}
+            <div className="liquid-glass-card rounded-2xl p-4">
+              <div className="ios-field-label text-white/70">Название проекта</div>
+              <input
+                type="text"
+                className="ios-field w-full mt-1 bg-white/10 text-white border-white/20 focus:border-system-blue"
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                placeholder="Введите название"
+                data-testid="project-name-input"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
+                inputMode="text"
+                enterKeyHint="done"
+              />
+            </div>
+
+            {/* Category Selector */}
+            <div className="overflow-x-auto">
+              <div className="flex space-x-2 min-w-max">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      activeCategory === category 
+                        ? 'bg-system-blue text-white shadow-lg' 
+                        : 'liquid-glass-card text-white/70 hover:text-white'
+                    }`}
+                    onClick={() => setActiveCategory(category)}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Features List */}
+            <div className="ios-list">
+              <div className="ios-list-header text-white/70">{activeCategory}</div>
+              {filteredFeatures.map((feature) => {
+                const IconComponent = feature.icon;
+                const isSelected = selectedFeatures.find(f => f.id === feature.id);
+                const isIncluded = feature.included;
+                const isInTemplate = selectedTemplate?.features.includes(feature.id);
+                const isIncludedInAny = isIncluded || isInTemplate;
+                
+                return (
+                  <div
+                    key={feature.id}
+                    className={`ios-list-item ${!isIncludedInAny ? 'cursor-pointer' : ''}`}
+                    onClick={() => !isIncludedInAny && toggleFeature(feature)}
+                    data-testid={`feature-${feature.id}`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                        isSelected || isIncludedInAny
+                          ? 'bg-system-blue border-system-blue'
+                          : 'border-white/30'
+                      }`}>
+                        {(isSelected || isIncludedInAny) && (
+                          <Check className="w-3 h-3 text-white/90" />
+                        )}
+                      </div>
+                      <IconComponent className="w-5 h-5 text-white/70" />
+                      <div className="flex-1">
+                        <div className="ios-body font-semibold text-white">{feature.name}</div>
+                        {isIncludedInAny && (
+                          <div className="ios-footnote text-system-green">Включено в шаблон</div>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <div className="ios-body font-semibold text-system-blue">
+                          {isIncludedInAny ? 'Включено' : `+${feature.price.toLocaleString()} ₽`}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex space-x-3">
+              <button
+                className="ios-button-plain flex-1"
+                onClick={() => goToStep(1)}
+              >
+                Назад
+              </button>
+              <button
+                className="ios-button-filled flex-1"
+                onClick={() => goToStep(3)}
+                disabled={!projectName.trim()}
+              >
+                Далее
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* Step 3: Review and Order */}
+        {currentStep === 3 && selectedTemplate && (
+          <section className="space-y-6">
+            <div className="text-center">
+              <h2 className="ios-title3 mb-2 text-white">Шаг 3: Подтвердите заказ</h2>
+              <p className="ios-subheadline text-white/70">
+                Проверьте конфигурацию и запустите разработку
+              </p>
+            </div>
+
+            {/* Project Summary */}
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6 space-y-4">
+              <div className="text-center">
+                <h3 className="ios-title3 mb-1 text-white">{projectName}</h3>
+                <p className="ios-footnote text-white/70">
+                  На основе шаблона "{selectedTemplate.name}"
+                </p>
+              </div>
+              
+              <div className="border-t border-white/20 pt-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="ios-body text-white">Базовая стоимость</span>
+                  <span className="ios-body font-semibold text-white">{selectedTemplate.estimatedPrice.toLocaleString()} ₽</span>
+                </div>
+                
+                {additionalFeaturesPrice > 0 && (
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="ios-body text-white">Дополнительные функции</span>
+                    <span className="ios-body font-semibold text-white">
+                      +{additionalFeaturesPrice.toLocaleString()} ₽
+                    </span>
+                  </div>
+                )}
+                
+                <div className="border-t border-white/20 pt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="ios-headline font-bold text-white">Итого</span>
+                    <span className="ios-title3 font-bold text-system-blue">{totalPrice.toLocaleString()} ₽</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 bg-system-green/10 border-system-green/20 p-4">
+                <div className="flex items-center space-x-2 justify-center">
+                  <Clock className="w-4 h-4 text-system-green" />
+                  <span className="ios-footnote text-system-green font-semibold">
+                    Готовность: {selectedTemplate.developmentTime}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <button
+                className="ios-button-filled w-full"
+                onClick={handleOrderClick}
+                data-testid="button-order"
+              >
+                Заказать за {totalPrice.toLocaleString()} ₽
+              </button>
+              
+              <button
+                className="ios-button-plain w-full"
+                onClick={() => goToStep(2)}
+              >
+                Изменить функции
+              </button>
+              
+              <div className="text-center">
+                <p className="ios-footnote text-white/70">
+                  Предоплата 30% • Остальное по готовности этапов
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
       </div>
-      <div 
-        style={{
-          fontSize: '15px',
-          color: 'rgba(255, 255, 255, 0.65)',
-          letterSpacing: '-0.011em'
-        }}
-      >
-        {label}
-      </div>
+
+      {/* Sticky Summary Bar */}
+      {selectedTemplate && currentStep > 1 && (
+        <div className="fixed bottom-20 left-0 right-0 px-4 z-40" data-testid="summary-bar">
+          <div className="max-w-md mx-auto">
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-3 bg-black/90 backdrop-blur-xl border-white/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="ios-footnote text-white/70">Текущая стоимость</div>
+                  <div className="ios-headline font-bold text-system-blue">
+                    {totalPrice.toLocaleString()} ₽
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="ios-footnote text-white/70">Функций</div>
+                  <div className="ios-headline font-bold text-white">
+                    {selectedFeatures.length}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-));
+  );
+}
 
-PremiumStat.displayName = 'PremiumStat';
-
-export default ConstructorPage;
+export default memo(ConstructorPage);
