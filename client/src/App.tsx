@@ -1,18 +1,15 @@
-import { useState, useEffect, Suspense, lazy, useCallback, memo } from "react";
+import { useState, useEffect, Suspense, lazy, useCallback } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { RewardsProvider } from "./contexts/RewardsContext";
-import { XPNotificationProvider } from "./contexts/XPNotificationContext";
-import { HelmetProvider } from "react-helmet-async";
 import { useTelegram } from "./hooks/useTelegram";
-import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
+import { Home, ShoppingCart, Briefcase, Bot, User } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
-import { LazyMotionProvider } from "./utils/LazyMotionProvider";
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import { PageTransition } from "./components/PageTransition";
-import UserAvatar from "./components/UserAvatar";
+
+// Lazy load heavy providers and components to reduce initial bundle
+const RewardsProvider = lazy(() => import("./contexts/RewardsContext").then(m => ({ default: m.RewardsProvider })));
+const XPNotificationProvider = lazy(() => import("./contexts/XPNotificationContext").then(m => ({ default: m.XPNotificationProvider })));
+const LazyMotionProvider = lazy(() => import("./utils/LazyMotionProvider").then(m => ({ default: m.LazyMotionProvider })));
 
 // Lazy load ALL pages including ShowcasePage for optimal bundle splitting
 const ShowcasePage = lazy(() => import("./components/ShowcasePage"));
@@ -248,21 +245,17 @@ function App() {
   const shouldShowBottomNav = !route.component.includes('demo') && route.component !== 'notFound';
 
   return (
-    <ErrorBoundary>
-      <HelmetProvider>
-        <QueryClientProvider client={queryClient}>
-          <LazyMotionProvider>
-            <RewardsProvider>
-              <XPNotificationProvider>
-                <TooltipProvider>
-                  <div className="relative min-h-screen">
-                    <div className="floating-elements"></div>
-                    
-                    <div className="pb-24">
-                      <PageTransition routeKey={`${route.component}-${route.params?.id ?? ''}`}>
-                        {renderRoute()}
-                      </PageTransition>
-                    </div>
+    <QueryClientProvider client={queryClient}>
+      <Suspense fallback={<div className="min-h-screen bg-black" />}>
+        <LazyMotionProvider>
+          <RewardsProvider>
+            <XPNotificationProvider>
+              <div className="relative min-h-screen">
+                <div className="floating-elements"></div>
+                
+                <div className="pb-24">
+                  {renderRoute()}
+                </div>
             
                 {/* Liquid Glass Bottom Navigation */}
                 {shouldShowBottomNav && (
@@ -423,17 +416,14 @@ function App() {
                             aria-label="Профиль пользователя"
                             aria-current={route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning' ? 'page' : undefined}
                           >
-                            <div className={`transition-all duration-300 ${
-                              route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning'
-                                ? 'scale-110' 
-                                : 'scale-100'
-                            }`}>
-                              <UserAvatar
-                                photoUrl={user?.photo_url}
-                                firstName={user?.first_name}
-                                size="sm"
-                              />
-                            </div>
+                            <User
+                              className={`transition-all duration-300 ${
+                                route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning'
+                                  ? 'w-6 h-6 text-white' 
+                                  : 'w-5 h-5 text-white/70 hover:text-white'
+                              }`}
+                              strokeWidth={2}
+                            />
                           </button>
                     
                   </nav>
@@ -444,13 +434,11 @@ function App() {
           
           <Toaster />
         </div>
-      </TooltipProvider>
       </XPNotificationProvider>
       </RewardsProvider>
       </LazyMotionProvider>
+      </Suspense>
     </QueryClientProvider>
-    </HelmetProvider>
-    </ErrorBoundary>
   );
 }
 
