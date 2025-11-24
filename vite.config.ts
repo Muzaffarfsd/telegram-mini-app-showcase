@@ -68,37 +68,60 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunks - careful splitting to avoid initialization issues
+          // Vendor chunks - strict splitting to prevent initialization errors
           if (id.includes('node_modules')) {
-            // ✅ Core React + ALL React ecosystem in ONE chunk
-            // This prevents "Cannot access before initialization" errors
-            if (id.includes('react') || id.includes('scheduler')) {
+            // ✅ CRITICAL: All React-dependent libraries MUST be in vendor chunk
+            // This includes: react, react-dom, zustand, @uppy/react, swiper, cmdk, etc.
+            if (
+              id.includes('react') || 
+              id.includes('scheduler') ||
+              id.includes('zustand') ||
+              id.includes('@uppy/react') ||
+              id.includes('swiper') ||
+              id.includes('cmdk') ||
+              id.includes('@hookform') ||
+              id.includes('react-hook-form') ||
+              id.includes('wouter') ||
+              id.includes('next-themes')
+            ) {
               return 'vendor';
             }
             
-            // ✅ Radix UI depends on React, separate chunk loaded after vendor
+            // ✅ Radix UI - depends on React, separate chunk
             if (id.includes('@radix-ui')) {
               return 'ui-vendor';
             }
             
-            // ✅ Framer Motion - lazy loaded, heavy animation lib
+            // ✅ Framer Motion - heavy animation lib
             if (id.includes('framer-motion')) {
               return 'animation-vendor';
             }
             
-            // ✅ TanStack - separate ecosystem
+            // ✅ TanStack - React Query ecosystem
             if (id.includes('@tanstack')) {
               return 'tanstack-vendor';
             }
             
-            // ✅ Icons - can be separate
-            if (id.includes('lucide-react') || id.includes('react-icons')) {
+            // ✅ Icons - pure components
+            if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) {
               return 'icons-vendor';
             }
             
-            // ✅ All other utilities - NO React dependencies here
-            // Things like: date-fns, lodash, utility libraries
-            return 'utils-vendor';
+            // ✅ Pure utilities ONLY - NO React dependencies!
+            // Safe: date-fns, zod, clsx, nanoid, class-variance-authority
+            if (
+              id.includes('date-fns') ||
+              id.includes('zod') ||
+              id.includes('clsx') ||
+              id.includes('tailwind-merge') ||
+              id.includes('class-variance-authority') ||
+              id.includes('nanoid')
+            ) {
+              return 'utils-vendor';
+            }
+            
+            // ✅ Everything else goes to vendor (safe default)
+            return 'vendor';
           }
           
           // ✅ Let Rollup auto-split ShowcasePage into smaller chunks
