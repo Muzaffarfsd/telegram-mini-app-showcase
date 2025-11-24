@@ -5,6 +5,21 @@ interface ProjectsPageProps {
   onOpenDemo: (demoId: string) => void;
 }
 
+// Уникальные градиенты для каждой карточки
+const gradients = [
+  'linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335, #4285f4)', // Google colors
+  'linear-gradient(90deg, #667eea, #764ba2, #f093fb, #4facfe, #667eea)', // Purple-Blue
+  'linear-gradient(90deg, #f093fb, #f5576c, #feca57, #48dbfb, #f093fb)', // Pink-Yellow
+  'linear-gradient(90deg, #fa709a, #fee140, #30cfd0, #330867, #fa709a)', // Sunset
+  'linear-gradient(90deg, #4facfe, #00f2fe, #43e97b, #38f9d7, #4facfe)', // Ocean
+  'linear-gradient(90deg, #f857a6, #ff5858, #f6d365, #fda085, #f857a6)', // Warm
+  'linear-gradient(90deg, #a8edea, #fed6e3, #fbc2eb, #a6c1ee, #a8edea)', // Pastel
+  'linear-gradient(90deg, #ff9a56, #ff6a88, #fcb69f, #ff9a9e, #ff9a56)', // Coral
+  'linear-gradient(90deg, #00c6ff, #0072ff, #00d2ff, #3a7bd5, #00c6ff)', // Sky
+  'linear-gradient(90deg, #f093fb, #f5576c, #4facfe, #00f2fe, #f093fb)', // Vibrant
+  'linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c, #667eea)', // Deep Purple
+];
+
 export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
   // Показываем только топ-11 самых популярных приложений
   const topApps = demoApps.slice(0, 11);
@@ -29,18 +44,14 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
               onClick={() => onOpenDemo(app.id)}
               className="relative cursor-pointer group"
               data-testid={`card-app-${app.id}`}
-              style={{
-                // Задержка анимации для эффекта каскада
-                animationDelay: `${index * 0.05}s`
-              }}
             >
-              {/* Animated gradient border */}
+              {/* Animated gradient border - толще и уникальный градиент */}
               <div 
-                className="absolute -inset-[1px] rounded-2xl opacity-75 group-hover:opacity-100 transition-opacity duration-500"
+                className="absolute -inset-[2.5px] rounded-2xl opacity-80 group-hover:opacity-100 transition-opacity duration-500"
                 style={{
-                  background: 'linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335, #4285f4)',
+                  background: gradients[index % gradients.length],
                   backgroundSize: '300% 100%',
-                  animation: 'gradient-shift 3s ease infinite',
+                  animation: 'gradient-shift 4s ease infinite',
                   filter: 'blur(0.5px)'
                 }}
               />
