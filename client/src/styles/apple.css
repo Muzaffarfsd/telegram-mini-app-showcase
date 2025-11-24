@@ -225,3 +225,72 @@ h1, h2, h3, h4, h5, h6 {
   outline: 2px solid var(--apple-blue);
   outline-offset: 2px;
 }
+
+/* Smooth Scroll Behavior - Apple style */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fade-in on scroll animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Apple-style scroll reveal utility classes */
+.scroll-fade-in {
+  animation: fadeInUp 0.8s var(--ease-out-apple) forwards;
+}
+
+.scroll-fade-in-delay-1 {
+  animation: fadeInUp 0.8s var(--ease-out-apple) 0.1s forwards;
+  opacity: 0;
+}
+
+.scroll-fade-in-delay-2 {
+  animation: fadeInUp 0.8s var(--ease-out-apple) 0.2s forwards;
+  opacity: 0;
+}
+
+.scroll-fade-in-delay-3 {
+  animation: fadeInUp 0.8s var(--ease-out-apple) 0.3s forwards;
+  opacity: 0;
+}
+
+/* Parallax effect for hero sections */
+.parallax-slow {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Smooth transitions for all interactive elements */
+.interactive-smooth {
+  transition: all 0.25s var(--ease-out-apple);
+}
+
+/* Apple-style backdrop blur */
+.backdrop-blur-apple {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
