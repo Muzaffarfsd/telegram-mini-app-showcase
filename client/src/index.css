@@ -23,12 +23,11 @@
 
 /* === PERFORMANCE OPTIMIZATIONS FOR TELEGRAM === */
 html {
-  /* Smooth scrolling with momentum (iOS-like) */
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  /* Use native instant scroll (no smooth) for better performance */
+  scroll-behavior: auto;
   
-  /* Optimize scroll performance */
-  scroll-padding-top: 0;
+  /* iOS momentum scrolling */
+  -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -39,33 +38,12 @@ body {
   
   /* Prevent layout shifts */
   overflow-x: hidden;
+  
+  /* No overscroll bounce */
   overscroll-behavior-y: none;
   
-  /* GPU acceleration for smooth scrolling */
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  
-  /* Optimize repaints during scroll */
-  will-change: scroll-position;
-}
-
-/* Optimize all scrollable containers */
-* {
-  /* Smooth scrolling for all elements */
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Optimize main scrollable area for best performance */
-main, [role="main"], .scroll-container {
-  /* CSS Containment for better scroll performance */
-  contain: layout style paint;
-  
-  /* Hint browser about scroll changes */
-  will-change: transform;
-  
-  /* Hardware acceleration */
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
+  /* Prevent scroll delays on mobile */
+  touch-action: pan-y;
 }
 
 :root {
@@ -3041,4 +3019,52 @@ main, [role="main"], .scroll-container {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+/* ========================================
+   SCROLL PERFORMANCE OPTIMIZATIONS
+   ======================================== */
+
+/* Auto-optimize off-screen content rendering */
+.demo-card,
+.bento-item,
+[data-scroll-optimize] {
+  /* Browser skips rendering off-screen elements */
+  content-visibility: auto;
+  
+  /* Hint approximate size to prevent layout shifts */
+  contain-intrinsic-size: auto 400px;
+}
+
+/* Reduce GPU load during scroll by pausing animations */
+@media (prefers-reduced-motion: no-preference) {
+  /* Pause heavy animations when scrolling */
+  @supports (animation-timeline: scroll()) {
+    .scroll-pause-animations {
+      animation-play-state: paused;
+    }
+  }
+}
+
+/* Optimize images for scroll performance */
+img, video {
+  /* Hint browser about decoding strategy */
+  image-rendering: auto;
+  
+  /* Optimize rendering */
+  rendering-intent: auto;
+}
+
+/* Improve scroll smoothness on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  html {
+    /* Enhanced touch scrolling */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  /* Reduce work during scroll */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
 }

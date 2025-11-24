@@ -392,6 +392,7 @@ const DemoCard = memo<{
       onMouseEnter={() => preloadDemo(id)}
       onTouchStart={() => preloadDemo(id)}
       data-testid={`demo-card-${id}`}
+      data-scroll-optimize
     >
       {videoSrc && (
         <video 
