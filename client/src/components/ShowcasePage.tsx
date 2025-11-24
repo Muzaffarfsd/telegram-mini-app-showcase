@@ -1,252 +1,1016 @@
-import { memo, useCallback, useMemo } from "react";
-import { ChevronRight } from "lucide-react";
+import { Smartphone, ShoppingCart, Code, Star, Users, Search } from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback, memo, useMemo } from "react";
+import { m } from 'framer-motion';
+import { MotionStagger, MotionBox, HoverScale } from './MotionWrapper';
+import { useTelegram } from '../hooks/useTelegram';
+import { useHaptic } from '../hooks/useHaptic';
+import { useTrackInteraction } from '@/hooks/useAIRecommendations';
+import { ClothingIcon, ElectronicsIcon, BeautyIcon, RestaurantIcon, FitnessIcon, CarServiceIcon } from './AnimatedBusinessIcons';
+import { LazyVideo } from './LazyVideo';
+import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
+import { preloadDemo } from './demos/DemoRegistry';
+import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
+import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
+import storeHomepageImage from "@assets/image_1761735146810.png";
+import sneakerStoreImage from "@assets/image_1761735746522.png";
+import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
+import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
+import nikeAcgImage from "@assets/acc835fff3bb452f0c3b534056fbe1ea_1763719574494.jpg";
+import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
+
+// Videos served from public/videos/ to reduce Docker image size for Railway deployment
+const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
+const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
+const watchesVideo = "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4";
+const heroVideo = "/videos/1341996d8f73172cbc77930dc818d88e_t4_1763643600785.mp4";
+
+// Lazy load heavy components for better initial load performance
 
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
   onOpenDemo: (demoId: string) => void;
 }
 
-// Demo apps data - 11 готовых приложений
-const demoApps = [
-  {
-    id: 'clothing-store',
-    title: 'Radiance',
-    description: 'Магазин модной одежды и аксессуаров',
-    gradient: 'from-pink-500/10 to-purple-500/10',
-    iconBg: 'rgba(255, 45, 85, 0.15)',
-    iconColor: '#FF2D55'
-  },
-  {
-    id: 'electronics',
-    title: 'TechMart',
-    description: 'Магазин электроники и техники',
-    gradient: 'from-blue-500/10 to-cyan-500/10',
-    iconBg: 'rgba(0, 122, 255, 0.15)',
-    iconColor: '#007AFF'
-  },
-  {
-    id: 'spa',
-    title: 'GlowSpa',
-    description: 'Салон красоты и SPA-услуги',
-    gradient: 'from-green-500/10 to-emerald-500/10',
-    iconBg: 'rgba(52, 199, 89, 0.15)',
-    iconColor: '#34C759'
-  },
-  {
-    id: 'restaurant',
-    title: 'DeluxeDine',
-    description: 'Ресторан с доставкой',
-    gradient: 'from-orange-500/10 to-yellow-500/10',
-    iconBg: 'rgba(255, 159, 10, 0.15)',
-    iconColor: '#FF9F0A'
-  },
-  {
-    id: 'watches',
-    title: 'TimeElite',
-    description: 'Магазин элитных часов',
-    gradient: 'from-gray-500/10 to-slate-500/10',
-    iconBg: 'rgba(142, 142, 147, 0.15)',
-    iconColor: '#8E8E93'
-  },
-  {
-    id: 'sneaker-store',
-    title: 'SneakerVault',
-    description: 'Магазин кроссовок',
-    gradient: 'from-red-500/10 to-pink-500/10',
-    iconBg: 'rgba(255, 59, 48, 0.15)',
-    iconColor: '#FF3B30'
-  },
-  {
-    id: 'fitness',
-    title: 'FitnessCore',
-    description: 'Фитнес-центр и тренировки',
-    gradient: 'from-green-500/10 to-teal-500/10',
-    iconBg: 'rgba(48, 209, 88, 0.15)',
-    iconColor: '#30D158'
-  },
-  {
-    id: 'car-service',
-    title: 'AutoCare',
-    description: 'Автосервис и детейлинг',
-    gradient: 'from-indigo-500/10 to-blue-500/10',
-    iconBg: 'rgba(88, 86, 214, 0.15)',
-    iconColor: '#5856D6'
-  },
-  {
-    id: 'coffee',
-    title: 'BrewBar',
-    description: 'Кофейня и десерты',
-    gradient: 'from-amber-500/10 to-orange-500/10',
-    iconBg: 'rgba(255, 204, 0, 0.15)',
-    iconColor: '#FFCC00'
-  },
-  {
-    id: 'pharmacy',
-    title: 'HealthPlus',
-    description: 'Аптека и медтовары',
-    gradient: 'from-cyan-500/10 to-blue-500/10',
-    iconBg: 'rgba(90, 200, 250, 0.15)',
-    iconColor: '#5AC8FA'
-  },
-  {
-    id: 'bookstore',
-    title: 'BookHaven',
-    description: 'Книжный магазин',
-    gradient: 'from-purple-500/10 to-pink-500/10',
-    iconBg: 'rgba(191, 90, 242, 0.15)',
-    iconColor: '#BF5AF2'
-  }
-];
-
-const ShowcasePage = memo(({ onNavigate, onOpenDemo }: ShowcasePageProps) => {
-  const handleOpenDemo = useCallback((demoId: string) => {
-    onOpenDemo(demoId);
-  }, [onOpenDemo]);
-
+// 3D Perspective Container (use once at parent level to avoid nested contexts)
+const Perspective3DContainer: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
+  children, 
+  className = '' 
+}) => {
   return (
-    <div className="min-h-screen bg-[#000000] pb-32">
-      <div className="max-w-md mx-auto px-6">
-        
-        {/* Apple-style Hero Header */}
-        <header className="pt-16 pb-12 text-center">
-          <h1 
-            className="mb-3 scroll-fade-in"
-            style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: 'clamp(40px, 10vw, 48px)',
-              fontWeight: 700,
-              letterSpacing: '-0.04em',
-              lineHeight: '1.05',
-              color: '#FFFFFF'
-            }}
-          >
-            Витрина
-          </h1>
-          
-          <p 
-            className="scroll-fade-in-delay-1"
-            style={{
-              fontSize: '17px',
-              lineHeight: '1.47',
-              color: 'rgba(255, 255, 255, 0.6)',
-              letterSpacing: '-0.01em'
-            }}
-          >
-            11 готовых приложений
-          </p>
-        </header>
+    <div 
+      style={{ 
+        perspective: 1000,
+        transformStyle: 'preserve-3d'
+      }}
+      className={className}
+    >
+      {children}
+    </div>
+  );
+};
 
-        {/* Demo Apps Grid - iOS List Style */}
-        <div className="space-y-2">
-          {demoApps.map((app, index) => (
-            <DemoAppCard
-              key={app.id}
-              app={app}
-              index={index}
-              onOpen={handleOpenDemo}
-            />
-          ))}
+// Enhanced 3D Card Animation Wrapper with Glassmorphism (2025 Trend)
+// NOTE: Must be used inside Perspective3DContainer for 3D effects
+// ADAPTIVE: Performance-aware - disables heavy effects on low-end devices
+const Glass3DCard: React.FC<{ 
+  children: React.ReactNode; 
+  onClick?: () => void;
+  delay?: number;
+  accentColor?: string;
+  devicePerformance?: 'low' | 'medium' | 'high';
+}> = ({ children, onClick, delay = 0, accentColor = 'var(--tg-theme-accent, #00ffff)', devicePerformance = 'high' }) => {
+  
+  // ADAPTIVE QUALITY: Reduce effects on low/medium devices
+  const isLowPerformance = devicePerformance === 'low';
+  const isMediumPerformance = devicePerformance === 'medium';
+  
+  return (
+    <m.div
+      initial={isLowPerformance ? { opacity: 0 } : { opacity: 0, y: 20, rotateX: -10 }}
+      animate={{ opacity: 1, y: 0, rotateX: 0 }}
+      transition={{ 
+        duration: isLowPerformance ? 0.2 : 0.5, 
+        delay: isLowPerformance ? 0 : delay,
+        ease: [0.25, 0.1, 0.25, 1]
+      }}
+      whileHover={isLowPerformance ? { scale: 1.01 } : { 
+        scale: isMediumPerformance ? 1.02 : 1.03,
+        rotateY: isMediumPerformance ? 0 : 5,
+        rotateX: isMediumPerformance ? 0 : 5,
+        z: isMediumPerformance ? 0 : 50,
+        transition: { 
+          type: "spring", 
+          stiffness: 300,
+          damping: 20
+        }
+      }}
+      whileTap={{ scale: 0.98 }}
+      style={{
+        transformStyle: isLowPerformance ? 'flat' : 'preserve-3d'
+      }}
+      className="flex group relative cursor-pointer h-full w-full"
+      onClick={onClick}
+    >
+      {/* Neon glow effect on hover - disabled on low performance */}
+      {!isLowPerformance && (
+        <div 
+          className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
+          style={{
+            background: `radial-gradient(circle at center, ${accentColor}40 0%, transparent 70%)`,
+            zIndex: -1
+          }}
+        />
+      )}
+      {children}
+    </m.div>
+  );
+};
+
+// SVG Dollar Bill Component
+const DollarSVG = () => (
+  <svg width="90" height="41" viewBox="0 0 120 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Main bill background */}
+    <rect width="120" height="55" rx="3" fill="url(#dollarGradient)" stroke="#1a4d2e" strokeWidth="1.5"/>
+    
+    {/* Gradient definition */}
+    <defs>
+      <linearGradient id="dollarGradient" x1="0" y1="0" x2="120" y2="55">
+        <stop offset="0%" stopColor="#85bb65"/>
+        <stop offset="50%" stopColor="#6b9b52"/>
+        <stop offset="100%" stopColor="#85bb65"/>
+      </linearGradient>
+    </defs>
+    
+    {/* Decorative border */}
+    <rect x="4" y="4" width="112" height="47" rx="2" fill="none" stroke="#2d5a3d" strokeWidth="0.8" strokeDasharray="2 2"/>
+    
+    {/* Left portrait circle */}
+    <circle cx="22" cy="27.5" r="12" fill="#2d5a3d" stroke="#1a4d2e" strokeWidth="1"/>
+    <text x="22" y="32" fontSize="10" fontWeight="bold" fill="#85bb65" textAnchor="middle">$</text>
+    
+    {/* Center "100" */}
+    <text x="60" y="34" fontSize="24" fontWeight="900" fill="#1a4d2e" textAnchor="middle">100</text>
+    
+    {/* Top corners */}
+    <text x="8" y="13" fontSize="8" fontWeight="bold" fill="#1a4d2e">100</text>
+    <text x="103" y="13" fontSize="8" fontWeight="bold" fill="#1a4d2e" textAnchor="end">100</text>
+    
+    {/* Bottom text */}
+    <text x="8" y="48" fontSize="6" fill="#2d5a3d">USA</text>
+    <text x="112" y="48" fontSize="6" fill="#2d5a3d" textAnchor="end">$100</text>
+    
+    {/* Right seal */}
+    <circle cx="98" cy="27.5" r="8" fill="#1a4d2e" stroke="#2d5a3d" strokeWidth="0.8"/>
+    <circle cx="98" cy="27.5" r="4" fill="#85bb65"/>
+    
+    {/* Decorative lines */}
+    <line x1="40" y1="15" x2="80" y2="15" stroke="#2d5a3d" strokeWidth="0.5" opacity="0.5"/>
+    <line x1="40" y1="40" x2="80" y2="40" stroke="#2d5a3d" strokeWidth="0.5" opacity="0.5"/>
+  </svg>
+);
+
+// Generate stable random values for dollar animations (outside component to avoid re-renders)
+const dollarAnimations = Array.from({ length: 8 }, (_, i) => ({
+  left: 5 + Math.random() * 90,
+  top: -(40 + Math.random() * 60),
+  delay: Math.random() * 10,
+  duration: 6 + Math.random() * 4,
+  rotateStart: -15 + Math.random() * 30,
+  driftX1: -10 + Math.random() * 20,
+  rotateIntensity: 1,
+  blurIntensity: 0,
+}));
+
+// Video Hero Card Component with lazy loading
+const VideoHeroCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }) => {
+  const videoRef = useVideoLazyLoad();
+  
+  return (
+    <div 
+      className="relative h-full rounded-3xl overflow-hidden group tg-interactive cursor-pointer"
+      data-testid="hero-card-clothing"
+      onClick={() => onOpenDemo('clothing-store')}
+      onMouseEnter={() => preloadDemo('clothing-store')}
+      onTouchStart={() => preloadDemo('clothing-store')}
+    >
+      <video
+        ref={videoRef}
+        src={fashionVideo}
+        loop
+        muted
+        playsInline
+        preload="none"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+      
+      <div className="absolute bottom-0 left-0 right-0 p-8">
+        <div className="text-white text-5xl font-light mb-2"
+          style={{ letterSpacing: '0.4em' }}
+        >
+          A L U R E
         </div>
-
-        {/* Bottom Spacer for Navigation */}
-        <div className="h-8" />
-
+        <div className="text-white/70 text-sm uppercase tracking-widest mb-4">
+          Premium Streetwear
+        </div>
+        <div className="px-4 py-2 bg-[#CDFF38] text-black rounded-full inline-block text-xs font-bold uppercase">
+          NEW COLLECTION
+        </div>
+      </div>
+      
+      <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold"
+        style={{
+          background: 'rgba(205, 255, 56, 0.95)',
+          color: '#0A0A0A'
+        }}
+      >
+        NEW
       </div>
     </div>
   );
 });
 
-ShowcasePage.displayName = 'ShowcasePage';
-
-// Demo App Card - Apple iOS List Item
-const DemoAppCard = memo<{
-  app: typeof demoApps[0];
-  index: number;
-  onOpen: (id: string) => void;
-}>(({ app, index, onOpen }) => {
-  const handleClick = useCallback(() => {
-    onOpen(app.id);
-  }, [app.id, onOpen]);
-
+// Sneaker Demo Card Component - Premium Minimal
+const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }) => {
+  const videoRef = useVideoLazyLoad();
+  
   return (
-    <div
-      onClick={handleClick}
-      className={`
-        interactive-smooth active:scale-[0.98] cursor-pointer
-        rounded-[20px] overflow-hidden
-        scroll-fade-in-delay-${Math.min(index, 3)}
-      `}
-      style={{
-        background: 'rgba(255, 255, 255, 0.05)',
-        backdropFilter: 'blur(20px)',
-        border: '0.5px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-        transition: 'all 0.2s cubic-bezier(0.42, 0, 0.58, 1)',
-        animationDelay: `${index * 0.05}s`
-      }}
-      data-testid={`demo-card-${app.id}`}
-    >
-      <div className="flex items-center p-4">
-        {/* App Icon - iOS style */}
-        <div 
-          className="flex-shrink-0 flex items-center justify-center rounded-[14px] mr-4"
+  <div 
+    className="relative h-full rounded-2xl overflow-hidden group tg-interactive cursor-pointer"
+    data-testid="demo-card-sneaker-store"
+    onClick={() => onOpenDemo('sneaker-store')}
+    onMouseEnter={() => preloadDemo('sneaker-store')}
+    onTouchStart={() => preloadDemo('sneaker-store')}
+  >
+      <video
+        ref={videoRef}
+        src={sneakerVideo}
+        loop
+        muted
+        playsInline
+        preload="none"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    
+    {/* Content */}
+    <div className="absolute inset-0 p-5 flex flex-col">
+      
+      {/* Top Section - Title and Badge aligned */}
+      <div className="flex items-center justify-between mb-auto">
+        <div>
+          <div className="text-white text-2xl font-light tracking-[0.35em]"
+            style={{
+              textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.6)'
+            }}
+          >
+            S O L E
+          </div>
+          <div className="h-[1px] w-12 mt-1.5"
+            style={{
+              background: 'linear-gradient(90deg, rgba(100, 235, 220, 0.6), transparent)'
+            }}
+          ></div>
+        </div>
+        
+        {/* Exclusive Badge */}
+        <div className="px-2 py-0.5 text-[8px] font-medium tracking-wide whitespace-nowrap"
           style={{
-            width: '56px',
-            height: '56px',
-            background: app.iconBg,
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
+            background: 'rgba(100, 235, 220, 0.1)',
+            border: '1px solid rgba(100, 235, 220, 0.25)',
+            borderRadius: '6px',
+            color: '#64EBDC'
           }}
         >
-          <div 
-            className="text-2xl font-bold"
-            style={{ color: app.iconColor }}
+          EXCLUSIVE
+        </div>
+      </div>
+      
+      {/* Bottom Section - Centered content */}
+      <div className="text-center">
+        <div className="text-white/70 text-[10px] uppercase tracking-[0.15em] mb-3 font-light"
+          style={{
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)'
+          }}
+        >
+          Premium Sneakers
+        </div>
+        
+        <div className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-[10px] font-semibold tracking-wider uppercase w-full max-w-[200px]"
+          style={{
+            background: 'rgba(100, 235, 220, 0.25)',
+            border: '1px solid rgba(100, 235, 220, 0.4)',
+            borderRadius: '10px',
+            color: '#64EBDC',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          <span>EXPLORE</span>
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6H10M10 6L6 2M10 6L6 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  );
+});
+
+// Watches Demo Card Component - Premium Minimal
+const WatchesDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }) => {
+  const videoRef = useVideoLazyLoad();
+  
+  return (
+  <div 
+    className="relative h-full rounded-2xl overflow-hidden group tg-interactive cursor-pointer"
+    data-testid="demo-card-luxury-watches"
+    onClick={() => onOpenDemo('luxury-watches')}
+    onMouseEnter={() => preloadDemo('luxury-watches')}
+    onTouchStart={() => preloadDemo('luxury-watches')}
+  >
+      <video
+        ref={videoRef}
+        src={watchesVideo}
+        loop
+        muted
+        playsInline
+        preload="none"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    
+    {/* Lighter Gradient Overlay - better video visibility */}
+    <div className="absolute inset-0"
+      style={{
+        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.7) 100%)'
+      }}
+    ></div>
+    
+    {/* Content - Vertical Layout */}
+    <div className="absolute inset-0 p-5 flex flex-col">
+      
+      {/* Top Section */}
+      <div className="flex items-center justify-between mb-auto">
+        <div>
+          <div className="text-2xl font-light tracking-[0.40em]"
+            style={{
+              background: 'linear-gradient(135deg, #E8D4A0 0%, #D6B980 50%, #C9A870 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}
           >
-            {app.title.charAt(0)}
+            L U X E
+          </div>
+          <div className="h-[1px] w-12 mt-1.5"
+            style={{
+              background: 'linear-gradient(90deg, rgba(214, 185, 128, 0.4), transparent)'
+            }}
+          ></div>
+        </div>
+        
+        {/* Limited Edition Badge */}
+        <div className="w-1.5 h-1.5 rounded-full"
+          style={{
+            background: '#D6B980',
+            boxShadow: '0 0 8px rgba(214, 185, 128, 0.6)'
+          }}
+        ></div>
+      </div>
+      
+      {/* Bottom Section - Centered */}
+      <div className="text-center">
+        <div className="text-white/50 text-[10px] uppercase tracking-[0.15em] mb-3 font-light">
+          Swiss Timepieces
+        </div>
+        
+        <div className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-[10px] font-semibold tracking-wider uppercase w-full max-w-[200px]"
+          style={{
+            background: 'rgba(214, 185, 128, 0.12)',
+            border: '1px solid rgba(214, 185, 128, 0.25)',
+            borderRadius: '10px',
+            color: '#D6B980',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          <span>EXPLORE</span>
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6H10M10 6L6 2M10 6L6 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  );
+});
+
+// Demo Card Component
+const DemoCard = memo<{ 
+  id: string; 
+  title: string;
+  subtitle: string;
+  videoSrc?: string;
+  imageSrc?: string;
+  onOpenDemo: (id: string) => void;
+}>(({ id, title, subtitle, videoSrc, imageSrc, onOpenDemo }) => {
+  const videoRef = useVideoLazyLoad();
+  
+  return (
+    <div 
+      className="relative h-full rounded-2xl overflow-hidden cursor-pointer group tg-interactive"
+      onClick={() => onOpenDemo(id)}
+      onMouseEnter={() => preloadDemo(id)}
+      onTouchStart={() => preloadDemo(id)}
+      data-testid={`demo-card-${id}`}
+      data-scroll-optimize
+    >
+      {videoSrc && (
+        <video 
+          ref={videoRef}
+          loop
+          muted
+          playsInline
+          preload="none"
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={videoSrc} type="video/mp4" />
+        </video>
+      )}
+      
+      {imageSrc && !videoSrc && (
+        <img 
+          src={imageSrc} 
+          alt={title}
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+      
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+      
+      <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="text-white text-2xl font-light mb-1"
+          style={{ letterSpacing: '0.3em' }}
+        >
+          {title}
+        </div>
+        <div className="text-white/60 text-xs uppercase tracking-wider">
+          {subtitle}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// Stat Card Component - Optimized without heavy blur
+const StatCard = memo<{ title: string; subtitle: string }>(({ title, subtitle }) => (
+  <div className="relative h-full rounded-2xl overflow-hidden"
+    style={{
+      background: 'rgba(10, 10, 10, 0.95)',
+      border: '2px solid rgba(255, 255, 255, 0.15)',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
+    }}
+    data-testid={`stat-card-${subtitle.toLowerCase()}`}
+  >
+    <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+      <div className="text-white text-4xl font-black mb-2"
+        style={{ letterSpacing: '0.05em' }}
+      >
+        {title}
+      </div>
+      <div className="text-white/50 text-xs uppercase tracking-widest font-bold">
+        {subtitle}
+      </div>
+    </div>
+  </div>
+));
+
+// AI Assistant Card Component - Optimized without heavy blur
+const AIAssistantCardPreview = memo(() => (
+  <div className="relative h-full rounded-2xl overflow-hidden"
+    style={{
+      background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)',
+      border: '2px solid rgba(59, 130, 246, 0.2)',
+      boxShadow: '0 8px 32px rgba(16, 185, 129, 0.2)'
+    }}
+    data-testid="ai-assistant-card"
+  >
+    <div className="absolute inset-0 flex items-center justify-center p-6">
+      <div className="text-center">
+        <div className="text-4xl mb-3">🤖</div>
+        <div className="text-white text-lg font-bold mb-2 uppercase tracking-wider">
+          AI Ассистент
+        </div>
+        <div className="text-white/60 text-sm">
+          24/7 поддержка и консультации
+        </div>
+      </div>
+    </div>
+  </div>
+));
+
+function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
+  const { hapticFeedback, isDark, colorScheme, devicePerformance } = useTelegram();
+  const haptic = useHaptic();
+  const trackInteraction = useTrackInteraction();
+  const [showDecorations, setShowDecorations] = useState(false);
+  
+  // ADAPTIVE QUALITY: Detect device performance for adaptive effects
+  const isLowPerformance = devicePerformance === 'low';
+  const isMediumPerformance = devicePerformance === 'medium';
+  
+  // ADAPTIVE QUALITY: Reduce animation delays on low-end devices
+  const animationConfig = useMemo(() => ({
+    duration: isLowPerformance ? 0.2 : 0.5,
+    delay: isLowPerformance ? 0 : 0.1,
+    stagger: isLowPerformance ? 0 : 0.05,
+  }), [isLowPerformance]);
+  
+  // Обработчик с haptic feedback для открытия демо
+  const handleOpenDemo = useCallback((demoId: string) => {
+    haptic.light(); // Легкая вибрация при нажатии
+    onOpenDemo(demoId);
+  }, [haptic, onOpenDemo]);
+  
+  // Load decorative elements after initial render
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowDecorations(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
+      {/* Mobile Container */}
+      <div className="max-w-md mx-auto min-h-screen p-4 relative z-10">
+        
+        {/* Premium Dark Minimal Hero Section */}
+        <div className="relative py-12 mb-12 overflow-hidden">
+          
+          {/* Main Container */}
+          <div className="space-y-6">
+            
+            {/* Premium Minimal Hero Block with Video */}
+            <div className="relative rounded-2xl overflow-hidden"
+              style={{
+                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)'
+              }}
+            >
+              {/* Inner Block */}
+              <div className="relative rounded-2xl overflow-hidden"
+                style={{
+                  background: '#000000'
+                }}
+              >
+                {/* Background Video */}
+                <LazyVideo
+                  src={heroVideo}
+                  className="absolute inset-0 w-full h-full object-cover opacity-80"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="none"
+                />
+                
+                {/* Gradient Overlay for Readability */}
+                <div className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%)'
+                  }}
+                ></div>
+                
+                {/* Subtle Top Glow */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px]"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                    boxShadow: '0 0 20px rgba(255, 255, 255, 0.1)'
+                  }}
+                />
+              
+              {/* Content - Mobile-First 2025 Style */}
+              <div className="relative px-4 sm:px-6 py-8 sm:py-12 md:py-16 text-center flex items-center justify-center min-h-[50vh] sm:min-h-[55vh]">
+                
+                {/* Glassmorphic Container - Mobile Optimized */}
+                <div 
+                  className="relative rounded-2xl sm:rounded-3xl px-4 sm:px-6 py-6 sm:py-8 mx-auto w-full max-w-[300px] sm:max-w-sm"
+                  style={{
+                    background: 'rgba(0, 0, 0, 0.15)',
+                    backdropFilter: 'blur(4px)',
+                    WebkitBackdropFilter: 'blur(4px)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+                  }}
+                >
+                  {/* Accent Badge */}
+                  <div 
+                    className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-full mb-3 sm:mb-4 text-xs font-bold tracking-wider"
+                    style={{
+                      background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                      color: '#FFFFFF',
+                      boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)'
+                    }}
+                  >
+                    2025
+                  </div>
+                  
+                  {/* Main Headline - Mobile Responsive */}
+                  <h1 
+                    className="text-3xl sm:text-4xl md:text-5xl font-black mb-2 sm:mb-3 leading-tight"
+                    style={{
+                      color: '#FFFFFF',
+                      textShadow: '0 2px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.2)',
+                      letterSpacing: '-0.02em'
+                    }}
+                  >
+                    TELEGRAM
+                  </h1>
+                  
+                  {/* Subtitle with Accent Color */}
+                  <div 
+                    className="text-lg sm:text-xl md:text-2xl font-bold tracking-wide mb-3 sm:mb-4"
+                    style={{
+                      background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}
+                  >
+                    ДЛЯ БИЗНЕСА
+                  </div>
+                  
+                  {/* Clean Separator Line */}
+                  <div 
+                    className="w-12 sm:w-14 h-0.5 mx-auto mb-3 sm:mb-4 rounded-full"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent, #10B981, transparent)'
+                    }}
+                  />
+                  
+                  {/* Tagline - Mobile Optimized */}
+                  <p 
+                    className="text-xs sm:text-sm font-semibold tracking-wide"
+                    style={{
+                      color: 'rgba(255, 255, 255, 0.9)',
+                      textShadow: '0 1px 4px rgba(0, 0, 0, 0.5)'
+                    }}
+                  >
+                    ЗАПУСК ЗА 24 ЧАСА
+                  </p>
+                  <p 
+                    className="text-[10px] sm:text-xs font-medium tracking-wider mt-1 sm:mt-1.5"
+                    style={{
+                      color: 'rgba(255, 255, 255, 0.7)'
+                    }}
+                  >
+                    БЕЗ КОДА • ПРЕМИУМ КАЧЕСТВО
+                  </p>
+                </div>
+              </div>
+              </div>
+            </div>
+
+            {/* Section Header - Mobile Optimized */}
+            <div className="mb-4 sm:mb-6 text-center px-4">
+              <h2 className="text-xl sm:text-2xl md:text-[1.5rem] font-sans font-black uppercase tracking-wider"
+                style={{
+                  color: '#FFFFFF',
+                  letterSpacing: '0.1em'
+                }}
+              >
+                БИЗНЕС-ПРИЛОЖЕНИЯ
+              </h2>
+            </div>
+
+            {/* Bento Grid Layout - Mobile First */}
+            <div className="grid grid-cols-2 sm:grid-cols-6 md:grid-cols-12 gap-3 sm:gap-4 px-4">
+              
+                {/* Hero - большая плитка */}
+                <div className="col-span-2 sm:col-span-6 md:col-span-8 h-[400px] sm:h-[450px] md:h-[500px]">
+                  <VideoHeroCard onOpenDemo={handleOpenDemo} />
+                </div>
+              
+              {/* Средние плитки */}
+              <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[195px] sm:h-[220px] md:h-[240px]">
+                <SneakerDemoCard onOpenDemo={handleOpenDemo} />
+              </div>
+              <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[195px] sm:h-[220px] md:h-[240px]">
+                <WatchesDemoCard onOpenDemo={handleOpenDemo} />
+              </div>
+              
+              {/* Futuristic Fashion Collection - 5 новых приложений */}
+              <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[260px] sm:h-[280px] md:h-[300px]">
+                <div 
+                  className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
+                  onClick={() => onOpenDemo('futuristic-fashion-1')}
+                >
+                  <img
+                    src={rascalImage}
+                    alt="Rascal"
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a2e2a]/70 via-[#1a2e2a]/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
+                    <div className="text-[#7FB069] text-[10px] sm:text-xs mb-1 sm:mb-2 font-bold">ФУТУРИСТИКА</div>
+                    <h3 className="text-white text-base sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">Rascal®</h3>
+                    <p className="text-white/70 text-xs sm:text-sm">Waterproof Fashion</p>
+                  </div>
+                  <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-green-600 to-emerald-700 text-white text-[10px] sm:text-xs font-bold">
+                    NEW
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[260px] sm:h-[280px] md:h-[300px]">
+                <div 
+                  className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
+                  onClick={() => onOpenDemo('futuristic-fashion-2')}
+                >
+                  <img
+                    src={nikeDestinyImage}
+                    alt="STORE"
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
+                    <div className="text-white/60 text-[10px] sm:text-xs mb-1 sm:mb-2 font-bold">МИНИМАЛИЗМ</div>
+                    <h3 className="text-white text-base sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">STORE</h3>
+                    <p className="text-white/70 text-xs sm:text-sm">Black Minimal</p>
+                  </div>
+                  <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-black text-white text-[10px] sm:text-xs font-bold">
+                    PREMIUM
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-1 sm:col-span-3 md:col-span-4 h-[260px] sm:h-[280px] md:h-[300px]">
+                <div 
+                  className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
+                  onClick={() => onOpenDemo('futuristic-fashion-3')}
+                >
+                  <img
+                    src={nikeGreenImage}
+                    alt="lab. SURVIVALIST"
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
+                    <div className="text-white/60 text-[10px] sm:text-xs mb-1 sm:mb-2 font-bold">ПРЕМИУМ</div>
+                    <h3 className="text-white text-base sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">lab. SURVIVALIST</h3>
+                    <p className="text-white/70 text-xs sm:text-sm">Black & White</p>
+                  </div>
+                  <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gray-900 text-white text-[10px] sm:text-xs font-bold">
+                    LUXURY
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-1 sm:col-span-3 md:col-span-6 h-[260px] sm:h-[280px] md:h-[300px]">
+                <div 
+                  className="relative h-full rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group tg-interactive"
+                  onClick={() => onOpenDemo('futuristic-fashion-4')}
+                >
+                  <img
+                    src={nikeAcgImage}
+                    alt="Nike ACG"
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6">
+                    <div className="text-white/60 text-[10px] sm:text-xs mb-1 sm:mb-2 font-bold">ИНТЕРАКТИВ</div>
+                    <h3 className="text-white text-base sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">Nike ACG</h3>
+                    <p className="text-white/70 text-xs sm:text-sm">3D Card Design</p>
+                  </div>
+                  <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-gray-800 to-black text-white text-[10px] sm:text-xs font-bold">
+                    3D
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
           </div>
         </div>
 
-        {/* App Info */}
-        <div className="flex-1 min-w-0">
-          <h3 
-            className="mb-0.5 truncate"
-            style={{
-              fontSize: '17px',
-              fontWeight: 600,
-              letterSpacing: '-0.02em',
-              color: '#FFFFFF'
-            }}
-          >
-            {app.title}
-          </h3>
-          <p 
-            className="truncate"
-            style={{
-              fontSize: '15px',
-              lineHeight: '1.4',
-              color: 'rgba(255, 255, 255, 0.6)',
-              letterSpacing: '-0.01em'
-            }}
-          >
-            {app.description}
-          </p>
-        </div>
+        {/* Services Grid - Mobile Optimized */}
+        <MotionStagger className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6 px-3 sm:px-4">
+          
+          {/* Main Services Card - Mobile Optimized */}
+          <MotionBox variant="fadeInScale">
+            <HoverScale scale={1.02}>
+              <div 
+                className="sm:col-span-2 relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 cursor-pointer overflow-hidden group tg-interactive"
+                style={{
+                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
+                }}
+                onClick={() => onNavigate('projects')}
+                data-testid="card-main-services"
+              >
+            {/* Animated Gradient Overlay */}
+            <div className="absolute inset-0 opacity-20"
+              style={{
+                background: 'radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.4) 0%, transparent 70%)',
+                animation: 'float 6s ease-in-out infinite'
+              }}
+            />
+            
+            {/* Top Left Icon with Glow */}
+            <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
+              <div className="w-7 sm:w-9 h-7 sm:h-9 text-black"
+                style={{
+                  filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))'
+                }}
+              >
+                <Star className="w-full h-full" fill="currentColor" />
+              </div>
+            </div>
+            
+            {/* Large Number with Shadow - Responsive */}
+            <div className="relative text-black text-[72px] sm:text-[96px] font-black leading-none mb-1 sm:mb-2 tracking-tighter"
+              style={{
+                textShadow: '2px 2px 0px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              4
+            </div>
+            
+            <div className="relative text-black font-black text-xl sm:text-2xl mb-0.5 sm:mb-1 tracking-tight">
+              SERVICES
+            </div>
+            
+            <div className="relative text-black/70 text-xs sm:text-sm font-medium">
+              Готовые решения для бизнеса
+            </div>
+            
+            {/* Agency Label with Badge */}
+            <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full"
+              style={{
+                background: 'rgba(0, 0, 0, 0.2)',
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              <span className="text-white text-[10px] sm:text-xs font-bold tracking-wide whitespace-nowrap">
+                WEB4TG.AGENCY
+              </span>
+            </div>
+          </div>
+            </HoverScale>
+          </MotionBox>
 
-        {/* Chevron - iOS disclosure indicator */}
-        <div className="flex-shrink-0 ml-2">
-          <ChevronRight 
-            className="transition-transform group-hover:translate-x-0.5"
-            style={{ 
-              width: '20px', 
-              height: '20px',
-              color: 'rgba(255, 255, 255, 0.3)'
-            }} 
-          />
-        </div>
+          {/* Service Card 1 - Telegram Apps (Premium Style) */}
+          <MotionBox variant="fadeInUp">
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative rounded-3xl p-4 cursor-pointer overflow-hidden group tg-interactive"
+                style={{
+                  background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                  boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3)'
+                }}
+                onClick={() => onOpenDemo('clothing-store')}
+                data-testid="card-telegram-apps"
+              >
+            {/* Shimmer Effect */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500"
+              style={{
+                background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%)',
+                backgroundSize: '200% 200%',
+                animation: 'shimmerWave 3s ease-in-out infinite'
+              }}
+            />
+            
+            {/* Remote Label */}
+            <div className="absolute top-3 right-3 px-2 py-1 rounded-full"
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              <span className="text-white text-[10px] font-bold tracking-wide">УДАЛЕННО</span>
+            </div>
+            
+            {/* Card Number */}
+            <div className="text-black text-3xl font-thin mb-2" style={{fontFamily: 'Inter, sans-serif', letterSpacing: '3px'}}>1/4</div>
+            
+            {/* Icon */}
+            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
+              <Smartphone className="w-5 h-5" style={{color: '#10B981'}} />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-black text-lg font-bold leading-tight">
+                Telegram-приложения под ключ
+              </h3>
+              <p className="text-black/70 text-xs leading-tight mb-2">
+                Запуск за 24 часа. Все инструменты для продаж и клиентов
+              </p>
+              <p className="text-black/60 text-sm font-medium">
+                ПО ПРЕДОПЛАТЕ
+              </p>
+            </div>
+          </div>
+            </HoverScale>
+          </MotionBox>
+
+          {/* Service Card 2 - E-commerce */}
+          <MotionBox variant="fadeInUp" delay={0.1}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative bg-white/15 border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)' }}
+            onClick={() => onOpenDemo('electronics')}
+          >
+            {/* Remote Label */}
+            <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
+              REMOTE
+            </div>
+            
+            {/* Card Number */}
+            <div className="text-white text-2xl font-black mb-2">2/4</div>
+            
+            {/* Icon */}
+            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+              <ShoppingCart className="w-5 h-5 text-white" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-white text-lg font-bold leading-tight">
+                E-COMMERCE SOLUTIONS
+              </h3>
+              <p className="text-white/70 text-xs leading-tight mb-2">
+                Полнофункциональные платформы электронной коммерции
+              </p>
+              <p className="text-white/60 text-sm font-medium">
+                FULLTIME
+              </p>
+            </div>
+          </div>
+            </HoverScale>
+          </MotionBox>
+
+          {/* Service Card 3 - Automation */}
+          <MotionBox variant="fadeInUp" delay={0.15}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative bg-white/15 border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)' }}
+                onClick={() => onOpenDemo('beauty')}
+              >
+            {/* Remote Label */}
+            <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
+              REMOTE
+            </div>
+            
+            {/* Card Number */}
+            <div className="text-white text-2xl font-black mb-2">3/4</div>
+            
+            {/* Icon */}
+            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+              <Code className="w-5 h-5 text-white" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-white text-lg font-bold leading-tight">
+                BUSINESS AUTOMATION
+              </h3>
+              <p className="text-white/70 text-xs leading-tight mb-2">
+                Умные боты и системы для оптимизации работы
+              </p>
+              <p className="text-white/60 text-sm font-medium">
+                PARTTIME
+              </p>
+            </div>
+          </div>
+            </HoverScale>
+          </MotionBox>
+
+          {/* Portfolio Card */}
+          <MotionBox variant="fadeInUp" delay={0.2}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{backgroundColor: '#10B981'}}
+                onClick={() => onNavigate('projects')}
+              >
+            {/* Remote Label */}
+            <div className="absolute top-3 right-3 bg-black/20 text-black text-xs px-2 py-1 rounded-full font-medium">
+              УДАЛЕННО
+            </div>
+            
+            {/* Card Number */}
+            <div className="text-black text-3xl font-thin mb-2" style={{fontFamily: 'Inter, sans-serif', letterSpacing: '3px'}}>4/4</div>
+            
+            {/* Icon */}
+            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
+              <Users className="w-5 h-5" style={{color: '#10B981'}} />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-black text-lg font-bold leading-tight">
+                ПОРТФОЛИО И КЕЙСЫ
+              </h3>
+              <p className="text-black/70 text-xs leading-tight mb-2">
+                Успешные проекты и практические решения для бизнеса
+              </p>
+              <p className="text-black/60 text-sm font-medium">
+                ДОСТУПНО
+              </p>
+            </div>
+          </div>
+            </HoverScale>
+          </MotionBox>
+
+        </MotionStagger>
+        
       </div>
+      
     </div>
   );
-});
+}
 
-DemoAppCard.displayName = 'DemoAppCard';
-
-export default ShowcasePage;
+// Memoize the component for better performance
+export default React.memo(ShowcasePage);
