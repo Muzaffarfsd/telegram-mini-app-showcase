@@ -14,9 +14,6 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PageTransition } from "./components/PageTransition";
 import UserAvatar from "./components/UserAvatar";
 
-// Lightweight shell for instant first paint
-import ShowcaseShell from "./components/ShowcaseShell";
-
 // Lazy load ALL pages including ShowcasePage for optimal bundle splitting
 const ShowcasePage = lazy(() => import("./components/ShowcasePage"));
 const ProjectsPage = lazy(() => import("./components/ProjectsPage"));
@@ -155,10 +152,10 @@ function App() {
   // No loading screen - instant load
   const PageLoader = useCallback(() => null, []);
 
-  // Route component rendering with Suspense - use lightweight shell for instant first paint
+  // Route component rendering with Suspense - no loading fallback for smooth experience
   const renderRoute = () => {
     return (
-      <Suspense fallback={route.component === 'showcase' ? <ShowcaseShell /> : null}>
+      <Suspense fallback={null}>
         {(() => {
           switch (route.component) {
             case 'showcase':
