@@ -335,120 +335,163 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
         </div>
 
-        <div className="mb-4 px-1">
-          <h2 className="text-lg font-black uppercase tracking-wide" style={{ color: '#FFFFFF' }}>
-            Услуги
-          </h2>
-        </div>
-
-        <div className="space-y-3 pb-8">
-
-          <div 
-            className="relative rounded-2xl p-5 cursor-pointer overflow-hidden group"
-            style={{
-              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-              boxShadow: '0 8px 32px rgba(16, 185, 129, 0.25)'
-            }}
-            onClick={() => onNavigate('projects')}
-            data-testid="card-main-services"
-          >
-            <div className="absolute top-4 left-4">
-              <Star className="w-7 h-7 text-black" fill="currentColor" />
-            </div>
-            
-            <div className="text-black text-[64px] font-black leading-none tracking-tighter">
-              4
-            </div>
-            
-            <div className="text-black font-black text-xl mb-1">
-              SERVICES
-            </div>
-            
-            <div className="text-black/70 text-xs font-medium">
-              Готовые решения для бизнеса
-            </div>
-            
-            <div className="absolute bottom-4 left-4 px-2.5 py-1 rounded-full"
-              style={{ background: 'rgba(0, 0, 0, 0.2)', backdropFilter: 'blur(10px)' }}
-            >
-              <span className="text-white text-[10px] font-bold tracking-wide">WEB4TG.AGENCY</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            
-            <div 
-              className="relative rounded-2xl p-4 cursor-pointer overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
-                boxShadow: '0 4px 20px rgba(59, 130, 246, 0.2)'
-              }}
-              onClick={() => handleOpenDemo('clothing-store')}
-              data-testid="card-telegram-apps"
-            >
-              <div className="text-black/60 text-xl font-light mb-2" style={{ letterSpacing: '2px' }}>1/4</div>
-              
-              <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center mb-3">
-                <Smartphone className="w-4 h-4" style={{ color: '#10B981' }} />
+        <MotionStagger className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 px-1">
+          
+          <MotionBox variant="fadeInScale">
+            <HoverScale scale={1.02}>
+              <div 
+                className="sm:col-span-2 relative rounded-2xl p-4 sm:p-6 cursor-pointer overflow-hidden group tg-interactive"
+                style={{
+                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
+                }}
+                onClick={() => onNavigate('projects')}
+                data-testid="card-main-services"
+              >
+                <div className="absolute inset-0 opacity-20"
+                  style={{ background: 'radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.4) 0%, transparent 70%)' }}
+                />
+                
+                <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
+                  <div className="w-7 sm:w-9 h-7 sm:h-9 text-black" style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))' }}>
+                    <Star className="w-full h-full" fill="currentColor" />
+                  </div>
+                </div>
+                
+                <div className="relative text-black text-[72px] sm:text-[96px] font-black leading-none mb-1 sm:mb-2 tracking-tighter"
+                  style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.1)' }}
+                >
+                  4
+                </div>
+                
+                <div className="relative text-black font-black text-xl sm:text-2xl mb-0.5 sm:mb-1 tracking-tight">
+                  SERVICES
+                </div>
+                
+                <div className="relative text-black/70 text-xs sm:text-sm font-medium">
+                  Готовые решения для бизнеса
+                </div>
+                
+                <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full"
+                  style={{ background: 'rgba(0, 0, 0, 0.2)', backdropFilter: 'blur(10px)' }}
+                >
+                  <span className="text-white text-[10px] sm:text-xs font-bold tracking-wide whitespace-nowrap">WEB4TG.AGENCY</span>
+                </div>
               </div>
-              
-              <h3 className="text-black text-sm font-bold leading-tight mb-1">Mini Apps</h3>
-              <p className="text-black/60 text-[10px] leading-tight">Запуск за 24 часа</p>
-            </div>
+            </HoverScale>
+          </MotionBox>
 
-            <div 
-              className="relative rounded-2xl p-4 cursor-pointer"
-              style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.12)'
-              }}
-              onClick={() => handleOpenDemo('electronics')}
-            >
-              <div className="text-white/50 text-xl font-light mb-2" style={{ letterSpacing: '2px' }}>2/4</div>
-              
-              <div className="w-7 h-7 bg-white/10 rounded-lg flex items-center justify-center mb-3">
-                <ShoppingCart className="w-4 h-4 text-white" />
+          <MotionBox variant="fadeInUp">
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative rounded-3xl p-4 cursor-pointer overflow-hidden group tg-interactive"
+                style={{
+                  background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                  boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3)'
+                }}
+                onClick={() => handleOpenDemo('clothing-store')}
+                data-testid="card-telegram-apps"
+              >
+                <div className="absolute top-3 right-3 px-2 py-1 rounded-full"
+                  style={{ background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)' }}
+                >
+                  <span className="text-white text-[10px] font-bold tracking-wide">УДАЛЕННО</span>
+                </div>
+                
+                <div className="text-black text-3xl font-thin mb-2" style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '3px' }}>1/4</div>
+                
+                <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
+                  <Smartphone className="w-5 h-5" style={{ color: '#10B981' }} />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-black text-lg font-bold leading-tight">Telegram-приложения под ключ</h3>
+                  <p className="text-black/70 text-xs leading-tight mb-2">Запуск за 24 часа. Все инструменты для продаж и клиентов</p>
+                  <p className="text-black/60 text-sm font-medium">ПО ПРЕДОПЛАТЕ</p>
+                </div>
               </div>
-              
-              <h3 className="text-white text-sm font-bold leading-tight mb-1">E-Commerce</h3>
-              <p className="text-white/50 text-[10px] leading-tight">Онлайн-магазины</p>
-            </div>
+            </HoverScale>
+          </MotionBox>
 
-            <div 
-              className="relative rounded-2xl p-4 cursor-pointer"
-              style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.12)'
-              }}
-              onClick={() => handleOpenDemo('beauty')}
-            >
-              <div className="text-white/50 text-xl font-light mb-2" style={{ letterSpacing: '2px' }}>3/4</div>
-              
-              <div className="w-7 h-7 bg-white/10 rounded-lg flex items-center justify-center mb-3">
-                <Code className="w-4 h-4 text-white" />
+          <MotionBox variant="fadeInUp" delay={0.1}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative bg-white/15 border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)' }}
+                onClick={() => handleOpenDemo('electronics')}
+              >
+                <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
+                  REMOTE
+                </div>
+                
+                <div className="text-white text-2xl font-black mb-2">2/4</div>
+                
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+                  <ShoppingCart className="w-5 h-5 text-white" />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-white text-lg font-bold leading-tight">E-COMMERCE SOLUTIONS</h3>
+                  <p className="text-white/70 text-xs leading-tight mb-2">Полнофункциональные платформы электронной коммерции</p>
+                  <p className="text-white/60 text-sm font-medium">FULLTIME</p>
+                </div>
               </div>
-              
-              <h3 className="text-white text-sm font-bold leading-tight mb-1">Automation</h3>
-              <p className="text-white/50 text-[10px] leading-tight">Бизнес-процессы</p>
-            </div>
+            </HoverScale>
+          </MotionBox>
 
-            <div 
-              className="relative rounded-2xl p-4 cursor-pointer"
-              style={{ background: '#10B981' }}
-              onClick={() => onNavigate('projects')}
-            >
-              <div className="text-black/50 text-xl font-light mb-2" style={{ letterSpacing: '2px' }}>4/4</div>
-              
-              <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center mb-3">
-                <Users className="w-4 h-4" style={{ color: '#10B981' }} />
+          <MotionBox variant="fadeInUp" delay={0.15}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative bg-white/15 border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)' }}
+                onClick={() => handleOpenDemo('beauty')}
+              >
+                <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
+                  REMOTE
+                </div>
+                
+                <div className="text-white text-2xl font-black mb-2">3/4</div>
+                
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+                  <Code className="w-5 h-5 text-white" />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-white text-lg font-bold leading-tight">BUSINESS AUTOMATION</h3>
+                  <p className="text-white/70 text-xs leading-tight mb-2">Умные боты и системы для оптимизации работы</p>
+                  <p className="text-white/60 text-sm font-medium">PARTTIME</p>
+                </div>
               </div>
-              
-              <h3 className="text-black text-sm font-bold leading-tight mb-1">Портфолио</h3>
-              <p className="text-black/60 text-[10px] leading-tight">Наши кейсы</p>
-            </div>
-          </div>
+            </HoverScale>
+          </MotionBox>
 
-        </div>
+          <MotionBox variant="fadeInUp" delay={0.2}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ backgroundColor: '#10B981' }}
+                onClick={() => onNavigate('projects')}
+              >
+                <div className="absolute top-3 right-3 bg-black/20 text-black text-xs px-2 py-1 rounded-full font-medium">
+                  УДАЛЕННО
+                </div>
+                
+                <div className="text-black text-3xl font-thin mb-2" style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '3px' }}>4/4</div>
+                
+                <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
+                  <Users className="w-5 h-5" style={{ color: '#10B981' }} />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-black text-lg font-bold leading-tight">ПОРТФОЛИО И КЕЙСЫ</h3>
+                  <p className="text-black/70 text-xs leading-tight mb-2">Успешные проекты и практические решения для бизнеса</p>
+                  <p className="text-black/60 text-sm font-medium">ДОСТУПНО</p>
+                </div>
+              </div>
+            </HoverScale>
+          </MotionBox>
+
+        </MotionStagger>
         
       </div>
     </div>
