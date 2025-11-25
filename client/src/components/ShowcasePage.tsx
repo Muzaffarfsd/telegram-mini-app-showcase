@@ -95,19 +95,20 @@ const VideoHeroCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo }
       
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
       
+      <div className="absolute top-4 left-4 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide"
+        style={{ background: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(8px)', color: '#fff' }}
+      >
+        Магазин одежды
+      </div>
+      
       <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold"
-        style={{
-          background: 'rgba(205, 255, 56, 0.95)',
-          color: '#0A0A0A'
-        }}
+        style={{ background: 'rgba(205, 255, 56, 0.95)', color: '#0A0A0A' }}
       >
         NEW
       </div>
       
       <div className="absolute bottom-0 left-0 right-0 p-6">
-        <div className="text-white text-4xl font-light mb-2"
-          style={{ letterSpacing: '0.4em' }}
-        >
+        <div className="text-white text-4xl font-light mb-2" style={{ letterSpacing: '0.4em' }}>
           A L U R E
         </div>
         <div className="text-white/70 text-sm uppercase tracking-widest mb-4">
@@ -143,16 +144,11 @@ const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
     
       <div className="absolute inset-0 p-4 flex flex-col justify-between">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-white text-xl font-light tracking-[0.35em]"
-              style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)' }}
-            >
-              S O L E
-            </div>
-            <div className="h-[1px] w-10 mt-1"
-              style={{ background: 'linear-gradient(90deg, rgba(100, 235, 220, 0.6), transparent)' }}
-            ></div>
+        <div className="flex items-start justify-between">
+          <div className="px-2 py-1 rounded-md text-[9px] font-bold uppercase tracking-wide"
+            style={{ background: 'rgba(100, 235, 220, 0.2)', backdropFilter: 'blur(8px)', color: '#64EBDC' }}
+          >
+            Кроссовки
           </div>
           
           <div className="px-2 py-0.5 text-[8px] font-medium tracking-wide"
@@ -167,7 +163,12 @@ const SneakerDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo
           </div>
         </div>
         
-        <div className="text-center">
+        <div>
+          <div className="text-white text-lg font-light tracking-[0.25em] mb-1"
+            style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)' }}
+          >
+            S O L E
+          </div>
           <div className="text-white/60 text-[9px] uppercase tracking-wider mb-2">Premium Sneakers</div>
           <OpenAppButton onClick={() => onOpenDemo('sneaker-store')} variant="light" size="sm" />
         </div>
@@ -200,32 +201,29 @@ const WatchesDemoCard = memo<{ onOpenDemo: (id: string) => void }>(({ onOpenDemo
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
     
       <div className="absolute inset-0 p-4 flex flex-col justify-between">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xl font-light tracking-[0.40em]"
-              style={{
-                background: 'linear-gradient(135deg, #E8D4A0 0%, #D6B980 50%, #C9A870 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}
-            >
-              L U X E
-            </div>
-            <div className="h-[1px] w-10 mt-1"
-              style={{ background: 'linear-gradient(90deg, rgba(214, 185, 128, 0.4), transparent)' }}
-            ></div>
+        <div className="flex items-start justify-between">
+          <div className="px-2 py-1 rounded-md text-[9px] font-bold uppercase tracking-wide"
+            style={{ background: 'rgba(214, 185, 128, 0.2)', backdropFilter: 'blur(8px)', color: '#D6B980' }}
+          >
+            Часы
           </div>
           
           <div className="w-1.5 h-1.5 rounded-full"
-            style={{
-              background: '#D6B980',
-              boxShadow: '0 0 8px rgba(214, 185, 128, 0.6)'
-            }}
+            style={{ background: '#D6B980', boxShadow: '0 0 8px rgba(214, 185, 128, 0.6)' }}
           ></div>
         </div>
         
-        <div className="text-center">
+        <div>
+          <div className="text-lg font-light tracking-[0.30em] mb-1"
+            style={{
+              background: 'linear-gradient(135deg, #E8D4A0 0%, #D6B980 50%, #C9A870 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}
+          >
+            L U X E
+          </div>
           <div className="text-white/50 text-[9px] uppercase tracking-wider mb-2">Swiss Timepieces</div>
           <OpenAppButton onClick={() => onOpenDemo('luxury-watches')} variant="light" size="sm" />
         </div>
@@ -239,11 +237,11 @@ const ImageDemoCard = memo<{
   image: string;
   title: string;
   subtitle: string;
-  category: string;
+  appType: string;
   badge: string;
   badgeStyle?: React.CSSProperties;
   onOpenDemo: (id: string) => void;
-}>(({ id, image, title, subtitle, category, badge, badgeStyle, onOpenDemo }) => (
+}>(({ id, image, title, subtitle, appType, badge, badgeStyle, onOpenDemo }) => (
   <div 
     className="relative h-full rounded-2xl overflow-hidden cursor-pointer group tg-interactive"
     onClick={() => onOpenDemo(id)}
@@ -259,6 +257,12 @@ const ImageDemoCard = memo<{
     />
     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
     
+    <div className="absolute top-3 left-3 px-2 py-1 rounded-md text-[9px] font-bold uppercase tracking-wide"
+      style={{ background: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(8px)', color: '#fff' }}
+    >
+      {appType}
+    </div>
+    
     <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold"
       style={badgeStyle || { background: 'rgba(16, 185, 129, 0.9)', color: '#FFFFFF' }}
     >
@@ -266,7 +270,6 @@ const ImageDemoCard = memo<{
     </div>
     
     <div className="absolute bottom-0 left-0 right-0 p-4">
-      <div className="text-emerald-400 text-[10px] mb-1.5 font-bold tracking-wider">{category}</div>
       <h3 className="text-white text-lg font-bold mb-0.5">{title}</h3>
       <p className="text-white/60 text-xs mb-3">{subtitle}</p>
       <OpenAppButton onClick={() => onOpenDemo(id)} variant="light" size="sm" />
@@ -367,10 +370,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     />
                     
                     <p className="text-xs font-semibold tracking-wide" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                      ПРЕМИАЛЬНЫЕ ПРИЛОЖЕНИЯ
+                      ЗАПУСК ЗА 24 ЧАСА
                     </p>
                     <p className="text-[10px] font-medium tracking-wider mt-1" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                      РАЗРАБОТКА • ДИЗАЙН • ЗАПУСК
+                      БЕЗ КОДА • ПРЕМИУМ КАЧЕСТВО
                     </p>
                   </div>
                 </div>
@@ -379,9 +382,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
             <div className="mb-4 text-center px-4">
               <h2 className="text-xl font-black uppercase tracking-wider" style={{ color: '#FFFFFF', letterSpacing: '0.1em' }}>
-                ДЕМО-ПРИЛОЖЕНИЯ
+                БИЗНЕС-ПРИЛОЖЕНИЯ
               </h2>
-              <p className="text-white/50 text-xs mt-1">Нажмите чтобы открыть</p>
+              <p className="text-white/50 text-xs mt-1">Нажмите чтобы открыть демо</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 px-2">
@@ -403,7 +406,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   image={rascalImage}
                   title="Rascal"
                   subtitle="Waterproof Fashion"
-                  category="OUTDOOR"
+                  appType="Outdoor"
                   badge="NEW"
                   badgeStyle={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)', color: '#FFFFFF' }}
                   onOpenDemo={handleOpenDemo}
@@ -416,7 +419,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   image={nikeDestinyImage}
                   title="STORE"
                   subtitle="Black Minimal"
-                  category="MINIMAL"
+                  appType="Магазин"
                   badge="PREMIUM"
                   badgeStyle={{ background: '#000000', color: '#FFFFFF' }}
                   onOpenDemo={handleOpenDemo}
@@ -429,7 +432,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   image={nikeGreenImage}
                   title="lab. SURVIVALIST"
                   subtitle="Black & White"
-                  category="LUXURY"
+                  appType="Бренд"
                   badge="LUXURY"
                   badgeStyle={{ background: 'rgba(255, 255, 255, 0.2)', border: '1px solid rgba(255, 255, 255, 0.3)', color: '#FFFFFF' }}
                   onOpenDemo={handleOpenDemo}
@@ -442,7 +445,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   image={nikeAcgImage}
                   title="Nike ACG"
                   subtitle="3D Card Design"
-                  category="INTERACTIVE"
+                  appType="Каталог"
                   badge="3D"
                   badgeStyle={{ background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)', color: '#FFFFFF' }}
                   onOpenDemo={handleOpenDemo}
@@ -454,47 +457,54 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           </div>
         </div>
 
-        <MotionStagger className="grid grid-cols-2 gap-3 mt-6 px-2">
+        <MotionStagger className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 px-3">
           
           <MotionBox variant="fadeInScale">
             <HoverScale scale={1.02}>
               <div 
-                className="col-span-2 relative rounded-2xl p-5 cursor-pointer overflow-hidden group tg-interactive"
+                className="sm:col-span-2 relative rounded-2xl p-4 sm:p-6 cursor-pointer overflow-hidden group tg-interactive"
                 style={{
                   background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3)'
+                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
                 }}
                 onClick={() => onNavigate('projects')}
                 data-testid="card-main-services"
               >
                 <div className="absolute inset-0 opacity-20"
-                  style={{ background: 'radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.4) 0%, transparent 70%)' }}
+                  style={{
+                    background: 'radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.4) 0%, transparent 70%)',
+                    animation: 'float 6s ease-in-out infinite'
+                  }}
                 />
                 
-                <div className="absolute top-4 left-4 z-10">
-                  <div className="w-8 h-8 text-black" style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))' }}>
+                <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
+                  <div className="w-7 sm:w-9 h-7 sm:h-9 text-black"
+                    style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))' }}
+                  >
                     <Star className="w-full h-full" fill="currentColor" />
                   </div>
                 </div>
                 
-                <div className="relative text-black text-[72px] font-black leading-none mb-1 tracking-tighter"
+                <div className="relative text-black text-[72px] sm:text-[96px] font-black leading-none mb-1 sm:mb-2 tracking-tighter"
                   style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.1)' }}
                 >
                   4
                 </div>
                 
-                <div className="relative text-black font-black text-xl mb-0.5 tracking-tight">
+                <div className="relative text-black font-black text-xl sm:text-2xl mb-0.5 sm:mb-1 tracking-tight">
                   SERVICES
                 </div>
                 
-                <div className="relative text-black/70 text-xs font-medium">
+                <div className="relative text-black/70 text-xs sm:text-sm font-medium">
                   Готовые решения для бизнеса
                 </div>
                 
-                <div className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full"
+                <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full"
                   style={{ background: 'rgba(0, 0, 0, 0.2)', backdropFilter: 'blur(10px)' }}
                 >
-                  <span className="text-white text-[10px] font-bold tracking-wide">WEB4TG.AGENCY</span>
+                  <span className="text-white text-[10px] sm:text-xs font-bold tracking-wide whitespace-nowrap">
+                    WEB4TG.AGENCY
+                  </span>
                 </div>
               </div>
             </HoverScale>
@@ -503,7 +513,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInUp">
             <HoverScale scale={1.05}>
               <div 
-                className="relative rounded-2xl p-4 cursor-pointer overflow-hidden group tg-interactive"
+                className="relative rounded-3xl p-4 cursor-pointer overflow-hidden group tg-interactive"
                 style={{
                   background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
                   boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3)'
@@ -511,21 +521,36 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 onClick={() => onOpenDemo('clothing-store')}
                 data-testid="card-telegram-apps"
               >
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500"
+                  style={{
+                    background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%)',
+                    backgroundSize: '200% 200%',
+                    animation: 'shimmerWave 3s ease-in-out infinite'
+                  }}
+                />
+                
                 <div className="absolute top-3 right-3 px-2 py-1 rounded-full"
                   style={{ background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)' }}
                 >
-                  <span className="text-white text-[10px] font-bold tracking-wide">24H</span>
+                  <span className="text-white text-[10px] font-bold tracking-wide">УДАЛЕННО</span>
                 </div>
                 
-                <div className="text-black/80 text-2xl font-thin mb-2" style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '2px' }}>1/4</div>
+                <div className="text-black text-3xl font-thin mb-2" style={{fontFamily: 'Inter, sans-serif', letterSpacing: '3px'}}>1/4</div>
                 
                 <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
-                  <Smartphone className="w-5 h-5" style={{ color: '#10B981' }} />
+                  <Smartphone className="w-5 h-5" style={{color: '#10B981'}} />
                 </div>
                 
-                <div className="space-y-1.5">
-                  <h3 className="text-black text-base font-bold leading-tight">Mini Apps</h3>
-                  <p className="text-black/70 text-[11px] leading-tight">Запуск за 24 часа</p>
+                <div className="space-y-2">
+                  <h3 className="text-black text-lg font-bold leading-tight">
+                    Telegram-приложения под ключ
+                  </h3>
+                  <p className="text-black/70 text-xs leading-tight mb-2">
+                    Запуск за 24 часа. Все инструменты для продаж и клиентов
+                  </p>
+                  <p className="text-black/60 text-sm font-medium">
+                    ПО ПРЕДОПЛАТЕ
+                  </p>
                 </div>
               </div>
             </HoverScale>
@@ -534,27 +559,30 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInUp" delay={0.1}>
             <HoverScale scale={1.05}>
               <div 
-                className="relative rounded-2xl p-4 cursor-pointer tg-interactive"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
-                }}
+                className="relative bg-white/15 border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)' }}
                 onClick={() => onOpenDemo('electronics')}
               >
-                <div className="absolute top-3 right-3 bg-white/15 text-white text-[10px] px-2 py-1 rounded-full font-bold">
+                <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
                   REMOTE
                 </div>
                 
-                <div className="text-white/80 text-2xl font-thin mb-2" style={{ letterSpacing: '2px' }}>2/4</div>
+                <div className="text-white text-2xl font-black mb-2">2/4</div>
                 
-                <div className="w-8 h-8 bg-white/15 rounded-lg flex items-center justify-center mb-3">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
                   <ShoppingCart className="w-5 h-5 text-white" />
                 </div>
                 
-                <div className="space-y-1.5">
-                  <h3 className="text-white text-base font-bold leading-tight">E-Commerce</h3>
-                  <p className="text-white/60 text-[11px] leading-tight">Онлайн-магазины</p>
+                <div className="space-y-2">
+                  <h3 className="text-white text-lg font-bold leading-tight">
+                    E-COMMERCE SOLUTIONS
+                  </h3>
+                  <p className="text-white/70 text-xs leading-tight mb-2">
+                    Полнофункциональные платформы электронной коммерции
+                  </p>
+                  <p className="text-white/60 text-sm font-medium">
+                    FULLTIME
+                  </p>
                 </div>
               </div>
             </HoverScale>
@@ -563,27 +591,30 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInUp" delay={0.15}>
             <HoverScale scale={1.05}>
               <div 
-                className="relative rounded-2xl p-4 cursor-pointer tg-interactive"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
-                }}
+                className="relative bg-white/15 border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)' }}
                 onClick={() => onOpenDemo('beauty')}
               >
-                <div className="absolute top-3 right-3 bg-white/15 text-white text-[10px] px-2 py-1 rounded-full font-bold">
-                  AI
+                <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
+                  REMOTE
                 </div>
                 
-                <div className="text-white/80 text-2xl font-thin mb-2" style={{ letterSpacing: '2px' }}>3/4</div>
+                <div className="text-white text-2xl font-black mb-2">3/4</div>
                 
-                <div className="w-8 h-8 bg-white/15 rounded-lg flex items-center justify-center mb-3">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
                   <Code className="w-5 h-5 text-white" />
                 </div>
                 
-                <div className="space-y-1.5">
-                  <h3 className="text-white text-base font-bold leading-tight">Automation</h3>
-                  <p className="text-white/60 text-[11px] leading-tight">AI-боты и CRM</p>
+                <div className="space-y-2">
+                  <h3 className="text-white text-lg font-bold leading-tight">
+                    BUSINESS AUTOMATION
+                  </h3>
+                  <p className="text-white/70 text-xs leading-tight mb-2">
+                    Умные боты и системы для оптимизации работы
+                  </p>
+                  <p className="text-white/60 text-sm font-medium">
+                    PARTTIME
+                  </p>
                 </div>
               </div>
             </HoverScale>
@@ -592,23 +623,30 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInUp" delay={0.2}>
             <HoverScale scale={1.05}>
               <div 
-                className="relative rounded-2xl p-4 cursor-pointer tg-interactive"
-                style={{ backgroundColor: '#10B981' }}
+                className="relative rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{backgroundColor: '#10B981'}}
                 onClick={() => onNavigate('projects')}
               >
-                <div className="absolute top-3 right-3 bg-black/20 text-black text-[10px] px-2 py-1 rounded-full font-bold">
-                  VIEW
+                <div className="absolute top-3 right-3 bg-black/20 text-black text-xs px-2 py-1 rounded-full font-medium">
+                  УДАЛЕННО
                 </div>
                 
-                <div className="text-black/80 text-2xl font-thin mb-2" style={{ letterSpacing: '2px' }}>4/4</div>
+                <div className="text-black text-3xl font-thin mb-2" style={{fontFamily: 'Inter, sans-serif', letterSpacing: '3px'}}>4/4</div>
                 
                 <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
-                  <Users className="w-5 h-5" style={{ color: '#10B981' }} />
+                  <Users className="w-5 h-5" style={{color: '#10B981'}} />
                 </div>
                 
-                <div className="space-y-1.5">
-                  <h3 className="text-black text-base font-bold leading-tight">Портфолио</h3>
-                  <p className="text-black/70 text-[11px] leading-tight">Наши проекты</p>
+                <div className="space-y-2">
+                  <h3 className="text-black text-lg font-bold leading-tight">
+                    ПОРТФОЛИО И КЕЙСЫ
+                  </h3>
+                  <p className="text-black/70 text-xs leading-tight mb-2">
+                    Успешные проекты и практические решения для бизнеса
+                  </p>
+                  <p className="text-black/60 text-sm font-medium">
+                    ДОСТУПНО
+                  </p>
                 </div>
               </div>
             </HoverScale>
