@@ -34,6 +34,13 @@ interface TelegramWebApp {
     impactOccurred: (style: 'light' | 'medium' | 'heavy') => void;
     selectionChanged: () => void;
   };
+  BackButton: {
+    isVisible: boolean;
+    show: () => void;
+    hide: () => void;
+    onClick: (callback: () => void) => void;
+    offClick: (callback: () => void) => void;
+  };
   initDataUnsafe: {
     user?: {
       id: number;

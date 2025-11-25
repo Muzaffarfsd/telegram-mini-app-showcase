@@ -114,6 +114,49 @@ function App() {
     });
   }, [route.component, route.params?.id]);
 
+  // Telegram BackButton - показываем на всех страницах кроме главной
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (!tg?.BackButton) return;
+
+    // Определяем, нужно ли показывать кнопку "Назад"
+    const isMainPage = route.component === 'showcase';
+    
+    if (!isMainPage) {
+      tg.BackButton.show();
+    } else {
+      tg.BackButton.hide();
+    }
+
+    // Обработчик клика на BackButton
+    const handleBackButton = () => {
+      hapticFeedback.light();
+      
+      // Специальная логика для разных страниц
+      if (route.component === 'checkout') {
+        // Из чекаута возвращаемся в конструктор
+        setOrderData(null);
+        navigate('/constructor');
+      } else if (route.component === 'demoApp' || route.component === 'demoLanding') {
+        // Из демо возвращаемся на главную
+        navigate('/');
+      } else if (route.component === 'help' || route.component === 'review') {
+        // Из справки/отзывов возвращаемся в профиль
+        navigate('/profile');
+      } else {
+        // Для остальных страниц - на главную
+        navigate('/');
+      }
+    };
+
+    tg.BackButton.onClick(handleBackButton);
+
+    // Cleanup
+    return () => {
+      tg.BackButton.offClick(handleBackButton);
+    };
+  }, [route.component, hapticFeedback]);
+
   // Navigation handlers - memoized for better performance with React.memo children
   const handleNavigate = useCallback((section: string, data?: any) => {
     if (data) {
