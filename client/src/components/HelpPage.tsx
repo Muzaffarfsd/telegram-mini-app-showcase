@@ -1,6 +1,5 @@
 import { useState, memo } from "react";
 import { 
-  ArrowLeft,
   Phone,
   Mail,
   MessageCircle,
@@ -31,6 +30,7 @@ import {
   FileText,
   Download
 } from "lucide-react";
+import { BackHeader } from "./BackHeader";
 
 interface HelpPageProps {
   onBack: () => void;
@@ -226,23 +226,10 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white safe-area-top pb-32">
-      {/* iOS Navigation Bar */}
-      <header className="glass-card-strong mx-4 mt-4 mb-6">
-        <div className="max-w-md mx-auto flex items-center justify-between px-4 py-3">
-          <button
-            onClick={onBack}
-            className="ios-button-plain"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="ios-headline font-semibold">Справка</h1>
-          <div className="w-10" />
-        </div>
-      </header>
+    <div className="min-h-screen bg-black text-white pb-32">
+      <BackHeader onBack={onBack} title="Справка" />
 
-      <div className="max-w-md mx-auto px-4 space-y-6">
+      <div className="max-w-md mx-auto px-4 space-y-6 mt-4">
         {/* Hero Section */}
         <section className="ios-slide-up">
           <div className="glass-card p-6 text-center">

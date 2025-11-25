@@ -1,9 +1,10 @@
 import { useState, useEffect, memo } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { ArrowLeft, CreditCard, Lock, CheckCircle } from "lucide-react";
+import { CreditCard, Lock, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTelegram } from "@/hooks/useTelegram";
+import { BackHeader } from "./BackHeader";
 
 const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
   ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
@@ -211,20 +212,10 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 pb-80">
-      <div className="max-w-md mx-auto">
-        {/* Header */}
-        <div className="flex items-center space-x-4 mb-6">
-          <button 
-            onClick={onBack}
-            className="w-10 h-10 liquid-glass-card rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="w-4 h-4 text-white" />
-          </button>
-          <h1 className="ios-title font-bold text-white">Оплата заказа</h1>
-        </div>
-
+    <div className="min-h-screen bg-black text-white pb-80">
+      <BackHeader onBack={onBack} title="Оплата заказа" />
+      
+      <div className="max-w-md mx-auto p-4">
         {/* Payment Form */}
         {clientSecret && (
           <Elements 
