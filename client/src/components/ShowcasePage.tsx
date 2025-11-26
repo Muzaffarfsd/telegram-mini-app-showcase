@@ -1,5 +1,5 @@
-import { ArrowRight, Play, Crown, Shield, Clock, Star } from "lucide-react";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { ArrowRight, Play, Sparkles, Zap, Users } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { useHaptic } from '../hooks/useHaptic';
 import { LazyVideo } from './LazyVideo';
 
@@ -8,11 +8,6 @@ const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4
 const watchesVideo = "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4";
 const heroVideo = "/videos/1341996d8f73172cbc77930dc818d88e_t4_1763643600785.mp4";
 
-/* ═══════════════════════════════════════════════════════════════════════
-   LUXURY DESIGN SYSTEM — Inspired by Louis Vuitton, Chanel, Apple
-   Psychology: Exclusivity, Status, Aspiration, Craftsmanship
-   ═══════════════════════════════════════════════════════════════════════ */
-
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
   onOpenDemo: (demoId: string) => void;
@@ -20,37 +15,12 @@ interface ShowcasePageProps {
 
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const haptic = useHaptic();
-  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set(['hero']));
-  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
-
+  const [isVisible, setIsVisible] = useState(false);
+  
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-      setVisibleSections(new Set(['hero', 'social', 'showcase', 'exclusive', 'cta']));
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = entry.target.getAttribute('data-section');
-            if (id) setVisibleSections((prev) => new Set(Array.from(prev).concat(id)));
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -80px 0px' }
-    );
-
-    sectionRefs.current.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    const timer = setTimeout(() => setIsVisible(true), 50);
+    return () => clearTimeout(timer);
   }, []);
-
-  const setSectionRef = useCallback((id: string) => (el: HTMLElement | null) => {
-    if (el) sectionRefs.current.set(id, el);
-  }, []);
-
-  const isVisible = (id: string) => visibleSections.has(id);
 
   const handleOpenDemo = useCallback((demoId: string) => {
     haptic.light();
@@ -69,368 +39,376 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     { src: watchesVideo, id: 'restaurant' }
   ];
 
-  const revealStyle = (id: string, delay: number = 0) => ({
-    opacity: isVisible(id) ? 1 : 0,
-    transform: isVisible(id) ? 'translateY(0)' : 'translateY(24px)',
-    transition: `opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s`
-  });
-
   return (
-    <div 
-      className="min-h-screen overflow-x-hidden"
-      style={{ 
-        backgroundColor: '#000000',
-        color: '#FFFFFF',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", system-ui, sans-serif'
-      }}
-    >
+    <div className="min-h-screen bg-[#000000] text-white overflow-x-hidden">
       
       {/* ═══════════════════════════════════════════════════════════════════
-          HERO — Драматичное открытие с психологией эксклюзивности
+          HERO - Cinematic Opening
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
-        ref={setSectionRef('hero')}
-        data-section="hero"
-        className="relative flex flex-col items-center justify-center text-center"
+        className="relative min-h-[100vh] flex flex-col items-center justify-center px-6 overflow-hidden"
         style={{
-          minHeight: '100dvh',
-          padding: '80px 24px 100px',
           background: `
-            radial-gradient(ellipse 140% 70% at 50% 0%, rgba(212, 175, 55, 0.08), transparent 50%),
-            radial-gradient(ellipse 80% 50% at 20% 80%, rgba(212, 175, 55, 0.03), transparent),
-            #000000
+            radial-gradient(ellipse 100% 80% at 50% -20%, rgba(99, 102, 241, 0.15), transparent 70%),
+            radial-gradient(ellipse 80% 50% at 80% 50%, rgba(168, 85, 247, 0.08), transparent 60%),
+            radial-gradient(ellipse 60% 40% at 20% 80%, rgba(34, 211, 238, 0.06), transparent 50%),
+            #000
           `
         }}
       >
-        {/* Золотая линия сверху */}
-        <div 
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[60px]"
-          style={{
-            background: 'linear-gradient(to bottom, rgba(212, 175, 55, 0.6), transparent)',
-            opacity: isVisible('hero') ? 1 : 0,
-            transition: 'opacity 1.2s ease 0.3s'
-          }}
-        />
-
-        <div style={{ maxWidth: '600px', ...revealStyle('hero', 0) }}>
-          {/* Eyebrow с эксклюзивностью */}
+        {/* Floating particles effect */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div 
-            className="inline-flex items-center gap-2 mb-8"
+            className="absolute w-[500px] h-[500px] rounded-full opacity-30"
             style={{
-              padding: '10px 20px',
-              background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05))',
-              border: '1px solid rgba(212, 175, 55, 0.3)',
-              borderRadius: '100px'
+              background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%)',
+              top: '-10%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              filter: 'blur(60px)',
+              animation: 'pulse 8s ease-in-out infinite'
+            }}
+          />
+        </div>
+
+        {/* Content */}
+        <div 
+          className="relative z-10 text-center max-w-[440px]"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.95)',
+            transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}
+        >
+          {/* Eyebrow */}
+          <div 
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8"
+            style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)'
             }}
           >
-            <Crown style={{ width: '14px', height: '14px', color: '#D4AF37' }} />
-            <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#D4AF37' }}>
-              Премиум-разработка
-            </span>
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[13px] font-medium text-white/70">Telegram Mini Apps</span>
           </div>
 
-          {/* Главный заголовок — психология статуса */}
-          <h1 style={{
-            fontSize: 'clamp(40px, 10vw, 72px)',
-            fontWeight: 600,
-            lineHeight: 1.0,
-            letterSpacing: '-0.03em',
-            marginBottom: '24px'
-          }}>
-            Для тех, кто
+          {/* Main headline */}
+          <h1 
+            className="mb-6"
+            style={{
+              fontSize: 'clamp(48px, 12vw, 80px)',
+              fontWeight: 700,
+              lineHeight: 0.95,
+              letterSpacing: '-0.04em'
+            }}
+          >
+            <span className="text-white">Продавайте</span>
             <br />
-            <span style={{
-              background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              выбирает лучшее
+            <span 
+              style={{
+                background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #22d3ee 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              красиво
             </span>
           </h1>
 
-          {/* Подзаголовок — эмоциональный триггер */}
-          <p style={{
-            fontSize: '18px',
-            fontWeight: 400,
-            lineHeight: 1.6,
-            color: 'rgba(255, 255, 255, 0.6)',
-            marginBottom: '40px',
-            maxWidth: '400px',
-            marginLeft: 'auto',
-            marginRight: 'auto'
-          }}>
-            Эксклюзивные Telegram-приложения для брендов, 
-            которые не идут на компромиссы
+          {/* Sub-headline */}
+          <p 
+            className="text-[19px] leading-relaxed mb-10 max-w-[320px] mx-auto"
+            style={{ color: 'rgba(255, 255, 255, 0.6)' }}
+          >
+            Премиум-витрина в Telegram.
+            <br />
+            <span style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Там, где уже ваши клиенты.</span>
           </p>
 
-          {/* CTA — срочность и эксклюзивность */}
-          <div className="flex flex-col items-center gap-4">
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button 
               onClick={() => handleNavigate('constructor')}
+              className="group relative px-8 py-4 rounded-2xl text-[17px] font-semibold overflow-hidden"
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                height: '56px',
-                padding: '0 36px',
-                fontSize: '16px',
-                fontWeight: 600,
-                letterSpacing: '0.02em',
-                color: '#000000',
-                background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
-                border: 'none',
-                borderRadius: '100px',
-                cursor: 'pointer',
-                boxShadow: '0 0 40px rgba(212, 175, 55, 0.3)',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.02)';
-                e.currentTarget.style.boxShadow = '0 0 60px rgba(212, 175, 55, 0.5)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 0 40px rgba(212, 175, 55, 0.3)';
+                background: 'linear-gradient(135deg, #ffffff 0%, #e5e7eb 100%)',
+                color: '#000',
+                boxShadow: '0 0 0 1px rgba(255,255,255,0.1), 0 20px 50px -10px rgba(255,255,255,0.25)'
               }}
               data-testid="button-hero-primary"
             >
-              Забронировать место
-              <ArrowRight style={{ width: '18px', height: '18px' }} />
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                Создать за 7 дней
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </span>
             </button>
             
-            <p style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.4)' }}>
-              Только 12 проектов в месяц
-            </p>
+            <button 
+              onClick={() => handleNavigate('ai-agent')}
+              className="group px-7 py-4 rounded-2xl text-[17px] font-medium flex items-center justify-center gap-2"
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                color: '#fff',
+                backdropFilter: 'blur(10px)'
+              }}
+              data-testid="button-hero-secondary"
+            >
+              <Play className="w-4 h-4" />
+              Смотреть демо
+            </button>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div 
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          style={{
+            opacity: isVisible ? 0.5 : 0,
+            transition: 'opacity 1s ease 1s'
+          }}
+        >
+          <div 
+            className="w-6 h-10 rounded-full border-2 border-white/20 flex justify-center pt-2"
+          >
+            <div 
+              className="w-1 h-2 bg-white/50 rounded-full"
+              style={{ animation: 'scrollPulse 2s ease-in-out infinite' }}
+            />
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SOCIAL PROOF — Доверие через авторитет
+          PROOF STRIP - Social Validation
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
-        ref={setSectionRef('social')}
-        data-section="social"
+        className="py-12 px-6 border-y"
         style={{
-          padding: '60px 24px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-          background: 'rgba(255, 255, 255, 0.01)'
+          background: 'rgba(255, 255, 255, 0.02)',
+          borderColor: 'rgba(255, 255, 255, 0.06)'
         }}
       >
         <div 
-          className="flex justify-center items-center flex-wrap"
+          className="max-w-[500px] mx-auto grid grid-cols-3 gap-4"
           style={{
-            gap: 'clamp(32px, 6vw, 64px)',
-            maxWidth: '800px',
-            margin: '0 auto',
-            ...revealStyle('social', 0.1)
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s ease 0.3s'
           }}
         >
           {[
-            { icon: Star, value: '4.9', label: 'рейтинг клиентов' },
-            { icon: Shield, value: '127', label: 'премиум-брендов' },
-            { icon: Clock, value: '14', label: 'дней до запуска' }
+            { icon: Zap, value: '+327%', label: 'к продажам', color: '#fbbf24' },
+            { icon: Users, value: '127', label: 'брендов', color: '#a855f7' },
+            { icon: Sparkles, value: '24/7', label: 'AI-агент', color: '#22d3ee' }
           ].map((stat, i) => (
-            <div key={i} className="text-center" style={{ minWidth: '100px' }}>
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <stat.icon style={{ width: '16px', height: '16px', color: '#D4AF37' }} />
-                <span style={{
-                  fontSize: 'clamp(28px, 5vw, 36px)',
-                  fontWeight: 600,
-                  letterSpacing: '-0.02em',
-                  color: '#FFFFFF'
-                }}>
-                  {stat.value}
-                </span>
+            <div key={i} className="text-center">
+              <div 
+                className="w-10 h-10 mx-auto mb-3 rounded-xl flex items-center justify-center"
+                style={{ 
+                  background: `${stat.color}15`,
+                  boxShadow: `0 0 20px ${stat.color}20`
+                }}
+              >
+                <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
               </div>
-              <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.5)' }}>
-                {stat.label}
-              </div>
+              <div className="text-xl font-bold text-white">{stat.value}</div>
+              <div className="text-[13px] text-white/40">{stat.label}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SHOWCASE — Витрина работ (чистые видео без текста)
+          VIDEO WALL - Pure Visual Showcase (NO TEXT INSIDE)
           ═══════════════════════════════════════════════════════════════════ */}
-      <section 
-        ref={setSectionRef('showcase')}
-        data-section="showcase"
-        style={{ padding: 'clamp(80px, 14vw, 140px) 20px' }}
-      >
-        {/* Заголовок секции */}
-        <div className="text-center" style={{ marginBottom: '48px', ...revealStyle('showcase', 0.1) }}>
-          <p style={{
-            fontSize: '11px',
-            fontWeight: 600,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: '#D4AF37',
-            marginBottom: '16px'
-          }}>
-            Портфолио
-          </p>
-          <h2 style={{
-            fontSize: 'clamp(28px, 6vw, 44px)',
-            fontWeight: 600,
-            lineHeight: 1.1,
-            letterSpacing: '-0.02em',
-            marginBottom: '12px'
-          }}>
-            Каждый проект —
+      <section className="py-24 px-5">
+        <div 
+          className="text-center mb-16 max-w-[400px] mx-auto"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s ease 0.4s'
+          }}
+        >
+          <h2 
+            className="mb-4"
+            style={{
+              fontSize: 'clamp(32px, 8vw, 52px)',
+              fontWeight: 600,
+              lineHeight: 1.05,
+              letterSpacing: '-0.03em'
+            }}
+          >
+            Каждый магазин —
             <br />
-            <span style={{ color: 'rgba(255, 255, 255, 0.5)' }}>произведение искусства</span>
+            <span 
+              style={{
+                background: 'linear-gradient(135deg, #ec4899 0%, #a855f7 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              шедевр
+            </span>
           </h2>
-          <p style={{ fontSize: '15px', color: 'rgba(255, 255, 255, 0.4)' }}>
-            Нажмите, чтобы испытать
+          <p className="text-[17px] text-white/50">
+            Нажмите на любую витрину
           </p>
         </div>
 
-        {/* Видео-сетка — чистые карточки БЕЗ текста */}
+        {/* Video Grid - Clean, no text overlay */}
         <div 
+          className="grid grid-cols-2 gap-3 max-w-[520px] mx-auto"
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '14px',
-            maxWidth: '480px',
-            margin: '0 auto',
-            ...revealStyle('showcase', 0.2)
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+            transition: 'all 0.8s ease 0.5s'
           }}
         >
           {videos.map((video, index) => (
-            <button
+            <div
               key={index}
               onClick={() => handleOpenDemo(video.id)}
+              className="group relative cursor-pointer"
               style={{
-                position: 'relative',
-                aspectRatio: '9 / 16',
-                borderRadius: '20px',
+                aspectRatio: '3/4',
+                borderRadius: '28px',
                 overflow: 'hidden',
-                backgroundColor: '#0A0A0A',
-                border: '1px solid rgba(212, 175, 55, 0.15)',
-                padding: 0,
-                cursor: 'pointer',
-                transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.5s ease, box-shadow 0.5s ease'
+                background: '#0a0a0a',
+                boxShadow: `
+                  0 0 0 1px rgba(255,255,255,0.08),
+                  0 25px 60px -15px rgba(0,0,0,0.7),
+                  0 0 100px -30px rgba(139, 92, 246, 0.2)
+                `,
+                transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.02) translateY(-8px)';
-                e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.4)';
-                e.currentTarget.style.boxShadow = '0 30px 60px -15px rgba(0, 0, 0, 0.5), 0 0 40px rgba(212, 175, 55, 0.1)';
+                const el = e.currentTarget;
+                el.style.transform = 'scale(1.03) translateY(-12px)';
+                el.style.boxShadow = `
+                  0 0 0 1px rgba(255,255,255,0.15),
+                  0 50px 100px -20px rgba(0,0,0,0.8),
+                  0 0 150px -30px rgba(139, 92, 246, 0.4)
+                `;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.15)';
-                e.currentTarget.style.boxShadow = 'none';
+                const el = e.currentTarget;
+                el.style.transform = 'scale(1) translateY(0)';
+                el.style.boxShadow = `
+                  0 0 0 1px rgba(255,255,255,0.08),
+                  0 25px 60px -15px rgba(0,0,0,0.7),
+                  0 0 100px -30px rgba(139, 92, 246, 0.2)
+                `;
               }}
               data-testid={`video-card-${index}`}
             >
               <LazyVideo
                 src={video.src}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 autoPlay
                 loop
                 muted
                 playsInline
                 preload="none"
               />
-              {/* Subtle vignette */}
+              
+              {/* Shine effect on hover */}
               <div 
-                className="absolute inset-0 pointer-events-none"
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
                 style={{
-                  background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)',
-                  opacity: 0.6
+                  background: 'linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.05) 60%, transparent 80%)'
                 }}
               />
-            </button>
+              
+              {/* Bottom gradient for depth */}
+              <div 
+                className="absolute inset-x-0 bottom-0 h-1/3 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)'
+                }}
+              />
+            </div>
           ))}
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          EXCLUSIVE — Что делает нас особенными
+          TRANSFORMATION - Emotional Story
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
-        ref={setSectionRef('exclusive')}
-        data-section="exclusive"
+        className="py-24 px-6 text-center"
         style={{
-          padding: 'clamp(80px, 14vw, 140px) 24px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
           background: `
-            radial-gradient(ellipse 100% 60% at 50% 100%, rgba(212, 175, 55, 0.04), transparent),
-            #000000
+            radial-gradient(ellipse 80% 60% at 50% 100%, rgba(99, 102, 241, 0.08), transparent),
+            #000
           `
         }}
       >
-        <div className="text-center" style={{ maxWidth: '500px', margin: '0 auto' }}>
-          <div style={revealStyle('exclusive', 0.1)}>
-            <p style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: '#D4AF37',
-              marginBottom: '16px'
-            }}>
-              Наш подход
-            </p>
-            <h2 style={{
-              fontSize: 'clamp(28px, 6vw, 44px)',
-              fontWeight: 600,
-              lineHeight: 1.1,
-              letterSpacing: '-0.02em',
-              marginBottom: '48px'
-            }}>
-              Бескомпромиссное
-              <br />
-              <span style={{ color: 'rgba(255, 255, 255, 0.5)' }}>качество</span>
-            </h2>
-          </div>
-
-          {/* Преимущества */}
-          <div 
-            className="grid gap-8"
-            style={{ ...revealStyle('exclusive', 0.2) }}
+        <div 
+          className="max-w-[400px] mx-auto"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s ease 0.6s'
+          }}
+        >
+          <p 
+            className="text-[13px] font-medium tracking-[0.2em] uppercase mb-6"
+            style={{ color: 'rgba(255,255,255,0.4)' }}
           >
+            Наш подход
+          </p>
+          
+          <h2 
+            className="mb-6"
+            style={{
+              fontSize: 'clamp(36px, 9vw, 56px)',
+              fontWeight: 600,
+              lineHeight: 1.0,
+              letterSpacing: '-0.03em'
+            }}
+          >
+            Из идеи в
+            <br />
+            <span 
+              style={{
+                background: 'linear-gradient(135deg, #22d3ee 0%, #a855f7 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              приложение
+            </span>
+          </h2>
+          
+          <p 
+            className="text-[19px] mb-12"
+            style={{ color: 'rgba(255,255,255,0.5)' }}
+          >
+            За <span className="text-white font-medium">14 дней</span>
+          </p>
+
+          {/* Process steps */}
+          <div className="grid grid-cols-3 gap-4 text-center">
             {[
-              { 
-                title: 'Персональный менеджер',
-                desc: 'Выделенный специалист на связи 24/7'
-              },
-              { 
-                title: 'Дизайн уровня Apple',
-                desc: 'Внимание к каждому пикселю и анимации'
-              },
-              { 
-                title: 'Гарантия результата',
-                desc: 'Или полный возврат инвестиций'
-              }
-            ].map((item, i) => (
-              <div 
-                key={i}
-                style={{
-                  padding: '24px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  borderRadius: '16px'
-                }}
-              >
-                <h3 style={{
-                  fontSize: '17px',
-                  fontWeight: 600,
-                  color: '#FFFFFF',
-                  marginBottom: '6px'
-                }}>
-                  {item.title}
-                </h3>
-                <p style={{
-                  fontSize: '14px',
-                  color: 'rgba(255, 255, 255, 0.5)'
-                }}>
-                  {item.desc}
-                </p>
+              { num: '01', text: 'Дизайн' },
+              { num: '02', text: 'Сборка' },
+              { num: '03', text: 'Запуск' }
+            ].map((step, i) => (
+              <div key={i}>
+                <div 
+                  className="text-2xl font-bold mb-2"
+                  style={{
+                    background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}
+                >
+                  {step.num}
+                </div>
+                <div className="text-[15px] text-white/60">{step.text}</div>
               </div>
             ))}
           </div>
@@ -438,107 +416,82 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          FINAL CTA — Высокое давление к действию
+          FINAL CTA - High Pressure Close
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
-        ref={setSectionRef('cta')}
-        data-section="cta"
+        className="py-24 px-6"
         style={{
-          padding: 'clamp(100px, 18vw, 180px) 24px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
           background: `
-            radial-gradient(ellipse 120% 80% at 50% 0%, rgba(212, 175, 55, 0.06), transparent 60%),
-            #000000
+            linear-gradient(180deg, #000 0%, #0a0a0a 50%, #000 100%),
+            radial-gradient(ellipse 100% 100% at 50% 0%, rgba(139, 92, 246, 0.1), transparent 60%)
           `
         }}
       >
-        <div className="text-center" style={{ maxWidth: '480px', margin: '0 auto' }}>
-          <div style={revealStyle('cta', 0.1)}>
-            <p style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: '#D4AF37',
-              marginBottom: '16px'
-            }}>
-              Эксклюзивное предложение
-            </p>
-            
-            <h2 style={{
-              fontSize: 'clamp(28px, 6vw, 44px)',
+        <div 
+          className="max-w-[380px] mx-auto text-center"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s ease 0.7s'
+          }}
+        >
+          <h2 
+            className="mb-5"
+            style={{
+              fontSize: 'clamp(28px, 7vw, 40px)',
               fontWeight: 600,
               lineHeight: 1.1,
-              letterSpacing: '-0.02em',
-              marginBottom: '16px'
-            }}>
-              Станьте одним из
-              <br />
-              <span style={{
-                background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}>
-                избранных
-              </span>
-            </h2>
-            
-            <p style={{
-              fontSize: '16px',
-              color: 'rgba(255, 255, 255, 0.5)',
-              marginBottom: '36px',
-              lineHeight: 1.6
-            }}>
-              Бесплатная консультация и аудит
-              <br />
-              вашего бизнеса от эксперта
-            </p>
-            
-            <button 
-              onClick={() => handleNavigate('constructor')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                height: '56px',
-                padding: '0 40px',
-                fontSize: '16px',
-                fontWeight: 600,
-                letterSpacing: '0.02em',
-                color: '#000000',
-                background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
-                border: 'none',
-                borderRadius: '100px',
-                cursor: 'pointer',
-                boxShadow: '0 0 50px rgba(212, 175, 55, 0.4)',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.02)';
-                e.currentTarget.style.boxShadow = '0 0 80px rgba(212, 175, 55, 0.6)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 0 50px rgba(212, 175, 55, 0.4)';
-              }}
-              data-testid="button-final-cta"
-            >
-              Получить консультацию
-              <ArrowRight style={{ width: '18px', height: '18px' }} />
-            </button>
-            
-            <div style={{ marginTop: '24px' }}>
-              <p style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.3)' }}>
-                Осталось 4 места на декабрь
-              </p>
-            </div>
-          </div>
+              letterSpacing: '-0.02em'
+            }}
+          >
+            Запустите приложение,
+            <br />
+            <span className="text-white/50">о котором будут говорить</span>
+          </h2>
+          
+          <p 
+            className="text-[17px] mb-10"
+            style={{ color: 'rgba(255,255,255,0.5)' }}
+          >
+            Первая консультация — бесплатно
+          </p>
+          
+          <button 
+            onClick={() => handleNavigate('constructor')}
+            className="group w-full max-w-[300px] px-8 py-5 rounded-2xl text-[17px] font-semibold"
+            style={{
+              background: 'linear-gradient(135deg, #ffffff 0%, #e5e7eb 100%)',
+              color: '#000',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.1), 0 25px 60px -10px rgba(255,255,255,0.3)'
+            }}
+            data-testid="button-final-cta"
+          >
+            <span className="flex items-center justify-center gap-2">
+              Начать сейчас
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </span>
+          </button>
+          
+          <p 
+            className="mt-6 text-[13px]"
+            style={{ color: 'rgba(255,255,255,0.3)' }}
+          >
+            Без скрытых платежей. Отмена в любой момент.
+          </p>
         </div>
       </section>
 
-      {/* Safe area */}
-      <div style={{ height: 'env(safe-area-inset-bottom, 24px)' }} />
+      {/* Animations */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 0.3; transform: translateX(-50%) scale(1); }
+          50% { opacity: 0.5; transform: translateX(-50%) scale(1.1); }
+        }
+        @keyframes scrollPulse {
+          0%, 100% { opacity: 0.5; transform: translateY(0); }
+          50% { opacity: 1; transform: translateY(4px); }
+        }
+      `}</style>
     </div>
   );
 }
