@@ -77,11 +77,11 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     color: '#FFFFFF'
                   }}
                 >
-                  2025
+                  +300% К ПРОДАЖАМ
                 </div>
                 
-                <h1 className="text-2xl font-black mb-1.5" style={{ color: '#FFFFFF', letterSpacing: '-0.02em' }}>
-                  TELEGRAM
+                <h1 className="text-xl font-black mb-1.5" style={{ color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+                  ВАШИ КЛИЕНТЫ
                 </h1>
                 
                 <div 
@@ -93,11 +93,11 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     backgroundClip: 'text'
                   }}
                 >
-                  ДЛЯ БИЗНЕСА
+                  УЖЕ В TELEGRAM
                 </div>
                 
                 <p className="text-[11px] font-medium" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  Премиум приложения за 24 часа
+                  Получайте заказы 24/7 без сайта
                 </p>
               </div>
             </div>
@@ -106,9 +106,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
         <div className="mb-4 px-1">
           <h2 className="text-lg font-black uppercase tracking-wide" style={{ color: '#FFFFFF' }}>
-            Демо-приложения
+            Такое будет у вас
           </h2>
-          <p className="text-white/40 text-[11px] mt-0.5">Нажмите чтобы открыть</p>
+          <p className="text-white/40 text-[11px] mt-0.5">Нажмите и попробуйте как клиент</p>
         </div>
 
         <div className="space-y-3 mb-8">
@@ -141,10 +141,19 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               <div className="text-white text-3xl font-extralight tracking-[0.35em] mb-1">
                 A L U R E
               </div>
-              <div className="text-white/50 text-xs mb-4">Premium Streetwear Collection</div>
-              <div className="flex items-center gap-2 text-emerald-400 text-xs font-medium">
-                <span>Открыть демо</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+              <div className="text-white/50 text-xs mb-3">Продажи 24/7 без вашего участия</div>
+              <div 
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-semibold transition-all duration-200 active:scale-95"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.18)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: '0.5px solid rgba(255, 255, 255, 0.25)',
+                  color: '#FFFFFF'
+                }}
+              >
+                <span>Открыть</span>
+                <ArrowRight className="w-3 h-3" />
               </div>
             </div>
           </div>
@@ -172,7 +181,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               
               <div className="absolute bottom-0 left-0 right-0 p-3">
                 <div className="text-white text-lg font-light tracking-[0.2em] mb-0.5">SOLE</div>
-                <div className="text-white/40 text-[10px]">Sneaker Store</div>
+                <div className="text-white/40 text-[10px] mb-2">+180% конверсия</div>
+                <div 
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-200 active:scale-95"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
+                    color: '#FFFFFF'
+                  }}
+                >
+                  <span>Открыть</span>
+                  <ArrowRight className="w-2.5 h-2.5" />
+                </div>
               </div>
             </div>
 
@@ -194,7 +216,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               <div className="absolute top-3 left-3 text-[8px] font-medium uppercase tracking-widest"
                 style={{ color: 'rgba(214, 185, 128, 0.8)' }}
               >
-                Часы
+                Премиум
               </div>
               
               <div className="absolute bottom-0 left-0 right-0 p-3">
@@ -207,7 +229,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 >
                   LUXE
                 </div>
-                <div className="text-white/40 text-[10px]">Swiss Watches</div>
+                <div className="text-white/40 text-[10px] mb-2">Средний чек x2.5</div>
+                <div 
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-200 active:scale-95"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
+                    color: '#FFFFFF'
+                  }}
+                >
+                  <span>Открыть</span>
+                  <ArrowRight className="w-2.5 h-2.5" />
+                </div>
               </div>
             </div>
           </div>
@@ -240,7 +275,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               
               <div className="absolute bottom-0 left-0 right-0 p-3">
                 <div className="text-white text-base font-bold mb-0.5">Rascal</div>
-                <div className="text-white/40 text-[10px]">Waterproof Fashion</div>
+                <div className="text-white/40 text-[10px] mb-2">Заказы без менеджера</div>
+                <div 
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-200 active:scale-95"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
+                    color: '#FFFFFF'
+                  }}
+                >
+                  <span>Открыть</span>
+                  <ArrowRight className="w-2.5 h-2.5" />
+                </div>
               </div>
             </div>
 
@@ -260,12 +308,25 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
               
               <div className="absolute top-3 left-3 text-[7px] font-medium uppercase tracking-widest text-white/50">
-                Minimal
+                Быстро
               </div>
               
               <div className="absolute bottom-0 left-0 right-0 p-2.5">
                 <div className="text-white text-sm font-bold">STORE</div>
-                <div className="text-white/40 text-[9px]">Black</div>
+                <div className="text-white/40 text-[9px] mb-1.5">За 24 часа</div>
+                <div 
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-semibold transition-all duration-200 active:scale-95"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
+                    color: '#FFFFFF'
+                  }}
+                >
+                  <span>Открыть</span>
+                  <ArrowRight className="w-2 h-2" />
+                </div>
               </div>
             </div>
           </div>
@@ -288,17 +349,30 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
               
               <div className="absolute top-3 left-3 text-[8px] font-medium uppercase tracking-widest text-white/50">
-                Бренд
+                Ваш бренд
               </div>
               <div className="absolute top-3 right-3 px-2 py-0.5 rounded text-[9px] font-medium"
                 style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', backdropFilter: 'blur(4px)' }}
               >
-                LUXURY
+                VIP
               </div>
               
               <div className="absolute bottom-0 left-0 right-0 p-3">
                 <div className="text-white text-sm font-bold mb-0.5">lab. SURVIVALIST</div>
-                <div className="text-white/40 text-[10px]">Premium Collection</div>
+                <div className="text-white/40 text-[10px] mb-2">Под ваш стиль</div>
+                <div 
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-200 active:scale-95"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
+                    color: '#FFFFFF'
+                  }}
+                >
+                  <span>Открыть</span>
+                  <ArrowRight className="w-2.5 h-2.5" />
+                </div>
               </div>
             </div>
 
@@ -318,17 +392,30 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
               
               <div className="absolute top-3 left-3 text-[8px] font-medium uppercase tracking-widest text-blue-400/80">
-                Каталог
+                Интерактив
               </div>
               <div className="absolute top-3 right-3 px-2 py-0.5 rounded text-[9px] font-bold"
                 style={{ background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)', color: '#fff' }}
               >
-                3D
+                WOW
               </div>
               
               <div className="absolute bottom-0 left-0 right-0 p-3">
                 <div className="text-white text-sm font-bold mb-0.5">Nike ACG</div>
-                <div className="text-white/40 text-[10px]">Interactive Cards</div>
+                <div className="text-white/40 text-[10px] mb-2">Клиенты в восторге</div>
+                <div 
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-200 active:scale-95"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
+                    color: '#FFFFFF'
+                  }}
+                >
+                  <span>Открыть</span>
+                  <ArrowRight className="w-2.5 h-2.5" />
+                </div>
               </div>
             </div>
           </div>
@@ -361,15 +448,15 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <div className="relative text-black text-[72px] sm:text-[96px] font-black leading-none mb-1 sm:mb-2 tracking-tighter"
                   style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.1)' }}
                 >
-                  4
+                  24ч
                 </div>
                 
                 <div className="relative text-black font-black text-xl sm:text-2xl mb-0.5 sm:mb-1 tracking-tight">
-                  SERVICES
+                  ДО ЗАПУСКА
                 </div>
                 
                 <div className="relative text-black/70 text-xs sm:text-sm font-medium">
-                  Готовые решения для бизнеса
+                  Пока конкуренты думают - вы продаете
                 </div>
                 
                 <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full"
@@ -405,9 +492,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 </div>
                 
                 <div className="space-y-2">
-                  <h3 className="text-black text-lg font-bold leading-tight">Telegram-приложения под ключ</h3>
-                  <p className="text-black/70 text-xs leading-tight mb-2">Запуск за 24 часа. Все инструменты для продаж и клиентов</p>
-                  <p className="text-black/60 text-sm font-medium">ПО ПРЕДОПЛАТЕ</p>
+                  <h3 className="text-black text-lg font-bold leading-tight">Магазин в Telegram</h3>
+                  <p className="text-black/70 text-xs leading-tight mb-2">Клиенты покупают прямо в чате. Без сайта, без приложения</p>
+                  <p className="text-black/60 text-sm font-medium">ОТ 49 000 Р</p>
                 </div>
               </div>
             </HoverScale>
@@ -421,19 +508,19 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 onClick={() => handleOpenDemo('electronics')}
               >
                 <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
-                  REMOTE
+                  ХИТ
                 </div>
                 
-                <div className="text-white text-2xl font-black mb-2">2/4</div>
+                <div className="text-white text-2xl font-black mb-2">x3</div>
                 
                 <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
                   <ShoppingCart className="w-5 h-5 text-white" />
                 </div>
                 
                 <div className="space-y-2">
-                  <h3 className="text-white text-lg font-bold leading-tight">E-COMMERCE SOLUTIONS</h3>
-                  <p className="text-white/70 text-xs leading-tight mb-2">Полнофункциональные платформы электронной коммерции</p>
-                  <p className="text-white/60 text-sm font-medium">FULLTIME</p>
+                  <h3 className="text-white text-lg font-bold leading-tight">Рост продаж</h3>
+                  <p className="text-white/70 text-xs leading-tight mb-2">Автоматические продажи пока вы спите</p>
+                  <p className="text-white/60 text-sm font-medium">ГАРАНТИЯ</p>
                 </div>
               </div>
             </HoverScale>
@@ -447,19 +534,19 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 onClick={() => handleOpenDemo('beauty')}
               >
                 <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
-                  REMOTE
+                  AI
                 </div>
                 
-                <div className="text-white text-2xl font-black mb-2">3/4</div>
+                <div className="text-white text-2xl font-black mb-2">24/7</div>
                 
                 <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
                   <Code className="w-5 h-5 text-white" />
                 </div>
                 
                 <div className="space-y-2">
-                  <h3 className="text-white text-lg font-bold leading-tight">BUSINESS AUTOMATION</h3>
-                  <p className="text-white/70 text-xs leading-tight mb-2">Умные боты и системы для оптимизации работы</p>
-                  <p className="text-white/60 text-sm font-medium">PARTTIME</p>
+                  <h3 className="text-white text-lg font-bold leading-tight">AI-Ассистент</h3>
+                  <p className="text-white/70 text-xs leading-tight mb-2">Отвечает клиентам, принимает заказы за вас</p>
+                  <p className="text-white/60 text-sm font-medium">ВКЛЮЧЕНО</p>
                 </div>
               </div>
             </HoverScale>
@@ -473,19 +560,19 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 onClick={() => onNavigate('projects')}
               >
                 <div className="absolute top-3 right-3 bg-black/20 text-black text-xs px-2 py-1 rounded-full font-medium">
-                  УДАЛЕННО
+                  КЕЙСЫ
                 </div>
                 
-                <div className="text-black text-3xl font-thin mb-2" style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '3px' }}>4/4</div>
+                <div className="text-black text-3xl font-thin mb-2" style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '3px' }}>127+</div>
                 
                 <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
                   <Users className="w-5 h-5" style={{ color: '#10B981' }} />
                 </div>
                 
                 <div className="space-y-2">
-                  <h3 className="text-black text-lg font-bold leading-tight">ПОРТФОЛИО И КЕЙСЫ</h3>
-                  <p className="text-black/70 text-xs leading-tight mb-2">Успешные проекты и практические решения для бизнеса</p>
-                  <p className="text-black/60 text-sm font-medium">ДОСТУПНО</p>
+                  <h3 className="text-black text-lg font-bold leading-tight">Довольных клиентов</h3>
+                  <p className="text-black/70 text-xs leading-tight mb-2">Реальные результаты. Смотрите сами</p>
+                  <p className="text-black/60 text-sm font-medium">ОТЗЫВЫ</p>
                 </div>
               </div>
             </HoverScale>
