@@ -53,7 +53,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
         
         <div className="relative z-10 text-center w-full">
           {/* Badge */}
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-8 scroll-fade-in">
             <div 
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full backdrop-blur-3xl"
               style={{
@@ -81,7 +81,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
 
           {/* Main headline - Mobile optimized */}
           <h1 
-            className="mb-4 px-3"
+            className="mb-4 px-3 scroll-fade-in-delay-1"
             style={{ 
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
               fontSize: 'clamp(48px, 18vw, 72px)',
@@ -97,7 +97,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           </h1>
 
           {/* Gradient line */}
-          <div className="flex justify-center mb-5">
+          <div className="flex justify-center mb-5 scroll-fade-in-delay-2">
             <div 
               className="h-1.5 w-20 rounded-full"
               style={{
@@ -109,7 +109,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           
           {/* Subheadline */}
           <p 
-            className="mb-3 px-5"
+            className="mb-3 px-5 scroll-fade-in-delay-3"
             style={{
               fontSize: '21px',
               lineHeight: '1.25',
@@ -125,7 +125,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           
           {/* Value prop */}
           <p 
-            className="mb-12 px-5"
+            className="mb-12 px-5 scroll-fade-in-delay-4"
             style={{
               fontSize: '18px',
               lineHeight: '1.35',
@@ -140,7 +140,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           </p>
           
           {/* CTA */}
-          <div className="flex flex-col items-center gap-3.5 px-5">
+          <div className="flex flex-col items-center gap-3.5 px-5 scroll-fade-in-delay-5">
             <button
               onClick={handleNavigateProcess}
               className="w-full max-w-[280px] group relative py-4 rounded-full font-semibold active:scale-[0.96]"
