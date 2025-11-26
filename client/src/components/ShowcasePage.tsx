@@ -1,7 +1,14 @@
-import { ArrowRight, Play } from "lucide-react";
-import { useCallback } from "react";
+import { ArrowRight, Sparkles, Zap, TrendingUp, Star } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { useHaptic } from '../hooks/useHaptic';
 import { LazyVideo } from './LazyVideo';
+import { preloadDemo } from './demos/DemoRegistry';
+
+// Image assets
+import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
+import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
+import nikeAcgImage from "@assets/acc835fff3bb452f0c3b534056fbe1ea_1763719574494.jpg";
+import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
 
 // Video assets
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -16,7 +23,13 @@ interface ShowcasePageProps {
 
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const haptic = useHaptic();
+  const [isVisible, setIsVisible] = useState(false);
   
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleOpenDemo = useCallback((demoId: string) => {
     haptic.light();
     onOpenDemo(demoId);
@@ -27,223 +40,426 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     onNavigate(section);
   }, [haptic, onNavigate]);
 
-  const demoMappings: { [key: number]: string } = {
-    0: 'fashion-boutique',
-    1: 'sneaker-store', 
-    2: 'watches-store',
-    3: 'restaurant'
-  };
-
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
-      
-      {/* Ambient Glow Background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div 
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[140%] h-[50%]"
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(48, 209, 88, 0.08) 0%, transparent 70%)',
-            filter: 'blur(60px)'
-          }}
-        />
-        <div 
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[40%]"
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(10, 132, 255, 0.06) 0%, transparent 70%)',
-            filter: 'blur(60px)'
-          }}
-        />
-      </div>
-      
-      <div className="relative z-10">
+      <div className="max-w-md mx-auto px-3 py-4">
         
-        {/* HERO */}
-        <section className="min-h-[85vh] flex flex-col items-center justify-center px-6 text-center">
-          <p className="text-[13px] font-medium tracking-[0.2em] uppercase mb-6 text-[#86868b]">
-            Telegram Mini Apps
-          </p>
+        {/* ════════════════════════════════════════════════════════════════
+            HERO SECTION - Full bleed video with glassmorphism overlay
+            ════════════════════════════════════════════════════════════════ */}
+        <div 
+          className="relative rounded-3xl overflow-hidden mb-6"
+          style={{ 
+            boxShadow: '0 25px 80px rgba(0, 0, 0, 0.5)',
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1)'
+          }}
+        >
+          {/* Background Video */}
+          <LazyVideo
+            src={heroVideo}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ opacity: 0.85 }}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="none"
+          />
           
-          <h1 className="text-[clamp(48px,14vw,72px)] font-bold leading-[0.95] tracking-[-0.04em] max-w-[400px] mb-8 text-white">
-            Продавайте
-            <br />
-            <span 
-              style={{
-                background: 'linear-gradient(135deg, #30d158 0%, #0a84ff 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}
-            >
-              красиво
-            </span>
-          </h1>
+          {/* Gradient Overlay */}
+          <div 
+            className="absolute inset-0"
+            style={{ 
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.7) 100%)' 
+            }}
+          />
           
-          <p className="text-[19px] max-w-[320px] mb-12 leading-relaxed text-white/70">
-            Премиальный магазин в Telegram.
-            <br />
-            Там, где уже ваши клиенты.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button 
-              className="inline-flex items-center justify-center gap-2.5 px-8 py-4 text-[17px] font-medium text-black bg-white rounded-full transition-all hover:scale-[1.02] hover:shadow-[0_8px_32px_rgba(255,255,255,0.2)] active:scale-[0.98]"
-              onClick={() => handleNavigate('constructor')}
-              data-testid="button-hero-start"
-            >
-              Начать бесплатно
-              <ArrowRight className="w-5 h-5" />
-            </button>
+          {/* Content */}
+          <div className="relative px-5 py-12 text-center min-h-[42vh] flex flex-col items-center justify-center">
             
-            <button 
-              className="inline-flex items-center justify-center gap-2 px-7 py-4 text-[17px] font-medium text-white bg-white/5 border border-white/10 rounded-full backdrop-blur-xl transition-all hover:bg-white/10 hover:border-white/20 active:scale-[0.98]"
-              onClick={() => handleNavigate('ai-agent')}
-              data-testid="button-hero-demo"
+            {/* Glassmorphism Card */}
+            <div 
+              className="rounded-2xl px-6 py-6 w-full max-w-[280px]"
+              style={{
+                background: 'rgba(0, 0, 0, 0.3)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+              }}
             >
-              <Play className="w-4 h-4" />
-              Смотреть демо
-            </button>
-          </div>
-        </section>
-
-        {/* VIDEO GALLERY */}
-        <section className="px-6 py-24">
-          <div className="text-center mb-16">
-            <p className="text-[13px] font-medium tracking-[0.2em] uppercase mb-4 text-[#86868b]">
-              Реальные проекты
-            </p>
-            <h2 className="text-[clamp(28px,7vw,44px)] font-semibold leading-[1.1] tracking-[-0.025em]">
-              Каждый магазин —
-              <br />
-              произведение искусства
-            </h2>
-          </div>
-          
-          {/* Video Grid */}
-          <div className="grid grid-cols-2 gap-4 max-w-[480px] mx-auto">
-            {[heroVideo, fashionVideo, sneakerVideo, watchesVideo].map((video, index) => (
-              <div
-                key={index}
-                className="relative rounded-3xl overflow-hidden bg-[#0a0a0a] cursor-pointer transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_40px_80px_rgba(0,0,0,0.5)] active:scale-[0.98]"
-                style={{ 
-                  aspectRatio: '4/5',
-                  border: '1px solid rgba(255,255,255,0.08)'
+              {/* Success Badge */}
+              <div 
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-4 text-[11px] font-bold tracking-wide"
+                style={{
+                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                  color: '#FFFFFF',
+                  boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)'
                 }}
-                onClick={() => handleOpenDemo(demoMappings[index])}
-                data-testid={`video-card-${index}`}
               >
-                <LazyVideo
-                  src={video}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="none"
-                />
+                <TrendingUp className="w-3 h-3" />
+                +300% К ПРОДАЖАМ
               </div>
-            ))}
+              
+              {/* Headline */}
+              <h1 
+                className="text-2xl font-black mb-2 tracking-tight"
+                style={{ color: '#FFFFFF', letterSpacing: '-0.02em' }}
+              >
+                ВАШИ КЛИЕНТЫ
+              </h1>
+              
+              {/* Gradient Text */}
+              <div 
+                className="text-3xl font-black tracking-tight mb-4"
+                style={{
+                  background: 'linear-gradient(135deg, #10B981 0%, #34D399 50%, #6EE7B7 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  letterSpacing: '-0.02em'
+                }}
+              >
+                УЖЕ В TELEGRAM
+              </div>
+              
+              {/* Subtitle */}
+              <p className="text-white/60 text-sm mb-5 leading-relaxed">
+                Премиальный магазин там,
+                <br />где ваша аудитория
+              </p>
+              
+              {/* CTA Button */}
+              <button
+                onClick={() => handleNavigate('constructor')}
+                className="w-full py-3.5 rounded-xl text-sm font-bold transition-all active:scale-[0.98]"
+                style={{
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #F3F4F6 100%)',
+                  color: '#000000',
+                  boxShadow: '0 4px 20px rgba(255, 255, 255, 0.25)'
+                }}
+                data-testid="button-hero-cta"
+              >
+                Создать магазин бесплатно
+              </button>
+            </div>
           </div>
-          
-          <div className="text-center mt-12">
-            <button 
-              className="inline-flex items-center gap-1.5 text-[17px] font-medium text-[#2997ff] hover:underline"
-              onClick={() => handleNavigate('projects')}
-              data-testid="button-view-all"
-            >
-              Смотреть все проекты
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </section>
+        </div>
 
-        {/* Divider */}
+        {/* ════════════════════════════════════════════════════════════════
+            STATS SECTION - Trust badges
+            ════════════════════════════════════════════════════════════════ */}
         <div 
-          className="w-full h-px my-0"
+          className="grid grid-cols-3 gap-3 mb-6"
           style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)'
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) 0.1s'
           }}
-        />
+        >
+          {[
+            { icon: Zap, value: '24ч', label: 'Запуск', color: '#F59E0B' },
+            { icon: Star, value: '127+', label: 'Проектов', color: '#8B5CF6' },
+            { icon: Sparkles, value: 'AI', label: 'Агент', color: '#06B6D4' }
+          ].map((stat, index) => (
+            <div
+              key={index}
+              className="rounded-2xl p-4 text-center"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.06)'
+              }}
+            >
+              <stat.icon className="w-5 h-5 mx-auto mb-2" style={{ color: stat.color }} />
+              <div className="text-lg font-bold text-white">{stat.value}</div>
+              <div className="text-[11px] text-white/40">{stat.label}</div>
+            </div>
+          ))}
+        </div>
 
-        {/* TRANSFORMATION */}
-        <section className="px-6 py-24 text-center">
-          <p className="text-[13px] font-medium tracking-[0.2em] uppercase mb-6 text-[#86868b]">
-            Почему мы
+        {/* ════════════════════════════════════════════════════════════════
+            SECTION HEADER - "Каждый магазин — произведение искусства"
+            ════════════════════════════════════════════════════════════════ */}
+        <div 
+          className="text-center mb-5"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) 0.15s'
+          }}
+        >
+          <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-white/40 mb-2">
+            Реальные проекты
           </p>
-          
-          <h2 className="text-[clamp(36px,10vw,56px)] font-semibold leading-[1.0] tracking-[-0.03em] max-w-[380px] mx-auto mb-8">
-            Мы не делаем
-            <br />
-            <span className="text-white/50">сайты</span>
-          </h2>
-          
-          <p className="text-[clamp(28px,7vw,44px)] font-semibold leading-[1.1] tracking-[-0.025em] max-w-[380px] mx-auto">
-            Мы создаём
+          <h2 className="text-xl font-bold text-white">
+            Каждый магазин —
             <br />
             <span 
               style={{
-                background: 'linear-gradient(135deg, #30d158 0%, #0a84ff 100%)',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
               }}
             >
-              впечатления
+              произведение искусства
             </span>
-          </p>
-          
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-6 mt-16 max-w-[400px] mx-auto">
-            {[
-              { value: '127+', label: 'проектов' },
-              { value: '24ч', label: 'до запуска' },
-              { value: 'x3', label: 'конверсия' }
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <p 
-                  className="text-[clamp(20px,5vw,28px)] font-medium mb-2"
-                  style={{
-                    background: 'linear-gradient(135deg, #30d158 0%, #0a84ff 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
-                  }}
-                >
-                  {stat.value}
-                </p>
-                <p className="text-[14px] font-medium text-white/50">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Divider */}
-        <div 
-          className="w-full h-px my-0"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)'
-          }}
-        />
-
-        {/* FINAL CTA */}
-        <section className="px-6 py-24 pb-32 text-center">
-          <h2 className="text-[clamp(28px,7vw,44px)] font-semibold leading-[1.1] tracking-[-0.025em] max-w-[340px] mx-auto mb-6">
-            Готовы выделиться?
           </h2>
+        </div>
+
+        {/* ════════════════════════════════════════════════════════════════
+            NIKE GALLERY - Product image cards
+            ════════════════════════════════════════════════════════════════ */}
+        <div 
+          className="grid grid-cols-2 gap-3 mb-4"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) 0.2s'
+          }}
+        >
+          {/* Card 1 - Nike Destiny */}
+          <div 
+            className="relative h-[200px] rounded-2xl overflow-hidden cursor-pointer group"
+            onClick={() => handleOpenDemo('sneaker-store')}
+            onMouseEnter={() => preloadDemo('sneaker-store')}
+            onTouchStart={() => preloadDemo('sneaker-store')}
+            data-testid="demo-card-destiny"
+          >
+            <img
+              src={nikeDestinyImage}
+              alt="Nike Destiny"
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+            
+            {/* NEW Badge */}
+            <div 
+              className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-[9px] font-bold"
+              style={{ background: 'rgba(16, 185, 129, 0.95)', color: '#fff' }}
+            >
+              NEW
+            </div>
+            
+            <div className="absolute bottom-0 left-0 right-0 p-3">
+              <div className="text-white text-sm font-bold mb-0.5">Nike Destiny</div>
+              <div className="text-white/50 text-[10px] mb-2">Кроссовки премиум</div>
+              <OpenButton />
+            </div>
+          </div>
+
+          {/* Card 2 - Nike Green */}
+          <div 
+            className="relative h-[200px] rounded-2xl overflow-hidden cursor-pointer group"
+            onClick={() => handleOpenDemo('fashion-boutique')}
+            onMouseEnter={() => preloadDemo('fashion-boutique')}
+            onTouchStart={() => preloadDemo('fashion-boutique')}
+            data-testid="demo-card-green"
+          >
+            <img
+              src={nikeGreenImage}
+              alt="Nike Green"
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+            
+            <div className="absolute top-3 left-3 text-[8px] font-medium uppercase tracking-widest text-emerald-400/80">
+              Fashion
+            </div>
+            
+            <div className="absolute bottom-0 left-0 right-0 p-3">
+              <div className="text-white text-sm font-bold mb-0.5">Nike Collection</div>
+              <div className="text-white/50 text-[10px] mb-2">Лимитированная серия</div>
+              <OpenButton />
+            </div>
+          </div>
+        </div>
+
+        {/* Wide Card - ACG */}
+        <div 
+          className="relative h-[180px] rounded-2xl overflow-hidden cursor-pointer group mb-4"
+          onClick={() => handleOpenDemo('watches-store')}
+          onMouseEnter={() => preloadDemo('watches-store')}
+          onTouchStart={() => preloadDemo('watches-store')}
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) 0.25s'
+          }}
+          data-testid="demo-card-acg"
+        >
+          <img
+            src={nikeAcgImage}
+            alt="Nike ACG"
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
           
-          <p className="text-[17px] text-white/70 max-w-[300px] mx-auto mb-10 leading-relaxed">
-            Первая консультация бесплатно.
-            <br />
-            Расскажите о вашем бизнесе.
+          <div 
+            className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-[9px] font-bold"
+            style={{ background: 'rgba(139, 92, 246, 0.95)', color: '#fff' }}
+          >
+            HOT
+          </div>
+          
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <div className="text-white text-base font-bold mb-0.5">Nike ACG</div>
+            <div className="text-white/50 text-xs mb-2">Outdoor коллекция для настоящих</div>
+            <OpenButton />
+          </div>
+        </div>
+
+        {/* ════════════════════════════════════════════════════════════════
+            VIDEO GALLERY - Pure video cards
+            ════════════════════════════════════════════════════════════════ */}
+        <div 
+          className="grid grid-cols-2 gap-3 mb-6"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) 0.3s'
+          }}
+        >
+          {[
+            { src: fashionVideo, id: 'fashion-boutique', label: 'Fashion' },
+            { src: sneakerVideo, id: 'sneaker-store', label: 'Sneakers' },
+            { src: watchesVideo, id: 'watches-store', label: 'Watches' },
+            { src: heroVideo, id: 'restaurant', label: 'Lifestyle' }
+          ].map((video, index) => (
+            <div
+              key={index}
+              className="relative rounded-2xl overflow-hidden cursor-pointer group"
+              style={{ 
+                aspectRatio: '4/5',
+                boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)'
+              }}
+              onClick={() => handleOpenDemo(video.id)}
+              onMouseEnter={() => preloadDemo(video.id)}
+              onTouchStart={() => preloadDemo(video.id)}
+              data-testid={`video-card-${index}`}
+            >
+              <LazyVideo
+                src={video.src}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="none"
+              />
+              
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              {/* Category label */}
+              <div className="absolute top-3 left-3 text-[8px] font-medium uppercase tracking-widest text-white/60">
+                {video.label}
+              </div>
+              
+              {/* Hover CTA */}
+              <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <OpenButton />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ════════════════════════════════════════════════════════════════
+            RASCAL FEATURE CARD - Wide showcase
+            ════════════════════════════════════════════════════════════════ */}
+        <div 
+          className="relative h-[200px] rounded-2xl overflow-hidden cursor-pointer group mb-6"
+          onClick={() => handleOpenDemo('futuristic-fashion-1')}
+          onMouseEnter={() => preloadDemo('futuristic-fashion-1')}
+          onTouchStart={() => preloadDemo('futuristic-fashion-1')}
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) 0.35s'
+          }}
+          data-testid="demo-card-rascal"
+        >
+          <img
+            src={rascalImage}
+            alt="Rascal Outdoor"
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+          
+          <div className="absolute top-3 left-3 text-[8px] font-medium uppercase tracking-widest text-emerald-400/80">
+            Outdoor
+          </div>
+          <div 
+            className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-[9px] font-bold"
+            style={{ background: 'rgba(16, 185, 129, 0.95)', color: '#fff' }}
+          >
+            NEW
+          </div>
+          
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <div className="text-white text-lg font-bold mb-1">Rascal</div>
+            <div className="text-white/50 text-xs mb-3">Заказы без менеджера 24/7</div>
+            <OpenButton />
+          </div>
+        </div>
+
+        {/* ════════════════════════════════════════════════════════════════
+            FINAL CTA SECTION
+            ════════════════════════════════════════════════════════════════ */}
+        <div 
+          className="text-center py-8 mb-8"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) 0.4s'
+          }}
+        >
+          <h3 className="text-lg font-bold text-white mb-2">
+            Готовы выделиться?
+          </h3>
+          <p className="text-white/50 text-sm mb-5">
+            Первая консультация бесплатно
           </p>
           
-          <button 
-            className="inline-flex items-center justify-center gap-2.5 px-8 py-4 text-[17px] font-medium text-black bg-white rounded-full transition-all hover:scale-[1.02] hover:shadow-[0_8px_32px_rgba(255,255,255,0.2)] active:scale-[0.98]"
+          <button
             onClick={() => handleNavigate('constructor')}
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-sm font-bold transition-all active:scale-[0.98]"
+            style={{
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #F3F4F6 100%)',
+              color: '#000000',
+              boxShadow: '0 4px 20px rgba(255, 255, 255, 0.2)'
+            }}
             data-testid="button-final-cta"
           >
             Создать магазин
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4" />
           </button>
-        </section>
+        </div>
 
       </div>
+    </div>
+  );
+}
+
+// Reusable "Open" button component
+function OpenButton() {
+  return (
+    <div 
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-200 active:scale-95"
+      style={{
+        background: 'rgba(255, 255, 255, 0.15)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '0.5px solid rgba(255, 255, 255, 0.2)',
+        color: '#FFFFFF'
+      }}
+    >
+      <span>Открыть</span>
+      <ArrowRight className="w-2.5 h-2.5" />
     </div>
   );
 }
