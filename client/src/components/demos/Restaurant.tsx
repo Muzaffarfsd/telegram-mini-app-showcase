@@ -11,9 +11,14 @@ import {
   User,
   MapPin,
   Phone,
-  Package
+  Package,
+  Search,
+  Filter,
+  Menu
 } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
+import { Skeleton } from "../ui/skeleton";
+import { useFilter } from "@/hooks/useFilter";
 
 interface RestaurantProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';

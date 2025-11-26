@@ -27,6 +27,8 @@ import {
   Menu
 } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
+import { Skeleton } from "../ui/skeleton";
+import { useFilter } from "@/hooks/useFilter";
 
 interface ElectronicsProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -192,6 +194,12 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+
+  const { filteredItems, searchQuery, handleSearch } = useFilter({
+    items: products,
+    searchFields: ['name', 'description', 'category', 'brand'] as (keyof Product)[],
+  });
 
   useEffect(() => {
     if (activeTab !== 'catalog') {
@@ -202,7 +210,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
     }
   }, [activeTab]);
 
-  const filteredProducts = products.filter(p => {
+  const filteredProducts = filteredItems.filter(p => {
     const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
     
     if (activeTab === 'home') {
@@ -215,6 +223,10 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
     
     return categoryMatch;
   });
+
+  const handleImageLoad = (productId: number) => {
+    setLoadedImages(prev => new Set(prev).add(productId));
+  };
 
   const toggleFavorite = (productId: number) => {
     const newFavorites = new Set(favorites);
@@ -390,10 +402,16 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <Menu className="w-6 h-6" data-testid="button-view-menu" />
+            <button aria-label="Меню" data-testid="button-view-menu">
+              <Menu className="w-6 h-6" />
+            </button>
             <div className="flex items-center gap-3">
-              <ShoppingCart className="w-6 h-6" data-testid="button-view-cart" />
-              <Heart className="w-6 h-6" data-testid="button-view-favorites" />
+              <button aria-label="Корзина" data-testid="button-view-cart">
+                <ShoppingCart className="w-6 h-6" />
+              </button>
+              <button aria-label="Избранное" data-testid="button-view-favorites">
+                <Heart className="w-6 h-6" />
+              </button>
             </div>
           </div>
 
@@ -412,6 +430,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
           <div className="flex items-center gap-4 mb-6">
             <button 
               className="p-2 bg-white rounded-full"
+              aria-label="Главная"
               data-testid="button-view-home"
             >
               <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
@@ -440,6 +459,8 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
               <input
                 type="text"
                 placeholder="Поиск гаджетов..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
                 className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
                 data-testid="input-search"
               />
@@ -498,11 +519,15 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
               data-testid={`featured-product-${product.id}`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent">
+                {!loadedImages.has(product.id) && (
+                  <Skeleton className="w-full h-full absolute inset-0" />
+                )}
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
                   loading="lazy"
+                  onLoad={() => handleImageLoad(product.id)}
                 />
               </div>
 
@@ -521,6 +546,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
                   e.stopPropagation();
                   toggleFavorite(product.id);
                 }}
+                aria-label="Избранное"
                 className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
                 data-testid={`button-favorite-${product.id}`}
               >
@@ -546,6 +572,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
                       e.stopPropagation();
                       openProduct(product);
                     }}
+                    aria-label="Добавить в корзину"
                     className="w-14 h-14 rounded-full bg-[#00D4FF] flex items-center justify-center transition-all hover:scale-110"
                     data-testid={`button-add-to-cart-${product.id}`}
                   >
@@ -574,10 +601,10 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
             <div className="flex items-center gap-3">
-              <button className="p-2" data-testid="button-view-search">
+              <button className="p-2" aria-label="Поиск" data-testid="button-view-search">
                 <Search className="w-6 h-6" />
               </button>
-              <button className="p-2" data-testid="button-view-filter">
+              <button className="p-2" aria-label="Фильтр" data-testid="button-view-filter">
                 <Filter className="w-6 h-6" />
               </button>
             </div>
@@ -610,11 +637,15 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
                 data-testid={`product-card-${product.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
+                  {!loadedImages.has(product.id) && (
+                    <Skeleton className="w-full h-full absolute inset-0" />
+                  )}
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover transition-opacity ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
                     loading="lazy"
+                    onLoad={() => handleImageLoad(product.id)}
                   />
                   
                   <button
@@ -622,6 +653,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
                       e.stopPropagation();
                       toggleFavorite(product.id);
                     }}
+                    aria-label="Избранное"
                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
                     data-testid={`button-favorite-catalog-${product.id}`}
                   >
@@ -689,6 +721,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
                   </div>
                   <button
                     onClick={() => setCartItems(cartItems.filter(i => i.id !== item.id))}
+                    aria-label="Удалить"
                     className="w-8 h-8"
                     data-testid={`button-remove-${item.id}`}
                   >

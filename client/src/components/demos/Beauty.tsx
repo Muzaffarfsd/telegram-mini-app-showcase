@@ -14,9 +14,14 @@ import {
   Mail,
   ChevronLeft,
   Check,
-  Package
+  Package,
+  Search,
+  Filter,
+  Menu
 } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
+import { Skeleton } from "../ui/skeleton";
+import { useFilter } from "@/hooks/useFilter";
 
 interface BeautyProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -113,6 +118,12 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+
+  const { filteredItems, searchQuery, handleSearch } = useFilter({
+    items: services,
+    searchFields: ['name', 'description', 'category', 'specialist'] as (keyof Service)[],
+  });
 
   useEffect(() => {
     if (activeTab !== 'catalog') {
@@ -120,9 +131,13 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
     }
   }, [activeTab]);
 
-  const filteredServices = services.filter(s => 
+  const filteredServices = filteredItems.filter(s => 
     selectedCategory === 'Все' || s.category === selectedCategory
   );
+
+  const handleImageLoad = (serviceId: number) => {
+    setLoadedImages(prev => new Set(prev).add(serviceId));
+  };
 
   const toggleFavorite = (serviceId: number) => {
     const newFavorites = new Set(favorites);

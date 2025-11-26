@@ -126,7 +126,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
 
     return (
       <Suspense fallback={null}>
-        <DemoComponent activeTab={activeTab} />
+        <DemoComponent activeTab={activeTab} onTabChange={handleStringNavigation} />
       </Suspense>
     );
     

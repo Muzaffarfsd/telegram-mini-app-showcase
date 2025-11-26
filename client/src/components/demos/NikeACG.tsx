@@ -15,6 +15,7 @@ import img10 from '@assets/stock_images/futuristic_techwear__a1b10a04.jpg';
 
 interface NikeACGProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: 'home' | 'catalog' | 'cart' | 'profile') => void;
 }
 
 interface CartItem {
@@ -217,7 +218,7 @@ const getDelayClass = (index: number) => {
   return delays[index % delays.length];
 };
 
-function NikeACG({ activeTab }: NikeACGProps) {
+function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -393,13 +394,25 @@ function NikeACG({ activeTab }: NikeACGProps) {
             </div>
           </div>
 
-          <button
-            onClick={addToCart}
-            className="w-full bg-white text-black font-black py-5 rounded-full hover:bg-white/90 transition-all text-lg tracking-wider shadow-xl scroll-fade-in-delay-5"
-            data-testid={`button-add-to-cart-${selectedProduct.id}`}
-          >
-            ДОБАВИТЬ В КОРЗИНУ
-          </button>
+          <ConfirmDrawer
+            trigger={
+              <button
+                className="w-full bg-white text-black font-black py-5 rounded-full hover:bg-white/90 transition-all text-lg tracking-wider shadow-xl scroll-fade-in-delay-5"
+                data-testid={`button-add-to-cart-${selectedProduct.id}`}
+              >
+                ДОБАВИТЬ В КОРЗИНУ
+              </button>
+            }
+            title={`${selectedProduct.name} добавлен`}
+            description={`Размер: ${selectedSize} • Цвет: ${selectedColor} • ${formatPrice(selectedProduct.price)}`}
+            confirmText="Перейти в корзину"
+            cancelText="Продолжить покупки"
+            onConfirm={() => {
+              addToCart();
+              onTabChange?.('cart');
+            }}
+            onCancel={addToCart}
+          />
         </div>
       </div>
     );

@@ -3,6 +3,8 @@ import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
+import { Skeleton } from "../ui/skeleton";
+import { useFilter } from "@/hooks/useFilter";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
 
@@ -209,30 +211,36 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
   const [selectedGender, setSelectedGender] = useState<string>('All');
   const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+
+  const { filteredItems, searchQuery, handleSearch } = useFilter({
+    items: products,
+    searchFields: ['name', 'description', 'category', 'brand'] as (keyof Product)[],
+  });
 
   useEffect(() => {
     if (activeTab !== 'catalog') {
       setSelectedProduct(null);
     }
-    // Reset gender filter when leaving home page
     if (activeTab !== 'home') {
       setSelectedGender('All');
     }
   }, [activeTab]);
 
-  // Filter products based on current tab
-  const filteredProducts = products.filter(p => {
+  const filteredProducts = filteredItems.filter(p => {
     const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
     
-    // Apply gender filter only on home page
     if (activeTab === 'home') {
       const genderMatch = selectedGender === 'All' || p.gender === selectedGender;
       return categoryMatch && genderMatch;
     }
     
-    // On catalog page, show all genders
     return categoryMatch;
   });
+
+  const handleImageLoad = (productId: number) => {
+    setLoadedImages(prev => new Set(prev).add(productId));
+  };
 
   const toggleFavorite = (productId: number) => {
     const newFavorites = new Set(favorites);
@@ -411,10 +419,16 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
         {/* Header */}
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <Menu className="w-6 h-6" data-testid="button-view-menu" />
+            <button aria-label="Меню" data-testid="button-view-menu">
+              <Menu className="w-6 h-6" />
+            </button>
             <div className="flex items-center gap-3">
-              <ShoppingBag className="w-6 h-6" data-testid="button-view-cart" />
-              <Heart className="w-6 h-6" data-testid="button-view-favorites" />
+              <button aria-label="Корзина" data-testid="button-view-cart">
+                <ShoppingBag className="w-6 h-6" />
+              </button>
+              <button aria-label="Избранное" data-testid="button-view-favorites">
+                <Heart className="w-6 h-6" />
+              </button>
             </div>
           </div>
 
@@ -430,6 +444,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
           <div className="flex items-center gap-4 mb-6">
             <button 
               className="p-2 bg-white rounded-full"
+              aria-label="Главная"
               data-testid="button-view-home"
             >
               <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
@@ -459,6 +474,8 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
               <input
                 type="text"
                 placeholder="Поиск товаров..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
                 className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
                 data-testid="input-search"
               />
@@ -523,13 +540,17 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
               style={{ height: idx === 0 ? '400px' : '320px' }}
               data-testid={`featured-product-${product.id}`}
             >
-              {/* Background Image */}
+              {/* Background Image with Skeleton */}
               <div className="absolute inset-0">
+                {!loadedImages.has(product.id) && (
+                  <Skeleton className="w-full h-full absolute inset-0" />
+                )}
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
                   loading="lazy"
+                  onLoad={() => handleImageLoad(product.id)}
                 />
               </div>
 
@@ -551,6 +572,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                   e.stopPropagation();
                   toggleFavorite(product.id);
                 }}
+                aria-label="Избранное"
                 className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
                 data-testid={`button-favorite-${product.id}`}
               >
@@ -576,6 +598,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                       e.stopPropagation();
                       openProduct(product);
                     }}
+                    aria-label="Добавить в корзину"
                     className="w-14 h-14 rounded-full bg-[#CDFF38] flex items-center justify-center hover:bg-[#B8E633] transition-all hover:scale-110"
                     data-testid={`button-add-to-cart-${product.id}`}
                   >
@@ -606,10 +629,10 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
             <div className="flex items-center gap-3">
-              <button className="p-2" data-testid="button-view-search">
+              <button className="p-2" aria-label="Поиск" data-testid="button-view-search">
                 <Search className="w-6 h-6" />
               </button>
-              <button className="p-2" data-testid="button-view-filter">
+              <button className="p-2" aria-label="Фильтр" data-testid="button-view-filter">
                 <Filter className="w-6 h-6" />
               </button>
             </div>
@@ -644,11 +667,15 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                 data-testid={`product-card-${product.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
+                  {!loadedImages.has(product.id) && (
+                    <Skeleton className="w-full h-full absolute inset-0" />
+                  )}
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover transition-opacity ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
                     loading="lazy"
+                    onLoad={() => handleImageLoad(product.id)}
                   />
                   
                   {/* Favorite */}
@@ -657,6 +684,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                       e.stopPropagation();
                       toggleFavorite(product.id);
                     }}
+                    aria-label="Избранное"
                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
                     data-testid={`button-favorite-catalog-${product.id}`}
                   >
@@ -728,6 +756,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                   </div>
                   <button
                     onClick={() => setCart(cart.filter(i => i.id !== item.id))}
+                    aria-label="Удалить"
                     className="w-8 h-8"
                     data-testid={`button-remove-${item.id}`}
                   >
