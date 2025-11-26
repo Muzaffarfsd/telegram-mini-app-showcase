@@ -1,5 +1,5 @@
-import { ArrowRight, Play, Sparkles, Zap, Users } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { ArrowRight, Play } from "lucide-react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useHaptic } from '../hooks/useHaptic';
 import { LazyVideo } from './LazyVideo';
 
@@ -8,6 +8,30 @@ const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4
 const watchesVideo = "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4";
 const heroVideo = "/videos/1341996d8f73172cbc77930dc818d88e_t4_1763643600785.mp4";
 
+/* ═══════════════════════════════════════════════════════════════════════
+   APPLE DESIGN SYSTEM - Exact specifications
+   ═══════════════════════════════════════════════════════════════════════ */
+const APPLE = {
+  colors: {
+    black: '#050505',
+    surface: '#0F0F10',
+    white: '#FFFFFF',
+    gray1: '#F5F5F7',
+    gray2: '#86868B',
+    gray3: '#48484A',
+    blue: '#2997FF',
+    border: 'rgba(255, 255, 255, 0.12)'
+  },
+  spacing: {
+    section: 'clamp(120px, 18vw, 160px)',
+    container: '1200px'
+  },
+  transition: {
+    reveal: 'opacity 0.48s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.48s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    hover: 'opacity 0.24s ease'
+  }
+} as const;
+
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
   onOpenDemo: (demoId: string) => void;
@@ -15,12 +39,41 @@ interface ShowcasePageProps {
 
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const haptic = useHaptic();
-  const [isVisible, setIsVisible] = useState(false);
-  
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set(['hero']));
+  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
+
+  // Scroll reveal observer
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 50);
-    return () => clearTimeout(timer);
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    if (prefersReducedMotion) {
+      setVisibleSections(new Set(['hero', 'credibility', 'stage', 'process', 'cta']));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('data-section');
+            if (id) {
+              setVisibleSections((prev) => new Set(Array.from(prev).concat(id)));
+            }
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    sectionRefs.current.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
+
+  const setSectionRef = useCallback((id: string) => (el: HTMLElement | null) => {
+    if (el) sectionRefs.current.set(id, el);
+  }, []);
+
+  const isVisible = (id: string) => visibleSections.has(id);
 
   const handleOpenDemo = useCallback((demoId: string) => {
     haptic.light();
@@ -40,375 +93,358 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white overflow-x-hidden">
+    <div 
+      className="min-h-screen overflow-x-hidden"
+      style={{ 
+        backgroundColor: APPLE.colors.black,
+        color: APPLE.colors.white,
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif',
+        WebkitFontSmoothing: 'antialiased',
+        MozOsxFontSmoothing: 'grayscale'
+      }}
+    >
       
       {/* ═══════════════════════════════════════════════════════════════════
-          HERO - Cinematic Opening
+          SECTION A: HERO — Cinematic full-height opening
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
-        className="relative min-h-[100vh] flex flex-col items-center justify-center px-6 overflow-hidden"
+        ref={setSectionRef('hero')}
+        data-section="hero"
+        className="relative flex flex-col items-center justify-center"
         style={{
+          minHeight: '100dvh',
+          padding: '60px 24px 80px',
           background: `
-            radial-gradient(ellipse 100% 80% at 50% -20%, rgba(99, 102, 241, 0.15), transparent 70%),
-            radial-gradient(ellipse 80% 50% at 80% 50%, rgba(168, 85, 247, 0.08), transparent 60%),
-            radial-gradient(ellipse 60% 40% at 20% 80%, rgba(34, 211, 238, 0.06), transparent 50%),
-            #000
+            radial-gradient(ellipse 120% 100% at 50% -30%, rgba(41, 151, 255, 0.08), transparent 60%),
+            ${APPLE.colors.black}
           `
         }}
       >
-        {/* Floating particles effect */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div 
-            className="absolute w-[500px] h-[500px] rounded-full opacity-30"
-            style={{
-              background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%)',
-              top: '-10%',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              filter: 'blur(60px)',
-              animation: 'pulse 8s ease-in-out infinite'
-            }}
-          />
-        </div>
-
-        {/* Content */}
         <div 
-          className="relative z-10 text-center max-w-[440px]"
+          className="text-center w-full"
           style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.95)',
-            transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)'
+            maxWidth: '720px',
+            opacity: isVisible('hero') ? 1 : 0,
+            transform: isVisible('hero') ? 'translateY(0)' : 'translateY(12px)',
+            transition: APPLE.transition.reveal
           }}
         >
           {/* Eyebrow */}
-          <div 
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8"
-            style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)'
-            }}
-          >
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[13px] font-medium text-white/70">Telegram Mini Apps</span>
-          </div>
-
-          {/* Main headline */}
-          <h1 
-            className="mb-6"
-            style={{
-              fontSize: 'clamp(48px, 12vw, 80px)',
-              fontWeight: 700,
-              lineHeight: 0.95,
-              letterSpacing: '-0.04em'
-            }}
-          >
-            <span className="text-white">Продавайте</span>
-            <br />
-            <span 
-              style={{
-                background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #22d3ee 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}
-            >
-              красиво
-            </span>
-          </h1>
-
-          {/* Sub-headline */}
-          <p 
-            className="text-[19px] leading-relaxed mb-10 max-w-[320px] mx-auto"
-            style={{ color: 'rgba(255, 255, 255, 0.6)' }}
-          >
-            Премиум-витрина в Telegram.
-            <br />
-            <span style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Там, где уже ваши клиенты.</span>
+          <p style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: APPLE.colors.gray2,
+            marginBottom: '20px'
+          }}>
+            Telegram Mini Apps
           </p>
 
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          {/* Headline */}
+          <h1 style={{
+            fontSize: 'clamp(48px, 11vw, 80px)',
+            fontWeight: 600,
+            lineHeight: 1.0,
+            letterSpacing: '-0.035em',
+            color: APPLE.colors.white,
+            marginBottom: '20px'
+          }}>
+            Создавайте,
+            <br />
+            как Apple.
+          </h1>
+
+          {/* Subheadline */}
+          <p style={{
+            fontSize: '19px',
+            fontWeight: 400,
+            lineHeight: 1.47,
+            letterSpacing: '-0.01em',
+            color: APPLE.colors.gray2,
+            marginBottom: '40px',
+            maxWidth: '380px',
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }}>
+            Премиальные витрины для Telegram.
+            <br />
+            Там, где уже ваши клиенты.
+          </p>
+
+          {/* CTA buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button 
               onClick={() => handleNavigate('constructor')}
-              className="group relative px-8 py-4 rounded-2xl text-[17px] font-semibold overflow-hidden"
               style={{
-                background: 'linear-gradient(135deg, #ffffff 0%, #e5e7eb 100%)',
-                color: '#000',
-                boxShadow: '0 0 0 1px rgba(255,255,255,0.1), 0 20px 50px -10px rgba(255,255,255,0.25)'
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                height: '52px',
+                padding: '0 32px',
+                fontSize: '17px',
+                fontWeight: 500,
+                letterSpacing: '-0.01em',
+                color: APPLE.colors.black,
+                backgroundColor: APPLE.colors.white,
+                border: 'none',
+                borderRadius: '980px',
+                cursor: 'pointer',
+                transition: APPLE.transition.hover
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.88'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
               data-testid="button-hero-primary"
             >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Создать за 7 дней
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </span>
+              Запустить проект
+              <ArrowRight style={{ width: '16px', height: '16px' }} />
             </button>
             
             <button 
               onClick={() => handleNavigate('ai-agent')}
-              className="group px-7 py-4 rounded-2xl text-[17px] font-medium flex items-center justify-center gap-2"
               style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: '#fff',
-                backdropFilter: 'blur(10px)'
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                height: '44px',
+                padding: '0 20px',
+                fontSize: '17px',
+                fontWeight: 400,
+                letterSpacing: '-0.01em',
+                color: APPLE.colors.blue,
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                transition: APPLE.transition.hover
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
               data-testid="button-hero-secondary"
             >
-              <Play className="w-4 h-4" />
-              Смотреть демо
+              <Play style={{ width: '14px', height: '14px' }} />
+              Посмотреть демо
             </button>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div 
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          style={{
-            opacity: isVisible ? 0.5 : 0,
-            transition: 'opacity 1s ease 1s'
-          }}
-        >
-          <div 
-            className="w-6 h-10 rounded-full border-2 border-white/20 flex justify-center pt-2"
-          >
-            <div 
-              className="w-1 h-2 bg-white/50 rounded-full"
-              style={{ animation: 'scrollPulse 2s ease-in-out infinite' }}
-            />
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          PROOF STRIP - Social Validation
+          SECTION B: CREDIBILITY — Sparse metrics strip
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
-        className="py-12 px-6 border-y"
+        ref={setSectionRef('credibility')}
+        data-section="credibility"
         style={{
-          background: 'rgba(255, 255, 255, 0.02)',
-          borderColor: 'rgba(255, 255, 255, 0.06)'
+          padding: '64px 24px',
+          borderTop: `1px solid ${APPLE.colors.border}`,
+          borderBottom: `1px solid ${APPLE.colors.border}`,
+          backgroundColor: APPLE.colors.black
         }}
       >
         <div 
-          className="max-w-[500px] mx-auto grid grid-cols-3 gap-4"
+          className="flex justify-center items-center flex-wrap"
           style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'all 0.8s ease 0.3s'
+            gap: 'clamp(40px, 8vw, 80px)',
+            maxWidth: '900px',
+            margin: '0 auto',
+            opacity: isVisible('credibility') ? 1 : 0,
+            transform: isVisible('credibility') ? 'translateY(0)' : 'translateY(12px)',
+            transition: APPLE.transition.reveal,
+            transitionDelay: '0.1s'
           }}
         >
           {[
-            { icon: Zap, value: '+327%', label: 'к продажам', color: '#fbbf24' },
-            { icon: Users, value: '127', label: 'брендов', color: '#a855f7' },
-            { icon: Sparkles, value: '24/7', label: 'AI-агент', color: '#22d3ee' }
+            { value: '+327%', label: 'рост продаж' },
+            { value: '127', label: 'брендов' },
+            { value: '24/7', label: 'AI-поддержка' }
           ].map((stat, i) => (
-            <div key={i} className="text-center">
-              <div 
-                className="w-10 h-10 mx-auto mb-3 rounded-xl flex items-center justify-center"
-                style={{ 
-                  background: `${stat.color}15`,
-                  boxShadow: `0 0 20px ${stat.color}20`
-                }}
-              >
-                <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
+            <div key={i} className="text-center" style={{ minWidth: '100px' }}>
+              <div style={{
+                fontSize: 'clamp(32px, 6vw, 44px)',
+                fontWeight: 600,
+                letterSpacing: '-0.02em',
+                color: APPLE.colors.white,
+                marginBottom: '4px'
+              }}>
+                {stat.value}
               </div>
-              <div className="text-xl font-bold text-white">{stat.value}</div>
-              <div className="text-[13px] text-white/40">{stat.label}</div>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: 400,
+                color: APPLE.colors.gray2
+              }}>
+                {stat.label}
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          VIDEO WALL - Pure Visual Showcase (NO TEXT INSIDE)
+          SECTION C: VISUAL STAGE — Pure video showcase
           ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-5">
+      <section 
+        ref={setSectionRef('stage')}
+        data-section="stage"
+        style={{
+          padding: `${APPLE.spacing.section} 20px`,
+          backgroundColor: APPLE.colors.black
+        }}
+      >
+        {/* Section title */}
         <div 
-          className="text-center mb-16 max-w-[400px] mx-auto"
+          className="text-center"
           style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'all 0.8s ease 0.4s'
+            marginBottom: '56px',
+            opacity: isVisible('stage') ? 1 : 0,
+            transform: isVisible('stage') ? 'translateY(0)' : 'translateY(12px)',
+            transition: APPLE.transition.reveal,
+            transitionDelay: '0.1s'
           }}
         >
-          <h2 
-            className="mb-4"
-            style={{
-              fontSize: 'clamp(32px, 8vw, 52px)',
-              fontWeight: 600,
-              lineHeight: 1.05,
-              letterSpacing: '-0.03em'
-            }}
-          >
-            Каждый магазин —
-            <br />
-            <span 
-              style={{
-                background: 'linear-gradient(135deg, #ec4899 0%, #a855f7 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}
-            >
-              шедевр
-            </span>
+          <h2 style={{
+            fontSize: 'clamp(32px, 7vw, 48px)',
+            fontWeight: 600,
+            lineHeight: 1.08,
+            letterSpacing: '-0.025em',
+            color: APPLE.colors.white
+          }}>
+            Витрины
           </h2>
-          <p className="text-[17px] text-white/50">
-            Нажмите на любую витрину
-          </p>
         </div>
 
-        {/* Video Grid - Clean, no text overlay */}
+        {/* Video grid - 2x2 clean layout */}
         <div 
-          className="grid grid-cols-2 gap-3 max-w-[520px] mx-auto"
           style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-            transition: 'all 0.8s ease 0.5s'
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '16px',
+            maxWidth: '480px',
+            margin: '0 auto',
+            opacity: isVisible('stage') ? 1 : 0,
+            transform: isVisible('stage') ? 'translateY(0)' : 'translateY(12px)',
+            transition: APPLE.transition.reveal,
+            transitionDelay: '0.2s'
           }}
         >
           {videos.map((video, index) => (
-            <div
+            <button
               key={index}
               onClick={() => handleOpenDemo(video.id)}
-              className="group relative cursor-pointer"
               style={{
-                aspectRatio: '3/4',
-                borderRadius: '28px',
+                position: 'relative',
+                aspectRatio: '9 / 16',
+                borderRadius: '24px',
                 overflow: 'hidden',
-                background: '#0a0a0a',
-                boxShadow: `
-                  0 0 0 1px rgba(255,255,255,0.08),
-                  0 25px 60px -15px rgba(0,0,0,0.7),
-                  0 0 100px -30px rgba(139, 92, 246, 0.2)
-                `,
-                transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+                backgroundColor: APPLE.colors.surface,
+                border: `1px solid ${APPLE.colors.border}`,
+                padding: 0,
+                cursor: 'pointer',
+                transition: APPLE.transition.hover
               }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget;
-                el.style.transform = 'scale(1.03) translateY(-12px)';
-                el.style.boxShadow = `
-                  0 0 0 1px rgba(255,255,255,0.15),
-                  0 50px 100px -20px rgba(0,0,0,0.8),
-                  0 0 150px -30px rgba(139, 92, 246, 0.4)
-                `;
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget;
-                el.style.transform = 'scale(1) translateY(0)';
-                el.style.boxShadow = `
-                  0 0 0 1px rgba(255,255,255,0.08),
-                  0 25px 60px -15px rgba(0,0,0,0.7),
-                  0 0 100px -30px rgba(139, 92, 246, 0.2)
-                `;
-              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.92'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
               data-testid={`video-card-${index}`}
             >
               <LazyVideo
                 src={video.src}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="absolute inset-0 w-full h-full object-cover"
                 autoPlay
                 loop
                 muted
                 playsInline
                 preload="none"
               />
-              
-              {/* Shine effect on hover */}
-              <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
-                style={{
-                  background: 'linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.05) 60%, transparent 80%)'
-                }}
-              />
-              
-              {/* Bottom gradient for depth */}
-              <div 
-                className="absolute inset-x-0 bottom-0 h-1/3 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{
-                  background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)'
-                }}
-              />
-            </div>
+            </button>
           ))}
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          TRANSFORMATION - Emotional Story
+          SECTION D: PROCESS — Timeline narrative
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
-        className="py-24 px-6 text-center"
+        ref={setSectionRef('process')}
+        data-section="process"
         style={{
-          background: `
-            radial-gradient(ellipse 80% 60% at 50% 100%, rgba(99, 102, 241, 0.08), transparent),
-            #000
-          `
+          padding: `${APPLE.spacing.section} 24px`,
+          borderTop: `1px solid ${APPLE.colors.border}`,
+          backgroundColor: APPLE.colors.black
         }}
       >
         <div 
-          className="max-w-[400px] mx-auto"
+          className="text-center"
           style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'all 0.8s ease 0.6s'
+            maxWidth: '600px',
+            margin: '0 auto',
+            opacity: isVisible('process') ? 1 : 0,
+            transform: isVisible('process') ? 'translateY(0)' : 'translateY(12px)',
+            transition: APPLE.transition.reveal,
+            transitionDelay: '0.1s'
           }}
         >
-          <p 
-            className="text-[13px] font-medium tracking-[0.2em] uppercase mb-6"
-            style={{ color: 'rgba(255,255,255,0.4)' }}
-          >
-            Наш подход
+          <p style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: APPLE.colors.gray2,
+            marginBottom: '16px'
+          }}>
+            Процесс
           </p>
           
-          <h2 
-            className="mb-6"
-            style={{
-              fontSize: 'clamp(36px, 9vw, 56px)',
-              fontWeight: 600,
-              lineHeight: 1.0,
-              letterSpacing: '-0.03em'
-            }}
-          >
-            Из идеи в
-            <br />
-            <span 
-              style={{
-                background: 'linear-gradient(135deg, #22d3ee 0%, #a855f7 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}
-            >
-              приложение
-            </span>
+          <h2 style={{
+            fontSize: 'clamp(32px, 7vw, 48px)',
+            fontWeight: 600,
+            lineHeight: 1.08,
+            letterSpacing: '-0.025em',
+            color: APPLE.colors.white,
+            marginBottom: '12px'
+          }}>
+            Код до запуска
           </h2>
           
-          <p 
-            className="text-[19px] mb-12"
-            style={{ color: 'rgba(255,255,255,0.5)' }}
-          >
-            За <span className="text-white font-medium">14 дней</span>
+          <p style={{
+            fontSize: '28px',
+            fontWeight: 600,
+            letterSpacing: '-0.02em',
+            color: APPLE.colors.gray2,
+            marginBottom: '56px'
+          }}>
+            за 14 дней
           </p>
 
-          {/* Process steps */}
-          <div className="grid grid-cols-3 gap-4 text-center">
+          {/* Steps */}
+          <div 
+            className="grid gap-10"
+            style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}
+          >
             {[
-              { num: '01', text: 'Дизайн' },
-              { num: '02', text: 'Сборка' },
-              { num: '03', text: 'Запуск' }
+              { num: '01', title: 'Дизайн' },
+              { num: '02', title: 'Разработка' },
+              { num: '03', title: 'Запуск' }
             ].map((step, i) => (
-              <div key={i}>
-                <div 
-                  className="text-2xl font-bold mb-2"
-                  style={{
-                    background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
-                  }}
-                >
+              <div key={i} className="text-center">
+                <div style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  letterSpacing: '0.08em',
+                  color: APPLE.colors.blue,
+                  marginBottom: '8px'
+                }}>
                   {step.num}
                 </div>
-                <div className="text-[15px] text-white/60">{step.text}</div>
+                <div style={{
+                  fontSize: '17px',
+                  fontWeight: 600,
+                  letterSpacing: '-0.01em',
+                  color: APPLE.colors.white
+                }}>
+                  {step.title}
+                </div>
               </div>
             ))}
           </div>
@@ -416,82 +452,103 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          FINAL CTA - High Pressure Close
+          SECTION E: CONCIERGE CTA — Final conversion
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
-        className="py-24 px-6"
+        ref={setSectionRef('cta')}
+        data-section="cta"
         style={{
+          padding: `${APPLE.spacing.section} 24px`,
+          borderTop: `1px solid ${APPLE.colors.border}`,
           background: `
-            linear-gradient(180deg, #000 0%, #0a0a0a 50%, #000 100%),
-            radial-gradient(ellipse 100% 100% at 50% 0%, rgba(139, 92, 246, 0.1), transparent 60%)
+            radial-gradient(ellipse 100% 80% at 50% 100%, rgba(41, 151, 255, 0.06), transparent 50%),
+            ${APPLE.colors.black}
           `
         }}
       >
         <div 
-          className="max-w-[380px] mx-auto text-center"
+          className="text-center"
           style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'all 0.8s ease 0.7s'
+            maxWidth: '560px',
+            margin: '0 auto',
+            opacity: isVisible('cta') ? 1 : 0,
+            transform: isVisible('cta') ? 'translateY(0)' : 'translateY(12px)',
+            transition: APPLE.transition.reveal,
+            transitionDelay: '0.1s'
           }}
         >
-          <h2 
-            className="mb-5"
-            style={{
-              fontSize: 'clamp(28px, 7vw, 40px)',
-              fontWeight: 600,
-              lineHeight: 1.1,
-              letterSpacing: '-0.02em'
-            }}
-          >
-            Запустите приложение,
+          <p style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: APPLE.colors.gray2,
+            marginBottom: '16px'
+          }}>
+            Готовы начать?
+          </p>
+          
+          <h2 style={{
+            fontSize: 'clamp(32px, 7vw, 48px)',
+            fontWeight: 600,
+            lineHeight: 1.1,
+            letterSpacing: '-0.025em',
+            color: APPLE.colors.white,
+            marginBottom: '16px'
+          }}>
+            Личный консьерж
             <br />
-            <span className="text-white/50">о котором будут говорить</span>
+            <span style={{ color: APPLE.colors.gray2 }}>сопровождения</span>
           </h2>
           
-          <p 
-            className="text-[17px] mb-10"
-            style={{ color: 'rgba(255,255,255,0.5)' }}
-          >
-            Первая консультация — бесплатно
+          <p style={{
+            fontSize: '17px',
+            color: APPLE.colors.gray2,
+            marginBottom: '36px',
+            letterSpacing: '-0.01em'
+          }}>
+            Первая консультация бесплатно
           </p>
           
           <button 
             onClick={() => handleNavigate('constructor')}
-            className="group w-full max-w-[300px] px-8 py-5 rounded-2xl text-[17px] font-semibold"
             style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #e5e7eb 100%)',
-              color: '#000',
-              boxShadow: '0 0 0 1px rgba(255,255,255,0.1), 0 25px 60px -10px rgba(255,255,255,0.3)'
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              height: '52px',
+              padding: '0 36px',
+              fontSize: '17px',
+              fontWeight: 500,
+              letterSpacing: '-0.01em',
+              color: APPLE.colors.black,
+              backgroundColor: APPLE.colors.white,
+              border: 'none',
+              borderRadius: '980px',
+              cursor: 'pointer',
+              transition: APPLE.transition.hover
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.88'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
             data-testid="button-final-cta"
           >
-            <span className="flex items-center justify-center gap-2">
-              Начать сейчас
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-            </span>
+            Запустить проект
+            <ArrowRight style={{ width: '16px', height: '16px' }} />
           </button>
           
-          <p 
-            className="mt-6 text-[13px]"
-            style={{ color: 'rgba(255,255,255,0.3)' }}
-          >
-            Без скрытых платежей. Отмена в любой момент.
+          <p style={{
+            fontSize: '12px',
+            color: APPLE.colors.gray3,
+            marginTop: '20px'
+          }}>
+            Без скрытых платежей
           </p>
         </div>
       </section>
 
-      {/* Animations */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 0.3; transform: translateX(-50%) scale(1); }
-          50% { opacity: 0.5; transform: translateX(-50%) scale(1.1); }
-        }
-        @keyframes scrollPulse {
-          0%, 100% { opacity: 0.5; transform: translateY(0); }
-          50% { opacity: 1; transform: translateY(4px); }
-        }
-      `}</style>
+      {/* Safe area footer */}
+      <div style={{ height: 'env(safe-area-inset-bottom, 20px)' }} />
     </div>
   );
 }
