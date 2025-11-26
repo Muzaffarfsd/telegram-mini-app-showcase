@@ -1,4 +1,4 @@
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Play, Crown, Shield, Clock, Star } from "lucide-react";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useHaptic } from '../hooks/useHaptic';
 import { LazyVideo } from './LazyVideo';
@@ -9,28 +9,9 @@ const watchesVideo = "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4
 const heroVideo = "/videos/1341996d8f73172cbc77930dc818d88e_t4_1763643600785.mp4";
 
 /* ═══════════════════════════════════════════════════════════════════════
-   APPLE DESIGN SYSTEM - Exact specifications
+   LUXURY DESIGN SYSTEM — Inspired by Louis Vuitton, Chanel, Apple
+   Psychology: Exclusivity, Status, Aspiration, Craftsmanship
    ═══════════════════════════════════════════════════════════════════════ */
-const APPLE = {
-  colors: {
-    black: '#050505',
-    surface: '#0F0F10',
-    white: '#FFFFFF',
-    gray1: '#F5F5F7',
-    gray2: '#86868B',
-    gray3: '#48484A',
-    blue: '#2997FF',
-    border: 'rgba(255, 255, 255, 0.12)'
-  },
-  spacing: {
-    section: 'clamp(120px, 18vw, 160px)',
-    container: '1200px'
-  },
-  transition: {
-    reveal: 'opacity 0.48s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.48s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-    hover: 'opacity 0.24s ease'
-  }
-} as const;
 
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
@@ -42,12 +23,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set(['hero']));
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
 
-  // Scroll reveal observer
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    
     if (prefersReducedMotion) {
-      setVisibleSections(new Set(['hero', 'credibility', 'stage', 'process', 'cta']));
+      setVisibleSections(new Set(['hero', 'social', 'showcase', 'exclusive', 'cta']));
       return;
     }
 
@@ -56,13 +35,11 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const id = entry.target.getAttribute('data-section');
-            if (id) {
-              setVisibleSections((prev) => new Set(Array.from(prev).concat(id)));
-            }
+            if (id) setVisibleSections((prev) => new Set(Array.from(prev).concat(id)));
           }
         });
       },
-      { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0.1, rootMargin: '0px 0px -80px 0px' }
     );
 
     sectionRefs.current.forEach((el) => observer.observe(el));
@@ -92,189 +69,183 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     { src: watchesVideo, id: 'restaurant' }
   ];
 
+  const revealStyle = (id: string, delay: number = 0) => ({
+    opacity: isVisible(id) ? 1 : 0,
+    transform: isVisible(id) ? 'translateY(0)' : 'translateY(24px)',
+    transition: `opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s`
+  });
+
   return (
     <div 
       className="min-h-screen overflow-x-hidden"
       style={{ 
-        backgroundColor: APPLE.colors.black,
-        color: APPLE.colors.white,
-        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif',
-        WebkitFontSmoothing: 'antialiased',
-        MozOsxFontSmoothing: 'grayscale'
+        backgroundColor: '#000000',
+        color: '#FFFFFF',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", system-ui, sans-serif'
       }}
     >
       
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION A: HERO — Cinematic full-height opening
+          HERO — Драматичное открытие с психологией эксклюзивности
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
         ref={setSectionRef('hero')}
         data-section="hero"
-        className="relative flex flex-col items-center justify-center"
+        className="relative flex flex-col items-center justify-center text-center"
         style={{
           minHeight: '100dvh',
-          padding: '60px 24px 80px',
+          padding: '80px 24px 100px',
           background: `
-            radial-gradient(ellipse 120% 100% at 50% -30%, rgba(41, 151, 255, 0.08), transparent 60%),
-            ${APPLE.colors.black}
+            radial-gradient(ellipse 140% 70% at 50% 0%, rgba(212, 175, 55, 0.08), transparent 50%),
+            radial-gradient(ellipse 80% 50% at 20% 80%, rgba(212, 175, 55, 0.03), transparent),
+            #000000
           `
         }}
       >
+        {/* Золотая линия сверху */}
         <div 
-          className="text-center w-full"
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[60px]"
           style={{
-            maxWidth: '720px',
+            background: 'linear-gradient(to bottom, rgba(212, 175, 55, 0.6), transparent)',
             opacity: isVisible('hero') ? 1 : 0,
-            transform: isVisible('hero') ? 'translateY(0)' : 'translateY(12px)',
-            transition: APPLE.transition.reveal
+            transition: 'opacity 1.2s ease 0.3s'
           }}
-        >
-          {/* Eyebrow */}
-          <p style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: APPLE.colors.gray2,
-            marginBottom: '20px'
-          }}>
-            Telegram Mini Apps
-          </p>
+        />
 
-          {/* Headline */}
+        <div style={{ maxWidth: '600px', ...revealStyle('hero', 0) }}>
+          {/* Eyebrow с эксклюзивностью */}
+          <div 
+            className="inline-flex items-center gap-2 mb-8"
+            style={{
+              padding: '10px 20px',
+              background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05))',
+              border: '1px solid rgba(212, 175, 55, 0.3)',
+              borderRadius: '100px'
+            }}
+          >
+            <Crown style={{ width: '14px', height: '14px', color: '#D4AF37' }} />
+            <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#D4AF37' }}>
+              Премиум-разработка
+            </span>
+          </div>
+
+          {/* Главный заголовок — психология статуса */}
           <h1 style={{
-            fontSize: 'clamp(48px, 11vw, 80px)',
+            fontSize: 'clamp(40px, 10vw, 72px)',
             fontWeight: 600,
             lineHeight: 1.0,
-            letterSpacing: '-0.035em',
-            color: APPLE.colors.white,
-            marginBottom: '20px'
+            letterSpacing: '-0.03em',
+            marginBottom: '24px'
           }}>
-            Создавайте,
+            Для тех, кто
             <br />
-            как Apple.
+            <span style={{
+              background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              выбирает лучшее
+            </span>
           </h1>
 
-          {/* Subheadline */}
+          {/* Подзаголовок — эмоциональный триггер */}
           <p style={{
-            fontSize: '19px',
+            fontSize: '18px',
             fontWeight: 400,
-            lineHeight: 1.47,
-            letterSpacing: '-0.01em',
-            color: APPLE.colors.gray2,
+            lineHeight: 1.6,
+            color: 'rgba(255, 255, 255, 0.6)',
             marginBottom: '40px',
-            maxWidth: '380px',
+            maxWidth: '400px',
             marginLeft: 'auto',
             marginRight: 'auto'
           }}>
-            Премиальные витрины для Telegram.
-            <br />
-            Там, где уже ваши клиенты.
+            Эксклюзивные Telegram-приложения для брендов, 
+            которые не идут на компромиссы
           </p>
 
-          {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          {/* CTA — срочность и эксклюзивность */}
+          <div className="flex flex-col items-center gap-4">
             <button 
               onClick={() => handleNavigate('constructor')}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '6px',
-                height: '52px',
-                padding: '0 32px',
-                fontSize: '17px',
-                fontWeight: 500,
-                letterSpacing: '-0.01em',
-                color: APPLE.colors.black,
-                backgroundColor: APPLE.colors.white,
+                gap: '10px',
+                height: '56px',
+                padding: '0 36px',
+                fontSize: '16px',
+                fontWeight: 600,
+                letterSpacing: '0.02em',
+                color: '#000000',
+                background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
                 border: 'none',
-                borderRadius: '980px',
+                borderRadius: '100px',
                 cursor: 'pointer',
-                transition: APPLE.transition.hover
+                boxShadow: '0 0 40px rgba(212, 175, 55, 0.3)',
+                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.88'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 0 60px rgba(212, 175, 55, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 0 40px rgba(212, 175, 55, 0.3)';
+              }}
               data-testid="button-hero-primary"
             >
-              Запустить проект
-              <ArrowRight style={{ width: '16px', height: '16px' }} />
+              Забронировать место
+              <ArrowRight style={{ width: '18px', height: '18px' }} />
             </button>
             
-            <button 
-              onClick={() => handleNavigate('ai-agent')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                height: '44px',
-                padding: '0 20px',
-                fontSize: '17px',
-                fontWeight: 400,
-                letterSpacing: '-0.01em',
-                color: APPLE.colors.blue,
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                transition: APPLE.transition.hover
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-              data-testid="button-hero-secondary"
-            >
-              <Play style={{ width: '14px', height: '14px' }} />
-              Посмотреть демо
-            </button>
+            <p style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.4)' }}>
+              Только 12 проектов в месяц
+            </p>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION B: CREDIBILITY — Sparse metrics strip
+          SOCIAL PROOF — Доверие через авторитет
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
-        ref={setSectionRef('credibility')}
-        data-section="credibility"
+        ref={setSectionRef('social')}
+        data-section="social"
         style={{
-          padding: '64px 24px',
-          borderTop: `1px solid ${APPLE.colors.border}`,
-          borderBottom: `1px solid ${APPLE.colors.border}`,
-          backgroundColor: APPLE.colors.black
+          padding: '60px 24px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+          background: 'rgba(255, 255, 255, 0.01)'
         }}
       >
         <div 
           className="flex justify-center items-center flex-wrap"
           style={{
-            gap: 'clamp(40px, 8vw, 80px)',
-            maxWidth: '900px',
+            gap: 'clamp(32px, 6vw, 64px)',
+            maxWidth: '800px',
             margin: '0 auto',
-            opacity: isVisible('credibility') ? 1 : 0,
-            transform: isVisible('credibility') ? 'translateY(0)' : 'translateY(12px)',
-            transition: APPLE.transition.reveal,
-            transitionDelay: '0.1s'
+            ...revealStyle('social', 0.1)
           }}
         >
           {[
-            { value: '+327%', label: 'рост продаж' },
-            { value: '127', label: 'брендов' },
-            { value: '24/7', label: 'AI-поддержка' }
+            { icon: Star, value: '4.9', label: 'рейтинг клиентов' },
+            { icon: Shield, value: '127', label: 'премиум-брендов' },
+            { icon: Clock, value: '14', label: 'дней до запуска' }
           ].map((stat, i) => (
             <div key={i} className="text-center" style={{ minWidth: '100px' }}>
-              <div style={{
-                fontSize: 'clamp(32px, 6vw, 44px)',
-                fontWeight: 600,
-                letterSpacing: '-0.02em',
-                color: APPLE.colors.white,
-                marginBottom: '4px'
-              }}>
-                {stat.value}
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <stat.icon style={{ width: '16px', height: '16px', color: '#D4AF37' }} />
+                <span style={{
+                  fontSize: 'clamp(28px, 5vw, 36px)',
+                  fontWeight: 600,
+                  letterSpacing: '-0.02em',
+                  color: '#FFFFFF'
+                }}>
+                  {stat.value}
+                </span>
               </div>
-              <div style={{
-                fontSize: '14px',
-                fontWeight: 400,
-                color: APPLE.colors.gray2
-              }}>
+              <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.5)' }}>
                 {stat.label}
               </div>
             </div>
@@ -283,50 +254,50 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION C: VISUAL STAGE — Pure video showcase
+          SHOWCASE — Витрина работ (чистые видео без текста)
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
-        ref={setSectionRef('stage')}
-        data-section="stage"
-        style={{
-          padding: `${APPLE.spacing.section} 20px`,
-          backgroundColor: APPLE.colors.black
-        }}
+        ref={setSectionRef('showcase')}
+        data-section="showcase"
+        style={{ padding: 'clamp(80px, 14vw, 140px) 20px' }}
       >
-        {/* Section title */}
-        <div 
-          className="text-center"
-          style={{
-            marginBottom: '56px',
-            opacity: isVisible('stage') ? 1 : 0,
-            transform: isVisible('stage') ? 'translateY(0)' : 'translateY(12px)',
-            transition: APPLE.transition.reveal,
-            transitionDelay: '0.1s'
-          }}
-        >
-          <h2 style={{
-            fontSize: 'clamp(32px, 7vw, 48px)',
+        {/* Заголовок секции */}
+        <div className="text-center" style={{ marginBottom: '48px', ...revealStyle('showcase', 0.1) }}>
+          <p style={{
+            fontSize: '11px',
             fontWeight: 600,
-            lineHeight: 1.08,
-            letterSpacing: '-0.025em',
-            color: APPLE.colors.white
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: '#D4AF37',
+            marginBottom: '16px'
           }}>
-            Витрины
+            Портфолио
+          </p>
+          <h2 style={{
+            fontSize: 'clamp(28px, 6vw, 44px)',
+            fontWeight: 600,
+            lineHeight: 1.1,
+            letterSpacing: '-0.02em',
+            marginBottom: '12px'
+          }}>
+            Каждый проект —
+            <br />
+            <span style={{ color: 'rgba(255, 255, 255, 0.5)' }}>произведение искусства</span>
           </h2>
+          <p style={{ fontSize: '15px', color: 'rgba(255, 255, 255, 0.4)' }}>
+            Нажмите, чтобы испытать
+          </p>
         </div>
 
-        {/* Video grid - 2x2 clean layout */}
+        {/* Видео-сетка — чистые карточки БЕЗ текста */}
         <div 
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '16px',
+            gap: '14px',
             maxWidth: '480px',
             margin: '0 auto',
-            opacity: isVisible('stage') ? 1 : 0,
-            transform: isVisible('stage') ? 'translateY(0)' : 'translateY(12px)',
-            transition: APPLE.transition.reveal,
-            transitionDelay: '0.2s'
+            ...revealStyle('showcase', 0.2)
           }}
         >
           {videos.map((video, index) => (
@@ -336,16 +307,24 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               style={{
                 position: 'relative',
                 aspectRatio: '9 / 16',
-                borderRadius: '24px',
+                borderRadius: '20px',
                 overflow: 'hidden',
-                backgroundColor: APPLE.colors.surface,
-                border: `1px solid ${APPLE.colors.border}`,
+                backgroundColor: '#0A0A0A',
+                border: '1px solid rgba(212, 175, 55, 0.15)',
                 padding: 0,
                 cursor: 'pointer',
-                transition: APPLE.transition.hover
+                transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.5s ease, box-shadow 0.5s ease'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.92'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.02) translateY(-8px)';
+                e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.4)';
+                e.currentTarget.style.boxShadow = '0 30px 60px -15px rgba(0, 0, 0, 0.5), 0 0 40px rgba(212, 175, 55, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.15)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               data-testid={`video-card-${index}`}
             >
               <LazyVideo
@@ -357,94 +336,101 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 playsInline
                 preload="none"
               />
+              {/* Subtle vignette */}
+              <div 
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)',
+                  opacity: 0.6
+                }}
+              />
             </button>
           ))}
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION D: PROCESS — Timeline narrative
+          EXCLUSIVE — Что делает нас особенными
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
-        ref={setSectionRef('process')}
-        data-section="process"
+        ref={setSectionRef('exclusive')}
+        data-section="exclusive"
         style={{
-          padding: `${APPLE.spacing.section} 24px`,
-          borderTop: `1px solid ${APPLE.colors.border}`,
-          backgroundColor: APPLE.colors.black
+          padding: 'clamp(80px, 14vw, 140px) 24px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+          background: `
+            radial-gradient(ellipse 100% 60% at 50% 100%, rgba(212, 175, 55, 0.04), transparent),
+            #000000
+          `
         }}
       >
-        <div 
-          className="text-center"
-          style={{
-            maxWidth: '600px',
-            margin: '0 auto',
-            opacity: isVisible('process') ? 1 : 0,
-            transform: isVisible('process') ? 'translateY(0)' : 'translateY(12px)',
-            transition: APPLE.transition.reveal,
-            transitionDelay: '0.1s'
-          }}
-        >
-          <p style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: APPLE.colors.gray2,
-            marginBottom: '16px'
-          }}>
-            Процесс
-          </p>
-          
-          <h2 style={{
-            fontSize: 'clamp(32px, 7vw, 48px)',
-            fontWeight: 600,
-            lineHeight: 1.08,
-            letterSpacing: '-0.025em',
-            color: APPLE.colors.white,
-            marginBottom: '12px'
-          }}>
-            Код до запуска
-          </h2>
-          
-          <p style={{
-            fontSize: '28px',
-            fontWeight: 600,
-            letterSpacing: '-0.02em',
-            color: APPLE.colors.gray2,
-            marginBottom: '56px'
-          }}>
-            за 14 дней
-          </p>
+        <div className="text-center" style={{ maxWidth: '500px', margin: '0 auto' }}>
+          <div style={revealStyle('exclusive', 0.1)}>
+            <p style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: '#D4AF37',
+              marginBottom: '16px'
+            }}>
+              Наш подход
+            </p>
+            <h2 style={{
+              fontSize: 'clamp(28px, 6vw, 44px)',
+              fontWeight: 600,
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
+              marginBottom: '48px'
+            }}>
+              Бескомпромиссное
+              <br />
+              <span style={{ color: 'rgba(255, 255, 255, 0.5)' }}>качество</span>
+            </h2>
+          </div>
 
-          {/* Steps */}
+          {/* Преимущества */}
           <div 
-            className="grid gap-10"
-            style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}
+            className="grid gap-8"
+            style={{ ...revealStyle('exclusive', 0.2) }}
           >
             {[
-              { num: '01', title: 'Дизайн' },
-              { num: '02', title: 'Разработка' },
-              { num: '03', title: 'Запуск' }
-            ].map((step, i) => (
-              <div key={i} className="text-center">
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  letterSpacing: '0.08em',
-                  color: APPLE.colors.blue,
-                  marginBottom: '8px'
-                }}>
-                  {step.num}
-                </div>
-                <div style={{
+              { 
+                title: 'Персональный менеджер',
+                desc: 'Выделенный специалист на связи 24/7'
+              },
+              { 
+                title: 'Дизайн уровня Apple',
+                desc: 'Внимание к каждому пикселю и анимации'
+              },
+              { 
+                title: 'Гарантия результата',
+                desc: 'Или полный возврат инвестиций'
+              }
+            ].map((item, i) => (
+              <div 
+                key={i}
+                style={{
+                  padding: '24px',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  borderRadius: '16px'
+                }}
+              >
+                <h3 style={{
                   fontSize: '17px',
                   fontWeight: 600,
-                  letterSpacing: '-0.01em',
-                  color: APPLE.colors.white
+                  color: '#FFFFFF',
+                  marginBottom: '6px'
                 }}>
-                  {step.title}
-                </div>
+                  {item.title}
+                </h3>
+                <p style={{
+                  fontSize: '14px',
+                  color: 'rgba(255, 255, 255, 0.5)'
+                }}>
+                  {item.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -452,103 +438,107 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION E: CONCIERGE CTA — Final conversion
+          FINAL CTA — Высокое давление к действию
           ═══════════════════════════════════════════════════════════════════ */}
       <section 
         ref={setSectionRef('cta')}
         data-section="cta"
         style={{
-          padding: `${APPLE.spacing.section} 24px`,
-          borderTop: `1px solid ${APPLE.colors.border}`,
+          padding: 'clamp(100px, 18vw, 180px) 24px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
           background: `
-            radial-gradient(ellipse 100% 80% at 50% 100%, rgba(41, 151, 255, 0.06), transparent 50%),
-            ${APPLE.colors.black}
+            radial-gradient(ellipse 120% 80% at 50% 0%, rgba(212, 175, 55, 0.06), transparent 60%),
+            #000000
           `
         }}
       >
-        <div 
-          className="text-center"
-          style={{
-            maxWidth: '560px',
-            margin: '0 auto',
-            opacity: isVisible('cta') ? 1 : 0,
-            transform: isVisible('cta') ? 'translateY(0)' : 'translateY(12px)',
-            transition: APPLE.transition.reveal,
-            transitionDelay: '0.1s'
-          }}
-        >
-          <p style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: APPLE.colors.gray2,
-            marginBottom: '16px'
-          }}>
-            Готовы начать?
-          </p>
-          
-          <h2 style={{
-            fontSize: 'clamp(32px, 7vw, 48px)',
-            fontWeight: 600,
-            lineHeight: 1.1,
-            letterSpacing: '-0.025em',
-            color: APPLE.colors.white,
-            marginBottom: '16px'
-          }}>
-            Личный консьерж
-            <br />
-            <span style={{ color: APPLE.colors.gray2 }}>сопровождения</span>
-          </h2>
-          
-          <p style={{
-            fontSize: '17px',
-            color: APPLE.colors.gray2,
-            marginBottom: '36px',
-            letterSpacing: '-0.01em'
-          }}>
-            Первая консультация бесплатно
-          </p>
-          
-          <button 
-            onClick={() => handleNavigate('constructor')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              height: '52px',
-              padding: '0 36px',
-              fontSize: '17px',
-              fontWeight: 500,
-              letterSpacing: '-0.01em',
-              color: APPLE.colors.black,
-              backgroundColor: APPLE.colors.white,
-              border: 'none',
-              borderRadius: '980px',
-              cursor: 'pointer',
-              transition: APPLE.transition.hover
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.88'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-            data-testid="button-final-cta"
-          >
-            Запустить проект
-            <ArrowRight style={{ width: '16px', height: '16px' }} />
-          </button>
-          
-          <p style={{
-            fontSize: '12px',
-            color: APPLE.colors.gray3,
-            marginTop: '20px'
-          }}>
-            Без скрытых платежей
-          </p>
+        <div className="text-center" style={{ maxWidth: '480px', margin: '0 auto' }}>
+          <div style={revealStyle('cta', 0.1)}>
+            <p style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: '#D4AF37',
+              marginBottom: '16px'
+            }}>
+              Эксклюзивное предложение
+            </p>
+            
+            <h2 style={{
+              fontSize: 'clamp(28px, 6vw, 44px)',
+              fontWeight: 600,
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
+              marginBottom: '16px'
+            }}>
+              Станьте одним из
+              <br />
+              <span style={{
+                background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                избранных
+              </span>
+            </h2>
+            
+            <p style={{
+              fontSize: '16px',
+              color: 'rgba(255, 255, 255, 0.5)',
+              marginBottom: '36px',
+              lineHeight: 1.6
+            }}>
+              Бесплатная консультация и аудит
+              <br />
+              вашего бизнеса от эксперта
+            </p>
+            
+            <button 
+              onClick={() => handleNavigate('constructor')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                height: '56px',
+                padding: '0 40px',
+                fontSize: '16px',
+                fontWeight: 600,
+                letterSpacing: '0.02em',
+                color: '#000000',
+                background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)',
+                border: 'none',
+                borderRadius: '100px',
+                cursor: 'pointer',
+                boxShadow: '0 0 50px rgba(212, 175, 55, 0.4)',
+                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 0 80px rgba(212, 175, 55, 0.6)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 0 50px rgba(212, 175, 55, 0.4)';
+              }}
+              data-testid="button-final-cta"
+            >
+              Получить консультацию
+              <ArrowRight style={{ width: '18px', height: '18px' }} />
+            </button>
+            
+            <div style={{ marginTop: '24px' }}>
+              <p style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.3)' }}>
+                Осталось 4 места на декабрь
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Safe area footer */}
-      <div style={{ height: 'env(safe-area-inset-bottom, 20px)' }} />
+      {/* Safe area */}
+      <div style={{ height: 'env(safe-area-inset-bottom, 24px)' }} />
     </div>
   );
 }
