@@ -1,21 +1,7 @@
-/* APPLE iOS PRESENTATION STYLE */
-/* Premium design system inspired by Apple keynotes */
+/* APPLE QUALITY STANDARDS */
+/* Based on Apple's design principles and best practices */
 
 :root {
-  /* Typography Scale - SF Pro Display inspired */
-  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
-  --font-text: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
-  
-  /* Display Sizes */
-  --text-hero: clamp(40px, 10vw, 64px);
-  --text-headline: clamp(28px, 6vw, 40px);
-  --text-title: clamp(22px, 4vw, 28px);
-  --text-subtitle: clamp(18px, 3vw, 22px);
-  --text-body: 17px;
-  --text-body-sm: 15px;
-  --text-caption: 13px;
-  --text-micro: 11px;
-  
   /* Apple Spacing System - 8px Grid */
   --space-1: 8px;
   --space-2: 16px;
@@ -27,268 +13,229 @@
   --space-10: 80px;
   --space-12: 96px;
   
-  /* Section Spacing */
-  --section-padding: clamp(48px, 12vw, 96px);
-  --container-padding: clamp(20px, 5vw, 40px);
-  
   /* Apple Timing Functions */
-  --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --ease-out-apple: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-apple: cubic-bezier(0.42, 0, 0.58, 1);
+  --ease-out-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
   --ease-in-apple: cubic-bezier(0.42, 0, 1, 1);
   --spring-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   --spring-smooth: cubic-bezier(0.34, 1.56, 0.64, 1);
   
-  /* Apple Color Palette */
+  /* Apple Colors (not pure black/white) */
   --apple-black: #1d1d1f;
   --apple-white: #f5f5f7;
-  --apple-gray-1: #86868b;
-  --apple-gray-2: #6e6e73;
-  --apple-gray-3: #424245;
   --apple-emerald: #30d158;
   --apple-blue: #0a84ff;
-  --apple-purple: #bf5af2;
-  --apple-pink: #ff375f;
-  --apple-orange: #ff9f0a;
   
-  /* Text Colors with proper opacity */
-  --text-primary: rgba(255, 255, 255, 0.96);
-  --text-secondary: rgba(255, 255, 255, 0.72);
-  --text-tertiary: rgba(255, 255, 255, 0.48);
-  --text-quaternary: rgba(255, 255, 255, 0.24);
+  /* Apple Text Colors with proper opacity */
+  --apple-text-primary: rgba(255, 255, 255, 0.92);
+  --apple-text-secondary: rgba(255, 255, 255, 0.70);
+  --apple-text-tertiary: rgba(255, 255, 255, 0.45);
+  --apple-text-quaternary: rgba(255, 255, 255, 0.25);
   
-  /* Gradient Tokens */
-  --gradient-hero: linear-gradient(180deg, 
-    rgba(16, 185, 129, 0.15) 0%, 
-    rgba(0, 0, 0, 0) 50%,
-    rgba(59, 130, 246, 0.1) 100%);
+  /* Apple Shadows - Multilayer */
+  --shadow-apple-sm: 
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.06);
+    
+  --shadow-apple-md:
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.10),
+    0 16px 48px rgba(0, 0, 0, 0.08);
+    
+  --shadow-apple-lg:
+    0 8px 24px rgba(0, 0, 0, 0.10),
+    0 16px 48px rgba(0, 0, 0, 0.15),
+    0 32px 96px rgba(0, 0, 0, 0.12);
   
-  --gradient-emerald: linear-gradient(135deg, #10B981 0%, #059669 100%);
-  --gradient-blue: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
-  --gradient-purple: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-  --gradient-gold: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-  --gradient-mesh: radial-gradient(ellipse at 30% 0%, rgba(16, 185, 129, 0.2) 0%, transparent 50%),
-                   radial-gradient(ellipse at 70% 100%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
-  
-  /* Glass Effects */
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-blur: blur(40px) saturate(180%);
-  
-  --glass-card-bg: rgba(255, 255, 255, 0.05);
-  --glass-card-border: rgba(255, 255, 255, 0.08);
-  
-  --glass-pill-bg: rgba(255, 255, 255, 0.12);
-  --glass-pill-border: rgba(255, 255, 255, 0.18);
-  
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12), 0 8px 32px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16), 0 16px 64px rgba(0, 0, 0, 0.12);
-  --shadow-glow-emerald: 0 0 60px rgba(16, 185, 129, 0.3);
-  --shadow-glow-blue: 0 0 60px rgba(59, 130, 246, 0.3);
+  /* Premium Shadow with color */
+  --shadow-premium:
+    0 4px 12px rgba(16, 185, 129, 0.15),
+    0 8px 24px rgba(16, 185, 129, 0.10),
+    0 16px 48px rgba(0, 0, 0, 0.08);
 }
 
-/* Base Typography */
+/* Apple Typography */
 body {
-  font-family: var(--font-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Apple Display Typography */
-.apple-hero {
-  font-family: var(--font-display);
-  font-size: var(--text-hero);
+h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.05;
-  color: var(--text-primary);
-}
-
-.apple-headline {
-  font-family: var(--font-display);
-  font-size: var(--text-headline);
-  font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.1;
-  color: var(--text-primary);
-}
-
-.apple-title {
-  font-family: var(--font-display);
-  font-size: var(--text-title);
-  font-weight: 600;
-  letter-spacing: -0.015em;
   line-height: 1.2;
-  color: var(--text-primary);
 }
 
-.apple-subtitle {
-  font-family: var(--font-text);
-  font-size: var(--text-subtitle);
-  font-weight: 400;
+.apple-display {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.apple-price {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
-  line-height: 1.4;
-  color: var(--text-secondary);
-}
-
-.apple-body {
-  font-family: var(--font-text);
-  font-size: var(--text-body);
-  font-weight: 400;
-  letter-spacing: -0.005em;
-  line-height: 1.5;
-  color: var(--text-secondary);
-}
-
-.apple-caption {
-  font-family: var(--font-text);
-  font-size: var(--text-caption);
-  font-weight: 500;
-  letter-spacing: 0;
-  line-height: 1.4;
-  color: var(--text-tertiary);
 }
 
 .apple-eyebrow {
-  font-family: var(--font-text);
-  font-size: var(--text-micro);
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-tertiary);
+  color: var(--apple-text-secondary);
 }
 
-/* Glass Morphism */
+/* Apple Glass Effect */
 .glass-apple {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 0.5px solid var(--glass-border);
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    var(--shadow-md);
-}
-
-.glass-card {
-  background: var(--glass-card-bg);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--glass-card-border);
-  border-radius: 20px;
-}
-
-.glass-pill {
-  background: var(--glass-pill-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 0.5px solid var(--glass-pill-border);
-  border-radius: 100px;
-}
-
-/* Unified CTA Button for Demo Cards */
-.glass-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 0.5px solid rgba(255, 255, 255, 0.15);
-  border-radius: 100px;
-  transition: all 0.2s var(--ease-out-apple);
-  cursor: pointer;
-}
-
-.glass-cta:active {
-  transform: scale(0.95);
-}
-
-.glass-cta:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-.glass-cta-sm {
-  padding: 6px 10px;
-  font-size: 9px;
-  gap: 4px;
-}
-
-.glass-cta-lg {
-  padding: 12px 20px;
-  font-size: 13px;
-  gap: 8px;
-}
-
-/* Apple Button */
-.apple-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 24px;
-  font-family: var(--font-text);
-  font-size: 17px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  border-radius: 980px;
-  transition: all 0.25s var(--ease-out-apple);
-  cursor: pointer;
-  min-height: 50px;
-}
-
-.apple-button-primary {
-  background: var(--gradient-emerald);
-  color: #000;
-  border: none;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
-}
-
-.apple-button-primary:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
-}
-
-.apple-button-primary:active {
-  transform: scale(0.98);
-}
-
-.apple-button-secondary {
-  background: transparent;
-  color: var(--text-primary);
-  border: 1.5px solid var(--glass-border);
-}
-
-.apple-button-secondary:hover {
   background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+    0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
-/* Apple Card */
-.apple-card {
-  background: var(--glass-card-bg);
-  border: 1px solid var(--glass-card-border);
-  border-radius: 20px;
-  overflow: hidden;
-  transition: all 0.4s var(--ease-out-apple);
+.glass-apple-light {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
-.apple-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.15);
+/* Apple Button Transitions */
+.button-apple {
+  transition: 
+    transform 250ms var(--ease-out-apple),
+    opacity 250ms var(--ease-out-apple),
+    box-shadow 250ms var(--ease-out-apple);
 }
 
-/* Scroll Reveal Animations */
+.button-apple:hover {
+  transform: scale(1.02);
+}
+
+.button-apple:active {
+  transform: scale(0.98);
+  transition-duration: 100ms;
+}
+
+/* Apple Card with Shadow */
+.card-apple {
+  box-shadow: var(--shadow-apple-sm);
+  transition: box-shadow 350ms var(--ease-out-apple);
+}
+
+.card-apple:hover {
+  box-shadow: var(--shadow-apple-md);
+}
+
+/* Premium Card */
+.card-premium {
+  box-shadow: var(--shadow-premium);
+}
+
+/* Apple-style Hero Section */
+.hero-apple {
+  text-align: center;
+  padding: var(--space-8) var(--space-3);
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.hero-apple h1 {
+  font-size: clamp(32px, 6vw, 56px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-2);
+}
+
+.hero-apple p {
+  font-size: clamp(18px, 2.5vw, 24px);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--apple-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+/* Noise Texture for Premium Feel */
+.noise-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Drag Handle (iOS-style) */
+.drag-handle {
+  width: 36px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  margin: 8px auto;
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Expandable Section Header */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  color: var(--apple-text-primary);
+  cursor: pointer;
+  transition: background 250ms var(--ease-out-apple);
+}
+
+.section-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Touch Target - minimum 44px for accessibility */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Focus Visible for Accessibility */
+*:focus-visible {
+  outline: 2px solid var(--apple-blue);
+  outline-offset: 2px;
+}
+
+/* Smooth Scroll Behavior - Apple style */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fade-in on scroll animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -296,7 +243,12 @@ body {
   }
 }
 
-@keyframes fadeInScale {
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
   from {
     opacity: 0;
     transform: scale(0.95);
@@ -307,171 +259,73 @@ body {
   }
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes gradientShift {
+@keyframes bounce {
   0%, 100% {
-    background-position: 0% 50%;
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
   }
   50% {
-    background-position: 100% 50%;
+    transform: translateY(25%);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   }
 }
 
-@keyframes glow {
+@keyframes pulse-subtle {
   0%, 100% {
-    opacity: 0.5;
-  }
-  50% {
     opacity: 1;
   }
+  50% {
+    opacity: 0.8;
+  }
 }
 
-/* Scroll Animation Classes */
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.8s var(--ease-out-apple), transform 0.8s var(--ease-out-apple);
-}
-
-.scroll-reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+/* Apple-style scroll reveal utility classes */
 .scroll-fade-in {
-  animation: fadeInUp 1s var(--ease-out-apple) forwards;
+  animation: fadeInUp 0.8s var(--ease-out-apple) forwards;
 }
 
 .scroll-fade-in-delay-1 {
-  animation: fadeInUp 1s var(--ease-out-apple) 0.1s forwards;
+  animation: fadeInUp 0.8s var(--ease-out-apple) 0.1s forwards;
   opacity: 0;
 }
 
 .scroll-fade-in-delay-2 {
-  animation: fadeInUp 1s var(--ease-out-apple) 0.2s forwards;
+  animation: fadeInUp 0.8s var(--ease-out-apple) 0.2s forwards;
   opacity: 0;
 }
 
 .scroll-fade-in-delay-3 {
-  animation: fadeInUp 1s var(--ease-out-apple) 0.3s forwards;
+  animation: fadeInUp 0.8s var(--ease-out-apple) 0.3s forwards;
   opacity: 0;
 }
 
 .scroll-fade-in-delay-4 {
-  animation: fadeInUp 1s var(--ease-out-apple) 0.4s forwards;
+  animation: fadeInUp 0.8s var(--ease-out-apple) 0.4s forwards;
   opacity: 0;
 }
 
 .scroll-fade-in-delay-5 {
-  animation: fadeInUp 1s var(--ease-out-apple) 0.5s forwards;
+  animation: fadeInUp 0.8s var(--ease-out-apple) 0.5s forwards;
   opacity: 0;
 }
 
-.scroll-fade-in-delay-6 {
-  animation: fadeInUp 1s var(--ease-out-apple) 0.6s forwards;
-  opacity: 0;
+/* Utility animations */
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Stagger children animation */
-.stagger-children > * {
-  opacity: 0;
-  animation: fadeInUp 0.8s var(--ease-out-apple) forwards;
+/* Parallax effect for hero sections */
+.parallax-slow {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
-.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
-.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
-.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
-.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
-.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
-.stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
-.stagger-children > *:nth-child(8) { animation-delay: 0.4s; }
-
-/* Gradient Text */
-.gradient-text-emerald {
-  background: var(--gradient-emerald);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Smooth transitions for all interactive elements */
+.interactive-smooth {
+  transition: all 0.25s var(--ease-out-apple);
 }
 
-.gradient-text-blue {
-  background: var(--gradient-blue);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Interactive States */
-.interactive-lift {
-  transition: transform 0.3s var(--ease-out-apple), box-shadow 0.3s var(--ease-out-apple);
-}
-
-.interactive-lift:hover {
-  transform: translateY(-4px);
-}
-
-.interactive-lift:active {
-  transform: translateY(-2px);
-  transition-duration: 0.1s;
-}
-
-/* Section Divider */
-.section-divider {
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255, 255, 255, 0.1) 20%, 
-    rgba(255, 255, 255, 0.1) 80%, 
-    transparent 100%);
-  margin: var(--space-8) 0;
-}
-
-/* Mesh Background */
-.mesh-background {
-  position: absolute;
-  inset: 0;
-  background: var(--gradient-mesh);
-  pointer-events: none;
-}
-
-/* Glow Effect */
-.glow-emerald {
-  box-shadow: var(--shadow-glow-emerald);
-}
-
-.glow-blue {
-  box-shadow: var(--shadow-glow-blue);
-}
-
-/* Smooth Scroll */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Focus States */
-*:focus-visible {
-  outline: 2px solid var(--apple-blue);
-  outline-offset: 2px;
-}
-
-/* Reduce Motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+/* Apple-style backdrop blur */
+.backdrop-blur-apple {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
