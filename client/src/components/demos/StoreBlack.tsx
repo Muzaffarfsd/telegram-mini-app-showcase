@@ -648,8 +648,6 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
             </m.div>
           ))}
         </div>
-
-        <div className="h-8"></div>
       </div>
     );
   }

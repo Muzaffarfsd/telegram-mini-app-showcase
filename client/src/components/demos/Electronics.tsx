@@ -247,7 +247,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
   // PRODUCT PAGE - УЛУЧШЕННАЯ
   if (activeTab === 'catalog' && selectedProduct) {
     return (
-      <div className="h-full bg-[#0A0A0A] text-white overflow-auto">
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
@@ -359,7 +359,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
   // HOME PAGE
   if (activeTab === 'home') {
     return (
-      <div className="h-full bg-[#0A0A0A] text-white overflow-auto pb-24">
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6">
             <Menu className="w-6 h-6" data-testid="button-menu" />
@@ -541,7 +541,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="h-full bg-[#0A0A0A] text-white overflow-auto pb-24">
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold">Каталог</h1>
@@ -632,7 +632,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
     const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     return (
-      <div className="h-full bg-[#0A0A0A] text-white overflow-auto pb-32">
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
@@ -691,7 +691,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
   // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="h-full bg-[#0A0A0A] text-white overflow-auto pb-24">
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         <div className="p-6 bg-white/5 border-b border-white/10">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-[#00D4FF] rounded-full flex items-center justify-center">

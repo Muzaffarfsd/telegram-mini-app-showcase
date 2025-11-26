@@ -592,8 +592,6 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
             </m.div>
           ))}
         </div>
-
-        <div className="h-8"></div>
       </div>
     );
   }
