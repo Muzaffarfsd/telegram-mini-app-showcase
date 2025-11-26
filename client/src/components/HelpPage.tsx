@@ -231,7 +231,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
 
       <div className="max-w-md mx-auto px-4 space-y-6 mt-4">
         {/* Hero Section */}
-        <section className="ios-slide-up">
+        <section className="ios-slide-up scroll-fade-in">
           <div className="glass-card p-6 text-center">
             <div className="w-16 h-16 bg-system-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <HelpCircle className="w-8 h-8 text-system-blue" />
@@ -250,7 +250,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
         </section>
 
         {/* Search */}
-        <section className="ios-slide-up">
+        <section className="ios-slide-up scroll-fade-in-delay-1">
           <div className="glass-card p-4">
             <div className="flex items-center space-x-3 bg-secondary-system-fill rounded-xl px-4 py-3">
               <Search className="w-5 h-5 text-secondary-label" />
@@ -266,7 +266,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
         </section>
 
         {/* FAQ Categories */}
-        <section className="ios-slide-up">
+        <section className="ios-slide-up scroll-fade-in-delay-2">
           <div className="glass-card p-4">
             <div className="overflow-x-auto no-scrollbar">
               <div className="flex space-x-2 min-w-max">
@@ -293,7 +293,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
         </section>
 
         {/* FAQ Items */}
-        <section className="ios-slide-up">
+        <section className="ios-slide-up scroll-fade-in-delay-3">
           <div className="glass-card p-4">
             <h3 className="ios-headline font-semibold mb-4">
               {activeCategory === 'all' ? 'Все вопросы' : faqCategories.find(c => c.id === activeCategory)?.name}
@@ -364,7 +364,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
         </section>
 
         {/* Contact Methods */}
-        <section className="ios-slide-up">
+        <section className="ios-slide-up scroll-fade-in-delay-4">
           <div className="glass-card p-4">
             <h3 className="ios-headline font-semibold mb-4">Не нашли ответ?</h3>
             <div className="space-y-3">
@@ -401,7 +401,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
         </section>
 
         {/* Service Features */}
-        <section className="ios-slide-up">
+        <section className="ios-slide-up scroll-fade-in">
           <div className="glass-card p-4">
             <h3 className="ios-headline font-semibold mb-4">Почему выбирают нас</h3>
             <div className="space-y-4">
@@ -433,7 +433,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
         </section>
 
         {/* Documentation Links */}
-        <section className="ios-slide-up">
+        <section className="ios-slide-up scroll-fade-in-delay-1">
           <div className="glass-card p-4">
             <h3 className="ios-headline font-semibold mb-4">Полезные материалы</h3>
             <div className="space-y-3">
@@ -463,7 +463,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
         </section>
 
         {/* Emergency */}
-        <section className="ios-slide-up">
+        <section className="ios-slide-up scroll-fade-in-delay-2">
           <div className="glass-card p-4 bg-system-red/5 border-system-red/20">
             <div className="flex items-start space-x-3">
               <AlertCircle className="w-6 h-6 text-system-red flex-shrink-0 mt-1" />

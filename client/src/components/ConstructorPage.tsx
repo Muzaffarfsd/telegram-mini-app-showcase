@@ -296,14 +296,14 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
         {/* Payment Model Section */}
-        <section>
+        <section className="scroll-fade-in">
           <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-7 overflow-hidden">
             {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-system-blue/5 via-transparent to-system-purple/5 pointer-events-none"/>
             
             <div className="relative z-10">
               {/* Header */}
-              <div className="text-center mb-6">
+              <div className="text-center mb-6 scroll-fade-in-delay-1">
                 <h3 className="ios-title2 mb-2 text-white font-bold">Прозрачная оплата</h3>
                 <p className="ios-subheadline text-white/70 max-w-xs mx-auto">
                   Платите поэтапно — минимальный риск, максимальный контроль
@@ -468,7 +468,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
         </section>
 
         {/* Progress Steps */}
-        <section>
+        <section className="scroll-fade-in-delay-2">
           <div className="ios-list">
             <div className="ios-list-item">
               <div className="flex items-center space-x-3">
@@ -525,8 +525,8 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
 
         {/* Step 1: Template Selection */}
         {currentStep === 1 && (
-          <section className="space-y-6">
-            <div className="text-center">
+          <section className="space-y-6 scroll-fade-in-delay-3">
+            <div className="text-center scroll-fade-in">
               <h2 className="ios-title3 mb-2 text-white">Шаг 1: Выберите тип</h2>
               <p className="ios-subheadline text-white/70">
                 Готовые решения для разных сфер бизнеса
@@ -560,8 +560,8 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
 
         {/* Step 2: Features Selection */}
         {currentStep === 2 && selectedTemplate && (
-          <section className="space-y-6">
-            <div className="text-center">
+          <section className="space-y-6 scroll-fade-in">
+            <div className="text-center scroll-fade-in-delay-1">
               <h2 className="ios-title3 mb-2 text-white">Шаг 2: Настройте функции</h2>
               <p className="ios-subheadline text-white/70">
                 Добавьте нужные возможности для вашего приложения

@@ -1,4 +1,5 @@
 import { demoApps } from "../data/demoApps";
+import { Sparkles } from "lucide-react";
 
 interface ProjectsPageProps {
   onNavigate: (section: string) => void;
@@ -6,7 +7,6 @@ interface ProjectsPageProps {
 }
 
 export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
-  // Показываем только топ-11 самых популярных приложений
   const topApps = demoApps.slice(0, 11);
 
   return (
@@ -14,7 +14,31 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
       <div className="max-w-md mx-auto p-4">
         
         <div className="text-center mb-8 mt-6">
+          <div className="flex justify-center mb-4 scroll-fade-in">
+            <div 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+              style={{
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.2)',
+                backdropFilter: 'blur(20px)'
+              }}
+            >
+              <Sparkles className="w-4 h-4 text-emerald-500" />
+              <span 
+                style={{
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#10B981',
+                  letterSpacing: '0.02em'
+                }}
+              >
+                PREMIUM APPS
+              </span>
+            </div>
+          </div>
+          
           <h1 
+            className="scroll-fade-in-delay-1"
             style={{
               fontSize: '36px',
               fontWeight: 700,
@@ -26,6 +50,7 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             Витрина
           </h1>
           <p 
+            className="scroll-fade-in-delay-2"
             style={{
               fontSize: '14px',
               color: 'rgba(255, 255, 255, 0.5)',
@@ -41,7 +66,7 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             <div
               key={app.id}
               onClick={() => onOpenDemo(app.id)}
-              className="luxury-card group"
+              className={`luxury-card group scroll-fade-in-delay-${Math.min(index + 1, 4)}`}
               data-testid={`card-app-${app.id}`}
               style={{
                 position: 'relative',
@@ -57,6 +82,8 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
                   inset 0 1px 0 rgba(255, 255, 255, 0.05)
                 `,
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                opacity: 0,
+                animationDelay: `${0.1 + index * 0.05}s`,
               }}
             >
               <h3 

@@ -192,11 +192,11 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
       {/* ===============================================
           STATS - Clean numbers
           =============================================== */}
-      <section className="relative py-20 px-5">
+      <section className="relative py-20 px-5 scroll-fade-in">
         <div className="max-w-xs mx-auto">
           {/* Title */}
           <h2 
-            className="text-center mb-16"
+            className="text-center mb-16 scroll-fade-in-delay-1"
             style={{
               fontSize: '36px',
               fontWeight: 700,
@@ -235,10 +235,10 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
       {/* ===============================================
           FEATURES - One at a time
           =============================================== */}
-      <section className="py-20 px-5">
+      <section className="py-20 px-5 scroll-fade-in">
         <div className="max-w-xs mx-auto">
           <h2 
-            className="text-center mb-4"
+            className="text-center mb-4 scroll-fade-in-delay-1"
             style={{
               fontSize: '36px',
               fontWeight: 700,
@@ -296,10 +296,10 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
       {/* ===============================================
           WHY - Simple benefits
           =============================================== */}
-      <section className="py-20 px-5">
+      <section className="py-20 px-5 scroll-fade-in">
         <div className="max-w-xs mx-auto">
           <h2 
-            className="text-center mb-16"
+            className="text-center mb-16 scroll-fade-in-delay-1"
             style={{
               fontSize: '36px',
               fontWeight: 700,
@@ -334,7 +334,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
       {/* ===============================================
           FINAL CTA - Closer
           =============================================== */}
-      <section className="relative py-28 px-5 pb-32">
+      <section className="relative py-28 px-5 pb-32 scroll-fade-in">
         {/* Background */}
         <div 
           className="absolute inset-0 opacity-40"

@@ -397,10 +397,12 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
         {/* User Profile Card */}
-        <UserCard profileData={profileData} isAvailable={isAvailable} telegramUser={user} />
+        <div className="scroll-fade-in">
+          <UserCard profileData={profileData} isAvailable={isAvailable} telegramUser={user} />
+        </div>
 
         {/* Statistics */}
-        <section>
+        <section className="scroll-fade-in-delay-1">
           <div className="space-y-3">
             <div className="ios-list-header text-white/70 font-medium px-2">Статистика активности</div>
             
@@ -438,7 +440,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         </section>
 
         {/* Telegram Integration */}
-        <section>
+        <section className="scroll-fade-in-delay-2">
           <div className="space-y-3">
             <div className="ios-list-header text-white/70 font-medium px-2">Интеграция с Telegram</div>
             
@@ -472,7 +474,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         </section>
 
         {/* Bonuses & Rewards Section */}
-        <section>
+        <section className="scroll-fade-in-delay-3">
           <div className="space-y-3">
             <div className="ios-list-header text-white/70 font-medium px-2">Бонусы и награды</div>
             
@@ -528,7 +530,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         )}
 
         {/* Smart Features */}
-        <section>
+        <section className="scroll-fade-in-delay-4">
           <div className="space-y-3">
             <div className="ios-list-header text-white/70 font-medium px-2">Умные функции</div>
             
