@@ -23,6 +23,14 @@ interface CartItem {
   color: string;
 }
 
+interface Order {
+  id: number;
+  items: CartItem[];
+  total: number;
+  date: string;
+  status: 'processing' | 'shipped' | 'delivered';
+}
+
 interface Product {
   id: number;
   name: string;
@@ -197,8 +205,10 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
   const [selectedGender, setSelectedGender] = useState<string>('All');
+  const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
 
   useEffect(() => {
     if (activeTab !== 'catalog') {
@@ -266,6 +276,24 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
     }).format(price);
   };
 
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const newOrder: Order = {
+      id: Date.now(),
+      items: [...cart],
+      total: total,
+      date: new Date().toLocaleDateString('ru-RU'),
+      status: 'processing'
+    };
+    
+    setOrders([newOrder, ...orders]);
+    setCart([]);
+    setShowCheckoutSuccess(true);
+    setTimeout(() => setShowCheckoutSuccess(false), 3000);
+  };
+
   // PRODUCT PAGE
   if (activeTab === 'catalog' && selectedProduct) {
     const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#1A1A1A';
@@ -276,7 +304,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
           <button 
             onClick={() => setSelectedProduct(null)}
             className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
-            data-testid="button-back-to-catalog"
+            data-testid="button-back"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -286,7 +314,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
               toggleFavorite(selectedProduct.id);
             }}
             className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
-            data-testid="button-favorite-product"
+            data-testid={`button-favorite-${selectedProduct.id}`}
           >
             <Heart 
               className={`w-5 h-5 ${favorites.has(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
@@ -382,11 +410,11 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         {/* Header */}
         <div className="p-6 pb-4">
-          <div className="flex items-center justify-between mb-6">
-            <Menu className="w-6 h-6" data-testid="button-menu" />
+          <div className="flex items-center justify-between mb-6 scroll-fade-in">
+            <Menu className="w-6 h-6" data-testid="button-view-menu" />
             <div className="flex items-center gap-3">
-              <ShoppingBag className="w-6 h-6" data-testid="button-cart" />
-              <Heart className="w-6 h-6" data-testid="button-favorites" />
+              <ShoppingBag className="w-6 h-6" data-testid="button-view-cart" />
+              <Heart className="w-6 h-6" data-testid="button-view-favorites" />
             </div>
           </div>
 
@@ -402,13 +430,13 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
           <div className="flex items-center gap-4 mb-6">
             <button 
               className="p-2 bg-white rounded-full"
-              data-testid="button-home"
+              data-testid="button-view-home"
             >
               <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
               </svg>
             </button>
-            {genderFilters.map((gender) => (
+            {genderFilters.map((gender, idx) => (
               <button
                 key={gender}
                 onClick={() => setSelectedGender(gender)}
@@ -417,7 +445,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                     ? 'text-white'
                     : 'text-white/40'
                 }`}
-                data-testid={`button-gender-${gender}`}
+                data-testid={`button-filter-${gender.toLowerCase()}`}
               >
                 {gender}
               </button>
@@ -474,7 +502,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                   background: '#CDFF38',
                   boxShadow: '0 0 30px rgba(205, 255, 56, 0.4)'
                 }}
-                data-testid="button-hero-shop-now"
+                data-testid="button-view-collection"
               >
                 Смотреть коллекцию
               </button>
@@ -524,7 +552,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                   toggleFavorite(product.id);
                 }}
                 className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
-                data-testid={`button-favorite-home-${product.id}`}
+                data-testid={`button-favorite-${product.id}`}
               >
                 <Heart 
                   className={`w-5 h-5 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
@@ -549,7 +577,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                       openProduct(product);
                     }}
                     className="w-14 h-14 rounded-full bg-[#CDFF38] flex items-center justify-center hover:bg-[#B8E633] transition-all hover:scale-110"
-                    data-testid={`button-buy-${product.id}`}
+                    data-testid={`button-add-to-cart-${product.id}`}
                   >
                     <ShoppingBag className="w-6 h-6 text-black" />
                   </button>
@@ -575,13 +603,13 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
             <div className="flex items-center gap-3">
-              <button className="p-2" data-testid="button-search">
+              <button className="p-2" data-testid="button-view-search">
                 <Search className="w-6 h-6" />
               </button>
-              <button className="p-2" data-testid="button-filter">
+              <button className="p-2" data-testid="button-view-filter">
                 <Filter className="w-6 h-6" />
               </button>
             </div>
@@ -598,7 +626,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                     ? 'bg-[#CDFF38] text-black'
                     : 'bg-white/10 text-white/70 hover:bg-white/20'
                 }`}
-                data-testid={`button-category-${cat}`}
+                data-testid={`button-filter-${cat.toLowerCase()}`}
               >
                 {cat}
               </button>
@@ -607,12 +635,12 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
 
           {/* Products Grid */}
           <div className="grid grid-cols-2 gap-4">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product, idx) => (
               <m.div
                 key={product.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openProduct(product)}
-                className="relative cursor-pointer"
+                className={`relative cursor-pointer scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
                 data-testid={`product-card-${product.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
@@ -713,13 +741,28 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
                   <span className="text-lg font-semibold">Итого:</span>
                   <span className="text-2xl font-bold">{formatPrice(total)}</span>
                 </div>
-                <button
-                  className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
-                  data-testid="button-checkout"
-                >
-                  Оформить заказ
-                </button>
+                <ConfirmDrawer
+                  trigger={
+                    <button
+                      className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
+                      data-testid="button-checkout"
+                    >
+                      Оформить заказ
+                    </button>
+                  }
+                  title="Оформить заказ?"
+                  description={`${cart.length} товаров на сумму ${formatPrice(total)}`}
+                  confirmText="Оформить"
+                  cancelText="Отмена"
+                  variant="default"
+                  onConfirm={handleCheckout}
+                />
               </div>
+              {showCheckoutSuccess && (
+                <div className="fixed top-20 left-4 right-4 bg-[#CDFF38] text-black p-4 rounded-2xl text-center font-bold z-50 animate-pulse">
+                  Заказ успешно оформлен!
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -745,7 +788,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{cart.length}</p>
+              <p className="text-2xl font-bold">{orders.length}</p>
             </div>
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Избранное</p>
@@ -754,11 +797,42 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
           </div>
         </div>
 
-        <div className="p-4 space-y-2">
+        <div className="p-4 space-y-4">
+          <div className="scroll-fade-in">
+            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
+            {orders.length === 0 ? (
+              <div className="text-center py-8 text-white/50">
+                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>У вас пока нет заказов</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm text-white/70">Заказ #{order.id.toString().slice(-6)}</span>
+                      <span className="text-sm text-white/70">{order.date}</span>
+                    </div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-white/80">{order.items.length} товаров</span>
+                      <span className="font-bold">{formatPrice(order.total)}</span>
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-xs px-2 py-1 bg-[#CDFF38]/20 text-[#CDFF38] rounded-full">
+                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
           <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-orders">
             <div className="flex items-center gap-3">
               <Package className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Мои заказы</span>
+              <span className="font-medium">История заказов</span>
             </div>
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
           </button>
@@ -801,6 +875,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
               <span className="font-medium text-red-400">Выйти</span>
             </div>
           </button>
+          </div>
         </div>
       </div>
     );

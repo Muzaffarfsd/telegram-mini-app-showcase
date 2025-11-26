@@ -13,8 +13,10 @@ import {
   Phone,
   Mail,
   ChevronLeft,
-  Check
+  Check,
+  Package
 } from "lucide-react";
+import { ConfirmDrawer } from "../ui/modern-drawer";
 
 interface BeautyProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -28,6 +30,14 @@ interface Booking {
   time: string;
   price: number;
   image: string;
+}
+
+interface Order {
+  id: number;
+  items: Booking[];
+  total: number;
+  date: string;
+  status: 'processing' | 'shipped' | 'delivered';
 }
 
 interface Service {
@@ -99,8 +109,10 @@ const collections = [
 export default memo(function Beauty({ activeTab }: BeautyProps) {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
 
   useEffect(() => {
     if (activeTab !== 'catalog') {
@@ -152,6 +164,24 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
     }).format(price);
   };
 
+  const handleCheckout = () => {
+    if (bookings.length === 0) return;
+    
+    const total = bookings.reduce((sum, booking) => sum + booking.price, 0);
+    const newOrder: Order = {
+      id: Date.now(),
+      items: [...bookings],
+      total: total,
+      date: new Date().toLocaleDateString('ru-RU'),
+      status: 'processing'
+    };
+    
+    setOrders([newOrder, ...orders]);
+    setBookings([]);
+    setShowCheckoutSuccess(true);
+    setTimeout(() => setShowCheckoutSuccess(false), 3000);
+  };
+
   // SERVICE DETAIL PAGE
   if (activeTab === 'catalog' && selectedService) {
     return (
@@ -160,7 +190,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
           <button 
             onClick={() => setSelectedService(null)}
             className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
-            data-testid="button-back-to-catalog"
+            data-testid="button-back"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -170,7 +200,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
               toggleFavorite(selectedService.id);
             }}
             className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
-            data-testid="button-favorite-service"
+            data-testid={`button-favorite-${selectedService.id}`}
           >
             <Heart 
               className={`w-5 h-5 ${favorites.has(selectedService.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`}
@@ -313,13 +343,13 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                 <Sparkles className="w-5 h-5 text-pink-400" />
                 <h3 className="text-xl font-bold">Популярное</h3>
               </div>
-              <button className="text-sm text-white/60 hover:text-white transition-colors">
+              <button className="text-sm text-white/60 hover:text-white transition-colors" data-testid="button-view-all-popular">
                 Все
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {services.filter(s => s.isPopular).slice(0, 4).map((service) => (
+              {services.filter(s => s.isPopular).slice(0, 4).map((service, idx) => (
                 <m.div
                   key={service.id}
                   whileTap={{ scale: 0.97 }}
@@ -389,7 +419,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24">
         <div className="p-6 pb-4">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-xl font-bold">Услуги</h1>
             <Sparkles className="w-6 h-6 text-pink-400" />
           </div>
@@ -422,7 +452,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                     ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white'
                     : 'bg-white/10 text-white/70 hover:bg-white/20 backdrop-blur-xl'
                 }`}
-                data-testid={`button-category-${cat}`}
+                data-testid={`button-filter-${cat.toLowerCase()}`}
               >
                 {cat}
               </button>
@@ -431,7 +461,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
 
           {/* Services Grid */}
           <div className="grid grid-cols-2 gap-4">
-            {filteredServices.map((service) => (
+            {filteredServices.map((service, idx) => (
               <m.div
                 key={service.id}
                 whileTap={{ scale: 0.97 }}
@@ -485,6 +515,8 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
 
   // CART (BOOKINGS) PAGE
   if (activeTab === 'cart') {
+    const total = bookings.reduce((sum, booking) => sum + booking.price, 0);
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-32">
         <div className="p-6">
@@ -496,33 +528,65 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
               <p className="text-white/60 mb-4">У вас пока нет записей</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {bookings.map((booking) => (
-                <div key={booking.id} className="flex gap-4 bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
-                  <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
-                    <img
-                      src={booking.image}
-                      alt={booking.serviceName}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
+            <>
+              <div className="space-y-4 mb-24">
+                {bookings.map((booking) => (
+                  <div key={booking.id} className="flex gap-4 bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                    <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
+                      <img
+                        src={booking.image}
+                        alt={booking.serviceName}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold mb-1">{booking.serviceName}</h3>
+                      <p className="text-sm text-white/60 mb-1">{booking.specialist}</p>
+                      <p className="text-xs text-white/50 mb-2">{booking.date} • {booking.time}</p>
+                      <p className="font-bold text-pink-400">{formatPrice(booking.price)}</p>
+                    </div>
+                    <button
+                      onClick={() => setBookings(bookings.filter(b => b.id !== booking.id))}
+                      className="p-2 h-fit hover:bg-white/10 rounded-lg transition-colors"
+                      data-testid={`button-cancel-${booking.id}`}
+                    >
+                      <X className="w-5 h-5 text-white/40" />
+                    </button>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-1">{booking.serviceName}</h3>
-                    <p className="text-sm text-white/60 mb-1">{booking.specialist}</p>
-                    <p className="text-xs text-white/50 mb-2">{booking.date} • {booking.time}</p>
-                    <p className="font-bold text-pink-400">{formatPrice(booking.price)}</p>
+                ))}
+              </div>
+
+              <div className="fixed bottom-24 left-0 right-0 bg-black/60 backdrop-blur-xl border-t border-white/10 p-6">
+                <div className="max-w-md mx-auto">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-lg">Итого:</span>
+                    <span className="text-2xl font-bold text-pink-400">{formatPrice(total)}</span>
                   </div>
-                  <button
-                    onClick={() => setBookings(bookings.filter(b => b.id !== booking.id))}
-                    className="p-2 h-fit hover:bg-white/10 rounded-lg transition-colors"
-                    data-testid={`button-cancel-${booking.id}`}
-                  >
-                    <X className="w-5 h-5 text-white/40" />
-                  </button>
+                  <ConfirmDrawer
+                    trigger={
+                      <button
+                        className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold py-4 rounded-xl hover:shadow-lg hover:shadow-pink-500/50 transition-all"
+                        data-testid="button-checkout"
+                      >
+                        Подтвердить записи
+                      </button>
+                    }
+                    title="Подтвердить записи?"
+                    description={`${bookings.length} услуг на сумму ${formatPrice(total)}`}
+                    confirmText="Подтвердить"
+                    cancelText="Отмена"
+                    variant="default"
+                    onConfirm={handleCheckout}
+                  />
                 </div>
-              ))}
-            </div>
+              </div>
+              {showCheckoutSuccess && (
+                <div className="fixed top-20 left-4 right-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4 rounded-2xl text-center font-bold z-50 animate-pulse">
+                  Записи успешно подтверждены!
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -549,8 +613,8 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 text-center border border-white/10">
               <Calendar className="w-6 h-6 mx-auto mb-2 text-pink-400" />
-              <p className="text-2xl font-bold mb-1">{bookings.length}</p>
-              <p className="text-xs text-white/60">Записей</p>
+              <p className="text-2xl font-bold mb-1">{orders.length}</p>
+              <p className="text-xs text-white/60">Заказов</p>
             </div>
             <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 text-center border border-white/10">
               <Heart className="w-6 h-6 mx-auto mb-2 text-pink-400" />
@@ -564,10 +628,40 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
             </div>
           </div>
 
+          <div className="scroll-fade-in mb-6">
+            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
+            {orders.length === 0 ? (
+              <div className="text-center py-8 text-white/50">
+                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>У вас пока нет заказов</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm text-white/70">Заказ #{order.id.toString().slice(-6)}</span>
+                      <span className="text-sm text-white/70">{order.date}</span>
+                    </div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-white/80">{order.items.length} услуг</span>
+                      <span className="font-bold text-pink-400">{formatPrice(order.total)}</span>
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-xs px-2 py-1 bg-pink-500/20 text-pink-400 rounded-full">
+                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Выполняется' : 'Завершено'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="space-y-2">
             <button className="w-full flex items-center gap-4 bg-white/5 backdrop-blur-xl rounded-2xl p-4 hover:bg-white/10 transition-all border border-white/10" data-testid="button-my-bookings">
-              <Calendar className="w-5 h-5 text-pink-400" />
-              <span className="flex-1 text-left font-medium">Мои записи</span>
+              <Package className="w-5 h-5 text-pink-400" />
+              <span className="flex-1 text-left font-medium">История заказов</span>
               <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
             </button>
 

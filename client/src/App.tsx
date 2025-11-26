@@ -294,7 +294,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <Suspense fallback={null}>
         <LazyMotionProvider>
           <RewardsProvider>
             <XPNotificationProvider>

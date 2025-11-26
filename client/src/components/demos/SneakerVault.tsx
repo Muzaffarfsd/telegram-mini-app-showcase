@@ -25,6 +25,14 @@ interface CartItem {
   brand: string;
 }
 
+interface Order {
+  id: number;
+  items: CartItem[];
+  total: number;
+  date: string;
+  status: 'processing' | 'shipped' | 'delivered';
+}
+
 interface Sneaker {
   id: number;
   name: string;
@@ -190,6 +198,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
   const [selectedGender, setSelectedGender] = useState<string>('All');
 
@@ -259,6 +268,23 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
     }).format(price);
   };
 
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    
+    const newOrder: Order = {
+      id: Date.now(),
+      items: [...cart],
+      total: cartTotal,
+      date: new Date().toLocaleDateString('ru-RU'),
+      status: 'processing'
+    };
+    
+    setOrders([newOrder, ...orders]);
+    setCart([]);
+  };
+
   // PRODUCT DETAIL PAGE
   if (activeTab === 'catalog' && selectedSneaker) {
     return (
@@ -267,7 +293,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
           <button 
             onClick={() => setSelectedSneaker(null)}
             className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center border border-white/20"
-            data-testid="button-back-to-catalog"
+            data-testid="button-back"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -277,7 +303,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
               toggleFavorite(selectedSneaker.id);
             }}
             className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center border border-white/20"
-            data-testid="button-favorite-product"
+            data-testid={`button-favorite-${selectedSneaker.id}`}
           >
             <Heart 
               className={`w-5 h-5 ${favorites.has(selectedSneaker.id) ? 'fill-white text-white' : 'text-white'}`}
@@ -355,16 +381,16 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         {/* Header */}
         <div className="p-6 pb-4">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <Menu className="w-6 h-6" data-testid="button-menu" />
             <div className="flex items-center gap-3">
-              <ShoppingBag className="w-6 h-6" data-testid="button-cart" />
-              <Heart className="w-6 h-6" data-testid="button-favorites" />
+              <ShoppingBag className="w-6 h-6" data-testid="button-view-cart" />
+              <Heart className="w-6 h-6" data-testid="button-view-favorites" />
             </div>
           </div>
 
           {/* Title */}
-          <div className="mb-6">
+          <div className="mb-6 scroll-fade-in">
             <h1 className="text-4xl font-black mb-1 tracking-tight">
               SNEAKER<br/>
               VAULT
@@ -372,10 +398,10 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
           </div>
 
           {/* Gender Filters */}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-6 scroll-fade-in">
             <button 
               className="p-2 bg-[#CDFF38] rounded-full"
-              data-testid="button-home"
+              data-testid="button-view-home"
             >
               <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
@@ -391,7 +417,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
                     ? 'text-white font-bold'
                     : 'text-white/40'
                 }`}
-                data-testid={`button-gender-${gender}`}
+                data-testid={`button-filter-${gender.toLowerCase()}`}
               >
                 {gender}
                 {selectedGender === gender && (
@@ -416,7 +442,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
         </div>
 
         {/* Video Hero Banner */}
-        <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden" style={{ height: '500px' }}>
+        <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden scroll-fade-in" style={{ height: '500px' }}>
           <video
             autoPlay
             loop
@@ -468,7 +494,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
               onClick={() => openSneaker(sneaker)}
-              className="relative cursor-pointer group rounded-3xl overflow-hidden"
+              className={`relative cursor-pointer group rounded-3xl overflow-hidden ${idx === 0 ? 'scroll-fade-in' : ''}`}
               style={{ height: idx === 0 ? '400px' : '320px' }}
               data-testid={`featured-sneaker-${sneaker.id}`}
             >
@@ -501,7 +527,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
                   toggleFavorite(sneaker.id);
                 }}
                 className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/60 backdrop-blur-xl flex items-center justify-center border border-white/20"
-                data-testid={`button-favorite-home-${sneaker.id}`}
+                data-testid={`button-favorite-${sneaker.id}`}
               >
                 <Heart 
                   className={`w-5 h-5 ${favorites.has(sneaker.id) ? 'fill-white text-white' : 'text-white'}`}
@@ -526,7 +552,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
                       openSneaker(sneaker);
                     }}
                     className="w-14 h-14 rounded-full bg-[#CDFF38] flex items-center justify-center hover:bg-[#B8E633] transition-all hover:scale-110"
-                    data-testid={`button-buy-${sneaker.id}`}
+                    data-testid={`button-add-to-cart-${sneaker.id}`}
                   >
                     <ShoppingBag className="w-6 h-6 text-black" />
                   </button>
@@ -552,13 +578,13 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
             <div className="flex items-center gap-3">
-              <button className="p-2" data-testid="button-search">
+              <button className="p-2" data-testid="button-view-search">
                 <Search className="w-6 h-6" />
               </button>
-              <button className="p-2" data-testid="button-filter">
+              <button className="p-2" data-testid="button-view-filter">
                 <Filter className="w-6 h-6" />
               </button>
             </div>
@@ -575,7 +601,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
                     ? 'bg-[#CDFF38] text-black'
                     : 'bg-black/40 text-white/70 hover:bg-black/60 border border-white/20'
                 }`}
-                data-testid={`button-category-${cat}`}
+                data-testid={`button-filter-${cat.toLowerCase()}`}
               >
                 {cat}
               </button>
@@ -584,12 +610,12 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
 
           {/* Sneakers Grid */}
           <div className="grid grid-cols-2 gap-4">
-            {filteredSneakers.map((sneaker) => (
+            {filteredSneakers.map((sneaker, index) => (
               <m.div
                 key={sneaker.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openSneaker(sneaker)}
-                className="relative cursor-pointer"
+                className={`relative cursor-pointer ${index < 4 ? '' : `scroll-fade-in-delay-${Math.min((index - 4) % 3 + 1, 3)}`}`}
                 data-testid={`sneaker-card-${sneaker.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-black/40 border border-white/10">
@@ -607,7 +633,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
                       toggleFavorite(sneaker.id);
                     }}
                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 backdrop-blur-xl flex items-center justify-center border border-white/20"
-                    data-testid={`button-favorite-catalog-${sneaker.id}`}
+                    data-testid={`button-favorite-${sneaker.id}`}
                   >
                     <Heart 
                       className={`w-4 h-4 ${favorites.has(sneaker.id) ? 'fill-white text-white' : 'text-white'}`}
@@ -690,14 +716,24 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
               <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#0A0A0A] border-t border-white/10">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold">{formatPrice(total)}</span>
+                  <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
                 </div>
-                <button
-                  className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
-                  data-testid="button-checkout"
-                >
-                  Оформить заказ
-                </button>
+                <ConfirmDrawer
+                  trigger={
+                    <button
+                      className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
+                      data-testid="button-checkout"
+                    >
+                      Оформить заказ
+                    </button>
+                  }
+                  title="Оформить заказ?"
+                  description={`${cart.length} товаров на сумму ${formatPrice(cartTotal)}`}
+                  confirmText="Подтвердить"
+                  cancelText="Отмена"
+                  variant="default"
+                  onConfirm={handleCheckout}
+                />
               </div>
             </div>
           )}
@@ -724,7 +760,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{cart.length}</p>
+              <p className="text-2xl font-bold">{orders.length}</p>
             </div>
             <div className="p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Избранное</p>
@@ -733,53 +769,77 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
           </div>
         </div>
 
-        <div className="p-4 space-y-2">
-          <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-orders">
-            <div className="flex items-center gap-3">
-              <Package className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Мои заказы</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
+        <div className="p-4 space-y-4">
+          <div className="scroll-fade-in">
+            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
+            {orders.length === 0 ? (
+              <div className="text-center py-8 text-white/50">
+                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>У вас пока нет заказов</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-black/40 backdrop-blur-xl rounded-xl p-4 border border-white/10" data-testid={`order-${order.id}`}>
+                    <div className="flex justify-between gap-2 mb-2">
+                      <span className="text-white/80">Заказ #{order.id.toString().slice(-6)}</span>
+                      <span className="text-white/60">{order.date}</span>
+                    </div>
+                    <div className="flex justify-between gap-2 mb-2">
+                      <span className="text-white/60">{order.items.length} товаров</span>
+                      <span className="font-bold text-[#CDFF38]">{formatPrice(order.total)}</span>
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
+                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-          <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
-            <div className="flex items-center gap-3">
-              <Heart className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Избранное</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
+          <div className="space-y-2">
+            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
+              <div className="flex items-center gap-3">
+                <Heart className="w-5 h-5 text-white/70" />
+                <span className="font-medium">Избранное</span>
+              </div>
+              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+            </button>
 
-          <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
-            <div className="flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Способы оплаты</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
+            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
+              <div className="flex items-center gap-3">
+                <CreditCard className="w-5 h-5 text-white/70" />
+                <span className="font-medium">Способы оплаты</span>
+              </div>
+              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+            </button>
 
-          <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-address">
-            <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Адреса доставки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
+            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-address">
+              <div className="flex items-center gap-3">
+                <MapPin className="w-5 h-5 text-white/70" />
+                <span className="font-medium">Адреса доставки</span>
+              </div>
+              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+            </button>
 
-          <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
-            <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Настройки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
+            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
+              <div className="flex items-center gap-3">
+                <Settings className="w-5 h-5 text-white/70" />
+                <span className="font-medium">Настройки</span>
+              </div>
+              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+            </button>
 
-          <button className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover-elevate active-elevate-2 mt-4" data-testid="button-logout">
-            <div className="flex items-center gap-3">
-              <LogOut className="w-5 h-5 text-red-400" />
-              <span className="font-medium text-red-400">Выйти</span>
-            </div>
-          </button>
+            <button className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover-elevate active-elevate-2 mt-4" data-testid="button-logout">
+              <div className="flex items-center gap-3">
+                <LogOut className="w-5 h-5 text-red-400" />
+                <span className="font-medium text-red-400">Выйти</span>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     );

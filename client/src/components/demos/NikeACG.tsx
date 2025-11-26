@@ -1,6 +1,7 @@
 import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Search, Menu, ChevronUp, ChevronDown } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Search, Menu, ChevronUp, ChevronDown, Check } from "lucide-react";
+import { ConfirmDrawer } from "../ui/modern-drawer";
 import img1 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
 import img2 from '@assets/stock_images/futuristic_techwear__737df842.jpg';
 import img3 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
@@ -24,6 +25,14 @@ interface CartItem {
   quantity: number;
   image: string;
   color: string;
+}
+
+interface Order {
+  id: number;
+  items: CartItem[];
+  total: number;
+  date: string;
+  status: 'processing' | 'shipped' | 'delivered';
 }
 
 interface Product {
@@ -203,6 +212,11 @@ const products: Product[] = [
 
 const categories = ['Все', 'Верхняя одежда', 'Обувь', 'Аксессуары'];
 
+const getDelayClass = (index: number) => {
+  const delays = ['scroll-fade-in', 'scroll-fade-in-delay-1', 'scroll-fade-in-delay-2', 'scroll-fade-in-delay-3', 'scroll-fade-in-delay-4', 'scroll-fade-in-delay-5'];
+  return delays[index % delays.length];
+};
+
 function NikeACG({ activeTab }: NikeACGProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
@@ -210,6 +224,8 @@ function NikeACG({ activeTab }: NikeACGProps) {
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [showOrderSuccess, setShowOrderSuccess] = useState(false);
 
   useEffect(() => {
     if (activeTab !== 'catalog') {
@@ -255,6 +271,22 @@ function NikeACG({ activeTab }: NikeACGProps) {
     setSelectedProduct(null);
   };
 
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    
+    const newOrder: Order = {
+      id: Date.now(),
+      items: [...cart],
+      total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      date: new Date().toLocaleDateString('ru-RU'),
+      status: 'processing'
+    };
+    
+    setOrders([newOrder, ...orders]);
+    setCart([]);
+    setShowOrderSuccess(true);
+  };
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ru-RU', {
       style: 'currency',
@@ -274,7 +306,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
           <button 
             onClick={() => setSelectedProduct(null)}
             className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-all"
-            data-testid="button-back-to-catalog"
+            data-testid="button-back"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -284,7 +316,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
               toggleFavorite(selectedProduct.id);
             }}
             className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-all"
-            data-testid="button-favorite-product"
+            data-testid={`button-favorite-${selectedProduct.id}`}
           >
             <Heart 
               className={`w-5 h-5 ${favorites.has(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
@@ -292,7 +324,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
           </button>
         </div>
 
-        <div className="relative h-[60vh]">
+        <div className="relative h-[60vh] scroll-fade-in">
           <img
             src={selectedProduct.hoverImage}
             alt={selectedProduct.name}
@@ -302,7 +334,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
         </div>
 
-        <div className="bg-[#2D3748] rounded-t-3xl p-6 space-y-6 pb-32 -mt-8 relative z-10">
+        <div className="bg-[#2D3748] rounded-t-3xl p-6 space-y-6 pb-32 -mt-8 relative z-10 scroll-fade-in-delay-1">
           <div className="text-center">
             <div className="text-xs font-bold tracking-[0.2em] text-white/60 mb-2">NIKE ACG</div>
             <h2 className="text-3xl font-black mb-3 tracking-tight">{selectedProduct.name}</h2>
@@ -320,9 +352,9 @@ function NikeACG({ activeTab }: NikeACGProps) {
             </div>
           </div>
 
-          <p className="text-sm text-white/80 text-center leading-relaxed">{selectedProduct.description}</p>
+          <p className="text-sm text-white/80 text-center leading-relaxed scroll-fade-in-delay-2">{selectedProduct.description}</p>
 
-          <div>
+          <div className="scroll-fade-in-delay-3">
             <p className="text-xs font-bold mb-3 text-white/70 text-center tracking-widest">ЦВЕТ:</p>
             <div className="flex items-center justify-center gap-3">
               {selectedProduct.colors.map((color, idx) => (
@@ -341,7 +373,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
             </div>
           </div>
 
-          <div>
+          <div className="scroll-fade-in-delay-4">
             <p className="text-xs font-bold mb-3 text-white/70 text-center tracking-widest">РАЗМЕР:</p>
             <div className="flex items-center justify-center gap-2 flex-wrap">
               {selectedProduct.sizes.map((size) => (
@@ -363,8 +395,8 @@ function NikeACG({ activeTab }: NikeACGProps) {
 
           <button
             onClick={addToCart}
-            className="w-full bg-white text-black font-black py-5 rounded-full hover:bg-white/90 transition-all text-lg tracking-wider shadow-xl"
-            data-testid="button-buy-now"
+            className="w-full bg-white text-black font-black py-5 rounded-full hover:bg-white/90 transition-all text-lg tracking-wider shadow-xl scroll-fade-in-delay-5"
+            data-testid={`button-add-to-cart-${selectedProduct.id}`}
           >
             ДОБАВИТЬ В КОРЗИНУ
           </button>
@@ -377,8 +409,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
   if (activeTab === 'home') {
     return (
       <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-24">
-        {/* Hero Section */}
-        <div className="relative h-screen">
+        <div className="relative h-screen scroll-fade-in">
           <div className="absolute inset-0">
             <img
               src={img1}
@@ -388,7 +419,6 @@ function NikeACG({ activeTab }: NikeACGProps) {
             <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[#2D3748]"></div>
           </div>
 
-          {/* Hero Content */}
           <div className="relative h-full flex flex-col items-center justify-center p-8">
             <m.div
               initial={{ opacity: 0, y: 30 }}
@@ -406,19 +436,20 @@ function NikeACG({ activeTab }: NikeACGProps) {
               <p className="text-lg text-white/70 mb-12 max-w-md mx-auto tracking-wide">
                 All Conditions Gear для экстремальных приключений
               </p>
-              <button className="px-10 py-5 bg-white text-black font-black rounded-full text-lg hover:bg-white/90 transition-all shadow-2xl tracking-wider">
+              <button 
+                className="px-10 py-5 bg-white text-black font-black rounded-full text-lg hover:bg-white/90 transition-all shadow-2xl tracking-wider"
+                data-testid="button-view-explore"
+              >
                 ИССЛЕДОВАТЬ
               </button>
             </m.div>
           </div>
 
-          {/* Scroll Indicator */}
           <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 animate-bounce">
             <ChevronDown className="w-8 h-8 text-white/50" />
           </div>
         </div>
 
-        {/* Featured Collections - Black/White Alternating Cards */}
         <div className="px-6 py-12 space-y-6">
           {[
             { 
@@ -447,15 +478,14 @@ function NikeACG({ activeTab }: NikeACGProps) {
               viewport={{ once: true }}
               transition={{ delay: idx * 0.2 }}
               onClick={() => openProduct(item.product)}
-              className="relative cursor-pointer rounded-3xl overflow-hidden shadow-2xl"
+              className="relative cursor-pointer rounded-3xl overflow-hidden shadow-2xl scroll-fade-in"
               style={{ 
                 backgroundColor: item.bg,
                 minHeight: '500px'
               }}
-              data-testid={`featured-card-${item.product.id}`}
+              data-testid={`card-product-${item.product.id}`}
             >
               <div className="grid grid-cols-2 h-full">
-                {/* Image Side */}
                 <div className="relative h-[500px]">
                   <img
                     src={item.product.image}
@@ -472,7 +502,6 @@ function NikeACG({ activeTab }: NikeACGProps) {
                   ></div>
                 </div>
 
-                {/* Content Side */}
                 <div className="flex flex-col justify-center p-8" style={{ color: item.text }}>
                   <div className="text-xs font-bold tracking-[0.3em] mb-4 opacity-60">
                     {item.label}
@@ -496,13 +525,13 @@ function NikeACG({ activeTab }: NikeACGProps) {
                       backgroundColor: item.text,
                       color: item.bg
                     }}
+                    data-testid={`button-add-to-cart-${item.product.id}`}
                   >
                     КУПИТЬ
                   </button>
                 </div>
               </div>
 
-              {/* Favorite Button */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -512,7 +541,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
                 style={{ 
                   backgroundColor: item.bg === '#FFFFFF' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' 
                 }}
-                data-testid={`button-favorite-home-${item.product.id}`}
+                data-testid={`button-favorite-${item.product.id}`}
               >
                 <Heart 
                   className={`w-5 h-5 ${favorites.has(item.product.id) ? 'fill-current' : ''}`}
@@ -523,17 +552,16 @@ function NikeACG({ activeTab }: NikeACGProps) {
           ))}
         </div>
 
-        {/* All Products Grid */}
         <div className="px-6 pb-12">
-          <h2 className="text-3xl font-black mb-8 tracking-tight">ВСЕ ПРОДУКТЫ</h2>
+          <h2 className="text-3xl font-black mb-8 tracking-tight scroll-fade-in">ВСЕ ПРОДУКТЫ</h2>
           <div className="grid grid-cols-2 gap-4">
-            {products.slice(3).map((product) => (
+            {products.slice(3).map((product, idx) => (
               <m.div
                 key={product.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openProduct(product)}
-                className="relative cursor-pointer"
-                data-testid={`product-mini-${product.id}`}
+                className={`relative cursor-pointer ${getDelayClass(idx)}`}
+                data-testid={`card-product-${product.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-3 bg-black/20">
                   <img
@@ -549,7 +577,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
                       toggleFavorite(product.id);
                     }}
                     className="absolute top-2 right-2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center"
-                    data-testid={`button-favorite-grid-${product.id}`}
+                    data-testid={`button-favorite-${product.id}`}
                   >
                     <Heart 
                       className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
@@ -581,23 +609,22 @@ function NikeACG({ activeTab }: NikeACGProps) {
     return (
       <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-24">
         <div className="p-6">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-8 scroll-fade-in">
             <div>
               <div className="text-xs font-bold tracking-[0.3em] text-white/60 mb-1">NIKE</div>
               <h1 className="text-3xl font-black tracking-tight">ACG カタログ</h1>
             </div>
             <div className="flex items-center gap-3">
-              <button className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-all" data-testid="button-search">
+              <button className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-all" data-testid="button-view-search">
                 <Search className="w-5 h-5" />
               </button>
-              <button className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-all" data-testid="button-filter">
+              <button className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-all" data-testid="button-view-filter">
                 <Filter className="w-5 h-5" />
               </button>
             </div>
           </div>
 
-          {/* Vertical Navigation with Round Buttons */}
-          <div className="flex flex-col gap-3 mb-8">
+          <div className="flex flex-col gap-3 mb-8 scroll-fade-in">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -607,7 +634,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
                     ? 'bg-white text-black shadow-lg'
                     : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/20'
                 }`}
-                data-testid={`button-category-${cat}`}
+                data-testid={`button-filter-${cat.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 <div className="flex items-center justify-between">
                   <span className="tracking-wider">{cat}</span>
@@ -619,15 +646,14 @@ function NikeACG({ activeTab }: NikeACGProps) {
             ))}
           </div>
 
-          {/* Products Grid */}
           <div className="grid grid-cols-2 gap-5">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product, idx) => (
               <m.div
                 key={product.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openProduct(product)}
-                className="relative cursor-pointer"
-                data-testid={`product-card-${product.id}`}
+                className={`relative cursor-pointer ${idx < 4 ? 'scroll-fade-in' : getDelayClass(idx)}`}
+                data-testid={`card-product-${product.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-3 bg-black/20">
                   <img
@@ -643,7 +669,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
                       toggleFavorite(product.id);
                     }}
                     className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center hover:bg-black/70 transition-all"
-                    data-testid={`button-favorite-catalog-${product.id}`}
+                    data-testid={`button-favorite-${product.id}`}
                   >
                     <Heart 
                       className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
@@ -688,13 +714,13 @@ function NikeACG({ activeTab }: NikeACGProps) {
     return (
       <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-32">
         <div className="p-6">
-          <div className="mb-8">
+          <div className="mb-8 scroll-fade-in">
             <div className="text-xs font-bold tracking-[0.3em] text-white/60 mb-1">NIKE ACG</div>
             <h1 className="text-3xl font-black tracking-tight">カート</h1>
           </div>
 
           {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
+            <div className="flex flex-col items-center justify-center py-20 scroll-fade-in-delay-1">
               <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center mb-6">
                 <ShoppingBag className="w-12 h-12 text-white/30" />
               </div>
@@ -703,10 +729,10 @@ function NikeACG({ activeTab }: NikeACGProps) {
             </div>
           ) : (
             <div className="space-y-4">
-              {cart.map((item) => (
+              {cart.map((item, idx) => (
                 <div
                   key={item.id}
-                  className="bg-black/20 backdrop-blur-xl rounded-2xl p-5 flex gap-4 border border-white/10"
+                  className={`bg-black/20 backdrop-blur-xl rounded-2xl p-5 flex gap-4 border border-white/10 ${idx < 2 ? 'scroll-fade-in' : getDelayClass(idx)}`}
                   data-testid={`cart-item-${item.id}`}
                 >
                   <img
@@ -738,13 +764,36 @@ function NikeACG({ activeTab }: NikeACGProps) {
                   <span className="text-lg font-bold tracking-wider">ИТОГО:</span>
                   <span className="text-3xl font-black">{formatPrice(total)}</span>
                 </div>
-                <button
-                  className="w-full bg-white text-black font-black py-5 rounded-full hover:bg-white/90 transition-all text-lg tracking-widest shadow-xl"
-                  data-testid="button-checkout"
-                >
-                  ОФОРМИТЬ ЗАКАЗ
-                </button>
+                <ConfirmDrawer
+                  trigger={
+                    <button
+                      className="w-full bg-white text-black font-black py-5 rounded-full hover:bg-white/90 transition-all text-lg tracking-widest shadow-xl"
+                      data-testid="button-checkout"
+                    >
+                      ОФОРМИТЬ ЗАКАЗ
+                    </button>
+                  }
+                  title="Оформить заказ?"
+                  description={`${cart.length} товаров на сумму ${formatPrice(total)}`}
+                  confirmText="Подтвердить"
+                  cancelText="Отмена"
+                  variant="default"
+                  onConfirm={handleCheckout}
+                />
               </div>
+
+              <ConfirmDrawer
+                open={showOrderSuccess}
+                onOpenChange={setShowOrderSuccess}
+                trigger={<span />}
+                title="Заказ оформлен!"
+                description="Ваш заказ успешно создан и передан в обработку. Вы можете отслеживать статус в разделе 'Мои заказы'"
+                confirmText="Отлично"
+                cancelText=""
+                variant="default"
+                onConfirm={() => setShowOrderSuccess(false)}
+                icon={<Check className="w-8 h-8 text-emerald-400" />}
+              />
             </div>
           )}
         </div>
@@ -756,7 +805,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
   if (activeTab === 'profile') {
     return (
       <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-24">
-        <div className="p-6 bg-black/20 backdrop-blur-xl border-b border-white/10">
+        <div className="p-6 bg-black/20 backdrop-blur-xl border-b border-white/10 scroll-fade-in">
           <div className="flex items-center gap-5 mb-8">
             <div className="w-20 h-20 bg-gradient-to-br from-white to-gray-300 rounded-full flex items-center justify-center">
               <User className="w-10 h-10 text-black" />
@@ -769,19 +818,49 @@ function NikeACG({ activeTab }: NikeACGProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20">
+            <div className="p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 scroll-fade-in">
               <p className="text-xs text-white/60 mb-2 font-bold tracking-widest">ЗАКАЗЫ</p>
-              <p className="text-3xl font-black">{cart.length}</p>
+              <p className="text-3xl font-black">{orders.length}</p>
             </div>
-            <div className="p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20">
+            <div className="p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 scroll-fade-in">
               <p className="text-xs text-white/60 mb-2 font-bold tracking-widest">ИЗБРАННОЕ</p>
               <p className="text-3xl font-black">{favorites.size}</p>
             </div>
           </div>
         </div>
 
+        <div className="p-6 scroll-fade-in">
+          <h3 className="text-lg font-black mb-4 tracking-wide">МОИ ЗАКАЗЫ</h3>
+          {orders.length === 0 ? (
+            <div className="text-center py-8 text-white/50">
+              <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p>У вас пока нет заказов</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {orders.map((order) => (
+                <div key={order.id} className="bg-white/10 backdrop-blur-xl rounded-2xl p-5 border border-white/20" data-testid={`order-${order.id}`}>
+                  <div className="flex justify-between gap-2 mb-2">
+                    <span className="text-sm font-bold">Заказ #{order.id.toString().slice(-6)}</span>
+                    <span className="text-white/60 text-sm">{order.date}</span>
+                  </div>
+                  <div className="flex justify-between gap-2 mb-3">
+                    <span className="text-white/70">{order.items.length} товаров</span>
+                    <span className="font-black text-lg">{formatPrice(order.total)}</span>
+                  </div>
+                  <div>
+                    <span className="text-xs px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full font-bold">
+                      {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="p-6 space-y-3">
-          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all" data-testid="button-orders">
+          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-1" data-testid="button-view-orders">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                 <Package className="w-5 h-5" />
@@ -791,7 +870,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
           </button>
 
-          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all" data-testid="button-favorites">
+          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-2" data-testid="button-view-favorites">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                 <Heart className="w-5 h-5" />
@@ -801,7 +880,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
           </button>
 
-          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all" data-testid="button-payment">
+          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-3" data-testid="button-view-payment">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                 <CreditCard className="w-5 h-5" />
@@ -811,7 +890,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
           </button>
 
-          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all" data-testid="button-address">
+          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-4" data-testid="button-view-address">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                 <MapPin className="w-5 h-5" />
@@ -821,7 +900,7 @@ function NikeACG({ activeTab }: NikeACGProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
           </button>
 
-          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all" data-testid="button-settings">
+          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-5" data-testid="button-view-settings">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                 <Settings className="w-5 h-5" />

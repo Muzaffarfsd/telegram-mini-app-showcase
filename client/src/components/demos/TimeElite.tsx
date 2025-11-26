@@ -5,7 +5,14 @@ import {
   X, 
   Watch,
   Award,
-  TrendingUp
+  TrendingUp,
+  Package,
+  User,
+  CreditCard,
+  MapPin,
+  Settings,
+  LogOut,
+  ChevronLeft
 } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
@@ -13,6 +20,23 @@ import { ConfirmDrawer } from "../ui/modern-drawer";
 
 interface TimeEliteProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+interface CartItem {
+  id: number;
+  name: string;
+  brand: string;
+  price: number;
+  image: string;
+  quantity: number;
+}
+
+interface Order {
+  id: number;
+  items: CartItem[];
+  total: number;
+  date: string;
+  status: 'processing' | 'shipped' | 'delivered';
 }
 
 const products = [
@@ -45,6 +69,8 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [favorites, setFavorites] = useState<number[]>([1, 4, 11]);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   // Preload first 6 product images for instant visibility
   useImagePreloader({
@@ -70,6 +96,45 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
     );
   };
 
+  const addToCart = (product: typeof products[0]) => {
+    const cartItem: CartItem = {
+      id: Date.now(),
+      name: product.name,
+      brand: product.brand,
+      price: product.price,
+      image: product.image,
+      quantity: 1
+    };
+    setCart([...cart, cartItem]);
+    closeProductModal();
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    
+    const newOrder: Order = {
+      id: Date.now(),
+      items: [...cart],
+      total: cartTotal,
+      date: new Date().toLocaleDateString('ru-RU'),
+      status: 'processing'
+    };
+    
+    setOrders([newOrder, ...orders]);
+    setCart([]);
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
   const filteredProducts = selectedCategory === 'Все' 
     ? products 
     : products.filter(p => p.category === selectedCategory);
@@ -79,7 +144,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
     <div className="min-h-screen bg-white font-montserrat pb-24">
       <div className="max-w-md mx-auto px-4 py-8 space-y-8">
         {/* Minimalist Header */}
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-4 scroll-fade-in">
           <div className="w-20 h-20 bg-gradient-to-br from-yellow-600 to-amber-700 rounded-3xl mx-auto flex items-center justify-center shadow-lg">
             <Watch className="w-10 h-10 text-white" strokeWidth={2} />
           </div>
@@ -90,7 +155,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
         </div>
 
         {/* Hero Section */}
-        <div className="relative bg-gradient-to-br from-yellow-600 to-amber-700 rounded-3xl p-8 text-white overflow-hidden">
+        <div className="relative bg-gradient-to-br from-yellow-600 to-amber-700 rounded-3xl p-8 text-white overflow-hidden scroll-fade-in">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
           <div className="relative z-10">
@@ -108,15 +173,15 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
 
         {/* Categories Grid */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between scroll-fade-in">
             <h2 className="text-2xl font-bold text-gray-900">Бренды</h2>
             <TrendingUp className="w-5 h-5 text-yellow-600" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div 
-              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer"
+              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer scroll-fade-in"
               onClick={() => setSelectedCategory('Rolex')}
-              data-testid="category-rolex"
+              data-testid="button-filter-rolex"
             >
               <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Award className="w-6 h-6 text-white" />
@@ -126,9 +191,9 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
             </div>
 
             <div 
-              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer"
+              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer scroll-fade-in"
               onClick={() => setSelectedCategory('Omega')}
-              data-testid="category-omega"
+              data-testid="button-filter-omega"
             >
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Star className="w-6 h-6 text-white" />
@@ -138,9 +203,9 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
             </div>
 
             <div 
-              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer"
+              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer scroll-fade-in"
               onClick={() => setSelectedCategory('Cartier')}
-              data-testid="category-cartier"
+              data-testid="button-filter-cartier"
             >
               <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Heart className="w-6 h-6 text-white" />
@@ -150,9 +215,9 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
             </div>
 
             <div 
-              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer"
+              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer scroll-fade-in"
               onClick={() => setSelectedCategory('Patek')}
-              data-testid="category-patek"
+              data-testid="button-filter-patek"
             >
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Watch className="w-6 h-6 text-white" />
@@ -165,12 +230,12 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
 
         {/* Popular Items */}
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-gray-900">Популярное</h2>
+          <h2 className="text-2xl font-bold text-gray-900 scroll-fade-in">Популярное</h2>
           <div className="grid grid-cols-2 gap-4">
-            {products.slice(0, 6).map(product => (
+            {products.slice(0, 6).map((product, index) => (
               <div 
                 key={product.id}
-                className="group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100"
+                className={`group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 ${index < 4 ? 'scroll-fade-in' : `scroll-fade-in-delay-${Math.min(index - 3, 2)}`}`}
                 onClick={() => openProductModal(product)}
                 data-testid={`product-card-${product.id}`}
               >
@@ -221,7 +286,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
       <div className="sticky top-0 z-20 bg-white border-b border-gray-200 py-4 px-4">
         <div className="max-w-md mx-auto">
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-            {categories.map(cat => (
+            {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -230,7 +295,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
                     ? 'bg-gradient-to-r from-yellow-600 to-amber-700 text-white shadow-lg' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
-                data-testid={`filter-${cat.toLowerCase()}`}
+                data-testid={`button-filter-${cat.toLowerCase()}`}
               >
                 {cat}
               </button>
@@ -245,10 +310,10 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
           <p className="text-sm text-gray-600">Найдено {filteredProducts.length} часов</p>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          {filteredProducts.map(product => (
+          {filteredProducts.map((product, index) => (
             <div 
               key={product.id}
-              className="group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+              className={`group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer ${index < 4 ? '' : `scroll-fade-in-delay-${Math.min((index - 4) % 4 + 1, 3)}`}`}
               onClick={() => openProductModal(product)}
               data-testid={`product-${product.id}`}
             >
@@ -265,7 +330,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
                     e.stopPropagation();
                     toggleFavorite(product.id);
                   }}
-                  data-testid={`favorite-${product.id}`}
+                  data-testid={`button-favorite-${product.id}`}
                 >
                   <Heart 
                     className={`w-5 h-5 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
@@ -295,11 +360,69 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
   const renderCartTab = () => (
     <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-        <h1 className="text-2xl font-bold text-gray-900">Корзина</h1>
-        <div className="text-center py-16">
-          <Watch className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">Корзина пуста</p>
-        </div>
+        <h1 className="text-2xl font-bold text-gray-900 scroll-fade-in">Корзина</h1>
+        
+        {cart.length === 0 ? (
+          <div className="text-center py-16">
+            <Watch className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500">Корзина пуста</p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-4">
+              {cart.map((item, index) => (
+                <div 
+                  key={item.id} 
+                  className={`bg-white rounded-2xl p-4 flex gap-4 shadow-sm scroll-fade-in-delay-${Math.min(index + 1, 5)}`}
+                  data-testid={`cart-item-${item.id}`}
+                >
+                  <OptimizedImage 
+                    src={item.image}
+                    alt={item.name}
+                    className="w-20 h-20 rounded-xl object-cover"
+                  />
+                  <div className="flex-1">
+                    <p className="text-xs text-amber-600 font-medium mb-1">{item.brand}</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
+                    <p className="text-lg font-bold text-gray-900">{formatPrice(item.price)}</p>
+                  </div>
+                  <button
+                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
+                    className="w-8 h-8 flex items-center justify-center"
+                    data-testid={`button-remove-${item.id}`}
+                  >
+                    <X className="w-5 h-5 text-gray-400" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="fixed bottom-24 left-0 right-0 p-4 bg-white border-t border-gray-200">
+              <div className="max-w-md mx-auto">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-lg font-semibold text-gray-900">Итого:</span>
+                  <span className="text-2xl font-bold text-amber-600">{formatPrice(cartTotal)}</span>
+                </div>
+                <ConfirmDrawer
+                  trigger={
+                    <button
+                      className="w-full py-4 bg-gradient-to-r from-yellow-600 to-amber-700 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300"
+                      data-testid="button-checkout"
+                    >
+                      Оформить заказ
+                    </button>
+                  }
+                  title="Оформить заказ?"
+                  description={`${cart.length} товаров на сумму ${formatPrice(cartTotal)}`}
+                  confirmText="Подтвердить"
+                  cancelText="Отмена"
+                  variant="default"
+                  onConfirm={handleCheckout}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -308,9 +431,98 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
   const renderProfileTab = () => (
     <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-        <h1 className="text-2xl font-bold text-gray-900">Профиль</h1>
-        <div className="bg-white rounded-2xl p-6">
-          <p className="text-gray-600">Профиль пользователя</p>
+        <div className="bg-white rounded-2xl p-6 scroll-fade-in">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-amber-700 rounded-full flex items-center justify-center">
+              <User className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Александр Иванов</h2>
+              <p className="text-sm text-gray-500">+7 (999) 123-45-67</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-4 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-500 mb-1">Заказы</p>
+              <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
+            </div>
+            <div className="p-4 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-500 mb-1">Избранное</p>
+              <p className="text-2xl font-bold text-gray-900">{favorites.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="scroll-fade-in-delay-1">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Мои заказы</h3>
+          {orders.length === 0 ? (
+            <div className="text-center py-8 bg-white rounded-2xl">
+              <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p className="text-gray-500">У вас пока нет заказов</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {orders.map((order) => (
+                <div key={order.id} className="bg-white rounded-2xl p-4" data-testid={`order-${order.id}`}>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-gray-900 font-medium">Заказ #{order.id.toString().slice(-6)}</span>
+                    <span className="text-gray-500">{order.date}</span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-gray-600">{order.items.length} товаров</span>
+                    <span className="font-bold text-amber-600">{formatPrice(order.total)}</span>
+                  </div>
+                  <div className="mt-2">
+                    <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full">
+                      {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2 scroll-fade-in-delay-2">
+          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" data-testid="button-favorites">
+            <div className="flex items-center gap-3">
+              <Heart className="w-5 h-5 text-gray-400" />
+              <span className="font-medium text-gray-900">Избранное</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
+          </button>
+
+          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" data-testid="button-payment">
+            <div className="flex items-center gap-3">
+              <CreditCard className="w-5 h-5 text-gray-400" />
+              <span className="font-medium text-gray-900">Способы оплаты</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
+          </button>
+
+          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" data-testid="button-address">
+            <div className="flex items-center gap-3">
+              <MapPin className="w-5 h-5 text-gray-400" />
+              <span className="font-medium text-gray-900">Адреса доставки</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
+          </button>
+
+          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" data-testid="button-settings">
+            <div className="flex items-center gap-3">
+              <Settings className="w-5 h-5 text-gray-400" />
+              <span className="font-medium text-gray-900">Настройки</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
+          </button>
+
+          <button className="w-full p-4 bg-red-50 rounded-2xl flex items-center justify-between mt-4" data-testid="button-logout">
+            <div className="flex items-center gap-3">
+              <LogOut className="w-5 h-5 text-red-500" />
+              <span className="font-medium text-red-500">Выйти</span>
+            </div>
+          </button>
         </div>
       </div>
     </div>
@@ -332,7 +544,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
           <button 
             onClick={closeProductModal}
             className="fixed top-4 right-4 z-10 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-            data-testid="button-close-modal"
+            data-testid="button-back"
           >
             <X className="w-6 h-6 text-gray-900" />
           </button>
@@ -403,17 +615,17 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
               trigger={
                 <button 
                   className="w-full py-4 bg-gradient-to-r from-yellow-600 to-amber-700 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300"
-                  data-testid="button-add-to-cart"
+                  data-testid={`button-add-to-cart-${selectedProduct.id}`}
                 >
                   Добавить в корзину
                 </button>
               }
               title="Добавить в корзину?"
-              description={`${selectedProduct.name} — ${new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(selectedProduct.price)}`}
+              description={`${selectedProduct.name} — ${formatPrice(selectedProduct.price)}`}
               confirmText="Добавить"
               cancelText="Отмена"
               variant="default"
-              onConfirm={() => setSelectedProduct(null)}
+              onConfirm={() => addToCart(selectedProduct)}
             />
           </div>
         </div>
