@@ -29,7 +29,6 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const haptic = useHaptic();
   const trackInteraction = useTrackInteraction();
   
-  const videoRef1 = useVideoPreload();
   const videoRef2 = useVideoPreload();
   const videoRef3 = useVideoLazyLoad();
   
@@ -104,317 +103,218 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           </div>
         </div>
 
-        <div className="mb-4 px-1">
-          <h2 className="text-lg font-black uppercase tracking-wide" style={{ color: '#FFFFFF' }}>
-            Такое будет у вас
-          </h2>
-          <p className="text-white/40 text-[11px] mt-0.5">Нажмите и попробуйте как клиент</p>
-        </div>
-
         <div className="space-y-3 mb-8">
           
+          {/* Main Hero Card - White/Light style like T-P67 */}
           <div 
-            className="relative h-[320px] rounded-2xl overflow-hidden group cursor-pointer"
+            className="relative rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
             onClick={() => handleOpenDemo('clothing-store')}
             onMouseEnter={() => preloadDemo('clothing-store')}
             onTouchStart={() => preloadDemo('clothing-store')}
             data-testid="demo-card-clothing"
+            style={{ 
+              background: 'linear-gradient(180deg, #F5F5F7 0%, #E8E8ED 100%)',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
+            }}
           >
-            <video
-              ref={videoRef1}
-              src={fashionVideo}
-              loop muted playsInline preload="none"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-            
-            <div className="absolute top-3 left-3 text-[9px] font-medium uppercase tracking-widest text-white/60">
-              Магазин одежды
-            </div>
-            <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold"
-              style={{ background: '#CDFF38', color: '#0A0A0A' }}
-            >
-              NEW
-            </div>
-            
-            <div className="absolute bottom-0 left-0 right-0 p-5">
-              <div className="text-white text-3xl font-extralight tracking-[0.35em] mb-1">
-                A L U R E
+            <div className="p-5 pb-4">
+              {/* Header with logo */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-2xl font-black tracking-tight" style={{ color: '#1D1D1F' }}>
+                  ALURE
+                </div>
+                {/* Decorative tribal-style icon */}
+                <svg width="40" height="32" viewBox="0 0 40 32" fill="none" className="opacity-80">
+                  <path d="M20 4C20 4 12 8 8 16C4 24 8 28 8 28M20 4C20 4 28 8 32 16C36 24 32 28 32 28M20 4V12M14 20C14 20 17 24 20 24C23 24 26 20 26 20" stroke="#1D1D1F" strokeWidth="1.5" strokeLinecap="round"/>
+                  <circle cx="20" cy="16" r="2" fill="#1D1D1F"/>
+                </svg>
               </div>
-              <div className="text-white/50 text-xs mb-3">Продажи 24/7 без вашего участия</div>
+              
+              {/* Warning section */}
+              <div className="text-center mb-4">
+                <div className="text-[10px] font-bold tracking-[0.2em] mb-2" style={{ color: '#1D1D1F' }}>
+                  МАГАЗИН В TELEGRAM
+                </div>
+                <p className="text-[9px] leading-relaxed px-2" style={{ color: 'rgba(29, 29, 31, 0.6)' }}>
+                  АВТОМАТИЧЕСКИЕ ПРОДАЖИ. КАТАЛОГ ТОВАРОВ. КОРЗИНА И ОПЛАТА. 
+                  ИНТЕГРАЦИЯ С CRM. УВЕДОМЛЕНИЯ О ЗАКАЗАХ. БЕЗ САЙТА И ПРИЛОЖЕНИЯ.
+                </p>
+              </div>
+              
+              {/* Price and CTA */}
               <div 
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-semibold transition-all duration-200 active:scale-95"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.18)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                  border: '0.5px solid rgba(255, 255, 255, 0.25)',
-                  color: '#FFFFFF'
-                }}
+                className="flex items-center justify-between rounded-full px-4 py-2.5 mt-3"
+                style={{ background: 'rgba(29, 29, 31, 0.08)' }}
               >
-                <span>Открыть</span>
-                <ArrowRight className="w-3 h-3" />
+                <span className="text-sm font-semibold" style={{ color: '#1D1D1F' }}>от 9 990 ₽</span>
+                <div className="flex items-center gap-1.5 text-[11px] font-bold" style={{ color: '#1D1D1F' }}>
+                  <span>ОТКРЫТЬ</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
               </div>
             </div>
           </div>
 
+          {/* 2x2 Grid - Dark cards with images */}
           <div className="grid grid-cols-2 gap-3">
-            
+            {/* ART STORE style card */}
             <div 
-              className="relative h-[200px] rounded-2xl overflow-hidden group cursor-pointer"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
               onClick={() => handleOpenDemo('sneaker-store')}
               onMouseEnter={() => preloadDemo('sneaker-store')}
               onTouchStart={() => preloadDemo('sneaker-store')}
               data-testid="demo-card-sneaker"
+              style={{ background: '#1C1C1E' }}
             >
               <video
                 ref={videoRef2}
                 src={sneakerVideo}
                 loop muted playsInline preload="none"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               
-              <div className="absolute top-3 left-3 text-[8px] font-medium uppercase tracking-widest text-cyan-300/80">
-                Кроссовки
-              </div>
-              
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <div className="text-white text-lg font-light tracking-[0.2em] mb-0.5">SOLE</div>
-                <div className="text-white/40 text-[10px] mb-2">+180% конверсия</div>
-                <div 
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-200 active:scale-95"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.18)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
-                    color: '#FFFFFF'
-                  }}
-                >
-                  <span>Открыть</span>
-                  <ArrowRight className="w-2.5 h-2.5" />
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="text-[10px] font-medium tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                  SNEAKER STORE
                 </div>
               </div>
             </div>
 
+            {/* SOUND SHOP style card - Blue tinted */}
             <div 
-              className="relative h-[200px] rounded-2xl overflow-hidden group cursor-pointer"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
               onClick={() => handleOpenDemo('luxury-watches')}
               onMouseEnter={() => preloadDemo('luxury-watches')}
               onTouchStart={() => preloadDemo('luxury-watches')}
               data-testid="demo-card-watches"
+              style={{ background: '#4A5568' }}
             >
               <video
                 ref={videoRef3}
                 src={watchesVideo}
                 loop muted playsInline preload="none"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="absolute inset-0 w-full h-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105"
+                style={{ filter: 'saturate(0.8) brightness(0.9)' }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              <div className="absolute inset-0" style={{ background: 'rgba(59, 130, 246, 0.15)' }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               
-              <div className="absolute top-3 left-3 text-[8px] font-medium uppercase tracking-widest"
-                style={{ color: 'rgba(214, 185, 128, 0.8)' }}
-              >
-                Премиум
-              </div>
-              
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <div className="text-lg font-light tracking-[0.25em] mb-0.5"
-                  style={{
-                    background: 'linear-gradient(135deg, #E8D4A0, #C9A870)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
-                  }}
-                >
-                  LUXE
-                </div>
-                <div className="text-white/40 text-[10px] mb-2">Средний чек x2.5</div>
-                <div 
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-200 active:scale-95"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.18)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
-                    color: '#FFFFFF'
-                  }}
-                >
-                  <span>Открыть</span>
-                  <ArrowRight className="w-2.5 h-2.5" />
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="text-[10px] font-medium tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                  LUXURY WATCHES
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            
+          {/* Bottom Row - Colored cards */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Olive/Khaki card like T-P67 DISCOVER */}
             <div 
-              className="relative h-[180px] rounded-2xl overflow-hidden group cursor-pointer col-span-2"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
               onClick={() => handleOpenDemo('futuristic-fashion-1')}
               onMouseEnter={() => preloadDemo('futuristic-fashion-1')}
               onTouchStart={() => preloadDemo('futuristic-fashion-1')}
               data-testid="demo-card-outdoor"
+              style={{ background: 'linear-gradient(180deg, #6B7B5C 0%, #5A6A4D 100%)' }}
             >
-              <img
-                src={rascalImage}
-                alt="Outdoor"
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-              
-              <div className="absolute top-3 left-3 text-[8px] font-medium uppercase tracking-widest text-emerald-400/80">
-                Outdoor
-              </div>
-              <div className="absolute top-3 right-3 px-2 py-0.5 rounded text-[9px] font-bold"
-                style={{ background: 'rgba(16, 185, 129, 0.9)', color: '#fff' }}
-              >
-                NEW
-              </div>
-              
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <div className="text-white text-base font-bold mb-0.5">Rascal</div>
-                <div className="text-white/40 text-[10px] mb-2">Заказы без менеджера</div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+                <div className="text-xl font-black tracking-tight mb-2 text-white">
+                  RASCAL
+                </div>
+                {/* Star icon */}
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="mb-4 opacity-80">
+                  <path d="M12 2L14 10H22L16 14L18 22L12 18L6 22L8 14L2 10H10L12 2Z" stroke="white" strokeWidth="1.5" fill="none"/>
+                </svg>
+                
+                {/* DISCOVER button */}
                 <div 
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-200 active:scale-95"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.18)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
-                    color: '#FFFFFF'
+                  className="px-6 py-2 rounded-full text-[10px] font-bold tracking-wider transition-all duration-200 active:scale-95"
+                  style={{ 
+                    background: 'rgba(0, 0, 0, 0.25)',
+                    color: '#FFFFFF',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
                   }}
                 >
-                  <span>Открыть</span>
-                  <ArrowRight className="w-2.5 h-2.5" />
+                  ОТКРЫТЬ
                 </div>
               </div>
             </div>
 
+            {/* Dark gray card like MUSIC CLUB */}
             <div 
-              className="relative h-[180px] rounded-2xl overflow-hidden group cursor-pointer"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
               onClick={() => handleOpenDemo('futuristic-fashion-2')}
               onMouseEnter={() => preloadDemo('futuristic-fashion-2')}
               onTouchStart={() => preloadDemo('futuristic-fashion-2')}
               data-testid="demo-card-minimal"
+              style={{ background: 'linear-gradient(180deg, #3A3A3C 0%, #2C2C2E 100%)' }}
             >
-              <img
-                src={nikeDestinyImage}
-                alt="Minimal"
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-              
-              <div className="absolute top-3 left-3 text-[7px] font-medium uppercase tracking-widest text-white/50">
-                Быстро
+              {/* Arrow icon in top right */}
+              <div 
+                className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.15)' }}
+              >
+                <ArrowRight className="w-3.5 h-3.5 text-white -rotate-45" />
               </div>
               
-              <div className="absolute bottom-0 left-0 right-0 p-2.5">
-                <div className="text-white text-sm font-bold">STORE</div>
-                <div className="text-white/40 text-[9px] mb-1.5">За 24 часа</div>
-                <div 
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-semibold transition-all duration-200 active:scale-95"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.18)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
-                    color: '#FFFFFF'
-                  }}
-                >
-                  <span>Открыть</span>
-                  <ArrowRight className="w-2 h-2" />
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="text-sm font-bold text-white mb-0.5">FASHION STORE</div>
+                <div className="text-sm font-bold text-white mb-0.5">CATALOG</div>
+                <div className="text-[10px] font-medium tracking-wider" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  MOSCOW/DUBAI
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Additional row - More cards */}
           <div className="grid grid-cols-2 gap-3">
-            
+            {/* Brand card */}
             <div 
-              className="relative h-[220px] rounded-2xl overflow-hidden group cursor-pointer"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
               onClick={() => handleOpenDemo('futuristic-fashion-3')}
               onMouseEnter={() => preloadDemo('futuristic-fashion-3')}
               onTouchStart={() => preloadDemo('futuristic-fashion-3')}
               data-testid="demo-card-brand"
+              style={{ background: '#1C1C1E' }}
             >
               <img
                 src={nikeGreenImage}
                 alt="Brand"
                 loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="absolute inset-0 w-full h-full object-cover opacity-85 transition-transform duration-500 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               
-              <div className="absolute top-3 left-3 text-[8px] font-medium uppercase tracking-widest text-white/50">
-                Ваш бренд
-              </div>
-              <div className="absolute top-3 right-3 px-2 py-0.5 rounded text-[9px] font-medium"
-                style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', backdropFilter: 'blur(4px)' }}
-              >
-                VIP
-              </div>
-              
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <div className="text-white text-sm font-bold mb-0.5">lab. SURVIVALIST</div>
-                <div className="text-white/40 text-[10px] mb-2">Под ваш стиль</div>
-                <div 
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-200 active:scale-95"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.18)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
-                    color: '#FFFFFF'
-                  }}
-                >
-                  <span>Открыть</span>
-                  <ArrowRight className="w-2.5 h-2.5" />
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="text-[10px] font-medium tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                  BRAND STORE
                 </div>
               </div>
             </div>
 
+            {/* Catalog card */}
             <div 
-              className="relative h-[220px] rounded-2xl overflow-hidden group cursor-pointer"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
               onClick={() => handleOpenDemo('futuristic-fashion-4')}
               onMouseEnter={() => preloadDemo('futuristic-fashion-4')}
               onTouchStart={() => preloadDemo('futuristic-fashion-4')}
               data-testid="demo-card-catalog"
+              style={{ background: '#1C1C1E' }}
             >
               <img
                 src={nikeAcgImage}
                 alt="Catalog"
                 loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="absolute inset-0 w-full h-full object-cover opacity-85 transition-transform duration-500 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               
-              <div className="absolute top-3 left-3 text-[8px] font-medium uppercase tracking-widest text-blue-400/80">
-                Интерактив
-              </div>
-              <div className="absolute top-3 right-3 px-2 py-0.5 rounded text-[9px] font-bold"
-                style={{ background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)', color: '#fff' }}
-              >
-                WOW
-              </div>
-              
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <div className="text-white text-sm font-bold mb-0.5">Nike ACG</div>
-                <div className="text-white/40 text-[10px] mb-2">Клиенты в восторге</div>
-                <div 
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-200 active:scale-95"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.18)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                    border: '0.5px solid rgba(255, 255, 255, 0.25)',
-                    color: '#FFFFFF'
-                  }}
-                >
-                  <span>Открыть</span>
-                  <ArrowRight className="w-2.5 h-2.5" />
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="text-[10px] font-medium tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                  OUTDOOR GEAR
                 </div>
               </div>
             </div>
