@@ -6,10 +6,10 @@ import { useTelegram } from "./hooks/useTelegram";
 import { Home, ShoppingCart, Briefcase, Bot, User } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 
-// Lazy load heavy providers and components to reduce initial bundle
-const RewardsProvider = lazy(() => import("./contexts/RewardsContext").then(m => ({ default: m.RewardsProvider })));
-const XPNotificationProvider = lazy(() => import("./contexts/XPNotificationContext").then(m => ({ default: m.XPNotificationProvider })));
-const LazyMotionProvider = lazy(() => import("./utils/LazyMotionProvider").then(m => ({ default: m.LazyMotionProvider })));
+// Eager load providers to prevent blank screen (Suspense fallback={null} + #root:empty CSS loop)
+import { RewardsProvider } from "./contexts/RewardsContext";
+import { XPNotificationProvider } from "./contexts/XPNotificationContext";
+import { LazyMotionProvider } from "./utils/LazyMotionProvider";
 
 // Lazy load ALL pages including ShowcasePage for optimal bundle splitting
 const ShowcasePage = lazy(() => import("./components/ShowcasePage"));
@@ -294,10 +294,9 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Suspense fallback={null}>
-        <LazyMotionProvider>
-          <RewardsProvider>
-            <XPNotificationProvider>
+      <LazyMotionProvider>
+        <RewardsProvider>
+          <XPNotificationProvider>
               <div className="relative min-h-screen">
                 <div className="floating-elements"></div>
                 
@@ -485,7 +484,6 @@ function App() {
       </XPNotificationProvider>
       </RewardsProvider>
       </LazyMotionProvider>
-      </Suspense>
     </QueryClientProvider>
   );
 }

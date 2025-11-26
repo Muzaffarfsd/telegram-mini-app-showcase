@@ -136,6 +136,18 @@ export const ModernDrawer = ({
  *   onConfirm={() => deleteItem()}
  * />
  * ```
+ * 
+ * Controlled mode:
+ * ```tsx
+ * <ConfirmDrawer
+ *   open={showSuccess}
+ *   onOpenChange={setShowSuccess}
+ *   trigger={<span />}
+ *   title="Успешно!"
+ *   icon={<Check className="w-8 h-8 text-green-400" />}
+ *   onConfirm={() => setShowSuccess(false)}
+ * />
+ * ```
  */
 interface ConfirmDrawerProps {
   trigger: ReactNode;
@@ -146,6 +158,9 @@ interface ConfirmDrawerProps {
   variant?: "default" | "destructive";
   onConfirm: () => void;
   onCancel?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  icon?: ReactNode;
 }
 
 export const ConfirmDrawer = ({
@@ -156,26 +171,29 @@ export const ConfirmDrawer = ({
   cancelText = "Отмена",
   variant = "default",
   onConfirm,
-  onCancel
+  onCancel,
+  open,
+  onOpenChange,
+  icon
 }: ConfirmDrawerProps) => {
   const haptic = useHaptic();
 
   const handleConfirm = () => {
     if (variant === "destructive") {
-      haptic.heavy(); // Сильная вибрация для деструктивных действий
+      haptic.heavy();
     } else {
-      haptic.medium(); // Средняя вибрация для обычных
+      haptic.medium();
     }
     onConfirm();
   };
 
   const handleCancel = () => {
-    haptic.light(); // Легкая вибрация при отмене
+    haptic.light();
     onCancel?.();
   };
 
   return (
-    <Drawer>
+    <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerTrigger asChild>
         {trigger}
       </DrawerTrigger>
@@ -183,11 +201,22 @@ export const ConfirmDrawer = ({
       <DrawerContent className="bg-background border-t border-white/10 h-auto">
         <div className="p-6">
           <DrawerHeader className="px-0 pt-0">
-            <DrawerTitle className="text-xl font-bold text-white text-left">
+            {icon && (
+              <div className="flex justify-center mb-4">
+                {icon}
+              </div>
+            )}
+            <DrawerTitle className={cn(
+              "text-xl font-bold text-white",
+              icon ? "text-center" : "text-left"
+            )}>
               {title}
             </DrawerTitle>
             {description && (
-              <DrawerDescription className="text-white/70 text-sm text-left mt-2">
+              <DrawerDescription className={cn(
+                "text-white/70 text-sm mt-2",
+                icon ? "text-center" : "text-left"
+              )}>
                 {description}
               </DrawerDescription>
             )}
@@ -195,17 +224,19 @@ export const ConfirmDrawer = ({
           
           <DrawerFooter className="px-0 pb-0 pt-6">
             <div className="flex gap-3">
-              <DrawerClose asChild>
-                <HapticButton
-                  variant="ghost"
-                  size="lg"
-                  onClick={handleCancel}
-                  className="flex-1"
-                  data-testid="button-cancel"
-                >
-                  {cancelText}
-                </HapticButton>
-              </DrawerClose>
+              {cancelText && (
+                <DrawerClose asChild>
+                  <HapticButton
+                    variant="ghost"
+                    size="lg"
+                    onClick={handleCancel}
+                    className="flex-1"
+                    data-testid="button-cancel"
+                  >
+                    {cancelText}
+                  </HapticButton>
+                </DrawerClose>
+              )}
               
               <DrawerClose asChild>
                 <HapticButton
