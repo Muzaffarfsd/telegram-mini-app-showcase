@@ -1,658 +1,718 @@
-import { memo, useState, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import { demoApps } from "../data/demoApps";
-
-import heroMockup from "@assets/generated_images/premium_iphone_telegram_app.png";
-import productShot from "@assets/generated_images/telegram_app_3d_product_shot.png";
+import { Search, ChevronRight, ArrowUpRight } from "lucide-react";
 
 interface ProjectsPageProps {
   onNavigate: (section: string) => void;
   onOpenDemo: (demoId: string) => void;
 }
 
-const AppTile = memo(({ 
+type Category = 'all' | 'sales' | 'services' | 'loyalty';
+type SortType = 'trending' | 'new' | 'roi';
+
+const categories: { id: Category; label: string }[] = [
+  { id: 'all', label: 'Все' },
+  { id: 'sales', label: 'Продажи' },
+  { id: 'services', label: 'Сервисы' },
+  { id: 'loyalty', label: 'Лояльность' },
+];
+
+const categoryMap: Record<Category, string[]> = {
+  all: [],
+  sales: ['radiance', 'techmart', 'sneaker-vault', 'rascal', 'store-black', 'nike-acg'],
+  services: ['glow-spa', 'deluxe-dine', 'time-elite', 'fragrance-royale'],
+  loyalty: ['lab-survivalist', 'fitness'],
+};
+
+const appMeta: Record<string, { tag: string; kpi: string }> = {
+  'radiance': { tag: 'Fashion', kpi: '+340% продаж' },
+  'techmart': { tag: 'Electronics', kpi: '+280% заказов' },
+  'glow-spa': { tag: 'Beauty', kpi: '+95% записей' },
+  'deluxe-dine': { tag: 'Restaurant', kpi: '+180% броней' },
+  'time-elite': { tag: 'Luxury', kpi: '+420% ROI' },
+  'sneaker-vault': { tag: 'Sneakers', kpi: '+250% drops' },
+  'fragrance-royale': { tag: 'Perfume', kpi: '+190% продаж' },
+  'rascal': { tag: 'Streetwear', kpi: '+310% заказов' },
+  'store-black': { tag: 'Minimal', kpi: '+220% конверсии' },
+  'lab-survivalist': { tag: 'Outdoor', kpi: '+175% лояльности' },
+  'nike-acg': { tag: 'ACG', kpi: '+290% продаж' },
+};
+
+const AppCard = memo(({ 
   app, 
-  index,
+  isLead,
   onOpen,
 }: { 
   app: typeof demoApps[0]; 
-  index: number;
+  isLead: boolean;
   onOpen: () => void;
-}) => (
-  <button
-    onClick={onOpen}
-    className="app-tile group"
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '20px',
-      width: '100%',
-      padding: '24px 0',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-      background: 'transparent',
-      textAlign: 'left',
-      cursor: 'pointer',
-      opacity: 0,
-      animation: `tileReveal 0.6s ease-out ${0.8 + index * 0.08}s forwards`,
-    }}
-    data-testid={`card-app-${app.id}`}
-    aria-label={`Открыть ${app.title}`}
-  >
-    {/* Number */}
-    <span style={{
-      fontFamily: "'Playfair Display', Georgia, serif",
-      fontSize: '14px',
-      fontWeight: 400,
-      color: 'rgba(255, 255, 255, 0.25)',
-      width: '28px',
-      flexShrink: 0,
-    }}>
-      {String(index + 1).padStart(2, '0')}
-    </span>
-    
-    {/* Title */}
-    <span 
-      className="tile-title"
-      style={{
-        flex: 1,
-        fontFamily: "'Playfair Display', Georgia, serif",
-        fontSize: '20px',
-        fontWeight: 500,
-        letterSpacing: '-0.01em',
-        color: '#E3D9C6',
-      }}
+}) => {
+  const meta = appMeta[app.id] || { tag: 'App', kpi: '+200%' };
+  
+  return (
+    <button
+      onClick={onOpen}
+      className="app-card w-full text-left"
+      data-testid={`card-app-${app.id}`}
+      aria-label={`Открыть ${app.title}`}
     >
-      {app.title}
-    </span>
-    
-    {/* Arrow */}
-    <span 
-      className="tile-arrow"
-      style={{
-        fontSize: '18px',
-        color: 'rgba(255, 255, 255, 0.2)',
-        transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
-      }}
-    >
-      →
-    </span>
-  </button>
-));
-AppTile.displayName = 'AppTile';
+      {/* Tag */}
+      <span className="card-tag">{meta.tag}</span>
+      
+      {/* Title */}
+      <h3 className={isLead ? "card-title-lead" : "card-title"}>
+        {app.title}
+      </h3>
+      
+      {/* Description - only for lead cards */}
+      {isLead && (
+        <p className="card-desc">
+          {app.description}
+        </p>
+      )}
+      
+      {/* Footer */}
+      <div className="card-footer">
+        <span className="card-kpi">{meta.kpi}</span>
+        <span className="card-action">
+          Открыть
+          <ChevronRight className="w-4 h-4" />
+        </span>
+      </div>
+    </button>
+  );
+});
+AppCard.displayName = 'AppCard';
 
 export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
-  const [scrollY, setScrollY] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [category, setCategory] = useState<Category>('all');
+  const [sort, setSort] = useState<SortType>('trending');
+  const [search, setSearch] = useState('');
   
-  useEffect(() => {
-    const handleScroll = () => {
-      if (containerRef.current) {
-        setScrollY(containerRef.current.scrollTop);
-      }
-    };
-    
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll, { passive: true });
-      return () => container.removeEventListener('scroll', handleScroll);
-    }
+  const handleCategoryChange = useCallback((cat: Category) => {
+    setCategory(cat);
   }, []);
   
-  const apps = demoApps.slice(0, 10);
-  const parallaxOffset = Math.min(scrollY * 0.3, 100);
+  const handleSortChange = useCallback((s: SortType) => {
+    setSort(s);
+  }, []);
+  
+  const filteredApps = useMemo(() => {
+    let apps = demoApps.slice(0, 11);
+    
+    // Category filter
+    if (category !== 'all') {
+      const ids = categoryMap[category];
+      apps = apps.filter(app => ids.includes(app.id));
+    }
+    
+    // Search filter
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      apps = apps.filter(app => 
+        app.title.toLowerCase().includes(q) ||
+        app.description.toLowerCase().includes(q)
+      );
+    }
+    
+    return apps;
+  }, [category, search]);
 
   return (
-    <div 
-      ref={containerRef}
-      className="h-screen overflow-y-auto overflow-x-hidden"
-      style={{ 
-        background: '#020205',
-      }}
-    >
-      {/* Noise texture overlay */}
-      <div 
-        className="fixed inset-0 pointer-events-none z-50"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          opacity: 0.03,
-        }}
-      />
-      
-      {/* Gradient ambient */}
-      <div 
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse 120% 80% at 50% 0%, rgba(140, 155, 255, 0.07) 0%, transparent 50%)',
-        }}
-      />
-      
-      {/* ═══════════════════════════════════════════════════════════
-          SCENE 1: MANIFEST
-      ═══════════════════════════════════════════════════════════ */}
-      <section 
-        className="relative min-h-screen flex flex-col justify-end px-8 pb-16"
-        style={{ paddingTop: '80px' }}
-      >
-        {/* Floating mockup */}
-        <div 
-          className="absolute right-0 top-20"
-          style={{
-            width: '75%',
-            maxWidth: '320px',
-            transform: `translateY(${-parallaxOffset * 0.5}px)`,
-            opacity: 0,
-            animation: 'mockupFloat 1.2s cubic-bezier(0.23, 1, 0.32, 1) 0.2s forwards',
-          }}
-        >
-          <img 
-            src={heroMockup}
-            alt=""
-            className="w-full"
-            style={{
-              filter: 'drop-shadow(0 40px 80px rgba(0, 0, 0, 0.6))',
-              transform: 'rotate(6deg)',
-            }}
-          />
-          {/* Light sweep */}
-          <div 
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 50%, transparent 60%)',
-              animation: 'lightSweep 4s ease-in-out infinite',
-            }}
-          />
-        </div>
+    <div className="projects-page">
+      {/* ════════════════════════════════════════════
+          HERO
+      ════════════════════════════════════════════ */}
+      <section className="hero-section">
+        <span className="overline">Telegram Mini Apps</span>
+        <h1 className="hero-title">
+          Витрина
+          <br />
+          приложений
+        </h1>
+        <p className="hero-subtitle">
+          Готовые решения для автоматизации бизнеса в Telegram
+        </p>
         
-        {/* Manifest text */}
-        <div 
-          className="relative z-10"
-          style={{
-            maxWidth: '300px',
-            opacity: 0,
-            animation: 'fadeUp 0.8s ease-out 0.4s forwards',
-          }}
-        >
-          <p style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '11px',
-            fontWeight: 500,
-            letterSpacing: '0.2em',
-            color: 'rgba(140, 155, 255, 0.8)',
-            marginBottom: '24px',
-            textTransform: 'uppercase',
-          }}>
-            Atelier
-          </p>
-          
-          <h1 style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: 'clamp(40px, 11vw, 56px)',
-            fontWeight: 500,
-            letterSpacing: '-0.03em',
-            lineHeight: 1,
-            color: '#E3D9C6',
-            marginBottom: '32px',
-          }}>
-            Цифровые
-            <br />
-            <span style={{ fontStyle: 'italic', fontWeight: 400 }}>бутики</span>
-          </h1>
-          
-          <p style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '15px',
-            lineHeight: 1.7,
-            color: 'rgba(255, 255, 255, 0.45)',
-            marginBottom: '48px',
-          }}>
-            Мы создаём приложения внутри Telegram, 
-            где каждая деталь — произведение.
-          </p>
-        </div>
-        
-        {/* Scroll indicator */}
-        <div 
-          className="absolute bottom-8 left-8"
-          style={{
-            opacity: 0,
-            animation: 'fadeIn 1s ease-out 1.5s forwards',
-          }}
-        >
-          <div 
-            className="w-px h-12 mx-auto mb-3"
-            style={{ 
-              background: 'linear-gradient(180deg, rgba(140, 155, 255, 0.5) 0%, transparent 100%)',
-            }}
-          />
-          <p style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '10px',
-            letterSpacing: '0.15em',
-            color: 'rgba(255, 255, 255, 0.25)',
-            textTransform: 'uppercase',
-          }}>
-            Scroll
-          </p>
-        </div>
-      </section>
-      
-      {/* ═══════════════════════════════════════════════════════════
-          SCENE 2: SIGNATURE
-      ═══════════════════════════════════════════════════════════ */}
-      <section className="relative py-24 px-8">
-        {/* Section line */}
-        <div 
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: '32px',
-            right: '32px',
-            height: '1px',
-            background: 'linear-gradient(90deg, rgba(140, 155, 255, 0.3) 0%, rgba(255,255,255,0.05) 100%)',
-          }}
-        />
-        
-        <div className="mb-16">
-          <p style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '11px',
-            fontWeight: 500,
-            letterSpacing: '0.2em',
-            color: 'rgba(140, 155, 255, 0.6)',
-            marginBottom: '16px',
-            textTransform: 'uppercase',
-          }}>
-            Signature Editions
-          </p>
-          
-          <h2 style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: '32px',
-            fontWeight: 500,
-            letterSpacing: '-0.02em',
-            color: '#E3D9C6',
-          }}>
-            Три направления
-          </h2>
-        </div>
-        
-        {/* Feature cards - asymmetric */}
-        <div className="space-y-6">
-          {/* Card 1 - Large */}
-          <div 
-            className="signature-card"
-            style={{
-              padding: '40px 28px',
-              borderRadius: '2px',
-              background: 'linear-gradient(135deg, rgba(140, 155, 255, 0.06) 0%, rgba(255,255,255,0.02) 100%)',
-              border: '1px solid rgba(255, 255, 255, 0.05)',
-            }}
-          >
-            <p style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: '48px',
-              fontWeight: 400,
-              fontStyle: 'italic',
-              color: 'rgba(140, 155, 255, 0.3)',
-              marginBottom: '20px',
-              lineHeight: 1,
-            }}>
-              01
-            </p>
-            <h3 style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: '24px',
-              fontWeight: 500,
-              color: '#E3D9C6',
-              marginBottom: '12px',
-            }}>
-              E-commerce
-            </h3>
-            <p style={{
-              fontFamily: 'Inter, sans-serif',
-              fontSize: '14px',
-              lineHeight: 1.6,
-              color: 'rgba(255, 255, 255, 0.4)',
-            }}>
-              Магазины с каталогом, корзиной, оплатой. 
-              Полный цикл продаж без сайта.
-            </p>
-          </div>
-          
-          {/* Cards 2 & 3 - Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div 
-              className="signature-card"
-              style={{
-                padding: '28px 20px',
-                borderRadius: '2px',
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.04)',
-              }}
-            >
-              <p style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
-                fontSize: '32px',
-                fontWeight: 400,
-                fontStyle: 'italic',
-                color: 'rgba(140, 155, 255, 0.2)',
-                marginBottom: '16px',
-              }}>
-                02
-              </p>
-              <h3 style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
-                fontSize: '18px',
-                fontWeight: 500,
-                color: '#E3D9C6',
-                marginBottom: '8px',
-              }}>
-                Бронирования
-              </h3>
-              <p style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: '13px',
-                lineHeight: 1.5,
-                color: 'rgba(255, 255, 255, 0.35)',
-              }}>
-                Рестораны, салоны, услуги
-              </p>
-            </div>
-            
-            <div 
-              className="signature-card"
-              style={{
-                padding: '28px 20px',
-                borderRadius: '2px',
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.04)',
-              }}
-            >
-              <p style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
-                fontSize: '32px',
-                fontWeight: 400,
-                fontStyle: 'italic',
-                color: 'rgba(140, 155, 255, 0.2)',
-                marginBottom: '16px',
-              }}>
-                03
-              </p>
-              <h3 style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
-                fontSize: '18px',
-                fontWeight: 500,
-                color: '#E3D9C6',
-                marginBottom: '8px',
-              }}>
-                Лояльность
-              </h3>
-              <p style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: '13px',
-                lineHeight: 1.5,
-                color: 'rgba(255, 255, 255, 0.35)',
-              }}>
-                Программы, баллы, rewards
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* ═══════════════════════════════════════════════════════════
-          SCENE 3: ARCHIVE
-      ═══════════════════════════════════════════════════════════ */}
-      <section className="relative py-20 px-8">
-        <div 
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: '32px',
-            right: '32px',
-            height: '1px',
-            background: 'rgba(255, 255, 255, 0.05)',
-          }}
-        />
-        
-        <div className="flex items-end justify-between mb-12">
-          <div>
-            <p style={{
-              fontFamily: 'Inter, sans-serif',
-              fontSize: '11px',
-              fontWeight: 500,
-              letterSpacing: '0.2em',
-              color: 'rgba(140, 155, 255, 0.6)',
-              marginBottom: '12px',
-              textTransform: 'uppercase',
-            }}>
-              Archive
-            </p>
-            
-            <h2 style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: '28px',
-              fontWeight: 500,
-              letterSpacing: '-0.02em',
-              color: '#E3D9C6',
-            }}>
-              Коллекция
-            </h2>
-          </div>
-          
-          <p style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '12px',
-            color: 'rgba(255, 255, 255, 0.3)',
-          }}>
-            {apps.length} работ
-          </p>
-        </div>
-        
-        {/* Apps list */}
-        <div>
-          {apps.map((app, index) => (
-            <AppTile
-              key={app.id}
-              app={app}
-              index={index}
-              onOpen={() => onOpenDemo(app.id)}
-            />
-          ))}
-        </div>
-      </section>
-      
-      {/* ═══════════════════════════════════════════════════════════
-          SCENE 4: COLLECTOR'S NOTE
-      ═══════════════════════════════════════════════════════════ */}
-      <section 
-        className="relative py-24 px-8"
-        style={{
-          background: 'linear-gradient(180deg, transparent 0%, rgba(140, 155, 255, 0.03) 100%)',
-        }}
-      >
-        <div 
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: '32px',
-            right: '32px',
-            height: '1px',
-            background: 'rgba(140, 155, 255, 0.15)',
-          }}
-        />
-        
-        {/* Product shot */}
-        <div className="flex justify-center mb-12">
-          <img 
-            src={productShot}
-            alt=""
-            style={{
-              width: '180px',
-              filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.5))',
-            }}
-          />
-        </div>
-        
-        <div className="text-center">
-          <p style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '11px',
-            fontWeight: 500,
-            letterSpacing: '0.2em',
-            color: 'rgba(140, 155, 255, 0.6)',
-            marginBottom: '20px',
-            textTransform: 'uppercase',
-          }}>
-            Инвестиция в бизнес
-          </p>
-          
-          <p style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: '42px',
-            fontWeight: 500,
-            letterSpacing: '-0.02em',
-            color: '#E3D9C6',
-            marginBottom: '8px',
-          }}>
-            от 9 990 ₽
-          </p>
-          
-          <p style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '14px',
-            color: 'rgba(255, 255, 255, 0.35)',
-            marginBottom: '40px',
-          }}>
-            Запуск за 14 дней
-          </p>
-          
-          <button
+        <div className="hero-actions">
+          <button 
+            className="btn-primary"
             onClick={() => window.location.hash = '#/constructor'}
-            className="cta-button"
-            style={{
-              fontFamily: 'Inter, sans-serif',
-              fontSize: '13px',
-              fontWeight: 600,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: '#020205',
-              background: '#E3D9C6',
-              padding: '18px 48px',
-              border: 'none',
-              borderRadius: '0',
-              cursor: 'pointer',
-            }}
-            data-testid="button-order-cta"
+            data-testid="button-order-hero"
           >
-            Забронировать
+            Заказать
+            <ArrowUpRight className="w-4 h-4" />
+          </button>
+          <button 
+            className="btn-secondary"
+            onClick={() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Смотреть каталог
           </button>
         </div>
-        
-        {/* Footer note */}
-        <p 
-          className="text-center mt-16"
-          style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: '14px',
-            fontStyle: 'italic',
-            color: 'rgba(255, 255, 255, 0.2)',
-          }}
-        >
-          « Где каждая деталь имеет значение »
-        </p>
       </section>
       
-      {/* Bottom spacer */}
-      <div className="h-24" />
+      {/* ════════════════════════════════════════════
+          STATS
+      ════════════════════════════════════════════ */}
+      <section className="stats-section">
+        <div className="stat-item">
+          <span className="stat-value">11</span>
+          <span className="stat-label">Приложений</span>
+        </div>
+        <div className="stat-divider" />
+        <div className="stat-item">
+          <span className="stat-value">24/7</span>
+          <span className="stat-label">Продажи</span>
+        </div>
+        <div className="stat-divider" />
+        <div className="stat-item">
+          <span className="stat-value">14</span>
+          <span className="stat-label">Дней запуск</span>
+        </div>
+      </section>
+      
+      {/* ════════════════════════════════════════════
+          FILTERS
+      ════════════════════════════════════════════ */}
+      <section className="filters-section" id="catalog">
+        {/* Category tabs */}
+        <div className="category-tabs">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => handleCategoryChange(cat.id)}
+              className={`category-tab ${category === cat.id ? 'active' : ''}`}
+              data-testid={`filter-${cat.id}`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+        
+        {/* Search */}
+        <div className="search-row">
+          <div className="search-input-wrap">
+            <Search className="search-icon" />
+            <input
+              type="text"
+              placeholder="Поиск..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="search-input"
+              data-testid="input-search"
+            />
+          </div>
+        </div>
+        
+        {/* Sort */}
+        <div className="sort-row">
+          <span className="sort-label">Сортировка:</span>
+          <div className="sort-tabs">
+            {[
+              { id: 'trending' as SortType, label: 'Популярные' },
+              { id: 'new' as SortType, label: 'Новые' },
+              { id: 'roi' as SortType, label: 'ROI' },
+            ].map((s) => (
+              <button
+                key={s.id}
+                onClick={() => handleSortChange(s.id)}
+                className={`sort-tab ${sort === s.id ? 'active' : ''}`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* ════════════════════════════════════════════
+          CATALOG
+      ════════════════════════════════════════════ */}
+      <section className="catalog-section">
+        <div className="catalog-header">
+          <h2 className="section-title">Каталог</h2>
+          <span className="catalog-count">{filteredApps.length} apps</span>
+        </div>
+        
+        {filteredApps.length === 0 ? (
+          <div className="empty-state">
+            <p>Ничего не найдено</p>
+            <button 
+              onClick={() => { setCategory('all'); setSearch(''); }}
+              className="reset-btn"
+            >
+              Сбросить фильтры
+            </button>
+          </div>
+        ) : (
+          <div className="catalog-grid">
+            {filteredApps.map((app, index) => (
+              <AppCard
+                key={app.id}
+                app={app}
+                isLead={index === 0}
+                onOpen={() => onOpenDemo(app.id)}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+      
+      {/* ════════════════════════════════════════════
+          CTA
+      ════════════════════════════════════════════ */}
+      <section className="cta-section">
+        <div className="cta-box">
+          <span className="cta-overline">Разработка под ключ</span>
+          <p className="cta-price">от 9 990 ₽</p>
+          <p className="cta-desc">Дизайн, разработка, интеграция и запуск</p>
+          <button 
+            className="btn-cta"
+            onClick={() => window.location.hash = '#/constructor'}
+            data-testid="button-order-cta"
+          >
+            Заказать приложение
+          </button>
+        </div>
+      </section>
+      
+      {/* Bottom space */}
+      <div className="bottom-space" />
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
-        
-        @keyframes mockupFloat {
-          0% {
-            opacity: 0;
-            transform: translateY(40px) rotate(6deg);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0) rotate(6deg);
-          }
+        .projects-page {
+          min-height: 100vh;
+          background: #0B0B0D;
+          color: #F5F5F0;
+          padding-bottom: 100px;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
         }
         
-        @keyframes fadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(24px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+        /* ═══ HERO ═══ */
+        .hero-section {
+          padding: 56px 24px 40px;
+          border-bottom: 1px solid #1A1A1F;
         }
         
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        .overline {
+          display: block;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #8D9DFF;
+          margin-bottom: 16px;
         }
         
-        @keyframes tileReveal {
-          from {
-            opacity: 0;
-            transform: translateX(-16px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
+        .hero-title {
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+          font-size: 36px;
+          font-weight: 600;
+          letter-spacing: -0.025em;
+          line-height: 1.1;
+          color: #F5F5F0;
+          margin-bottom: 16px;
         }
         
-        @keyframes lightSweep {
-          0%, 100% {
-            transform: translateX(-100%);
-          }
-          50% {
-            transform: translateX(100%);
-          }
+        .hero-subtitle {
+          font-size: 15px;
+          line-height: 1.5;
+          color: rgba(245, 245, 240, 0.5);
+          max-width: 280px;
+          margin-bottom: 32px;
         }
         
-        .app-tile {
-          transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        .hero-actions {
+          display: flex;
+          gap: 12px;
         }
         
-        .app-tile:hover {
-          padding-left: 8px;
+        .btn-primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 12px 20px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #0B0B0D;
+          background: #F5F5F0;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
         }
         
-        .app-tile:hover .tile-title {
-          color: #FFFFFF;
-        }
-        
-        .app-tile:hover .tile-arrow {
-          color: rgba(140, 155, 255, 0.8);
-          transform: translateX(8px);
-        }
-        
-        .signature-card {
-          transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        
-        .signature-card:hover {
-          background: rgba(140, 155, 255, 0.08);
-          border-color: rgba(140, 155, 255, 0.15);
-        }
-        
-        .cta-button {
-          transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        
-        .cta-button:hover {
+        .btn-primary:hover {
           background: #FFFFFF;
-          box-shadow: 0 16px 48px rgba(227, 217, 198, 0.2);
+          transform: translateY(-1px);
+        }
+        
+        .btn-primary:active {
+          transform: translateY(0);
+        }
+        
+        .btn-secondary {
+          padding: 12px 20px;
+          font-size: 14px;
+          font-weight: 500;
+          color: rgba(245, 245, 240, 0.7);
+          background: transparent;
+          border: 1px solid #2A2A30;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:hover {
+          border-color: #3A3A40;
+          color: #F5F5F0;
+        }
+        
+        /* ═══ STATS ═══ */
+        .stats-section {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 24px;
+          border-bottom: 1px solid #1A1A1F;
+        }
+        
+        .stat-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          flex: 1;
+        }
+        
+        .stat-value {
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+          font-size: 24px;
+          font-weight: 600;
+          letter-spacing: -0.02em;
+          color: #F5F5F0;
+        }
+        
+        .stat-label {
+          font-size: 11px;
+          color: rgba(245, 245, 240, 0.4);
+          margin-top: 4px;
+        }
+        
+        .stat-divider {
+          width: 1px;
+          height: 32px;
+          background: #2A2A30;
+        }
+        
+        /* ═══ FILTERS ═══ */
+        .filters-section {
+          padding: 24px;
+          border-bottom: 1px solid #1A1A1F;
+        }
+        
+        .category-tabs {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 16px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+        }
+        
+        .category-tabs::-webkit-scrollbar {
+          display: none;
+        }
+        
+        .category-tab {
+          padding: 8px 16px;
+          font-size: 13px;
+          font-weight: 500;
+          color: rgba(245, 245, 240, 0.5);
+          background: transparent;
+          border: 1px solid #2A2A30;
+          border-radius: 100px;
+          white-space: nowrap;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .category-tab:hover {
+          border-color: #3A3A40;
+          color: rgba(245, 245, 240, 0.8);
+        }
+        
+        .category-tab.active {
+          background: rgba(141, 157, 255, 0.1);
+          border-color: rgba(141, 157, 255, 0.3);
+          color: #8D9DFF;
+        }
+        
+        .search-row {
+          margin-bottom: 16px;
+        }
+        
+        .search-input-wrap {
+          position: relative;
+        }
+        
+        .search-icon {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 16px;
+          height: 16px;
+          color: rgba(245, 245, 240, 0.3);
+        }
+        
+        .search-input {
+          width: 100%;
+          padding: 12px 12px 12px 40px;
+          font-size: 14px;
+          color: #F5F5F0;
+          background: #151518;
+          border: 1px solid #2A2A30;
+          border-radius: 8px;
+          outline: none;
+          transition: all 0.2s ease;
+        }
+        
+        .search-input::placeholder {
+          color: rgba(245, 245, 240, 0.3);
+        }
+        
+        .search-input:focus {
+          border-color: rgba(141, 157, 255, 0.5);
+          background: #1A1A1F;
+        }
+        
+        .sort-row {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        
+        .sort-label {
+          font-size: 12px;
+          color: rgba(245, 245, 240, 0.4);
+          flex-shrink: 0;
+        }
+        
+        .sort-tabs {
+          display: flex;
+          gap: 4px;
+        }
+        
+        .sort-tab {
+          padding: 6px 12px;
+          font-size: 12px;
+          font-weight: 500;
+          color: rgba(245, 245, 240, 0.4);
+          background: transparent;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .sort-tab:hover {
+          color: rgba(245, 245, 240, 0.7);
+        }
+        
+        .sort-tab.active {
+          background: #1A1A1F;
+          color: #F5F5F0;
+        }
+        
+        /* ═══ CATALOG ═══ */
+        .catalog-section {
+          padding: 24px;
+        }
+        
+        .catalog-header {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          margin-bottom: 20px;
+        }
+        
+        .section-title {
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: rgba(245, 245, 240, 0.5);
+        }
+        
+        .catalog-count {
+          font-size: 12px;
+          color: rgba(245, 245, 240, 0.3);
+        }
+        
+        .catalog-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        
+        .app-card {
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+          background: #151518;
+          border: 1px solid #1A1A1F;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .app-card:hover {
+          background: #1A1A1F;
+          border-color: #2A2A30;
           transform: translateY(-2px);
         }
         
-        .cta-button:active {
+        .app-card:active {
           transform: translateY(0);
+        }
+        
+        .card-tag {
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #8D9DFF;
+          margin-bottom: 8px;
+        }
+        
+        .card-title {
+          font-size: 17px;
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          color: #F5F5F0;
+          margin-bottom: 12px;
+        }
+        
+        .card-title-lead {
+          font-size: 20px;
+          font-weight: 600;
+          letter-spacing: -0.02em;
+          color: #F5F5F0;
+          margin-bottom: 8px;
+        }
+        
+        .card-desc {
+          font-size: 14px;
+          line-height: 1.5;
+          color: rgba(245, 245, 240, 0.45);
+          margin-bottom: 16px;
+        }
+        
+        .card-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-top: auto;
+        }
+        
+        .card-kpi {
+          font-size: 12px;
+          font-weight: 600;
+          color: rgba(141, 157, 255, 0.8);
+        }
+        
+        .card-action {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 13px;
+          font-weight: 500;
+          color: rgba(245, 245, 240, 0.5);
+          transition: color 0.2s ease;
+        }
+        
+        .app-card:hover .card-action {
+          color: #F5F5F0;
+        }
+        
+        .empty-state {
+          text-align: center;
+          padding: 48px 24px;
+          color: rgba(245, 245, 240, 0.4);
+        }
+        
+        .reset-btn {
+          margin-top: 16px;
+          font-size: 14px;
+          font-weight: 500;
+          color: #8D9DFF;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+        }
+        
+        /* ═══ CTA ═══ */
+        .cta-section {
+          padding: 24px;
+        }
+        
+        .cta-box {
+          padding: 32px 24px;
+          text-align: center;
+          border: 1px solid #2A2A30;
+          border-radius: 16px;
+        }
+        
+        .cta-overline {
+          display: block;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: rgba(245, 245, 240, 0.4);
+          margin-bottom: 12px;
+        }
+        
+        .cta-price {
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+          font-size: 32px;
+          font-weight: 600;
+          letter-spacing: -0.02em;
+          color: #F5F5F0;
+          margin-bottom: 8px;
+        }
+        
+        .cta-desc {
+          font-size: 14px;
+          color: rgba(245, 245, 240, 0.4);
+          margin-bottom: 24px;
+        }
+        
+        .btn-cta {
+          width: 100%;
+          padding: 16px 24px;
+          font-size: 15px;
+          font-weight: 600;
+          color: #0B0B0D;
+          background: #F5F5F0;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .btn-cta:hover {
+          background: #FFFFFF;
+          transform: translateY(-1px);
+        }
+        
+        .btn-cta:active {
+          transform: translateY(0);
+        }
+        
+        .bottom-space {
+          height: 24px;
         }
       `}</style>
     </div>
