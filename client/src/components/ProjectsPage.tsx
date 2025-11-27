@@ -50,13 +50,13 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
               color: '#FAFAFA'
             }}
           >
-            Telegram Mini Apps
-            <br />
-            для брендов,
+            Пока вы думаете —
             <br />
             <span style={{ color: '#A1A1AA' }}>
-              которые ведут рынок
+              конкуренты забирают
             </span>
+            <br />
+            ваших клиентов
           </h1>
           
           {/* Subtext */}
@@ -72,7 +72,7 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
               maxWidth: '320px'
             }}
           >
-            Разрабатываем приложения, которые превращают подписчиков в клиентов. Индивидуальный подход к каждому проекту.
+            900 миллионов человек в Telegram. Ваши клиенты уже там. Вопрос — покупают ли они у вас или у конкурента.
           </p>
         </header>
 
@@ -96,7 +96,7 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
                 textTransform: 'uppercase'
               }}
             >
-              Коллекция
+              Коллекция приложений
             </p>
             <p 
               style={{
