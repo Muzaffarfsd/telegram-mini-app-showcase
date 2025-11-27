@@ -114,7 +114,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           width: '320px',
           background: 'linear-gradient(180deg, #0C0C0E 0%, #09090B 100%)',
           borderRight: '1px solid rgba(255,255,255,0.06)',
-          boxShadow: sidebarOpen ? '20px 0 60px rgba(0,0,0,0.5)' : 'none'
+          boxShadow: sidebarOpen ? '20px 0 60px rgba(0,0,0,0.5)' : 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          overflowY: 'auto',
+          overflowX: 'hidden'
         }}
       >
         {/* Decorative gradient line at top */}
@@ -505,99 +509,220 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </button>
         </nav>
         
-        {/* App Progress Card */}
+        {/* Apple-Style App Progress Card */}
         <div style={{
           margin: '0 16px 12px',
-          padding: '16px',
-          borderRadius: '14px',
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.05)'
+          padding: '20px',
+          borderRadius: '20px',
+          background: 'linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
+          {/* Decorative blur orb */}
+          <div style={{
+            position: 'absolute',
+            top: '-30px',
+            right: '-30px',
+            width: '100px',
+            height: '100px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)',
+            filter: 'blur(25px)',
+            pointerEvents: 'none'
+          }} />
+          
+          {/* Header */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: '12px'
+            marginBottom: '20px',
+            position: 'relative'
           }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '12px'
             }}>
               <div style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '8px',
-                background: 'linear-gradient(135deg, rgba(34,197,94,0.2) 0%, rgba(16,185,129,0.1) 100%)',
-                border: '1px solid rgba(34, 197, 94, 0.2)',
+                width: '40px',
+                height: '40px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(16,185,129,0.08) 100%)',
+                border: '1px solid rgba(34, 197, 94, 0.15)',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(34,197,94,0.1)'
               }}>
-                <Sparkles size={14} color="#22C55E" />
+                <Sparkles size={18} color="#22C55E" />
               </div>
+              <div>
+                <span style={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#FAFAFA',
+                  display: 'block',
+                  letterSpacing: '-0.01em'
+                }}>
+                  Ваше приложение
+                </span>
+                <span style={{
+                  fontSize: '11px',
+                  color: '#52525B',
+                  marginTop: '2px',
+                  display: 'block'
+                }}>
+                  Отслеживайте прогресс
+                </span>
+              </div>
+            </div>
+            
+            {/* Percentage Badge */}
+            <div style={{
+              padding: '6px 12px',
+              borderRadius: '20px',
+              background: 'linear-gradient(135deg, rgba(34,197,94,0.2) 0%, rgba(16,185,129,0.1) 100%)',
+              border: '1px solid rgba(34, 197, 94, 0.25)'
+            }}>
               <span style={{
                 fontSize: '13px',
-                fontWeight: 600,
-                color: '#E4E4E7'
+                fontWeight: 700,
+                color: '#22C55E',
+                letterSpacing: '-0.02em'
               }}>
-                Ваше приложение
+                0%
               </span>
             </div>
-            <span style={{
-              fontSize: '12px',
-              fontWeight: 700,
-              color: '#22C55E'
-            }}>
-              0%
-            </span>
           </div>
           
-          {/* App Progress Bar */}
+          {/* Apple-Style Progress Track */}
           <div style={{
             position: 'relative',
-            width: '100%',
-            height: '8px',
-            borderRadius: '6px',
-            background: 'rgba(255,255,255,0.06)',
-            overflow: 'hidden',
-            marginBottom: '10px'
+            marginBottom: '16px'
           }}>
-            {/* Progress Fill */}
+            {/* Background Track */}
             <div style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              height: '100%',
-              width: '0%',
-              borderRadius: '6px',
-              background: 'linear-gradient(90deg, #22C55E 0%, #10B981 50%, #34D399 100%)',
-              boxShadow: '0 0 12px rgba(34, 197, 94, 0.4)',
-              transition: 'width 0.5s ease'
-            }} />
-            {/* Shimmer Effect */}
-            <div style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              height: '100%',
+              position: 'relative',
               width: '100%',
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
-              animation: 'shimmer 2.5s infinite'
-            }} />
+              height: '6px',
+              borderRadius: '3px',
+              background: 'rgba(255,255,255,0.08)',
+              overflow: 'hidden'
+            }}>
+              {/* Progress Fill with Glow */}
+              <div style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                height: '100%',
+                width: '2%',
+                borderRadius: '3px',
+                background: 'linear-gradient(90deg, #22C55E 0%, #10B981 100%)',
+                boxShadow: '0 0 16px rgba(34, 197, 94, 0.6), 0 0 4px rgba(34, 197, 94, 0.8)',
+                transition: 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+              }} />
+              {/* Animated Pulse */}
+              <div style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                height: '100%',
+                width: '2%',
+                borderRadius: '3px',
+                background: 'rgba(255,255,255,0.3)',
+                animation: 'pulse 2s ease-in-out infinite'
+              }} />
+            </div>
           </div>
           
-          {/* Stages */}
+          {/* Apple-Style Stage Indicators */}
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
-            fontSize: '10px',
-            color: '#52525B'
+            position: 'relative'
           }}>
-            <span style={{ color: '#71717A' }}>Бриф</span>
-            <span>Дизайн</span>
-            <span>Разработка</span>
-            <span>Запуск</span>
+            {/* Connecting Line */}
+            <div style={{
+              position: 'absolute',
+              top: '11px',
+              left: '22px',
+              right: '22px',
+              height: '2px',
+              background: 'rgba(255,255,255,0.06)',
+              borderRadius: '1px',
+              zIndex: 0
+            }} />
+            
+            {[
+              { label: 'Бриф', active: true, completed: false },
+              { label: 'Дизайн', active: false, completed: false },
+              { label: 'Код', active: false, completed: false },
+              { label: 'Запуск', active: false, completed: false }
+            ].map((stage, index) => (
+              <div 
+                key={stage.label}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px',
+                  zIndex: 1
+                }}
+              >
+                {/* Stage Dot */}
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: stage.completed 
+                    ? 'linear-gradient(135deg, #22C55E 0%, #10B981 100%)'
+                    : stage.active 
+                      ? 'linear-gradient(135deg, rgba(34,197,94,0.3) 0%, rgba(16,185,129,0.2) 100%)'
+                      : 'rgba(255,255,255,0.04)',
+                  border: stage.completed 
+                    ? '2px solid rgba(34,197,94,0.5)'
+                    : stage.active 
+                      ? '2px solid rgba(34,197,94,0.4)'
+                      : '2px solid rgba(255,255,255,0.08)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: stage.active || stage.completed 
+                    ? '0 0 12px rgba(34,197,94,0.3)' 
+                    : 'none',
+                  transition: 'all 0.3s ease'
+                }}>
+                  {stage.completed ? (
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6L5 9L10 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  ) : (
+                    <div style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      background: stage.active 
+                        ? '#22C55E' 
+                        : 'rgba(255,255,255,0.2)',
+                      boxShadow: stage.active ? '0 0 8px rgba(34,197,94,0.6)' : 'none'
+                    }} />
+                  )}
+                </div>
+                
+                {/* Stage Label */}
+                <span style={{
+                  fontSize: '10px',
+                  fontWeight: stage.active || stage.completed ? 600 : 500,
+                  color: stage.active || stage.completed ? '#A1A1AA' : '#52525B',
+                  letterSpacing: '0.02em',
+                  transition: 'color 0.3s ease'
+                }}>
+                  {stage.label}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
         
