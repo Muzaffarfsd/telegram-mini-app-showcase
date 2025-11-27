@@ -505,6 +505,102 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </button>
         </nav>
         
+        {/* App Progress Card */}
+        <div style={{
+          margin: '0 16px 12px',
+          padding: '16px',
+          borderRadius: '14px',
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.05)'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '12px'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <div style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, rgba(34,197,94,0.2) 0%, rgba(16,185,129,0.1) 100%)',
+                border: '1px solid rgba(34, 197, 94, 0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Sparkles size={14} color="#22C55E" />
+              </div>
+              <span style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                color: '#E4E4E7'
+              }}>
+                Ваше приложение
+              </span>
+            </div>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 700,
+              color: '#22C55E'
+            }}>
+              0%
+            </span>
+          </div>
+          
+          {/* App Progress Bar */}
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            height: '8px',
+            borderRadius: '6px',
+            background: 'rgba(255,255,255,0.06)',
+            overflow: 'hidden',
+            marginBottom: '10px'
+          }}>
+            {/* Progress Fill */}
+            <div style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              height: '100%',
+              width: '0%',
+              borderRadius: '6px',
+              background: 'linear-gradient(90deg, #22C55E 0%, #10B981 50%, #34D399 100%)',
+              boxShadow: '0 0 12px rgba(34, 197, 94, 0.4)',
+              transition: 'width 0.5s ease'
+            }} />
+            {/* Shimmer Effect */}
+            <div style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              height: '100%',
+              width: '100%',
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
+              animation: 'shimmer 2.5s infinite'
+            }} />
+          </div>
+          
+          {/* Stages */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: '10px',
+            color: '#52525B'
+          }}>
+            <span style={{ color: '#71717A' }}>Бриф</span>
+            <span>Дизайн</span>
+            <span>Разработка</span>
+            <span>Запуск</span>
+          </div>
+        </div>
+        
         {/* Quick Stats Card */}
         <div style={{
           margin: '0 16px 16px',
