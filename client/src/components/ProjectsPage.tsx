@@ -43,19 +43,19 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             className="scroll-fade-in-delay-1"
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: '32px',
+              fontSize: '30px',
               fontWeight: 600,
-              letterSpacing: '-0.03em',
-              lineHeight: '1.2',
+              letterSpacing: '-0.025em',
+              lineHeight: '1.25',
               color: '#FAFAFA'
             }}
           >
-            Ваш бизнес мог бы
+            Секрет бизнесов,
             <br />
-            зарабатывать ночью.
+            которые получают заказы
             <br />
             <span style={{ color: '#FFFFFF' }}>
-              Вот как.
+              в 3 часа ночи.
             </span>
           </h1>
           
@@ -72,7 +72,7 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
               maxWidth: '320px'
             }}
           >
-            Telegram Mini App работает вместо вас: принимает заказы, консультирует, продаёт. Вы получаете деньги — без найма, без рутины.
+            Пока вы отдыхаете — Telegram Mini App закрывает сделки. 50+ бизнесов уже продают на автомате. Запуск за 14 дней.
           </p>
         </header>
 
