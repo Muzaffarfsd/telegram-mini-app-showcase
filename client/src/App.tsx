@@ -3,8 +3,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { useTelegram } from "./hooks/useTelegram";
-import { Home, ShoppingCart, Briefcase, Bot, User } from "lucide-react";
+import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
+import UserAvatar from "./components/UserAvatar";
 
 // Eager load providers to prevent blank screen (Suspense fallback={null} + #root:empty CSS loop)
 import { RewardsProvider } from "./contexts/RewardsContext";
@@ -403,15 +404,15 @@ function App() {
                           
                           {/* ИИ Агент */}
                           <button
-                            onClick={() => {navigate('/ai-agent'); hapticFeedback.light();}}
+                            onClick={() => {navigate('/ai-process'); hapticFeedback.light();}}
                             className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
                             style={{ zIndex: 10 }}
                             aria-label="ИИ агенты для бизнеса"
-                            aria-current={route.component === 'aiAgent' ? 'page' : undefined}
+                            aria-current={route.component === 'aiProcess' || route.component === 'aiAgent' ? 'page' : undefined}
                           >
                             <Bot
                               className={`transition-all duration-300 ${
-                                route.component === 'aiAgent' 
+                                route.component === 'aiProcess' || route.component === 'aiAgent'
                                   ? 'w-6 h-6 text-white' 
                                   : 'w-5 h-5 text-white/70 hover:text-white'
                               }`}
@@ -455,7 +456,7 @@ function App() {
                             />
                           </button>
                           
-                          {/* Профиль */}
+                          {/* Профиль - с аватаром Telegram */}
                           <button
                             onClick={() => {navigate('/profile'); hapticFeedback.light();}}
                             className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
@@ -463,13 +464,15 @@ function App() {
                             aria-label="Профиль пользователя"
                             aria-current={route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning' ? 'page' : undefined}
                           >
-                            <User
+                            <UserAvatar
+                              photoUrl={user?.photo_url}
+                              firstName={user?.first_name}
+                              size="sm"
                               className={`transition-all duration-300 ${
                                 route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning'
-                                  ? 'w-6 h-6 text-white' 
-                                  : 'w-5 h-5 text-white/70 hover:text-white'
+                                  ? 'ring-2 ring-white/50 scale-110' 
+                                  : 'opacity-80 hover:opacity-100'
                               }`}
-                              strokeWidth={2}
                             />
                           </button>
                     

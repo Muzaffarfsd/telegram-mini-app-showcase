@@ -3,6 +3,8 @@ import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Shield, Target, Check } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
+import { useFilter } from "@/hooks/useFilter";
+import { Skeleton } from "@/components/ui/skeleton";
 import img1 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
 import img2 from '@assets/stock_images/futuristic_fashion_m_b5d87157.jpg';
 import img3 from '@assets/stock_images/futuristic_fashion_m_472b5d38.jpg';
@@ -250,6 +252,16 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
   const [selectedGender, setSelectedGender] = useState<string>('All');
   const [orders, setOrders] = useState<Order[]>([]);
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+
+  const { filteredItems, searchQuery, handleSearch } = useFilter({
+    items: products,
+    searchFields: ['name', 'description', 'category', 'brand'] as (keyof Product)[],
+  });
+
+  const handleImageLoad = (id: number) => {
+    setLoadedImages(prev => new Set([...Array.from(prev), id]));
+  };
 
   useEffect(() => {
     if (activeTab !== 'catalog') {
@@ -260,7 +272,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
     }
   }, [activeTab]);
 
-  const filteredProducts = products.filter(p => {
+  const filteredProducts = filteredItems.filter(p => {
     const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
     
     if (activeTab === 'home') {
@@ -502,6 +514,8 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
               <input
                 type="text"
                 placeholder="Поиск снаряжения..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
                 className="bg-transparent text-white placeholder:text-white/40 outline-none flex-1 text-sm font-mono"
                 data-testid="input-search"
               />

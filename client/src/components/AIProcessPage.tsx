@@ -88,7 +88,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               <br />
               запуска за
               <br />
-              3 недели
+              24 часа
             </h1>
             
             {/* Subtitle */}
@@ -107,8 +107,30 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               с интеграцией ИИ агента
             </p>
 
+            {/* CTA Button */}
+            <div className="flex justify-center mb-8 scroll-fade-in-delay-3">
+              <a
+                href="https://t.me/web4tgs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full font-semibold transition-all duration-300 active:scale-[0.97]"
+                style={{
+                  background: 'linear-gradient(135deg, #007AFF 0%, #0051D5 100%)',
+                  color: '#FFFFFF',
+                  fontSize: '17px',
+                  letterSpacing: '-0.01em',
+                  boxShadow: '0 8px 32px rgba(0, 122, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+                }}
+                data-testid="button-consultation"
+              >
+                <MessageSquare className="w-5 h-5" />
+                Получить консультацию
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </a>
+            </div>
+
             {/* Stats Row */}
-            <div className="flex justify-center gap-8 mb-8 scroll-fade-in-delay-3">
+            <div className="flex justify-center gap-8 mb-8 scroll-fade-in-delay-4">
               <StatBadge number="900M+" label="пользователей" />
               <StatBadge number="24/7" label="поддержка" />
               <StatBadge number="100%" label="автоматизация" />

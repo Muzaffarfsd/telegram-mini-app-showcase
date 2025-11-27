@@ -2,6 +2,8 @@ import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Search, Menu, ChevronUp, ChevronDown, Check } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
+import { useFilter } from "@/hooks/useFilter";
+import { Skeleton } from "@/components/ui/skeleton";
 import img1 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
 import img2 from '@assets/stock_images/futuristic_techwear__737df842.jpg';
 import img3 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
@@ -227,6 +229,16 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
   const [orders, setOrders] = useState<Order[]>([]);
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+
+  const { filteredItems, searchQuery, handleSearch } = useFilter({
+    items: products,
+    searchFields: ['name', 'description', 'category'] as (keyof Product)[],
+  });
+
+  const handleImageLoad = (id: number) => {
+    setLoadedImages(prev => new Set([...Array.from(prev), id]));
+  };
 
   useEffect(() => {
     if (activeTab !== 'catalog') {
@@ -234,7 +246,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
     }
   }, [activeTab]);
 
-  const filteredProducts = products.filter(p => {
+  const filteredProducts = filteredItems.filter(p => {
     const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
     return categoryMatch;
   });

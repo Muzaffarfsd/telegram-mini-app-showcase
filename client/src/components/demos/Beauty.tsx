@@ -206,6 +206,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
             onClick={() => setSelectedService(null)}
             className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
             data-testid="button-back"
+            aria-label="Назад"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -216,6 +217,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
             }}
             className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
             data-testid={`button-favorite-${selectedService.id}`}
+            aria-label="Добавить в избранное"
           >
             <Heart 
               className={`w-5 h-5 ${favorites.has(selectedService.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`}
@@ -402,6 +404,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                       }}
                       className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
                       data-testid={`button-favorite-${service.id}`}
+                      aria-label="Добавить в избранное"
                     >
                       <Heart 
                         className={`w-4 h-4 ${favorites.has(service.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`}
@@ -437,6 +440,20 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-xl font-bold">Услуги</h1>
             <Sparkles className="w-6 h-6 text-pink-400" />
+          </div>
+
+          {/* Search */}
+          <div className="relative mb-4">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+            <input
+              type="text"
+              placeholder="Поиск услуг..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+              data-testid="input-search"
+              aria-label="Поиск услуг"
+            />
           </div>
 
           {/* Hero Banner */}
@@ -485,11 +502,15 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                 data-testid={`service-card-${service.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2 bg-white/5 backdrop-blur-xl border border-white/10">
+                  {!loadedImages.has(service.id) && (
+                    <Skeleton className="absolute inset-0 rounded-2xl bg-white/10" />
+                  )}
                   <img
                     src={service.image}
                     alt={service.name}
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${loadedImages.has(service.id) ? 'opacity-100' : 'opacity-0'}`}
                     loading="lazy"
+                    onLoad={() => handleImageLoad(service.id)}
                   />
                   
                   {service.isNew && (
@@ -505,6 +526,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                     }}
                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
                     data-testid={`button-favorite-${service.id}`}
+                    aria-label="Добавить в избранное"
                   >
                     <Heart 
                       className={`w-4 h-4 ${favorites.has(service.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`}
@@ -565,6 +587,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                       onClick={() => setBookings(bookings.filter(b => b.id !== booking.id))}
                       className="p-2 h-fit hover:bg-white/10 rounded-lg transition-colors"
                       data-testid={`button-cancel-${booking.id}`}
+                      aria-label="Отменить запись"
                     >
                       <X className="w-5 h-5 text-white/40" />
                     </button>

@@ -4,6 +4,8 @@ import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, 
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer, SelectDrawer } from "../ui/modern-drawer";
 import { HapticButton } from "../ui/haptic-button";
+import { useFilter } from "@/hooks/useFilter";
+import { Skeleton } from "@/components/ui/skeleton";
 import img1 from '@assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg';
 import img2 from '@assets/stock_images/cyberpunk_fashion_ho_663ed3c4.jpg';
 import img3 from '@assets/stock_images/cyberpunk_fashion_ho_055adfe8.jpg';
@@ -261,6 +263,16 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
   const [quantity, setQuantity] = useState(1);
   const [orders, setOrders] = useState<Order[]>([]);
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+
+  const { filteredItems, searchQuery, handleSearch } = useFilter({
+    items: products,
+    searchFields: ['name', 'description', 'category', 'brand'] as (keyof Product)[],
+  });
+
+  const handleImageLoad = (id: number) => {
+    setLoadedImages(prev => new Set([...Array.from(prev), id]));
+  };
 
   useEffect(() => {
     if (activeTab !== 'catalog') {
@@ -271,7 +283,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
     }
   }, [activeTab]);
 
-  const filteredProducts = products.filter(p => {
+  const filteredProducts = filteredItems.filter(p => {
     const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
     
     if (activeTab === 'home') {
@@ -352,6 +364,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
             onClick={() => setSelectedProduct(null)}
             className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-all"
             data-testid="button-back"
+            aria-label="Назад"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -362,6 +375,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
             }}
             className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-all"
             data-testid={`button-favorite-${selectedProduct.id}`}
+            aria-label="Избранное"
           >
             <Heart 
               className={`w-5 h-5 ${favorites.has(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
@@ -443,6 +457,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 className="text-white/60 hover:text-white transition-colors"
                 data-testid="button-decrease-quantity"
+                aria-label="Уменьшить количество"
               >
                 <Minus className="w-5 h-5" />
               </button>
@@ -453,6 +468,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
                 onClick={() => setQuantity(quantity + 1)}
                 className="text-white/60 hover:text-white transition-colors"
                 data-testid="button-increase-quantity"
+                aria-label="Увеличить количество"
               >
                 <Plus className="w-5 h-5" />
               </button>
@@ -510,7 +526,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
               <h1 className="text-5xl font-black tracking-tighter">STORE</h1>
             </div>
             <div className="flex items-center gap-3">
-              <button className="relative" data-testid="button-view-cart">
+              <button className="relative" data-testid="button-view-cart" aria-label="Корзина">
                 <ShoppingBag className="w-6 h-6" style={{ color: '#FFD700' }} />
                 {cart.length > 0 && (
                   <span className="absolute -top-2 -right-2 w-5 h-5 bg-[#FFD700] text-black text-xs font-bold rounded-full flex items-center justify-center">
@@ -518,7 +534,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
                   </span>
                 )}
               </button>
-              <button data-testid="button-view-favorites">
+              <button data-testid="button-view-favorites" aria-label="Избранное">
                 <Heart className="w-6 h-6" style={{ color: favorites.size > 0 ? '#FFD700' : 'white' }} />
               </button>
             </div>
@@ -557,6 +573,8 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
               <input
                 type="text"
                 placeholder="Поиск товаров..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
                 className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
                 data-testid="input-search"
               />
@@ -639,6 +657,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
                 }}
                 className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all"
                 data-testid={`button-favorite-${product.id}`}
+                aria-label="Избранное"
               >
                 <Heart 
                   className={`w-5 h-5 ${favorites.has(product.id) ? 'fill-[#FFD700] text-[#FFD700]' : 'text-white'}`}
@@ -662,6 +681,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
                     className="w-14 h-14 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg shadow-[#FFD700]/30"
                     style={{ backgroundColor: '#FFD700' }}
                     data-testid={`button-add-to-cart-${product.id}`}
+                    aria-label="Добавить в корзину"
                   >
                     <ShoppingBag className="w-6 h-6 text-black" />
                   </button>
@@ -694,10 +714,10 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
               <h1 className="text-3xl font-bold">Каталог</h1>
             </div>
             <div className="flex items-center gap-3">
-              <button className="p-2" data-testid="button-view-search">
+              <button className="p-2" data-testid="button-view-search" aria-label="Поиск">
                 <Search className="w-6 h-6" />
               </button>
-              <button className="p-2" data-testid="button-view-filter">
+              <button className="p-2" data-testid="button-view-filter" aria-label="Фильтр">
                 <Filter className="w-6 h-6" />
               </button>
             </div>
@@ -745,6 +765,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
                     }}
                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center border border-white/20"
                     data-testid={`button-favorite-${product.id}`}
+                    aria-label="Избранное"
                   >
                     <Heart 
                       className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-[#FFD700] text-[#FFD700]' : 'text-white'}`}
@@ -848,6 +869,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
                     onClick={() => setCart(cart.filter(i => i.id !== item.id))}
                     className="w-8 h-8 hover:bg-white/10 rounded-lg transition-all"
                     data-testid={`button-remove-${item.id}`}
+                    aria-label="Удалить"
                   >
                     <X className="w-5 h-5" />
                   </button>

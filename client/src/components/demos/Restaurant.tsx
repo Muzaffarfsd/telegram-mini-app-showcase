@@ -113,6 +113,12 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+
+  const { filteredItems, searchQuery, handleSearch } = useFilter({
+    items: dishes,
+    searchFields: ['name', 'description', 'category', 'ingredients'] as (keyof Dish)[],
+  });
 
   useEffect(() => {
     if (activeTab !== 'catalog') {
@@ -120,9 +126,13 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
     }
   }, [activeTab]);
 
-  const filteredDishes = dishes.filter(d => 
+  const filteredDishes = filteredItems.filter(d => 
     selectedCategory === 'Все' || d.category === selectedCategory
   );
+
+  const handleImageLoad = (dishId: number) => {
+    setLoadedImages(prev => new Set([...Array.from(prev), dishId]));
+  };
 
   const toggleFavorite = (dishId: number) => {
     const newFavorites = new Set(favorites);
@@ -196,6 +206,7 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
             onClick={() => setSelectedDish(null)}
             className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
             data-testid="button-back"
+            aria-label="Назад"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -206,6 +217,7 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
             }}
             className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
             data-testid={`button-favorite-${selectedDish.id}`}
+            aria-label="Добавить в избранное"
           >
             <Heart 
               className={`w-5 h-5 ${favorites.has(selectedDish.id) ? 'fill-amber-400 text-amber-400' : 'text-white'}`}
@@ -376,6 +388,7 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
                       }}
                       className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
                       data-testid={`button-favorite-${dish.id}`}
+                      aria-label="Добавить в избранное"
                     >
                       <Heart 
                         className={`w-4 h-4 ${favorites.has(dish.id) ? 'fill-amber-400 text-amber-400' : 'text-white'}`}
@@ -410,6 +423,20 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-xl font-bold">Меню</h1>
             <Utensils className="w-6 h-6 text-amber-400" />
+          </div>
+
+          {/* Search */}
+          <div className="relative mb-4">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+            <input
+              type="text"
+              placeholder="Поиск блюд..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              data-testid="input-search"
+              aria-label="Поиск блюд"
+            />
           </div>
 
           {/* Hero Banner */}
@@ -458,11 +485,15 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
                 data-testid={`dish-card-${dish.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2 bg-white/5 backdrop-blur-xl border border-white/10">
+                  {!loadedImages.has(dish.id) && (
+                    <Skeleton className="absolute inset-0 rounded-2xl bg-white/10" />
+                  )}
                   <img
                     src={dish.image}
                     alt={dish.name}
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${loadedImages.has(dish.id) ? 'opacity-100' : 'opacity-0'}`}
                     loading="lazy"
+                    onLoad={() => handleImageLoad(dish.id)}
                   />
                   
                   {dish.isNew && (
@@ -478,6 +509,7 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
                     }}
                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
                     data-testid={`button-favorite-${dish.id}`}
+                    aria-label="Добавить в избранное"
                   >
                     <Heart 
                       className={`w-4 h-4 ${favorites.has(dish.id) ? 'fill-amber-400 text-amber-400' : 'text-white'}`}
@@ -537,6 +569,7 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
                       onClick={() => setOrderItems(orderItems.filter(i => i.id !== item.id))}
                       className="p-2 h-fit hover:bg-white/10 rounded-lg transition-colors"
                       data-testid={`button-remove-${item.id}`}
+                      aria-label="Удалить из корзины"
                     >
                       <X className="w-5 h-5 text-white/40" />
                     </button>
