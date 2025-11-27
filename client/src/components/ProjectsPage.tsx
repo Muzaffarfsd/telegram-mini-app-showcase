@@ -43,19 +43,19 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             className="scroll-fade-in-delay-1"
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: '34px',
+              fontSize: '32px',
               fontWeight: 600,
-              letterSpacing: '-0.035em',
-              lineHeight: '1.15',
+              letterSpacing: '-0.03em',
+              lineHeight: '1.2',
               color: '#FAFAFA'
             }}
           >
-            Лидеры рынка уже
+            Приложение,
             <br />
-            монетизируют Telegram.
+            которое продаёт за вас.
             <br />
             <span style={{ color: '#A1A1AA' }}>
-              Ваш бренд — следующий.
+              24 часа. 7 дней в неделю.
             </span>
           </h1>
           
@@ -72,7 +72,7 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
               maxWidth: '320px'
             }}
           >
-            За 14 дней запустим Mini App под ваш бренд с оплатой и аналитикой — чтобы аудитория приносила прибыль ежедневно.
+            Пока вы спите — Mini App принимает заказы, отвечает клиентам и закрывает сделки. Запуск за 14 дней.
           </p>
         </header>
 
