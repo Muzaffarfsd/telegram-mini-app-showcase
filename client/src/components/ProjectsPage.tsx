@@ -50,12 +50,12 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
               color: '#FAFAFA'
             }}
           >
-            Приложение,
+            Ваш бизнес мог бы
             <br />
-            которое продаёт за вас.
+            зарабатывать ночью.
             <br />
-            <span style={{ color: '#A1A1AA' }}>
-              24 часа. 7 дней в неделю.
+            <span style={{ color: '#FFFFFF' }}>
+              Вот как.
             </span>
           </h1>
           
@@ -72,7 +72,7 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
               maxWidth: '320px'
             }}
           >
-            Пока вы спите — Mini App принимает заказы, отвечает клиентам и закрывает сделки. Запуск за 14 дней.
+            Telegram Mini App работает вместо вас: принимает заказы, консультирует, продаёт. Вы получаете деньги — без найма, без рутины.
           </p>
         </header>
 
