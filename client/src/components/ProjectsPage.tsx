@@ -43,19 +43,19 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             className="scroll-fade-in-delay-1"
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: '30px',
+              fontSize: '28px',
               fontWeight: 600,
               letterSpacing: '-0.025em',
-              lineHeight: '1.25',
+              lineHeight: '1.3',
               color: '#FAFAFA'
             }}
           >
-            Секрет бизнесов,
+            Ваш следующий клиент
             <br />
-            которые получают заказы
+            напишет через 4 минуты.
             <br />
             <span style={{ color: '#FFFFFF' }}>
-              в 3 часа ночи.
+              Кто ему ответит?
             </span>
           </h1>
           
@@ -72,7 +72,7 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
               maxWidth: '320px'
             }}
           >
-            Пока вы отдыхаете — Telegram Mini App закрывает сделки. 50+ бизнесов уже продают на автомате. Запуск за 14 дней.
+            Telegram Mini App отвечает мгновенно, консультирует и закрывает сделки — пока вы занимаетесь чем угодно. 50+ бизнесов уже продают на автомате.
           </p>
         </header>
 
