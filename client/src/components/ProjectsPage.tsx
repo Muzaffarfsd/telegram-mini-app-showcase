@@ -75,144 +75,113 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             Telegram Mini App отвечает мгновенно, консультирует и закрывает сделки — пока вы занимаетесь чем угодно. 50+ бизнесов уже продают на автомате.
           </p>
           
-          {/* Story Testimonial - Halbert style */}
+          {/* Competitive FOMO Statement */}
           <div 
             className="scroll-fade-in-delay-3"
             style={{
-              marginTop: '32px',
+              marginTop: '36px',
               padding: '24px',
               borderRadius: '16px',
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
-              border: '1px solid rgba(255, 255, 255, 0.06)'
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.04) 100%)',
+              border: '1px solid rgba(139, 92, 246, 0.2)'
             }}
           >
-            {/* Quote */}
             <p style={{
-              fontSize: '17px',
+              fontSize: '15px',
               fontWeight: 500,
-              fontStyle: 'italic',
               letterSpacing: '-0.01em',
               color: '#E4E4E7',
-              lineHeight: '1.5',
-              marginBottom: '16px'
+              lineHeight: '1.6'
             }}>
-              «Первый заказ пришёл в 3:47 ночи. Я спал. Утром — деньги на счёте.»
+              Через 14 дней у вас будет
+              <br />
+              <span style={{ 
+                color: '#A78BFA',
+                fontWeight: 600
+              }}>
+                своё приложение.
+              </span>
+              <br />
+              <span style={{ color: '#71717A' }}>
+                Или у вашего конкурента.
+              </span>
             </p>
-            
-            {/* Author */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#FFFFFF'
-              }}>
-                АК
-              </div>
-              <div>
-                <p style={{
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  color: '#FAFAFA'
-                }}>
-                  Андрей К.
-                </p>
-                <p style={{
-                  fontSize: '12px',
-                  color: '#52525B'
-                }}>
-                  Магазин одежды, Москва
-                </p>
-              </div>
-              <div style={{
-                marginLeft: 'auto',
-                padding: '4px 10px',
-                borderRadius: '100px',
-                background: 'rgba(34, 197, 94, 0.15)',
-                border: '1px solid rgba(34, 197, 94, 0.3)'
-              }}>
-                <p style={{
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: '#22C55E'
-                }}>
-                  +127%
-                </p>
-              </div>
-            </div>
           </div>
           
-          {/* Quick Stats Row */}
+          {/* Exclusivity Block */}
           <div 
             className="scroll-fade-in-delay-4"
             style={{
+              marginTop: '12px',
               display: 'flex',
-              gap: '12px',
-              marginTop: '16px'
+              gap: '12px'
             }}
           >
+            {/* Left: What you get */}
             <div style={{
               flex: 1,
-              padding: '16px',
+              padding: '20px 16px',
               borderRadius: '12px',
               background: 'rgba(255, 255, 255, 0.02)',
-              textAlign: 'center'
+              border: '1px solid rgba(255, 255, 255, 0.04)'
             }}>
               <p style={{
-                fontSize: '22px',
-                fontWeight: 700,
-                color: '#FAFAFA',
-                letterSpacing: '-0.03em'
-              }}>14</p>
-              <p style={{
                 fontSize: '11px',
+                fontWeight: 600,
+                letterSpacing: '0.08em',
                 color: '#52525B',
-                marginTop: '2px'
-              }}>дней до запуска</p>
+                textTransform: 'uppercase',
+                marginBottom: '12px'
+              }}>
+                Не шаблон
+              </p>
+              <p style={{
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#FAFAFA',
+                lineHeight: '1.4'
+              }}>
+                Ваш бренд.
+                <br />
+                Ваш стиль.
+                <br />
+                Ваши правила.
+              </p>
             </div>
+            
+            {/* Right: Availability */}
             <div style={{
               flex: 1,
-              padding: '16px',
+              padding: '20px 16px',
               borderRadius: '12px',
               background: 'rgba(255, 255, 255, 0.02)',
-              textAlign: 'center'
+              border: '1px solid rgba(255, 255, 255, 0.04)'
             }}>
               <p style={{
-                fontSize: '22px',
+                fontSize: '11px',
+                fontWeight: 600,
+                letterSpacing: '0.08em',
+                color: '#52525B',
+                textTransform: 'uppercase',
+                marginBottom: '12px'
+              }}>
+                Декабрь
+              </p>
+              <p style={{
+                fontSize: '28px',
                 fontWeight: 700,
                 color: '#FAFAFA',
                 letterSpacing: '-0.03em'
-              }}>50+</p>
+              }}>
+                3
+              </p>
               <p style={{
-                fontSize: '11px',
-                color: '#52525B',
-                marginTop: '2px'
-              }}>запущено</p>
-            </div>
-            <div style={{
-              flex: 1,
-              padding: '16px',
-              borderRadius: '12px',
-              background: 'rgba(255, 255, 255, 0.02)',
-              textAlign: 'center'
-            }}>
-              <p style={{
-                fontSize: '22px',
-                fontWeight: 700,
-                color: '#FAFAFA',
-                letterSpacing: '-0.03em'
-              }}>24/7</p>
-              <p style={{
-                fontSize: '11px',
-                color: '#52525B',
-                marginTop: '2px'
-              }}>без выходных</p>
+                fontSize: '12px',
+                color: '#71717A',
+                marginTop: '4px'
+              }}>
+                слота осталось
+              </p>
             </div>
           </div>
         </header>
