@@ -43,20 +43,20 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             className="scroll-fade-in-delay-1"
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: '36px',
+              fontSize: '34px',
               fontWeight: 600,
               letterSpacing: '-0.035em',
-              lineHeight: '1.12',
+              lineHeight: '1.15',
               color: '#FAFAFA'
             }}
           >
-            Пока вы думаете —
+            Лидеры рынка уже
+            <br />
+            монетизируют Telegram.
             <br />
             <span style={{ color: '#A1A1AA' }}>
-              конкуренты забирают
+              Ваш бренд — следующий.
             </span>
-            <br />
-            ваших клиентов
           </h1>
           
           {/* Subtext */}
@@ -72,7 +72,7 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
               maxWidth: '320px'
             }}
           >
-            900 миллионов человек в Telegram. Ваши клиенты уже там. Вопрос — покупают ли они у вас или у конкурента.
+            За 14 дней запустим Mini App под ваш бренд с оплатой и аналитикой — чтобы аудитория приносила прибыль ежедневно.
           </p>
         </header>
 
