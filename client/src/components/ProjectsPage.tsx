@@ -75,82 +75,145 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             Telegram Mini App отвечает мгновенно, консультирует и закрывает сделки — пока вы занимаетесь чем угодно. 50+ бизнесов уже продают на автомате.
           </p>
           
-          {/* Halbert-style Pain Statement */}
+          {/* Story Testimonial - Halbert style */}
           <div 
             className="scroll-fade-in-delay-3"
             style={{
               marginTop: '32px',
-              padding: '20px',
-              borderRadius: '12px',
-              background: 'rgba(255, 255, 255, 0.02)',
-              borderLeft: '2px solid #EF4444'
+              padding: '24px',
+              borderRadius: '16px',
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
+              border: '1px solid rgba(255, 255, 255, 0.06)'
             }}
           >
+            {/* Quote */}
             <p style={{
-              fontSize: '13px',
-              color: '#A1A1AA',
+              fontSize: '17px',
+              fontWeight: 500,
+              fontStyle: 'italic',
+              letterSpacing: '-0.01em',
+              color: '#E4E4E7',
               lineHeight: '1.5',
-              marginBottom: '8px'
+              marginBottom: '16px'
             }}>
-              Прямо сейчас:
+              «Первый заказ пришёл в 3:47 ночи. Я спал. Утром — деньги на счёте.»
             </p>
-            <p style={{
-              fontSize: '20px',
-              fontWeight: 600,
-              letterSpacing: '-0.02em',
-              color: '#FAFAFA',
-              lineHeight: '1.3'
-            }}>
-              67% сообщений клиентов
-              <br />
-              <span style={{ color: '#EF4444' }}>остаются без ответа.</span>
-            </p>
-            <p style={{
-              fontSize: '13px',
-              color: '#71717A',
-              marginTop: '12px'
-            }}>
-              Это ₽847,000+ упущенной выручки в год.
-            </p>
+            
+            {/* Author */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#FFFFFF'
+              }}>
+                АК
+              </div>
+              <div>
+                <p style={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#FAFAFA'
+                }}>
+                  Андрей К.
+                </p>
+                <p style={{
+                  fontSize: '12px',
+                  color: '#52525B'
+                }}>
+                  Магазин одежды, Москва
+                </p>
+              </div>
+              <div style={{
+                marginLeft: 'auto',
+                padding: '4px 10px',
+                borderRadius: '100px',
+                background: 'rgba(34, 197, 94, 0.15)',
+                border: '1px solid rgba(34, 197, 94, 0.3)'
+              }}>
+                <p style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: '#22C55E'
+                }}>
+                  +127%
+                </p>
+              </div>
+            </div>
           </div>
           
-          {/* Halbert-style Solution Proof */}
+          {/* Quick Stats Row */}
           <div 
             className="scroll-fade-in-delay-4"
             style={{
-              marginTop: '16px',
-              padding: '20px',
-              borderRadius: '12px',
-              background: 'rgba(255, 255, 255, 0.02)',
-              borderLeft: '2px solid #22C55E'
+              display: 'flex',
+              gap: '12px',
+              marginTop: '16px'
             }}
           >
-            <p style={{
-              fontSize: '13px',
-              color: '#A1A1AA',
-              lineHeight: '1.5',
-              marginBottom: '8px'
+            <div style={{
+              flex: 1,
+              padding: '16px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.02)',
+              textAlign: 'center'
             }}>
-              С Mini App:
-            </p>
-            <p style={{
-              fontSize: '20px',
-              fontWeight: 600,
-              letterSpacing: '-0.02em',
-              color: '#FAFAFA',
-              lineHeight: '1.3'
+              <p style={{
+                fontSize: '22px',
+                fontWeight: 700,
+                color: '#FAFAFA',
+                letterSpacing: '-0.03em'
+              }}>14</p>
+              <p style={{
+                fontSize: '11px',
+                color: '#52525B',
+                marginTop: '2px'
+              }}>дней до запуска</p>
+            </div>
+            <div style={{
+              flex: 1,
+              padding: '16px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.02)',
+              textAlign: 'center'
             }}>
-              0 пропущенных клиентов.
-              <br />
-              <span style={{ color: '#22C55E' }}>+₽2.4M в год.</span>
-            </p>
-            <p style={{
-              fontSize: '13px',
-              color: '#71717A',
-              marginTop: '12px'
+              <p style={{
+                fontSize: '22px',
+                fontWeight: 700,
+                color: '#FAFAFA',
+                letterSpacing: '-0.03em'
+              }}>50+</p>
+              <p style={{
+                fontSize: '11px',
+                color: '#52525B',
+                marginTop: '2px'
+              }}>запущено</p>
+            </div>
+            <div style={{
+              flex: 1,
+              padding: '16px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.02)',
+              textAlign: 'center'
             }}>
-              50+ бизнесов уже перешли. Запуск за 14 дней.
-            </p>
+              <p style={{
+                fontSize: '22px',
+                fontWeight: 700,
+                color: '#FAFAFA',
+                letterSpacing: '-0.03em'
+              }}>24/7</p>
+              <p style={{
+                fontSize: '11px',
+                color: '#52525B',
+                marginTop: '2px'
+              }}>без выходных</p>
+            </div>
           </div>
         </header>
 
