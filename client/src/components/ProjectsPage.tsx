@@ -75,123 +75,82 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             Telegram Mini App отвечает мгновенно, консультирует и закрывает сделки — пока вы занимаетесь чем угодно. 50+ бизнесов уже продают на автомате.
           </p>
           
-          {/* Benefits Metrics */}
+          {/* Halbert-style Pain Statement */}
           <div 
             className="scroll-fade-in-delay-3"
             style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '16px',
-              marginTop: '32px'
+              marginTop: '32px',
+              padding: '20px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.02)',
+              borderLeft: '2px solid #EF4444'
             }}
           >
-            {/* Metric 1 */}
-            <div 
-              style={{
-                padding: '16px',
-                borderRadius: '12px',
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.06)'
-              }}
-            >
-              <p style={{
-                fontSize: '24px',
-                fontWeight: 600,
-                letterSpacing: '-0.03em',
-                color: '#FAFAFA',
-                marginBottom: '4px'
-              }}>
-                +47%
-              </p>
-              <p style={{
-                fontSize: '12px',
-                color: '#52525B',
-                letterSpacing: '0.01em'
-              }}>
-                к выручке
-              </p>
-            </div>
-            
-            {/* Metric 2 */}
-            <div 
-              style={{
-                padding: '16px',
-                borderRadius: '12px',
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.06)'
-              }}
-            >
-              <p style={{
-                fontSize: '24px',
-                fontWeight: 600,
-                letterSpacing: '-0.03em',
-                color: '#FAFAFA',
-                marginBottom: '4px'
-              }}>
-                24/7
-              </p>
-              <p style={{
-                fontSize: '12px',
-                color: '#52525B',
-                letterSpacing: '0.01em'
-              }}>
-                без выходных
-              </p>
-            </div>
-            
-            {/* Metric 3 */}
-            <div 
-              style={{
-                padding: '16px',
-                borderRadius: '12px',
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.06)'
-              }}
-            >
-              <p style={{
-                fontSize: '24px',
-                fontWeight: 600,
-                letterSpacing: '-0.03em',
-                color: '#FAFAFA',
-                marginBottom: '4px'
-              }}>
-                0 сек
-              </p>
-              <p style={{
-                fontSize: '12px',
-                color: '#52525B',
-                letterSpacing: '0.01em'
-              }}>
-                время ответа
-              </p>
-            </div>
-            
-            {/* Metric 4 */}
-            <div 
-              style={{
-                padding: '16px',
-                borderRadius: '12px',
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.06)'
-              }}
-            >
-              <p style={{
-                fontSize: '24px',
-                fontWeight: 600,
-                letterSpacing: '-0.03em',
-                color: '#FAFAFA',
-                marginBottom: '4px'
-              }}>
-                ₽0
-              </p>
-              <p style={{
-                fontSize: '12px',
-                color: '#52525B',
-                letterSpacing: '0.01em'
-              }}>
-                на менеджеров
-              </p>
-            </div>
+            <p style={{
+              fontSize: '13px',
+              color: '#A1A1AA',
+              lineHeight: '1.5',
+              marginBottom: '8px'
+            }}>
+              Прямо сейчас:
+            </p>
+            <p style={{
+              fontSize: '20px',
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
+              color: '#FAFAFA',
+              lineHeight: '1.3'
+            }}>
+              67% сообщений клиентов
+              <br />
+              <span style={{ color: '#EF4444' }}>остаются без ответа.</span>
+            </p>
+            <p style={{
+              fontSize: '13px',
+              color: '#71717A',
+              marginTop: '12px'
+            }}>
+              Это ₽847,000+ упущенной выручки в год.
+            </p>
+          </div>
+          
+          {/* Halbert-style Solution Proof */}
+          <div 
+            className="scroll-fade-in-delay-4"
+            style={{
+              marginTop: '16px',
+              padding: '20px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.02)',
+              borderLeft: '2px solid #22C55E'
+            }}
+          >
+            <p style={{
+              fontSize: '13px',
+              color: '#A1A1AA',
+              lineHeight: '1.5',
+              marginBottom: '8px'
+            }}>
+              С Mini App:
+            </p>
+            <p style={{
+              fontSize: '20px',
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
+              color: '#FAFAFA',
+              lineHeight: '1.3'
+            }}>
+              0 пропущенных клиентов.
+              <br />
+              <span style={{ color: '#22C55E' }}>+₽2.4M в год.</span>
+            </p>
+            <p style={{
+              fontSize: '13px',
+              color: '#71717A',
+              marginTop: '12px'
+            }}>
+              50+ бизнесов уже перешли. Запуск за 14 дней.
+            </p>
           </div>
         </header>
 
