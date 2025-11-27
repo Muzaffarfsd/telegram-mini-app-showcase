@@ -301,8 +301,8 @@ function App() {
   // Check if we should show bottom navigation
   const shouldShowBottomNav = !route.component.includes('demo') && route.component !== 'notFound';
   
-  // Pages that should show the global sidebar
-  const shouldShowSidebar = ['projects', 'about'].includes(route.component);
+  // Pages that should show the global sidebar (all except demo apps)
+  const shouldShowSidebar = !route.component.includes('demo') && route.component !== 'notFound';
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -312,11 +312,12 @@ function App() {
               <div className="relative min-h-screen">
                 <div className="floating-elements"></div>
                 
-                {/* Global Sidebar for premium pages */}
+                {/* Global Sidebar for all pages except demo apps */}
                 {shouldShowSidebar && (
                   <GlobalSidebar 
                     currentRoute={route.component} 
-                    onNavigate={handleNavigate} 
+                    onNavigate={handleNavigate}
+                    user={user}
                   />
                 )}
                 

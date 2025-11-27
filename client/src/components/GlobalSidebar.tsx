@@ -1,20 +1,25 @@
 import { useState } from "react";
-import { Menu, X, Sparkles, MessageCircle, FileText, Settings, Zap, Users } from "lucide-react";
+import { Menu, X, Sparkles, MessageCircle, Zap, Users, Home } from "lucide-react";
+import UserAvatar from "./UserAvatar";
 
 interface GlobalSidebarProps {
   currentRoute: string;
   onNavigate: (section: string) => void;
+  user?: {
+    photo_url?: string;
+    first_name?: string;
+  };
 }
 
-export default function GlobalSidebar({ currentRoute, onNavigate }: GlobalSidebarProps) {
+export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
+    { icon: Home, label: 'Главная', section: '', routes: ['showcase'] },
     { icon: Sparkles, label: 'Демо приложения', section: 'projects', routes: ['projects'] },
     { icon: Zap, label: 'ИИ Ассистент', section: 'ai-process', routes: ['aiProcess', 'aiAgent'] },
     { icon: Users, label: 'О студии', section: 'about', routes: ['about'] },
-    { icon: MessageCircle, label: 'Консультация', section: 'constructor', routes: ['constructor'] },
-    { icon: Settings, label: 'Профиль', section: 'profile', routes: ['profile', 'referral', 'rewards', 'earning'] }
+    { icon: MessageCircle, label: 'Заказать проект', section: 'constructor', routes: ['constructor', 'checkout'] },
   ];
 
   const isActive = (routes: string[]) => routes.includes(currentRoute);
@@ -37,28 +42,36 @@ export default function GlobalSidebar({ currentRoute, onNavigate }: GlobalSideba
           borderRight: '1px solid rgba(255,255,255,0.06)'
         }}
       >
-        {/* Sidebar Header */}
+        {/* Sidebar Header with User */}
         <div style={{ 
           padding: '24px',
           borderBottom: '1px solid rgba(255,255,255,0.06)'
         }}>
           <div className="flex items-center justify-between">
-            <div>
-              <p style={{
-                fontSize: '15px',
-                fontWeight: 700,
-                letterSpacing: '-0.02em',
-                color: '#FAFAFA'
-              }}>
-                Web4TG Studio
-              </p>
-              <p style={{
-                fontSize: '12px',
-                color: '#52525B',
-                marginTop: '2px'
-              }}>
-                Telegram Mini Apps
-              </p>
+            <div className="flex items-center gap-3">
+              <UserAvatar
+                photoUrl={user?.photo_url}
+                firstName={user?.first_name}
+                size="md"
+                className="ring-2 ring-white/10"
+              />
+              <div>
+                <p style={{
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  letterSpacing: '-0.02em',
+                  color: '#FAFAFA'
+                }}>
+                  {user?.first_name || 'Гость'}
+                </p>
+                <p style={{
+                  fontSize: '12px',
+                  color: '#52525B',
+                  marginTop: '2px'
+                }}>
+                  Web4TG Studio
+                </p>
+              </div>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -119,7 +132,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate }: GlobalSideba
                   marginBottom: '6px',
                   transition: 'all 0.2s'
                 }}
-                data-testid={`button-nav-${item.section}`}
+                data-testid={`button-nav-${item.section || 'home'}`}
               >
                 <div style={{
                   width: '36px',
@@ -153,6 +166,52 @@ export default function GlobalSidebar({ currentRoute, onNavigate }: GlobalSideba
               </button>
             );
           })}
+          
+          {/* Profile Button with Avatar */}
+          <button
+            onClick={() => {
+              onNavigate('profile');
+              setSidebarOpen(false);
+            }}
+            className="w-full group"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '14px',
+              padding: '14px 16px',
+              borderRadius: '12px',
+              background: ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? 'rgba(255,255,255,0.08)' : 'transparent',
+              border: ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent',
+              cursor: 'pointer',
+              marginBottom: '6px',
+              transition: 'all 0.2s'
+            }}
+            data-testid="button-nav-profile"
+          >
+            <UserAvatar
+              photoUrl={user?.photo_url}
+              firstName={user?.first_name}
+              size="sm"
+              className={['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? 'ring-2 ring-violet-400/50' : ''}
+            />
+            <span style={{
+              fontSize: '15px',
+              fontWeight: ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? 600 : 500,
+              color: ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? '#FAFAFA' : '#A1A1AA',
+              transition: 'all 0.2s'
+            }}>
+              Профиль
+            </span>
+            {['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) && (
+              <div style={{
+                marginLeft: 'auto',
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: '#A78BFA'
+              }} />
+            )}
+          </button>
         </nav>
         
         {/* Quick Stats */}
@@ -252,7 +311,30 @@ export default function GlobalSidebar({ currentRoute, onNavigate }: GlobalSideba
             WEB4TG
           </p>
           
-          <div style={{ width: '40px' }} />
+          {/* User Avatar in Header */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            style={{
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '12px',
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            aria-label="Профиль"
+            data-testid="button-header-avatar"
+          >
+            <UserAvatar
+              photoUrl={user?.photo_url}
+              firstName={user?.first_name}
+              size="sm"
+            />
+          </button>
         </div>
       </div>
     </>
