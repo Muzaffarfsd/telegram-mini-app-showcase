@@ -14,7 +14,8 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
       className="min-h-screen pb-32"
       style={{ 
         background: '#09090B',
-        color: '#E4E4E7'
+        color: '#E4E4E7',
+        paddingTop: '100px'
       }}
     >
       <div className="max-w-md mx-auto">
@@ -22,7 +23,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
         {/* ═══════════════════════════════════════════════════════
             TIER 1: HERO — Authority-Led, Understated
         ═══════════════════════════════════════════════════════ */}
-        <header className="px-7 pt-24 pb-16">
+        <header className="px-7 pt-8 pb-16">
           {/* Eyebrow */}
           <p 
             className="scroll-fade-in"

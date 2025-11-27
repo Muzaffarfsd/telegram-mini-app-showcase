@@ -29,11 +29,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#000000] pb-24 overflow-hidden">
+    <div className="min-h-screen bg-[#000000] pb-24 overflow-hidden" style={{ paddingTop: '100px' }}>
       <div className="max-w-md mx-auto">
         
         {/* Apple-Style Hero with Parallax */}
-        <section className="relative px-6 pt-20 pb-16">
+        <section className="relative px-6 pt-8 pb-16">
           {/* Dynamic gradient background */}
           <div 
             className="absolute inset-0 opacity-40 pointer-events-none"

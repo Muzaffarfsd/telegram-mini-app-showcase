@@ -393,8 +393,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
   const toggleNotifications = useCallback(() => setNotificationsEnabled(prev => !prev), []);
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
-      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-black text-white pb-24" style={{ paddingTop: '100px' }}>
+      <div className="max-w-md mx-auto px-4 pt-4 pb-6 space-y-6">
         
         {/* User Profile Card */}
         <div className="scroll-fade-in">

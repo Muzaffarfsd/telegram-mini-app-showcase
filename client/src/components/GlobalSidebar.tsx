@@ -826,27 +826,15 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </button>
           
           {/* Logo */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
+          <p style={{
+            fontSize: '13px',
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            color: '#FAFAFA',
+            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
           }}>
-            <div style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%)',
-              boxShadow: '0 0 12px rgba(139, 92, 246, 0.5)'
-            }} />
-            <p style={{
-              fontSize: '14px',
-              fontWeight: 700,
-              letterSpacing: '0.08em',
-              color: '#FAFAFA'
-            }}>
-              WEB4TG
-            </p>
-          </div>
+            WEB4TG STUDIO
+          </p>
           
           {/* Empty space for balance */}
           <div style={{ width: '44px' }} />

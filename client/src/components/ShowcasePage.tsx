@@ -39,7 +39,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
-      <div className="max-w-md mx-auto min-h-screen px-3 py-4 relative z-10">
+      <div className="max-w-md mx-auto min-h-screen px-3 pb-4 relative z-10" style={{ paddingTop: '120px' }}>
         
         <div className="relative rounded-2xl overflow-hidden mb-6"
           style={{ boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)' }}
