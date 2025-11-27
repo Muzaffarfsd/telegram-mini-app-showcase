@@ -1,8 +1,7 @@
-import { memo, useState } from "react";
+import { memo, useState, useEffect, useRef } from "react";
 import { demoApps } from "../data/demoApps";
-import { ChevronRight } from "lucide-react";
 
-import heroImage from "@assets/generated_images/premium_iphone_telegram_app.png";
+import heroMockup from "@assets/generated_images/premium_iphone_telegram_app.png";
 import productShot from "@assets/generated_images/telegram_app_3d_product_shot.png";
 
 interface ProjectsPageProps {
@@ -10,360 +9,577 @@ interface ProjectsPageProps {
   onOpenDemo: (demoId: string) => void;
 }
 
-const GlassCard = memo(({ 
+const AppTile = memo(({ 
   app, 
   index,
   onOpen,
-  isHovered,
-  onHover,
 }: { 
   app: typeof demoApps[0]; 
   index: number;
   onOpen: () => void;
-  isHovered: boolean;
-  onHover: (id: string | null) => void;
-}) => {
-  const taglines: Record<string, string> = {
-    'radiance': 'Премиальная мода',
-    'techmart': 'Электроника',
-    'glow-spa': 'Красота и SPA',
-    'deluxe-dine': 'Рестораны',
-    'time-elite': 'Люксовые часы',
-    'sneaker-vault': 'Кроссовки',
-    'fragrance-royale': 'Парфюмерия',
-    'rascal': 'Streetwear',
-    'store-black': 'Минимализм',
-    'lab-survivalist': 'Outdoor',
-    'nike-acg': 'ACG',
-  };
-
-  return (
-    <button
-      onClick={onOpen}
-      onMouseEnter={() => onHover(app.id)}
-      onMouseLeave={() => onHover(null)}
-      className="glass-card relative overflow-hidden text-left w-full"
+}) => (
+  <button
+    onClick={onOpen}
+    className="app-tile group"
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '20px',
+      width: '100%',
+      padding: '24px 0',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+      background: 'transparent',
+      textAlign: 'left',
+      cursor: 'pointer',
+      opacity: 0,
+      animation: `tileReveal 0.6s ease-out ${0.8 + index * 0.08}s forwards`,
+    }}
+    data-testid={`card-app-${app.id}`}
+    aria-label={`Открыть ${app.title}`}
+  >
+    {/* Number */}
+    <span style={{
+      fontFamily: "'Playfair Display', Georgia, serif",
+      fontSize: '14px',
+      fontWeight: 400,
+      color: 'rgba(255, 255, 255, 0.25)',
+      width: '28px',
+      flexShrink: 0,
+    }}>
+      {String(index + 1).padStart(2, '0')}
+    </span>
+    
+    {/* Title */}
+    <span 
+      className="tile-title"
       style={{
-        borderRadius: '24px',
-        padding: '28px',
-        background: isHovered 
-          ? 'rgba(255, 255, 255, 0.08)'
-          : 'rgba(255, 255, 255, 0.04)',
-        backdropFilter: 'blur(40px)',
-        WebkitBackdropFilter: 'blur(40px)',
-        border: isHovered
-          ? '1px solid rgba(255, 255, 255, 0.15)'
-          : '1px solid rgba(255, 255, 255, 0.08)',
-        transition: 'all 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
-        transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
-        opacity: 0,
-        animation: `revealCard 0.8s cubic-bezier(0.23, 1, 0.32, 1) ${0.4 + index * 0.1}s forwards`,
+        flex: 1,
+        fontFamily: "'Playfair Display', Georgia, serif",
+        fontSize: '20px',
+        fontWeight: 500,
+        letterSpacing: '-0.01em',
+        color: '#E3D9C6',
       }}
-      data-testid={`card-app-${app.id}`}
-      aria-label={`Открыть ${app.title}`}
     >
-      {/* Gradient glow on hover */}
-      <div 
-        style={{
-          position: 'absolute',
-          top: '-50%',
-          left: '-50%',
-          right: '-50%',
-          bottom: '-50%',
-          background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.03) 0%, transparent 60%)',
-          opacity: isHovered ? 1 : 0,
-          transition: 'opacity 0.5s ease',
-          pointerEvents: 'none',
-        }}
-      />
-      
-      <div className="relative">
-        <p style={{
-          fontSize: '12px',
-          fontWeight: 500,
-          letterSpacing: '0.1em',
-          color: 'rgba(255, 255, 255, 0.4)',
-          marginBottom: '8px',
-          textTransform: 'uppercase',
-        }}>
-          {taglines[app.id] || 'Приложение'}
-        </p>
-        
-        <h3 style={{
-          fontSize: '22px',
-          fontWeight: 600,
-          letterSpacing: '-0.02em',
-          color: '#FFFFFF',
-          marginBottom: '16px',
-          lineHeight: 1.2,
-        }}>
-          {app.title}
-        </h3>
-        
-        <div 
-          className="flex items-center gap-1"
-          style={{ 
-            color: isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.5)',
-            transition: 'color 0.3s ease',
-          }}
-        >
-          <span style={{ fontSize: '14px', fontWeight: 500 }}>Открыть</span>
-          <ChevronRight 
-            style={{ 
-              width: '16px', 
-              height: '16px',
-              transform: isHovered ? 'translateX(4px)' : 'translateX(0)',
-              transition: 'transform 0.3s ease',
-            }} 
-          />
-        </div>
-      </div>
-    </button>
-  );
-});
-GlassCard.displayName = 'GlassCard';
+      {app.title}
+    </span>
+    
+    {/* Arrow */}
+    <span 
+      className="tile-arrow"
+      style={{
+        fontSize: '18px',
+        color: 'rgba(255, 255, 255, 0.2)',
+        transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+      }}
+    >
+      →
+    </span>
+  </button>
+));
+AppTile.displayName = 'AppTile';
 
 export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [scrollY, setScrollY] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      if (containerRef.current) {
+        setScrollY(containerRef.current.scrollTop);
+      }
+    };
+    
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll, { passive: true });
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+  
   const apps = demoApps.slice(0, 10);
+  const parallaxOffset = Math.min(scrollY * 0.3, 100);
 
   return (
     <div 
-      className="min-h-screen pb-32 overflow-hidden"
+      ref={containerRef}
+      className="h-screen overflow-y-auto overflow-x-hidden"
       style={{ 
-        background: 'linear-gradient(180deg, #0A0A0C 0%, #0F1015 50%, #0A0A0C 100%)',
+        background: '#020205',
       }}
     >
-      {/* Ambient glow */}
+      {/* Noise texture overlay */}
       <div 
-        className="fixed pointer-events-none"
+        className="fixed inset-0 pointer-events-none z-50"
         style={{
-          top: '-20%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '140%',
-          height: '60%',
-          background: 'radial-gradient(ellipse at center, rgba(120, 119, 198, 0.08) 0%, transparent 70%)',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          opacity: 0.03,
         }}
       />
       
-      {/* Hero Section */}
-      <section className="relative text-center px-6">
-        {/* Hero Image */}
+      {/* Gradient ambient */}
+      <div 
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse 120% 80% at 50% 0%, rgba(140, 155, 255, 0.07) 0%, transparent 50%)',
+        }}
+      />
+      
+      {/* ═══════════════════════════════════════════════════════════
+          SCENE 1: MANIFEST
+      ═══════════════════════════════════════════════════════════ */}
+      <section 
+        className="relative min-h-screen flex flex-col justify-end px-8 pb-16"
+        style={{ paddingTop: '80px' }}
+      >
+        {/* Floating mockup */}
         <div 
-          className="relative mx-auto hero-image"
+          className="absolute right-0 top-20"
           style={{
+            width: '75%',
             maxWidth: '320px',
-            marginTop: '40px',
-            marginBottom: '32px',
+            transform: `translateY(${-parallaxOffset * 0.5}px)`,
             opacity: 0,
-            animation: 'heroReveal 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards',
+            animation: 'mockupFloat 1.2s cubic-bezier(0.23, 1, 0.32, 1) 0.2s forwards',
           }}
         >
           <img 
-            src={heroImage}
-            alt="Premium Telegram App"
-            className="w-full h-auto"
+            src={heroMockup}
+            alt=""
+            className="w-full"
             style={{
-              filter: 'drop-shadow(0 32px 64px rgba(0, 0, 0, 0.5))',
+              filter: 'drop-shadow(0 40px 80px rgba(0, 0, 0, 0.6))',
+              transform: 'rotate(6deg)',
             }}
           />
-          {/* Reflection */}
+          {/* Light sweep */}
           <div 
+            className="absolute inset-0"
             style={{
-              position: 'absolute',
-              bottom: '-40%',
-              left: 0,
-              right: 0,
-              height: '40%',
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)',
-              transform: 'scaleY(-1)',
-              opacity: 0.3,
-              filter: 'blur(8px)',
-              pointerEvents: 'none',
+              background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 50%, transparent 60%)',
+              animation: 'lightSweep 4s ease-in-out infinite',
             }}
           />
         </div>
         
-        {/* Hero Text */}
+        {/* Manifest text */}
         <div 
+          className="relative z-10"
           style={{
+            maxWidth: '300px',
             opacity: 0,
-            animation: 'fadeUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) 0.3s forwards',
+            animation: 'fadeUp 0.8s ease-out 0.4s forwards',
           }}
         >
-          <h1 style={{
-            fontSize: 'clamp(36px, 10vw, 48px)',
-            fontWeight: 600,
-            letterSpacing: '-0.03em',
-            color: '#FFFFFF',
-            lineHeight: 1.1,
-            marginBottom: '16px',
+          <p style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '11px',
+            fontWeight: 500,
+            letterSpacing: '0.2em',
+            color: 'rgba(140, 155, 255, 0.8)',
+            marginBottom: '24px',
+            textTransform: 'uppercase',
           }}>
-            Telegram Apps
+            Atelier
+          </p>
+          
+          <h1 style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: 'clamp(40px, 11vw, 56px)',
+            fontWeight: 500,
+            letterSpacing: '-0.03em',
+            lineHeight: 1,
+            color: '#E3D9C6',
+            marginBottom: '32px',
+          }}>
+            Цифровые
             <br />
-            <span style={{ color: 'rgba(255, 255, 255, 0.5)' }}>для бизнеса</span>
+            <span style={{ fontStyle: 'italic', fontWeight: 400 }}>бутики</span>
           </h1>
           
           <p style={{
-            fontSize: '17px',
-            color: 'rgba(255, 255, 255, 0.4)',
-            maxWidth: '280px',
-            margin: '0 auto 32px',
-            lineHeight: 1.5,
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '15px',
+            lineHeight: 1.7,
+            color: 'rgba(255, 255, 255, 0.45)',
+            marginBottom: '48px',
           }}>
-            Премиальные приложения для автоматизации продаж
+            Мы создаём приложения внутри Telegram, 
+            где каждая деталь — произведение.
           </p>
         </div>
-
-        {/* CTA Button */}
-        <button
-          onClick={() => window.location.hash = '#/constructor'}
-          className="cta-primary"
+        
+        {/* Scroll indicator */}
+        <div 
+          className="absolute bottom-8 left-8"
           style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            color: '#000000',
-            fontSize: '15px',
-            fontWeight: 600,
-            padding: '14px 28px',
-            borderRadius: '100px',
-            border: 'none',
-            cursor: 'pointer',
             opacity: 0,
-            animation: 'fadeUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) 0.5s forwards',
+            animation: 'fadeIn 1s ease-out 1.5s forwards',
           }}
-          data-testid="button-order-hero"
         >
-          Заказать от 9 990 ₽
-        </button>
+          <div 
+            className="w-px h-12 mx-auto mb-3"
+            style={{ 
+              background: 'linear-gradient(180deg, rgba(140, 155, 255, 0.5) 0%, transparent 100%)',
+            }}
+          />
+          <p style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '10px',
+            letterSpacing: '0.15em',
+            color: 'rgba(255, 255, 255, 0.25)',
+            textTransform: 'uppercase',
+          }}>
+            Scroll
+          </p>
+        </div>
       </section>
       
-      {/* Divider */}
-      <div 
-        style={{
-          margin: '64px 24px 48px',
-          height: '1px',
-          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
-        }}
-      />
-      
-      {/* Section Header */}
-      <section className="px-6 mb-6">
-        <h2 style={{
-          fontSize: '13px',
-          fontWeight: 600,
-          letterSpacing: '0.15em',
-          color: 'rgba(255, 255, 255, 0.35)',
-          textTransform: 'uppercase',
-        }}>
-          Примеры работ
-        </h2>
+      {/* ═══════════════════════════════════════════════════════════
+          SCENE 2: SIGNATURE
+      ═══════════════════════════════════════════════════════════ */}
+      <section className="relative py-24 px-8">
+        {/* Section line */}
+        <div 
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: '32px',
+            right: '32px',
+            height: '1px',
+            background: 'linear-gradient(90deg, rgba(140, 155, 255, 0.3) 0%, rgba(255,255,255,0.05) 100%)',
+          }}
+        />
+        
+        <div className="mb-16">
+          <p style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '11px',
+            fontWeight: 500,
+            letterSpacing: '0.2em',
+            color: 'rgba(140, 155, 255, 0.6)',
+            marginBottom: '16px',
+            textTransform: 'uppercase',
+          }}>
+            Signature Editions
+          </p>
+          
+          <h2 style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: '32px',
+            fontWeight: 500,
+            letterSpacing: '-0.02em',
+            color: '#E3D9C6',
+          }}>
+            Три направления
+          </h2>
+        </div>
+        
+        {/* Feature cards - asymmetric */}
+        <div className="space-y-6">
+          {/* Card 1 - Large */}
+          <div 
+            className="signature-card"
+            style={{
+              padding: '40px 28px',
+              borderRadius: '2px',
+              background: 'linear-gradient(135deg, rgba(140, 155, 255, 0.06) 0%, rgba(255,255,255,0.02) 100%)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+            }}
+          >
+            <p style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '48px',
+              fontWeight: 400,
+              fontStyle: 'italic',
+              color: 'rgba(140, 155, 255, 0.3)',
+              marginBottom: '20px',
+              lineHeight: 1,
+            }}>
+              01
+            </p>
+            <h3 style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '24px',
+              fontWeight: 500,
+              color: '#E3D9C6',
+              marginBottom: '12px',
+            }}>
+              E-commerce
+            </h3>
+            <p style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '14px',
+              lineHeight: 1.6,
+              color: 'rgba(255, 255, 255, 0.4)',
+            }}>
+              Магазины с каталогом, корзиной, оплатой. 
+              Полный цикл продаж без сайта.
+            </p>
+          </div>
+          
+          {/* Cards 2 & 3 - Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            <div 
+              className="signature-card"
+              style={{
+                padding: '28px 20px',
+                borderRadius: '2px',
+                background: 'rgba(255, 255, 255, 0.02)',
+                border: '1px solid rgba(255, 255, 255, 0.04)',
+              }}
+            >
+              <p style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: '32px',
+                fontWeight: 400,
+                fontStyle: 'italic',
+                color: 'rgba(140, 155, 255, 0.2)',
+                marginBottom: '16px',
+              }}>
+                02
+              </p>
+              <h3 style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: '18px',
+                fontWeight: 500,
+                color: '#E3D9C6',
+                marginBottom: '8px',
+              }}>
+                Бронирования
+              </h3>
+              <p style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '13px',
+                lineHeight: 1.5,
+                color: 'rgba(255, 255, 255, 0.35)',
+              }}>
+                Рестораны, салоны, услуги
+              </p>
+            </div>
+            
+            <div 
+              className="signature-card"
+              style={{
+                padding: '28px 20px',
+                borderRadius: '2px',
+                background: 'rgba(255, 255, 255, 0.02)',
+                border: '1px solid rgba(255, 255, 255, 0.04)',
+              }}
+            >
+              <p style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: '32px',
+                fontWeight: 400,
+                fontStyle: 'italic',
+                color: 'rgba(140, 155, 255, 0.2)',
+                marginBottom: '16px',
+              }}>
+                03
+              </p>
+              <h3 style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: '18px',
+                fontWeight: 500,
+                color: '#E3D9C6',
+                marginBottom: '8px',
+              }}>
+                Лояльность
+              </h3>
+              <p style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '13px',
+                lineHeight: 1.5,
+                color: 'rgba(255, 255, 255, 0.35)',
+              }}>
+                Программы, баллы, rewards
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
       
-      {/* Apps Grid */}
-      <section className="px-6">
-        <div className="grid grid-cols-2 gap-4">
+      {/* ═══════════════════════════════════════════════════════════
+          SCENE 3: ARCHIVE
+      ═══════════════════════════════════════════════════════════ */}
+      <section className="relative py-20 px-8">
+        <div 
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: '32px',
+            right: '32px',
+            height: '1px',
+            background: 'rgba(255, 255, 255, 0.05)',
+          }}
+        />
+        
+        <div className="flex items-end justify-between mb-12">
+          <div>
+            <p style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '11px',
+              fontWeight: 500,
+              letterSpacing: '0.2em',
+              color: 'rgba(140, 155, 255, 0.6)',
+              marginBottom: '12px',
+              textTransform: 'uppercase',
+            }}>
+              Archive
+            </p>
+            
+            <h2 style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '28px',
+              fontWeight: 500,
+              letterSpacing: '-0.02em',
+              color: '#E3D9C6',
+            }}>
+              Коллекция
+            </h2>
+          </div>
+          
+          <p style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '12px',
+            color: 'rgba(255, 255, 255, 0.3)',
+          }}>
+            {apps.length} работ
+          </p>
+        </div>
+        
+        {/* Apps list */}
+        <div>
           {apps.map((app, index) => (
-            <GlassCard
+            <AppTile
               key={app.id}
               app={app}
               index={index}
               onOpen={() => onOpenDemo(app.id)}
-              isHovered={hoveredId === app.id}
-              onHover={setHoveredId}
             />
           ))}
         </div>
       </section>
       
-      {/* Bottom Feature */}
+      {/* ═══════════════════════════════════════════════════════════
+          SCENE 4: COLLECTOR'S NOTE
+      ═══════════════════════════════════════════════════════════ */}
       <section 
-        className="mx-6 mt-12"
+        className="relative py-24 px-8"
         style={{
-          borderRadius: '28px',
-          padding: '40px 28px',
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
-          backdropFilter: 'blur(32px)',
+          background: 'linear-gradient(180deg, transparent 0%, rgba(140, 155, 255, 0.03) 100%)',
         }}
       >
-        <img 
-          src={productShot}
-          alt="3D Product"
+        <div 
           style={{
-            width: '200px',
-            height: 'auto',
-            margin: '-80px auto 24px',
-            display: 'block',
-            filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.4))',
+            position: 'absolute',
+            top: 0,
+            left: '32px',
+            right: '32px',
+            height: '1px',
+            background: 'rgba(140, 155, 255, 0.15)',
           }}
         />
         
-        <h3 style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          letterSpacing: '-0.02em',
-          color: '#FFFFFF',
-          textAlign: 'center',
-          marginBottom: '12px',
-        }}>
-          Под ключ за 14 дней
-        </h3>
+        {/* Product shot */}
+        <div className="flex justify-center mb-12">
+          <img 
+            src={productShot}
+            alt=""
+            style={{
+              width: '180px',
+              filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.5))',
+            }}
+          />
+        </div>
         
-        <p style={{
-          fontSize: '15px',
-          color: 'rgba(255, 255, 255, 0.5)',
-          textAlign: 'center',
-          maxWidth: '260px',
-          margin: '0 auto 28px',
-          lineHeight: 1.5,
-        }}>
-          Дизайн, разработка, интеграция с Telegram и запуск
-        </p>
+        <div className="text-center">
+          <p style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '11px',
+            fontWeight: 500,
+            letterSpacing: '0.2em',
+            color: 'rgba(140, 155, 255, 0.6)',
+            marginBottom: '20px',
+            textTransform: 'uppercase',
+          }}>
+            Инвестиция в бизнес
+          </p>
+          
+          <p style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: '42px',
+            fontWeight: 500,
+            letterSpacing: '-0.02em',
+            color: '#E3D9C6',
+            marginBottom: '8px',
+          }}>
+            от 9 990 ₽
+          </p>
+          
+          <p style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '14px',
+            color: 'rgba(255, 255, 255, 0.35)',
+            marginBottom: '40px',
+          }}>
+            Запуск за 14 дней
+          </p>
+          
+          <button
+            onClick={() => window.location.hash = '#/constructor'}
+            className="cta-button"
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '13px',
+              fontWeight: 600,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: '#020205',
+              background: '#E3D9C6',
+              padding: '18px 48px',
+              border: 'none',
+              borderRadius: '0',
+              cursor: 'pointer',
+            }}
+            data-testid="button-order-cta"
+          >
+            Забронировать
+          </button>
+        </div>
         
-        <button
-          onClick={() => window.location.hash = '#/constructor'}
-          className="cta-secondary w-full"
+        {/* Footer note */}
+        <p 
+          className="text-center mt-16"
           style={{
-            background: 'transparent',
-            color: '#FFFFFF',
-            fontSize: '15px',
-            fontWeight: 600,
-            padding: '16px 24px',
-            borderRadius: '100px',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            cursor: 'pointer',
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: '14px',
+            fontStyle: 'italic',
+            color: 'rgba(255, 255, 255, 0.2)',
           }}
-          data-testid="button-order-bottom"
         >
-          Начать проект
-        </button>
+          « Где каждая деталь имеет значение »
+        </p>
       </section>
+      
+      {/* Bottom spacer */}
+      <div className="h-24" />
 
       <style>{`
-        @keyframes heroReveal {
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+        
+        @keyframes mockupFloat {
           0% {
             opacity: 0;
-            transform: scale(0.95) translateY(20px);
+            transform: translateY(40px) rotate(6deg);
           }
           100% {
             opacity: 1;
-            transform: scale(1) translateY(0);
+            transform: translateY(0) rotate(6deg);
           }
         }
         
         @keyframes fadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(16px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes revealCard {
           from {
             opacity: 0;
             transform: translateY(24px);
@@ -374,30 +590,69 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
           }
         }
         
-        .cta-primary {
-          transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
         
-        .cta-primary:hover {
-          transform: scale(1.03);
-          box-shadow: 0 12px 40px rgba(255, 255, 255, 0.15);
+        @keyframes tileReveal {
+          from {
+            opacity: 0;
+            transform: translateX(-16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
         }
         
-        .cta-primary:active {
-          transform: scale(0.98);
+        @keyframes lightSweep {
+          0%, 100% {
+            transform: translateX(-100%);
+          }
+          50% {
+            transform: translateX(100%);
+          }
         }
         
-        .cta-secondary {
-          transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        .app-tile {
+          transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
         
-        .cta-secondary:hover {
-          background: rgba(255, 255, 255, 0.05);
-          border-color: rgba(255, 255, 255, 0.3);
+        .app-tile:hover {
+          padding-left: 8px;
         }
         
-        .cta-secondary:active {
-          transform: scale(0.98);
+        .app-tile:hover .tile-title {
+          color: #FFFFFF;
+        }
+        
+        .app-tile:hover .tile-arrow {
+          color: rgba(140, 155, 255, 0.8);
+          transform: translateX(8px);
+        }
+        
+        .signature-card {
+          transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .signature-card:hover {
+          background: rgba(140, 155, 255, 0.08);
+          border-color: rgba(140, 155, 255, 0.15);
+        }
+        
+        .cta-button {
+          transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .cta-button:hover {
+          background: #FFFFFF;
+          box-shadow: 0 16px 48px rgba(227, 217, 198, 0.2);
+          transform: translateY(-2px);
+        }
+        
+        .cta-button:active {
+          transform: translateY(0);
         }
       `}</style>
     </div>
