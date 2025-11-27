@@ -100,21 +100,23 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       <div 
         className={`fixed inset-0 z-[100] transition-all duration-300 ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         style={{ 
-          background: 'rgba(0,0,0,0.75)', 
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)'
+          background: 'rgba(0,0,0,0.6)', 
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)'
         }}
         onClick={() => setSidebarOpen(false)}
       />
       
-      {/* SIDEBAR PANEL */}
+      {/* SIDEBAR PANEL - Glassmorphism */}
       <div 
         className={`fixed top-0 left-0 h-full z-[100] transition-transform duration-300 ease-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ 
           width: '320px',
-          background: 'linear-gradient(180deg, #0C0C0E 0%, #09090B 100%)',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
-          boxShadow: sidebarOpen ? '20px 0 60px rgba(0,0,0,0.5)' : 'none',
+          background: 'rgba(12,12,14,0.85)',
+          backdropFilter: 'blur(40px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+          borderRight: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: sidebarOpen ? '20px 0 80px rgba(0,0,0,0.6), inset 0 0 60px rgba(139,92,246,0.03)' : 'none',
           display: 'flex',
           flexDirection: 'column',
           overflowY: 'auto',
@@ -682,6 +684,95 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </div>
         </div>
         
+        {/* Boost with AI Card - Like in reference */}
+        <div style={{ 
+          padding: '16px 20px',
+          marginTop: 'auto'
+        }}>
+          <div style={{
+            padding: '20px',
+            borderRadius: '16px',
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '10px'
+            }}>
+              <Sparkles size={18} color="#A78BFA" />
+              <span style={{
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#FAFAFA'
+              }}>
+                Boost with <span style={{ color: '#A78BFA' }}>AI</span>
+              </span>
+            </div>
+            <p style={{
+              fontSize: '12px',
+              color: '#71717A',
+              lineHeight: 1.5,
+              marginBottom: '16px'
+            }}>
+              ИИ-ассистент для бизнеса: ответы 24/7, рост продаж на 300%
+            </p>
+            
+            {/* Glow Button */}
+            <button
+              onClick={() => handleNavClick('ai-process')}
+              style={{
+                position: 'relative',
+                width: '100%',
+                padding: '14px 20px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 50%, #A78BFA 100%)',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                overflow: 'visible'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2)';
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = 'translateY(0) scale(0.98)';
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1)';
+              }}
+              data-testid="button-upgrade-pro"
+            >
+              {/* Glow effect underneath */}
+              <div style={{
+                position: 'absolute',
+                bottom: '-8px',
+                left: '20%',
+                right: '20%',
+                height: '20px',
+                background: 'radial-gradient(ellipse at center, rgba(139, 92, 246, 0.6) 0%, transparent 70%)',
+                filter: 'blur(12px)',
+                pointerEvents: 'none'
+              }} />
+              <span style={{
+                position: 'relative',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#FFFFFF',
+                letterSpacing: '0.02em'
+              }}>
+                Узнать больше
+              </span>
+            </button>
+          </div>
+        </div>
+
         {/* Sidebar Footer with Social Links */}
         <div style={{
           padding: '20px 24px 28px',
@@ -785,53 +876,70 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         </div>
       </div>
 
-      {/* TOP BAR WITH MENU BUTTON */}
+      {/* TOP BAR WITH MENU BUTTON - Glassmorphism Style */}
       <div 
         className="fixed top-0 left-0 right-0 z-[90]"
         style={{
-          background: 'rgba(9,9,11,0.95)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          borderBottom: '1px solid rgba(255,255,255,0.04)',
-          paddingTop: 'max(env(safe-area-inset-top, 0px), 48px)'
+          background: 'rgba(15,15,20,0.65)',
+          backdropFilter: 'blur(40px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          paddingTop: 'max(env(safe-area-inset-top, 0px), 48px)',
+          boxShadow: '0 4px 30px rgba(0,0,0,0.3)'
         }}
       >
         <div className="max-w-md mx-auto px-5 py-3 flex items-center justify-between">
+          {/* Glass Menu Button */}
           <button
             onClick={() => setSidebarOpen(true)}
+            className="glass-menu-btn"
             style={{
               width: '44px',
               height: '44px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: '14px',
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '12px',
+              background: 'rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.12)',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+              e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 4px 20px rgba(139,92,246,0.25), inset 0 1px 0 rgba(255,255,255,0.15)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+              e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)';
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)';
+            }}
+            onMouseDown={(e) => {
+              e.currentTarget.style.transform = 'scale(0.95)';
+            }}
+            onMouseUp={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
             }}
             aria-label="Открыть меню"
             data-testid="button-open-sidebar"
           >
-            <Menu size={22} color="#FAFAFA" />
+            <Menu size={20} color="#FAFAFA" />
           </button>
           
           {/* Logo */}
           <p style={{
             fontSize: '13px',
             fontWeight: 600,
-            letterSpacing: '0.12em',
+            letterSpacing: '0.14em',
             color: '#FAFAFA',
-            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+            textShadow: '0 0 20px rgba(255,255,255,0.1)'
           }}>
             WEB4TG STUDIO
           </p>
