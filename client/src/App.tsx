@@ -15,6 +15,7 @@ import { LazyMotionProvider } from "./utils/LazyMotionProvider";
 // Lazy load ALL pages including ShowcasePage for optimal bundle splitting
 const ShowcasePage = lazy(() => import("./components/ShowcasePage"));
 const ProjectsPage = lazy(() => import("./components/ProjectsPage"));
+const AboutPage = lazy(() => import("./components/AboutPage"));
 const DemoAppLanding = lazy(() => import("./components/DemoAppLanding"));
 const ConstructorPage = lazy(() => import("./components/ConstructorPage"));
 const ProfilePage = lazy(() => import("./components/ProfilePage"));
@@ -28,6 +29,9 @@ const PhotoGallery = lazy(() => import("./pages/PhotoGallery"));
 const ReferralProgram = lazy(() => import("./components/ReferralProgram").then(m => ({ default: m.ReferralProgram })));
 const GamificationHub = lazy(() => import("./components/GamificationHub").then(m => ({ default: m.GamificationHub })));
 const PremiumTasksEarningPage = lazy(() => import("./components/PremiumTasksEarningPage").then(m => ({ default: m.PremiumTasksEarningPage })));
+
+// Global components
+import GlobalSidebar from "./components/GlobalSidebar";
 
 // Simple hash router types
 interface Route {
@@ -57,6 +61,7 @@ const parseHash = (): Route => {
   const routeMap: Record<string, string> = {
     '/': 'showcase',
     '/projects': 'projects',
+    '/about': 'about',
     '/constructor': 'constructor',
     '/profile': 'profile',
     '/help': 'help',
@@ -215,6 +220,9 @@ function App() {
             case 'projects':
               return <ProjectsPage onNavigate={handleNavigate} onOpenDemo={handleOpenDemo} />;
             
+            case 'about':
+              return <AboutPage onNavigate={handleNavigate} />;
+            
             case 'demoLanding':
               const demoId = route.params?.id;
               if (!demoId) {
@@ -292,6 +300,9 @@ function App() {
 
   // Check if we should show bottom navigation
   const shouldShowBottomNav = !route.component.includes('demo') && route.component !== 'notFound';
+  
+  // Pages that should show the global sidebar
+  const shouldShowSidebar = ['projects', 'about'].includes(route.component);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -300,6 +311,14 @@ function App() {
           <XPNotificationProvider>
               <div className="relative min-h-screen">
                 <div className="floating-elements"></div>
+                
+                {/* Global Sidebar for premium pages */}
+                {shouldShowSidebar && (
+                  <GlobalSidebar 
+                    currentRoute={route.component} 
+                    onNavigate={handleNavigate} 
+                  />
+                )}
                 
                 <div className="pb-24">
                   {renderRoute()}
