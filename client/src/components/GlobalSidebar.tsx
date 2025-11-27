@@ -27,7 +27,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     },
     { 
       icon: Sparkles, 
-      label: 'Демо приложения', 
+      label: 'Бизнес приложения', 
       section: 'projects', 
       routes: ['projects'],
       description: 'Готовые решения'
@@ -155,7 +155,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   border: '2px solid #0C0C0E'
                 }} />
               </div>
-              <div>
+              <div style={{ flex: 1 }}>
                 <p style={{
                   fontSize: '16px',
                   fontWeight: 600,
@@ -164,13 +164,84 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 }}>
                   {user?.first_name || 'Гость'}
                 </p>
-                <p style={{
-                  fontSize: '12px',
-                  color: '#71717A',
-                  marginTop: '2px'
-                }}>
-                  Web4TG Studio
-                </p>
+                
+                {/* Level Progress Bar */}
+                <div style={{ marginTop: '8px' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '6px'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}>
+                      <div style={{
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        background: 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(59,130,246,0.15) 100%)',
+                        border: '1px solid rgba(139, 92, 246, 0.25)'
+                      }}>
+                        <span style={{
+                          fontSize: '10px',
+                          fontWeight: 700,
+                          color: '#A78BFA',
+                          letterSpacing: '0.02em'
+                        }}>
+                          LVL 1
+                        </span>
+                      </div>
+                      <span style={{
+                        fontSize: '11px',
+                        color: '#52525B'
+                      }}>
+                        Новичок
+                      </span>
+                    </div>
+                    <span style={{
+                      fontSize: '10px',
+                      fontWeight: 600,
+                      color: '#71717A'
+                    }}>
+                      0/100 XP
+                    </span>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '6px',
+                    borderRadius: '4px',
+                    background: 'rgba(255,255,255,0.06)',
+                    overflow: 'hidden'
+                  }}>
+                    {/* Progress Fill */}
+                    <div style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      height: '100%',
+                      width: '5%',
+                      borderRadius: '4px',
+                      background: 'linear-gradient(90deg, #8B5CF6 0%, #A78BFA 50%, #C4B5FD 100%)',
+                      boxShadow: '0 0 12px rgba(139, 92, 246, 0.5)',
+                      transition: 'width 0.5s ease'
+                    }} />
+                    {/* Shimmer Effect */}
+                    <div style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      height: '100%',
+                      width: '100%',
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
+                      animation: 'shimmer 2s infinite'
+                    }} />
+                  </div>
+                </div>
               </div>
             </div>
             <button
