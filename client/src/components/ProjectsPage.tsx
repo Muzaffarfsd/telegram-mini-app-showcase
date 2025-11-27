@@ -1,5 +1,5 @@
 import { demoApps } from "../data/demoApps";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock, TrendingUp, Shield, Zap } from "lucide-react";
 
 interface ProjectsPageProps {
   onNavigate: (section: string) => void;
@@ -14,97 +14,166 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
       <div className="max-w-md mx-auto">
         
         {/* ═══════════════════════════════════════════════════════
-            PREMIUM HERO - Editorial Style
+            HERO - Обещание прибыли + Дефицит + Авторитет
         ═══════════════════════════════════════════════════════ */}
-        <header className="px-6 pt-20 pb-12">
-          {/* Overline */}
+        <header className="px-6 pt-16 pb-10">
+          {/* Authority Badge */}
           <p 
-            className="text-center mb-8 scroll-fade-in"
+            className="text-center mb-6 scroll-fade-in"
             style={{
               fontSize: '10px',
               fontWeight: 500,
-              letterSpacing: '0.25em',
-              color: 'rgba(255, 255, 255, 0.35)',
+              letterSpacing: '0.15em',
+              color: 'rgba(255, 255, 255, 0.4)',
               textTransform: 'uppercase'
             }}
           >
-            Telegram Mini Apps
+            Telegram Official Partner
           </p>
           
-          {/* Main Title */}
+          {/* Main Promise */}
           <h1 
             className="text-center scroll-fade-in-delay-1"
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: '52px',
-              fontWeight: 600,
-              letterSpacing: '-0.045em',
-              lineHeight: '1.0',
+              fontSize: '32px',
+              fontWeight: 700,
+              letterSpacing: '-0.03em',
+              lineHeight: '1.15',
               color: '#FFFFFF'
             }}
           >
-            Витрина
+            Запустим Mini App,
+            <br />
+            <span style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
+              который окупится
+            </span>
+            <br />
+            <span 
+              style={{ 
+                background: 'linear-gradient(90deg, #34C759 0%, #30D158 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              за 14 дней
+            </span>
           </h1>
           
-          {/* Subtitle */}
+          {/* Value Prop */}
           <p 
             className="text-center mt-5 scroll-fade-in-delay-2"
             style={{
               fontSize: '15px',
               fontWeight: 400,
               letterSpacing: '-0.01em',
-              lineHeight: '1.6',
-              color: 'rgba(255, 255, 255, 0.4)',
-              maxWidth: '280px',
+              lineHeight: '1.55',
+              color: 'rgba(255, 255, 255, 0.5)',
+              maxWidth: '300px',
               margin: '20px auto 0'
             }}
           >
-            Готовые решения для автоматизации продаж и клиентского сервиса
+            Покажем, как клиенты начнут платить через Telegram. Иначе вернём предоплату.
           </p>
 
-          {/* Divider Line */}
-          <div 
-            className="mt-10 scroll-fade-in-delay-3"
-            style={{
-              height: '1px',
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)'
-            }}
-          />
-          
-          {/* Bottom Caption */}
-          <p 
-            className="text-center mt-6 scroll-fade-in-delay-3"
-            style={{
-              fontSize: '9px',
-              fontWeight: 500,
-              letterSpacing: '0.35em',
-              color: 'rgba(255, 255, 255, 0.2)',
-              textTransform: 'uppercase'
-            }}
-          >
-            Для лидеров рынка
-          </p>
+          {/* Scarcity Badge */}
+          <div className="flex justify-center mt-6 scroll-fade-in-delay-2">
+            <div 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+              style={{
+                background: 'rgba(255, 149, 0, 0.1)',
+                border: '1px solid rgba(255, 149, 0, 0.25)'
+              }}
+            >
+              <Clock className="w-3.5 h-3.5 text-[#FF9500]" />
+              <span 
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: '#FF9500',
+                  letterSpacing: '0.01em'
+                }}
+              >
+                Осталось 3 слота на декабрь
+              </span>
+            </div>
+          </div>
+
+          {/* Primary CTA */}
+          <div className="mt-7 scroll-fade-in-delay-3">
+            <a
+              href="https://t.me/web4tgs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cta-button flex items-center justify-center gap-2 w-full py-4 rounded-xl font-semibold transition-all duration-300"
+              style={{
+                background: '#FFFFFF',
+                color: '#0A0A0A',
+                fontSize: '16px',
+                letterSpacing: '-0.01em',
+                textDecoration: 'none'
+              }}
+              data-testid="button-audit-hero"
+            >
+              Забронировать аудит
+              <ArrowRight className="w-4.5 h-4.5" />
+            </a>
+            
+            {/* Reciprocity */}
+            <p 
+              className="text-center mt-3"
+              style={{
+                fontSize: '12px',
+                color: 'rgba(255, 255, 255, 0.4)'
+              }}
+            >
+              Бесплатно · Первый месяц поддержки в подарок
+            </p>
+          </div>
         </header>
 
         {/* ═══════════════════════════════════════════════════════
-            SECTION LABEL
+            SOCIAL PROOF STRIP
         ═══════════════════════════════════════════════════════ */}
-        <div className="px-6 mb-5">
-          <div className="flex items-center gap-4">
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.06)' }} />
-            <span 
-              style={{
-                fontSize: '10px',
-                fontWeight: 500,
-                letterSpacing: '0.2em',
-                color: 'rgba(255, 255, 255, 0.25)',
-                textTransform: 'uppercase'
-              }}
-            >
-              Коллекция
-            </span>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.06)' }} />
+        <section 
+          className="px-6 py-5"
+          style={{
+            borderTop: '1px solid rgba(255,255,255,0.06)',
+            borderBottom: '1px solid rgba(255,255,255,0.06)'
+          }}
+        >
+          <div className="flex justify-between items-center">
+            <div className="text-center flex-1">
+              <p style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF' }}>50+</p>
+              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: '2px' }}>компаний</p>
+            </div>
+            <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.08)' }} />
+            <div className="text-center flex-1">
+              <p style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF' }}>87M ₽</p>
+              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: '2px' }}>выручки</p>
+            </div>
+            <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.08)' }} />
+            <div className="text-center flex-1">
+              <p style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF' }}>212%</p>
+              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: '2px' }}>ROI</p>
+            </div>
           </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════
+            SECTION LABEL - Editorial
+        ═══════════════════════════════════════════════════════ */}
+        <div className="px-6 pt-8 pb-5">
+          <p 
+            className="text-center"
+            style={{
+              fontSize: '13px',
+              color: 'rgba(255, 255, 255, 0.5)',
+              letterSpacing: '-0.01em'
+            }}
+          >
+            Выбирайте демо — адаптируем под вашу воронку за 10–14 дней
+          </p>
         </div>
 
         {/* ═══════════════════════════════════════════════════════
@@ -185,42 +254,157 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
         </div>
 
         {/* ═══════════════════════════════════════════════════════
-            PREMIUM CTA SECTION
+            LOSS AVERSION + FUTURE PACING
         ═══════════════════════════════════════════════════════ */}
-        <section className="px-6 mt-12">
-          {/* Top Line */}
+        <section className="px-6 mt-10">
           <div 
+            className="rounded-2xl p-5"
             style={{
-              height: '1px',
-              background: 'rgba(255,255,255,0.06)',
-              marginBottom: '32px'
+              background: 'rgba(255, 59, 48, 0.06)',
+              border: '1px solid rgba(255, 59, 48, 0.12)'
             }}
-          />
-          
-          <div className="text-center">
-            {/* CTA Title */}
+          >
+            <div className="flex items-start gap-3 mb-4">
+              <TrendingUp className="w-5 h-5 text-[#FF3B30] flex-shrink-0 mt-0.5" />
+              <div>
+                <p 
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: '#FFFFFF',
+                    marginBottom: '4px'
+                  }}
+                >
+                  Конкуренты уже в Telegram
+                </p>
+                <p 
+                  style={{
+                    fontSize: '13px',
+                    color: 'rgba(255, 255, 255, 0.5)',
+                    lineHeight: '1.5'
+                  }}
+                >
+                  Каждый день без автоматизации = −63 000 ₽ упущенной выручки
+                </p>
+              </div>
+            </div>
+            
+            <div 
+              style={{
+                height: '1px',
+                background: 'rgba(255, 255, 255, 0.06)',
+                margin: '16px 0'
+              }}
+            />
+            
+            <div className="flex items-start gap-3">
+              <Zap className="w-5 h-5 text-[#34C759] flex-shrink-0 mt-0.5" />
+              <div>
+                <p 
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: '#FFFFFF',
+                    marginBottom: '4px'
+                  }}
+                >
+                  Через 14 дней
+                </p>
+                <p 
+                  style={{
+                    fontSize: '13px',
+                    color: 'rgba(255, 255, 255, 0.5)',
+                    lineHeight: '1.5'
+                  }}
+                >
+                  MVP с вашим брендом, сценарии продаж, касса, аналитика — всё работает
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════
+            ROI RIBBON
+        ═══════════════════════════════════════════════════════ */}
+        <section className="px-6 mt-8">
+          <div 
+            className="text-center py-5 rounded-xl"
+            style={{
+              background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.08) 0%, rgba(48, 209, 88, 0.04) 100%)',
+              border: '1px solid rgba(52, 199, 89, 0.15)'
+            }}
+          >
+            <p 
+              style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                letterSpacing: '0.1em',
+                color: 'rgba(52, 199, 89, 0.8)',
+                textTransform: 'uppercase',
+                marginBottom: '6px'
+              }}
+            >
+              Средний возврат инвестиций
+            </p>
+            <p 
+              style={{
+                fontSize: '28px',
+                fontWeight: 700,
+                color: '#34C759',
+                letterSpacing: '-0.02em'
+              }}
+            >
+              212%
+            </p>
+            <p 
+              style={{
+                fontSize: '12px',
+                color: 'rgba(255, 255, 255, 0.4)',
+                marginTop: '6px'
+              }}
+            >
+              Окупаемость с 32-го заказа
+            </p>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════
+            FINAL CTA - с гарантией
+        ═══════════════════════════════════════════════════════ */}
+        <section className="px-6 mt-10">
+          <div 
+            className="rounded-2xl p-6 text-center"
+            style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)'
+            }}
+          >
+            {/* Headline */}
             <h2 
               style={{
                 fontSize: '22px',
-                fontWeight: 600,
-                letterSpacing: '-0.03em',
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
                 color: '#FFFFFF',
                 marginBottom: '8px'
               }}
             >
-              Обсудим ваш проект
+              Готовы зарабатывать
+              <br />
+              в Telegram?
             </h2>
             
-            {/* CTA Subtitle */}
+            {/* Subline */}
             <p 
               style={{
-                fontSize: '13px',
-                color: 'rgba(255, 255, 255, 0.4)',
-                letterSpacing: '-0.005em',
-                marginBottom: '24px'
+                fontSize: '14px',
+                color: 'rgba(255, 255, 255, 0.5)',
+                lineHeight: '1.5',
+                marginBottom: '20px'
               }}
             >
-              Разработка под ключ от 14 дней
+              Проведём стратегическую сессию, покажем прогноз оборота и дадим чек-лист. Бесплатно.
             </p>
 
             {/* Primary Button */}
@@ -228,53 +412,60 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
               href="https://t.me/web4tgs"
               target="_blank"
               rel="noopener noreferrer"
-              className="cta-button inline-flex items-center justify-center gap-2 w-full py-4 rounded-xl font-semibold transition-all duration-300"
+              className="cta-button flex items-center justify-center gap-2 w-full py-4 rounded-xl font-semibold transition-all duration-300"
               style={{
                 background: '#FFFFFF',
                 color: '#0A0A0A',
-                fontSize: '15px',
+                fontSize: '16px',
                 letterSpacing: '-0.01em',
                 textDecoration: 'none'
               }}
               data-testid="button-order-cta"
             >
-              Связаться
-              <ArrowRight className="w-4 h-4" />
+              Получить стратегию
+              <ArrowRight className="w-4.5 h-4.5" />
             </a>
             
-            {/* Secondary Link */}
-            <p 
-              className="mt-5"
-              style={{
-                fontSize: '12px',
-                color: 'rgba(255, 255, 255, 0.3)',
-                letterSpacing: '0.02em'
-              }}
-            >
-              от 9 990 ₽ · Telegram · WhatsApp
-            </p>
-          </div>
+            {/* Guarantee */}
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <Shield className="w-4 h-4 text-[#34C759]" />
+              <p 
+                style={{
+                  fontSize: '12px',
+                  color: 'rgba(255, 255, 255, 0.5)'
+                }}
+              >
+                Докажем прибыль или вернём оплату
+              </p>
+            </div>
 
-          {/* Bottom Signature */}
-          <div 
-            className="mt-10 pt-8 text-center"
-            style={{
-              borderTop: '1px solid rgba(255,255,255,0.04)'
-            }}
-          >
+            {/* Urgency */}
             <p 
+              className="mt-4 pt-4"
               style={{
-                fontSize: '9px',
-                fontWeight: 500,
-                letterSpacing: '0.3em',
-                color: 'rgba(255, 255, 255, 0.15)',
-                textTransform: 'uppercase'
+                fontSize: '11px',
+                color: 'rgba(255, 149, 0, 0.9)',
+                borderTop: '1px solid rgba(255,255,255,0.06)'
               }}
             >
-              Web4TG · 2025
+              3 слота на декабрь · Цена 9 990 ₽ до 31.12
             </p>
           </div>
         </section>
+
+        {/* Footer */}
+        <footer className="px-6 mt-10 pb-4 text-center">
+          <p 
+            style={{
+              fontSize: '10px',
+              letterSpacing: '0.2em',
+              color: 'rgba(255, 255, 255, 0.2)',
+              textTransform: 'uppercase'
+            }}
+          >
+            Web4TG · 2025
+          </p>
+        </footer>
 
       </div>
 
@@ -296,7 +487,7 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
         }
 
         .cta-button:hover {
-          opacity: 0.9;
+          opacity: 0.92;
           transform: translateY(-1px);
         }
 
