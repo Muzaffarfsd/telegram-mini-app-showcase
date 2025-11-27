@@ -260,7 +260,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.06)',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
@@ -275,6 +276,160 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             >
               <X size={18} color="#A1A1AA" />
             </button>
+          </div>
+          
+          {/* Apple-Style App Progress - In Header */}
+          <div style={{
+            marginTop: '20px',
+            padding: '16px',
+            borderRadius: '16px',
+            background: 'linear-gradient(145deg, rgba(34,197,94,0.08) 0%, rgba(16,185,129,0.04) 100%)',
+            border: '1px solid rgba(34, 197, 94, 0.12)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Glow effect */}
+            <div style={{
+              position: 'absolute',
+              top: '-20px',
+              right: '-20px',
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(34,197,94,0.2) 0%, transparent 70%)',
+              filter: 'blur(15px)',
+              pointerEvents: 'none'
+            }} />
+            
+            {/* Header Row */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '14px',
+              position: 'relative'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #22C55E 0%, #10B981 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 12px rgba(34,197,94,0.3)'
+                }}>
+                  <Sparkles size={16} color="#fff" />
+                </div>
+                <div>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#FAFAFA', display: 'block' }}>
+                    Ваше приложение
+                  </span>
+                  <span style={{ fontSize: '10px', color: '#52525B' }}>
+                    Этап: Бриф
+                  </span>
+                </div>
+              </div>
+              <div style={{
+                padding: '4px 10px',
+                borderRadius: '12px',
+                background: 'rgba(34,197,94,0.15)',
+                border: '1px solid rgba(34,197,94,0.2)'
+              }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#22C55E' }}>0%</span>
+              </div>
+            </div>
+            
+            {/* Progress Bar */}
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              height: '8px',
+              borderRadius: '4px',
+              background: 'rgba(255,255,255,0.08)',
+              overflow: 'hidden',
+              marginBottom: '12px'
+            }}>
+              <div style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                height: '100%',
+                width: '2%',
+                borderRadius: '4px',
+                background: 'linear-gradient(90deg, #22C55E 0%, #34D399 100%)',
+                boxShadow: '0 0 12px rgba(34,197,94,0.6)'
+              }} />
+            </div>
+            
+            {/* Stage Dots */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              position: 'relative'
+            }}>
+              {/* Connection line */}
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '16px',
+                right: '16px',
+                height: '2px',
+                background: 'rgba(255,255,255,0.06)',
+                transform: 'translateY(-50%)',
+                zIndex: 0
+              }} />
+              
+              {[
+                { name: 'Бриф', active: true },
+                { name: 'Дизайн', active: false },
+                { name: 'Код', active: false },
+                { name: 'Запуск', active: false }
+              ].map((stage) => (
+                <div key={stage.name} style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '6px',
+                  zIndex: 1
+                }}>
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    background: stage.active 
+                      ? 'linear-gradient(135deg, #22C55E 0%, #10B981 100%)'
+                      : 'rgba(255,255,255,0.06)',
+                    border: stage.active 
+                      ? '2px solid rgba(34,197,94,0.4)'
+                      : '2px solid rgba(255,255,255,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: stage.active ? '0 0 10px rgba(34,197,94,0.4)' : 'none'
+                  }}>
+                    {stage.active && (
+                      <div style={{
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        background: '#fff'
+                      }} />
+                    )}
+                  </div>
+                  <span style={{
+                    fontSize: '9px',
+                    fontWeight: stage.active ? 600 : 500,
+                    color: stage.active ? '#A1A1AA' : '#52525B',
+                    letterSpacing: '0.01em'
+                  }}>
+                    {stage.name}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         
@@ -508,223 +663,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             />
           </button>
         </nav>
-        
-        {/* Apple-Style App Progress Card */}
-        <div style={{
-          margin: '0 16px 12px',
-          padding: '20px',
-          borderRadius: '20px',
-          background: 'linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
-          border: '1px solid rgba(255,255,255,0.06)',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          {/* Decorative blur orb */}
-          <div style={{
-            position: 'absolute',
-            top: '-30px',
-            right: '-30px',
-            width: '100px',
-            height: '100px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)',
-            filter: 'blur(25px)',
-            pointerEvents: 'none'
-          }} />
-          
-          {/* Header */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '20px',
-            position: 'relative'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(16,185,129,0.08) 100%)',
-                border: '1px solid rgba(34, 197, 94, 0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 12px rgba(34,197,94,0.1)'
-              }}>
-                <Sparkles size={18} color="#22C55E" />
-              </div>
-              <div>
-                <span style={{
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  color: '#FAFAFA',
-                  display: 'block',
-                  letterSpacing: '-0.01em'
-                }}>
-                  Ваше приложение
-                </span>
-                <span style={{
-                  fontSize: '11px',
-                  color: '#52525B',
-                  marginTop: '2px',
-                  display: 'block'
-                }}>
-                  Отслеживайте прогресс
-                </span>
-              </div>
-            </div>
-            
-            {/* Percentage Badge */}
-            <div style={{
-              padding: '6px 12px',
-              borderRadius: '20px',
-              background: 'linear-gradient(135deg, rgba(34,197,94,0.2) 0%, rgba(16,185,129,0.1) 100%)',
-              border: '1px solid rgba(34, 197, 94, 0.25)'
-            }}>
-              <span style={{
-                fontSize: '13px',
-                fontWeight: 700,
-                color: '#22C55E',
-                letterSpacing: '-0.02em'
-              }}>
-                0%
-              </span>
-            </div>
-          </div>
-          
-          {/* Apple-Style Progress Track */}
-          <div style={{
-            position: 'relative',
-            marginBottom: '16px'
-          }}>
-            {/* Background Track */}
-            <div style={{
-              position: 'relative',
-              width: '100%',
-              height: '6px',
-              borderRadius: '3px',
-              background: 'rgba(255,255,255,0.08)',
-              overflow: 'hidden'
-            }}>
-              {/* Progress Fill with Glow */}
-              <div style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                height: '100%',
-                width: '2%',
-                borderRadius: '3px',
-                background: 'linear-gradient(90deg, #22C55E 0%, #10B981 100%)',
-                boxShadow: '0 0 16px rgba(34, 197, 94, 0.6), 0 0 4px rgba(34, 197, 94, 0.8)',
-                transition: 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
-              }} />
-              {/* Animated Pulse */}
-              <div style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                height: '100%',
-                width: '2%',
-                borderRadius: '3px',
-                background: 'rgba(255,255,255,0.3)',
-                animation: 'pulse 2s ease-in-out infinite'
-              }} />
-            </div>
-          </div>
-          
-          {/* Apple-Style Stage Indicators */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            position: 'relative'
-          }}>
-            {/* Connecting Line */}
-            <div style={{
-              position: 'absolute',
-              top: '11px',
-              left: '22px',
-              right: '22px',
-              height: '2px',
-              background: 'rgba(255,255,255,0.06)',
-              borderRadius: '1px',
-              zIndex: 0
-            }} />
-            
-            {[
-              { label: 'Бриф', active: true, completed: false },
-              { label: 'Дизайн', active: false, completed: false },
-              { label: 'Код', active: false, completed: false },
-              { label: 'Запуск', active: false, completed: false }
-            ].map((stage, index) => (
-              <div 
-                key={stage.label}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px',
-                  zIndex: 1
-                }}
-              >
-                {/* Stage Dot */}
-                <div style={{
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
-                  background: stage.completed 
-                    ? 'linear-gradient(135deg, #22C55E 0%, #10B981 100%)'
-                    : stage.active 
-                      ? 'linear-gradient(135deg, rgba(34,197,94,0.3) 0%, rgba(16,185,129,0.2) 100%)'
-                      : 'rgba(255,255,255,0.04)',
-                  border: stage.completed 
-                    ? '2px solid rgba(34,197,94,0.5)'
-                    : stage.active 
-                      ? '2px solid rgba(34,197,94,0.4)'
-                      : '2px solid rgba(255,255,255,0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: stage.active || stage.completed 
-                    ? '0 0 12px rgba(34,197,94,0.3)' 
-                    : 'none',
-                  transition: 'all 0.3s ease'
-                }}>
-                  {stage.completed ? (
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6L5 9L10 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  ) : (
-                    <div style={{
-                      width: '6px',
-                      height: '6px',
-                      borderRadius: '50%',
-                      background: stage.active 
-                        ? '#22C55E' 
-                        : 'rgba(255,255,255,0.2)',
-                      boxShadow: stage.active ? '0 0 8px rgba(34,197,94,0.6)' : 'none'
-                    }} />
-                  )}
-                </div>
-                
-                {/* Stage Label */}
-                <span style={{
-                  fontSize: '10px',
-                  fontWeight: stage.active || stage.completed ? 600 : 500,
-                  color: stage.active || stage.completed ? '#A1A1AA' : '#52525B',
-                  letterSpacing: '0.02em',
-                  transition: 'color 0.3s ease'
-                }}>
-                  {stage.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
         
         {/* Quick Stats Card */}
         <div style={{
