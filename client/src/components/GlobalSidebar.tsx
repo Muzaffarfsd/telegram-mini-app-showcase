@@ -311,30 +311,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             WEB4TG
           </p>
           
-          {/* User Avatar in Header */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            style={{
-              width: '40px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '12px',
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            aria-label="Профиль"
-            data-testid="button-header-avatar"
-          >
-            <UserAvatar
-              photoUrl={user?.photo_url}
-              firstName={user?.first_name}
-              size="sm"
-            />
-          </button>
+          {/* Empty space for balance */}
+          <div style={{ width: '40px' }} />
         </div>
       </div>
     </>
