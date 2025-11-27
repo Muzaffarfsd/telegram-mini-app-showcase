@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Menu, X, Sparkles, MessageCircle, Zap, Users, Home } from "lucide-react";
+import { Menu, X, Sparkles, MessageCircle, Zap, Users, Home, Send } from "lucide-react";
+import { SiInstagram, SiTelegram } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
 
 interface GlobalSidebarProps {
@@ -13,6 +14,7 @@ interface GlobalSidebarProps {
 
 export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pressedItem, setPressedItem] = useState<string | null>(null);
 
   const menuItems = [
     { icon: Home, label: 'Главная', section: '', routes: ['showcase'] },
@@ -23,6 +25,36 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   ];
 
   const isActive = (routes: string[]) => routes.includes(currentRoute);
+
+  const handleNavClick = (section: string) => {
+    setPressedItem(section);
+    setTimeout(() => {
+      onNavigate(section);
+      setSidebarOpen(false);
+      setPressedItem(null);
+    }, 150);
+  };
+
+  const socialLinks = [
+    { 
+      icon: SiInstagram, 
+      label: 'Instagram', 
+      url: 'https://instagram.com/web4tg',
+      color: '#E4405F'
+    },
+    { 
+      icon: SiTelegram, 
+      label: 'Telegram канал', 
+      url: 'https://t.me/web4_tg',
+      color: '#26A5E4'
+    },
+    { 
+      icon: Send, 
+      label: 'Консультация', 
+      url: 'https://t.me/web4tgs',
+      color: '#A78BFA'
+    },
+  ];
 
   return (
     <>
@@ -112,13 +144,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           {/* Nav Items */}
           {menuItems.map((item) => {
             const active = isActive(item.routes);
+            const isPressed = pressedItem === item.section;
             return (
               <button
                 key={item.section}
-                onClick={() => {
-                  onNavigate(item.section);
-                  setSidebarOpen(false);
-                }}
+                onClick={() => handleNavClick(item.section)}
                 className="w-full group"
                 style={{
                   display: 'flex',
@@ -126,11 +156,20 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   gap: '14px',
                   padding: '14px 16px',
                   borderRadius: '12px',
-                  background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
-                  border: active ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent',
+                  background: isPressed 
+                    ? 'rgba(139, 92, 246, 0.25)' 
+                    : active 
+                      ? 'rgba(255,255,255,0.08)' 
+                      : 'transparent',
+                  border: isPressed 
+                    ? '1px solid rgba(139, 92, 246, 0.4)'
+                    : active 
+                      ? '1px solid rgba(255,255,255,0.1)' 
+                      : '1px solid transparent',
                   cursor: 'pointer',
                   marginBottom: '6px',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.15s ease-out',
+                  transform: isPressed ? 'scale(0.98)' : 'scale(1)'
                 }}
                 data-testid={`button-nav-${item.section || 'home'}`}
               >
@@ -141,20 +180,24 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: '10px',
-                  background: active ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255,255,255,0.04)',
-                  transition: 'all 0.2s'
+                  background: isPressed 
+                    ? 'rgba(139, 92, 246, 0.35)'
+                    : active 
+                      ? 'rgba(139, 92, 246, 0.2)' 
+                      : 'rgba(255,255,255,0.04)',
+                  transition: 'all 0.15s ease-out'
                 }}>
-                  <item.icon size={18} color={active ? '#A78BFA' : '#71717A'} />
+                  <item.icon size={18} color={isPressed || active ? '#A78BFA' : '#71717A'} />
                 </div>
                 <span style={{
                   fontSize: '15px',
-                  fontWeight: active ? 600 : 500,
-                  color: active ? '#FAFAFA' : '#A1A1AA',
-                  transition: 'all 0.2s'
+                  fontWeight: isPressed || active ? 600 : 500,
+                  color: isPressed || active ? '#FAFAFA' : '#A1A1AA',
+                  transition: 'all 0.15s ease-out'
                 }}>
                   {item.label}
                 </span>
-                {active && (
+                {(active || isPressed) && (
                   <div style={{
                     marginLeft: 'auto',
                     width: '6px',
@@ -169,10 +212,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           
           {/* Profile Button with Avatar */}
           <button
-            onClick={() => {
-              onNavigate('profile');
-              setSidebarOpen(false);
-            }}
+            onClick={() => handleNavClick('profile')}
             className="w-full group"
             style={{
               display: 'flex',
@@ -180,11 +220,20 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               gap: '14px',
               padding: '14px 16px',
               borderRadius: '12px',
-              background: ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? 'rgba(255,255,255,0.08)' : 'transparent',
-              border: ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent',
+              background: pressedItem === 'profile'
+                ? 'rgba(139, 92, 246, 0.25)'
+                : ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) 
+                  ? 'rgba(255,255,255,0.08)' 
+                  : 'transparent',
+              border: pressedItem === 'profile'
+                ? '1px solid rgba(139, 92, 246, 0.4)'
+                : ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) 
+                  ? '1px solid rgba(255,255,255,0.1)' 
+                  : '1px solid transparent',
               cursor: 'pointer',
               marginBottom: '6px',
-              transition: 'all 0.2s'
+              transition: 'all 0.15s ease-out',
+              transform: pressedItem === 'profile' ? 'scale(0.98)' : 'scale(1)'
             }}
             data-testid="button-nav-profile"
           >
@@ -192,17 +241,17 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               photoUrl={user?.photo_url}
               firstName={user?.first_name}
               size="sm"
-              className={['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? 'ring-2 ring-violet-400/50' : ''}
+              className={pressedItem === 'profile' || ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? 'ring-2 ring-violet-400/50' : ''}
             />
             <span style={{
               fontSize: '15px',
-              fontWeight: ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? 600 : 500,
-              color: ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? '#FAFAFA' : '#A1A1AA',
-              transition: 'all 0.2s'
+              fontWeight: pressedItem === 'profile' || ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? 600 : 500,
+              color: pressedItem === 'profile' || ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? '#FAFAFA' : '#A1A1AA',
+              transition: 'all 0.15s ease-out'
             }}>
               Профиль
             </span>
-            {['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) && (
+            {(pressedItem === 'profile' || ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute)) && (
               <div style={{
                 marginLeft: 'auto',
                 width: '6px',
@@ -247,15 +296,55 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </p>
         </div>
         
-        {/* Sidebar Footer */}
+        {/* Sidebar Footer with Social Links */}
         <div style={{
           position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
-          padding: '24px',
+          padding: '20px 24px',
           borderTop: '1px solid rgba(255,255,255,0.06)'
         }}>
+          {/* Social Links */}
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            marginBottom: '16px'
+          }}>
+            {socialLinks.map((social) => (
+              <a
+                key={social.label}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                aria-label={social.label}
+                data-testid={`link-social-${social.label.toLowerCase().replace(' ', '-')}`}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `${social.color}20`;
+                  e.currentTarget.style.borderColor = `${social.color}40`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                }}
+              >
+                <social.icon size={20} color={social.color} />
+              </a>
+            ))}
+          </div>
+          
           <p style={{
             fontSize: '12px',
             color: '#52525B'
