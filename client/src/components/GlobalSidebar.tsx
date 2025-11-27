@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Menu, X, Sparkles, MessageCircle, Zap, Users, Home, Send } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Menu, X, Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight } from "lucide-react";
 import { SiInstagram, SiTelegram } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
 
@@ -15,53 +15,95 @@ interface GlobalSidebarProps {
 export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pressedItem, setPressedItem] = useState<string | null>(null);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const menuItems = [
-    { icon: Home, label: 'Главная', section: '', routes: ['showcase'] },
-    { icon: Sparkles, label: 'Демо приложения', section: 'projects', routes: ['projects'] },
-    { icon: Zap, label: 'ИИ Ассистент', section: 'ai-process', routes: ['aiProcess', 'aiAgent'] },
-    { icon: Users, label: 'О студии', section: 'about', routes: ['about'] },
-    { icon: MessageCircle, label: 'Заказать проект', section: 'constructor', routes: ['constructor', 'checkout'] },
+    { 
+      icon: Home, 
+      label: 'Главная', 
+      section: '', 
+      routes: ['showcase'],
+      description: 'Все возможности'
+    },
+    { 
+      icon: Sparkles, 
+      label: 'Демо приложения', 
+      section: 'projects', 
+      routes: ['projects'],
+      description: 'Готовые решения'
+    },
+    { 
+      icon: Bot, 
+      label: 'ИИ агент для бизнеса', 
+      section: 'ai-process', 
+      routes: ['aiProcess', 'aiAgent'],
+      description: 'Автоматизация 24/7'
+    },
+    { 
+      icon: Users, 
+      label: 'О студии', 
+      section: 'about', 
+      routes: ['about'],
+      description: 'Наша команда'
+    },
+    { 
+      icon: MessageCircle, 
+      label: 'Заказать проект', 
+      section: 'constructor', 
+      routes: ['constructor', 'checkout'],
+      description: 'Индивидуальное решение'
+    },
   ];
 
   const isActive = (routes: string[]) => routes.includes(currentRoute);
 
-  const handleNavClick = (section: string) => {
+  const handleNavClick = useCallback((section: string) => {
     setPressedItem(section);
     setTimeout(() => {
       onNavigate(section);
       setSidebarOpen(false);
       setPressedItem(null);
-    }, 150);
-  };
+    }, 180);
+  }, [onNavigate]);
 
   const socialLinks = [
     { 
       icon: SiInstagram, 
       label: 'Instagram', 
       url: 'https://instagram.com/web4tg',
-      color: '#E4405F'
+      color: '#E4405F',
+      hoverBg: 'rgba(228, 64, 95, 0.15)'
     },
     { 
       icon: SiTelegram, 
       label: 'Telegram канал', 
       url: 'https://t.me/web4_tg',
-      color: '#26A5E4'
+      color: '#26A5E4',
+      hoverBg: 'rgba(38, 165, 228, 0.15)'
     },
     { 
       icon: Send, 
       label: 'Консультация', 
       url: 'https://t.me/web4tgs',
-      color: '#A78BFA'
+      color: '#A78BFA',
+      hoverBg: 'rgba(167, 139, 250, 0.15)'
     },
   ];
+
+  const isProfileActive = ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute);
+  const isProfilePressed = pressedItem === 'profile';
+  const isProfileHovered = hoveredItem === 'profile';
 
   return (
     <>
       {/* SIDEBAR OVERLAY */}
       <div 
-        className={`fixed inset-0 z-[100] transition-opacity duration-300 ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-        style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)' }}
+        className={`fixed inset-0 z-[100] transition-all duration-300 ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        style={{ 
+          background: 'rgba(0,0,0,0.75)', 
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)'
+        }}
         onClick={() => setSidebarOpen(false)}
       />
       
@@ -69,27 +111,53 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       <div 
         className={`fixed top-0 left-0 h-full z-[100] transition-transform duration-300 ease-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ 
-          width: '300px',
-          background: '#0A0A0B',
-          borderRight: '1px solid rgba(255,255,255,0.06)'
+          width: '320px',
+          background: 'linear-gradient(180deg, #0C0C0E 0%, #09090B 100%)',
+          borderRight: '1px solid rgba(255,255,255,0.06)',
+          boxShadow: sidebarOpen ? '20px 0 60px rgba(0,0,0,0.5)' : 'none'
         }}
       >
+        {/* Decorative gradient line at top */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '2px',
+          background: 'linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.5) 50%, transparent 100%)'
+        }} />
+
         {/* Sidebar Header with User */}
         <div style={{ 
-          padding: '24px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)'
+          padding: '28px 24px',
+          borderBottom: '1px solid rgba(255,255,255,0.05)'
         }}>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <UserAvatar
-                photoUrl={user?.photo_url}
-                firstName={user?.first_name}
-                size="md"
-                className="ring-2 ring-white/10"
-              />
+            <div className="flex items-center gap-4">
+              <div style={{
+                position: 'relative'
+              }}>
+                <UserAvatar
+                  photoUrl={user?.photo_url}
+                  firstName={user?.first_name}
+                  size="md"
+                  className="ring-2 ring-white/10"
+                />
+                {/* Online indicator */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '2px',
+                  right: '2px',
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  background: '#22C55E',
+                  border: '2px solid #0C0C0E'
+                }} />
+              </div>
               <div>
                 <p style={{
-                  fontSize: '15px',
+                  fontSize: '16px',
                   fontWeight: 600,
                   letterSpacing: '-0.02em',
                   color: '#FAFAFA'
@@ -98,7 +166,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 </p>
                 <p style={{
                   fontSize: '12px',
-                  color: '#52525B',
+                  color: '#71717A',
                   marginTop: '2px'
                 }}>
                   Web4TG Studio
@@ -108,208 +176,339 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             <button
               onClick={() => setSidebarOpen(false)}
               style={{
-                width: '36px',
-                height: '36px',
+                width: '40px',
+                height: '40px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: '10px',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '12px',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.06)',
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
               }}
               aria-label="Закрыть меню"
               data-testid="button-close-sidebar"
             >
-              <X size={18} color="#71717A" />
+              <X size={18} color="#A1A1AA" />
             </button>
           </div>
         </div>
         
         {/* Sidebar Navigation */}
-        <nav style={{ padding: '20px 16px' }}>
+        <nav style={{ padding: '24px 16px', flex: 1 }}>
           <p style={{
             fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '0.12em',
+            fontWeight: 700,
+            letterSpacing: '0.15em',
             color: '#52525B',
             textTransform: 'uppercase',
-            padding: '8px 12px',
-            marginBottom: '8px'
+            padding: '0 16px',
+            marginBottom: '12px'
           }}>
             Навигация
           </p>
           
           {/* Nav Items */}
-          {menuItems.map((item) => {
-            const active = isActive(item.routes);
-            const isPressed = pressedItem === item.section;
-            return (
-              <button
-                key={item.section}
-                onClick={() => handleNavClick(item.section)}
-                className="w-full group"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '14px',
-                  padding: '14px 16px',
-                  borderRadius: '12px',
-                  background: isPressed 
-                    ? 'rgba(139, 92, 246, 0.25)' 
-                    : active 
-                      ? 'rgba(255,255,255,0.08)' 
-                      : 'transparent',
-                  border: isPressed 
-                    ? '1px solid rgba(139, 92, 246, 0.4)'
-                    : active 
-                      ? '1px solid rgba(255,255,255,0.1)' 
-                      : '1px solid transparent',
-                  cursor: 'pointer',
-                  marginBottom: '6px',
-                  transition: 'all 0.15s ease-out',
-                  transform: isPressed ? 'scale(0.98)' : 'scale(1)'
-                }}
-                data-testid={`button-nav-${item.section || 'home'}`}
-              >
-                <div style={{
-                  width: '36px',
-                  height: '36px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '10px',
-                  background: isPressed 
-                    ? 'rgba(139, 92, 246, 0.35)'
-                    : active 
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {menuItems.map((item) => {
+              const active = isActive(item.routes);
+              const isPressed = pressedItem === item.section;
+              const isHovered = hoveredItem === item.section;
+              
+              return (
+                <button
+                  key={item.section}
+                  onClick={() => handleNavClick(item.section)}
+                  onMouseEnter={() => setHoveredItem(item.section)}
+                  onMouseLeave={() => setHoveredItem(null)}
+                  className="w-full group"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '14px',
+                    padding: '14px 16px',
+                    borderRadius: '14px',
+                    background: isPressed 
                       ? 'rgba(139, 92, 246, 0.2)' 
-                      : 'rgba(255,255,255,0.04)',
-                  transition: 'all 0.15s ease-out'
-                }}>
-                  <item.icon size={18} color={isPressed || active ? '#A78BFA' : '#71717A'} />
-                </div>
-                <span style={{
-                  fontSize: '15px',
-                  fontWeight: isPressed || active ? 600 : 500,
-                  color: isPressed || active ? '#FAFAFA' : '#A1A1AA',
-                  transition: 'all 0.15s ease-out'
-                }}>
-                  {item.label}
-                </span>
-                {(active || isPressed) && (
+                      : active 
+                        ? 'rgba(255,255,255,0.06)' 
+                        : isHovered
+                          ? 'rgba(255,255,255,0.04)'
+                          : 'transparent',
+                    border: isPressed 
+                      ? '1px solid rgba(139, 92, 246, 0.35)'
+                      : active 
+                        ? '1px solid rgba(255,255,255,0.08)' 
+                        : '1px solid transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transform: isPressed ? 'scale(0.98)' : 'scale(1)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  data-testid={`button-nav-${item.section || 'home'}`}
+                >
+                  {/* Glow effect for active */}
+                  {active && (
+                    <div style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      width: '3px',
+                      height: '24px',
+                      borderRadius: '0 4px 4px 0',
+                      background: 'linear-gradient(180deg, #A78BFA 0%, #8B5CF6 100%)',
+                      boxShadow: '0 0 12px rgba(139, 92, 246, 0.5)'
+                    }} />
+                  )}
+                  
                   <div style={{
-                    marginLeft: 'auto',
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    background: '#A78BFA'
-                  }} />
-                )}
-              </button>
-            );
-          })}
+                    width: '40px',
+                    height: '40px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '12px',
+                    background: isPressed 
+                      ? 'rgba(139, 92, 246, 0.3)'
+                      : active 
+                        ? 'rgba(139, 92, 246, 0.15)' 
+                        : 'rgba(255,255,255,0.04)',
+                    border: active ? '1px solid rgba(139, 92, 246, 0.2)' : '1px solid transparent',
+                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    flexShrink: 0
+                  }}>
+                    <item.icon 
+                      size={20} 
+                      color={isPressed || active ? '#A78BFA' : isHovered ? '#E4E4E7' : '#71717A'} 
+                      style={{ transition: 'color 0.2s ease' }}
+                    />
+                  </div>
+                  
+                  <div style={{ flex: 1, textAlign: 'left' }}>
+                    <span style={{
+                      fontSize: '15px',
+                      fontWeight: isPressed || active ? 600 : 500,
+                      color: isPressed || active ? '#FAFAFA' : isHovered ? '#E4E4E7' : '#A1A1AA',
+                      transition: 'all 0.2s ease',
+                      display: 'block'
+                    }}>
+                      {item.label}
+                    </span>
+                    <span style={{
+                      fontSize: '11px',
+                      color: '#52525B',
+                      marginTop: '2px',
+                      display: 'block',
+                      opacity: active || isHovered ? 1 : 0.7,
+                      transition: 'opacity 0.2s ease'
+                    }}>
+                      {item.description}
+                    </span>
+                  </div>
+                  
+                  <ChevronRight 
+                    size={16} 
+                    color={active ? '#A78BFA' : '#3F3F46'}
+                    style={{
+                      opacity: active || isHovered ? 1 : 0,
+                      transform: isHovered && !active ? 'translateX(2px)' : 'translateX(0)',
+                      transition: 'all 0.2s ease'
+                    }}
+                  />
+                </button>
+              );
+            })}
+          </div>
+          
+          {/* Divider */}
+          <div style={{
+            height: '1px',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%)',
+            margin: '16px 0'
+          }} />
           
           {/* Profile Button with Avatar */}
           <button
             onClick={() => handleNavClick('profile')}
+            onMouseEnter={() => setHoveredItem('profile')}
+            onMouseLeave={() => setHoveredItem(null)}
             className="w-full group"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '14px',
               padding: '14px 16px',
-              borderRadius: '12px',
-              background: pressedItem === 'profile'
-                ? 'rgba(139, 92, 246, 0.25)'
-                : ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) 
-                  ? 'rgba(255,255,255,0.08)' 
-                  : 'transparent',
-              border: pressedItem === 'profile'
-                ? '1px solid rgba(139, 92, 246, 0.4)'
-                : ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) 
-                  ? '1px solid rgba(255,255,255,0.1)' 
+              borderRadius: '14px',
+              background: isProfilePressed
+                ? 'rgba(139, 92, 246, 0.2)'
+                : isProfileActive 
+                  ? 'rgba(255,255,255,0.06)' 
+                  : isProfileHovered
+                    ? 'rgba(255,255,255,0.04)'
+                    : 'transparent',
+              border: isProfilePressed
+                ? '1px solid rgba(139, 92, 246, 0.35)'
+                : isProfileActive 
+                  ? '1px solid rgba(255,255,255,0.08)' 
                   : '1px solid transparent',
               cursor: 'pointer',
-              marginBottom: '6px',
-              transition: 'all 0.15s ease-out',
-              transform: pressedItem === 'profile' ? 'scale(0.98)' : 'scale(1)'
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: isProfilePressed ? 'scale(0.98)' : 'scale(1)',
+              position: 'relative'
             }}
             data-testid="button-nav-profile"
           >
-            <UserAvatar
-              photoUrl={user?.photo_url}
-              firstName={user?.first_name}
-              size="sm"
-              className={pressedItem === 'profile' || ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? 'ring-2 ring-violet-400/50' : ''}
-            />
-            <span style={{
-              fontSize: '15px',
-              fontWeight: pressedItem === 'profile' || ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? 600 : 500,
-              color: pressedItem === 'profile' || ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) ? '#FAFAFA' : '#A1A1AA',
-              transition: 'all 0.15s ease-out'
-            }}>
-              Профиль
-            </span>
-            {(pressedItem === 'profile' || ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute)) && (
+            {/* Glow effect for active */}
+            {isProfileActive && (
               <div style={{
-                marginLeft: 'auto',
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                background: '#A78BFA'
+                position: 'absolute',
+                left: 0,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '3px',
+                height: '24px',
+                borderRadius: '0 4px 4px 0',
+                background: 'linear-gradient(180deg, #A78BFA 0%, #8B5CF6 100%)',
+                boxShadow: '0 0 12px rgba(139, 92, 246, 0.5)'
               }} />
             )}
+            
+            <div style={{
+              position: 'relative',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <UserAvatar
+                photoUrl={user?.photo_url}
+                firstName={user?.first_name}
+                size="sm"
+                className={isProfilePressed || isProfileActive ? 'ring-2 ring-violet-400/40' : ''}
+              />
+            </div>
+            
+            <div style={{ flex: 1, textAlign: 'left' }}>
+              <span style={{
+                fontSize: '15px',
+                fontWeight: isProfilePressed || isProfileActive ? 600 : 500,
+                color: isProfilePressed || isProfileActive ? '#FAFAFA' : isProfileHovered ? '#E4E4E7' : '#A1A1AA',
+                transition: 'all 0.2s ease',
+                display: 'block'
+              }}>
+                Мой профиль
+              </span>
+              <span style={{
+                fontSize: '11px',
+                color: '#52525B',
+                marginTop: '2px',
+                display: 'block',
+                opacity: isProfileActive || isProfileHovered ? 1 : 0.7,
+                transition: 'opacity 0.2s ease'
+              }}>
+                Награды и достижения
+              </span>
+            </div>
+            
+            <ChevronRight 
+              size={16} 
+              color={isProfileActive ? '#A78BFA' : '#3F3F46'}
+              style={{
+                opacity: isProfileActive || isProfileHovered ? 1 : 0,
+                transform: isProfileHovered && !isProfileActive ? 'translateX(2px)' : 'translateX(0)',
+                transition: 'all 0.2s ease'
+              }}
+            />
           </button>
         </nav>
         
-        {/* Quick Stats */}
+        {/* Quick Stats Card */}
         <div style={{
-          margin: '16px',
+          margin: '0 16px 16px',
           padding: '20px',
           borderRadius: '16px',
-          background: 'linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(59,130,246,0.05) 100%)',
-          border: '1px solid rgba(139, 92, 246, 0.15)'
+          background: 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.06) 100%)',
+          border: '1px solid rgba(139, 92, 246, 0.12)',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
-          <p style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            color: '#A78BFA',
-            marginBottom: '8px'
-          }}>
-            Декабрь 2025
-          </p>
-          <p style={{
-            fontSize: '24px',
-            fontWeight: 700,
-            color: '#FAFAFA',
-            letterSpacing: '-0.03em'
-          }}>
-            3 слота
-          </p>
-          <p style={{
-            fontSize: '13px',
-            color: '#71717A',
-            marginTop: '4px'
-          }}>
-            осталось на этот месяц
-          </p>
+          {/* Decorative gradient orb */}
+          <div style={{
+            position: 'absolute',
+            top: '-20px',
+            right: '-20px',
+            width: '80px',
+            height: '80px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)',
+            filter: 'blur(20px)'
+          }} />
+          
+          <div style={{ position: 'relative' }}>
+            <p style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.05em',
+              color: '#A78BFA',
+              marginBottom: '8px',
+              textTransform: 'uppercase'
+            }}>
+              Декабрь 2025
+            </p>
+            <p style={{
+              fontSize: '28px',
+              fontWeight: 700,
+              color: '#FAFAFA',
+              letterSpacing: '-0.03em',
+              lineHeight: 1
+            }}>
+              3 слота
+            </p>
+            <p style={{
+              fontSize: '13px',
+              color: '#71717A',
+              marginTop: '6px'
+            }}>
+              осталось на этот месяц
+            </p>
+          </div>
         </div>
         
         {/* Sidebar Footer with Social Links */}
         <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: '20px 24px',
-          borderTop: '1px solid rgba(255,255,255,0.06)'
+          padding: '20px 24px 28px',
+          borderTop: '1px solid rgba(255,255,255,0.05)',
+          background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.2) 100%)'
         }}>
+          {/* Social Links Label */}
+          <p style={{
+            fontSize: '10px',
+            fontWeight: 700,
+            letterSpacing: '0.15em',
+            color: '#52525B',
+            textTransform: 'uppercase',
+            marginBottom: '12px'
+          }}>
+            Связаться с нами
+          </p>
+          
           {/* Social Links */}
           <div style={{
             display: 'flex',
-            gap: '12px',
-            marginBottom: '16px'
+            gap: '10px',
+            marginBottom: '20px'
           }}>
             {socialLinks.map((social) => (
               <a
@@ -318,46 +517,75 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  width: '44px',
-                  height: '44px',
+                  width: '48px',
+                  height: '48px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  borderRadius: '12px',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '14px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.06)',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
                 aria-label={social.label}
                 data-testid={`link-social-${social.label.toLowerCase().replace(' ', '-')}`}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = `${social.color}20`;
+                  e.currentTarget.style.background = social.hoverBg;
                   e.currentTarget.style.borderColor = `${social.color}40`;
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = `0 8px 24px ${social.color}20`;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <social.icon size={20} color={social.color} />
+                <social.icon size={22} color={social.color} />
               </a>
             ))}
           </div>
           
-          <p style={{
-            fontSize: '12px',
-            color: '#52525B'
+          {/* Copyright */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
           }}>
-            2025 Web4TG Studio
-          </p>
-          <p style={{
-            fontSize: '11px',
-            color: '#3F3F46',
-            marginTop: '4px'
-          }}>
-            Премиум Telegram Mini Apps
-          </p>
+            <div>
+              <p style={{
+                fontSize: '12px',
+                fontWeight: 500,
+                color: '#71717A'
+              }}>
+                Web4TG Studio
+              </p>
+              <p style={{
+                fontSize: '11px',
+                color: '#3F3F46',
+                marginTop: '2px'
+              }}>
+                2025
+              </p>
+            </div>
+            <div style={{
+              padding: '6px 10px',
+              borderRadius: '8px',
+              background: 'rgba(34, 197, 94, 0.1)',
+              border: '1px solid rgba(34, 197, 94, 0.2)'
+            }}>
+              <p style={{
+                fontSize: '10px',
+                fontWeight: 600,
+                color: '#22C55E',
+                letterSpacing: '0.02em'
+              }}>
+                ONLINE
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -365,8 +593,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       <div 
         className="fixed top-0 left-0 right-0 z-[90]"
         style={{
-          background: 'rgba(9,9,11,0.85)',
-          backdropFilter: 'blur(20px) saturate(180%)',
+          background: 'rgba(9,9,11,0.88)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
           borderBottom: '1px solid rgba(255,255,255,0.04)'
         }}
       >
@@ -374,34 +603,56 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           <button
             onClick={() => setSidebarOpen(true)}
             style={{
-              width: '40px',
-              height: '40px',
+              width: '44px',
+              height: '44px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: '12px',
+              borderRadius: '14px',
               background: 'rgba(255,255,255,0.05)',
               border: '1px solid rgba(255,255,255,0.08)',
               cursor: 'pointer',
-              transition: 'all 0.2s'
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
             }}
             aria-label="Открыть меню"
             data-testid="button-open-sidebar"
           >
-            <Menu size={20} color="#FAFAFA" />
+            <Menu size={22} color="#FAFAFA" />
           </button>
           
-          <p style={{
-            fontSize: '13px',
-            fontWeight: 600,
-            letterSpacing: '0.02em',
-            color: '#71717A'
+          {/* Logo */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            WEB4TG
-          </p>
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%)',
+              boxShadow: '0 0 12px rgba(139, 92, 246, 0.5)'
+            }} />
+            <p style={{
+              fontSize: '14px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              color: '#FAFAFA'
+            }}>
+              WEB4TG
+            </p>
+          </div>
           
           {/* Empty space for balance */}
-          <div style={{ width: '40px' }} />
+          <div style={{ width: '44px' }} />
         </div>
       </div>
     </>
