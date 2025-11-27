@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, memo } from "react";
 import { demoApps } from "../data/demoApps";
-import { ArrowRight, Sparkles, Star, TrendingUp, Zap, ShoppingBag, Utensils, Watch, Shirt, Dumbbell } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 
 interface ProjectsPageProps {
   onNavigate: (section: string) => void;
@@ -8,353 +8,296 @@ interface ProjectsPageProps {
 }
 
 const categories = [
-  { id: 'all', name: 'Все', icon: Sparkles },
-  { id: 'fashion', name: 'Мода', icon: Shirt },
-  { id: 'food', name: 'Еда', icon: Utensils },
-  { id: 'tech', name: 'Техника', icon: Zap },
-  { id: 'luxury', name: 'Люкс', icon: Watch },
-  { id: 'sport', name: 'Спорт', icon: Dumbbell },
-  { id: 'retail', name: 'Ритейл', icon: ShoppingBag },
+  { id: 'all', name: 'Все' },
+  { id: 'fashion', name: 'Мода' },
+  { id: 'food', name: 'Рестораны' },
+  { id: 'luxury', name: 'Люкс' },
+  { id: 'tech', name: 'Техника' },
 ];
 
 const categoryMap: Record<string, string[]> = {
   fashion: ['radiance', 'rascal', 'sneaker-vault', 'nike-acg'],
   food: ['deluxe-dine', 'restaurant'],
-  tech: ['techmart', 'electronics', 'store-black'],
-  luxury: ['time-elite', 'fragrance-royale'],
-  sport: ['fitness', 'sneaker-vault', 'nike-acg'],
-  retail: ['store-black', 'lab-survivalist'],
+  luxury: ['time-elite', 'fragrance-royale', 'glow-spa'],
+  tech: ['techmart', 'electronics', 'store-black', 'lab-survivalist'],
 };
 
-const FeaturedApp = memo(({ app, onOpen }: { app: typeof demoApps[0], onOpen: () => void }) => (
-  <div 
+// Premium App Card - Clean, minimal
+const AppCard = memo(({ app, index, onOpen }: { 
+  app: typeof demoApps[0]; 
+  index: number; 
+  onOpen: () => void;
+}) => (
+  <button
     onClick={onOpen}
-    className="featured-card relative overflow-hidden cursor-pointer"
+    className="app-card group w-full text-left"
     style={{
-      borderRadius: '24px',
-      background: 'linear-gradient(135deg, rgba(120, 119, 198, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%)',
-      backdropFilter: 'blur(40px) saturate(180%)',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      padding: '32px 28px',
-      marginBottom: '32px',
+      opacity: 0,
+      animation: `cardReveal 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) ${0.2 + index * 0.08}s forwards`,
     }}
-    data-testid="card-featured-app"
+    data-testid={`card-app-${app.id}`}
+    aria-label={`Открыть ${app.title}`}
   >
-    {/* Glow effect */}
+    {/* App Icon */}
     <div 
-      className="absolute -top-20 -right-20 w-40 h-40 rounded-full opacity-30"
-      style={{ background: 'radial-gradient(circle, rgba(120, 119, 198, 0.8) 0%, transparent 70%)' }}
-    />
-    
-    {/* Featured badge */}
-    <div 
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-6"
+      className="aspect-square rounded-2xl mb-4 flex items-center justify-center"
       style={{
-        background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 180, 0, 0.1) 100%)',
-        border: '1px solid rgba(255, 215, 0, 0.3)',
+        background: 'rgba(255, 255, 255, 0.04)',
+        border: '1px solid rgba(255, 255, 255, 0.06)',
       }}
     >
-      <Star className="w-3 h-3 text-yellow-400" fill="currentColor" />
-      <span className="text-xs font-semibold text-yellow-400 tracking-wide">FEATURED</span>
+      <span 
+        className="text-3xl font-semibold"
+        style={{ color: 'rgba(255, 255, 255, 0.9)' }}
+      >
+        {app.title.charAt(0)}
+      </span>
     </div>
     
+    {/* App Info */}
     <h3 
-      className="text-2xl font-bold text-white mb-2 tracking-tight"
-      style={{ letterSpacing: '-0.02em' }}
+      className="text-base font-semibold mb-1"
+      style={{ 
+        color: '#FFFFFF',
+        letterSpacing: '-0.02em',
+      }}
     >
       {app.title}
     </h3>
     <p 
-      className="text-base mb-6"
-      style={{ color: 'rgba(255, 255, 255, 0.6)', lineHeight: 1.5 }}
+      className="text-sm leading-relaxed line-clamp-2"
+      style={{ color: 'rgba(255, 255, 255, 0.45)' }}
     >
       {app.description}
     </p>
-    
-    <button
-      className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300"
-      style={{
-        background: 'linear-gradient(135deg, #FFFFFF 0%, #F0F0F0 100%)',
-        color: '#000000',
-      }}
-      data-testid="button-open-featured"
-    >
-      <span>Открыть приложение</span>
-      <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-    </button>
-  </div>
-));
-FeaturedApp.displayName = 'FeaturedApp';
-
-const AppCard = memo(({ app, index, onOpen }: { app: typeof demoApps[0], index: number, onOpen: () => void }) => (
-  <div
-    onClick={onOpen}
-    className="app-card group cursor-pointer"
-    style={{
-      borderRadius: '20px',
-      background: 'rgba(255, 255, 255, 0.03)',
-      backdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255, 255, 255, 0.06)',
-      padding: '20px',
-      transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-      animation: `cardFadeIn 0.5s ease-out ${0.1 + index * 0.05}s forwards`,
-      opacity: 0,
-    }}
-    data-testid={`card-app-${app.id}`}
-  >
-    {/* App icon placeholder with gradient */}
-    <div 
-      className="w-14 h-14 rounded-2xl mb-4 flex items-center justify-center"
-      style={{
-        background: `linear-gradient(135deg, ${getAppGradient(app.id)})`,
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-      }}
-    >
-      <span className="text-2xl font-bold text-white">{app.title.charAt(0)}</span>
-    </div>
-    
-    <h4 
-      className="text-base font-semibold text-white mb-1 tracking-tight"
-      data-testid={`text-title-${app.id}`}
-    >
-      {app.title}
-    </h4>
-    <p 
-      className="text-xs mb-4 line-clamp-2"
-      style={{ color: 'rgba(255, 255, 255, 0.5)', lineHeight: 1.4 }}
-      data-testid={`text-description-${app.id}`}
-    >
-      {app.description}
-    </p>
-    
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-1">
-        <div className="flex">
-          {[1,2,3,4,5].map(i => (
-            <Star key={i} className="w-3 h-3 text-yellow-400" fill="currentColor" />
-          ))}
-        </div>
-        <span className="text-xs text-white/40 ml-1">5.0</span>
-      </div>
-      
-      <button
-        className="open-btn flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-300"
-        style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          color: '#FFFFFF',
-        }}
-        data-testid={`button-open-${app.id}`}
-      >
-        Открыть
-        <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
-      </button>
-    </div>
-  </div>
+  </button>
 ));
 AppCard.displayName = 'AppCard';
-
-function getAppGradient(id: string): string {
-  const gradients: Record<string, string> = {
-    'radiance': '#FF6B6B 0%, #FF8E53 100%',
-    'techmart': '#4F46E5 0%, #7C3AED 100%',
-    'glow-spa': '#EC4899 0%, #F472B6 100%',
-    'deluxe-dine': '#F59E0B 0%, #EF4444 100%',
-    'time-elite': '#1F2937 0%, #374151 100%',
-    'sneaker-vault': '#10B981 0%, #059669 100%',
-    'fragrance-royale': '#8B5CF6 0%, #A855F7 100%',
-    'rascal': '#EF4444 0%, #DC2626 100%',
-    'store-black': '#000000 0%, #1F2937 100%',
-    'lab-survivalist': '#65A30D 0%, #84CC16 100%',
-    'nike-acg': '#1E3A8A 0%, #3B82F6 100%',
-  };
-  return gradients[id] || '#6366F1 0%, #8B5CF6 100%';
-}
 
 export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
   const [activeCategory, setActiveCategory] = useState('all');
   
-  const handleCategoryChange = useCallback((categoryId: string) => {
-    setActiveCategory(categoryId);
+  const handleCategoryChange = useCallback((id: string) => {
+    setActiveCategory(id);
   }, []);
   
   const filteredApps = useMemo(() => {
     const allApps = demoApps.slice(0, 11);
     if (activeCategory === 'all') return allApps;
-    
-    const categoryAppIds = categoryMap[activeCategory] || [];
-    return allApps.filter(app => categoryAppIds.includes(app.id));
+    const ids = categoryMap[activeCategory] || [];
+    return allApps.filter(app => ids.includes(app.id));
   }, [activeCategory]);
   
-  const featuredApp = demoApps[0]; // Radiance as featured
-  const gridApps = filteredApps.filter(app => app.id !== featuredApp.id);
+  const featuredApp = demoApps[0];
 
   return (
-    <div className="min-h-screen bg-black text-white pb-32 overflow-x-hidden">
-      {/* Ambient background */}
-      <div 
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(120, 119, 198, 0.15) 0%, transparent 50%)',
-        }}
-      />
-      
-      <div className="relative max-w-md mx-auto px-5">
+    <div 
+      className="min-h-screen pb-32"
+      style={{ background: '#0a0a0a' }}
+    >
+      <div className="max-w-md mx-auto px-6">
         
-        {/* Hero Section - Apple Style */}
-        <div className="pt-16 pb-8 text-center">
+        {/* Hero Section */}
+        <section className="pt-20 pb-16">
           {/* Overline */}
-          <div 
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 animate-fade-in"
-            style={{
-              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%)',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
+          <p 
+            className="text-sm font-medium mb-4 hero-fade"
+            style={{ 
+              color: '#10B981',
+              letterSpacing: '0.05em',
             }}
           >
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-xs font-semibold text-emerald-400 tracking-wide">+300% К ПРОДАЖАМ</span>
-          </div>
+            TELEGRAM MINI APPS
+          </p>
           
-          {/* Main headline */}
+          {/* Main Title */}
           <h1 
-            className="animate-fade-in-up"
+            className="hero-fade-delay-1"
             style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: 'clamp(40px, 12vw, 56px)',
-              fontWeight: 800,
-              letterSpacing: '-0.04em',
-              lineHeight: 1,
-              background: 'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.7) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              marginBottom: '12px',
-            }}
-          >
-            Премиум
-          </h1>
-          <h2
-            className="animate-fade-in-up-delay"
-            style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: 'clamp(40px, 12vw, 56px)',
-              fontWeight: 800,
-              letterSpacing: '-0.04em',
-              lineHeight: 1,
-              background: 'linear-gradient(135deg, #10B981 0%, #34D399 50%, #6EE7B7 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              fontSize: 'clamp(44px, 12vw, 56px)',
+              fontWeight: 700,
+              letterSpacing: '-0.035em',
+              lineHeight: 1.05,
+              color: '#FFFFFF',
               marginBottom: '20px',
             }}
           >
-            Витрина
-          </h2>
+            Приложения
+            <br />
+            для бизнеса
+          </h1>
           
-          {/* Subheadline */}
+          {/* Subtitle */}
           <p 
-            className="animate-fade-in-up-delay-2 max-w-xs mx-auto"
+            className="hero-fade-delay-2"
             style={{
-              fontSize: '17px',
+              fontSize: '18px',
+              lineHeight: 1.6,
               color: 'rgba(255, 255, 255, 0.5)',
-              fontWeight: 400,
-              letterSpacing: '-0.01em',
-              lineHeight: 1.5,
+              maxWidth: '320px',
             }}
           >
-            Telegram Mini Apps для вашего бизнеса. Автоматизация продаж 24/7.
+            Автоматизируйте продажи. Работайте с клиентами там, где они уже есть.
           </p>
-        </div>
+        </section>
         
-        {/* Stats Bar */}
-        <div 
-          className="flex items-center justify-center gap-8 py-6 mb-8 animate-fade-in-delay-3"
+        {/* Stats Row */}
+        <section 
+          className="flex items-center gap-12 py-8 mb-12 hero-fade-delay-3"
           style={{
-            borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           }}
         >
-          <div className="text-center">
-            <div className="text-2xl font-bold text-white">11+</div>
-            <div className="text-xs text-white/40">Приложений</div>
+          <div>
+            <div 
+              className="text-3xl font-semibold"
+              style={{ color: '#FFFFFF', letterSpacing: '-0.02em' }}
+            >
+              24/7
+            </div>
+            <div 
+              className="text-sm mt-1"
+              style={{ color: 'rgba(255, 255, 255, 0.4)' }}
+            >
+              Продажи
+            </div>
           </div>
-          <div className="w-px h-8 bg-white/10" />
-          <div className="text-center">
-            <div className="text-2xl font-bold text-white">24/7</div>
-            <div className="text-xs text-white/40">Продажи</div>
+          <div>
+            <div 
+              className="text-3xl font-semibold"
+              style={{ color: '#FFFFFF', letterSpacing: '-0.02em' }}
+            >
+              +300%
+            </div>
+            <div 
+              className="text-sm mt-1"
+              style={{ color: 'rgba(255, 255, 255, 0.4)' }}
+            >
+              Конверсия
+            </div>
           </div>
-          <div className="w-px h-8 bg-white/10" />
-          <div className="text-center">
-            <div className="text-2xl font-bold text-emerald-400">100%</div>
-            <div className="text-xs text-white/40">Telegram</div>
-          </div>
-        </div>
-        
-        {/* Category Pills */}
-        <div 
-          className="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide animate-fade-in-delay-3"
-          style={{ 
-            marginLeft: '-20px', 
-            marginRight: '-20px', 
-            paddingLeft: '20px', 
-            paddingRight: '20px',
-            WebkitOverflowScrolling: 'touch',
-          }}
-        >
-          {categories.map((cat) => {
-            const Icon = cat.icon;
-            const isActive = activeCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => handleCategoryChange(cat.id)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full whitespace-nowrap transition-all duration-300"
-                style={{
-                  background: isActive 
-                    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%)'
-                    : 'rgba(255, 255, 255, 0.03)',
-                  border: isActive 
-                    ? '1px solid rgba(255, 255, 255, 0.2)'
-                    : '1px solid rgba(255, 255, 255, 0.06)',
-                  color: isActive ? '#FFFFFF' : 'rgba(255, 255, 255, 0.5)',
-                }}
-                data-testid={`button-category-${cat.id}`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                <span className="text-sm font-medium">{cat.name}</span>
-              </button>
-            );
-          })}
-        </div>
+        </section>
         
         {/* Featured App */}
-        {activeCategory === 'all' && (
-          <FeaturedApp 
-            app={featuredApp} 
-            onOpen={() => onOpenDemo(featuredApp.id)} 
-          />
-        )}
+        <section className="mb-16">
+          <button
+            onClick={() => onOpenDemo(featuredApp.id)}
+            className="featured-card w-full text-left"
+            style={{
+              padding: '32px',
+              borderRadius: '20px',
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.06)',
+              backdropFilter: 'blur(32px)',
+            }}
+            data-testid="card-featured-app"
+            aria-label={`Открыть ${featuredApp.title}`}
+          >
+            <p 
+              className="text-xs font-medium mb-6"
+              style={{ 
+                color: 'rgba(255, 255, 255, 0.4)',
+                letterSpacing: '0.1em',
+              }}
+            >
+              FEATURED
+            </p>
+            
+            <h2 
+              className="text-2xl font-semibold mb-3"
+              style={{ 
+                color: '#FFFFFF',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {featuredApp.title}
+            </h2>
+            
+            <p 
+              className="text-base mb-8"
+              style={{ 
+                color: 'rgba(255, 255, 255, 0.5)',
+                lineHeight: 1.6,
+              }}
+            >
+              {featuredApp.description}
+            </p>
+            
+            <div 
+              className="inline-flex items-center gap-2 text-sm font-medium"
+              style={{ color: '#10B981' }}
+            >
+              <span>Смотреть</span>
+              <ChevronRight className="w-4 h-4" />
+            </div>
+          </button>
+        </section>
+        
+        {/* Category Filters */}
+        <section className="mb-8">
+          <div 
+            className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide"
+            style={{
+              marginLeft: '-24px',
+              marginRight: '-24px',
+              paddingLeft: '24px',
+              paddingRight: '24px',
+            }}
+          >
+            {categories.map((cat) => {
+              const isActive = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategoryChange(cat.id)}
+                  className="px-5 py-2.5 rounded-full whitespace-nowrap transition-all duration-300"
+                  style={{
+                    background: isActive 
+                      ? 'rgba(255, 255, 255, 0.1)' 
+                      : 'transparent',
+                    border: isActive 
+                      ? '1px solid rgba(255, 255, 255, 0.15)'
+                      : '1px solid rgba(255, 255, 255, 0.08)',
+                    color: isActive 
+                      ? '#FFFFFF' 
+                      : 'rgba(255, 255, 255, 0.5)',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                  }}
+                  data-testid={`button-category-${cat.id}`}
+                >
+                  {cat.name}
+                </button>
+              );
+            })}
+          </div>
+        </section>
         
         {/* Apps Grid */}
-        <div className="grid grid-cols-2 gap-3">
-          {gridApps.map((app, index) => (
-            <AppCard 
-              key={app.id}
-              app={app}
-              index={index}
-              onOpen={() => onOpenDemo(app.id)}
-            />
-          ))}
-        </div>
+        <section className="grid grid-cols-2 gap-6 mb-16">
+          {filteredApps
+            .filter(app => app.id !== featuredApp.id)
+            .map((app, index) => (
+              <AppCard 
+                key={app.id}
+                app={app}
+                index={index}
+                onOpen={() => onOpenDemo(app.id)}
+              />
+            ))}
+        </section>
         
-        {/* Empty state */}
-        {gridApps.length === 0 && (
-          <div 
-            className="text-center py-16"
-            style={{ color: 'rgba(255, 255, 255, 0.4)' }}
-          >
-            <p className="text-lg mb-2">Нет приложений в этой категории</p>
+        {/* Empty State */}
+        {filteredApps.length <= 1 && (
+          <div className="text-center py-12">
+            <p style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
+              Нет приложений в этой категории
+            </p>
             <button
               onClick={() => setActiveCategory('all')}
-              className="text-emerald-400 text-sm font-medium"
+              className="mt-4 text-sm font-medium"
+              style={{ color: '#10B981' }}
             >
               Показать все
             </button>
@@ -362,44 +305,50 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
         )}
         
         {/* CTA Section */}
-        <div 
-          className="mt-12 text-center py-10 rounded-3xl"
+        <section 
+          className="py-12"
           style={{
-            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.03) 100%)',
-            border: '1px solid rgba(16, 185, 129, 0.15)',
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
           }}
         >
-          <p className="text-white/60 text-sm mb-3">Хотите такое же приложение?</p>
-          <p className="text-white text-xl font-bold mb-4">от 9 990 ₽</p>
+          <p 
+            className="text-sm mb-2"
+            style={{ color: 'rgba(255, 255, 255, 0.4)' }}
+          >
+            Создайте своё приложение
+          </p>
+          <p 
+            className="text-2xl font-semibold mb-6"
+            style={{ 
+              color: '#FFFFFF',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            от 9 990 ₽
+          </p>
+          
           <button
             onClick={() => window.location.hash = '#/constructor'}
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm transition-all duration-300"
+            className="cta-button inline-flex items-center gap-3 px-8 py-4 rounded-full font-medium transition-all duration-300"
             style={{
-              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-              color: '#FFFFFF',
-              boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3)',
+              background: '#FFFFFF',
+              color: '#000000',
+              fontSize: '15px',
             }}
             data-testid="button-order-app"
           >
-            <Zap className="w-4 h-4" />
-            <span>Заказать приложение</span>
+            <span>Заказать</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
-        </div>
+        </section>
         
-        {/* Bottom spacer */}
-        <div className="h-8" />
       </div>
 
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes fadeInUp {
+        @keyframes heroFade {
           from { 
             opacity: 0; 
-            transform: translateY(20px); 
+            transform: translateY(16px); 
           }
           to { 
             opacity: 1; 
@@ -407,68 +356,65 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
           }
         }
         
-        @keyframes cardFadeIn {
+        @keyframes cardReveal {
           from { 
             opacity: 0; 
-            transform: translateY(16px) scale(0.96); 
+            transform: translateY(12px); 
           }
           to { 
             opacity: 1; 
-            transform: translateY(0) scale(1); 
+            transform: translateY(0); 
           }
         }
         
-        .animate-fade-in {
-          animation: fadeIn 0.6s ease-out forwards;
-        }
-        
-        .animate-fade-in-up {
-          animation: fadeInUp 0.7s ease-out forwards;
-        }
-        
-        .animate-fade-in-up-delay {
+        .hero-fade {
           opacity: 0;
-          animation: fadeInUp 0.7s ease-out 0.1s forwards;
+          animation: heroFade 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
         }
         
-        .animate-fade-in-up-delay-2 {
+        .hero-fade-delay-1 {
           opacity: 0;
-          animation: fadeInUp 0.7s ease-out 0.2s forwards;
+          animation: heroFade 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.1s forwards;
         }
         
-        .animate-fade-in-delay-3 {
+        .hero-fade-delay-2 {
           opacity: 0;
-          animation: fadeIn 0.6s ease-out 0.3s forwards;
+          animation: heroFade 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.2s forwards;
+        }
+        
+        .hero-fade-delay-3 {
+          opacity: 0;
+          animation: heroFade 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.3s forwards;
         }
         
         .featured-card {
-          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
         }
         
         .featured-card:hover {
-          transform: translateY(-4px);
-          border-color: rgba(255, 255, 255, 0.15);
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.1);
         }
         
         .featured-card:active {
-          transform: translateY(-2px);
+          transform: scale(0.99);
         }
         
-        .app-card:hover {
-          background: rgba(255, 255, 255, 0.06);
-          border-color: rgba(255, 255, 255, 0.12);
-          transform: translateY(-4px);
-          box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
-        }
-        
-        .app-card:hover .open-btn {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: rgba(255, 255, 255, 0.2);
+        .app-card {
+          transition: opacity 0.3s ease;
         }
         
         .app-card:active {
-          transform: translateY(-2px);
+          opacity: 0.7;
+        }
+        
+        .cta-button:hover {
+          transform: scale(1.02);
+          box-shadow: 0 8px 32px rgba(255, 255, 255, 0.15);
+        }
+        
+        .cta-button:active {
+          transform: scale(0.98);
         }
         
         .scrollbar-hide {
