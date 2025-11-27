@@ -74,6 +74,125 @@ export default function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
           >
             Telegram Mini App отвечает мгновенно, консультирует и закрывает сделки — пока вы занимаетесь чем угодно. 50+ бизнесов уже продают на автомате.
           </p>
+          
+          {/* Benefits Metrics */}
+          <div 
+            className="scroll-fade-in-delay-3"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '16px',
+              marginTop: '32px'
+            }}
+          >
+            {/* Metric 1 */}
+            <div 
+              style={{
+                padding: '16px',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.06)'
+              }}
+            >
+              <p style={{
+                fontSize: '24px',
+                fontWeight: 600,
+                letterSpacing: '-0.03em',
+                color: '#FAFAFA',
+                marginBottom: '4px'
+              }}>
+                +47%
+              </p>
+              <p style={{
+                fontSize: '12px',
+                color: '#52525B',
+                letterSpacing: '0.01em'
+              }}>
+                к выручке
+              </p>
+            </div>
+            
+            {/* Metric 2 */}
+            <div 
+              style={{
+                padding: '16px',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.06)'
+              }}
+            >
+              <p style={{
+                fontSize: '24px',
+                fontWeight: 600,
+                letterSpacing: '-0.03em',
+                color: '#FAFAFA',
+                marginBottom: '4px'
+              }}>
+                24/7
+              </p>
+              <p style={{
+                fontSize: '12px',
+                color: '#52525B',
+                letterSpacing: '0.01em'
+              }}>
+                без выходных
+              </p>
+            </div>
+            
+            {/* Metric 3 */}
+            <div 
+              style={{
+                padding: '16px',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.06)'
+              }}
+            >
+              <p style={{
+                fontSize: '24px',
+                fontWeight: 600,
+                letterSpacing: '-0.03em',
+                color: '#FAFAFA',
+                marginBottom: '4px'
+              }}>
+                0 сек
+              </p>
+              <p style={{
+                fontSize: '12px',
+                color: '#52525B',
+                letterSpacing: '0.01em'
+              }}>
+                время ответа
+              </p>
+            </div>
+            
+            {/* Metric 4 */}
+            <div 
+              style={{
+                padding: '16px',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.06)'
+              }}
+            >
+              <p style={{
+                fontSize: '24px',
+                fontWeight: 600,
+                letterSpacing: '-0.03em',
+                color: '#FAFAFA',
+                marginBottom: '4px'
+              }}>
+                ₽0
+              </p>
+              <p style={{
+                fontSize: '12px',
+                color: '#52525B',
+                letterSpacing: '0.01em'
+              }}>
+                на менеджеров
+              </p>
+            </div>
+          </div>
         </header>
 
         {/* Hairline */}
