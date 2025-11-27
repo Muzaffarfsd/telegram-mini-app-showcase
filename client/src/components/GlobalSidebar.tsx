@@ -823,10 +823,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       <div 
         className="fixed top-0 left-0 right-0 z-[90]"
         style={{
-          background: 'rgba(9,9,11,0.88)',
+          background: 'rgba(9,9,11,0.95)',
           backdropFilter: 'blur(24px) saturate(180%)',
           WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          borderBottom: '1px solid rgba(255,255,255,0.04)'
+          borderBottom: '1px solid rgba(255,255,255,0.04)',
+          paddingTop: 'max(env(safe-area-inset-top, 0px), 48px)'
         }}
       >
         <div className="max-w-md mx-auto px-5 py-3 flex items-center justify-between">
