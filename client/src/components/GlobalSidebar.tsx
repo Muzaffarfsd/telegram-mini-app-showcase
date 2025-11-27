@@ -278,157 +278,123 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             </button>
           </div>
           
-          {/* Apple-Style App Progress - In Header */}
-          <div style={{
-            marginTop: '20px',
-            padding: '16px',
-            borderRadius: '16px',
-            background: 'linear-gradient(145deg, rgba(34,197,94,0.08) 0%, rgba(16,185,129,0.04) 100%)',
-            border: '1px solid rgba(34, 197, 94, 0.12)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            {/* Glow effect */}
-            <div style={{
-              position: 'absolute',
-              top: '-20px',
-              right: '-20px',
-              width: '60px',
-              height: '60px',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(34,197,94,0.2) 0%, transparent 70%)',
-              filter: 'blur(15px)',
-              pointerEvents: 'none'
-            }} />
-            
-            {/* Header Row */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '14px',
-              position: 'relative'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #22C55E 0%, #10B981 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(34,197,94,0.3)'
-                }}>
-                  <Sparkles size={16} color="#fff" />
-                </div>
-                <div>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#FAFAFA', display: 'block' }}>
-                    Ваше приложение
-                  </span>
-                  <span style={{ fontSize: '10px', color: '#52525B' }}>
-                    Этап: Бриф
-                  </span>
-                </div>
-              </div>
-              <div style={{
-                padding: '4px 10px',
-                borderRadius: '12px',
-                background: 'rgba(34,197,94,0.15)',
-                border: '1px solid rgba(34,197,94,0.2)'
-              }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#22C55E' }}>0%</span>
-              </div>
-            </div>
-            
-            {/* Progress Bar */}
-            <div style={{
-              position: 'relative',
-              width: '100%',
-              height: '8px',
-              borderRadius: '4px',
-              background: 'rgba(255,255,255,0.08)',
-              overflow: 'hidden',
+          {/* Minimalist App Progress */}
+          <div style={{ marginTop: '24px' }}>
+            {/* Section Label */}
+            <p style={{
+              fontSize: '10px',
+              fontWeight: 700,
+              letterSpacing: '0.15em',
+              color: '#52525B',
+              textTransform: 'uppercase',
               marginBottom: '12px'
             }}>
-              <div style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                height: '100%',
-                width: '2%',
-                borderRadius: '4px',
-                background: 'linear-gradient(90deg, #22C55E 0%, #34D399 100%)',
-                boxShadow: '0 0 12px rgba(34,197,94,0.6)'
-              }} />
-            </div>
+              Статус вашего проекта
+            </p>
             
-            {/* Stage Dots */}
+            {/* Progress Card */}
             <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              position: 'relative'
+              padding: '16px',
+              borderRadius: '14px',
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,255,255,0.06)'
             }}>
-              {/* Connection line */}
+              {/* Title Row */}
               <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '16px',
-                right: '16px',
-                height: '2px',
-                background: 'rgba(255,255,255,0.06)',
-                transform: 'translateY(-50%)',
-                zIndex: 0
-              }} />
-              
-              {[
-                { name: 'Бриф', active: true },
-                { name: 'Дизайн', active: false },
-                { name: 'Код', active: false },
-                { name: 'Запуск', active: false }
-              ].map((stage) => (
-                <div key={stage.name} style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '6px',
-                  zIndex: 1
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '16px'
+              }}>
+                <span style={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#FAFAFA',
+                  letterSpacing: '-0.01em'
                 }}>
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    background: stage.active 
-                      ? 'linear-gradient(135deg, #22C55E 0%, #10B981 100%)'
-                      : 'rgba(255,255,255,0.06)',
-                    border: stage.active 
-                      ? '2px solid rgba(34,197,94,0.4)'
-                      : '2px solid rgba(255,255,255,0.1)',
+                  Разработка приложения
+                </span>
+                <span style={{
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#71717A'
+                }}>
+                  0%
+                </span>
+              </div>
+              
+              {/* Minimal Progress Bar */}
+              <div style={{
+                width: '100%',
+                height: '4px',
+                borderRadius: '2px',
+                background: 'rgba(255,255,255,0.08)',
+                marginBottom: '16px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  height: '100%',
+                  width: '2%',
+                  borderRadius: '2px',
+                  background: '#A78BFA',
+                  transition: 'width 0.4s ease'
+                }} />
+              </div>
+              
+              {/* Stages Row */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                gap: '8px'
+              }}>
+                {[
+                  { name: 'Бриф', num: 1, active: true },
+                  { name: 'Дизайн', num: 2, active: false },
+                  { name: 'Код', num: 3, active: false },
+                  { name: 'Запуск', num: 4, active: false }
+                ].map((stage) => (
+                  <div key={stage.name} style={{
+                    flex: 1,
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: stage.active ? '0 0 10px rgba(34,197,94,0.4)' : 'none'
+                    gap: '8px'
                   }}>
-                    {stage.active && (
-                      <div style={{
-                        width: '6px',
-                        height: '6px',
-                        borderRadius: '50%',
-                        background: '#fff'
-                      }} />
-                    )}
+                    {/* Number Circle */}
+                    <div style={{
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '50%',
+                      background: stage.active 
+                        ? 'rgba(167, 139, 250, 0.15)'
+                        : 'rgba(255,255,255,0.04)',
+                      border: stage.active 
+                        ? '1.5px solid rgba(167, 139, 250, 0.4)'
+                        : '1.5px solid rgba(255,255,255,0.08)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: stage.active ? '#A78BFA' : '#52525B'
+                      }}>
+                        {stage.num}
+                      </span>
+                    </div>
+                    {/* Label */}
+                    <span style={{
+                      fontSize: '10px',
+                      fontWeight: stage.active ? 600 : 500,
+                      color: stage.active ? '#A1A1AA' : '#52525B',
+                      textAlign: 'center'
+                    }}>
+                      {stage.name}
+                    </span>
                   </div>
-                  <span style={{
-                    fontSize: '9px',
-                    fontWeight: stage.active ? 600 : 500,
-                    color: stage.active ? '#A1A1AA' : '#52525B',
-                    letterSpacing: '0.01em'
-                  }}>
-                    {stage.name}
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
