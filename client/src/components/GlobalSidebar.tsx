@@ -878,18 +878,17 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
       {/* TOP BAR WITH MENU BUTTON - Glassmorphism Style */}
       <div 
-        className="fixed left-3 right-3 z-[90]"
+        className="fixed top-0 left-0 right-0 z-[90]"
         style={{
-          top: 'max(env(safe-area-inset-top, 0px), 12px)',
-          background: 'rgba(15,15,20,0.75)',
+          background: 'rgba(15,15,20,0.65)',
           backdropFilter: 'blur(40px) saturate(180%)',
           WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '16px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          paddingTop: 'max(env(safe-area-inset-top, 0px), 48px)',
+          boxShadow: '0 4px 30px rgba(0,0,0,0.3)'
         }}
       >
-        <div className="max-w-md mx-auto px-5 py-5 flex items-center justify-between">
+        <div className="max-w-md mx-auto px-5 py-6 flex items-center justify-between">
           {/* Glass Menu Button */}
           <button
             onClick={() => setSidebarOpen(true)}
