@@ -1,6 +1,6 @@
-import { ArrowRight, ArrowDown } from "lucide-react";
-import { useCallback, memo, useRef, useState } from "react";
-import { m, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { ArrowRight } from "lucide-react";
+import { useCallback, memo, useRef } from "react";
+import { m, useScroll, useTransform } from 'framer-motion';
 import { useHaptic } from '../hooks/useHaptic';
 
 interface ShowcasePageProps {
@@ -8,502 +8,404 @@ interface ShowcasePageProps {
   onOpenDemo: (demoId: string) => void;
 }
 
-const smoothConfig = { stiffness: 100, damping: 20 };
-
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const haptic = useHaptic();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   
-  const [activeChapter, setActiveChapter] = useState(0);
-  
-  const bgY = useSpring(useTransform(scrollYProgress, [0, 1], [0, -100]), smoothConfig);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   const handleCTA = useCallback(() => {
     haptic.medium();
     onNavigate('constructor');
   }, [haptic, onNavigate]);
 
-  const handleDemo = useCallback(() => {
+  const handleDemo = useCallback((id: string) => {
     haptic.light();
-    onOpenDemo('clothing-store');
+    onOpenDemo(id);
   }, [haptic, onOpenDemo]);
 
   return (
-    <div 
-      ref={containerRef} 
-      className="min-h-screen relative overflow-x-hidden"
-      style={{ 
-        background: '#0a0a0a',
-        paddingTop: '100px'
-      }}
-    >
-      {/* Ambient gradient background */}
-      <m.div 
-        style={{ y: bgY }}
-        className="fixed inset-0 pointer-events-none"
+    <div className="min-h-screen bg-black">
+      
+      {/* ═══════════════════════════════════════════════════════════════
+          HERO — Full screen product reveal
+      ═══════════════════════════════════════════════════════════════ */}
+      <section 
+        ref={heroRef}
+        className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden"
+        style={{ paddingTop: '80px' }}
       >
-        <div 
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-[0.07]"
-          style={{
-            background: 'radial-gradient(circle, #d4af37 0%, transparent 70%)',
-            filter: 'blur(80px)'
-          }}
-        />
-      </m.div>
+        <m.div 
+          style={{ scale: heroScale, opacity: heroOpacity }}
+          className="text-center"
+        >
+          {/* Overline */}
+          <m.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-[13px] font-medium tracking-wide mb-4"
+            style={{ color: '#86868b' }}
+          >
+            Telegram Mini Apps
+          </m.p>
 
-      <div className="max-w-[430px] mx-auto relative z-10">
+          {/* Main headline */}
+          <m.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-[48px] font-semibold tracking-tight leading-[1.05] mb-4"
+            style={{ 
+              color: '#f5f5f7',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+            }}
+          >
+            Бизнес внутри
+            <br />
+            Telegram.
+          </m.h1>
 
-        {/* ═══════════════════════════════════════════════════════════════
-            CHAPTER 0: PRELUDE — Atmospheric Opening
-        ═══════════════════════════════════════════════════════════════ */}
-        <section className="min-h-[70vh] flex flex-col justify-end px-8 pb-16">
+          {/* Subheadline */}
+          <m.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-[19px] font-normal leading-[1.4] mb-8 max-w-[320px] mx-auto"
+            style={{ color: '#86868b' }}
+          >
+            Превращаем идеи в приложения, которые продают.
+          </m.p>
+
+          {/* CTA buttons */}
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col items-center gap-4"
+          >
+            <button
+              onClick={handleCTA}
+              className="inline-flex items-center justify-center gap-2 px-7 h-[44px] rounded-full text-[15px] font-medium transition-all"
+              style={{ 
+                background: '#0071e3',
+                color: '#fff'
+              }}
+              data-testid="button-hero-cta"
+            >
+              Начать проект
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            
+            <button
+              onClick={() => handleDemo('clothing-store')}
+              className="inline-flex items-center gap-1 text-[15px] font-normal transition-opacity hover:opacity-70"
+              style={{ color: '#2997ff' }}
+              data-testid="button-hero-demo"
+            >
+              Смотреть демо
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </m.div>
+        </m.div>
+
+        {/* Product preview - floating phone mockup */}
+        <m.div
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          className="mt-12 relative"
+        >
+          <div 
+            className="w-[280px] h-[560px] rounded-[44px] overflow-hidden relative"
+            style={{ 
+              background: 'linear-gradient(180deg, #1c1c1e 0%, #000 100%)',
+              boxShadow: '0 50px 100px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.1)',
+            }}
+          >
+            {/* Screen content preview */}
+            <div className="absolute inset-3 rounded-[36px] overflow-hidden bg-gradient-to-b from-neutral-900 to-black">
+              {/* Mock store UI */}
+              <div className="p-4 space-y-3">
+                <div className="h-3 w-24 bg-white/10 rounded-full" />
+                <div className="h-32 w-full bg-white/5 rounded-2xl" />
+                <div className="flex gap-2">
+                  <div className="h-20 flex-1 bg-white/5 rounded-xl" />
+                  <div className="h-20 flex-1 bg-white/5 rounded-xl" />
+                </div>
+                <div className="h-10 w-full bg-blue-500/20 rounded-xl" />
+              </div>
+            </div>
+            
+            {/* Notch */}
+            <div 
+              className="absolute top-3 left-1/2 -translate-x-1/2 w-[100px] h-[28px] bg-black rounded-full"
+            />
+          </div>
+        </m.div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          FEATURES — Bento grid
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-20 px-5">
+        <div className="max-w-[430px] mx-auto">
+          
+          {/* Section title */}
           <m.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
           >
-            {/* Minimal word mark */}
-            <div className="mb-16">
-              <span 
-                style={{ 
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-                  fontSize: '11px',
-                  fontWeight: 300,
-                  letterSpacing: '0.3em',
-                  color: 'rgba(212, 175, 55, 0.6)',
-                  textTransform: 'uppercase'
-                }}
-              >
-                WEB4TG
-              </span>
-            </div>
-
-            {/* Hero statement — ultra minimal */}
-            <h1 
-              style={{ 
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-                fontSize: '56px',
-                fontWeight: 200,
-                letterSpacing: '-0.03em',
-                lineHeight: 1.0,
-                color: '#fafafa'
-              }}
+            <h2 
+              className="text-[32px] font-semibold tracking-tight leading-tight mb-3"
+              style={{ color: '#f5f5f7' }}
             >
-              Мы не
-              <br />
-              создаём
-              <br />
-              <span style={{ color: 'rgba(212, 175, 55, 0.9)' }}>
-                приложения.
-              </span>
-            </h1>
-            
-            <m.p 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="mt-8"
-              style={{ 
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-                fontSize: '15px',
-                fontWeight: 300,
-                lineHeight: 1.6,
-                color: 'rgba(250,250,250,0.4)',
-                maxWidth: '280px'
-              }}
-            >
-              Мы создаём впечатления, которые невозможно забыть.
-            </m.p>
-          </m.div>
-
-          {/* Scroll indicator */}
-          <m.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2, duration: 1 }}
-            className="mt-16 flex items-center gap-3"
-          >
-            <m.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <ArrowDown className="w-4 h-4" style={{ color: 'rgba(212, 175, 55, 0.5)' }} />
-            </m.div>
-            <span style={{ 
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-              fontSize: '11px',
-              fontWeight: 400,
-              letterSpacing: '0.1em',
-              color: 'rgba(250,250,250,0.25)',
-              textTransform: 'uppercase'
-            }}>
-              Листайте
-            </span>
-          </m.div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════
-            CHAPTER 1: THE STATEMENT — Single powerful claim
-        ═══════════════════════════════════════════════════════════════ */}
-        <section className="py-32 px-8">
-          <ChapterReveal>
+              Всё для роста.
+            </h2>
             <p 
-              style={{ 
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-                fontSize: '28px',
-                fontWeight: 300,
-                letterSpacing: '-0.015em',
-                lineHeight: 1.4,
-                color: '#fafafa'
-              }}
+              className="text-[17px]"
+              style={{ color: '#86868b' }}
             >
-              Telegram-магазин — это не про технологии.
-              <br />
-              <br />
-              <span style={{ color: 'rgba(250,250,250,0.35)' }}>
-                Это про то, как клиент чувствует ваш бренд в своих руках.
-              </span>
+              Полный цикл разработки за 14 дней.
             </p>
-          </ChapterReveal>
-        </section>
+          </m.div>
 
-        {/* Elegant fold line */}
-        <div className="mx-8">
-          <div 
-            className="h-px"
-            style={{ 
-              background: 'linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.2) 50%, transparent 100%)' 
-            }}
-          />
-        </div>
-
-        {/* ═══════════════════════════════════════════════════════════════
-            CHAPTER 2: THE CRAFT — Process glimpse
-        ═══════════════════════════════════════════════════════════════ */}
-        <section className="py-24 px-8">
-          <ChapterReveal>
-            <div className="mb-12">
-              <span 
-                style={{ 
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-                  fontSize: '10px',
-                  fontWeight: 500,
-                  letterSpacing: '0.2em',
-                  color: 'rgba(212, 175, 55, 0.6)',
-                  textTransform: 'uppercase'
-                }}
-              >
-                Ателье
-              </span>
-            </div>
-
-            <div className="space-y-12">
-              {[
-                { num: '01', title: 'Стратегия', time: '3 дня' },
-                { num: '02', title: 'Дизайн', time: '5 дней' },
-                { num: '03', title: 'Разработка', time: '6 дней' },
-              ].map((step, i) => (
-                <m.div 
-                  key={step.num}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: i * 0.15 }}
-                  className="flex items-baseline justify-between"
-                >
-                  <div className="flex items-baseline gap-6">
-                    <span style={{ 
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-                      fontSize: '12px',
-                      fontWeight: 300,
-                      color: 'rgba(212, 175, 55, 0.5)'
-                    }}>
-                      {step.num}
-                    </span>
-                    <span style={{ 
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-                      fontSize: '24px',
-                      fontWeight: 300,
-                      letterSpacing: '-0.02em',
-                      color: '#fafafa'
-                    }}>
-                      {step.title}
-                    </span>
-                  </div>
-                  <span style={{ 
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-                    fontSize: '12px',
-                    fontWeight: 400,
-                    color: 'rgba(250,250,250,0.25)'
-                  }}>
-                    {step.time}
-                  </span>
-                </m.div>
-              ))}
-            </div>
-
-            <div 
-              className="mt-12 pt-8"
-              style={{ borderTop: '1px solid rgba(250,250,250,0.06)' }}
+          {/* Bento grid */}
+          <div className="grid grid-cols-2 gap-3">
+            
+            {/* Large card */}
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="col-span-2 p-6 rounded-2xl"
+              style={{ background: '#1c1c1e' }}
             >
-              <div className="flex items-baseline justify-between">
-                <span style={{ 
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: 'rgba(250,250,250,0.4)'
-                }}>
-                  Итого
-                </span>
-                <span style={{ 
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-                  fontSize: '20px',
-                  fontWeight: 300,
-                  color: 'rgba(212, 175, 55, 0.9)'
-                }}>
-                  14 дней
-                </span>
+              <div 
+                className="text-[13px] font-medium mb-2"
+                style={{ color: '#86868b' }}
+              >
+                Конверсия
               </div>
-            </div>
-          </ChapterReveal>
-        </section>
+              <div 
+                className="text-[44px] font-semibold tracking-tight"
+                style={{ color: '#f5f5f7' }}
+              >
+                +280%
+              </div>
+              <div 
+                className="text-[15px] mt-1"
+                style={{ color: '#86868b' }}
+              >
+                Средний рост продаж
+              </div>
+            </m.div>
 
-        {/* Elegant fold line */}
-        <div className="mx-8">
-          <div 
-            className="h-px"
-            style={{ 
-              background: 'linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.2) 50%, transparent 100%)' 
-            }}
-          />
+            {/* Small cards */}
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="p-5 rounded-2xl"
+              style={{ background: '#1c1c1e' }}
+            >
+              <div 
+                className="text-[28px] font-semibold tracking-tight mb-1"
+                style={{ color: '#f5f5f7' }}
+              >
+                127
+              </div>
+              <div 
+                className="text-[13px]"
+                style={{ color: '#86868b' }}
+              >
+                Проектов
+              </div>
+            </m.div>
+
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="p-5 rounded-2xl"
+              style={{ background: '#1c1c1e' }}
+            >
+              <div 
+                className="text-[28px] font-semibold tracking-tight mb-1"
+                style={{ color: '#f5f5f7' }}
+              >
+                14
+              </div>
+              <div 
+                className="text-[13px]"
+                style={{ color: '#86868b' }}
+              >
+                Дней разработки
+              </div>
+            </m.div>
+
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="p-5 rounded-2xl"
+              style={{ background: '#1c1c1e' }}
+            >
+              <div 
+                className="text-[28px] font-semibold tracking-tight mb-1"
+                style={{ color: '#f5f5f7' }}
+              >
+                98%
+              </div>
+              <div 
+                className="text-[13px]"
+                style={{ color: '#86868b' }}
+              >
+                Клиентов довольны
+              </div>
+            </m.div>
+
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+              className="p-5 rounded-2xl"
+              style={{ background: '#1c1c1e' }}
+            >
+              <div 
+                className="text-[28px] font-semibold tracking-tight mb-1"
+                style={{ color: '#f5f5f7' }}
+              >
+                24/7
+              </div>
+              <div 
+                className="text-[13px]"
+                style={{ color: '#86868b' }}
+              >
+                Поддержка
+              </div>
+            </m.div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          PORTFOLIO — Horizontal scroll cards
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-16">
+        <div className="max-w-[430px] mx-auto px-5 mb-8">
+          <h2 
+            className="text-[28px] font-semibold tracking-tight"
+            style={{ color: '#f5f5f7' }}
+          >
+            Наши работы.
+          </h2>
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════════
-            CHAPTER 3: THE PROOF — Minimal metrics
-        ═══════════════════════════════════════════════════════════════ */}
-        <section className="py-24 px-8">
-          <ChapterReveal>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-12">
-              {[
-                { value: '127', label: 'проектов' },
-                { value: '14', label: 'дней' },
-                { value: '280', label: '% рост' },
-                { value: '98', label: '% довольны' },
-              ].map((stat, i) => (
-                <m.div 
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                >
-                  <div style={{ 
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-                    fontSize: '42px',
-                    fontWeight: 200,
-                    letterSpacing: '-0.03em',
-                    color: '#fafafa',
-                    lineHeight: 1
-                  }}>
-                    {stat.value}
+        {/* Scrollable cards */}
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className="flex gap-4 px-5 pb-4" style={{ width: 'max-content' }}>
+            {[
+              { id: 'clothing-store', name: 'LUMIERE', category: 'Мода' },
+              { id: 'electronics', name: 'TECHZONE', category: 'Электроника' },
+              { id: 'restaurant', name: 'SAKURA', category: 'Ресторан' },
+              { id: 'beauty', name: 'GLOW', category: 'Красота' },
+            ].map((project, i) => (
+              <m.button
+                key={project.id}
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleDemo(project.id)}
+                className="flex-shrink-0 w-[200px] rounded-2xl overflow-hidden text-left"
+                style={{ background: '#1c1c1e' }}
+                data-testid={`card-project-${project.id}`}
+              >
+                {/* Preview */}
+                <div 
+                  className="h-[140px] w-full"
+                  style={{ 
+                    background: `linear-gradient(135deg, hsl(${i * 60}, 40%, 20%) 0%, hsl(${i * 60 + 30}, 30%, 10%) 100%)`
+                  }}
+                />
+                
+                {/* Info */}
+                <div className="p-4">
+                  <div 
+                    className="text-[11px] font-medium uppercase tracking-wider mb-1"
+                    style={{ color: '#86868b' }}
+                  >
+                    {project.category}
                   </div>
                   <div 
-                    className="mt-2"
-                    style={{ 
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-                      fontSize: '11px',
-                      fontWeight: 400,
-                      letterSpacing: '0.05em',
-                      color: 'rgba(250,250,250,0.3)',
-                      textTransform: 'uppercase'
-                    }}
+                    className="text-[17px] font-semibold"
+                    style={{ color: '#f5f5f7' }}
                   >
-                    {stat.label}
+                    {project.name}
                   </div>
-                </m.div>
-              ))}
-            </div>
-          </ChapterReveal>
-        </section>
-
-        {/* Elegant fold line */}
-        <div className="mx-8">
-          <div 
-            className="h-px"
-            style={{ 
-              background: 'linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.2) 50%, transparent 100%)' 
-            }}
-          />
+                </div>
+              </m.button>
+            ))}
+          </div>
         </div>
+      </section>
 
-        {/* ═══════════════════════════════════════════════════════════════
-            CHAPTER 4: THE VOICE — Testimonial
-        ═══════════════════════════════════════════════════════════════ */}
-        <section className="py-24 px-8">
-          <ChapterReveal>
-            <div className="mb-8">
-              <span 
-                style={{ 
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-                  fontSize: '48px',
-                  fontWeight: 200,
-                  color: 'rgba(212, 175, 55, 0.3)'
-                }}
-              >
-                "
-              </span>
-            </div>
-            
-            <p style={{ 
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-              fontSize: '22px',
-              fontWeight: 300,
-              letterSpacing: '-0.01em',
-              lineHeight: 1.45,
-              color: '#fafafa'
-            }}>
-              Окупились за первый месяц. Клиенты говорят — лучший UX, который они видели.
+      {/* ═══════════════════════════════════════════════════════════════
+          FINAL CTA
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-20 px-5">
+        <div className="max-w-[430px] mx-auto text-center">
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 
+              className="text-[32px] font-semibold tracking-tight leading-tight mb-4"
+              style={{ color: '#f5f5f7' }}
+            >
+              Начните сегодня.
+            </h2>
+            <p 
+              className="text-[17px] mb-8"
+              style={{ color: '#86868b' }}
+            >
+              Бесплатная консультация. Ответим за час.
             </p>
-            
-            <div className="mt-10 flex items-center gap-4">
-              <div 
-                className="w-10 h-10 rounded-full"
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(212,175,55,0.3) 0%, rgba(212,175,55,0.1) 100%)',
-                  border: '1px solid rgba(212,175,55,0.2)'
-                }}
-              />
-              <div>
-                <div style={{ 
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  color: '#fafafa'
-                }}>
-                  Анна Козлова
-                </div>
-                <div style={{ 
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  color: 'rgba(250,250,250,0.35)'
-                }}>
-                  MODA HOUSE
-                </div>
-              </div>
-            </div>
-          </ChapterReveal>
-        </section>
 
-        {/* ═══════════════════════════════════════════════════════════════
-            CHAPTER 5: THE DECISION — Final CTA
-        ═══════════════════════════════════════════════════════════════ */}
-        <section className="py-32 px-8">
-          <ChapterReveal>
-            <div className="text-center">
-              <h2 style={{ 
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-                fontSize: '36px',
-                fontWeight: 200,
-                letterSpacing: '-0.02em',
-                lineHeight: 1.15,
-                color: '#fafafa',
-                marginBottom: '16px'
-              }}>
-                Готовы начать?
-              </h2>
-              
-              <p style={{ 
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-                fontSize: '14px',
-                fontWeight: 400,
-                lineHeight: 1.6,
-                color: 'rgba(250,250,250,0.35)',
-                marginBottom: '40px'
-              }}>
-                Ответим в течение часа
-              </p>
+            <button
+              onClick={handleCTA}
+              className="inline-flex items-center justify-center gap-2 px-8 h-[50px] rounded-full text-[17px] font-medium transition-all"
+              style={{ 
+                background: '#0071e3',
+                color: '#fff'
+              }}
+              data-testid="button-final-cta"
+            >
+              Оставить заявку
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </m.div>
+        </div>
+      </section>
 
-              {/* Premium CTA */}
-              <m.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                onClick={handleCTA}
-                className="relative w-full h-[56px] rounded-full flex items-center justify-center gap-3 overflow-hidden"
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(212,175,55,0.9) 0%, rgba(180,140,40,0.9) 100%)',
-                  border: '1px solid rgba(212,175,55,0.3)',
-                  boxShadow: '0 0 40px -10px rgba(212,175,55,0.4)'
-                }}
-                data-testid="button-cta-final"
-              >
-                <span style={{ 
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-                  fontSize: '16px',
-                  fontWeight: 500,
-                  color: '#0a0a0a'
-                }}>
-                  Оставить заявку
-                </span>
-                <ArrowRight className="w-4 h-4" style={{ color: '#0a0a0a' }} />
-              </m.button>
+      {/* Footer spacer */}
+      <div className="h-24" />
 
-              {/* Secondary action */}
-              <m.button
-                whileHover={{ opacity: 0.7 }}
-                onClick={handleDemo}
-                className="mt-6 inline-flex items-center gap-2"
-                style={{ 
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-                  fontSize: '14px',
-                  fontWeight: 400,
-                  color: 'rgba(212, 175, 55, 0.7)'
-                }}
-                data-testid="button-demo"
-              >
-                Посмотреть работы
-                <ArrowRight className="w-3.5 h-3.5" />
-              </m.button>
-            </div>
-          </ChapterReveal>
-        </section>
-
-        {/* Footer */}
-        <footer className="py-16 px-8 text-center">
-          <span style={{ 
-            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-            fontSize: '10px',
-            fontWeight: 400,
-            letterSpacing: '0.15em',
-            color: 'rgba(250,250,250,0.15)',
-            textTransform: 'uppercase'
-          }}>
-            WEB4TG Studio · 2024
-          </span>
-        </footer>
-
-        <div className="h-8" />
-      </div>
     </div>
   );
 }
-
-const ChapterReveal = memo(({ children }: { children: React.ReactNode }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-  
-  return (
-    <m.div
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-      transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-    >
-      {children}
-    </m.div>
-  );
-});
 
 export default memo(ShowcasePage);
