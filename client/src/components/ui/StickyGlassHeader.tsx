@@ -4,8 +4,8 @@ interface StickyGlassHeaderProps {
 
 export default function StickyGlassHeader({ title = "WEB4TG" }: StickyGlassHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-3xl bg-white/5 border-b border-white/10 shadow-2xl shadow-black/5">
-      <div className="max-w-md mx-auto px-4 py-5 relative">
+    <header className="sticky top-4 z-50 backdrop-blur-3xl bg-white/5 border-b border-white/10 shadow-2xl shadow-black/5 mt-4 mx-3 rounded-2xl">
+      <div className="max-w-md mx-auto px-4 py-4 relative">
         <div className="flex items-center justify-center">
           <h1 className="wow-gradient-text text-xl font-black drop-shadow-lg">
             {title}
