@@ -8,9 +8,10 @@ interface BackHeaderProps {
 export function BackHeader({ onBack, title }: BackHeaderProps) {
   return (
     <div 
-      className="sticky top-0 z-50 flex items-center gap-3 py-3 bg-background/80 backdrop-blur-xl border-b border-white/10"
+      className="sticky top-0 z-50 flex items-center gap-3 py-5 bg-background/80 backdrop-blur-xl border-b border-white/10"
       style={{
-        paddingTop: 'calc(var(--tg-safe-area-top, 0px) + 12px)',
+        paddingTop: 'calc(var(--tg-safe-area-top, 0px) + 20px)',
+        paddingBottom: '20px',
         paddingLeft: 'calc(var(--tg-safe-area-left, 0px) + 56px)',
         paddingRight: 'calc(var(--tg-safe-area-right, 0px) + 16px)',
       }}

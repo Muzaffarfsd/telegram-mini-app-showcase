@@ -362,7 +362,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
 
     return (
       <div className="h-full overflow-y-auto">
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 p-4">
+        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-5">
           <h1 className="text-2xl font-bold mb-4">Тренировки</h1>
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
             {categories.map((category) => (

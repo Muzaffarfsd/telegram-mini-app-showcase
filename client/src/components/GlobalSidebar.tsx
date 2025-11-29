@@ -888,7 +888,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           boxShadow: '0 4px 30px rgba(0,0,0,0.3)'
         }}
       >
-        <div className="max-w-md mx-auto px-5 py-3 flex items-center justify-between">
+        <div className="max-w-md mx-auto px-5 py-5 flex items-center justify-between">
           {/* Glass Menu Button */}
           <button
             onClick={() => setSidebarOpen(true)}

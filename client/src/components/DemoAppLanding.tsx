@@ -47,7 +47,7 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
     <div className="min-h-screen bg-black">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/10 backdrop-blur-xl border-b border-white/20">
-        <div className="max-w-md mx-auto px-4 py-3">
+        <div className="max-w-md mx-auto px-4 py-5">
           <div className="flex items-center space-x-3">
             <button
               onClick={goBack}

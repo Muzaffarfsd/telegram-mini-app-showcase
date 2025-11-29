@@ -309,7 +309,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
 
   const renderCatalogTab = () => (
     <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-200 py-4 px-4">
+      <div className="sticky top-0 z-20 bg-white border-b border-gray-200 py-5 px-4">
         <div className="max-w-md mx-auto space-y-4">
           <div className="flex items-center gap-3">
             <div className="flex-1 bg-gray-100 rounded-full px-4 py-3 flex items-center gap-2">

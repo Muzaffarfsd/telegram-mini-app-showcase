@@ -210,7 +210,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
       <div className="fixed inset-0 bg-gradient-to-br from-amber-900/20 via-black to-yellow-900/20 pointer-events-none"></div>
       
       {/* Sticky Pills */}
-      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-2xl border-b border-white/10 py-4 px-4">
+      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-2xl border-b border-white/10 py-5 px-4">
         <div className="max-w-md mx-auto">
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
             {categories.map(cat => (
