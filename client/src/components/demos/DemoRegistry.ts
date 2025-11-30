@@ -135,14 +135,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./EmilyCarterAI')),
     preload: () => import('./EmilyCarterAI')
   },
-  'n99-beauty-studio': {
-    component: lazy(() => import('./N99BeautyStudio')),
-    preload: () => import('./N99BeautyStudio')
-  },
-  'airpods-pro': {
-    component: lazy(() => import('./AirPodsPro')),
-    preload: () => import('./AirPodsPro')
-  }
 };
 
 // Preload critical demos (reduced to essential only for performance)

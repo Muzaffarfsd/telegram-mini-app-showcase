@@ -39,7 +39,7 @@ export interface DemoApp {
 
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
-  // Premium Design Collection - Dribbble Inspired (NEW)
+  // Premium Design Collection - Dribbble Inspired
   {
     id: 'oxyz-nft',
     title: 'OXYZ',
@@ -94,54 +94,6 @@ export const demoApps: DemoApp[] = [
         { id: 'catalog', title: 'Profile', priceText: 'View content', iconName: 'user' },
         { id: 'cart', title: 'Purchases', priceText: 'My items', iconName: 'shopping-cart' },
         { id: 'profile', title: 'Settings', priceText: 'Account', iconName: 'settings' }
-      ]
-    }
-  },
-  {
-    id: 'n99-beauty-studio',
-    title: 'N99° Beauty',
-    description: 'Бьюти студия с бронированием и галереей дизайнов',
-    category: 'Красота & Уход',
-    image: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=300&fit=crop&q=80',
-    creator: 'WEB4TG',
-    likes: '28.7k',
-    badge: 'Beauty',
-    badgeColor: 'bg-amber-700',
-    home: {
-      hero: {
-        title: 'N99° Beauty Studio',
-        subtitle: 'Premium nail art',
-        image: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800&h=600&fit=crop&q=90',
-        bgClass: 'bg-gradient-to-br from-amber-100 to-orange-100'
-      },
-      services: [
-        { id: 'catalog', title: 'Inspiration', priceText: 'Add designs', iconName: 'heart' },
-        { id: 'cart', title: 'Bookings', priceText: 'My appointments', iconName: 'calendar' },
-        { id: 'profile', title: 'Profile', priceText: 'Settings', iconName: 'user' }
-      ]
-    }
-  },
-  {
-    id: 'airpods-pro',
-    title: 'AirPods Pro',
-    description: 'Apple продукт витрина в стиле официального сайта',
-    category: 'Технологии',
-    image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400&h=300&fit=crop&q=80',
-    creator: 'WEB4TG',
-    likes: '42.1k',
-    badge: 'Apple',
-    badgeColor: 'bg-gray-900',
-    home: {
-      hero: {
-        title: 'AirPods Pro',
-        subtitle: '2nd Generation',
-        image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=600&fit=crop&q=90',
-        bgClass: 'bg-gradient-to-b from-gray-100 to-gray-200'
-      },
-      services: [
-        { id: 'catalog', title: 'Shop', priceText: '$200', iconName: 'shopping-cart' },
-        { id: 'cart', title: 'Cart', priceText: 'Buy now', iconName: 'shopping-bag' },
-        { id: 'profile', title: 'Account', priceText: 'Apple ID', iconName: 'user' }
       ]
     }
   },
