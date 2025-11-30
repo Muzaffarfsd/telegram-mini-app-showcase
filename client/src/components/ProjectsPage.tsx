@@ -7,7 +7,7 @@ interface ProjectsPageProps {
 }
 
 export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPageProps) {
-  const topApps = demoApps.slice(0, 11);
+  const topApps = demoApps; // All 13 apps
 
   return (
     <div 
