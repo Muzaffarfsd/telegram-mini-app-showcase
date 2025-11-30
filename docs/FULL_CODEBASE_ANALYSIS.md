@@ -55153,3 +55153,2303 @@ img, video {
 4. Telegram WebApp integration
 5. Premium glassmorphism effects
 
+## Missing Files - Added
+
+### components/demos/TimeElite_PREMIUM.tsx
+```tsx
+import { useState } from "react";
+import { Heart, Star, X, Sparkles, Crown, Award } from "lucide-react";
+import { OptimizedImage } from "../OptimizedImage";
+import { useImagePreloader } from "../../hooks/useImagePreloader";
+
+interface TimeEliteProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+}
+
+const products = [
+  { id: 1, name: 'Rolex Submariner', price: 12500, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format,compress&fm=webp&q=75&w=800', description: 'Легендарные швейцарские часы для дайвинга с автоматическим механизмом', brand: 'Rolex', category: 'Дайверские', movement: 'Automatic', waterResist: '300m', material: 'Нержавеющая сталь 904L', diameter: '41mm', inStock: 3, rating: 5.0 },
+  { id: 2, name: 'Omega Speedmaster', price: 8900, image: 'https://images.unsplash.com/photo-1434056886845-dac89ffe9b56?auto=format,compress&fm=webp&q=75&w=800', description: 'Легендарные лунные часы NASA с хронографом', brand: 'Omega', category: 'Хронографы', movement: 'Manual', waterResist: '50m', material: 'Нержавеющая сталь', diameter: '42mm', inStock: 5, rating: 4.9 },
+  { id: 3, name: 'Patek Philippe Nautilus', price: 45000, image: 'https://images.unsplash.com/photo-1587836374062-d60746f9f518?auto=format,compress&fm=webp&q=75&w=800', description: 'Эксклюзивные спортивно-элегантные часы из коллекции Nautilus', brand: 'Patek Philippe', category: 'Классические', movement: 'Automatic', waterResist: '120m', material: 'Платина', diameter: '40mm', inStock: 1, rating: 5.0 },
+  { id: 4, name: 'Audemars Piguet Royal Oak', price: 38000, image: 'https://images.unsplash.com/photo-1611078031785-f8ab1d3ed0dc?auto=format,compress&fm=webp&q=75&w=800', description: 'Икон��ческие часы с восьмиугольным безелем', brand: 'Audemars Piguet', category: 'Классические', movement: 'Automatic', waterResist: '50m', material: 'Розовое золото', diameter: '41mm', inStock: 2, rating: 5.0 },
+  { id: 5, name: 'Cartier Santos', price: 7200, image: 'https://images.unsplash.com/photo-1622434641406-a158123450f9?auto=format,compress&fm=webp&q=75&w=800', description: 'Элегантные часы с квадратным корпусом и римскими цифрами', brand: 'Cartier', category: 'Классические', movement: 'Automatic', waterResist: '100m', material: 'Сталь и золото', diameter: '39mm', inStock: 4, rating: 4.8 },
+  { id: 6, name: 'TAG Heuer Carrera', price: 5500, image: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format,compress&fm=webp&q=75&w=800', description: 'Спортивный хронограф вдохновленный автогонками', brand: 'TAG Heuer', category: 'Хронографы', movement: 'Automatic', waterResist: '100m', material: 'Нержавеющая сталь', diameter: '43mm', inStock: 6, rating: 4.7 },
+];
+
+const categories = ['Все', 'Rolex', 'Omega', 'Patek Philippe', 'Cartier', 'Audemars Piguet'];
+
+export default function TimeElite({ activeTab }: TimeEliteProps) {
+  const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [favorites, setFavorites] = useState<number[]>([1, 3]);
+
+  useImagePreloader({
+    images: products.slice(0, 6).map(p => p.image),
+    priority: true
+  });
+
+  const openProductModal = (product: typeof products[0]) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const closeProductModal = () => {
+    setIsModalOpen(false);
+    setTimeout(() => setSelectedProduct(null), 300);
+  };
+
+  const addToCart = () => {
+    if (!selectedProduct) return;
+    const newItem: CartItem = {
+      id: selectedProduct.id,
+      name: selectedProduct.name,
+      price: selectedProduct.price,
+      quantity: 1,
+      image: selectedProduct.image
+    };
+    setCartItems(prev => [...prev, newItem]);
+    closeProductModal();
+  };
+
+  const toggleFavorite = (productId: number) => {
+    setFavorites(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  const filteredProducts = selectedCategory === 'Все' 
+    ? products 
+    : products.filter(p => p.brand === selectedCategory);
+
+  // PREMIUM HOME PAGE
+  const renderHomeTab = () => (
+    <div className="min-h-screen bg-black font-montserrat pb-24 overflow-hidden">
+      {/* Premium Gradient Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-amber-900/20 via-black to-yellow-900/20 pointer-events-none"></div>
+      
+      <div className="relative max-w-md mx-auto">
+        {/* Luxury Header */}
+        <div className="text-center px-6 pt-12 pb-8">
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 rounded-full mb-6 shadow-2xl shadow-yellow-500/50">
+            <Crown className="w-12 h-12 text-black" strokeWidth={2.5} />
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-yellow-200 via-amber-100 to-yellow-200 bg-clip-text text-transparent mb-3 tracking-tight">
+            TimeElite
+          </h1>
+          <p className="text-amber-200/80 text-sm font-semibold">Luxury Swiss Timepieces</p>
+        </div>
+
+        {/* Hero Section - Large Image */}
+        <div className="px-6 mb-12">
+          <div className="relative rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openProductModal(products[0])}>
+            <div className="aspect-[4/5] bg-gradient-to-br from-gray-900 to-black">
+              <OptimizedImage 
+                src={products[0].image}
+                alt={products[0].name}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                priority
+              />
+            </div>
+            {/* Glass Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent">
+              <div className="absolute bottom-0 left-0 right-0 p-8">
+                <div className="flex items-center gap-2 mb-3">
+                  <Award className="w-5 h-5 text-yellow-400" />
+                  <span className="text-yellow-400 text-xs font-bold">Featured Collection</span>
+                </div>
+                <h2 className="text-3xl font-bold text-white mb-2">{products[0].name}</h2>
+                <p className="text-amber-100/80 mb-4">{products[0].description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold text-yellow-400">${products[0].price.toLocaleString()}</span>
+                  <button className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-black rounded-full font-bold hover:shadow-2xl hover:shadow-yellow-500/50 transition-all duration-300">
+                    Explore
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Premium Brands */}
+        <div className="px-6 mb-12">
+          <h2 className="text-2xl font-bold text-white mb-6">Exclusive Brands</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {['Rolex', 'Patek Philippe', 'Omega', 'Cartier'].map((brand) => (
+              <button
+                key={brand}
+                onClick={() => setSelectedCategory(brand)}
+                className="group relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 hover:bg-white/10 hover:border-yellow-500/50 transition-all duration-300"
+                data-testid={`brand-${brand.toLowerCase().replace(' ', '-')}`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative">
+                  <Sparkles className="w-8 h-8 text-yellow-400 mb-3 group-hover:scale-110 transition-transform" />
+                  <h3 className="text-white font-bold mb-1">{brand}</h3>
+                  <p className="text-amber-200/60 text-xs">Swiss Excellence</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Luxury Collection */}
+        <div className="px-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white">Luxury Collection</h2>
+            <Crown className="w-6 h-6 text-yellow-400" />
+          </div>
+          <div className="space-y-6">
+            {products.slice(0, 3).map(product => (
+              <div 
+                key={product.id}
+                onClick={() => openProductModal(product)}
+                className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 hover:border-yellow-500/50 transition-all duration-300 cursor-pointer"
+                data-testid={`product-card-${product.id}`}
+              >
+                <div className="flex gap-6 p-6">
+                  <div className="w-32 h-32 rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 to-black flex-shrink-0">
+                    <OptimizedImage 
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      priority={product.id <= 3}
+                    />
+                  </div>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full">{product.brand}</span>
+                        {product.inStock <= 3 && (
+                          <span className="px-3 py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded-full">Limited</span>
+                        )}
+                      </div>
+                      <h3 className="text-white font-bold text-lg mb-2">{product.name}</h3>
+                      <div className="flex items-center gap-1 mb-3">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-yellow-400">${product.price.toLocaleString()}</span>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(product.id);
+                        }}
+                        className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                      >
+                        <Heart className={`w-5 h-5 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // PREMIUM CATALOG
+  const renderCatalogTab = () => (
+    <div className="min-h-screen bg-black font-montserrat pb-24">
+      <div className="fixed inset-0 bg-gradient-to-br from-amber-900/20 via-black to-yellow-900/20 pointer-events-none"></div>
+      
+      {/* Sticky Pills */}
+      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-2xl border-b border-white/10 py-5 px-4">
+        <div className="max-w-md mx-auto">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-5 py-2 rounded-full whitespace-nowrap transition-all duration-300 font-semibold text-sm ${
+                  selectedCategory === cat 
+                    ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-black shadow-lg shadow-yellow-500/50' 
+                    : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
+                data-testid={`filter-${cat.toLowerCase()}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Products Grid */}
+      <div className="relative max-w-md mx-auto px-4 py-6">
+        <div className="mb-4">
+          <p className="text-amber-200/60 text-sm">{filteredProducts.length} Timepieces Available</p>
+        </div>
+        <div className="grid grid-cols-1 gap-6">
+          {filteredProducts.map(product => (
+            <div 
+              key={product.id}
+              onClick={() => openProductModal(product)}
+              className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 hover:border-yellow-500/50 transition-all duration-300 cursor-pointer"
+              data-testid={`product-${product.id}`}
+            >
+              <div className="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-gray-900 to-black">
+                <OptimizedImage 
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  priority={product.id <= 4}
+                />
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(product.id);
+                  }}
+                  className="absolute top-4 right-4 w-12 h-12 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center hover:bg-black/80 transition-all"
+                >
+                  <Heart className={`w-6 h-6 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                </button>
+              </div>
+              <div className="p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full">{product.brand}</span>
+                  {product.inStock <= 3 && (
+                    <span className="px-3 py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded-full">Only {product.inStock} left</span>
+                  )}
+                </div>
+                <h3 className="text-white font-bold text-xl mb-2">{product.name}</h3>
+                <p className="text-amber-200/60 text-sm mb-4 line-clamp-2">{product.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold text-yellow-400">${product.price.toLocaleString()}</span>
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // PREMIUM MODAL
+  const renderProductModal = () => {
+    if (!selectedProduct || !isModalOpen) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 bg-black overflow-y-auto font-montserrat">
+        <div className="fixed inset-0 bg-gradient-to-br from-amber-900/20 via-black to-yellow-900/20"></div>
+        
+        <div className="relative max-w-md mx-auto">
+          <button 
+            onClick={closeProductModal}
+            className="fixed top-6 right-6 z-10 w-14 h-14 bg-white/10 backdrop-blur-2xl rounded-full flex items-center justify-center hover:bg-white/20 transition-all border border-white/20"
+            data-testid="button-close-modal"
+          >
+            <X className="w-7 h-7 text-white" strokeWidth={2} />
+          </button>
+
+          {/* Large Product Image */}
+          <div className="relative aspect-square bg-gradient-to-br from-gray-900 to-black">
+            <OptimizedImage 
+              src={selectedProduct.image}
+              alt={selectedProduct.name}
+              className="w-full h-full object-cover"
+              priority
+            />
+            <button 
+              onClick={() => toggleFavorite(selectedProduct.id)}
+              className="absolute top-6 left-6 w-14 h-14 bg-black/60 backdrop-blur-2xl rounded-full flex items-center justify-center hover:bg-black/80 transition-all border border-white/20"
+            >
+              <Heart className={`w-7 h-7 ${favorites.includes(selectedProduct.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+            </button>
+          </div>
+
+          {/* Product Info */}
+          <div className="p-8 space-y-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="px-4 py-2 bg-yellow-500/20 text-yellow-400 text-sm font-bold rounded-full">{selectedProduct.brand}</span>
+                {selectedProduct.inStock <= 3 && (
+                  <span className="px-4 py-2 bg-red-500/20 text-red-400 text-sm font-bold rounded-full">Only {selectedProduct.inStock} Available</span>
+                )}
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-4 leading-tight">{selectedProduct.name}</h1>
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-4xl font-bold text-yellow-400">${selectedProduct.price.toLocaleString()}</span>
+                <div className="flex items-center gap-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                  ))}
+                  <span className="text-amber-200 ml-2">({selectedProduct.rating})</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+            <div>
+              <h3 className="text-white font-bold text-lg mb-3">Description</h3>
+              <p className="text-amber-200/80 leading-relaxed">{selectedProduct.description}</p>
+            </div>
+
+            <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+            <div>
+              <h3 className="text-white font-bold text-lg mb-4">Specifications</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <p className="text-amber-200/60 text-xs mb-1">Movement</p>
+                  <p className="text-white font-semibold">{selectedProduct.movement}</p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <p className="text-amber-200/60 text-xs mb-1">Water Resistance</p>
+                  <p className="text-white font-semibold">{selectedProduct.waterResist}</p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <p className="text-amber-200/60 text-xs mb-1">Material</p>
+                  <p className="text-white font-semibold">{selectedProduct.material}</p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <p className="text-amber-200/60 text-xs mb-1">Diameter</p>
+                  <p className="text-white font-semibold">{selectedProduct.diameter}</p>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={addToCart}
+              className="w-full py-5 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-black rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-yellow-500/50 transition-all duration-300 relative overflow-hidden group"
+              data-testid="button-add-to-cart"
+            >
+              <span className="relative z-10">Add to Collection</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Cart & Profile (simplified for demo)
+  const renderCartTab = () => (
+    <div className="min-h-screen bg-black font-montserrat pb-24">
+      <div className="max-w-md mx-auto px-6 py-8">
+        <h1 className="text-3xl font-bold text-white mb-6">Your Collection</h1>
+        {cartItems.length === 0 ? (
+          <div className="text-center py-16">
+            <Crown className="w-16 h-16 text-yellow-400/50 mx-auto mb-4" />
+            <p className="text-amber-200/60">No timepieces added yet</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {cartItems.map(item => (
+              <div key={item.id} className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                <h3 className="text-white font-bold">{item.name}</h3>
+                <p className="text-yellow-400 font-bold">${item.price.toLocaleString()}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderProfileTab = () => (
+    <div className="min-h-screen bg-black font-montserrat pb-24">
+      <div className="max-w-md mx-auto px-6 py-8">
+        <h1 className="text-3xl font-bold text-white mb-6">Profile</h1>
+        <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 text-center">
+          <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <span className="text-3xl font-bold text-black">VIP</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Luxury Member</h2>
+          <p className="text-amber-200/60">collector@timeelite.com</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {activeTab === 'home' && renderHomeTab()}
+      {activeTab === 'catalog' && renderCatalogTab()}
+      {activeTab === 'cart' && renderCartTab()}
+      {activeTab === 'profile' && renderProfileTab()}
+      {renderProductModal()}
+    </>
+  );
+}
+```
+
+### contexts/RewardsContext.tsx
+```tsx
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+interface Task {
+  id: string;
+  platform: 'tiktok' | 'instagram';
+  type: 'like' | 'follow' | 'share' | 'view' | 'comment';
+  title: string;
+  description: string;
+  coins: number;
+  url: string;
+  completed: boolean;
+  timeLimit?: number;
+  startTime?: number;
+  minimumTime?: number;
+  verificationStatus?: 'pending' | 'verifying' | 'verified' | 'failed';
+  attempts?: number;
+  lastAttempt?: number;
+}
+
+interface UserStats {
+  totalCoins: number;
+  tasksCompleted: number;
+  currentStreak: number;
+  level: number;
+  totalSaved: number;
+}
+
+interface RewardsContextType {
+  userStats: UserStats;
+  tasks: Task[];
+  completeTask: (taskId: string) => void;
+  updateStats: (newStats: Partial<UserStats>) => void;
+  startTask: (taskId: string) => void;
+  verifyTask: (taskId: string) => Promise<boolean>;
+}
+
+const defaultTasks: Task[] = [
+  {
+    id: 'tiktok_like_1',
+    platform: 'tiktok',
+    type: 'like',
+    title: 'Лайк TikTok видео',
+    description: 'Поставьте лайк нашему последнему видео о разработке приложений',
+    coins: 50,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 5,
+    minimumTime: 8,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_follow',
+    platform: 'tiktok',
+    type: 'follow',
+    title: 'Подписка TikTok',
+    description: 'Подпишитесь на наш TikTok аккаунт',
+    coins: 150,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    minimumTime: 5,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_like_1',
+    platform: 'instagram',
+    type: 'like',
+    title: 'Лайк Instagram поста',
+    description: 'Лайкните наш пост про новые функции Telegram Mini Apps',
+    coins: 40,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 3,
+    minimumTime: 6,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_follow',
+    platform: 'instagram',
+    type: 'follow',
+    title: 'Подписка Instagram',
+    description: 'Подпишитесь на наш Instagram для получения актуальных новостей',
+    coins: 120,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    minimumTime: 4,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_share_1',
+    platform: 'tiktok',
+    type: 'share',
+    title: 'Репост TikTok',
+    description: 'Поделитесь нашим видео о создании Telegram ботов',
+    coins: 100,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 10
+  },
+  {
+    id: 'instagram_share_1',
+    platform: 'instagram',
+    type: 'share',
+    title: 'Репост Instagram',
+    description: 'Поделитесь в Stories нашим постом',
+    coins: 80,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 8
+  },
+  {
+    id: 'tiktok_comment_1',
+    platform: 'tiktok',
+    type: 'comment',
+    title: 'Комментарий TikTok',
+    description: 'Оставьте комментарий под нашим видео о МиниАппах',
+    coins: 75,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 7
+  },
+  {
+    id: 'instagram_comment_1',
+    platform: 'instagram',
+    type: 'comment',
+    title: 'Комментарий Instagram',
+    description: 'Прокомментируйте наш пост о новых возможностях',
+    coins: 60,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 5
+  },
+  {
+    id: 'tiktok_view_1',
+    platform: 'tiktok',
+    type: 'view',
+    title: 'Просмотр TikTok видео',
+    description: 'Досмотрите до конца наше видео о заработке с ТГ ботами',
+    coins: 30,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 3
+  },
+  {
+    id: 'instagram_view_1',
+    platform: 'instagram',
+    type: 'view',
+    title: 'Просмотр Instagram Reels',
+    description: 'Посмотрите наш Reels о создании бизнес-приложений',
+    coins: 25,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 2
+  },
+  {
+    id: 'tiktok_like_2',
+    platform: 'tiktok',
+    type: 'like',
+    title: 'Лайк TikTok #2',
+    description: 'Поставьте лайк видео о кейсах наших клиентов',
+    coins: 45,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 4
+  },
+  {
+    id: 'instagram_like_2',
+    platform: 'instagram',
+    type: 'like',
+    title: 'Лайк Instagram #2',
+    description: 'Лайкните пост о том, как мы помогаем бизнесу расти',
+    coins: 35,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 3
+  },
+  // Дополнительные TikTok задания
+  {
+    id: 'tiktok_like_3',
+    platform: 'tiktok',
+    type: 'like',
+    title: 'Лайк TikTok #3',
+    description: 'Поставьте лайк нашему видео о мобильной разработке',
+    coins: 50,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 5,
+    minimumTime: 8,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_like_4',
+    platform: 'tiktok',
+    type: 'like',
+    title: 'Лайк TikTok #4',
+    description: 'Лайкните видео о дизайне интерфейсов',
+    coins: 50,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 5,
+    minimumTime: 8,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_like_5',
+    platform: 'tiktok',
+    type: 'like',
+    title: 'Лайк TikTok #5',
+    description: 'Поставьте лайк видео о технологиях будущего',
+    coins: 50,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 5,
+    minimumTime: 8,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_share_2',
+    platform: 'tiktok',
+    type: 'share',
+    title: 'Репост TikTok #2',
+    description: 'Поделитесь нашим видео о стартапах',
+    coins: 100,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 10,
+    minimumTime: 15,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_share_3',
+    platform: 'tiktok',
+    type: 'share',
+    title: 'Репост TikTok #3',
+    description: 'Поделитесь видео о заработке в интернете',
+    coins: 100,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 10,
+    minimumTime: 15,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_comment_2',
+    platform: 'tiktok',
+    type: 'comment',
+    title: 'Комментарий TikTok #2',
+    description: 'Оставьте развернутый комментарий о своем опыте',
+    coins: 75,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 7,
+    minimumTime: 20,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_comment_3',
+    platform: 'tiktok',
+    type: 'comment',
+    title: 'Комментарий TikTok #3',
+    description: 'Задайте интересный вопрос в комментариях',
+    coins: 75,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 7,
+    minimumTime: 20,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_view_2',
+    platform: 'tiktok',
+    type: 'view',
+    title: 'Просмотр TikTok #2',
+    description: 'Полностью досмотрите видео о веб-дизайне',
+    coins: 30,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 3,
+    minimumTime: 12,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_view_3',
+    platform: 'tiktok',
+    type: 'view',
+    title: 'Просмотр TikTok #3',
+    description: 'Посмотрите видео о цифровом маркетинге',
+    coins: 30,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 3,
+    minimumTime: 12,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  // Дополнительные Instagram задания
+  {
+    id: 'instagram_like_3',
+    platform: 'instagram',
+    type: 'like',
+    title: 'Лайк Instagram #3',
+    description: 'Лайкните пост о программировании',
+    coins: 40,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 3,
+    minimumTime: 6,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_like_4',
+    platform: 'instagram',
+    type: 'like',
+    title: 'Лайк Instagram #4',
+    description: 'Поставьте лайк посту о цифровых технологиях',
+    coins: 40,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 3,
+    minimumTime: 6,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_like_5',
+    platform: 'instagram',
+    type: 'like',
+    title: 'Лайк Instagram #5',
+    description: 'Лайкните пост о росте бизнеса',
+    coins: 40,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 3,
+    minimumTime: 6,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_share_2',
+    platform: 'instagram',
+    type: 'share',
+    title: 'Репост Instagram #2',
+    description: 'Поделитесь в Stories постом о наших услугах',
+    coins: 80,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 8,
+    minimumTime: 12,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_share_3',
+    platform: 'instagram',
+    type: 'share',
+    title: 'Репост Instagram #3',
+    description: 'Поделитесь Reels с вашими подписчиками',
+    coins: 80,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 8,
+    minimumTime: 12,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_comment_2',
+    platform: 'instagram',
+    type: 'comment',
+    title: 'Комментарий Instagram #2',
+    description: 'Расскажите о своем опыте работы с нами',
+    coins: 60,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 5,
+    minimumTime: 18,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_comment_3',
+    platform: 'instagram',
+    type: 'comment',
+    title: 'Комментарий Instagram #3',
+    description: 'Поделитесь своими идеями в комментариях',
+    coins: 60,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 5,
+    minimumTime: 18,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_view_2',
+    platform: 'instagram',
+    type: 'view',
+    title: 'Просмотр Instagram #2',
+    description: 'Посмотрите наш Reels о клиентских кейсах',
+    coins: 25,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 2,
+    minimumTime: 10,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_view_3',
+    platform: 'instagram',
+    type: 'view',
+    title: 'Просмотр Instagram #3',
+    description: 'Просмотрите все Stories за сегодня',
+    coins: 25,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 2,
+    minimumTime: 10,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  // Специальные задания для продвинутых пользователей
+  {
+    id: 'tiktok_duet_create',
+    platform: 'tiktok',
+    type: 'share',
+    title: 'Создать Duet',
+    description: 'Создайте Duet с нашим видео и поделитесь мыслями',
+    coins: 200,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 15,
+    minimumTime: 30,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_reel_create',
+    platform: 'instagram',
+    type: 'share',
+    title: 'Создать свой Reels',
+    description: 'Создайте Reels о нашей компании',
+    coins: 250,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 20,
+    minimumTime: 40,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_playlist_save',
+    platform: 'tiktok',
+    type: 'like',
+    title: 'Сохранить в избранное',
+    description: 'Добавьте наши видео в свой плейлист',
+    coins: 90,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 8,
+    minimumTime: 15,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_tag_post',
+    platform: 'instagram',
+    type: 'share',
+    title: 'Отметить в посте',
+    description: 'Отметьте наш аккаунт в своем новом посте',
+    coins: 180,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 12,
+    minimumTime: 25,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_hashtag_use',
+    platform: 'tiktok',
+    type: 'share',
+    title: 'Использовать хештег',
+    description: 'Создайте видео с хештегом #web4tg',
+    coins: 220,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 18,
+    minimumTime: 35,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_hashtag_post',
+    platform: 'instagram',
+    type: 'share',
+    title: 'Пост с хештегом',
+    description: 'Создайте пост с хештегом #web4tg',
+    coins: 200,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 15,
+    minimumTime: 30,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_trend_follow',
+    platform: 'tiktok',
+    type: 'view',
+    title: 'Просмотр трендов',
+    description: 'Найдите наши видео в трендах и досмотрите',
+    coins: 60,
+    url: 'https://tiktok.com/discover',
+    completed: false,
+    timeLimit: 10,
+    minimumTime: 20,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_explore_visit',
+    platform: 'instagram',
+    type: 'view',
+    title: 'Исследование ленты',
+    description: 'Найдите наши посты через поиск и лайкните',
+    coins: 45,
+    url: 'https://instagram.com/explore',
+    completed: false,
+    timeLimit: 8,
+    minimumTime: 15,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_sound_original',
+    platform: 'tiktok',
+    type: 'share',
+    title: 'Использовать оригинальный звук',
+    description: 'Используйте звук из нашего видео для своего контента',
+    coins: 190,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 15,
+    minimumTime: 35,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_live_watch',
+    platform: 'instagram',
+    type: 'view',
+    title: 'Просмотр прямого эфира',
+    description: 'Присоединитесь к нашим прямым эфирам',
+    coins: 120,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 20,
+    minimumTime: 30,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  // Еще больше заданий для максимальной раскрутки
+  {
+    id: 'tiktok_like_multiple_1',
+    platform: 'tiktok',
+    type: 'like',
+    title: 'Лайк 3 видео подряд',
+    description: 'Поставьте лайки на 3 наших последних видео подряд',
+    coins: 150,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 15,
+    minimumTime: 25,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_like_multiple_1',
+    platform: 'instagram',
+    type: 'like',
+    title: 'Лайк 5 постов подряд',
+    description: 'Лайкните 5 наших последних постов подряд',
+    coins: 200,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 10,
+    minimumTime: 20,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_story_add',
+    platform: 'tiktok',
+    type: 'share',
+    title: 'Добавить в историю',
+    description: 'Добавьте наше видео в свою историю TikTok',
+    coins: 130,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 8,
+    minimumTime: 15,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_story_mention',
+    platform: 'instagram',
+    type: 'share',
+    title: 'Упомянуть в Stories',
+    description: 'Упомяните @web4tg в своих Instagram Stories',
+    coins: 160,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 10,
+    minimumTime: 20,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_challenge_join',
+    platform: 'tiktok',
+    type: 'share',
+    title: 'Участие в челлендже',
+    description: 'Примите участие в нашем TikTok челлендже',
+    coins: 300,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 25,
+    minimumTime: 45,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_tutorial_watch',
+    platform: 'instagram',
+    type: 'view',
+    title: 'Просмотр туториала',
+    description: 'Посмотрите наш Instagram туториал до конца',
+    coins: 80,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 15,
+    minimumTime: 25,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_music_add',
+    platform: 'tiktok',
+    type: 'like',
+    title: 'Добавить музыку в избранное',
+    description: 'Добавьте музыку из наших видео в избранное',
+    coins: 70,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 5,
+    minimumTime: 10,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_poll_vote',
+    platform: 'instagram',
+    type: 'view',
+    title: 'Голосование в опросе',
+    description: 'Проголосуйте в наших Instagram Stories опросах',
+    coins: 40,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 3,
+    minimumTime: 8,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_effect_use',
+    platform: 'tiktok',
+    type: 'share',
+    title: 'Использовать эффект',
+    description: 'Используйте эффект из наших TikTok видео',
+    coins: 170,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 12,
+    minimumTime: 25,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_dm_send',
+    platform: 'instagram',
+    type: 'share',
+    title: 'Отправить сообщение',
+    description: 'Отправьте нам сообщение в Instagram Direct',
+    coins: 90,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 5,
+    minimumTime: 12,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_profile_visit_deep',
+    platform: 'tiktok',
+    type: 'view',
+    title: 'Глубокий просмотр профиля',
+    description: 'Посетите наш профиль и просмотрите все разделы',
+    coins: 60,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 20,
+    minimumTime: 35,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_highlight_view',
+    platform: 'instagram',
+    type: 'view',
+    title: 'Просмотр сохраненных историй',
+    description: 'Просмотрите все наши сохраненные истории',
+    coins: 50,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 15,
+    minimumTime: 25,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_collab_request',
+    platform: 'tiktok',
+    type: 'comment',
+    title: 'Запрос на коллаборацию',
+    description: 'Предложите идею для совместного видео в комментариях',
+    coins: 250,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 10,
+    minimumTime: 30,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_business_question',
+    platform: 'instagram',
+    type: 'comment',
+    title: 'Вопрос о бизнесе',
+    description: 'Задайте вопрос о развитии бизнеса в комментариях',
+    coins: 100,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 8,
+    minimumTime: 20,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_friend_invite',
+    platform: 'tiktok',
+    type: 'share',
+    title: 'Пригласить друга',
+    description: 'Пригласите друга подписаться на наш TikTok',
+    coins: 180,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 15,
+    minimumTime: 30,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_friend_tag',
+    platform: 'instagram',
+    type: 'comment',
+    title: 'Отметить друга',
+    description: 'Отметьте друга в комментариях к нашему посту',
+    coins: 85,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 5,
+    minimumTime: 10,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_weekly_watch',
+    platform: 'tiktok',
+    type: 'view',
+    title: 'Еженедельный просмотр',
+    description: 'Просматривайте наши видео каждую неделю',
+    coins: 200,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 30,
+    minimumTime: 60,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'instagram_carousel_swipe',
+    platform: 'instagram',
+    type: 'view',
+    title: 'Просмотр карусели',
+    description: 'Просмотрите все слайды в наших Instagram карусели',
+    coins: 55,
+    url: 'https://instagram.com/web4tg',
+    completed: false,
+    timeLimit: 8,
+    minimumTime: 15,
+    verificationStatus: 'pending',
+    attempts: 0
+  },
+  {
+    id: 'tiktok_notification_enable',
+    platform: 'tiktok',
+    type: 'follow',
+    title: 'Включить уведомления',
+    description: 'Включите уведомления о новых видео',
+    coins: 120,
+    url: 'https://tiktok.com/@web4tg',
+    completed: false,
+    timeLimit: 5,
+    minimumTime: 10,
+    verificationStatus: 'pending',
+    attempts: 0
+  }
+];
+
+const RewardsContext = createContext<RewardsContextType | undefined>(undefined);
+
+export function RewardsProvider({ children }: { children: React.ReactNode }) {
+  const [userStats, setUserStats] = useState<UserStats>(() => {
+    // Try to load from localStorage
+    const saved = localStorage.getItem('userRewardsStats');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return {
+      totalCoins: 0,
+      tasksCompleted: 0,
+      currentStreak: 0,
+      level: 1,
+      totalSaved: 0
+    };
+  });
+
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    // Try to load from localStorage
+    const saved = localStorage.getItem('userTasks');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return defaultTasks;
+  });
+
+  // Persist to localStorage on changes
+  useEffect(() => {
+    localStorage.setItem('userRewardsStats', JSON.stringify(userStats));
+  }, [userStats]);
+
+  useEffect(() => {
+    localStorage.setItem('userTasks', JSON.stringify(tasks));
+  }, [tasks]);
+
+  const updateStats = (newStats: Partial<UserStats>) => {
+    setUserStats(prev => ({ ...prev, ...newStats }));
+  };
+
+  const startTask = (taskId: string) => {
+    setTasks(prevTasks => 
+      prevTasks.map(task => 
+        task.id === taskId 
+          ? { 
+              ...task, 
+              startTime: Date.now(), 
+              verificationStatus: 'pending' as const,
+              attempts: (task.attempts || 0) + 1,
+              lastAttempt: Date.now()
+            }
+          : task
+      )
+    );
+  };
+
+  const verifyTask = async (taskId: string): Promise<boolean> => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || !task.startTime) return false;
+
+    // Check minimum time spent
+    const timeSpent = Date.now() - task.startTime;
+    const minimumTimeMs = (task.minimumTime || 5) * 1000;
+    
+    if (timeSpent < minimumTimeMs) {
+      setTasks(prevTasks => 
+        prevTasks.map(t => 
+          t.id === taskId 
+            ? { ...t, verificationStatus: 'failed' as const }
+            : t
+        )
+      );
+      return false;
+    }
+
+    // Check if too many attempts
+    if ((task.attempts || 0) > 3) {
+      setTasks(prevTasks => 
+        prevTasks.map(t => 
+          t.id === taskId 
+            ? { ...t, verificationStatus: 'failed' as const }
+            : t
+        )
+      );
+      return false;
+    }
+
+    // Check cooldown period (prevent spam)
+    if (task.lastAttempt && Date.now() - task.lastAttempt < 30000) {
+      return false;
+    }
+
+    // Mark as verified and complete
+    setTasks(prevTasks => 
+      prevTasks.map(t => 
+        t.id === taskId 
+          ? { ...t, verificationStatus: 'verified' as const, completed: true }
+          : t
+      )
+    );
+
+    // Award coins
+    setUserStats(prevStats => ({
+      ...prevStats,
+      totalCoins: prevStats.totalCoins + task.coins,
+      tasksCompleted: prevStats.tasksCompleted + 1,
+      currentStreak: prevStats.currentStreak + 1,
+      level: Math.floor((prevStats.tasksCompleted + 1) / 5) + 1
+    }));
+
+    return true;
+  };
+
+  const completeTask = (taskId: string) => {
+    verifyTask(taskId);
+  };
+
+  const value = {
+    userStats,
+    tasks,
+    completeTask,
+    updateStats,
+    startTask,
+    verifyTask
+  };
+
+  return (
+    <RewardsContext.Provider value={value}>
+      {children}
+    </RewardsContext.Provider>
+  );
+}
+
+export function useRewards() {
+  const context = useContext(RewardsContext);
+  if (context === undefined) {
+    throw new Error('useRewards must be used within a RewardsProvider');
+  }
+  return context;
+}```
+
+### contexts/XPNotificationContext.tsx
+```tsx
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { XPNotification, AchievementNotification } from '@/components/XPNotification';
+import {
+  Compass,
+  Telescope,
+  Star,
+  Flame,
+  Wrench,
+  Layers,
+  Rocket,
+  Zap
+} from 'lucide-react';
+
+interface XPNotif {
+  id: string;
+  amount: number;
+  message: string;
+}
+
+interface AchievementNotif {
+  id: string;
+  name: string;
+  description: string;
+  iconName: string;
+}
+
+interface XPNotificationContextValue {
+  showXPNotification: (amount: number, message: string) => void;
+  showAchievementNotification: (name: string, description: string, iconName: string) => void;
+}
+
+const XPNotificationContext = createContext<XPNotificationContextValue | undefined>(undefined);
+
+const iconMap: Record<string, ReactNode> = {
+  'compass': <Compass className="w-16 h-16 text-amber-400" />,
+  'telescope': <Telescope className="w-16 h-16 text-blue-400" />,
+  'star': <Star className="w-16 h-16 text-yellow-400" />,
+  'flame': <Flame className="w-16 h-16 text-orange-400" />,
+  'wrench': <Wrench className="w-16 h-16 text-emerald-400" />,
+  'layers': <Layers className="w-16 h-16 text-purple-400" />,
+  'rocket': <Rocket className="w-16 h-16 text-cyan-400" />,
+  'zap': <Zap className="w-16 h-16 text-yellow-400" />
+};
+
+export function XPNotificationProvider({ children }: { children: ReactNode }) {
+  const [xpNotifs, setXpNotifs] = useState<XPNotif[]>([]);
+  const [achievementNotifs, setAchievementNotifs] = useState<AchievementNotif[]>([]);
+
+  const showXPNotification = useCallback((amount: number, message: string) => {
+    const id = Date.now().toString() + Math.random();
+    setXpNotifs(prev => [...prev, { id, amount, message }]);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+      setXpNotifs(prev => prev.filter(n => n.id !== id));
+    }, 3000);
+  }, []);
+
+  const showAchievementNotification = useCallback((name: string, description: string, iconName: string) => {
+    const id = Date.now().toString() + Math.random();
+    setAchievementNotifs(prev => [...prev, { id, name, description, iconName }]);
+    
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+      setAchievementNotifs(prev => prev.filter(n => n.id !== id));
+    }, 4000);
+  }, []);
+
+  // Listen to gamification update events
+  useEffect(() => {
+    const handleGamificationUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { unlockedAchievements } = customEvent.detail || {};
+      
+      if (unlockedAchievements && unlockedAchievements.length > 0) {
+        unlockedAchievements.forEach((achievement: any) => {
+          setTimeout(() => {
+            showAchievementNotification(
+              achievement.name,
+              achievement.description,
+              achievement.icon
+            );
+          }, 500);
+        });
+      }
+    };
+
+    window.addEventListener('gamification_update', handleGamificationUpdate);
+    return () => {
+      window.removeEventListener('gamification_update', handleGamificationUpdate);
+    };
+  }, [showAchievementNotification]);
+
+  const closeXPNotif = useCallback((id: string) => {
+    setXpNotifs(prev => prev.filter(n => n.id !== id));
+  }, []);
+
+  const closeAchievementNotif = useCallback((id: string) => {
+    setAchievementNotifs(prev => prev.filter(n => n.id !== id));
+  }, []);
+
+  return (
+    <XPNotificationContext.Provider value={{ showXPNotification, showAchievementNotification }}>
+      {children}
+      
+      {/* Render XP Notifications */}
+      {xpNotifs.map((notif, index) => (
+        <div key={notif.id} style={{ top: `${6 + index * 5}rem` }} className="fixed left-1/2 -translate-x-1/2 z-50">
+          <XPNotification
+            amount={notif.amount}
+            message={notif.message}
+            show={true}
+            onClose={() => closeXPNotif(notif.id)}
+          />
+        </div>
+      ))}
+      
+      {/* Render Achievement Notifications */}
+      {achievementNotifs.map((notif, index) => (
+        <div key={notif.id} style={{ top: `${6 + index * 6}rem` }} className="fixed left-1/2 -translate-x-1/2 z-50">
+          <AchievementNotification
+            name={notif.name}
+            description={notif.description}
+            icon={iconMap[notif.iconName] || <Star className="w-16 h-16 text-yellow-400" />}
+            show={true}
+            onClose={() => closeAchievementNotif(notif.id)}
+          />
+        </div>
+      ))}
+    </XPNotificationContext.Provider>
+  );
+}
+
+export function useXPNotifications() {
+  const context = useContext(XPNotificationContext);
+  if (!context) {
+    throw new Error('useXPNotifications must be used within XPNotificationProvider');
+  }
+  return context;
+}
+```
+
+### design-tokens.ts
+```tsx
+export const DesignTokens = {
+  spacing: {
+    xs: '8px',
+    sm: '16px',
+    md: '24px',
+    lg: '32px',
+    xl: '48px',
+    '2xl': '64px',
+    '3xl': '96px',
+  },
+  
+  radius: {
+    none: '0',
+    sm: '4px',
+    md: '8px',
+    lg: '12px',
+    xl: '16px',
+    '2xl': '24px',
+    '3xl': '32px',
+    full: '9999px',
+  },
+  
+  fontSize: {
+    xs: '12px',
+    sm: '14px',
+    base: '16px',
+    lg: '18px',
+    xl: '20px',
+    '2xl': '24px',
+    '3xl': '32px',
+    '4xl': '40px',
+    '5xl': '48px',
+    '6xl': '56px',
+  },
+  
+  fontWeight: {
+    regular: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700,
+    extrabold: 800,
+  },
+  
+  lineHeight: {
+    tight: 1.2,
+    snug: 1.25,
+    normal: 1.5,
+    relaxed: 1.75,
+  },
+  
+  shadow: {
+    sm: '0 2px 8px rgba(0, 0, 0, 0.08)',
+    md: '0 4px 16px rgba(0, 0, 0, 0.12)',
+    lg: '0 8px 32px rgba(0, 0, 0, 0.16)',
+    xl: '0 16px 48px rgba(0, 0, 0, 0.20)',
+    apple: `
+      0 2px 8px rgba(0, 0, 0, 0.04),
+      0 4px 16px rgba(0, 0, 0, 0.08),
+      0 8px 32px rgba(0, 0, 0, 0.06)
+    `,
+    appleHover: `
+      0 4px 12px rgba(0, 0, 0, 0.06),
+      0 8px 24px rgba(0, 0, 0, 0.10),
+      0 16px 48px rgba(0, 0, 0, 0.08)
+    `,
+    premium: `
+      0 4px 12px rgba(16, 185, 129, 0.15),
+      0 8px 24px rgba(16, 185, 129, 0.10),
+      0 16px 48px rgba(0, 0, 0, 0.08)
+    `,
+  },
+  
+  transition: {
+    fast: '150ms cubic-bezier(0.4, 0, 0.2, 1)',
+    base: '250ms cubic-bezier(0.4, 0, 0.2, 1)',
+    slow: '350ms cubic-bezier(0.4, 0, 0.2, 1)',
+    spring: '400ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+  },
+  
+  easing: {
+    apple: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+    appleIn: 'cubic-bezier(0.42, 0, 1, 1)',
+    appleOut: 'cubic-bezier(0, 0, 0.58, 1)',
+    appleInOut: 'cubic-bezier(0.42, 0, 0.58, 1)',
+    springBounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    springSmooth: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+  },
+  
+  colors: {
+    black: '#1d1d1f',
+    white: '#f5f5f7',
+    textPrimary: 'rgba(255, 255, 255, 0.92)',
+    textSecondary: 'rgba(255, 255, 255, 0.70)',
+    textTertiary: 'rgba(255, 255, 255, 0.45)',
+    textQuaternary: 'rgba(255, 255, 255, 0.25)',
+    emeraldApple: '#30d158',
+    blueApple: '#0a84ff',
+  },
+  
+  spring: {
+    default: {
+      stiffness: 300,
+      damping: 25,
+      mass: 0.5,
+    },
+    bouncy: {
+      stiffness: 400,
+      damping: 20,
+      mass: 0.5,
+    },
+    gentle: {
+      stiffness: 200,
+      damping: 30,
+      mass: 0.5,
+    },
+  },
+} as const;
+
+export type DesignTokens = typeof DesignTokens;
+```
+
+### utils/errorMonitoring.ts
+```tsx
+class ErrorMonitor {
+  private errors: Array<{ message: string; stack?: string; timestamp: number }> = [];
+  private readonly MAX_ERRORS = 100;
+  
+  init() {
+    window.addEventListener('error', (event) => {
+      this.logError({
+        message: event.message,
+        stack: event.error?.stack,
+        timestamp: Date.now()
+      });
+    });
+    
+    window.addEventListener('unhandledrejection', (event) => {
+      this.logError({
+        message: `Unhandled Promise Rejection: ${event.reason}`,
+        timestamp: Date.now()
+      });
+    });
+  }
+  
+  logError(error: { message: string; stack?: string; timestamp: number }) {
+    this.errors.push(error);
+    
+    if (this.errors.length > this.MAX_ERRORS) {
+      this.errors.shift();
+    }
+    
+    if ((window as any).Sentry) {
+      (window as any).Sentry.captureException(new Error(error.message));
+    }
+    
+    console.error('[Error Monitor]', error);
+  }
+  
+  getErrors() {
+    return this.errors;
+  }
+  
+  clearErrors() {
+    this.errors = [];
+  }
+}
+
+export const errorMonitor = new ErrorMonitor();
+```
+
+### utils/imageUtils.ts
+```tsx
+// Универсальные fallback изображения для разных категорий
+const FALLBACK_IMAGES = {
+  // Общий fallback
+  default: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  
+  // Специфические fallback для категорий
+  banking: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  beauty: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  bookstore: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  carwash: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  clothing: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  coffee: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  courses: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  electronics: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  fitness: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  florist: 'https://images.unsplash.com/photo-1487070183336-b8eb9220e21a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  hotel: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  pharmacy: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  realty: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  restaurant: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+  taxi: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400'
+};
+
+/**
+ * Создает обработчик ошибок для изображений с fallback
+ * @param category - категория приложения для выбора подходящего fallback
+ * @returns обработчик ошибки изображения
+ */
+export const createImageErrorHandler = (category: keyof typeof FALLBACK_IMAGES = 'default') => {
+  return (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.currentTarget;
+    const fallbackImage = FALLBACK_IMAGES[category] || FALLBACK_IMAGES.default;
+    
+    // Избегаем бесконечного цикла ошибок
+    if (target.src !== fallbackImage) {
+      target.src = fallbackImage;
+    }
+  };
+};
+
+/**
+ * Создает обработчик ошибок для изображений товаров/услуг с дополнительными fallback
+ * @param category - категория для выбора fallback
+ * @param productType - тип товара/услуги (опционально)
+ * @returns обработчик ошибки изображения
+ */
+export const createProductImageErrorHandler = (
+  category: keyof typeof FALLBACK_IMAGES = 'default',
+  productType?: string
+) => {
+  return (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.currentTarget;
+    let fallbackImage = FALLBACK_IMAGES[category] || FALLBACK_IMAGES.default;
+    
+    // Специальные fallback для типов товаров
+    if (productType) {
+      const productFallbacks = {
+        food: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+        drink: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+        book: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+        tech: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400',
+        service: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400'
+      };
+      
+      fallbackImage = productFallbacks[productType as keyof typeof productFallbacks] || fallbackImage;
+    }
+    
+    // Избегаем бесконечного цикла ошибок
+    if (target.src !== fallbackImage) {
+      target.src = fallbackImage;
+    }
+  };
+};
+
+/**
+ * Валидирует и нормализует URL изображения
+ * @param imageUrl - URL изображения
+ * @param category - категория для fallback
+ * @returns валидный URL изображения
+ */
+export const validateImageUrl = (
+  imageUrl: string | undefined | null,
+  category: keyof typeof FALLBACK_IMAGES = 'default'
+): string => {
+  if (!imageUrl || imageUrl.trim() === '') {
+    return FALLBACK_IMAGES[category] || FALLBACK_IMAGES.default;
+  }
+  
+  // Проверяем, что URL выглядит валидным
+  try {
+    new URL(imageUrl);
+    return imageUrl;
+  } catch {
+    return FALLBACK_IMAGES[category] || FALLBACK_IMAGES.default;
+  }
+};
+
+export { FALLBACK_IMAGES };
+
+// ==================== PERFORMANCE OPTIMIZATION UTILITIES ====================
+
+export interface ImageOptimizationOptions {
+  width?: number;
+  height?: number;
+  quality?: number;
+  format?: 'webp' | 'jpg' | 'png' | 'auto';
+  blur?: number;
+  dpr?: number; // Device pixel ratio
+}
+
+// Optimize Unsplash images with query parameters
+export const optimizeUnsplashImage = (
+  url: string, 
+  options: ImageOptimizationOptions = {}
+): string => {
+  if (!url.includes('images.unsplash.com')) {
+    return url;
+  }
+
+  const {
+    width = 400,
+    height,
+    quality = 80,
+    format = 'auto',
+    blur,
+    dpr = 2
+  } = options;
+
+  const urlObj = new URL(url);
+  
+  // Add optimization parameters
+  urlObj.searchParams.set('auto', 'format,compress');
+  urlObj.searchParams.set('q', quality.toString());
+  urlObj.searchParams.set('w', width.toString());
+  
+  if (height) {
+    urlObj.searchParams.set('h', height.toString());
+    urlObj.searchParams.set('fit', 'crop');
+  }
+  
+  if (format !== 'auto') {
+    urlObj.searchParams.set('fm', format);
+  }
+  
+  if (blur) {
+    urlObj.searchParams.set('blur', blur.toString());
+  }
+  
+  urlObj.searchParams.set('dpr', dpr.toString());
+  
+  return urlObj.toString();
+};
+
+// Generate responsive image sources
+export const generateResponsiveImages = (
+  baseUrl: string,
+  sizes: number[] = [320, 640, 960, 1280]
+): Array<{ src: string; width: number; media?: string }> => {
+  return sizes.map((size, index) => ({
+    src: optimizeUnsplashImage(baseUrl, { width: size, quality: 85 }),
+    width: size,
+    media: index === sizes.length - 1 ? undefined : `(max-width: ${size}px)`
+  }));
+};
+
+// Create optimized placeholder for lazy loading
+export const createOptimizedPlaceholder = (width: number = 400, height: number = 300): string => {
+  const svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="${width}" height="${height}" fill="#f3f4f6"/><circle cx="${width/2}" cy="${height/2}" r="20" fill="#d1d5db"/></svg>`;
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
+};
+
+// Blur placeholder for smooth transitions
+export const createBlurPlaceholder = (originalUrl: string): string => {
+  if (originalUrl.includes('images.unsplash.com')) {
+    return optimizeUnsplashImage(originalUrl, { 
+      width: 40, 
+      height: 30, 
+      quality: 20,
+      blur: 5 
+    });
+  }
+  return createOptimizedPlaceholder(40, 30);
+};
+
+// Responsive breakpoints for mobile optimization
+export const RESPONSIVE_BREAKPOINTS = {
+  mobile: 320,
+  tablet: 768,
+  desktop: 1024,
+  large: 1280
+} as const;
+
+export type BreakpointKey = keyof typeof RESPONSIVE_BREAKPOINTS;
+
+// Get image for specific breakpoint with mobile optimization
+export const getResponsiveImage = (
+  baseUrl: string,
+  breakpoint: BreakpointKey,
+  options: Omit<ImageOptimizationOptions, 'width'> = {}
+): string => {
+  return optimizeUnsplashImage(baseUrl, {
+    ...options,
+    width: RESPONSIVE_BREAKPOINTS[breakpoint],
+    quality: breakpoint === 'mobile' ? 75 : 85 // Lower quality for mobile
+  });
+};
+
+// Preload critical images for better performance
+export const preloadCriticalImages = (urls: string[]): void => {
+  urls.forEach(url => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = optimizeUnsplashImage(url, { width: 400, quality: 80 });
+    document.head.appendChild(link);
+  });
+};```
+
+### utils/LazyMotionProvider.tsx
+```tsx
+import { LazyMotion, domAnimation, m, MotionConfig } from 'framer-motion';
+import { ReactNode } from 'react';
+import { appleEasing } from './motionConfig';
+
+/**
+ * LazyMotion Provider - Reduces bundle size by 40-60%
+ * Only loads animation features when needed
+ * 
+ * Usage:
+ * - Wrap your app with <LazyMotionProvider>
+ * - Use 'm' instead of 'motion' for animated components
+ * - Import all framer-motion exports from this file
+ */
+export function LazyMotionProvider({ children }: { children: ReactNode }) {
+  return (
+    <LazyMotion features={domAnimation} strict>
+      <MotionConfig 
+        reducedMotion="user"
+        transition={{ duration: 0.25, ease: appleEasing.default as any }}
+      >
+        {children}
+      </MotionConfig>
+    </LazyMotion>
+  );
+}
+
+// Export optimized motion component and all necessary utilities
+export { m };
+
+// Re-export all commonly used framer-motion utilities
+export {
+  AnimatePresence,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useScroll,
+  useInView,
+  useReducedMotion
+} from 'framer-motion';
+
+// Export 'm' as 'motion' for easier migration
+export { m as motion };
+
+/**
+ * Bundle size comparison:
+ * - Regular motion: ~80-100KB (gzipped)
+ * - LazyMotion + domAnimation: ~30-40KB (gzipped)
+ * Savings: ~50KB (40-60% reduction)
+ */
+```
+
+### utils/motionConfig.ts
+```tsx
+import { MotionConfig } from '@/utils/LazyMotionProvider';
+import { DesignTokens } from '@/design-tokens';
+
+export const appleEasing = {
+  default: [0.25, 0.1, 0.25, 1],
+  in: [0.42, 0, 1, 1],
+  out: [0, 0, 0.58, 1],
+  inOut: [0.42, 0, 0.58, 1],
+  springBounce: [0.68, -0.55, 0.265, 1.55],
+  springSmooth: [0.34, 1.56, 0.64, 1],
+};
+
+export const appleSpring = DesignTokens.spring;
+
+export const motionConfig = {
+  transition: {
+    type: 'tween',
+    duration: 0.25,
+    ease: appleEasing.default
+  },
+  reducedMotion: 'user'
+};
+
+export const fadeInUp = {
+  initial: { 
+    opacity: 0, 
+    y: 20,
+    translateZ: 0
+  },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    translateZ: 0,
+    transition: {
+      duration: 0.25,
+      ease: appleEasing.out
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    y: -20,
+    translateZ: 0,
+    transition: {
+      duration: 0.2,
+      ease: appleEasing.in
+    }
+  }
+};
+
+export const scaleIn = {
+  initial: { 
+    scale: 0.95, 
+    opacity: 0,
+    translateZ: 0
+  },
+  animate: { 
+    scale: 1, 
+    opacity: 1,
+    translateZ: 0,
+    transition: {
+      type: 'spring',
+      ...appleSpring.default
+    }
+  },
+  exit: {
+    scale: 0.95,
+    opacity: 0,
+    translateZ: 0,
+    transition: {
+      duration: 0.2,
+      ease: appleEasing.in
+    }
+  }
+};
+
+export const slideIn = {
+  initial: { 
+    x: -20, 
+    opacity: 0,
+    translateZ: 0
+  },
+  animate: { 
+    x: 0, 
+    opacity: 1,
+    translateZ: 0,
+    transition: {
+      duration: 0.25,
+      ease: appleEasing.out
+    }
+  },
+  exit: {
+    x: 20,
+    opacity: 0,
+    translateZ: 0,
+    transition: {
+      duration: 0.2,
+      ease: appleEasing.in
+    }
+  }
+};
+
+export const modalFromBottom = {
+  initial: {
+    opacity: 0,
+    y: 100,
+    scale: 0.95,
+    translateZ: 0
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    translateZ: 0,
+    transition: {
+      type: 'spring',
+      ...appleSpring.default
+    }
+  },
+  exit: {
+    opacity: 0,
+    y: 100,
+    scale: 0.95,
+    translateZ: 0,
+    transition: {
+      duration: 0.2,
+      ease: appleEasing.in
+    }
+  }
+};
+
+export const layoutTransition = {
+  layout: true,
+  transition: {
+    layout: { 
+      duration: 0.25,
+      ease: appleEasing.out
+    }
+  }
+};
+
+export const hoverScale = {
+  scale: 1.02,
+  transition: {
+    duration: 0.15,
+    ease: appleEasing.out
+  }
+};
+
+export const tapScale = {
+  scale: 0.98,
+  transition: {
+    duration: 0.1,
+    ease: appleEasing.in
+  }
+};
+
+export function MotionProvider({ children }: { children: React.ReactNode }) {
+  return children;
+}
+```
+
+### utils/performanceMonitor.ts
+```tsx
+class PerformanceMonitor {
+  private static instance: PerformanceMonitor;
+  private metrics: Map<string, number[]> = new Map();
+  
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new PerformanceMonitor();
+    }
+    return this.instance;
+  }
+  
+  measure<T>(name: string, fn: () => T): T {
+    const start = performance.now();
+    const result = fn();
+    const duration = performance.now() - start;
+    
+    if (!this.metrics.has(name)) {
+      this.metrics.set(name, []);
+    }
+    this.metrics.get(name)!.push(duration);
+    
+    if (duration > 16.67) {
+      console.warn(`⚠️ Slow operation: ${name} took ${duration.toFixed(2)}ms`);
+    }
+    
+    return result;
+  }
+  
+  async measureAsync<T>(name: string, fn: () => Promise<T>): Promise<T> {
+    const start = performance.now();
+    const result = await fn();
+    const duration = performance.now() - start;
+    
+    if (!this.metrics.has(name)) {
+      this.metrics.set(name, []);
+    }
+    this.metrics.get(name)!.push(duration);
+    
+    return result;
+  }
+  
+  getStats(name: string) {
+    const metrics = this.metrics.get(name) || [];
+    if (metrics.length === 0) return null;
+    
+    const avg = metrics.reduce((a, b) => a + b, 0) / metrics.length;
+    const min = Math.min(...metrics);
+    const max = Math.max(...metrics);
+    
+    return { avg, min, max, count: metrics.length };
+  }
+  
+  getMemoryUsage() {
+    if ('memory' in performance) {
+      const memory = (performance as any).memory;
+      return {
+        used: (memory.usedJSHeapSize / 1048576).toFixed(2) + ' MB',
+        total: (memory.totalJSHeapSize / 1048576).toFixed(2) + ' MB',
+        limit: (memory.jsHeapSizeLimit / 1048576).toFixed(2) + ' MB'
+      };
+    }
+    return null;
+  }
+  
+  measureFPS(callback: (fps: number) => void) {
+    let lastTime = performance.now();
+    let frames = 0;
+    
+    const measureFrame = () => {
+      frames++;
+      const currentTime = performance.now();
+      
+      if (currentTime >= lastTime + 1000) {
+        const fps = Math.round((frames * 1000) / (currentTime - lastTime));
+        callback(fps);
+        
+        frames = 0;
+        lastTime = currentTime;
+      }
+      
+      requestAnimationFrame(measureFrame);
+    };
+    
+    requestAnimationFrame(measureFrame);
+  }
+}
+
+export const performanceMonitor = PerformanceMonitor.getInstance();
+```
+
+### utils/webVitals.ts
+```tsx
+import { onCLS, onLCP, onFCP, onTTFB, onINP } from 'web-vitals';
+
+function sendToAnalytics(metric: any) {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', metric.name, {
+      event_category: 'Web Vitals',
+      value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+      event_label: metric.id,
+      non_interaction: true
+    });
+  }
+  
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[Web Vitals] ${metric.name}:`, metric.value);
+  }
+}
+
+export function initWebVitals() {
+  onCLS(sendToAnalytics);
+  onLCP(sendToAnalytics);
+  onFCP(sendToAnalytics);
+  onTTFB(sendToAnalytics);
+  onINP(sendToAnalytics);
+}
+```
+
