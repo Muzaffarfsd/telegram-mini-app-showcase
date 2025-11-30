@@ -124,6 +124,16 @@ export const demoRegistry: Record<string, DemoComponent> = {
   'futuristic-fashion-4': {
     component: lazy(() => import('./NikeACG')),
     preload: () => import('./NikeACG')
+  },
+  
+  // Premium Design Collection - New Apps
+  'oxyz-nft': {
+    component: lazy(() => import('./OxyzNFT')),
+    preload: () => import('./OxyzNFT')
+  },
+  'emily-carter-ai': {
+    component: lazy(() => import('./EmilyCarterAI')),
+    preload: () => import('./EmilyCarterAI')
   }
 };
 

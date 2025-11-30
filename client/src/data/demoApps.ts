@@ -353,4 +353,54 @@ export const demoApps: DemoApp[] = [
     badge: 'Интерактив',
     badgeColor: 'bg-gradient-to-r from-gray-800 to-black'
   },
+  
+  // Premium Design Collection - New Apps
+  {
+    id: 'oxyz-nft',
+    title: 'OXYZ',
+    description: 'Футуристическая NFT платформа с красными акцентами',
+    category: 'NFT & Крипто',
+    image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&h=300&fit=crop&q=80',
+    creator: 'WEB4TG',
+    likes: '45.2k',
+    badge: 'NFT',
+    badgeColor: 'bg-red-600',
+    home: {
+      hero: {
+        title: 'OXYZ NFT',
+        subtitle: 'The Future of Digital Art',
+        image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&h=600&fit=crop&q=90',
+        bgClass: 'bg-black'
+      },
+      services: [
+        { id: 'catalog', title: 'Explore', priceText: 'NFT Collection', iconName: 'grid' },
+        { id: 'cart', title: 'Wallet', priceText: 'Your Assets', iconName: 'wallet' },
+        { id: 'profile', title: 'Settings', priceText: 'Account', iconName: 'settings' }
+      ]
+    }
+  },
+  {
+    id: 'emily-carter-ai',
+    title: 'Emily Carter AI',
+    description: 'AI-ассистент с минималистичным современным дизайном',
+    category: 'AI & Технологии',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop&q=80',
+    creator: 'WEB4TG',
+    likes: '67.8k',
+    badge: 'AI',
+    badgeColor: 'bg-emerald-600',
+    home: {
+      hero: {
+        title: 'Emily Carter',
+        subtitle: 'Your AI Assistant',
+        image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop&q=90',
+        bgClass: 'bg-white'
+      },
+      services: [
+        { id: 'catalog', title: 'Chat', priceText: 'Start talking', iconName: 'message-square' },
+        { id: 'cart', title: 'History', priceText: 'Past chats', iconName: 'clock' },
+        { id: 'profile', title: 'Profile', priceText: 'Settings', iconName: 'user' }
+      ]
+    }
+  },
 ];
