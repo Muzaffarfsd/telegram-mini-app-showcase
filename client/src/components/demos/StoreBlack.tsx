@@ -6,14 +6,33 @@ import { ConfirmDrawer, SelectDrawer } from "../ui/modern-drawer";
 import { HapticButton } from "../ui/haptic-button";
 import { useFilter } from "@/hooks/useFilter";
 import { Skeleton } from "@/components/ui/skeleton";
-import img1 from '@assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg';
-import img2 from '@assets/stock_images/cyberpunk_fashion_ho_663ed3c4.jpg';
-import img3 from '@assets/stock_images/cyberpunk_fashion_ho_055adfe8.jpg';
-import img4 from '@assets/stock_images/cyberpunk_fashion_ho_1b677abd.jpg';
-import img5 from '@assets/stock_images/cyberpunk_fashion_ho_1d2ca716.jpg';
-import img6 from '@assets/stock_images/cyberpunk_fashion_ho_3e5fffe1.jpg';
-import img7 from '@assets/stock_images/cyberpunk_fashion_ho_4d6ffbfd.jpg';
-import img8 from '@assets/stock_images/cyberpunk_fashion_ho_51de6edd.jpg';
+// Helmet images
+import helmetImg1 from '@assets/stock_images/futuristic_motorcycl_4e16eb33.jpg';
+import helmetImg2 from '@assets/stock_images/futuristic_motorcycl_37d2a4c0.jpg';
+// Watch images
+import watchImg1 from '@assets/stock_images/smart_watch_black_pr_82d34457.jpg';
+import watchImg2 from '@assets/stock_images/smart_watch_black_pr_9d517dfd.jpg';
+// Carabiner images
+import carabinerImg1 from '@assets/stock_images/black_carbon_carabin_e6ec5904.jpg';
+import carabinerImg2 from '@assets/stock_images/black_carbon_carabin_564cdb4b.jpg';
+// Jacket images
+import jacketImg1 from '@assets/stock_images/black_urban_tech_jac_a96116f5.jpg';
+import jacketImg2 from '@assets/stock_images/black_urban_tech_jac_db5781c2.jpg';
+// Pants images
+import pantsImg1 from '@assets/stock_images/black_cargo_pants_te_bc6fefb4.jpg';
+import pantsImg2 from '@assets/stock_images/black_cargo_pants_te_1bf4e873.jpg';
+// Gloves images
+import glovesImg1 from '@assets/stock_images/black_tactical_glove_965b310c.jpg';
+import glovesImg2 from '@assets/stock_images/black_tactical_glove_18ec3d8b.jpg';
+// Boots images
+import bootsImg1 from '@assets/stock_images/black_tactical_boots_8ba948bd.jpg';
+import bootsImg2 from '@assets/stock_images/black_tactical_boots_fe0be5c1.jpg';
+// Backpack images
+import backpackImg1 from '@assets/stock_images/black_backpack_tech__ec98b9d5.jpg';
+import backpackImg2 from '@assets/stock_images/black_backpack_tech__e021311c.jpg';
+// Sunglasses images
+import sunglassesImg1 from '@assets/stock_images/black_sunglasses_pre_3ef9a455.jpg';
+import sunglassesImg2 from '@assets/stock_images/black_sunglasses_pre_9e5b9b98.jpg';
 
 interface StoreBlackProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -63,8 +82,8 @@ const products: Product[] = [
     name: 'Ludens M1 Helmet', 
     price: 37449, 
     oldPrice: 45900,
-    image: img1, 
-    hoverImage: img2,
+    image: helmetImg1, 
+    hoverImage: helmetImg2,
     description: 'Футуристический шлем Ludens M1 с LED подсветкой и защитой премиум класса', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Графит'], 
@@ -82,8 +101,8 @@ const products: Product[] = [
     name: 'Ludens M2 Helmet', 
     price: 42999, 
     oldPrice: 52900,
-    image: img2, 
-    hoverImage: img1,
+    image: helmetImg2, 
+    hoverImage: helmetImg1,
     description: 'Улучшенная версия M2 с расширенными возможностями и голографическим дисплеем', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Карбон'], 
@@ -101,8 +120,8 @@ const products: Product[] = [
     name: 'Tech Watch Pro', 
     price: 29900, 
     oldPrice: 37900,
-    image: img3, 
-    hoverImage: img4,
+    image: watchImg1, 
+    hoverImage: watchImg2,
     description: 'Умные часы с AI ассистентом и расширенными биометрическими датчиками', 
     sizes: ['38mm', '42mm', '45mm'], 
     colors: ['Черный', 'Титан', 'Золото'], 
@@ -120,8 +139,8 @@ const products: Product[] = [
     name: 'Carbon Carabiner', 
     price: 8999, 
     oldPrice: 12900,
-    image: img4, 
-    hoverImage: img3,
+    image: carabinerImg1, 
+    hoverImage: carabinerImg2,
     description: 'Карабин из углеродного волокна с нано-покрытием и защитой от взлома', 
     sizes: ['One Size'], 
     colors: ['Карбон', 'Матовый Черный'], 
@@ -138,8 +157,8 @@ const products: Product[] = [
     name: 'Urban Jacket', 
     price: 54900, 
     oldPrice: 67000,
-    image: img5, 
-    hoverImage: img6,
+    image: jacketImg1, 
+    hoverImage: jacketImg2,
     description: 'Урбан куртка с умной тканью, водоотталкивающим покрытием и встроенным подогревом', 
     sizes: ['XS', 'S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Графит', 'Midnight'], 
@@ -157,8 +176,8 @@ const products: Product[] = [
     name: 'Tech Pants', 
     price: 34900, 
     oldPrice: 42900,
-    image: img6, 
-    hoverImage: img5,
+    image: pantsImg1, 
+    hoverImage: pantsImg2,
     description: 'Технологичные штаны с карманами для гаджетов и антистатическим покрытием', 
     sizes: ['XS', 'S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Карго'], 
@@ -175,8 +194,8 @@ const products: Product[] = [
     name: 'Cyber Gloves Pro', 
     price: 15900, 
     oldPrice: 19900,
-    image: img7, 
-    hoverImage: img8,
+    image: glovesImg1, 
+    hoverImage: glovesImg2,
     description: 'Перчатки с тактильной обратной связью для VR и сенсорными панелями', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Графит'], 
@@ -193,8 +212,8 @@ const products: Product[] = [
     name: 'Tactical Backpack X1', 
     price: 27900, 
     oldPrice: 35900,
-    image: img8, 
-    hoverImage: img7,
+    image: backpackImg1, 
+    hoverImage: backpackImg2,
     description: 'Тактический рюкзак с защитой от воды, RFID блокировкой и USB зарядкой', 
     sizes: ['One Size'], 
     colors: ['Черный', 'Midnight'], 
@@ -208,12 +227,12 @@ const products: Product[] = [
   },
   { 
     id: 9, 
-    name: 'Smart Shoes V2', 
+    name: 'Tactical Boots V2', 
     price: 45900, 
     oldPrice: 59900,
-    image: img3, 
-    hoverImage: img4,
-    description: 'Умные кроссовки с автошнуровкой, счетчиком шагов и LED индикаторами', 
+    image: bootsImg1, 
+    hoverImage: bootsImg2,
+    description: 'Тактические ботинки с усиленной защитой и антискользящей подошвой', 
     sizes: ['39', '40', '41', '42', '43', '44', '45'], 
     colors: ['Черный', 'Карбон', 'Неон'], 
     colorHex: ['#000000', '#1A1A1A', '#FFD700'],
@@ -221,7 +240,7 @@ const products: Product[] = [
     gender: 'Tech',
     inStock: 15, 
     rating: 4.8, 
-    brand: 'SMART',
+    brand: 'TACTICAL',
     isTrending: true
   },
   { 
@@ -229,8 +248,8 @@ const products: Product[] = [
     name: 'Nano Sunglasses', 
     price: 18900, 
     oldPrice: 24900,
-    image: img1, 
-    hoverImage: img2,
+    image: sunglassesImg1, 
+    hoverImage: sunglassesImg2,
     description: 'Очки с нано-покрытием, защитой от UV и встроенным HUD дисплеем', 
     sizes: ['One Size'], 
     colors: ['Черный', 'Матовый'], 
@@ -584,7 +603,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
 
         <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden bg-white/5 border border-white/10 scroll-fade-in" style={{ height: '500px' }}>
           <img
-            src={img1}
+            src={helmetImg1}
             alt="Hero Banner"
             className="absolute inset-0 w-full h-full object-cover"
           />
