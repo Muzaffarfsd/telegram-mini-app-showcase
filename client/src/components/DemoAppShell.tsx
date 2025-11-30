@@ -155,24 +155,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   
   // Get background gradient based on app - all dark by default
   const getBackgroundGradient = () => {
-    if (demoId.includes('clothing-store') || demoId.includes('fashion') || demoId.includes('rascal') || demoId.includes('store')) {
-      return 'bg-[#0A0A0A]';
-    } else if (demoId.includes('electronics') || demoId.includes('sneaker') || demoId.includes('time')) {
-      return 'bg-gradient-to-br from-gray-900 via-blue-950 to-black';
-    } else if (demoId.includes('beauty') || demoId.includes('fragrance') || demoId.includes('florist')) {
-      return 'bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950';
-    } else if (demoId.includes('restaurant') || demoId.includes('tea')) {
-      return 'bg-gradient-to-br from-gray-900 via-amber-950 to-black';
-    } else if (demoId.includes('nft') || demoId.includes('oxyz')) {
-      return 'bg-[#050505]';
-    } else if (demoId.includes('fitness') || demoId.includes('medical')) {
-      return 'bg-gradient-to-br from-gray-900 via-emerald-950 to-black';
-    } else if (demoId.includes('taxi') || demoId.includes('car')) {
-      return 'bg-gradient-to-br from-gray-900 via-yellow-950 to-black';
-    } else if (demoId.includes('banking') || demoId.includes('courses')) {
-      return 'bg-gradient-to-br from-gray-900 via-indigo-950 to-black';
-    }
-    // Default dark background for all other apps
+    // All demos use pure black background for consistent dark premium look
     return 'bg-[#0A0A0A]';
   };
 
