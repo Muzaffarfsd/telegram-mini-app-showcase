@@ -193,7 +193,7 @@ export function GamificationHub() {
   }, [stats.level]);
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
+    <div className="min-h-screen bg-black text-white pb-24" style={{ paddingTop: '140px' }}>
       <div className="max-w-md mx-auto px-4 py-6 space-y-6" data-testid="gamification-hub">
       {/* User Progress Card */}
       <Card className="bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 backdrop-blur-xl border-white/20">

@@ -226,7 +226,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-32">
+    <div className="min-h-screen bg-black text-white pb-32" style={{ paddingTop: '140px' }}>
       <BackHeader onBack={onBack} title="Справка" />
 
       <div className="max-w-md mx-auto px-4 space-y-6 mt-4">

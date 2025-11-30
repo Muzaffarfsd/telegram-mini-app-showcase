@@ -28,7 +28,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#000000] overflow-hidden">
+    <div className="min-h-screen bg-[#000000] overflow-hidden" style={{ paddingTop: '140px' }}>
       
       {/* ===============================================
           HERO - Full screen dramatic intro

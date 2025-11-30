@@ -258,7 +258,7 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black text-white pb-24 flex items-center justify-center">
+      <div className="min-h-screen bg-black text-white pb-24 flex items-center justify-center" style={{ paddingTop: '140px' }}>
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4"></div>
           <div className="text-white/60">Загрузка...</div>
@@ -268,7 +268,7 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
+    <div className="min-h-screen bg-black text-white pb-24" style={{ paddingTop: '140px' }}>
       <div className={cn('max-w-md mx-auto px-4 py-6 space-y-6', className)} data-testid="referral-program">
         {/* Header */}
         <div className="text-center">

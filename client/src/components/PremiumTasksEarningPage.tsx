@@ -740,7 +740,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
   const specialTasks = useMemo(() => tasks.filter(t => t.platform === 'special' || t.platform === 'referral'), [tasks]);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white" style={{ paddingTop: '140px' }}>
       <div className="max-w-md mx-auto px-4 py-6 space-y-5 pb-24">
         
         {/* Premium Glass Header */}

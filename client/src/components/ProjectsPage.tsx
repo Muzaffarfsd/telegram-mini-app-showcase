@@ -15,7 +15,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
       style={{ 
         background: '#09090B',
         color: '#E4E4E7',
-        paddingTop: '100px'
+        paddingTop: '140px'
       }}
     >
       <div className="max-w-md mx-auto">
