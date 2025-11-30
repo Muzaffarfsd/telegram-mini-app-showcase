@@ -1,478 +1,488 @@
-import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
-import { m, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { Smartphone, ShoppingCart, Code, Star, Users, ArrowRight, Zap, TrendingUp } from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback, memo, useMemo } from "react";
+import { m } from 'framer-motion';
+import { MotionStagger, MotionBox, HoverScale } from './MotionWrapper';
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
+import { useTrackInteraction } from '@/hooks/useAIRecommendations';
+import { LazyVideo } from './LazyVideo';
 import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
+import { useVideoPreload } from '../hooks/useVideoPreload';
 import { preloadDemo } from './demos/DemoRegistry';
+import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
+import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
+import nikeAcgImage from "@assets/acc835fff3bb452f0c3b534056fbe1ea_1763719574494.jpg";
+import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
 
-const heroVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
+const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
+const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
+const watchesVideo = "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4";
+const heroVideo = "/videos/1341996d8f73172cbc77930dc818d88e_t4_1763643600785.mp4";
 
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
   onOpenDemo: (demoId: string) => void;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   APPLE 2025 — SCROLL-DRIVEN CINEMATIC EXPERIENCE
-   Fixed for Safari sticky support - transforms on child elements only
-═══════════════════════════════════════════════════════════════════════════ */
-
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
-  useTelegram();
+  const { hapticFeedback, isDark, colorScheme, devicePerformance } = useTelegram();
   const haptic = useHaptic();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useVideoLazyLoad();
-  const [hovered, setHovered] = useState(false);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
-
-  const smoothProgress = useSpring(scrollYProgress, { 
-    stiffness: 100, 
-    damping: 30, 
-    restDelta: 0.001 
-  });
-
-  // Hero inner transforms (applied to child, not sticky container)
-  const heroInnerScale = useTransform(smoothProgress, [0, 0.15], [1, 0.88]);
-  const heroInnerOpacity = useTransform(smoothProgress, [0.08, 0.15], [1, 0]);
-  const heroInnerY = useTransform(smoothProgress, [0, 0.15], [0, -80]);
-
-  // Showcase section linked to scroll
-  const showcaseOpacity = useTransform(smoothProgress, [0.12, 0.22], [0, 1]);
-  const showcaseY = useTransform(smoothProgress, [0.12, 0.22], [60, 0]);
-  const showcaseScale = useTransform(smoothProgress, [0.12, 0.22], [0.95, 1]);
-
-  // Features section
-  const featuresOpacity = useTransform(smoothProgress, [0.35, 0.45], [0, 1]);
-  const featuresY = useTransform(smoothProgress, [0.35, 0.45], [40, 0]);
-
-  // CTA section
-  const ctaOpacity = useTransform(smoothProgress, [0.65, 0.75], [0, 1]);
-  const ctaScale = useTransform(smoothProgress, [0.65, 0.75], [0.96, 1]);
-
-  const contact = useCallback(() => { 
-    haptic.medium(); 
-    onNavigate('contact'); 
-  }, [haptic, onNavigate]);
-
-  const openDemo = useCallback(() => {
+  const trackInteraction = useTrackInteraction();
+  
+  const videoRef2 = useVideoPreload();
+  const videoRef3 = useVideoLazyLoad();
+  
+  const handleOpenDemo = useCallback((demoId: string) => {
     haptic.light();
-    preloadDemo('clothing-store');
-    onOpenDemo('clothing-store');
+    onOpenDemo(demoId);
   }, [haptic, onOpenDemo]);
 
   return (
-    <div className="min-h-screen w-full flex justify-center" style={{ background: '#000' }}>
-      <div 
-        ref={containerRef}
-        className="w-full relative"
-        style={{ 
-          maxWidth: '430px',
-          background: '#000',
-          fontFamily: "'SF Pro Display', 'Inter', -apple-system, sans-serif"
-        }}
-      >
-        {/* ═══════════════════════════════════════════════════════════════
-            HERO — Sticky container stays untransformed (Safari fix)
-        ═══════════════════════════════════════════════════════════════ */}
-        <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
-          {/* Ambient light (static) */}
-          <div 
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'radial-gradient(ellipse 120% 60% at 50% 130%, rgba(255,255,255,0.04) 0%, transparent 50%)'
-            }}
-          />
-
-          {/* Animated inner content */}
-          <m.div 
-            className="relative z-10 text-center px-8 w-full"
-            style={{
-              scale: heroInnerScale,
-              opacity: heroInnerOpacity,
-              y: heroInnerY
-            }}
-          >
-            <m.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              style={{
-                fontSize: '11px',
-                fontWeight: 500,
-                letterSpacing: '0.25em',
-                textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.4)',
-                marginBottom: '20px'
-              }}
-            >
-              Introducing
-            </m.p>
-
-            <m.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              style={{
-                fontSize: 'clamp(72px, 22vw, 100px)',
-                fontWeight: 600,
-                letterSpacing: '-0.045em',
-                lineHeight: 0.92,
-                color: '#FFFFFF'
-              }}
-            >
-              Mini
-              <br />
-              Apps.
-            </m.h1>
-
-            <m.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-              style={{
-                fontSize: '17px',
-                fontWeight: 400,
-                letterSpacing: '-0.01em',
-                color: 'rgba(255,255,255,0.5)',
-                marginTop: '24px'
-              }}
-            >
-              Бизнес без границ.
-            </m.p>
-          </m.div>
-
-          {/* Scroll hint - also in animated container */}
-          <m.div
-            className="absolute bottom-10 left-1/2 -translate-x-1/2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            transition={{ delay: 1.2 }}
-            style={{ opacity: heroInnerOpacity }}
-          >
-            <m.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                width: '20px',
-                height: '32px',
-                borderRadius: '10px',
-                border: '1.5px solid rgba(255,255,255,0.3)',
-                display: 'flex',
-                justifyContent: 'center',
-                paddingTop: '6px'
-              }}
-            >
-              <m.div
-                animate={{ opacity: [0.5, 1, 0.5], y: [0, 6, 0] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+    <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
+      <div className="max-w-md mx-auto min-h-screen px-3 pb-4 relative z-10" style={{ paddingTop: '120px' }}>
+        
+        <div className="relative rounded-2xl overflow-hidden mb-6"
+          style={{ boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)' }}
+        >
+          <div className="relative rounded-2xl overflow-hidden" style={{ background: '#000000' }}>
+            <LazyVideo
+              src={heroVideo}
+              className="absolute inset-0 w-full h-full object-cover opacity-80"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="none"
+            />
+            
+            <div className="absolute inset-0"
+              style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.5) 100%)' }}
+            />
+          
+            <div className="relative px-4 py-10 text-center flex items-center justify-center min-h-[38vh]">
+              <div 
+                className="relative rounded-2xl px-5 py-5 mx-auto w-full max-w-[260px]"
                 style={{
-                  width: '2px',
-                  height: '6px',
-                  borderRadius: '1px',
-                  background: 'rgba(255,255,255,0.6)'
+                  background: 'rgba(0, 0, 0, 0.25)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
                 }}
-              />
-            </m.div>
-          </m.div>
+              >
+                <div 
+                  className="inline-block px-3 py-1 rounded-full mb-3 text-[10px] font-bold tracking-wider"
+                  style={{
+                    background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                    color: '#FFFFFF'
+                  }}
+                >
+                  +300% К ПРОДАЖАМ
+                </div>
+                
+                <h1 className="text-xl font-black mb-1.5" style={{ color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+                  ВАШИ КЛИЕНТЫ
+                </h1>
+                
+                <div 
+                  className="text-base font-bold tracking-wide mb-2"
+                  style={{
+                    background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}
+                >
+                  УЖЕ В TELEGRAM
+                </div>
+                
+                <p className="text-[11px] font-medium" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                  Получайте заказы 24/7 без сайта
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Scroll distance for hero animation */}
-        <div style={{ height: '60vh' }} aria-hidden="true" />
-
-        {/* ═══════════════════════════════════════════════════════════════
-            SHOWCASE — Scroll-linked reveal
-        ═══════════════════════════════════════════════════════════════ */}
-        <m.section 
-          className="relative"
-          style={{
-            opacity: showcaseOpacity,
-            y: showcaseY,
-            scale: showcaseScale
-          }}
-        >
-          <div className="px-6 mb-6">
-            <p style={{
-              fontSize: '11px',
-              fontWeight: 500,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.3)',
-              marginBottom: '10px'
-            }}>
-              Featured
-            </p>
-            <h2 style={{
-              fontSize: '28px',
-              fontWeight: 500,
-              letterSpacing: '-0.025em',
-              color: '#FFFFFF'
-            }}>
-              Radiance
-            </h2>
-            <p style={{
-              fontSize: '15px',
-              color: 'rgba(255,255,255,0.45)',
-              marginTop: '6px'
-            }}>
-              Premium fashion commerce
-            </p>
+        <div className="space-y-3 mb-8">
+          
+          {/* Main Hero Card - White/Light style like T-P67 */}
+          <div 
+            className="relative rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+            onClick={() => handleOpenDemo('clothing-store')}
+            onMouseEnter={() => preloadDemo('clothing-store')}
+            onTouchStart={() => preloadDemo('clothing-store')}
+            data-testid="demo-card-clothing"
+            style={{ 
+              background: 'linear-gradient(180deg, #F5F5F7 0%, #E8E8ED 100%)',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
+            }}
+          >
+            <div className="p-5 pb-4">
+              {/* Header with logo */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-2xl font-black tracking-tight" style={{ color: '#1D1D1F' }}>
+                  ALURE
+                </div>
+                {/* Decorative tribal-style icon */}
+                <svg width="40" height="32" viewBox="0 0 40 32" fill="none" className="opacity-80">
+                  <path d="M20 4C20 4 12 8 8 16C4 24 8 28 8 28M20 4C20 4 28 8 32 16C36 24 32 28 32 28M20 4V12M14 20C14 20 17 24 20 24C23 24 26 20 26 20" stroke="#1D1D1F" strokeWidth="1.5" strokeLinecap="round"/>
+                  <circle cx="20" cy="16" r="2" fill="#1D1D1F"/>
+                </svg>
+              </div>
+              
+              {/* Warning section */}
+              <div className="text-center mb-4">
+                <div className="text-[10px] font-bold tracking-[0.2em] mb-2" style={{ color: '#1D1D1F' }}>
+                  МАГАЗИН В TELEGRAM
+                </div>
+                <p className="text-[9px] leading-relaxed px-2" style={{ color: 'rgba(29, 29, 31, 0.6)' }}>
+                  АВТОМАТИЧЕСКИЕ ПРОДАЖИ. КАТАЛОГ ТОВАРОВ. КОРЗИНА И ОПЛАТА. 
+                  ИНТЕГРАЦИЯ С CRM. УВЕДОМЛЕНИЯ О ЗАКАЗАХ. БЕЗ САЙТА И ПРИЛОЖЕНИЯ.
+                </p>
+              </div>
+              
+              {/* Price and CTA */}
+              <div 
+                className="flex items-center justify-between rounded-full px-4 py-2.5 mt-3"
+                style={{ background: 'rgba(29, 29, 31, 0.08)' }}
+              >
+                <span className="text-sm font-semibold" style={{ color: '#1D1D1F' }}>от 9 990 ₽</span>
+                <div className="flex items-center gap-1.5 text-[11px] font-bold" style={{ color: '#1D1D1F' }}>
+                  <span>ОТКРЫТЬ</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div 
-            className="relative cursor-pointer mx-4"
-            onClick={openDemo}
-            onMouseEnter={() => { setHovered(true); preloadDemo('clothing-store'); }}
-            onMouseLeave={() => setHovered(false)}
-            onTouchStart={() => preloadDemo('clothing-store')}
-            data-testid="demo-card-main"
-          >
-            <m.div
-              animate={{ scale: hovered ? 1.015 : 1 }}
-              transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-              style={{ 
-                borderRadius: '20px',
-                overflow: 'hidden',
-                aspectRatio: '3/4',
-                position: 'relative'
-              }}
+          {/* 2x2 Grid - Dark cards with images */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* ART STORE style card */}
+            <div 
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              onClick={() => handleOpenDemo('sneaker-store')}
+              onMouseEnter={() => preloadDemo('sneaker-store')}
+              onTouchStart={() => preloadDemo('sneaker-store')}
+              data-testid="demo-card-sneaker"
+              style={{ background: '#1C1C1E' }}
             >
               <video
-                ref={videoRef}
-                src={heroVideo}
+                ref={videoRef2}
+                src={sneakerVideo}
                 loop muted playsInline preload="none"
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{
-                  transform: hovered ? 'scale(1.05)' : 'scale(1)',
-                  transition: 'transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1)'
-                }}
+                className="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               
-              <div 
-                className="absolute inset-0"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, transparent 40%, transparent 50%, rgba(0,0,0,0.6) 100%)'
-                }}
-              />
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="text-[10px] font-medium tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                  SNEAKER STORE
+                </div>
+              </div>
+            </div>
 
-              <m.div
-                className="absolute bottom-5 left-5 right-5 flex items-center justify-between"
-                animate={{ opacity: hovered ? 1 : 0.7 }}
-              >
-                <span style={{
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  letterSpacing: '0.08em',
-                  color: 'rgba(255,255,255,0.8)',
-                  textTransform: 'uppercase'
-                }}>
-                  Explore
-                </span>
-                <m.div
-                  animate={{ x: hovered ? 4 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ArrowUpRight className="w-5 h-5 text-white/80" />
-                </m.div>
-              </m.div>
-            </m.div>
-          </div>
-
-          <div className="px-6 mt-6">
-            <button
-              onClick={() => onNavigate('projects')}
-              data-testid="button-view-all"
-              className="group flex items-center gap-2"
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '14px',
-                color: 'rgba(255,255,255,0.45)',
-                cursor: 'pointer'
-              }}
+            {/* SOUND SHOP style card - Blue tinted */}
+            <div 
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              onClick={() => handleOpenDemo('luxury-watches')}
+              onMouseEnter={() => preloadDemo('luxury-watches')}
+              onTouchStart={() => preloadDemo('luxury-watches')}
+              data-testid="demo-card-watches"
+              style={{ background: '#4A5568' }}
             >
-              View all work
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </button>
+              <video
+                ref={videoRef3}
+                src={watchesVideo}
+                loop muted playsInline preload="none"
+                className="absolute inset-0 w-full h-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105"
+                style={{ filter: 'saturate(0.8) brightness(0.9)' }}
+              />
+              <div className="absolute inset-0" style={{ background: 'rgba(59, 130, 246, 0.15)' }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="text-[10px] font-medium tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                  LUXURY WATCHES
+                </div>
+              </div>
+            </div>
           </div>
-        </m.section>
 
-        <div style={{ height: '120px' }} />
+          {/* Bottom Row - Colored cards */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Olive/Khaki card like T-P67 DISCOVER */}
+            <div 
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              onClick={() => handleOpenDemo('futuristic-fashion-1')}
+              onMouseEnter={() => preloadDemo('futuristic-fashion-1')}
+              onTouchStart={() => preloadDemo('futuristic-fashion-1')}
+              data-testid="demo-card-outdoor"
+              style={{ background: 'linear-gradient(180deg, #6B7B5C 0%, #5A6A4D 100%)' }}
+            >
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+                <div className="text-xl font-black tracking-tight mb-2 text-white">
+                  RASCAL
+                </div>
+                {/* Star icon */}
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="mb-4 opacity-80">
+                  <path d="M12 2L14 10H22L16 14L18 22L12 18L6 22L8 14L2 10H10L12 2Z" stroke="white" strokeWidth="1.5" fill="none"/>
+                </svg>
+                
+                {/* DISCOVER button */}
+                <div 
+                  className="px-6 py-2 rounded-full text-[10px] font-bold tracking-wider transition-all duration-200 active:scale-95"
+                  style={{ 
+                    background: 'rgba(0, 0, 0, 0.25)',
+                    color: '#FFFFFF',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                  }}
+                >
+                  ОТКРЫТЬ
+                </div>
+              </div>
+            </div>
 
-        {/* ═══════════════════════════════════════════════════════════════
-            FEATURES — Scroll-linked
-        ═══════════════════════════════════════════════════════════════ */}
-        <m.section 
-          className="px-6"
-          style={{
-            opacity: featuresOpacity,
-            y: featuresY
-          }}
-        >
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '48px' }}>
-            {[
-              { title: 'Always On', sub: '24/7 sales automation' },
-              { title: 'Native', sub: 'Telegram ecosystem integration' },
-              { title: 'Forever', sub: 'Lifetime support included' }
-            ].map((item, i) => (
-              <FeatureRow key={item.title} {...item} index={i} />
-            ))}
+            {/* Dark gray card like MUSIC CLUB */}
+            <div 
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              onClick={() => handleOpenDemo('futuristic-fashion-2')}
+              onMouseEnter={() => preloadDemo('futuristic-fashion-2')}
+              onTouchStart={() => preloadDemo('futuristic-fashion-2')}
+              data-testid="demo-card-minimal"
+              style={{ background: 'linear-gradient(180deg, #3A3A3C 0%, #2C2C2E 100%)' }}
+            >
+              {/* Arrow icon in top right */}
+              <div 
+                className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.15)' }}
+              >
+                <ArrowRight className="w-3.5 h-3.5 text-white -rotate-45" />
+              </div>
+              
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="text-sm font-bold text-white mb-0.5">FASHION STORE</div>
+                <div className="text-sm font-bold text-white mb-0.5">CATALOG</div>
+                <div className="text-[10px] font-medium tracking-wider" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  MOSCOW/DUBAI
+                </div>
+              </div>
+            </div>
           </div>
-        </m.section>
 
-        <div style={{ height: '80px' }} />
+          {/* Additional row - More cards */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Brand card */}
+            <div 
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              onClick={() => handleOpenDemo('futuristic-fashion-3')}
+              onMouseEnter={() => preloadDemo('futuristic-fashion-3')}
+              onTouchStart={() => preloadDemo('futuristic-fashion-3')}
+              data-testid="demo-card-brand"
+              style={{ background: '#1C1C1E' }}
+            >
+              <img
+                src={nikeGreenImage}
+                alt="Brand"
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover opacity-85 transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="text-[10px] font-medium tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                  BRAND STORE
+                </div>
+              </div>
+            </div>
 
-        {/* ═══════════════════════════════════════════════════════════════
-            SCARCITY
-        ═══════════════════════════════════════════════════════════════ */}
-        <m.section
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.6 }}
-        >
-          <div 
-            className="mx-6 text-center"
-            style={{
-              padding: '48px 24px',
-              background: 'rgba(255,255,255,0.02)',
-              borderRadius: '20px',
-              border: '1px solid rgba(255,255,255,0.04)'
-            }}
-          >
-            <p style={{
-              fontSize: '48px',
-              fontWeight: 300,
-              letterSpacing: '-0.03em',
-              color: '#FFFFFF'
-            }}>
-              7
-            </p>
-            <p style={{
-              fontSize: '13px',
-              color: 'rgba(255,255,255,0.35)',
-              marginTop: '8px',
-              letterSpacing: '0.02em'
-            }}>
-              spots available this season
-            </p>
+            {/* Catalog card */}
+            <div 
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              onClick={() => handleOpenDemo('futuristic-fashion-4')}
+              onMouseEnter={() => preloadDemo('futuristic-fashion-4')}
+              onTouchStart={() => preloadDemo('futuristic-fashion-4')}
+              data-testid="demo-card-catalog"
+              style={{ background: '#1C1C1E' }}
+            >
+              <img
+                src={nikeAcgImage}
+                alt="Catalog"
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover opacity-85 transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="text-[10px] font-medium tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                  OUTDOOR GEAR
+                </div>
+              </div>
+            </div>
           </div>
-        </m.section>
 
-        <div style={{ height: '120px' }} />
+        </div>
 
-        {/* ═══════════════════════════════════════════════════════════════
-            CTA — Scroll-linked
-        ═══════════════════════════════════════════════════════════════ */}
-        <m.section 
-          className="px-6 text-center py-16"
-          style={{
-            opacity: ctaOpacity,
-            scale: ctaScale
-          }}
-        >
-          <h2 style={{
-            fontSize: 'clamp(44px, 14vw, 60px)',
-            fontWeight: 500,
-            letterSpacing: '-0.035em',
-            lineHeight: 0.95,
-            color: '#FFFFFF',
-            marginBottom: '32px'
-          }}>
-            Start
-            <br />
-            building.
-          </h2>
+        <MotionStagger className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 px-1">
+          
+          <MotionBox variant="fadeInScale">
+            <HoverScale scale={1.02}>
+              <div 
+                className="sm:col-span-2 relative rounded-2xl p-4 sm:p-6 cursor-pointer overflow-hidden group tg-interactive"
+                style={{
+                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
+                }}
+                onClick={() => onNavigate('projects')}
+                data-testid="card-main-services"
+              >
+                <div className="absolute inset-0 opacity-20"
+                  style={{ background: 'radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.4) 0%, transparent 70%)' }}
+                />
+                
+                <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
+                  <div className="w-7 sm:w-9 h-7 sm:h-9 text-black" style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))' }}>
+                    <Star className="w-full h-full" fill="currentColor" />
+                  </div>
+                </div>
+                
+                <div className="relative text-black text-[72px] sm:text-[96px] font-black leading-none mb-1 sm:mb-2 tracking-tighter"
+                  style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.1)' }}
+                >
+                  24ч
+                </div>
+                
+                <div className="relative text-black font-black text-xl sm:text-2xl mb-0.5 sm:mb-1 tracking-tight">
+                  ДО ЗАПУСКА
+                </div>
+                
+                <div className="relative text-black/70 text-xs sm:text-sm font-medium">
+                  Пока конкуренты думают - вы продаете
+                </div>
+                
+                <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full"
+                  style={{ background: 'rgba(0, 0, 0, 0.2)', backdropFilter: 'blur(10px)' }}
+                >
+                  <span className="text-white text-[10px] sm:text-xs font-bold tracking-wide whitespace-nowrap">WEB4TG.AGENCY</span>
+                </div>
+              </div>
+            </HoverScale>
+          </MotionBox>
 
-          <m.button
-            onClick={contact}
-            data-testid="button-contact"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            style={{
-              background: '#FFFFFF',
-              color: '#000000',
-              border: 'none',
-              fontSize: '15px',
-              fontWeight: 500,
-              padding: '16px 40px',
-              borderRadius: '100px',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            Get in touch
-            <ArrowRight className="w-4 h-4" />
-          </m.button>
+          <MotionBox variant="fadeInUp">
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative rounded-3xl p-4 cursor-pointer overflow-hidden group tg-interactive"
+                style={{
+                  background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                  boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3)'
+                }}
+                onClick={() => handleOpenDemo('clothing-store')}
+                data-testid="card-telegram-apps"
+              >
+                <div className="absolute top-3 right-3 px-2 py-1 rounded-full"
+                  style={{ background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)' }}
+                >
+                  <span className="text-white text-[10px] font-bold tracking-wide">УДАЛЕННО</span>
+                </div>
+                
+                <div className="text-black text-3xl font-thin mb-2" style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '3px' }}>1/4</div>
+                
+                <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
+                  <Smartphone className="w-5 h-5" style={{ color: '#10B981' }} />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-black text-lg font-bold leading-tight">Магазин в Telegram</h3>
+                  <p className="text-black/70 text-xs leading-tight mb-2">Клиенты покупают прямо в чате. Без сайта, без приложения</p>
+                  <p className="text-black/60 text-sm font-medium">ОТ 49 000 Р</p>
+                </div>
+              </div>
+            </HoverScale>
+          </MotionBox>
 
-          <p style={{
-            fontSize: '12px',
-            color: 'rgba(255,255,255,0.2)',
-            marginTop: '16px'
-          }}>
-            Response within 24 hours
-          </p>
-        </m.section>
+          <MotionBox variant="fadeInUp" delay={0.1}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative bg-white/15 border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)' }}
+                onClick={() => handleOpenDemo('electronics')}
+              >
+                <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
+                  ХИТ
+                </div>
+                
+                <div className="text-white text-2xl font-black mb-2">x3</div>
+                
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+                  <ShoppingCart className="w-5 h-5 text-white" />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-white text-lg font-bold leading-tight">Рост продаж</h3>
+                  <p className="text-white/70 text-xs leading-tight mb-2">Автоматические продажи пока вы спите</p>
+                  <p className="text-white/60 text-sm font-medium">ГАРАНТИЯ</p>
+                </div>
+              </div>
+            </HoverScale>
+          </MotionBox>
 
-        {/* Footer */}
-        <footer 
-          className="py-10 text-center"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}
-        >
-          <p style={{ 
-            fontSize: '11px', 
-            letterSpacing: '0.05em',
-            color: 'rgba(255,255,255,0.12)' 
-          }}>
-            WEB4TG
-          </p>
-        </footer>
+          <MotionBox variant="fadeInUp" delay={0.15}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative bg-white/15 border border-white/20 rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)' }}
+                onClick={() => handleOpenDemo('beauty')}
+              >
+                <div className="absolute top-3 right-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
+                  AI
+                </div>
+                
+                <div className="text-white text-2xl font-black mb-2">24/7</div>
+                
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+                  <Code className="w-5 h-5 text-white" />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-white text-lg font-bold leading-tight">AI-Ассистент</h3>
+                  <p className="text-white/70 text-xs leading-tight mb-2">Отвечает клиентам, принимает заказы за вас</p>
+                  <p className="text-white/60 text-sm font-medium">ВКЛЮЧЕНО</p>
+                </div>
+              </div>
+            </HoverScale>
+          </MotionBox>
 
-        <div style={{ height: '90px' }} />
+          <MotionBox variant="fadeInUp" delay={0.2}>
+            <HoverScale scale={1.05}>
+              <div 
+                className="relative rounded-3xl p-4 cursor-pointer tg-interactive"
+                style={{ backgroundColor: '#10B981' }}
+                onClick={() => onNavigate('projects')}
+              >
+                <div className="absolute top-3 right-3 bg-black/20 text-black text-xs px-2 py-1 rounded-full font-medium">
+                  КЕЙСЫ
+                </div>
+                
+                <div className="text-black text-3xl font-thin mb-2" style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '3px' }}>127+</div>
+                
+                <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mb-3">
+                  <Users className="w-5 h-5" style={{ color: '#10B981' }} />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-black text-lg font-bold leading-tight">Довольных клиентов</h3>
+                  <p className="text-black/70 text-xs leading-tight mb-2">Реальные результаты. Смотрите сами</p>
+                  <p className="text-black/60 text-sm font-medium">ОТЗЫВЫ</p>
+                </div>
+              </div>
+            </HoverScale>
+          </MotionBox>
+
+        </MotionStagger>
+        
       </div>
     </div>
   );
 }
 
-function FeatureRow({ title, sub, index }: { title: string; sub: string; index: number }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
-
-  return (
-    <m.div
-      ref={ref}
-      initial={{ opacity: 0, y: 15 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay: index * 0.08, duration: 0.5 }}
-      style={{
-        padding: '24px 0',
-        borderBottom: '1px solid rgba(255,255,255,0.04)'
-      }}
-    >
-      <h3 style={{
-        fontSize: '22px',
-        fontWeight: 500,
-        letterSpacing: '-0.02em',
-        color: '#FFFFFF',
-        marginBottom: '4px'
-      }}>
-        {title}
-      </h3>
-      <p style={{
-        fontSize: '14px',
-        color: 'rgba(255,255,255,0.4)'
-      }}>
-        {sub}
-      </p>
-    </m.div>
-  );
-}
-
-export default ShowcasePage;
+export default React.memo(ShowcasePage);
