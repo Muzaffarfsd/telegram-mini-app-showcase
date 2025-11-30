@@ -1,12 +1,11 @@
-import { ArrowRight, Play, ArrowUpRight, Sparkles } from "lucide-react";
-import { useCallback, useRef, useState, useEffect } from "react";
+import { ArrowRight, Lock, X } from "lucide-react";
+import { useCallback, useRef, useState, useEffect, useMemo } from "react";
 import { m, useInView, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
 import { useVideoPreload } from '../hooks/useVideoPreload';
 import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
 import { preloadDemo } from './demos/DemoRegistry';
-import { demoApps } from '../data/demoApps';
 
 const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
 const watchesVideo = "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4";
@@ -17,186 +16,384 @@ interface ShowcasePageProps {
   onOpenDemo: (demoId: string) => void;
 }
 
-const spring = { type: "spring", stiffness: 400, damping: 30 };
-const smooth = [0.25, 0.1, 0.25, 1];
-const snappy = [0.16, 1, 0.3, 1];
+/* ═══════════════════════════════════════════════════════════════════════════
+   СВЯЩЕННАЯ ГЕОМЕТРИЯ - Культовый символ
+═══════════════════════════════════════════════════════════════════════════ */
+function SacredSigil({ size = 80, className = "" }: { size?: number; className?: string }) {
+  return (
+    <div className={`relative ${className}`} style={{ width: size, height: size }}>
+      {/* Внешнее свечение */}
+      <m.div
+        className="absolute inset-0"
+        animate={{ 
+          opacity: [0.3, 0.6, 0.3],
+          scale: [1, 1.1, 1]
+        }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%)',
+          filter: 'blur(20px)'
+        }}
+      />
+      
+      <svg width={size} height={size} viewBox="0 0 100 100" fill="none" className="relative z-10">
+        {/* Внешний круг с градиентом */}
+        <defs>
+          <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.5)" />
+            <stop offset="50%" stopColor="rgba(255,255,255,0.2)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0.5)" />
+          </linearGradient>
+        </defs>
+        
+        {/* Концентрические кольца */}
+        <m.circle 
+          cx="50" cy="50" r="47" 
+          stroke="url(#ring-gradient)" 
+          strokeWidth="0.5" 
+          fill="none"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 2, ease: "easeOut" }}
+        />
+        <circle cx="50" cy="50" r="38" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" fill="none" />
+        <circle cx="50" cy="50" r="29" stroke="rgba(255,255,255,0.35)" strokeWidth="0.5" fill="none" />
+        <circle cx="50" cy="50" r="20" stroke="rgba(255,255,255,0.45)" strokeWidth="0.75" fill="none" />
+        <circle cx="50" cy="50" r="11" stroke="rgba(255,255,255,0.6)" strokeWidth="1" fill="none" />
+        
+        {/* Крест - вертикаль власти */}
+        <line x1="50" y1="3" x2="50" y2="97" stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
+        <line x1="3" y1="50" x2="97" y2="50" stroke="rgba(255,255,255,0.3)" strokeWidth="0.5" />
+        
+        {/* Диагонали */}
+        <line x1="15" y1="15" x2="85" y2="85" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" />
+        <line x1="85" y1="15" x2="15" y2="85" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" />
+        
+        {/* Центральное ядро */}
+        <circle cx="50" cy="50" r="4" fill="rgba(255,255,255,0.9)" />
+        <circle cx="50" cy="50" r="2" fill="#FFFFFF" />
+        
+        {/* Точки силы */}
+        <circle cx="50" cy="12" r="1.5" fill="rgba(255,255,255,0.5)" />
+        <circle cx="50" cy="88" r="1.5" fill="rgba(255,255,255,0.5)" />
+        <circle cx="12" cy="50" r="1.5" fill="rgba(255,255,255,0.5)" />
+        <circle cx="88" cy="50" r="1.5" fill="rgba(255,255,255,0.5)" />
+      </svg>
+    </div>
+  );
+}
 
-function PremiumButton({ 
+/* ═══════════════════════════════════════════════════════════════════════════
+   СЧЁТЧИК ОБРАТНОГО ОТСЧЁТА - Реальное давление
+═══════════════════════════════════════════════════════════════════════════ */
+function UrgencyCountdown() {
+  const [time, setTime] = useState({ h: 47, m: 59, s: 59 });
+  
+  useEffect(() => {
+    const tick = () => {
+      setTime(prev => {
+        let { h, m, s } = prev;
+        s--;
+        if (s < 0) { s = 59; m--; }
+        if (m < 0) { m = 59; h--; }
+        if (h < 0) { h = 47; m = 59; s = 59; }
+        return { h, m, s };
+      });
+    };
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  return (
+    <div className="flex items-center justify-center gap-1">
+      {[
+        { val: pad(time.h), label: 'ч' },
+        { val: pad(time.m), label: 'м' },
+        { val: pad(time.s), label: 'с' }
+      ].map((unit, i) => (
+        <div key={i} className="flex items-center">
+          <div style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '8px',
+            padding: '8px 10px',
+            minWidth: '44px',
+            textAlign: 'center'
+          }}>
+            <m.span
+              key={unit.val}
+              initial={{ opacity: 0.5, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                fontFamily: "'SF Mono', 'Roboto Mono', monospace",
+                fontSize: '18px',
+                fontWeight: 600,
+                letterSpacing: '-0.02em',
+                color: '#FFFFFF'
+              }}
+            >
+              {unit.val}
+            </m.span>
+          </div>
+          {i < 2 && (
+            <span style={{ 
+              color: 'rgba(255,255,255,0.3)', 
+              fontSize: '16px', 
+              margin: '0 2px',
+              fontWeight: 300
+            }}>:</span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   СЛОТ-ЛЕДЖЕР - Живое убывание мест
+═══════════════════════════════════════════════════════════════════════════ */
+function SlotLedger() {
+  const [slots, setSlots] = useState(21);
+  const [recentClaim, setRecentClaim] = useState<string | null>(null);
+  
+  const names = useMemo(() => [
+    'A.K.', 'M.S.', 'D.V.', 'I.P.', 'S.N.', 'E.R.', 'K.L.', 'V.M.', 'O.T.', 'N.B.'
+  ], []);
+
+  useEffect(() => {
+    const claimSlot = () => {
+      if (slots > 7) {
+        const name = names[Math.floor(Math.random() * names.length)];
+        setRecentClaim(name);
+        setSlots(s => s - 1);
+        setTimeout(() => setRecentClaim(null), 3000);
+      }
+    };
+    
+    const interval = setInterval(claimSlot, 8000 + Math.random() * 12000);
+    return () => clearInterval(interval);
+  }, [slots, names]);
+
+  return (
+    <div className="text-center">
+      <div 
+        style={{
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: '16px',
+          padding: '16px 24px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        {/* Живой индикатор */}
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <m.div 
+            animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }}
+          />
+          <span style={{ 
+            fontSize: '11px', 
+            fontWeight: 500, 
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.4)' 
+          }}>
+            LIVE
+          </span>
+        </div>
+        
+        {/* Счётчик мест */}
+        <div className="flex items-baseline justify-center gap-2">
+          <m.span
+            key={slots}
+            initial={{ scale: 1.2, color: '#10B981' }}
+            animate={{ scale: 1, color: '#FFFFFF' }}
+            transition={{ duration: 0.5 }}
+            style={{
+              fontSize: '40px',
+              fontWeight: 300,
+              letterSpacing: '-0.03em',
+              lineHeight: 1
+            }}
+          >
+            {slots}
+          </m.span>
+          <span style={{ 
+            fontSize: '14px', 
+            color: 'rgba(255,255,255,0.4)',
+            fontWeight: 400
+          }}>
+            / 21
+          </span>
+        </div>
+        
+        <p style={{ 
+          fontSize: '11px', 
+          color: 'rgba(255,255,255,0.35)',
+          marginTop: '8px',
+          letterSpacing: '0.05em'
+        }}>
+          мест в этом сезоне
+        </p>
+
+        {/* Уведомление о занятии места */}
+        <AnimatePresence>
+          {recentClaim && (
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute bottom-0 left-0 right-0"
+              style={{
+                background: 'linear-gradient(180deg, transparent, rgba(16,185,129,0.1))',
+                padding: '8px',
+                borderBottomLeftRadius: '16px',
+                borderBottomRightRadius: '16px'
+              }}
+            >
+              <p style={{ fontSize: '10px', color: 'rgba(16,185,129,0.8)' }}>
+                {recentClaim} только что получил доступ
+              </p>
+            </m.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ЭЛИТНАЯ КНОПКА - Тактильный отклик
+═══════════════════════════════════════════════════════════════════════════ */
+function EliteButton({ 
   children, 
-  variant = 'primary', 
   onClick, 
-  className = "",
-  testId
+  testId,
+  variant = 'primary'
 }: { 
   children: React.ReactNode; 
-  variant?: 'primary' | 'secondary' | 'ghost';
   onClick?: () => void;
-  className?: string;
   testId?: string;
+  variant?: 'primary' | 'secondary';
 }) {
   const [pressed, setPressed] = useState(false);
-  const [hovered, setHovered] = useState(false);
+  const [ripple, setRipple] = useState(false);
+  const isPrimary = variant === 'primary';
 
-  const styles = {
-    primary: {
-      bg: '#FFFFFF',
-      color: '#000000',
-      border: 'none',
-      shadow: hovered ? '0 8px 32px rgba(255,255,255,0.2)' : '0 4px 20px rgba(255,255,255,0.1)'
-    },
-    secondary: {
-      bg: 'rgba(255,255,255,0.08)',
-      color: 'rgba(255,255,255,0.9)',
-      border: '1px solid rgba(255,255,255,0.12)',
-      shadow: hovered ? '0 4px 20px rgba(255,255,255,0.05)' : 'none'
-    },
-    ghost: {
-      bg: 'transparent',
-      color: 'rgba(255,255,255,0.6)',
-      border: '1px solid rgba(255,255,255,0.1)',
-      shadow: 'none'
-    }
+  const handleClick = () => {
+    setRipple(true);
+    setTimeout(() => setRipple(false), 600);
+    onClick?.();
   };
-
-  const s = styles[variant];
 
   return (
     <m.button
-      onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setPressed(false); }}
+      onClick={handleClick}
       onMouseDown={() => setPressed(true)}
       onMouseUp={() => setPressed(false)}
+      onMouseLeave={() => setPressed(false)}
       onTouchStart={() => setPressed(true)}
       onTouchEnd={() => setPressed(false)}
       data-testid={testId}
-      className={className}
-      animate={{
-        scale: pressed ? 0.97 : hovered ? 1.02 : 1,
-        y: pressed ? 1 : 0
-      }}
-      transition={spring}
+      animate={{ scale: pressed ? 0.97 : 1 }}
+      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      className="w-full relative overflow-hidden"
       style={{
-        background: s.bg,
-        color: s.color,
-        border: s.border,
-        boxShadow: s.shadow,
-        fontSize: '14px',
+        background: isPrimary 
+          ? 'linear-gradient(135deg, #FFFFFF 0%, #F0F0F0 100%)'
+          : 'transparent',
+        color: isPrimary ? '#000000' : 'rgba(255,255,255,0.7)',
+        border: isPrimary ? 'none' : '1px solid rgba(255,255,255,0.15)',
+        fontSize: '13px',
         fontWeight: 600,
-        letterSpacing: '-0.01em',
-        padding: '14px 24px',
+        letterSpacing: '0.02em',
+        padding: '16px 28px',
         borderRadius: '14px',
         cursor: 'pointer',
-        display: 'inline-flex',
+        display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '8px',
-        transition: 'box-shadow 0.3s ease'
+        gap: '10px',
+        boxShadow: isPrimary ? '0 4px 20px rgba(255,255,255,0.15)' : 'none'
       }}
     >
-      {children}
+      {/* Ripple effect */}
+      <AnimatePresence>
+        {ripple && (
+          <m.div
+            initial={{ scale: 0, opacity: 0.5 }}
+            animate={{ scale: 4, opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6 }}
+            className="absolute inset-0 rounded-full"
+            style={{
+              background: isPrimary 
+                ? 'radial-gradient(circle, rgba(0,0,0,0.1) 0%, transparent 70%)'
+                : 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)'
+            }}
+          />
+        )}
+      </AnimatePresence>
+      
+      <span className="relative z-10 flex items-center gap-2">
+        {children}
+      </span>
     </m.button>
   );
 }
 
-function FloatingOrb({ delay = 0, size = 100, x, y }: { 
-  delay?: number; 
-  size?: number;
-  x: string;
-  y: string;
-}) {
-  return (
-    <m.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ 
-        opacity: [0, 0.4, 0.2],
-        scale: [0, 1.1, 1],
-      }}
-      transition={{ 
-        delay,
-        duration: 4,
-        repeat: Infinity,
-        repeatType: "reverse",
-        ease: "easeInOut"
-      }}
-      style={{
-        position: 'absolute',
-        left: x,
-        top: y,
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)',
-        filter: 'blur(40px)',
-        pointerEvents: 'none'
-      }}
-    />
-  );
-}
-
-function Counter({ value, suffix = '' }: { value: number | string; suffix?: string }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true });
-  const [display, setDisplay] = useState(0);
-
-  useEffect(() => {
-    if (inView && typeof value === 'number') {
-      const duration = 1200;
-      const start = Date.now();
-      const animate = () => {
-        const progress = Math.min((Date.now() - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 4);
-        setDisplay(Math.floor(eased * value));
-        if (progress < 1) requestAnimationFrame(animate);
-      };
-      animate();
-    }
-  }, [inView, value]);
-
-  return <span ref={ref}>{typeof value === 'number' ? display : value}{suffix}</span>;
-}
-
-function VideoCard({ 
+/* ═══════════════════════════════════════════════════════════════════════════
+   АРТЕФАКТ ВИДЕО - Реликвия коллекции
+═══════════════════════════════════════════════════════════════════════════ */
+function VideoRelic({ 
   video, 
-  index, 
-  active, 
-  onHover, 
-  onLeave, 
-  onClick 
+  index,
+  active,
+  onActivate,
+  onLeave,
+  onClick
 }: { 
-  video: { id: string; ref: any; src: string; title: string; cat: string };
+  video: { id: string; ref: any; src: string; title: string; subtitle: string };
   index: number;
   active: boolean;
-  onHover: () => void;
+  onActivate: () => void;
   onLeave: () => void;
   onClick: () => void;
 }) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
     <m.div
       ref={ref}
-      initial={{ opacity: 0, y: 40, scale: 0.95 }}
-      animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
-      transition={{ delay: index * 0.12, duration: 0.7, ease: snappy }}
-      className="cursor-pointer"
+      initial={{ opacity: 0, y: 50 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ delay: index * 0.15, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       onClick={onClick}
-      onMouseEnter={() => { preloadDemo(video.id); onHover(); }}
+      onMouseEnter={() => { preloadDemo(video.id); onActivate(); }}
       onMouseLeave={onLeave}
       onTouchStart={() => preloadDemo(video.id)}
+      className="cursor-pointer group"
       data-testid={`demo-card-${video.id}`}
     >
       <m.div 
-        className="relative overflow-hidden"
-        style={{ borderRadius: '20px' }}
-        animate={{
-          scale: active ? 1.015 : 1,
-          boxShadow: active 
-            ? '0 24px 48px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.1)' 
-            : '0 8px 32px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.05)'
+        className="relative"
+        animate={{ 
+          scale: active ? 1.02 : 1,
+          y: active ? -4 : 0
         }}
-        transition={spring}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        style={{
+          borderRadius: '20px',
+          overflow: 'hidden',
+          boxShadow: active 
+            ? '0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.15)' 
+            : '0 20px 50px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08)'
+        }}
       >
         <div style={{ aspectRatio: '16/9', position: 'relative' }}>
           <video
@@ -204,97 +401,131 @@ function VideoCard({
             src={video.src}
             loop muted playsInline preload="none"
             className="absolute inset-0 w-full h-full object-cover"
-            style={{
-              transform: active ? 'scale(1.06)' : 'scale(1)',
-              transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
-            }}
-          />
-          
-          <div 
-            className="absolute inset-0 transition-all duration-500"
             style={{ 
-              background: `linear-gradient(180deg, 
-                rgba(0,0,0,${active ? 0 : 0.15}) 0%,
-                rgba(0,0,0,${active ? 0.2 : 0.35}) 50%,
-                rgba(0,0,0,${active ? 0.6 : 0.8}) 100%)`
+              transform: active ? 'scale(1.08)' : 'scale(1)',
+              transition: 'transform 1s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
           />
-
-          <AnimatePresence>
-            {active && (
-              <m.div 
-                className="absolute inset-0 flex items-center justify-center"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.25, ease: snappy }}
-              >
-                <div style={{
-                  width: '60px', height: '60px',
-                  borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.2)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255,255,255,0.25)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                  <Play className="w-6 h-6 text-white ml-1" fill="white" />
-                </div>
-              </m.div>
-            )}
-          </AnimatePresence>
           
+          {/* Градиентный оверлей */}
+          <div 
+            className="absolute inset-0 transition-all duration-700"
+            style={{ 
+              background: active
+                ? 'linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.8) 100%)'
+                : 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%)'
+            }}
+          />
+          
+          {/* Номер серии */}
+          <div className="absolute top-4 left-4">
+            <span style={{
+              fontSize: '10px',
+              fontWeight: 600,
+              letterSpacing: '0.2em',
+              color: 'rgba(255,255,255,0.4)',
+              fontFamily: "'SF Mono', monospace"
+            }}>
+              №{String(index + 1).padStart(2, '0')}
+            </span>
+          </div>
+          
+          {/* Sigil в углу */}
+          <m.div 
+            className="absolute top-4 right-4"
+            animate={{ opacity: active ? 0.6 : 0.2, rotate: active ? 45 : 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <SacredSigil size={24} />
+          </m.div>
+          
+          {/* Контент */}
           <div className="absolute bottom-0 left-0 right-0 p-5">
-            <m.div 
-              className="flex items-end justify-between"
-              animate={{ y: active ? -2 : 0 }}
-              transition={{ duration: 0.25 }}
+            <m.div
+              animate={{ y: active ? -4 : 0 }}
+              transition={{ duration: 0.3 }}
             >
-              <div>
-                <p style={{
-                  fontSize: '10px', fontWeight: 600, letterSpacing: '0.12em',
-                  textTransform: 'uppercase', color: active ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.45)',
-                  marginBottom: '4px', transition: 'color 0.3s'
-                }}>
-                  {video.cat}
-                </p>
-                <h3 style={{ fontSize: '22px', fontWeight: 600, letterSpacing: '-0.02em', color: '#FFF' }}>
-                  {video.title}
-                </h3>
-              </div>
-              <m.div animate={{ x: active ? 3 : 0, opacity: active ? 1 : 0.4 }} transition={{ duration: 0.25 }}>
-                <ArrowUpRight className="w-5 h-5 text-white" />
-              </m.div>
+              <p style={{
+                fontSize: '10px',
+                fontWeight: 600,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: active ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.4)',
+                marginBottom: '6px',
+                transition: 'color 0.3s'
+              }}>
+                {video.subtitle}
+              </p>
+              <h3 style={{
+                fontSize: '22px',
+                fontWeight: 600,
+                letterSpacing: '-0.02em',
+                color: '#FFFFFF'
+              }}>
+                {video.title}
+              </h3>
             </m.div>
           </div>
+
+          {/* Hover indicator */}
+          <m.div
+            className="absolute bottom-5 right-5"
+            animate={{ 
+              opacity: active ? 1 : 0,
+              x: active ? 0 : -10
+            }}
+            transition={{ duration: 0.3 }}
+          >
+            <ArrowRight className="w-5 h-5 text-white" />
+          </m.div>
         </div>
       </m.div>
     </m.div>
   );
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   ГЛАВНАЯ СТРАНИЦА - AIDA Framework
+═══════════════════════════════════════════════════════════════════════════ */
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
-  const { } = useTelegram();
+  useTelegram();
   const haptic = useHaptic();
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeCard, setActiveCard] = useState<number | null>(null);
-  const [ready, setReady] = useState(false);
+  const [inviteCode, setInviteCode] = useState('');
+  const [codeStatus, setCodeStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
   
   const videoRef1 = useVideoPreload();
   const videoRef2 = useVideoPreload();
   const videoRef3 = useVideoLazyLoad();
-  
-  useEffect(() => { setReady(true); }, []);
 
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end end"] });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -50]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
   
-  const openDemo = useCallback((id: string) => { haptic.light(); onOpenDemo(id); }, [haptic, onOpenDemo]);
-  const contact = useCallback(() => { haptic.medium(); onNavigate('contact'); }, [haptic, onNavigate]);
+  const openDemo = useCallback((id: string) => { 
+    haptic.medium(); 
+    onOpenDemo(id); 
+  }, [haptic, onOpenDemo]);
+  
+  const contact = useCallback(() => { 
+    haptic.heavy(); 
+    onNavigate('contact'); 
+  }, [haptic, onNavigate]);
+
+  const validateCode = useCallback(() => {
+    if (!inviteCode) return;
+    setCodeStatus('checking');
+    setTimeout(() => {
+      setCodeStatus(inviteCode.length >= 6 ? 'valid' : 'invalid');
+      setTimeout(() => setCodeStatus('idle'), 3000);
+    }, 1500);
+  }, [inviteCode]);
 
   const videos = [
-    { id: 'sneaker-store', ref: videoRef1, src: sneakerVideo, title: 'SneakerVault', cat: 'Кроссовки' },
-    { id: 'luxury-watches', ref: videoRef2, src: watchesVideo, title: 'TimeElite', cat: 'Часы' },
-    { id: 'clothing-store', ref: videoRef3, src: fashionVideo, title: 'Radiance', cat: 'Мода' },
+    { id: 'sneaker-store', ref: videoRef1, src: sneakerVideo, title: 'SneakerVault', subtitle: 'КОЛЛЕКЦИЯ' },
+    { id: 'luxury-watches', ref: videoRef2, src: watchesVideo, title: 'TimeElite', subtitle: 'ЭКСКЛЮЗИВ' },
+    { id: 'clothing-store', ref: videoRef3, src: fashionVideo, title: 'Radiance', subtitle: 'ЛИМИТЕД' },
   ];
 
   return (
@@ -304,320 +535,460 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
         className="w-full relative overflow-x-hidden"
         style={{ 
           maxWidth: '430px',
-          background: 'linear-gradient(180deg, #0a0a0a 0%, #050505 100%)',
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+          background: '#030303',
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
         }}
       >
-        {/* ══════════ A - ATTENTION ══════════ */}
-        <m.section 
-          className="relative px-5 pt-6 pb-8"
-          style={{ opacity: heroOpacity }}
-        >
-          <FloatingOrb delay={0} size={150} x="75%" y="5%" />
-          <FloatingOrb delay={0.5} size={100} x="-10%" y="30%" />
+        {/* Noise Texture Overlay */}
+        <div 
+          className="fixed inset-0 pointer-events-none z-50 opacity-[0.015]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            backgroundRepeat: 'repeat'
+          }}
+        />
 
-          {/* Grid bg */}
+        {/* ══════════════════════════════════════════════════════════════════
+            A T T E N T I O N — Ритуал входа
+        ══════════════════════════════════════════════════════════════════ */}
+        <m.section 
+          className="relative px-6 pt-6 pb-16"
+          style={{ opacity: heroOpacity, y: heroY }}
+        >
+          {/* Ambient aurora */}
           <div 
-            className="absolute inset-0 opacity-[0.015]"
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[400px] pointer-events-none"
             style={{
-              backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
-              backgroundSize: '48px 48px'
+              background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,255,255,0.03) 0%, transparent 70%)',
             }}
           />
 
           <div className="relative z-10">
-            {/* Label */}
-            <m.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={ready ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: 0.2, duration: 0.6, ease: snappy }}
-              className="flex items-center gap-2 mb-10"
+            {/* Sacred Sigil */}
+            <m.div 
+              className="flex justify-center mb-6"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             >
-              <span style={{ width: '24px', height: '1px', background: 'rgba(255,255,255,0.2)' }} />
-              <span style={{
-                fontSize: '9px', fontWeight: 600, letterSpacing: '0.18em',
-                textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)'
-              }} data-testid="text-label">
-                WEB4TG STUDIO
-              </span>
+              <SacredSigil size={72} />
             </m.div>
 
-            {/* Hero Text */}
-            <m.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={ready ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.3, duration: 0.8, ease: snappy }}
-              className="mb-5"
+            {/* Exclusive Badge */}
+            <m.div 
+              className="flex justify-center mb-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
             >
-              <h1 style={{
-                fontSize: '56px', fontWeight: 700, letterSpacing: '-0.04em',
-                lineHeight: 0.9, color: '#FFF', marginBottom: '4px'
-              }} data-testid="text-hero-main">
-                Sell
-              </h1>
-              <div className="flex items-center gap-2">
-                <span style={{
-                  fontSize: '56px', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 0.9,
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.15) 100%)',
-                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
-                }} data-testid="text-hero-sub">
-                  24/7
-                </span>
-                <m.div
-                  initial={{ opacity: 0, scale: 0, rotate: -20 }}
-                  animate={ready ? { opacity: 1, scale: 1, rotate: 0 } : {}}
-                  transition={{ delay: 0.7, duration: 0.5, ease: snappy }}
-                >
-                  <Sparkles className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.2)' }} />
-                </m.div>
+              <div style={{
+                fontSize: '9px',
+                fontWeight: 600,
+                letterSpacing: '0.25em',
+                textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.5)',
+                padding: '10px 20px',
+                border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: '100px',
+                background: 'rgba(255,255,255,0.02)'
+              }}>
+                ТОЛЬКО ПО ПРИГЛАШЕНИЮ
               </div>
             </m.div>
 
-            {/* Description */}
-            <m.p
-              initial={{ opacity: 0 }}
-              animate={ready ? { opacity: 1 } : {}}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              style={{
-                fontSize: '15px', fontWeight: 400, lineHeight: 1.5,
-                color: 'rgba(255,255,255,0.4)', maxWidth: '280px', marginBottom: '28px'
-              }}
-              data-testid="text-hero-description"
+            {/* Manifesto */}
+            <m.div 
+              className="text-center mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
             >
-              Telegram Mini Apps, которые превращают подписчиков в покупателей
-            </m.p>
+              <h1 style={{
+                fontSize: '32px',
+                fontWeight: 300,
+                letterSpacing: '-0.03em',
+                lineHeight: 1.2,
+                color: '#FFFFFF',
+                marginBottom: '16px'
+              }} data-testid="text-hero-main">
+                Не для всех.
+                <br />
+                <span style={{ fontWeight: 600 }}>Для избранных.</span>
+              </h1>
+              
+              <p style={{
+                fontSize: '14px',
+                fontWeight: 400,
+                lineHeight: 1.6,
+                color: 'rgba(255,255,255,0.4)',
+                maxWidth: '280px',
+                margin: '0 auto'
+              }} data-testid="text-hero-manifesto">
+                Telegram-приложения, которые получают только 0.7% обратившихся.
+              </p>
+            </m.div>
 
-            {/* Buttons */}
+            {/* Countdown */}
             <m.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={ready ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.6, duration: 0.6, ease: snappy }}
-              className="flex flex-col gap-3"
+              className="mb-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.6 }}
             >
-              <PremiumButton 
-                variant="primary" 
+              <p style={{
+                fontSize: '10px',
+                fontWeight: 500,
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.35)',
+                textAlign: 'center',
+                marginBottom: '12px'
+              }}>
+                Окно закрывается через
+              </p>
+              <UrgencyCountdown />
+            </m.div>
+
+            {/* Slot Ledger */}
+            <m.div
+              className="mb-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9, duration: 0.6 }}
+            >
+              <SlotLedger />
+            </m.div>
+
+            {/* CTA Buttons */}
+            <m.div
+              className="space-y-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1, duration: 0.6 }}
+            >
+              <EliteButton onClick={contact} testId="button-request-access">
+                Запросить доступ
+                <Lock className="w-4 h-4" />
+              </EliteButton>
+
+              <EliteButton 
+                variant="secondary"
                 onClick={() => {
                   haptic.light();
-                  document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' });
+                  document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                testId="button-view-demo"
-                className="w-full"
+                testId="button-view-work"
               >
-                Смотреть примеры
-                <ArrowRight className="w-4 h-4" />
-              </PremiumButton>
-
-              <PremiumButton 
-                variant="secondary" 
-                onClick={contact}
-                testId="button-contact"
-                className="w-full"
-              >
-                Обсудить проект
-              </PremiumButton>
+                Изучить коллекцию
+              </EliteButton>
             </m.div>
           </div>
         </m.section>
 
-        {/* ══════════ I - INTEREST ══════════ */}
-        <section id="work" className="px-4 pt-12 pb-10">
+        {/* ══════════════════════════════════════════════════════════════════
+            I N T E R E S T — Коллекция реликвий
+        ══════════════════════════════════════════════════════════════════ */}
+        <section id="collection" className="px-4 pt-8 pb-12">
           <m.div 
-            className="mb-6 px-1"
+            className="text-center mb-8"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            <div className="flex items-center gap-2 mb-1">
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)' }} />
-              <p style={{
-                fontSize: '10px', fontWeight: 600, letterSpacing: '0.12em',
-                textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)'
-              }}>
-                Портфолио
-              </p>
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <div style={{ width: '24px', height: '1px', background: 'rgba(255,255,255,0.15)' }} />
+              <SacredSigil size={16} />
+              <div style={{ width: '24px', height: '1px', background: 'rgba(255,255,255,0.15)' }} />
             </div>
-            <h2 style={{ fontSize: '28px', fontWeight: 600, letterSpacing: '-0.025em', color: '#FFF' }}>
-              Наши работы
+            <p style={{
+              fontSize: '10px',
+              fontWeight: 600,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.35)',
+              marginBottom: '8px'
+            }}>
+              ЗАКРЫТАЯ КОЛЛЕКЦИЯ
+            </p>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: 300,
+              letterSpacing: '-0.02em',
+              color: '#FFFFFF'
+            }}>
+              Работы членов клуба
             </h2>
           </m.div>
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             {videos.map((v, i) => (
-              <VideoCard
+              <VideoRelic
                 key={v.id}
                 video={v}
                 index={i}
                 active={activeCard === i}
-                onHover={() => setActiveCard(i)}
+                onActivate={() => setActiveCard(i)}
                 onLeave={() => setActiveCard(null)}
                 onClick={() => openDemo(v.id)}
               />
             ))}
           </div>
 
-          {/* Grid */}
           <m.div
+            className="mt-8 text-center"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="mt-6"
           >
-            <p style={{
-              fontSize: '10px', fontWeight: 600, letterSpacing: '0.1em',
-              textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)',
-              marginBottom: '10px', paddingLeft: '2px'
+            <button
+              onClick={() => onNavigate('projects')}
+              data-testid="button-view-all"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'rgba(255,255,255,0.4)',
+                fontSize: '11px',
+                fontWeight: 500,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              Вся коллекция
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </m.div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            D E S I R E — Статус и эксклюзивность
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="px-6 py-16">
+          <m.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            {/* Quote */}
+            <div className="text-center mb-12">
+              <SacredSigil size={28} className="mx-auto mb-6" />
+              
+              <p style={{
+                fontSize: '20px',
+                fontWeight: 300,
+                letterSpacing: '-0.01em',
+                lineHeight: 1.5,
+                color: 'rgba(255,255,255,0.85)',
+                fontStyle: 'italic',
+                marginBottom: '16px'
+              }}>
+                "Когда у тебя есть это —<br/>
+                ты понимаешь разницу."
+              </p>
+              
+              <p style={{
+                fontSize: '10px',
+                fontWeight: 600,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.25)'
+              }}>
+                — Член клуба #0017
+              </p>
+            </div>
+
+            {/* Stats Grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '1px',
+              background: 'rgba(255,255,255,0.06)',
+              borderRadius: '20px',
+              overflow: 'hidden'
             }}>
-              Ещё проекты
-            </p>
-            
-            <div className="grid grid-cols-2 gap-2.5">
-              {demoApps.slice(3, 7).map((app, i) => (
+              {[
+                { value: '0.7%', label: 'Одобренных заявок', highlight: true },
+                { value: '48ч', label: 'Окно подачи' },
+                { value: '∞', label: 'Поддержка навсегда' },
+                { value: '21', label: 'Мест в сезоне' }
+              ].map((stat, i) => (
                 <m.div
-                  key={app.id}
-                  initial={{ opacity: 0, y: 16 }}
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.06, duration: 0.5, ease: snappy }}
-                  whileHover={{ scale: 1.025 }}
-                  whileTap={{ scale: 0.975 }}
-                  onClick={() => openDemo(app.id)}
-                  onMouseEnter={() => preloadDemo(app.id)}
-                  className="cursor-pointer"
-                  data-testid={`demo-card-${app.id}`}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  className="text-center"
+                  style={{ 
+                    padding: '24px 16px', 
+                    background: '#060606'
+                  }}
                 >
-                  <div 
-                    className="relative overflow-hidden"
-                    style={{
-                      borderRadius: '14px', aspectRatio: '1/1',
-                      background: 'rgba(255,255,255,0.02)',
-                      boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05)'
-                    }}
-                  >
-                    {app.image && (
-                      <img src={app.image} alt={app.title} loading="lazy"
-                        className="absolute inset-0 w-full h-full object-cover" />
-                    )}
-                    <div className="absolute inset-0" style={{ 
-                      background: 'linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.85) 100%)' 
-                    }} />
-                    <div className="absolute bottom-2.5 left-2.5">
-                      <p style={{ fontSize: '13px', fontWeight: 600, color: '#FFF' }}>{app.title}</p>
-                    </div>
-                  </div>
+                  <p style={{
+                    fontSize: '28px',
+                    fontWeight: 300,
+                    letterSpacing: '-0.02em',
+                    color: stat.highlight ? '#FFFFFF' : 'rgba(255,255,255,0.9)',
+                    marginBottom: '6px'
+                  }}>
+                    {stat.value}
+                  </p>
+                  <p style={{
+                    fontSize: '9px',
+                    fontWeight: 600,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.3)'
+                  }}>
+                    {stat.label}
+                  </p>
                 </m.div>
               ))}
             </div>
           </m.div>
-
-          <m.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="mt-5">
-            <PremiumButton variant="ghost" onClick={() => onNavigate('projects')} testId="button-view-all" className="w-full">
-              Все проекты <ArrowRight className="w-4 h-4" />
-            </PremiumButton>
-          </m.div>
         </section>
 
-        {/* ══════════ D - DESIRE ══════════ */}
-        <section className="px-4 py-14">
+        {/* ══════════════════════════════════════════════════════════════════
+            A C T I O N — Ритуал инициации
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="px-6 py-16">
           <m.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: snappy }}
-            className="text-center mb-10"
-          >
-            <p style={{
-              fontSize: '24px', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.3, color: '#FFF'
-            }} data-testid="text-quote">
-              Бизнес, который<br/>
-              <span style={{ 
-                background: 'linear-gradient(90deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 100%)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
-              }}>никогда не спит</span>
-            </p>
-          </m.div>
-
-          <m.div 
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            style={{
-              display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px',
-              background: 'rgba(255,255,255,0.05)', borderRadius: '18px', overflow: 'hidden'
-            }}
-          >
-            {[
-              { val: 50, suf: '+', label: 'Проектов' },
-              { val: 14, suf: '', label: 'Дней' },
-              { val: '24/7', suf: '', label: 'Онлайн' }
-            ].map((s, i) => (
-              <div key={s.label} className="text-center" style={{ padding: '24px 8px', background: '#080808' }}>
-                <p style={{ fontSize: '32px', fontWeight: 600, letterSpacing: '-0.03em', color: '#FFF', marginBottom: '4px' }}>
-                  {typeof s.val === 'number' ? <Counter value={s.val} suffix={s.suf} /> : s.val}
-                </p>
-                <p style={{ fontSize: '10px', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>
-                  {s.label}
-                </p>
-              </div>
-            ))}
-          </m.div>
-        </section>
-
-        {/* ══════════ A - ACTION ══════════ */}
-        <section className="px-4 py-16">
-          <m.div
-            initial={{ opacity: 0, y: 32 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: snappy }}
+            transition={{ duration: 0.8 }}
             className="text-center"
           >
-            <m.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center gap-2 mb-5"
-              style={{
-                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '100px', padding: '6px 14px'
-              }}
-            >
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ADE80' }} />
-              <span style={{ fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>
-                Свободны для проектов
-              </span>
-            </m.div>
+            <SacredSigil size={48} className="mx-auto mb-8" />
 
             <h2 style={{
-              fontSize: '40px', fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1, color: '#FFF', marginBottom: '6px'
-            }} data-testid="text-cta-title">
-              Start
-            </h2>
-            <p style={{
-              fontSize: '40px', fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1, marginBottom: '16px',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.1) 100%)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+              fontSize: '28px',
+              fontWeight: 300,
+              letterSpacing: '-0.02em',
+              color: '#FFFFFF',
+              marginBottom: '8px'
             }}>
-              today.
-            </p>
+              Готовы вступить?
+            </h2>
             
-            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', marginBottom: '28px' }}>
-              Бесплатная консультация
+            <p style={{
+              fontSize: '13px',
+              color: 'rgba(255,255,255,0.35)',
+              marginBottom: '24px'
+            }}>
+              Введите инвайт-код для приоритетного доступа
             </p>
 
-            <PremiumButton variant="primary" onClick={contact} testId="button-cta-contact" className="w-full">
-              Написать в Telegram <ArrowRight className="w-4 h-4" />
-            </PremiumButton>
+            {/* Invite Code Input */}
+            <div className="mb-6">
+              <div 
+                className="relative"
+                style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${
+                    codeStatus === 'valid' ? 'rgba(16,185,129,0.5)' :
+                    codeStatus === 'invalid' ? 'rgba(239,68,68,0.5)' :
+                    'rgba(255,255,255,0.08)'
+                  }`,
+                  borderRadius: '14px',
+                  padding: '4px',
+                  transition: 'border-color 0.3s'
+                }}
+              >
+                <div className="flex">
+                  <input
+                    type="text"
+                    placeholder="XXXXXX"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value.toUpperCase().slice(0, 8))}
+                    onKeyDown={(e) => e.key === 'Enter' && validateCode()}
+                    data-testid="input-invite-code"
+                    style={{
+                      flex: 1,
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      padding: '14px 16px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      letterSpacing: '0.15em',
+                      color: '#FFFFFF',
+                      textAlign: 'center',
+                      textTransform: 'uppercase',
+                      fontFamily: "'SF Mono', monospace"
+                    }}
+                  />
+                  {inviteCode && (
+                    <button
+                      onClick={() => setInviteCode('')}
+                      className="px-3"
+                      style={{ color: 'rgba(255,255,255,0.3)' }}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <AnimatePresence mode="wait">
+                <m.p
+                  key={codeStatus}
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 5 }}
+                  style={{
+                    fontSize: '10px',
+                    color: codeStatus === 'valid' ? '#10B981' : 
+                           codeStatus === 'invalid' ? '#EF4444' : 
+                           'rgba(255,255,255,0.25)',
+                    marginTop: '10px'
+                  }}
+                >
+                  {codeStatus === 'checking' ? 'Проверка кода...' :
+                   codeStatus === 'valid' ? 'Код принят. Приоритетный доступ активирован.' :
+                   codeStatus === 'invalid' ? 'Код не найден.' :
+                   'Нет кода? Подайте заявку на общих основаниях.'}
+                </m.p>
+              </AnimatePresence>
+            </div>
 
-            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', marginTop: '16px' }}>
-              Ответ в течение часа
+            <EliteButton onClick={contact} testId="button-cta-apply">
+              Подать заявку
+              <ArrowRight className="w-4 h-4" />
+            </EliteButton>
+
+            <p style={{
+              fontSize: '11px',
+              color: 'rgba(255,255,255,0.2)',
+              marginTop: '20px'
+            }}>
+              Ответ в течение 24 часов
             </p>
           </m.div>
         </section>
 
         {/* Footer */}
-        <footer className="px-4 py-6 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-          <p style={{ fontSize: '10px', fontWeight: 500, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.15)' }}>
-            WEB4TG STUDIO · 2025
+        <footer className="px-6 py-12 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+          <SacredSigil size={24} className="mx-auto mb-4" />
+          <p style={{ 
+            fontSize: '9px', 
+            fontWeight: 600,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.15)' 
+          }}>
+            WEB4TG STUDIO · EST. 2024
+          </p>
+          <p style={{ 
+            fontSize: '10px', 
+            color: 'rgba(255,255,255,0.1)',
+            marginTop: '8px'
+          }}>
+            Доступ ограничен
           </p>
         </footer>
 
