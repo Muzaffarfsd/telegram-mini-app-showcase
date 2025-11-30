@@ -39,6 +39,112 @@ export interface DemoApp {
 
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
+  // Premium Design Collection - Dribbble Inspired (NEW)
+  {
+    id: 'oxyz-nft',
+    title: 'OXYZ',
+    description: 'Футуристическая NFT платформа с красными акцентами',
+    category: 'NFT & Крипто',
+    image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&h=300&fit=crop&q=80',
+    creator: 'WEB4TG',
+    likes: '31.2k',
+    badge: 'NFT',
+    badgeColor: 'bg-red-600',
+    home: {
+      hero: {
+        title: 'GET BEST CREATIONS',
+        subtitle: 'Dynamic NFT Ecosystem',
+        image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&h=600&fit=crop&q=90',
+        bgClass: 'bg-black'
+      },
+      banners: [
+        {
+          title: 'Genesis Collection',
+          subtitle: 'Limited Edition NFTs',
+          image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop&q=80',
+          bgClass: 'bg-gradient-to-r from-red-600 to-black'
+        }
+      ],
+      services: [
+        { id: 'catalog', title: 'Marketplace', priceText: 'Browse NFTs', iconName: 'grid' },
+        { id: 'favorites', title: 'Favorites', priceText: 'Saved items', iconName: 'heart' },
+        { id: 'cart', title: 'My Bids', priceText: 'Active bids', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Profile', priceText: 'My collection', iconName: 'user' }
+      ]
+    }
+  },
+  {
+    id: 'emily-carter-ai',
+    title: 'Emily Carter',
+    description: 'AI Creator профиль с подпиской и эксклюзивным контентом',
+    category: 'AI & Контент',
+    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=300&fit=crop&q=80',
+    creator: 'WEB4TG',
+    likes: '34.9k',
+    badge: 'AI Creator',
+    badgeColor: 'bg-purple-600',
+    home: {
+      hero: {
+        title: 'Emily Carter',
+        subtitle: 'AI Creator',
+        image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=600&fit=crop&q=90',
+        bgClass: 'bg-gradient-to-br from-purple-100 to-pink-100'
+      },
+      services: [
+        { id: 'catalog', title: 'Profile', priceText: 'View content', iconName: 'user' },
+        { id: 'cart', title: 'Purchases', priceText: 'My items', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Settings', priceText: 'Account', iconName: 'settings' }
+      ]
+    }
+  },
+  {
+    id: 'n99-beauty-studio',
+    title: 'N99° Beauty',
+    description: 'Бьюти студия с бронированием и галереей дизайнов',
+    category: 'Красота & Уход',
+    image: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=300&fit=crop&q=80',
+    creator: 'WEB4TG',
+    likes: '28.7k',
+    badge: 'Beauty',
+    badgeColor: 'bg-amber-700',
+    home: {
+      hero: {
+        title: 'N99° Beauty Studio',
+        subtitle: 'Premium nail art',
+        image: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800&h=600&fit=crop&q=90',
+        bgClass: 'bg-gradient-to-br from-amber-100 to-orange-100'
+      },
+      services: [
+        { id: 'catalog', title: 'Inspiration', priceText: 'Add designs', iconName: 'heart' },
+        { id: 'cart', title: 'Bookings', priceText: 'My appointments', iconName: 'calendar' },
+        { id: 'profile', title: 'Profile', priceText: 'Settings', iconName: 'user' }
+      ]
+    }
+  },
+  {
+    id: 'airpods-pro',
+    title: 'AirPods Pro',
+    description: 'Apple продукт витрина в стиле официального сайта',
+    category: 'Технологии',
+    image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400&h=300&fit=crop&q=80',
+    creator: 'WEB4TG',
+    likes: '42.1k',
+    badge: 'Apple',
+    badgeColor: 'bg-gray-900',
+    home: {
+      hero: {
+        title: 'AirPods Pro',
+        subtitle: '2nd Generation',
+        image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=600&fit=crop&q=90',
+        bgClass: 'bg-gradient-to-b from-gray-100 to-gray-200'
+      },
+      services: [
+        { id: 'catalog', title: 'Shop', priceText: '$200', iconName: 'shopping-cart' },
+        { id: 'cart', title: 'Cart', priceText: 'Buy now', iconName: 'shopping-bag' },
+        { id: 'profile', title: 'Account', priceText: 'Apple ID', iconName: 'user' }
+      ]
+    }
+  },
   {
     id: 'clothing-store',
     title: 'Radiance',

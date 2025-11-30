@@ -124,6 +124,24 @@ export const demoRegistry: Record<string, DemoComponent> = {
   'futuristic-fashion-4': {
     component: lazy(() => import('./NikeACG')),
     preload: () => import('./NikeACG')
+  },
+  
+  // Premium Design Collection - Based on Dribbble designs
+  'oxyz-nft': {
+    component: lazy(() => import('./OxyzNFT')),
+    preload: () => import('./OxyzNFT')
+  },
+  'emily-carter-ai': {
+    component: lazy(() => import('./EmilyCarterAI')),
+    preload: () => import('./EmilyCarterAI')
+  },
+  'n99-beauty-studio': {
+    component: lazy(() => import('./N99BeautyStudio')),
+    preload: () => import('./N99BeautyStudio')
+  },
+  'airpods-pro': {
+    component: lazy(() => import('./AirPodsPro')),
+    preload: () => import('./AirPodsPro')
   }
 };
 
