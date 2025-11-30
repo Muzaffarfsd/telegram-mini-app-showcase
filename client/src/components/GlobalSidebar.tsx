@@ -135,7 +135,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
         {/* Sidebar Header with User */}
         <div style={{ 
-          padding: '28px 24px',
+          padding: '60px 24px 28px 24px',
           borderBottom: '1px solid rgba(255,255,255,0.05)'
         }}>
           <div className="flex items-center justify-between">
