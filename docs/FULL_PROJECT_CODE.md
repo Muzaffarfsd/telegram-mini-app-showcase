@@ -46840,3 +46840,10190 @@ img, video {
 }
 ```
 
+
+## ДОПОЛНИТЕЛЬНЫЕ КОМПОНЕНТЫ (2025)
+
+### 2025/AdvancedEffects.tsx
+```tsx
+import React, { useState, useEffect, useRef } from 'react';
+import { motion } from '@/utils/LazyMotionProvider';
+import { cn } from '@/lib/utils';
+import { useTelegram } from '@/hooks/useTelegram';
+
+// === LIQUID BUTTON (SVG morphing effect) ===
+interface LiquidButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+}
+
+export const LiquidButton: React.FC<LiquidButtonProps> = ({
+  children,
+  className,
+  ...props
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const { hapticFeedback } = useTelegram();
+  
+  return (
+    <button
+      className={cn('relative px-8 py-4 overflow-visible', className)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={(e) => {
+        hapticFeedback.medium();
+        props.onClick?.(e);
+      }}
+      {...props}
+    >
+      <svg 
+        className="absolute inset-0 w-full h-full" 
+        viewBox="0 0 200 60" 
+        preserveAspectRatio="none"
+      >
+        <motion.path
+          d={isHovered 
+            ? "M 0 30 Q 50 10 100 30 T 200 30 L 200 60 L 0 60 Z"
+            : "M 0 30 Q 50 30 100 30 T 200 30 L 200 60 L 0 60 Z"
+          }
+          fill="url(#liquidGradient)"
+          animate={{
+            d: isHovered
+              ? ["M 0 30 Q 50 30 100 30 T 200 30 L 200 60 L 0 60 Z", 
+                 "M 0 30 Q 50 10 100 30 T 200 30 L 200 60 L 0 60 Z",
+                 "M 0 30 Q 50 40 100 30 T 200 30 L 200 60 L 0 60 Z",
+                 "M 0 30 Q 50 10 100 30 T 200 30 L 200 60 L 0 60 Z"]
+              : ["M 0 30 Q 50 10 100 30 T 200 30 L 200 60 L 0 60 Z",
+                 "M 0 30 Q 50 30 100 30 T 200 30 L 200 60 L 0 60 Z"]
+          }}
+          transition={{
+            duration: isHovered ? 2 : 0.6,
+            repeat: isHovered ? Infinity : 0,
+            ease: 'easeInOut'
+          }}
+        />
+        <defs>
+          <linearGradient id="liquidGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#10B981" />
+            <stop offset="50%" stopColor="#06B6D4" />
+            <stop offset="100%" stopColor="#8B5CF6" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <span className="relative z-10 text-white font-semibold">{children}</span>
+    </button>
+  );
+};
+
+// === CURSOR FOLLOWER ===
+interface CursorFollowerProps {
+  size?: number;
+  color?: string;
+  blur?: number;
+}
+
+export const CursorFollower: React.FC<CursorFollowerProps> = ({
+  size = 20,
+  color = 'rgba(16, 185, 129, 0.3)',
+  blur = 30
+}) => {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setPosition({ x: e.clientX, y: e.clientY });
+      setIsVisible(true);
+    };
+    
+    const handleMouseLeave = () => {
+      setIsVisible(false);
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseleave', handleMouseLeave);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+  
+  if (!isVisible) return null;
+  
+  return (
+    <motion.div
+      className="fixed pointer-events-none z-50 rounded-full"
+      style={{
+        width: size,
+        height: size,
+        backgroundColor: color,
+        filter: `blur(${blur}px)`,
+        left: position.x - size / 2,
+        top: position.y - size / 2
+      }}
+      animate={{
+        x: position.x - size / 2,
+        y: position.y - size / 2
+      }}
+      transition={{
+        type: 'spring',
+        stiffness: 500,
+        damping: 28
+      }}
+    />
+  );
+};
+
+// === ANIMATED CHART (simple bar chart with animation) ===
+interface AnimatedChartProps {
+  data: { label: string; value: number; color?: string }[];
+  maxValue?: number;
+  className?: string;
+}
+
+export const AnimatedChart: React.FC<AnimatedChartProps> = ({
+  data,
+  maxValue,
+  className
+}) => {
+  const max = maxValue || Math.max(...data.map(d => d.value));
+  
+  return (
+    <div className={cn('space-y-3', className)}>
+      {data.map((item, index) => (
+        <div key={index} className="space-y-1">
+          <div className="flex justify-between text-sm text-white/80">
+            <span>{item.label}</span>
+            <span className="font-semibold">{item.value}</span>
+          </div>
+          <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full rounded-full"
+              style={{
+                background: item.color || 'linear-gradient(90deg, #10B981, #06B6D4)'
+              }}
+              initial={{ width: 0 }}
+              whileInView={{ width: `${(item.value / max) * 100}%` }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: index * 0.1, ease: 'easeOut' }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// === CIRCULAR PROGRESS ===
+interface CircularProgressProps {
+  value: number;
+  max?: number;
+  size?: number;
+  strokeWidth?: number;
+  className?: string;
+  showValue?: boolean;
+}
+
+export const CircularProgress: React.FC<CircularProgressProps> = ({
+  value,
+  max = 100,
+  size = 120,
+  strokeWidth = 8,
+  className,
+  showValue = true
+}) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const progress = (value / max) * 100;
+  const offset = circumference - (progress / 100) * circumference;
+  
+  return (
+    <div className={cn('relative inline-flex items-center justify-center', className)}>
+      <svg width={size} height={size} className="transform -rotate-90">
+        {/* Background circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="rgba(255, 255, 255, 0.1)"
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        
+        {/* Progress circle */}
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="url(#circularGradient)"
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeLinecap="round"
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1, ease: 'easeOut' }}
+          style={{
+            strokeDasharray: circumference
+          }}
+        />
+        
+        <defs>
+          <linearGradient id="circularGradient">
+            <stop offset="0%" stopColor="#10B981" />
+            <stop offset="100%" stopColor="#06B6D4" />
+          </linearGradient>
+        </defs>
+      </svg>
+      
+      {showValue && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-2xl font-bold text-white">
+            {Math.round(progress)}%
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+### 2025/AIChatbot.tsx
+```tsx
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from '@/utils/LazyMotionProvider';
+import { cn } from '@/lib/utils';
+import { useTelegram } from '@/hooks/useTelegram';
+import { MessageCircle, Send, X, Loader2 } from 'lucide-react';
+
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+interface AIChatbotProps {
+  onSendMessage?: (message: string) => Promise<string>;
+  placeholder?: string;
+  className?: string;
+}
+
+export const AIChatbot: React.FC<AIChatbotProps> = ({
+  onSendMessage,
+  placeholder = 'Ask me anything...',
+  className
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      role: 'assistant',
+      content: 'Hello! How can I help you today?',
+      timestamp: new Date()
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { hapticFeedback } = useTelegram();
+  
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+  
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+  
+  const handleSend = async () => {
+    if (!input.trim()) return;
+    
+    hapticFeedback.light();
+    
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsTyping(true);
+    
+    try {
+      const response = onSendMessage 
+        ? await onSendMessage(input)
+        : `I received your message: "${input}". This is a demo response.`;
+      
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: response,
+        timestamp: new Date()
+      };
+      
+      setTimeout(() => {
+        setMessages(prev => [...prev, assistantMessage]);
+        setIsTyping(false);
+        hapticFeedback.light();
+      }, 1000);
+    } catch (error) {
+      setIsTyping(false);
+      console.error('AI Chatbot error:', error);
+    }
+  };
+  
+  return (
+    <>
+      {/* Floating chat button */}
+      <AnimatePresence>
+        {!isOpen && (
+          <motion.button
+            className={cn(
+              'fixed bottom-20 right-4 z-50',
+              'w-14 h-14 rounded-full',
+              'bg-gradient-to-br from-emerald-500 to-cyan-500',
+              'text-white shadow-lg',
+              'flex items-center justify-center',
+              className
+            )}
+            onClick={() => {
+              setIsOpen(true);
+              hapticFeedback.medium();
+            }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <MessageCircle className="w-6 h-6" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+      
+      {/* Chat window */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="fixed inset-x-4 bottom-20 z-50 max-w-md mx-auto"
+            initial={{ y: 100, opacity: 0, scale: 0.9 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 100, opacity: 0, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          >
+            <div className="glass-card-strong rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[500px]">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center">
+                    <MessageCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">AI Assistant</h3>
+                    <p className="text-xs text-white/60">Always here to help</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    hapticFeedback.light();
+                  }}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-white/60" />
+                </button>
+              </div>
+              
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map((message) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={cn(
+                      'flex',
+                      message.role === 'user' ? 'justify-end' : 'justify-start'
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'max-w-[80%] rounded-2xl px-4 py-2',
+                        message.role === 'user'
+                          ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white'
+                          : 'glass-card-medium text-white'
+                      )}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                      <p className="text-xs opacity-60 mt-1">
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+                
+                {isTyping && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex justify-start"
+                  >
+                    <div className="glass-card-medium rounded-2xl px-4 py-3 flex gap-1">
+                      <motion.div
+                        className="w-2 h-2 bg-emerald-500 rounded-full"
+                        animate={{ scale: [1, 1.5, 1] }}
+                        transition={{ duration: 1, repeat: Infinity, delay: 0 }}
+                      />
+                      <motion.div
+                        className="w-2 h-2 bg-emerald-500 rounded-full"
+                        animate={{ scale: [1, 1.5, 1] }}
+                        transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
+                      />
+                      <motion.div
+                        className="w-2 h-2 bg-emerald-500 rounded-full"
+                        animate={{ scale: [1, 1.5, 1] }}
+                        transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+                
+                <div ref={messagesEndRef} />
+              </div>
+              
+              {/* Input */}
+              <div className="p-4 border-t border-white/10">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                    placeholder={placeholder}
+                    className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={!input.trim() || isTyping}
+                    className="px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-shadow"
+                  >
+                    <Send className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+```
+
+### 2025/AnimatedElements.tsx
+```tsx
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from '@/utils/LazyMotionProvider';
+import { cn } from '@/lib/utils';
+import { useTelegram } from '@/hooks/useTelegram';
+
+// === ANIMATED ICON ===
+interface AnimatedIconProps {
+  icon: React.ReactNode;
+  size?: number;
+  withGlow?: boolean;
+  withRing?: boolean;
+  className?: string;
+}
+
+export const AnimatedIcon: React.FC<AnimatedIconProps> = ({
+  icon,
+  size = 40,
+  withGlow = true,
+  withRing = true,
+  className
+}) => {
+  return (
+    <div className={cn('relative inline-flex', className)} style={{ width: size, height: size }}>
+      {/* Animated ring */}
+      {withRing && (
+        <motion.div
+          className="absolute inset-0 rounded-full border-2 border-emerald-500/50"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{
+            scale: [0.8, 1.2, 0.8],
+            opacity: [0, 1, 0]
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: 'easeInOut'
+          }}
+        />
+      )}
+      
+      {/* Icon with glow */}
+      <motion.div
+        className={cn(
+          'relative z-10 flex items-center justify-center',
+          'w-full h-full rounded-full',
+          withGlow && 'shadow-[0_0_20px_rgba(16,185,129,0.5)]'
+        )}
+        style={{
+          background: 'linear-gradient(135deg, #10B981, #06B6D4)',
+        }}
+        whileHover={{ scale: 1.1, rotate: 5 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <div className="text-white">{icon}</div>
+      </motion.div>
+    </div>
+  );
+};
+
+// === LIKE BUTTON WITH PARTICLES ===
+interface LikeButtonProps {
+  initialLiked?: boolean;
+  onLike?: (liked: boolean) => void;
+  size?: number;
+}
+
+interface Particle {
+  id: number;
+  x: number;
+  y: number;
+}
+
+export const LikeButton: React.FC<LikeButtonProps> = ({
+  initialLiked = false,
+  onLike,
+  size = 40
+}) => {
+  const [isLiked, setIsLiked] = useState(initialLiked);
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const { hapticFeedback } = useTelegram();
+  
+  const handleClick = () => {
+    const newLiked = !isLiked;
+    setIsLiked(newLiked);
+    onLike?.(newLiked);
+    
+    if (newLiked) {
+      hapticFeedback.heavy();
+      
+      // Create particles
+      const newParticles = Array.from({ length: 8 }, (_, i) => ({
+        id: Date.now() + i,
+        x: Math.cos((i / 8) * Math.PI * 2) * 30,
+        y: Math.sin((i / 8) * Math.PI * 2) * 30
+      }));
+      
+      setParticles(newParticles);
+      
+      // Remove particles after animation
+      setTimeout(() => setParticles([]), 800);
+    } else {
+      hapticFeedback.light();
+    }
+  };
+  
+  return (
+    <div className="relative inline-flex" style={{ width: size, height: size }}>
+      {/* Particles */}
+      <AnimatePresence>
+        {particles.map((particle) => (
+          <motion.div
+            key={particle.id}
+            className="absolute w-2 h-2 rounded-full bg-pink-500"
+            initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+            animate={{
+              x: particle.x,
+              y: particle.y,
+              scale: 0,
+              opacity: 0
+            }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            style={{
+              left: '50%',
+              top: '50%',
+              marginLeft: -4,
+              marginTop: -4
+            }}
+          />
+        ))}
+      </AnimatePresence>
+      
+      {/* Heart button */}
+      <motion.button
+        className={cn(
+          'w-full h-full rounded-full flex items-center justify-center',
+          'transition-colors duration-300',
+          isLiked ? 'bg-gradient-to-br from-pink-500 to-red-500' : 'bg-white/10'
+        )}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={handleClick}
+      >
+        <motion.svg
+          width={size * 0.6}
+          height={size * 0.6}
+          viewBox="0 0 24 24"
+          fill={isLiked ? 'white' : 'none'}
+          stroke={isLiked ? 'white' : 'currentColor'}
+          strokeWidth="2"
+          initial={false}
+          animate={{
+            scale: isLiked ? [1, 1.2, 1] : 1
+          }}
+          transition={{ duration: 0.3 }}
+        >
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </motion.svg>
+      </motion.button>
+    </div>
+  );
+};
+
+// === SPLIT TEXT REVEAL ===
+interface SplitTextRevealProps {
+  children: string;
+  delay?: number;
+  className?: string;
+}
+
+export const SplitTextReveal: React.FC<SplitTextRevealProps> = ({
+  children,
+  delay = 0,
+  className
+}) => {
+  const words = children.split(' ');
+  
+  return (
+    <motion.span className={cn('inline-block', className)}>
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          className="inline-block mr-2"
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{
+            duration: 0.5,
+            delay: delay + i * 0.05,
+            ease: [0.33, 1, 0.68, 1]
+          }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+};
+
+// === TYPEWRITER TEXT ===
+interface TypewriterTextProps {
+  text: string;
+  speed?: number;
+  className?: string;
+  onComplete?: () => void;
+}
+
+export const TypewriterText: React.FC<TypewriterTextProps> = ({
+  text,
+  speed = 50,
+  className,
+  onComplete
+}) => {
+  const [displayText, setDisplayText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  useEffect(() => {
+    if (currentIndex < text.length) {
+      const timeout = setTimeout(() => {
+        setDisplayText((prev) => prev + text[currentIndex]);
+        setCurrentIndex((prev) => prev + 1);
+      }, speed);
+      
+      return () => clearTimeout(timeout);
+    } else if (onComplete) {
+      onComplete();
+    }
+  }, [currentIndex, text, speed, onComplete]);
+  
+  return (
+    <span className={className}>
+      {displayText}
+      <motion.span
+        animate={{ opacity: [1, 0] }}
+        transition={{ duration: 0.5, repeat: Infinity }}
+        className="inline-block w-0.5 h-5 bg-current ml-1"
+      />
+    </span>
+  );
+};
+
+// === GLITCH TEXT ===
+interface GlitchTextProps {
+  children: string;
+  className?: string;
+}
+
+export const GlitchText: React.FC<GlitchTextProps> = ({
+  children,
+  className
+}) => {
+  return (
+    <div className={cn('relative inline-block', className)}>
+      <span className="relative z-10">{children}</span>
+      <span 
+        className="absolute top-0 left-0 text-cyan-500 opacity-70 pointer-events-none animate-glitch-1"
+        aria-hidden="true"
+        style={{
+          clipPath: 'polygon(0 0, 100% 0, 100% 45%, 0 45%)',
+          animation: 'glitch-1 0.3s infinite'
+        }}
+      >
+        {children}
+      </span>
+      <span 
+        className="absolute top-0 left-0 text-pink-500 opacity-70 pointer-events-none animate-glitch-2"
+        aria-hidden="true"
+        style={{
+          clipPath: 'polygon(0 55%, 100% 55%, 100% 100%, 0 100%)',
+          animation: 'glitch-2 0.3s infinite'
+        }}
+      >
+        {children}
+      </span>
+    </div>
+  );
+};
+```
+
+### 2025/OptimizedImage.tsx
+```tsx
+import React, { useState, useEffect } from 'react';
+import { motion } from '@/utils/LazyMotionProvider';
+import { cn } from '@/lib/utils';
+
+interface OptimizedImageProps {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  className?: string;
+  priority?: boolean;
+  fallback?: string;
+  skeleton?: boolean;
+  onLoad?: () => void;
+  onError?: () => void;
+}
+
+export const OptimizedImage: React.FC<OptimizedImageProps> = ({
+  src,
+  alt,
+  width,
+  height,
+  className,
+  priority = false,
+  fallback = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 400 300\'%3E%3Crect fill=\'%23111\' width=\'400\' height=\'300\'/%3E%3Ctext fill=\'%23666\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\' font-family=\'sans-serif\' font-size=\'18\'%3EImage%3C/text%3E%3C/svg%3E',
+  skeleton = true,
+  onLoad,
+  onError
+}) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [imageSrc, setImageSrc] = useState(priority ? src : fallback);
+  
+  useEffect(() => {
+    if (!priority) {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => {
+        setImageSrc(src);
+        setIsLoading(false);
+        onLoad?.();
+      };
+      img.onerror = () => {
+        setError(true);
+        setIsLoading(false);
+        onError?.();
+      };
+    } else {
+      setIsLoading(false);
+    }
+  }, [src, priority, onLoad, onError]);
+  
+  return (
+    <div className={cn('relative overflow-hidden', className)} style={{ width, height }}>
+      {isLoading && skeleton && (
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5"
+          animate={{
+            x: ['-100%', '100%']
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: 'linear'
+          }}
+        />
+      )}
+      
+      <motion.img
+        src={error ? fallback : imageSrc}
+        alt={alt}
+        className={cn('w-full h-full object-cover', className)}
+        initial={{ opacity: 0, scale: 1.1 }}
+        animate={{ opacity: isLoading ? 0 : 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+        loading={priority ? 'eager' : 'lazy'}
+        onLoad={() => {
+          setIsLoading(false);
+          onLoad?.();
+        }}
+        onError={() => {
+          setError(true);
+          onError?.();
+        }}
+      />
+    </div>
+  );
+};
+
+// === PROGRESSIVE IMAGE (with blur-up effect) ===
+interface ProgressiveImageProps {
+  src: string;
+  placeholder: string;
+  alt: string;
+  className?: string;
+}
+
+export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
+  src,
+  placeholder,
+  alt,
+  className
+}) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  
+  return (
+    <div className={cn('relative overflow-hidden', className)}>
+      <motion.img
+        src={placeholder}
+        alt={alt}
+        className="absolute inset-0 w-full h-full object-cover blur-lg"
+        style={{ filter: isLoaded ? 'blur(0px)' : 'blur(20px)' }}
+      />
+      
+      <motion.img
+        src={src}
+        alt={alt}
+        className="relative w-full h-full object-cover"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isLoaded ? 1 : 0 }}
+        transition={{ duration: 0.6 }}
+        onLoad={() => setIsLoaded(true)}
+      />
+    </div>
+  );
+};
+```
+
+### 2025/PremiumButtons.tsx
+```tsx
+import React, { useRef, useState, useEffect } from 'react';
+import { motion } from '@/utils/LazyMotionProvider';
+import { cn } from '@/lib/utils';
+import { useTelegram } from '@/hooks/useTelegram';
+
+// === GRADIENT BUTTON ===
+interface GradientButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'aurora' | 'emerald-cyan' | 'emerald-purple';
+  size?: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
+}
+
+export const GradientButton: React.FC<GradientButtonProps> = ({
+  variant = 'primary',
+  size = 'md',
+  children,
+  className,
+  ...props
+}) => {
+  const { hapticFeedback } = useTelegram();
+  
+  const gradients = {
+    primary: 'bg-gradient-to-r from-emerald-500 to-teal-500',
+    aurora: 'bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500',
+    'emerald-cyan': 'bg-gradient-to-r from-emerald-500 to-cyan-500',
+    'emerald-purple': 'bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500'
+  };
+  
+  const sizes = {
+    sm: 'px-4 py-2 text-sm',
+    md: 'px-6 py-3 text-base',
+    lg: 'px-8 py-4 text-lg'
+  };
+  
+  return (
+    <motion.button
+      className={cn(
+        'relative rounded-full font-semibold text-white',
+        'shadow-lg hover:shadow-xl',
+        'transition-all duration-300',
+        'ripple-effect',
+        gradients[variant],
+        sizes[size],
+        className
+      )}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={(e) => {
+        hapticFeedback.medium();
+        props.onClick?.(e);
+      }}
+      {...props}
+    >
+      <span className="relative z-10">{children}</span>
+    </motion.button>
+  );
+};
+
+// === GLASS BUTTON ===
+interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'subtle' | 'medium' | 'strong';
+  children: React.ReactNode;
+  icon?: React.ReactNode;
+}
+
+export const GlassButton: React.FC<GlassButtonProps> = ({
+  variant = 'medium',
+  children,
+  icon,
+  className,
+  ...props
+}) => {
+  const { hapticFeedback } = useTelegram();
+  
+  const variants = {
+    subtle: 'glass-card',
+    medium: 'glass-card-medium',
+    strong: 'glass-card-strong'
+  };
+  
+  return (
+    <motion.button
+      className={cn(
+        'relative px-6 py-3 rounded-full',
+        'font-medium text-white',
+        'transition-all duration-300',
+        'hover:bg-white/20',
+        variants[variant],
+        className
+      )}
+      whileHover={{ scale: 1.05, y: -2 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={(e) => {
+        hapticFeedback.light();
+        props.onClick?.(e);
+      }}
+      {...props}
+    >
+      <div className="flex items-center justify-center gap-2">
+        {icon && <span>{icon}</span>}
+        <span>{children}</span>
+      </div>
+    </motion.button>
+  );
+};
+
+// === MORPHING BUTTON ===
+interface MorphingButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  isLoading?: boolean;
+  loadingText?: string;
+  children: React.ReactNode;
+}
+
+export const MorphingButton: React.FC<MorphingButtonProps> = ({
+  isLoading = false,
+  loadingText = 'Loading...',
+  children,
+  className,
+  ...props
+}) => {
+  const { hapticFeedback } = useTelegram();
+  
+  return (
+    <motion.button
+      className={cn(
+        'relative px-6 py-3 rounded-full',
+        'bg-gradient-to-r from-emerald-500 to-teal-500',
+        'font-semibold text-white',
+        'shadow-lg overflow-hidden',
+        'disabled:opacity-50 disabled:cursor-not-allowed',
+        className
+      )}
+      animate={{
+        width: isLoading ? 48 : 'auto'
+      }}
+      onClick={(e) => {
+        if (!isLoading) {
+          hapticFeedback.medium();
+          props.onClick?.(e);
+        }
+      }}
+      disabled={isLoading || props.disabled}
+      {...props}
+    >
+      <motion.div
+        initial={false}
+        animate={{
+          opacity: isLoading ? 0 : 1
+        }}
+      >
+        {children}
+      </motion.div>
+      
+      {isLoading && (
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        </motion.div>
+      )}
+    </motion.button>
+  );
+};
+
+// === MAGNETIC BUTTON ===
+interface MagneticButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  strength?: number;
+  children: React.ReactNode;
+}
+
+export const MagneticButton: React.FC<MagneticButtonProps> = ({
+  strength = 20,
+  children,
+  className,
+  ...props
+}) => {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const { hapticFeedback } = useTelegram();
+  
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!ref.current) return;
+    
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const deltaX = (e.clientX - centerX) / rect.width;
+    const deltaY = (e.clientY - centerY) / rect.height;
+    
+    setPosition({
+      x: deltaX * strength,
+      y: deltaY * strength
+    });
+  };
+  
+  const handleMouseLeave = () => {
+    setPosition({ x: 0, y: 0 });
+  };
+  
+  return (
+    <motion.button
+      ref={ref}
+      className={cn(
+        'relative px-6 py-3 rounded-full',
+        'bg-gradient-to-r from-purple-500 to-pink-500',
+        'font-semibold text-white',
+        'shadow-lg hover:shadow-xl',
+        'transition-shadow duration-300',
+        'magnetic-button',
+        className
+      )}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      animate={{
+        x: position.x,
+        y: position.y
+      }}
+      transition={{
+        type: 'spring',
+        stiffness: 400,
+        damping: 20
+      }}
+      onClick={(e) => {
+        hapticFeedback.heavy();
+        props.onClick?.(e);
+      }}
+      {...props}
+    >
+      {children}
+    </motion.button>
+  );
+};
+
+// === FLOATING ACTION BUTTON (FAB) ===
+interface FABProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  icon: React.ReactNode;
+  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+}
+
+export const FAB: React.FC<FABProps> = ({
+  icon,
+  position = 'bottom-right',
+  className,
+  ...props
+}) => {
+  const { hapticFeedback } = useTelegram();
+  
+  const positions = {
+    'bottom-right': 'bottom-20 right-4',
+    'bottom-left': 'bottom-20 left-4',
+    'top-right': 'top-4 right-4',
+    'top-left': 'top-4 left-4'
+  };
+  
+  return (
+    <motion.button
+      className={cn(
+        'fixed z-50',
+        'w-14 h-14 rounded-full',
+        'bg-gradient-to-br from-emerald-500 to-teal-500',
+        'text-white shadow-lg',
+        'flex items-center justify-center',
+        positions[position],
+        className
+      )}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{
+        type: 'spring',
+        stiffness: 400,
+        damping: 17
+      }}
+      onClick={(e) => {
+        hapticFeedback.heavy();
+        props.onClick?.(e);
+      }}
+      {...props}
+    >
+      {icon}
+    </motion.button>
+  );
+};
+
+// === PULSE BUTTON ===
+interface PulseButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+  pulseColor?: string;
+}
+
+export const PulseButton: React.FC<PulseButtonProps> = ({
+  children,
+  pulseColor = 'rgba(16, 185, 129, 0.5)',
+  className,
+  ...props
+}) => {
+  const { hapticFeedback } = useTelegram();
+  
+  return (
+    <motion.button
+      className={cn(
+        'relative px-6 py-3 rounded-full',
+        'bg-emerald-500 hover:bg-emerald-600',
+        'font-semibold text-white',
+        'transition-colors duration-300',
+        className
+      )}
+      onClick={(e) => {
+        hapticFeedback.medium();
+        props.onClick?.(e);
+      }}
+      {...props}
+    >
+      {/* Pulse rings */}
+      <span className="absolute inset-0 rounded-full animate-ping opacity-75" 
+            style={{ backgroundColor: pulseColor }} />
+      <span className="absolute inset-0 rounded-full animate-pulse" 
+            style={{ backgroundColor: pulseColor }} />
+      
+      {/* Button content */}
+      <span className="relative z-10">{children}</span>
+    </motion.button>
+  );
+};
+```
+
+### 2025/PremiumCards.tsx
+```tsx
+import React, { useRef, useState } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from '@/utils/LazyMotionProvider';
+import { cn } from '@/lib/utils';
+
+// === GLASS CARD ===
+interface GlassCardProps {
+  children: React.ReactNode;
+  variant?: 'subtle' | 'medium' | 'strong' | 'gradient' | 'frosted';
+  className?: string;
+  hover?: boolean;
+}
+
+export const GlassCard: React.FC<GlassCardProps> = ({
+  children,
+  variant = 'medium',
+  className,
+  hover = true
+}) => {
+  const variants = {
+    subtle: 'glass-card',
+    medium: 'glass-card-medium',
+    strong: 'glass-card-strong',
+    gradient: 'glass-card-gradient',
+    frosted: 'glass-card-frosted'
+  };
+  
+  return (
+    <motion.div
+      className={cn(
+        'rounded-xl p-6',
+        variants[variant],
+        hover && 'hover-lift',
+        className
+      )}
+      whileHover={hover ? { y: -4 } : undefined}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// === TILT CARD (3D effect on hover) ===
+interface TiltCardProps {
+  children: React.ReactNode;
+  className?: string;
+  maxTilt?: number;
+}
+
+export const TiltCard: React.FC<TiltCardProps> = ({
+  children,
+  className,
+  maxTilt = 15
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [maxTilt, -maxTilt]));
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-maxTilt, maxTilt]));
+  
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    x.set((event.clientX - centerX) / rect.width);
+    y.set((event.clientY - centerY) / rect.height);
+  };
+  
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+  
+  return (
+    <motion.div
+      ref={ref}
+      className={cn('glass-card-medium rounded-xl p-6', className)}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: 'preserve-3d'
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      whileHover={{ scale: 1.02 }}
+    >
+      <div style={{ transform: 'translateZ(50px)' }}>
+        {children}
+      </div>
+    </motion.div>
+  );
+};
+
+// === MORPHING CARD (shape changes on hover) ===
+interface MorphingCardProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export const MorphingCard: React.FC<MorphingCardProps> = ({
+  children,
+  className
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  return (
+    <motion.div
+      className={cn('glass-card-medium p-6 relative overflow-hidden', className)}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      animate={{
+        borderRadius: isHovered ? '24px' : '16px'
+      }}
+      transition={{ duration: 0.4, ease: 'easeInOut' }}
+    >
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+      />
+      <div className="relative z-10">{children}</div>
+    </motion.div>
+  );
+};
+
+// === PARALLAX CARD (depth layers) ===
+interface ParallaxCardProps {
+  children: React.ReactNode;
+  backgroundLayer?: React.ReactNode;
+  className?: string;
+}
+
+export const ParallaxCard: React.FC<ParallaxCardProps> = ({
+  children,
+  backgroundLayer,
+  className
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  const backgroundX = useSpring(useTransform(x, [-0.5, 0.5], [-20, 20]));
+  const backgroundY = useSpring(useTransform(y, [-0.5, 0.5], [-20, 20]));
+  const contentX = useSpring(useTransform(x, [-0.5, 0.5], [-5, 5]));
+  const contentY = useSpring(useTransform(y, [-0.5, 0.5], [-5, 5]));
+  
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    x.set((event.clientX - centerX) / rect.width);
+    y.set((event.clientY - centerY) / rect.height);
+  };
+  
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+  
+  return (
+    <div
+      ref={ref}
+      className={cn('relative rounded-xl overflow-hidden', className)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {backgroundLayer && (
+        <motion.div
+          className="absolute inset-0"
+          style={{ x: backgroundX, y: backgroundY }}
+        >
+          {backgroundLayer}
+        </motion.div>
+      )}
+      <motion.div
+        className="relative z-10 glass-card-medium p-6"
+        style={{ x: contentX, y: contentY }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+};
+
+// === FLIP CARD (flip animation) ===
+interface FlipCardProps {
+  front: React.ReactNode;
+  back: React.ReactNode;
+  className?: string;
+}
+
+export const FlipCard: React.FC<FlipCardProps> = ({
+  front,
+  back,
+  className
+}) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+  
+  return (
+    <div className={cn('relative h-full cursor-pointer', className)} onClick={() => setIsFlipped(!isFlipped)}>
+      <motion.div
+        className="w-full h-full"
+        initial={false}
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, type: 'spring' }}
+        style={{ transformStyle: 'preserve-3d' }}
+      >
+        <div
+          className="absolute w-full h-full glass-card-medium rounded-xl p-6"
+          style={{ backfaceVisibility: 'hidden' }}
+        >
+          {front}
+        </div>
+        
+        <div
+          className="absolute w-full h-full glass-card-strong rounded-xl p-6"
+          style={{
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)'
+          }}
+        >
+          {back}
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// === EXPANDABLE PANEL ===
+interface ExpandablePanelProps {
+  title: React.ReactNode;
+  children: React.ReactNode;
+  defaultExpanded?: boolean;
+  className?: string;
+}
+
+export const ExpandablePanel: React.FC<ExpandablePanelProps> = ({
+  title,
+  children,
+  defaultExpanded = false,
+  className
+}) => {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  
+  return (
+    <div className={cn('glass-card-medium rounded-xl overflow-hidden', className)}>
+      <button
+        className="w-full p-6 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div>{title}</div>
+        <motion.div
+          animate={{ rotate: isExpanded ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          ▼
+        </motion.div>
+      </button>
+      
+      <motion.div
+        initial={false}
+        animate={{
+          height: isExpanded ? 'auto' : 0,
+          opacity: isExpanded ? 1 : 0
+        }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        style={{ overflow: 'hidden' }}
+      >
+        <div className="px-6 pb-6">
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// === BLOB CARD (organic shape with animated blob) ===
+interface BlobCardProps {
+  children: React.ReactNode;
+  className?: string;
+  blobColor?: string;
+}
+
+export const BlobCard: React.FC<BlobCardProps> = ({
+  children,
+  className,
+  blobColor = 'rgba(16, 185, 129, 0.2)'
+}) => {
+  return (
+    <div className={cn('relative glass-card-medium rounded-3xl p-6 overflow-hidden', className)}>
+      <svg
+        className="absolute top-0 left-0 w-full h-full opacity-50"
+        viewBox="0 0 200 200"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <motion.path
+          fill={blobColor}
+          d="M44.3,-76.7C58.1,-69.3,70.7,-58.4,78.9,-44.8C87.1,-31.2,90.9,-15.6,89.8,-0.7C88.7,14.2,82.7,28.4,74.4,41.2C66.1,54,55.5,65.4,42.7,72.8C29.9,80.2,14.9,83.6,0.5,82.7C-13.9,81.8,-27.8,76.6,-40.9,69.4C-54,62.2,-66.3,53,-74.5,40.8C-82.7,28.6,-86.8,14.3,-86.3,0.3C-85.8,-13.7,-80.7,-27.4,-72.8,-39.6C-64.9,-51.8,-54.2,-62.5,-41.5,-70.4C-28.8,-78.3,-14.4,-83.4,0.6,-84.4C15.6,-85.4,31.2,-82.3,44.3,-76.7Z"
+          animate={{
+            d: [
+              "M44.3,-76.7C58.1,-69.3,70.7,-58.4,78.9,-44.8C87.1,-31.2,90.9,-15.6,89.8,-0.7C88.7,14.2,82.7,28.4,74.4,41.2C66.1,54,55.5,65.4,42.7,72.8C29.9,80.2,14.9,83.6,0.5,82.7C-13.9,81.8,-27.8,76.6,-40.9,69.4C-54,62.2,-66.3,53,-74.5,40.8C-82.7,28.6,-86.8,14.3,-86.3,0.3C-85.8,-13.7,-80.7,-27.4,-72.8,-39.6C-64.9,-51.8,-54.2,-62.5,-41.5,-70.4C-28.8,-78.3,-14.4,-83.4,0.6,-84.4C15.6,-85.4,31.2,-82.3,44.3,-76.7Z",
+              "M51.1,-85.8C65.4,-77.1,75.9,-61.5,82.5,-44.8C89.1,-28.1,91.8,-10.3,89.2,6.4C86.6,23.1,78.7,38.7,68.1,51.8C57.5,64.9,44.2,75.5,29.3,80.8C14.4,86.1,-2.1,86.1,-17.8,82.3C-33.5,78.5,-48.4,70.9,-60.8,59.5C-73.2,48.1,-83.1,32.9,-86.5,16.3C-89.9,-0.3,-86.8,-18.3,-79.2,-34.3C-71.6,-50.3,-59.5,-64.3,-44.7,-72.7C-29.9,-81.1,-12.5,-83.9,3.8,-89.7C20.1,-95.5,36.8,-94.5,51.1,-85.8Z",
+              "M44.3,-76.7C58.1,-69.3,70.7,-58.4,78.9,-44.8C87.1,-31.2,90.9,-15.6,89.8,-0.7C88.7,14.2,82.7,28.4,74.4,41.2C66.1,54,55.5,65.4,42.7,72.8C29.9,80.2,14.9,83.6,0.5,82.7C-13.9,81.8,-27.8,76.6,-40.9,69.4C-54,62.2,-66.3,53,-74.5,40.8C-82.7,28.6,-86.8,14.3,-86.3,0.3C-85.8,-13.7,-80.7,-27.4,-72.8,-39.6C-64.9,-51.8,-54.2,-62.5,-41.5,-70.4C-28.8,-78.3,-14.4,-83.4,0.6,-84.4C15.6,-85.4,31.2,-82.3,44.3,-76.7Z"
+            ]
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            repeatType: 'reverse',
+            ease: 'easeInOut'
+          }}
+        />
+      </svg>
+      <div className="relative z-10">{children}</div>
+    </div>
+  );
+};
+
+// === NOISE CARD (with grain texture effect) ===
+interface NoiseCardProps {
+  children: React.ReactNode;
+  className?: string;
+  noiseOpacity?: number;
+}
+
+export const NoiseCard: React.FC<NoiseCardProps> = ({
+  children,
+  className,
+  noiseOpacity = 0.05
+}) => {
+  return (
+    <div className={cn('relative glass-card-medium rounded-xl p-6 overflow-hidden', className)}>
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")',
+          opacity: noiseOpacity
+        }}
+      />
+      <div className="relative z-10">{children}</div>
+    </div>
+  );
+};
+```
+
+### 2025/PremiumLayouts.tsx
+```tsx
+import React, { ReactNode } from 'react';
+import { motion } from '@/utils/LazyMotionProvider';
+import { cn } from '@/lib/utils';
+
+// === BENTO GRID ===
+interface BentoGridProps {
+  children: ReactNode;
+  className?: string;
+  columns?: 2 | 3 | 4;
+}
+
+export const BentoGrid: React.FC<BentoGridProps> = ({
+  children,
+  className,
+  columns = 3
+}) => {
+  const gridCols = {
+    2: 'grid-cols-1 md:grid-cols-2',
+    3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+    4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+  };
+  
+  return (
+    <div className={cn(
+      'grid gap-4',
+      gridCols[columns],
+      className
+    )}>
+      {children}
+    </div>
+  );
+};
+
+// === BENTO GRID ITEM ===
+interface BentoGridItemProps {
+  children: ReactNode;
+  className?: string;
+  span?: {
+    cols?: 1 | 2 | 3 | 4;
+    rows?: 1 | 2 | 3;
+  };
+}
+
+export const BentoGridItem: React.FC<BentoGridItemProps> = ({
+  children,
+  className,
+  span = { cols: 1, rows: 1 }
+}) => {
+  const colSpan = {
+    1: 'col-span-1',
+    2: 'col-span-1 md:col-span-2',
+    3: 'col-span-1 md:col-span-2 lg:col-span-3',
+    4: 'col-span-1 md:col-span-2 lg:col-span-4'
+  };
+  
+  const rowSpan = {
+    1: 'row-span-1',
+    2: 'row-span-2',
+    3: 'row-span-3'
+  };
+  
+  return (
+    <motion.div
+      className={cn(
+        'glass-card-medium rounded-xl p-6',
+        span.cols && colSpan[span.cols],
+        span.rows && rowSpan[span.rows],
+        className
+      )}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// === MASONRY GRID ===
+interface MasonryGridProps {
+  children: ReactNode;
+  className?: string;
+  columns?: 2 | 3 | 4;
+  gap?: number;
+}
+
+export const MasonryGrid: React.FC<MasonryGridProps> = ({
+  children,
+  className,
+  columns = 3,
+  gap = 16
+}) => {
+  const childrenArray = React.Children.toArray(children);
+  const columnWrappers: ReactNode[][] = Array.from({ length: columns }, () => []);
+  
+  childrenArray.forEach((child, index) => {
+    const columnIndex = index % columns;
+    columnWrappers[columnIndex].push(child);
+  });
+  
+  return (
+    <div 
+      className={cn('flex', className)}
+      style={{ gap: `${gap}px` }}
+    >
+      {columnWrappers.map((column, columnIndex) => (
+        <div
+          key={columnIndex}
+          className="flex-1 flex flex-col"
+          style={{ gap: `${gap}px` }}
+        >
+          {column.map((item, itemIndex) => (
+            <motion.div
+              key={itemIndex}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: itemIndex * 0.1 }}
+            >
+              {item}
+            </motion.div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// === STAGGERED CONTAINER (for animated lists) ===
+interface StaggeredContainerProps {
+  children: ReactNode;
+  className?: string;
+  staggerDelay?: number;
+}
+
+export const StaggeredContainer: React.FC<StaggeredContainerProps> = ({
+  children,
+  className,
+  staggerDelay = 0.1
+}) => {
+  const childrenArray = React.Children.toArray(children);
+  
+  return (
+    <div className={className}>
+      {childrenArray.map((child, index) => (
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: index * staggerDelay }}
+        >
+          {child}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+// === SPLIT LAYOUT (for hero/feature sections) ===
+interface SplitLayoutProps {
+  left: ReactNode;
+  right: ReactNode;
+  className?: string;
+  reverse?: boolean;
+}
+
+export const SplitLayout: React.FC<SplitLayoutProps> = ({
+  left,
+  right,
+  className,
+  reverse = false
+}) => {
+  return (
+    <div className={cn(
+      'grid grid-cols-1 lg:grid-cols-2 gap-8 items-center',
+      reverse && 'lg:grid-flow-dense',
+      className
+    )}>
+      <motion.div
+        initial={{ opacity: 0, x: reverse ? 50 : -50 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className={reverse ? 'lg:col-start-2' : ''}
+      >
+        {left}
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, x: reverse ? -50 : 50 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className={reverse ? 'lg:col-start-1 lg:row-start-1' : ''}
+      >
+        {right}
+      </motion.div>
+    </div>
+  );
+};
+
+// === CARD STACK (layered cards effect) ===
+interface CardStackProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export const CardStack: React.FC<CardStackProps> = ({
+  children,
+  className
+}) => {
+  const childrenArray = React.Children.toArray(children);
+  
+  return (
+    <div className={cn('relative', className)} style={{ minHeight: '200px' }}>
+      {childrenArray.map((child, index) => (
+        <motion.div
+          key={index}
+          className="absolute w-full"
+          initial={{ 
+            y: index * 20, 
+            scale: 1 - index * 0.05,
+            opacity: 1 - index * 0.2
+          }}
+          whileHover={{ y: index * 30 }}
+          style={{ zIndex: childrenArray.length - index }}
+        >
+          {child}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+```
+
+### 2025/PremiumSections.tsx
+```tsx
+import React, { useRef, useEffect, useState } from 'react';
+import { motion, useScroll, useTransform, useSpring, useInView } from '@/utils/LazyMotionProvider';
+import { cn } from '@/lib/utils';
+
+// === PREMIUM HERO SECTION ===
+interface PremiumHeroProps {
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  cta?: React.ReactNode;
+  background?: 'gradient' | 'mesh' | 'aurora' | 'particles';
+  className?: string;
+}
+
+export const PremiumHero: React.FC<PremiumHeroProps> = ({
+  title,
+  subtitle,
+  cta,
+  background = 'gradient',
+  className
+}) => {
+  const backgrounds = {
+    gradient: 'bg-gradient-to-br from-emerald-500/20 via-cyan-500/20 to-purple-500/20',
+    mesh: 'mesh-gradient',
+    aurora: 'aurora-bg',
+    particles: 'bg-transparent'
+  };
+  
+  return (
+    <motion.section
+      className={cn(
+        'relative min-h-screen flex items-center justify-center overflow-hidden',
+        backgrounds[background],
+        className
+      )}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
+      <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          {title}
+        </motion.div>
+        
+        {subtitle && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-6"
+          >
+            {subtitle}
+          </motion.div>
+        )}
+        
+        {cta && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="mt-10"
+          >
+            {cta}
+          </motion.div>
+        )}
+      </div>
+    </motion.section>
+  );
+};
+
+// === FLOATING NAVIGATION ===
+interface FloatingNavProps {
+  items: { label: string; href: string; icon?: React.ReactNode }[];
+  className?: string;
+}
+
+export const FloatingNav: React.FC<FloatingNavProps> = ({
+  items,
+  className
+}) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setIsVisible(currentScrollY < lastScrollY || currentScrollY < 100);
+      setLastScrollY(currentScrollY);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+  
+  return (
+    <motion.nav
+      className={cn(
+        'fixed bottom-8 left-1/2 -translate-x-1/2 z-50',
+        'glass-card-frosted rounded-full px-6 py-3',
+        'shadow-lg',
+        className
+      )}
+      initial={{ y: 100, opacity: 0 }}
+      animate={{ 
+        y: isVisible ? 0 : 100,
+        opacity: isVisible ? 1 : 0
+      }}
+      transition={{ duration: 0.3 }}
+    >
+      <ul className="flex items-center gap-6">
+        {items.map((item, index) => (
+          <motion.li key={index}>
+            <button
+              onClick={() => setActiveIndex(index)}
+              className={cn(
+                'relative px-4 py-2 rounded-full transition-colors',
+                activeIndex === index 
+                  ? 'text-white' 
+                  : 'text-white/60 hover:text-white/80'
+              )}
+            >
+              {activeIndex === index && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-emerald-500 rounded-full"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                {item.icon}
+                <span className="hidden sm:inline">{item.label}</span>
+              </span>
+            </button>
+          </motion.li>
+        ))}
+      </ul>
+    </motion.nav>
+  );
+};
+
+// === TAB NAVIGATION ===
+interface TabNavigationProps {
+  tabs: { label: string; content: React.ReactNode }[];
+  className?: string;
+}
+
+export const TabNavigation: React.FC<TabNavigationProps> = ({
+  tabs,
+  className
+}) => {
+  const [activeTab, setActiveTab] = useState(0);
+  
+  return (
+    <div className={className}>
+      <div className="glass-card-medium rounded-xl p-2 inline-flex gap-2">
+        {tabs.map((tab, index) => (
+          <button
+            key={index}
+            onClick={() => setActiveTab(index)}
+            className={cn(
+              'relative px-6 py-2 rounded-lg transition-colors',
+              activeTab === index
+                ? 'text-white'
+                : 'text-white/60 hover:text-white/80'
+            )}
+          >
+            {activeTab === index && (
+              <motion.div
+                layoutId="activeTabBg"
+                className="absolute inset-0 bg-emerald-500 rounded-lg"
+                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              />
+            )}
+            <span className="relative z-10">{tab.label}</span>
+          </button>
+        ))}
+      </div>
+      
+      <div className="mt-6">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+        >
+          {tabs[activeTab].content}
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+// === PARALLAX SECTION ===
+interface ParallaxSectionProps {
+  children: React.ReactNode;
+  speed?: number;
+  className?: string;
+}
+
+export const ParallaxSection: React.FC<ParallaxSectionProps> = ({
+  children,
+  speed = 0.5,
+  className
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start']
+  });
+  
+  const y = useTransform(scrollYProgress, [0, 1], [0, speed * 100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 1, 0.3]);
+  
+  return (
+    <div ref={ref} className={className}>
+      <motion.div style={{ y, opacity }}>
+        {children}
+      </motion.div>
+    </div>
+  );
+};
+
+// === REVEAL ON SCROLL ===
+interface RevealOnScrollProps {
+  children: React.ReactNode;
+  direction?: 'up' | 'down' | 'left' | 'right';
+  delay?: number;
+  className?: string;
+}
+
+export const RevealOnScroll: React.FC<RevealOnScrollProps> = ({
+  children,
+  direction = 'up',
+  delay = 0,
+  className
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+  
+  const directions = {
+    up: { y: 50, x: 0 },
+    down: { y: -50, x: 0 },
+    left: { y: 0, x: 50 },
+    right: { y: 0, x: -50 }
+  };
+  
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      initial={{ 
+        opacity: 0,
+        ...directions[direction]
+      }}
+      animate={isInView ? { 
+        opacity: 1, 
+        y: 0, 
+        x: 0 
+      } : {}}
+      transition={{ 
+        duration: 0.6, 
+        delay,
+        ease: [0.22, 1, 0.36, 1]
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// === STICKY SECTION ===
+interface StickySectionProps {
+  children: React.ReactNode;
+  className?: string;
+  stickyClassName?: string;
+}
+
+export const StickySection: React.FC<StickySectionProps> = ({
+  children,
+  className,
+  stickyClassName
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start start', 'end end']
+  });
+  
+  const scale = useSpring(
+    useTransform(scrollYProgress, [0, 1], [1, 0.85]),
+    { stiffness: 100, damping: 30 }
+  );
+  
+  const opacity = useSpring(
+    useTransform(scrollYProgress, [0, 0.5, 1], [1, 1, 0.3]),
+    { stiffness: 100, damping: 30 }
+  );
+  
+  return (
+    <div ref={ref} className={cn('relative', className)}>
+      <motion.div
+        className={cn('sticky top-20', stickyClassName)}
+        style={{ scale, opacity }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+};
+
+// === SCROLL PROGRESS INDICATOR ===
+export const ScrollProgressIndicator: React.FC<{ className?: string }> = ({ className }) => {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+  
+  return (
+    <motion.div
+      className={cn(
+        'fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-cyan-500',
+        'origin-left z-50',
+        className
+      )}
+      style={{ scaleX }}
+    />
+  );
+};
+```
+
+## APPLE UI КОМПОНЕНТЫ
+
+### apple-ui/Badge.tsx
+```tsx
+interface BadgeProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'success' | 'warning' | 'error';
+  size?: 'small' | 'medium';
+  className?: string;
+}
+
+export function Badge({
+  children,
+  variant = 'default',
+  size = 'medium',
+  className = ''
+}: BadgeProps) {
+  const variants = {
+    default: 'bg-white/10 text-white/90',
+    success: 'bg-emerald-500/20 text-emerald-400',
+    warning: 'bg-amber-500/20 text-amber-400',
+    error: 'bg-red-500/20 text-red-400'
+  };
+  
+  const sizes = {
+    small: 'px-2 py-1 text-xs rounded-md',
+    medium: 'px-3 py-1.5 text-sm rounded-lg'
+  };
+  
+  return (
+    <span className={`
+      inline-flex items-center font-medium
+      ${variants[variant]}
+      ${sizes[size]}
+      ${className}
+    `}>
+      {children}
+    </span>
+  );
+}
+```
+
+### apple-ui/Button.tsx
+```tsx
+import { motion } from '@/utils/LazyMotionProvider';
+import { hoverScale, tapScale } from '@/utils/motionConfig';
+
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'tertiary';
+  size?: 'small' | 'medium' | 'large';
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  className?: string;
+}
+
+export function Button({
+  variant = 'primary',
+  size = 'medium',
+  children,
+  onClick,
+  disabled,
+  loading,
+  className = ''
+}: ButtonProps) {
+  const variants = {
+    primary: 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-apple-sm hover:shadow-apple-md',
+    secondary: 'glass-apple text-white border border-white/20 hover:bg-white/15',
+    tertiary: 'bg-transparent text-emerald-500 hover:bg-emerald-500/10'
+  };
+  
+  const sizes = {
+    small: 'px-4 py-2 text-sm rounded-lg',
+    medium: 'px-6 py-3 text-base rounded-xl',
+    large: 'px-8 py-4 text-lg rounded-2xl'
+  };
+  
+  return (
+    <motion.button
+      className={`
+        button-apple font-semibold touch-target
+        ${variants[variant]}
+        ${sizes[size]}
+        ${disabled || loading ? 'opacity-50 cursor-not-allowed' : ''}
+        ${className}
+      `}
+      onClick={onClick}
+      disabled={disabled || loading}
+      whileHover={!disabled && !loading ? hoverScale : undefined}
+      whileTap={!disabled && !loading ? tapScale : undefined}
+    >
+      {loading ? (
+        <div className="inline-flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          {children}
+        </div>
+      ) : children}
+    </motion.button>
+  );
+}
+```
+
+### apple-ui/Card.tsx
+```tsx
+import { motion, HTMLMotionProps } from '@/utils/LazyMotionProvider';
+import { hoverScale } from '@/utils/motionConfig';
+
+interface CardProps extends HTMLMotionProps<'div'> {
+  children: React.ReactNode;
+  variant?: 'default' | 'glass' | 'premium';
+  hoverable?: boolean;
+  className?: string;
+}
+
+export function Card({
+  children,
+  variant = 'default',
+  hoverable = false,
+  className = '',
+  ...props
+}: CardProps) {
+  const variants = {
+    default: 'bg-white/10 border border-white/20',
+    glass: 'glass-apple',
+    premium: 'card-premium glass-apple'
+  };
+  
+  return (
+    <motion.div
+      className={`
+        rounded-2xl p-6 card-apple
+        ${variants[variant]}
+        ${className}
+      `}
+      whileHover={hoverable ? hoverScale : undefined}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function CardHeader({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`mb-4 ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+export function CardTitle({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <h3 className={`text-xl font-bold tracking-tight ${className}`}>
+      {children}
+    </h3>
+  );
+}
+
+export function CardDescription({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <p className={`text-sm text-white/70 mt-2 ${className}`}>
+      {children}
+    </p>
+  );
+}
+
+export function CardContent({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={className}>
+      {children}
+    </div>
+  );
+}
+```
+
+### apple-ui/ExpandableSection.tsx
+```tsx
+import { useState } from 'react';
+import { motion, AnimatePresence } from '@/utils/LazyMotionProvider';
+import { ChevronDown } from 'lucide-react';
+
+interface ExpandableSectionProps {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+  className?: string;
+}
+
+export function ExpandableSection({ 
+  title, 
+  children, 
+  defaultOpen = false,
+  className = ''
+}: ExpandableSectionProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  
+  return (
+    <div className={`expandable-section ${className}`}>
+      <button
+        className="section-header rounded-xl w-full"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+      >
+        <span className="section-title">{title}</span>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+        >
+          <ChevronDown className="w-5 h-5" />
+        </motion.div>
+      </button>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{
+              height: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+              opacity: { duration: 0.2 }
+            }}
+            className="overflow-hidden"
+          >
+            <div className="section-content px-6 py-4">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+```
+
+### apple-ui/LoadingProgress.tsx
+```tsx
+import { motion } from '@/utils/LazyMotionProvider';
+
+interface LoadingProgressProps {
+  progress?: number;
+  label?: string;
+  indeterminate?: boolean;
+}
+
+export function LoadingProgress({ 
+  progress = 0, 
+  label,
+  indeterminate = false 
+}: LoadingProgressProps) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 p-8">
+      {label && (
+        <p className="text-sm text-white/70 font-medium">
+          {label}
+        </p>
+      )}
+      
+      <div className="w-full max-w-xs">
+        <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+          {indeterminate ? (
+            <motion.div
+              className="h-full bg-emerald-500 rounded-full"
+              initial={{ x: '-100%' }}
+              animate={{ x: '100%' }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.5,
+                ease: [0.4, 0, 0.2, 1]
+              }}
+              style={{ width: '40%' }}
+            />
+          ) : (
+            <motion.div
+              className="h-full bg-emerald-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{
+                duration: 0.3,
+                ease: [0.4, 0, 0.2, 1]
+              }}
+            />
+          )}
+        </div>
+      </div>
+      
+      {!indeterminate && (
+        <p className="text-xs text-white/50 font-medium tabular-nums">
+          {Math.round(progress)}%
+        </p>
+      )}
+    </div>
+  );
+}
+
+export function LoadingSpinner({ size = 'medium', className = '' }: { size?: 'small' | 'medium' | 'large'; className?: string }) {
+  const sizes = {
+    small: 'w-4 h-4 border-2',
+    medium: 'w-8 h-8 border-3',
+    large: 'w-12 h-12 border-4'
+  };
+  
+  return (
+    <div className={`inline-flex ${className}`}>
+      <div className={`
+        ${sizes[size]}
+        border-white/20
+        border-t-emerald-500
+        rounded-full
+        animate-spin
+      `} />
+    </div>
+  );
+}
+
+export function LoadingDots({ className = '' }: { className?: string }) {
+  return (
+    <div className={`inline-flex items-center gap-2 ${className}`}>
+      {[0, 1, 2].map((i) => (
+        <motion.div
+          key={i}
+          className="w-2 h-2 bg-emerald-500 rounded-full"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.5, 1, 0.5]
+          }}
+          transition={{
+            duration: 1.4,
+            repeat: Infinity,
+            delay: i * 0.2,
+            ease: [0.4, 0, 0.2, 1]
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+## ДОПОЛНИТЕЛЬНЫЕ ДЕМО (не в основных 13)
+
+### demos/Banking.tsx
+```tsx
+import { useState, useEffect, memo } from "react";
+import { m } from "framer-motion";
+import { 
+  Wallet, 
+  Heart, 
+  Star, 
+  X,
+  ChevronLeft,
+  CreditCard,
+  User,
+  TrendingUp,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Bitcoin,
+  Zap,
+  Shield,
+  PiggyBank,
+  History,
+  Settings
+} from "lucide-react";
+
+interface BankingProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+interface Asset {
+  id: number;
+  name: string;
+  symbol: string;
+  price: number;
+  change24h: number;
+  image: string;
+  description: string;
+  category: 'Криптовалюта' | 'Акции' | 'ETF' | 'Облигации';
+  rating: number;
+  risk: 'Низкий' | 'Средний' | 'Высокий';
+  isNew?: boolean;
+  isPopular?: boolean;
+}
+
+const assets: Asset[] = [
+  { id: 1, name: 'Bitcoin', symbol: 'BTC', price: 5280000, change24h: 5.2, image: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=800&h=1200&fit=crop&q=90', description: 'Первая криптовалюта', category: 'Криптовалюта', rating: 4.9, risk: 'Высокий', isPopular: true },
+  { id: 2, name: 'Ethereum', symbol: 'ETH', price: 175000, change24h: 3.8, image: 'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=800&h=1200&fit=crop&q=90', description: 'Платформа смарт-контрактов', category: 'Криптовалюта', rating: 4.8, risk: 'Высокий', isPopular: true },
+  { id: 3, name: 'Сбербанк', symbol: 'SBER', price: 28000, change24h: 1.2, image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=1200&fit=crop&q=90', description: 'Акции Сбербанка', category: 'Акции', rating: 4.7, risk: 'Средний', isNew: true },
+  { id: 4, name: 'Газпром', symbol: 'GAZP', price: 18500, change24h: -0.5, image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=1200&fit=crop&q=90', description: 'Акции Газпрома', category: 'Акции', rating: 4.6, risk: 'Средний', isPopular: true },
+  { id: 5, name: 'S&P 500 ETF', symbol: 'SPY', price: 550000, change24h: 0.8, image: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&h=1200&fit=crop&q=90', description: 'Фонд S&P 500', category: 'ETF', rating: 5.0, risk: 'Средний', isNew: true, isPopular: true },
+  { id: 6, name: 'ОФЗ 2030', symbol: 'OFZ', price: 98000, change24h: 0.1, image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&h=1200&fit=crop&q=90', description: 'Облигации федерального займа', category: 'Облигации', rating: 4.9, risk: 'Низкий' },
+];
+
+const categories = ['Все', 'Криптовалюта', 'Акции', 'ETF', 'Облигации'];
+
+const portfolios = [
+  {
+    id: 1,
+    title: 'Агрессивный рост',
+    subtitle: 'Высокая доходность',
+    gradient: 'from-blue-600/30 to-cyan-600/30',
+    assets: [1, 2, 3],
+    returns: '+18.5%'
+  },
+  {
+    id: 2,
+    title: 'Сбалансированный',
+    subtitle: 'Оптимальный баланс',
+    gradient: 'from-green-600/30 to-emerald-600/30',
+    assets: [3, 4, 5],
+    returns: '+12.3%'
+  },
+  {
+    id: 3,
+    title: 'Консервативный',
+    subtitle: 'Низкий риск',
+    gradient: 'from-purple-600/30 to-indigo-600/30',
+    assets: [5, 6],
+    returns: '+6.8%'
+  },
+];
+
+export default memo(function Banking({ activeTab }: BankingProps) {
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [favorites, setFavorites] = useState<Set<number>>(new Set([1, 2]));
+  
+  const [balance, setBalance] = useState(2450000);
+  const [totalGain, setTotalGain] = useState(385000);
+  const [gainPercent, setGainPercent] = useState(18.6);
+
+  useEffect(() => {
+    if (activeTab !== 'catalog') {
+      setSelectedAsset(null);
+    }
+  }, [activeTab]);
+
+  const filteredAssets = assets.filter(a => 
+    selectedCategory === 'Все' || a.category === selectedCategory
+  );
+
+  const toggleFavorite = (assetId: number) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(assetId)) {
+      newFavorites.delete(assetId);
+    } else {
+      newFavorites.add(assetId);
+    }
+    setFavorites(newFavorites);
+  };
+
+  const buyAsset = (asset: Asset, amount: number) => {
+    setBalance(prev => prev - amount);
+    setTotalGain(prev => prev + (amount * 0.1));
+    setGainPercent(prev => prev + 0.5);
+    setSelectedAsset(null);
+  };
+
+  if (activeTab === 'home') {
+    return (
+      <div className="h-full overflow-y-auto">
+        <div className="relative h-[280px] bg-gradient-to-br from-blue-600/20 via-cyan-500/20 to-indigo-600/20">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200&h=800&fit=crop&q=90')] bg-cover bg-center opacity-20" />
+          <div className="absolute inset-0 backdrop-blur-xl bg-gradient-to-t from-black/60 to-transparent" />
+          
+          <div className="relative h-full flex flex-col justify-end p-6 pb-8">
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-2"
+            >
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-blue-500/20 backdrop-blur-xl rounded-xl border border-blue-400/30">
+                  <Wallet className="w-6 h-6 text-blue-300" />
+                </div>
+                <h1 className="text-3xl font-bold text-white">MoneyHub</h1>
+              </div>
+              <p className="text-white/80">Умные инвестиции и крипто</p>
+              
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <div className="px-3 py-2 bg-blue-500/20 backdrop-blur-xl rounded-xl border border-blue-400/30">
+                  <p className="text-blue-200 text-xs">Баланс</p>
+                  <p className="text-white text-lg font-bold">{balance.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</p>
+                </div>
+                <div className="px-3 py-2 bg-green-500/20 backdrop-blur-xl rounded-xl border border-green-400/30">
+                  <p className="text-green-200 text-xs">Доход</p>
+                  <p className="text-white text-lg font-bold">+{gainPercent}%</p>
+                </div>
+              </div>
+            </m.div>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-6">
+          <div className="p-4 bg-gradient-to-br from-green-500/10 to-emerald-500/10 backdrop-blur-xl rounded-2xl border border-green-400/30">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-500" />
+                <div>
+                  <h3 className="font-bold text-lg">Прибыль</h3>
+                  <p className="text-sm text-green-700 dark:text-green-300">За все время</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-green-600">+{totalGain.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</p>
+                <p className="text-xs text-green-700 dark:text-green-300">+{gainPercent}%</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Портфели</h2>
+              <PiggyBank className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <div className="grid gap-3">
+              {portfolios.map((portfolio) => (
+                <m.div
+                  key={portfolio.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="relative h-32 rounded-2xl overflow-hidden hover-elevate active-elevate-2 cursor-pointer bg-card/50 backdrop-blur-xl border border-border/50"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-r ${portfolio.gradient}`} />
+                  
+                  <div className="relative h-full p-5 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">{portfolio.title}</h3>
+                      <p className="text-muted-foreground text-sm">{portfolio.subtitle}</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-green-600">{portfolio.returns}</span>
+                      <div className="flex gap-2">
+                        {assets.filter(a => portfolio.assets.includes(a.id)).slice(0, 3).map(asset => (
+                          <div key={asset.id} className="w-8 h-8 rounded-lg bg-card/50 backdrop-blur-xl border border-border/50 flex items-center justify-center">
+                            <span className="text-xs font-bold">{asset.symbol.substring(0, 2)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </m.div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Популярное</h2>
+              <Star className="w-5 h-5 fill-blue-500 text-blue-500" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {assets.filter(a => a.isPopular).map((asset) => (
+                <m.div
+                  key={asset.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedAsset(asset)}
+                  className="bg-card/50 backdrop-blur-xl rounded-2xl overflow-hidden border border-border/50 hover-elevate active-elevate-2 cursor-pointer"
+                  data-testid={`card-asset-${asset.id}`}
+                >
+                  <div className="relative aspect-[3/4]">
+                    <img src={asset.image} alt={asset.name} className="w-full h-full object-cover" />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(asset.id);
+                      }}
+                      className="absolute top-2 right-2 p-2 bg-black/50 backdrop-blur-xl rounded-full border border-white/20"
+                      data-testid={`button-favorite-${asset.id}`}
+                    >
+                      <Heart className={`w-4 h-4 ${favorites.has(asset.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                    </button>
+                    <div className={`absolute bottom-2 left-2 px-2 py-1 ${asset.change24h >= 0 ? 'bg-green-500/90' : 'bg-red-500/90'} backdrop-blur-xl rounded-full border ${asset.change24h >= 0 ? 'border-green-400/50' : 'border-red-400/50'}`}>
+                      <span className="text-xs font-bold text-white flex items-center gap-1">
+                        {asset.change24h >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownLeft className="w-3 h-3" />}
+                        {Math.abs(asset.change24h)}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-medium mb-1 line-clamp-1">{asset.name}</h3>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold">{asset.price.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</span>
+                      <span className="text-xs text-muted-foreground">{asset.symbol}</span>
+                    </div>
+                  </div>
+                </m.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeTab === 'catalog') {
+    if (selectedAsset) {
+      return (
+        <div className="h-full flex flex-col bg-background">
+          <div className="relative">
+            <div className="aspect-[3/4] relative">
+              <img src={selectedAsset.image} alt={selectedAsset.name} className="w-full h-full object-cover" />
+              <button
+                onClick={() => setSelectedAsset(null)}
+                className="absolute top-4 left-4 p-2 bg-black/50 backdrop-blur-xl rounded-full border border-white/20"
+                data-testid="button-back"
+              >
+                <ChevronLeft className="w-6 h-6 text-white" />
+              </button>
+              <button
+                onClick={() => toggleFavorite(selectedAsset.id)}
+                className="absolute top-4 right-4 p-2 bg-black/50 backdrop-blur-xl rounded-full border border-white/20"
+                data-testid={`button-favorite-detail-${selectedAsset.id}`}
+              >
+                <Heart className={`w-6 h-6 ${favorites.has(selectedAsset.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            <div>
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <h1 className="text-2xl font-bold">{selectedAsset.name}</h1>
+                  <p className="text-muted-foreground">{selectedAsset.symbol}</p>
+                </div>
+                <div className={`flex items-center gap-1 px-3 py-1 rounded-full ${selectedAsset.change24h >= 0 ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+                  {selectedAsset.change24h >= 0 ? <ArrowUpRight className="w-4 h-4 text-green-600" /> : <ArrowDownLeft className="w-4 h-4 text-red-600" />}
+                  <span className={`font-bold ${selectedAsset.change24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>{Math.abs(selectedAsset.change24h)}%</span>
+                </div>
+              </div>
+              <p className="text-muted-foreground">{selectedAsset.description}</p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
+                <p className="text-xs text-muted-foreground mb-1">Категория</p>
+                <p className="text-sm font-bold">{selectedAsset.category}</p>
+              </div>
+              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
+                <Shield className="w-5 h-5 mx-auto mb-1 text-blue-600" />
+                <p className="text-xs font-bold">{selectedAsset.risk}</p>
+              </div>
+              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
+                <Star className="w-5 h-5 mx-auto mb-1 fill-blue-500 text-blue-500" />
+                <p className="text-xs font-bold">{selectedAsset.rating}</p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-xl rounded-xl border border-blue-400/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="w-5 h-5 text-blue-600" />
+                <p className="font-semibold text-blue-900 dark:text-blue-100">Быстрая инвестиция</p>
+              </div>
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Начните инвестировать с любой суммы • Комиссия 0%
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Цена</p>
+                <p className="text-3xl font-bold">{selectedAsset.price.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</p>
+              </div>
+              <button
+                onClick={() => buyAsset(selectedAsset, selectedAsset.price)}
+                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-2xl hover-elevate active-elevate-2"
+                data-testid="button-buy"
+              >
+                Купить
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="h-full overflow-y-auto">
+        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-5">
+          <h1 className="text-2xl font-bold mb-4">Активы</h1>
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
+                  selectedCategory === category
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-card/50 backdrop-blur-xl border border-border/50 hover-elevate'
+                }`}
+                data-testid={`button-category-${category}`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-4 grid grid-cols-2 gap-3">
+          {filteredAssets.map((asset) => (
+            <m.div
+              key={asset.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setSelectedAsset(asset)}
+              className="bg-card/50 backdrop-blur-xl rounded-2xl overflow-hidden border border-border/50 hover-elevate active-elevate-2 cursor-pointer"
+              data-testid={`card-catalog-asset-${asset.id}`}
+            >
+              <div className="relative aspect-[3/4]">
+                <img src={asset.image} alt={asset.name} className="w-full h-full object-cover" />
+                {asset.isNew && (
+                  <div className="absolute top-2 left-2 px-2 py-1 bg-green-500/90 backdrop-blur-xl rounded-full border border-green-400/50">
+                    <span className="text-xs font-bold text-white">Новинка</span>
+                  </div>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(asset.id);
+                  }}
+                  className="absolute top-2 right-2 p-2 bg-black/50 backdrop-blur-xl rounded-full border border-white/20"
+                  data-testid={`button-favorite-catalog-${asset.id}`}
+                >
+                  <Heart className={`w-4 h-4 ${favorites.has(asset.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                </button>
+                <div className={`absolute bottom-2 left-2 px-2 py-1 ${asset.change24h >= 0 ? 'bg-green-500/90' : 'bg-red-500/90'} backdrop-blur-xl rounded-full border ${asset.change24h >= 0 ? 'border-green-400/50' : 'border-red-400/50'}`}>
+                  <span className="text-xs font-bold text-white flex items-center gap-1">
+                    {asset.change24h >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownLeft className="w-3 h-3" />}
+                    {Math.abs(asset.change24h)}%
+                  </span>
+                </div>
+              </div>
+              <div className="p-3">
+                <h3 className="font-medium mb-1 line-clamp-1">{asset.name}</h3>
+                <p className="text-xs text-muted-foreground mb-2">{asset.category}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold">{asset.price.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</span>
+                  <span className="text-xs text-muted-foreground">{asset.symbol}</span>
+                </div>
+              </div>
+            </m.div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (activeTab === 'profile') {
+    return (
+      <div className="h-full overflow-y-auto">
+        <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center">
+              <User className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">Александр Иванов</h2>
+              <p className="text-sm text-muted-foreground">+7 (999) 777-66-55</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-4 bg-blue-500/10 backdrop-blur-xl rounded-xl border border-blue-400/30">
+              <p className="text-sm text-muted-foreground mb-1">Баланс</p>
+              <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</p>
+            </div>
+            <div className="p-4 bg-green-500/10 backdrop-blur-xl rounded-xl border border-green-400/30">
+              <p className="text-sm text-muted-foreground mb-1">Доходность</p>
+              <p className="text-2xl font-bold text-green-600">+{gainPercent}%</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-2">
+          <button className="w-full p-4 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-history">
+            <div className="flex items-center gap-3">
+              <History className="w-5 h-5 text-muted-foreground" />
+              <span className="font-medium">История операций</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-muted-foreground" />
+          </button>
+
+          <button className="w-full p-4 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-cards">
+            <div className="flex items-center gap-3">
+              <CreditCard className="w-5 h-5 text-muted-foreground" />
+              <span className="font-medium">Мои карты</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-muted-foreground" />
+          </button>
+
+          <button className="w-full p-4 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
+            <div className="flex items-center gap-3">
+              <Settings className="w-5 h-5 text-muted-foreground" />
+              <span className="font-medium">Настройки</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+});
+```
+
+### demos/Bookstore.tsx
+```tsx
+import { useState } from "react";
+import { 
+  BookOpen, 
+  Heart, 
+  Star, 
+  Search, 
+  Filter,
+  Plus,
+  Minus,
+  X,
+  ChevronRight,
+  Award,
+  Clock,
+  User
+} from "lucide-react";
+import { OptimizedImage } from "../OptimizedImage";
+import { useImagePreloader } from "../../hooks/useImagePreloader";
+
+interface BookstoreProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+}
+
+const books = [
+  { id: 1, name: 'Атомные привычки', price: 18, image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Книга о том, как небольшие изменения приводят к значительным результатам', category: 'Саморазвитие', author: 'Джеймс Клир', pages: 320, year: 2018, rating: 4.8, language: 'Русский', inStock: 25 },
+  { id: 2, name: 'Думай медленно... решай быстро', price: 22, image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Исследование того, как работает наше мышление', category: 'Психология', author: 'Даниэль Канеман', pages: 512, year: 2011, rating: 4.7, language: 'Русский', inStock: 18 },
+  { id: 3, name: 'Гарри Поттер и философский камень', price: 15, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Первая книга о юном волшебнике Гарри Поттере', category: 'Фэнтези', author: 'Дж.К. Роулинг', pages: 432, year: 1997, rating: 4.9, language: 'Русский', inStock: 30 },
+  { id: 4, name: '1984', price: 16, image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Антиутопический роман о тоталитарном обществе', category: 'Классика', author: 'Джордж Оруэлл', pages: 328, year: 1949, rating: 4.8, language: 'Русский', inStock: 20 },
+  { id: 5, name: 'Код да Винчи', price: 19, image: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Захватывающий триллер о поисках святого Грааля', category: 'Триллер', author: 'Дэн Браун', pages: 592, year: 2003, rating: 4.5, language: 'Русский', inStock: 15 },
+  { id: 6, name: 'Мастер и Маргарита', price: 17, image: 'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Классический роман Михаила Булгакова о добре и зле', category: 'Классика', author: 'Михаил Булгаков', pages: 480, year: 1967, rating: 4.9, language: 'Русский', inStock: 22 },
+  { id: 7, name: 'Сто лет одиночества', price: 20, image: 'https://images.unsplash.com/photo-1541963463532-d68292c34d19?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Магический реализм от Гарсиа Маркеса', category: 'Классика', author: 'Габриэль Гарсиа Маркес', pages: 512, year: 1967, rating: 4.6, language: 'Русский', inStock: 12 },
+  { id: 8, name: 'Искусство войны', price: 14, image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Древний трактат о военной стратегии и тактике', category: 'Философия', author: 'Сунь-цзы', pages: 256, year: -500, rating: 4.7, language: 'Русский', inStock: 28 },
+  { id: 9, name: 'Автостопом по галактике', price: 16, image: 'https://images.unsplash.com/photo-1519682337058-a94d519337bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Юмористическая научная фантастика', category: 'Научная фантастика', author: 'Дуглас Адамс', pages: 224, year: 1979, rating: 4.5, language: 'Русский', inStock: 16 },
+  { id: 10, name: 'Отцы и дети', price: 13, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Классический роман о конфликте поколений', category: 'Классика', author: 'Иван Тургенев', pages: 384, year: 1862, rating: 4.4, language: 'Русский', inStock: 24 },
+  { id: 11, name: 'Краткая история времени', price: 21, image: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Популярно о физике и космологии', category: 'Наука', author: 'Стивен Хокинг', pages: 256, year: 1988, rating: 4.6, language: 'Русский', inStock: 14 },
+  { id: 12, name: 'Преступление и наказание', price: 18, image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Психологический роман Достоевского', category: 'Классика', author: 'Федор Достоевский', pages: 672, year: 1866, rating: 4.8, language: 'Русский', inStock: 19 },
+  { id: 13, name: 'Шерлок Холмс: Этюд в багровых тонах', price: 15, image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Первое приключение великого сыщика', category: 'Детектив', author: 'Артур Конан Дойл', pages: 192, year: 1887, rating: 4.7, language: 'Русский', inStock: 26 },
+  { id: 14, name: 'Дюна', price: 23, image: 'https://images.unsplash.com/photo-1519682337058-a94d519337bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Эпическая научно-фантастическая сага', category: 'Научная фантастика', author: 'Фрэнк Герберт', pages: 688, year: 1965, rating: 4.9, language: 'Русский', inStock: 11 },
+  { id: 15, name: 'Властелин колец: Братство кольца', price: 24, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Первая часть эпической фэнтези трилогии', category: 'Фэнтези', author: 'Дж.Р.Р. Толкин', pages: 576, year: 1954, rating: 4.9, language: 'Русский', inStock: 17 },
+  { id: 16, name: 'Как завоевывать друзей и оказывать влияние на людей', price: 19, image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Классическое пособие по общению и лидерству', category: 'Саморазвитие', author: 'Дейл Карнеги', pages: 352, year: 1936, rating: 4.5, language: 'Русский', inStock: 21 },
+  { id: 17, name: 'Убить пересмешника', price: 17, image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Роман о расовой несправедливости и морали', category: 'Классика', author: 'Харпер Ли', pages: 376, year: 1960, rating: 4.8, language: 'Русский', inStock: 13 },
+  { id: 18, name: 'Маленький принц', price: 12, image: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Философская сказка о дружбе и любви', category: 'Классика', author: 'Антуан де Сент-Экзюпери', pages: 128, year: 1943, rating: 4.7, language: 'Русский', inStock: 35 },
+  { id: 19, name: 'Три товарища', price: 20, image: 'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Роман о дружбе в послевоенной Германии', category: 'Классика', author: 'Эрих Мария Ремарк', pages: 448, year: 1936, rating: 4.6, language: 'Русский', inStock: 18 },
+  { id: 20, name: 'Старик и море', price: 14, image: 'https://images.unsplash.com/photo-1541963463532-d68292c34d19?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Повесть о старом рыбаке и его борьбе с жизнью', category: 'Классика', author: 'Эрнест Хемингуэй', pages: 112, year: 1952, rating: 4.5, language: 'Русский', inStock: 27 }
+];
+
+const categories = ['Все', 'Классика', 'Саморазвитие', 'Фэнтези', 'Научная фантастика', 'Психология', 'Триллер', 'Детектив', 'Философия', 'Наука'];
+
+const initialCartItems: CartItem[] = [
+  { id: 3, name: 'Гарри Поттер и философский камень', price: 15, quantity: 1, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60' },
+  { id: 1, name: 'Атомные привычки', price: 18, quantity: 1, image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60' },
+];
+
+export default function Bookstore({ activeTab }: BookstoreProps) {
+  const [selectedBook, setSelectedBook] = useState<typeof books[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [favorites, setFavorites] = useState<number[]>([3, 6, 14, 15]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const openBookModal = (book: typeof books[0]) => {
+    setSelectedBook(book);
+    setIsModalOpen(true);
+  };
+
+  const closeBookModal = () => {
+    setIsModalOpen(false);
+    setSelectedBook(null);
+  };
+
+  const updateQuantity = (itemId: number, newQuantity: number) => {
+    if (newQuantity < 1) return;
+    setCartItems(prev => 
+      prev.map(item => 
+        item.id === itemId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const removeFromCart = (itemId: number) => {
+    setCartItems(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  const toggleFavorite = (bookId: number) => {
+    setFavorites(prev => 
+      prev.includes(bookId) 
+        ? prev.filter(id => id !== bookId)
+        : [...prev, bookId]
+    );
+  };
+
+  const filteredBooks = books.filter(book => {
+    const matchesCategory = selectedCategory === 'Все' || book.category === selectedCategory;
+    const matchesSearch = searchQuery === '' || 
+      book.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      book.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesCategory && matchesSearch;
+  });
+
+  const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  // Preload first 6 product images for instant visibility
+  useImagePreloader({
+    images: books.slice(0, 6).map(item => item.image),
+    priority: true
+  });
+
+
+  const renderHomeTab = () => (
+    <div className="max-w-md mx-auto px-4 space-y-6">
+      {/* Заголовок */}
+      <div className="text-center">
+        <h1 className="ios-title font-bold mb-2">Книжный Уголок</h1>
+        <p className="ios-subheadline text-secondary-label">Мир знаний в каждой книге 📚</p>
+      </div>
+
+      {/* Рекомендация дня */}
+      <div className="ios-card p-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="ios-headline font-semibold">Книга дня</h3>
+            <p className="ios-body">Атомные привычки - скидка 20%</p>
+          </div>
+          <Award className="w-8 h-8" />
+        </div>
+      </div>
+
+      {/* Популярные категории */}
+      <div>
+        <h2 className="ios-title font-semibold mb-4">Популярные категории</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { name: 'Классика', count: '8 книг', color: 'bg-purple-500' },
+            { name: 'Саморазвитие', count: '3 книги', color: 'bg-green-500' },
+            { name: 'Фэнтези', count: '2 книги', color: 'bg-blue-500' },
+            { name: 'Научная фантастика', count: '2 книги', color: 'bg-red-500' }
+          ].map((category) => (
+            <div 
+              key={category.name} 
+              className="ios-card p-3 cursor-pointer"
+              onClick={() => setSelectedCategory(category.name)}
+            >
+              <div className={`w-full h-16 ${category.color} rounded-lg mb-2 flex items-center justify-center`}>
+                <BookOpen className="w-8 h-8 text-white" />
+              </div>
+              <h4 className="ios-footnote font-semibold">{category.name}</h4>
+              <p className="ios-caption2 text-secondary-label">{category.count}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Бестселлеры */}
+      <div>
+        <h2 className="ios-title font-semibold mb-4">Бестселлеры недели</h2>
+        <div className="space-y-3">
+          {books.slice(0, 3).map((book, index) => (
+            <div 
+              key={book.id} 
+              className="ios-card p-3 cursor-pointer flex items-center space-x-3"
+              onClick={() => openBookModal(book)}
+            >
+              <div className="flex-shrink-0 w-8 h-8 bg-system-purple rounded-full flex items-center justify-center">
+                <span className="ios-footnote font-bold text-white">{index + 1}</span>
+              </div>
+              <OptimizedImage src={book.image} alt={book.name} className="w-20 h-20 object-cover rounded" />
+              <div className="flex-1">
+                <h4 className="ios-body font-semibold line-clamp-1">{book.name}</h4>
+                <p className="ios-footnote text-secondary-label">{book.author}</p>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
+                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    <span className="ios-caption2">{book.rating}</span>
+                  </div>
+                  <span className="ios-caption font-bold text-system-purple">${book.price}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Информация о магазине */}
+      <div className="ios-card p-4">
+        <h3 className="ios-headline font-semibold mb-3">О нашем магазине</h3>
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <BookOpen className="w-4 h-4 text-system-purple" />
+            <span className="ios-body">Более 10,000 книг в наличии</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Clock className="w-4 h-4 text-system-purple" />
+            <span className="ios-body">Быстрая доставка за 1-2 дня</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Award className="w-4 h-4 text-system-purple" />
+            <span className="ios-body">Лучший книжный магазин 2024</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCatalogTab = () => (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="ios-title font-bold">Каталог книг</h1>
+      
+      {/* Поиск */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-label" />
+        <input
+          type="text"
+          placeholder="Поиск по названию или автору..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-10 pr-4 py-3 bg-quaternary-system-fill rounded-xl ios-body"
+        />
+      </div>
+
+      {/* Категории */}
+      <div className="flex space-x-2 overflow-x-auto pb-2">
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-4 py-2 rounded-full whitespace-nowrap ios-footnote font-medium ${
+              selectedCategory === category
+                ? 'bg-system-purple text-white'
+                : 'bg-quaternary-system-fill text-label'
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      {/* Список книг */}
+      <div className="space-y-3">
+        {filteredBooks.map((book) => (
+          <div 
+            key={book.id} 
+            className="ios-card p-4 cursor-pointer"
+            onClick={() => openBookModal(book)}
+          >
+            <div className="flex items-center space-x-3">
+              <OptimizedImage src={book.image} alt={book.name} className="w-20 h-20 object-cover rounded" />
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="ios-body font-semibold line-clamp-1">{book.name}</h4>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(book.id);
+                    }}
+                    className="p-1"
+                  >
+                    <Heart 
+                      className={`w-4 h-4 ${
+                        favorites.includes(book.id) 
+                          ? 'fill-red-500 text-red-500' 
+                          : 'text-secondary-label'
+                      }`} 
+                    />
+                  </button>
+                </div>
+                <p className="ios-footnote text-secondary-label mb-1">{book.author}</p>
+                <p className="ios-caption2 text-tertiary-label mb-2 line-clamp-2">{book.description}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <span className="ios-caption2 px-2 py-1 bg-quaternary-system-fill rounded">{book.category}</span>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <span className="ios-caption2">{book.rating}</span>
+                    </div>
+                    <span className="ios-caption2 text-secondary-label">{book.pages} стр.</span>
+                  </div>
+                  <span className="ios-body font-bold text-system-purple">${book.price}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCartTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
+      <h1 className="ios-title font-bold">Корзина</h1>
+      
+      {cartItems.length === 0 ? (
+        <div className="text-center py-12">
+          <BookOpen className="w-16 h-16 text-quaternary-label mx-auto mb-4" />
+          <p className="ios-body text-secondary-label">Корзина пуста</p>
+          <p className="ios-footnote text-tertiary-label">Добавьте книги из каталога</p>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3">
+            {cartItems.map((item) => (
+              <div key={item.id} className="ios-card p-4">
+                <div className="flex items-center space-x-3">
+                  <OptimizedImage src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
+                  <div className="flex-1">
+                    <h4 className="ios-body font-semibold">{item.name}</h4>
+                    <p className="ios-footnote text-secondary-label">${item.price} за книгу</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      className="w-8 h-8 rounded-full bg-quaternary-system-fill flex items-center justify-center"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="ios-body font-semibold w-8 text-center">{item.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="w-8 h-8 rounded-full bg-system-purple text-white flex items-center justify-center"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="text-right">
+                    <p className="ios-body font-bold">${(item.price * item.quantity).toFixed(2)}</p>
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="ios-footnote text-system-red"
+                    >
+                      Удалить
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="ios-card p-4 space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="ios-body">Подытог:</span>
+              <span className="ios-body font-semibold">${cartTotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="ios-body">Доставка:</span>
+              <span className="ios-body font-semibold">$3.99</span>
+            </div>
+            <hr className="border-separator" />
+            <div className="flex justify-between items-center">
+              <span className="ios-headline font-bold">Итого:</span>
+              <span className="ios-headline font-bold text-system-purple">${(cartTotal + 3.99).toFixed(2)}</span>
+            </div>
+            
+            <button className="w-full bg-system-purple text-white ios-body font-semibold py-3 rounded-xl">
+              Оформить заказ
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderProfileTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
+      <h1 className="ios-title font-bold">Профиль читателя</h1>
+      
+      <div className="ios-card p-4">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-16 h-16 bg-system-purple rounded-full flex items-center justify-center">
+            <span className="ios-title font-bold text-white">КУ</span>
+          </div>
+          <div>
+            <h3 className="ios-headline font-semibold">Книголюб</h3>
+            <p className="ios-body text-secondary-label">Активный читатель</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <p className="ios-title font-bold text-system-purple">87</p>
+            <p className="ios-footnote text-secondary-label">Прочитано</p>
+          </div>
+          <div className="text-center">
+            <p className="ios-title font-bold text-system-green">23</p>
+            <p className="ios-footnote text-secondary-label">В планах</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h2 className="ios-headline font-semibold">Избранные книги</h2>
+        {books.filter(book => favorites.includes(book.id)).map((book) => (
+          <div key={book.id} className="ios-card p-3 flex items-center space-x-3">
+            <OptimizedImage src={book.image} alt={book.name} className="w-20 h-20 object-cover rounded" />
+            <div className="flex-1">
+              <h4 className="ios-body font-semibold line-clamp-1">{book.name}</h4>
+              <p className="ios-footnote text-secondary-label">{book.author} • ${book.price}</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-tertiary-label" />
+          </div>
+        ))}
+      </div>
+
+      <div className="ios-card p-4">
+        <h3 className="ios-headline font-semibold mb-3">Статистика чтения</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="ios-body">Любимый жанр:</span>
+            <span className="ios-body font-medium">Классика</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Прочитано в этом году:</span>
+            <span className="ios-body font-medium">24 книги</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Потрачено на книги:</span>
+            <span className="ios-body font-medium text-system-purple">$1,456</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="h-full flex flex-col bg-system-background">
+      <div className="flex-1 overflow-y-auto p-4">
+        {activeTab === 'home' && renderHomeTab()}
+        {activeTab === 'catalog' && renderCatalogTab()}
+        {activeTab === 'cart' && renderCartTab()}
+        {activeTab === 'profile' && renderProfileTab()}
+      </div>
+
+      {/* Модальное окно */}
+      {isModalOpen && selectedBook && (
+        <div className="fixed inset-0 bg-black/50 flex items-end z-50">
+          <div className="bg-system-background max-w-md mx-auto w-full rounded-t-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start">
+              <h3 className="ios-title font-bold line-clamp-2">{selectedBook.name}</h3>
+              <button onClick={closeBookModal}>
+                <X className="w-6 h-6 text-secondary-label" />
+              </button>
+            </div>
+            
+            <div className="flex space-x-4">
+              <OptimizedImage src={selectedBook.image} alt={selectedBook.name} className="w-24 h-32 object-cover rounded-lg" />
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center space-x-1">
+                  <User className="w-4 h-4 text-secondary-label" />
+                  <span className="ios-body font-medium">{selectedBook.author}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  <span className="ios-body">{selectedBook.rating} • {selectedBook.year} год</span>
+                </div>
+                <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-quaternary-system-fill text-label">
+                  {selectedBook.category}
+                </span>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <p className="ios-body text-secondary-label">{selectedBook.description}</p>
+              
+              <div className="grid grid-cols-2 gap-4 ios-card p-3">
+                <div className="text-center">
+                  <p className="ios-caption2 text-secondary-label">Страниц</p>
+                  <p className="ios-body font-semibold">{selectedBook.pages}</p>
+                </div>
+                <div className="text-center">
+                  <p className="ios-caption2 text-secondary-label">Язык</p>
+                  <p className="ios-body font-semibold">{selectedBook.language}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="ios-title font-bold text-system-purple">${selectedBook.price}</span>
+                <span className="ios-footnote text-secondary-label">
+                  В наличии: {selectedBook.inStock} шт.
+                </span>
+              </div>
+              
+              <button className="w-full bg-system-purple text-white ios-body font-semibold py-3 rounded-xl">
+                В корзину
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}```
+
+### demos/CarRental.tsx
+```tsx
+import React, { useState } from 'react';
+import {
+  Car,
+  Fuel,
+  Users,
+  Calendar,
+  Clock,
+  Star,
+  Key,
+  Shield,
+  Navigation,
+  Settings,
+  Plus,
+  MapPin,
+  CreditCard
+} from 'lucide-react';
+import { OptimizedImage } from "../OptimizedImage";
+
+interface CarRentalProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onNavigate: (tab: string) => void;
+}
+
+interface Vehicle {
+  id: number;
+  name: string;
+  brand: string;
+  type: string;
+  price: number;
+  fuelType: string;
+  seats: number;
+  transmission: string;
+  rating: number;
+  image: string;
+  available: boolean;
+  features: string[];
+}
+
+interface CartItem extends Vehicle {
+  quantity: number;
+  rentalDays: number;
+  pickupDate: string;
+}
+
+const vehicles: Vehicle[] = [
+  {
+    id: 1,
+    name: 'BMW X5',
+    brand: 'BMW',
+    type: 'SUV',
+    price: 120,
+    fuelType: 'Бензин',
+    seats: 7,
+    transmission: 'Автомат',
+    rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&h=500&fit=crop&crop=center',
+    available: true,
+    features: ['GPS', 'Кондиционер', 'Bluetooth', 'Камера']
+  },
+  {
+    id: 2,
+    name: 'Mercedes-Benz E-Class',
+    brand: 'Mercedes',
+    type: 'Седан',
+    price: 100,
+    fuelType: 'Бензин',
+    seats: 5,
+    transmission: 'Автомат',
+    rating: 4.8,
+    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=800&h=500&fit=crop&crop=center',
+    available: true,
+    features: ['GPS', 'Кожа', 'Люк', 'Premium Audio']
+  },
+  {
+    id: 3,
+    name: 'Tesla Model S',
+    brand: 'Tesla',
+    type: 'Электро',
+    price: 150,
+    fuelType: 'Электро',
+    seats: 5,
+    transmission: 'Автомат',
+    rating: 4.7,
+    image: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&h=500&fit=crop&crop=center',
+    available: true,
+    features: ['Автопилот', 'Быстрая зарядка', 'Premium Interior', 'OTA Updates']
+  },
+  {
+    id: 4,
+    name: 'Toyota Camry',
+    brand: 'Toyota',
+    type: 'Седан',
+    price: 70,
+    fuelType: 'Гибрид',
+    seats: 5,
+    transmission: 'Автомат',
+    rating: 4.6,
+    image: 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=800&h=500&fit=crop&crop=center',
+    available: true,
+    features: ['Экономичный', 'Надежный', 'Комфортный', 'Безопасный']
+  }
+];
+
+const categories = ['Все', 'Седан', 'SUV', 'Электро', 'Гибрид'];
+
+export default function CarRental({ activeTab, onNavigate }: CarRentalProps) {
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+
+  const filteredVehicles = selectedCategory === 'Все' 
+    ? vehicles 
+    : vehicles.filter(vehicle => vehicle.type === selectedCategory || vehicle.fuelType === selectedCategory);
+
+  const addToCart = (vehicle: Vehicle) => {
+    const existingItem = cartItems.find(item => item.id === vehicle.id);
+    if (existingItem) {
+      setCartItems(prev => 
+        prev.map(item => 
+          item.id === vehicle.id ? { ...item, quantity: item.quantity + 1 } : item
+        )
+      );
+    } else {
+      setCartItems(prev => [...prev, { ...vehicle, quantity: 1, rentalDays: 1, pickupDate: 'Завтра' }]);
+    }
+  };
+
+  const removeFromCart = (vehicleId: number) => {
+    setCartItems(prev => prev.filter(item => item.id !== vehicleId));
+  };
+
+  const updateQuantity = (vehicleId: number, newQuantity: number) => {
+    if (newQuantity === 0) {
+      removeFromCart(vehicleId);
+      return;
+    }
+    setCartItems(prev => 
+      prev.map(item => 
+        item.id === vehicleId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const openVehicleModal = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+  };
+
+  const closeVehicleModal = () => {
+    setSelectedVehicle(null);
+  };
+
+  const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity * item.rentalDays), 0);
+
+  const renderHomeTab = () => (
+    <div className="min-h-screen bg-red-50 font-montserrat">
+      <div className="max-w-md mx-auto">
+        
+        {/* Car Rental Header */}
+        <div className="px-6 pt-20 pb-16 text-center">
+          <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center mx-auto mb-8">
+            <Car className="w-6 h-6 text-white" />
+          </div>
+          <h1 className="text-2xl font-semibold text-red-900 mb-3 tracking-wide">DriveNow</h1>
+          <p className="text-red-600 text-sm font-medium">Premium Car Rental Service</p>
+        </div>
+
+        {/* Hero Car Rental Section */}
+        <div className="px-6 pb-20">
+          <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-red-100 mb-12 relative">
+            <OptimizedImage 
+              src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=500&fit=crop&crop=center" 
+              alt="Premium Car Rental"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-red-900/80 via-red-900/40 to-transparent" />
+            <div className="absolute bottom-6 left-6 right-6 text-white">
+              <h2 className="text-xl font-semibold mb-2">Drive Your Dreams</h2>
+              <p className="text-white/80 text-sm mb-4">Premium vehicles for every journey</p>
+              <button 
+                className="bg-white text-red-900 px-6 py-2 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors"
+                onClick={() => openVehicleModal(vehicles[0])}
+              >
+                Book Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Car Rental Stats */}
+        <div className="px-6 py-20 border-t border-red-200">
+          <div className="text-center mb-16">
+            <h3 className="text-lg font-semibold text-red-900 mb-4">Premium Car Rental</h3>
+            <p className="text-red-600 text-sm font-medium leading-relaxed">
+              Luxury vehicles with comprehensive insurance and 24/7 roadside assistance.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-12 text-center">
+            {[
+              { number: '200+', label: 'Vehicles' },
+              { number: '50K+', label: 'Customers' },
+              { number: '24/7', label: 'Support' },
+              { number: '99%', label: 'Satisfaction' }
+            ].map((stat, index) => (
+              <div key={index}>
+                <div className="text-2xl font-bold text-red-600 mb-1">{stat.number}</div>
+                <div className="text-red-500 text-xs font-medium">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Featured Vehicles */}
+        <div className="px-6 py-20 border-t border-red-200">
+          <div className="flex items-center justify-between mb-12">
+            <h3 className="text-lg font-semibold text-red-900">Popular Cars</h3>
+            <button 
+              className="text-red-500 text-sm font-medium hover:text-red-600 transition-colors"
+              onClick={() => setSelectedCategory('Все')}
+            >
+              View all
+            </button>
+          </div>
+          
+          <div className="space-y-12">
+            {vehicles.slice(0, 2).map((vehicle, index) => (
+              <div 
+                key={vehicle.id} 
+                className="group cursor-pointer"
+                onClick={() => openVehicleModal(vehicle)}
+              >
+                <div className="aspect-[5/3] rounded-xl overflow-hidden bg-red-100 mb-6 relative">
+                  <OptimizedImage 
+                    src={vehicle.image}
+                    alt={vehicle.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+                    {vehicle.type}
+                  </div>
+                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-red-900 text-xs font-medium px-2 py-1 rounded flex items-center space-x-1">
+                    <Star className="w-3 h-3 text-red-500 fill-current" />
+                    <span>{vehicle.rating}</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="text-red-900 font-semibold text-base">{vehicle.name}</h4>
+                      <p className="text-red-500 text-sm font-medium">{vehicle.brand} • {vehicle.seats} мест</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-red-900 font-semibold">${vehicle.price}/день</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+
+  const renderCatalogTab = () => (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="ios-title font-bold">Автомобили в аренду</h1>
+      
+      {/* Categories */}
+      <div className="flex space-x-2 overflow-x-auto pb-2">
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-4 py-2 rounded-full whitespace-nowrap ios-footnote font-medium ${
+              selectedCategory === category
+                ? 'bg-system-red text-white'
+                : 'bg-quaternary-system-fill text-label'
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      {/* Vehicles List */}
+      <div className="space-y-3">
+        {filteredVehicles.map((vehicle) => (
+          <div 
+            key={vehicle.id} 
+            className="ios-card p-4 cursor-pointer"
+            onClick={() => openVehicleModal(vehicle)}
+          >
+            <div className="flex items-center space-x-3">
+              <OptimizedImage
+                src={vehicle.image}
+                alt={vehicle.name}
+                className="w-20 h-20 rounded-lg object-cover"
+              />
+              <div className="flex-1">
+                <h4 className="ios-body font-semibold">{vehicle.name}</h4>
+                <p className="ios-footnote text-secondary-label">{vehicle.brand} • {vehicle.transmission}</p>
+                <div className="flex items-center space-x-2 mt-1">
+                  <div className="flex items-center space-x-1">
+                    <Users className="w-3 h-3 text-secondary-label" />
+                    <span className="ios-caption2">{vehicle.seats}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Fuel className="w-3 h-3 text-secondary-label" />
+                    <span className="ios-caption2">{vehicle.fuelType}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="ios-body font-bold text-system-red">${vehicle.price}/день</p>
+                <div className="flex items-center space-x-1 mt-1">
+                  <div className={`w-2 h-2 rounded-full ${vehicle.available ? 'bg-system-green' : 'bg-system-red'}`}></div>
+                  <span className="ios-caption2">{vehicle.available ? 'Доступен' : 'Занят'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+    </div>
+  );
+
+  const renderCartTab = () => (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="ios-title font-bold">Корзина аренды</h1>
+        
+        {cartItems.length === 0 ? (
+          <div className="text-center py-12">
+            <Car className="w-16 h-16 text-quaternary-label mx-auto mb-4" />
+            <h2 className="ios-title font-semibold text-secondary-label mb-2">Корзина пуста</h2>
+            <p className="ios-body text-tertiary-label">Выберите автомобиль для аренды</p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-3">
+              {cartItems.map((item) => (
+                <div key={item.id} className="ios-card p-4">
+                  <div className="flex items-center space-x-3">
+                    <OptimizedImage
+                      src={item.image}
+                      alt={item.name}
+                      className="w-20 h-20 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <h4 className="ios-body font-semibold">{item.name}</h4>
+                      <p className="ios-footnote text-secondary-label">{item.brand}</p>
+                      <p className="ios-caption2 text-system-red">${item.price}/день × {item.rentalDays} дней</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        className="w-8 h-8 rounded-full bg-quaternary-system-fill flex items-center justify-center"
+                      >
+                        <span className="text-lg font-medium">-</span>
+                      </button>
+                      <span className="ios-body font-semibold w-8 text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="w-8 h-8 rounded-full bg-system-red flex items-center justify-center"
+                      >
+                        <Plus className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="ios-card p-4">
+              <div className="flex justify-between items-center">
+                <span className="ios-headline font-semibold">Итого</span>
+                <span className="ios-headline font-bold text-system-red">${cartTotal}</span>
+              </div>
+              <button className="w-full bg-system-red text-white ios-body font-semibold py-3 rounded-xl mt-4">
+                Оформить аренду
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderProfileTab = () => (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="ios-title font-bold">Профиль водителя</h1>
+        
+        <div className="ios-card p-6 text-center">
+          <div className="w-20 h-20 bg-system-red rounded-full flex items-center justify-center mx-auto mb-4">
+            <Key className="w-10 h-10 text-white" />
+          </div>
+          <h2 className="ios-headline font-semibold mb-1">Алексей Морозов</h2>
+          <p className="ios-footnote text-secondary-label">Проверенный водитель</p>
+        </div>
+
+        <div className="space-y-1">
+          <div className="ios-list-item">
+            <Car className="w-5 h-5 text-system-red" />
+            <span className="ios-body">История аренды</span>
+          </div>
+          <div className="ios-list-item">
+            <CreditCard className="w-5 h-5 text-system-blue" />
+            <span className="ios-body">Способы оплаты</span>
+          </div>
+          <div className="ios-list-item">
+            <Shield className="w-5 h-5 text-system-green" />
+            <span className="ios-body">Водительские права</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Vehicle Modal
+  if (selectedVehicle) {
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="relative">
+            <OptimizedImage
+              src={selectedVehicle.image}
+              alt={selectedVehicle.name}
+              className="w-full h-48 object-cover rounded-t-2xl"
+            />
+            <button
+              onClick={closeVehicleModal}
+              className="absolute top-4 right-4 w-8 h-8 bg-black/20 rounded-full flex items-center justify-center text-white"
+            >
+              ×
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-4">
+            <div>
+              <h2 className="ios-title font-bold mb-2">{selectedVehicle.name}</h2>
+              <p className="ios-body text-secondary-label">{selectedVehicle.brand}</p>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-1">
+                <Star className="w-4 h-4 text-system-orange" />
+                <span className="ios-body">{selectedVehicle.rating}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Users className="w-4 h-4 text-system-blue" />
+                <span className="ios-body">{selectedVehicle.seats} мест</span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 py-3 border-t border-separator">
+              <div className="text-center">
+                <Fuel className="w-5 h-5 text-secondary-label mx-auto mb-1" />
+                <span className="ios-footnote">{selectedVehicle.fuelType}</span>
+              </div>
+              <div className="text-center">
+                <Settings className="w-5 h-5 text-secondary-label mx-auto mb-1" />
+                <span className="ios-footnote">{selectedVehicle.transmission}</span>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="ios-body font-semibold">Особенности:</h3>
+              {selectedVehicle.features.map((feature, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 bg-system-red rounded-full"></div>
+                  <span className="ios-footnote">{feature}</span>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex items-center justify-between py-4 border-t border-separator">
+              <span className="ios-headline font-semibold">${selectedVehicle.price}/день</span>
+              <button
+                onClick={() => {
+                  addToCart(selectedVehicle);
+                  closeVehicleModal();
+                }}
+                className="bg-system-red text-white px-6 py-2 rounded-xl ios-body font-semibold"
+              >
+                Арендовать
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  switch (activeTab) {
+    case 'catalog':
+      return renderCatalogTab();
+    case 'cart':
+      return renderCartTab();
+    case 'profile':
+      return renderProfileTab();
+    default:
+      return renderHomeTab();
+  }
+}```
+
+### demos/CarWash.tsx
+```tsx
+import { useState } from "react";
+import { 
+  Car, 
+  Heart,
+  Clock, 
+  Star, 
+  MapPin, 
+  Calendar,
+  Plus,
+  Minus,
+  X,
+  ChevronRight,
+  Droplets,
+  Shield,
+  Sparkles,
+  Check
+} from "lucide-react";
+import { OptimizedImage } from "../OptimizedImage";
+import { useImagePreloader } from "../../hooks/useImagePreloader";
+
+interface CarWashProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+interface Booking {
+  id: number;
+  serviceName: string;
+  date: string;
+  time: string;
+  duration: string;
+  price: number;
+  status: 'Подтверждено' | 'В работе' | 'Завершено';
+}
+
+const services = [
+  { id: 1, name: 'Экспресс мойка', price: 15, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Быстрая наружная мойка кузова и колес', category: 'Базовые услуги', duration: '20 мин', includes: ['Мойка кузова', 'Мойка колес', 'Сушка'], rating: 4.5, popular: true },
+  { id: 2, name: 'Стандартная мойка', price: 25, image: 'https://images.unsplash.com/photo-1607616053700-a2d4c9d39c91?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Полная мойка снаружи и пылесос салона', category: 'Базовые услуги', duration: '35 мин', includes: ['Мойка кузова', 'Мойка колес', 'Пылесос салона', 'Протирка панели'], rating: 4.7, popular: true },
+  { id: 3, name: 'Комплексная мойка', price: 40, image: 'https://images.unsplash.com/photo-1590362891992-e2ffc2d1de20?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Полная мойка снаружи и внутри с уборкой салона', category: 'Базовые услуги', duration: '50 мин', includes: ['Мойка кузова', 'Мойка колес', 'Полная уборка салона', 'Чистка стекол'], rating: 4.8, popular: true },
+  { id: 4, name: 'Мойка двигателя', price: 20, image: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Профессиональная мойка двигателя с защитой электроники', category: 'Дополнительные услуги', duration: '25 мин', includes: ['Защита электроники', 'Мойка двигателя', 'Сушка'], rating: 4.6, popular: false },
+  { id: 5, name: 'Воскование кузова', price: 35, image: 'https://images.unsplash.com/photo-1583472759196-02b0c3e1cd7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Защитное воскование для блеска и защиты лакокрасочного покрытия', category: 'Защитные покрытия', duration: '40 мин', includes: ['Воскование кузова', 'Полировка', 'Защита ЛКП'], rating: 4.9, popular: false },
+  { id: 6, name: 'Полировка фар', price: 30, image: 'https://images.unsplash.com/photo-1549317336-206569e8475c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Восстановление прозрачности и яркости фар', category: 'Детейлинг', duration: '30 мин', includes: ['Шлифовка фар', 'Полировка', 'Защитное покрытие'], rating: 4.7, popular: false },
+  { id: 7, name: 'Химчистка салона', price: 60, image: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Глубокая химчистка сидений, ковриков и обивки', category: 'Химчистка', duration: '90 мин', includes: ['Химчистка сидений', 'Чистка ковриков', 'Чистка обивки', 'Устранение запахов'], rating: 4.8, popular: true },
+  { id: 8, name: 'Озонирование салона', price: 25, image: 'https://images.unsplash.com/photo-1551831961-59b2b121f833?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Дезинфекция и устранение неприятных запахов озоном', category: 'Дополнительные услуги', duration: '30 мин', includes: ['Обработка озоном', 'Дезинфекция', 'Устранение запахов'], rating: 4.5, popular: false },
+  { id: 9, name: 'Керамическое покрытие', price: 150, image: 'https://images.unsplash.com/photo-1489824904134-891ab64532f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Нанесение керамического покрытия для долговременной защиты', category: 'Защитные покрытия', duration: '180 мин', includes: ['Подготовка поверхности', 'Нанесение керамики', 'Полировка', 'Гарантия 2 года'], rating: 4.9, popular: false },
+  { id: 10, name: 'Антидождь для стекол', price: 18, image: 'https://images.unsplash.com/photo-1595838541611-e76b73ed3a5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Обработка стекол водоотталкивающим составом', category: 'Дополнительные услуги', duration: '15 мин', includes: ['Очистка стекол', 'Нанесение состава', 'Полировка'], rating: 4.4, popular: false },
+  { id: 11, name: 'Полная полировка кузова', price: 120, image: 'https://images.unsplash.com/photo-1610647752706-3bb12232b3ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Профессиональная полировка всего кузова для устранения царапин', category: 'Детейлинг', duration: '150 мин', includes: ['Подготовка поверхности', 'Абразивная полировка', 'Финишная полировка', 'Защитное покрытие'], rating: 4.9, popular: false },
+  { id: 12, name: 'Чернение резины и пластика', price: 22, image: 'https://images.unsplash.com/photo-1486831111037-f5e79b97fc26?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Восстановление цвета резиновых и пластиковых элементов', category: 'Детейлинг', duration: '25 мин', includes: ['Очистка поверхности', 'Нанесение состава', 'Полировка'], rating: 4.3, popular: false },
+  { id: 13, name: 'Удаление битумных пятен', price: 28, image: 'https://images.unsplash.com/photo-1472851187339-7ece2e80e6a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Профессиональное удаление битума и дорожной смолы', category: 'Дополнительные услуги', duration: '35 мин', includes: ['Размягчение битума', 'Удаление пятен', 'Полировка участков'], rating: 4.6, popular: false },
+  { id: 14, name: 'Мойка днища', price: 18, image: 'https://images.unsplash.com/photo-1544365638-0d97af0de1ed?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Мойка днища автомобиля от грязи и реагентов', category: 'Дополнительные услуги', duration: '20 мин', includes: ['Мойка днища', 'Удаление реагентов', 'Антикоррозийная обработка'], rating: 4.5, popular: false },
+  { id: 15, name: 'Консервация на зиму', price: 45, image: 'https://images.unsplash.com/photo-1570471160066-f740de48f6b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Комплекс процедур для подготовки авто к зимнему сезону', category: 'Сезонные услуги', duration: '60 мин', includes: ['Антикоррозийная обработка', 'Защита кузова', 'Обработка замков'], rating: 4.7, popular: false },
+  { id: 16, name: 'Подготовка к лету', price: 40, image: 'https://images.unsplash.com/photo-1609378778529-b9d7a3c6b29c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Комплекс услуг для подготовки автомобиля к летнему сезону', category: 'Сезонные услуги', duration: '55 мин', includes: ['Глубокая мойка', 'Кондиционирование салона', 'Защита от УФ'], rating: 4.6, popular: false },
+  { id: 17, name: 'Экспресс детейлинг', price: 80, image: 'https://images.unsplash.com/photo-1550913114-f8ba46640c4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Быстрый детейлинг для придания автомобилю выставочного вида', category: 'Детейлинг', duration: '75 мин', includes: ['Полная мойка', 'Воскование', 'Чистка салона', 'Чернение резины'], rating: 4.8, popular: true },
+  { id: 18, name: 'Удаление наклеек', price: 15, image: 'https://images.unsplash.com/photo-1486831111037-f5e79b97fc26?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Профессиональное удаление наклеек без повреждения лакокрасочного покрытия', category: 'Дополнительные услуги', duration: '15 мин', includes: ['Размягчение клея', 'Удаление наклеек', 'Полировка поверхности'], rating: 4.2, popular: false },
+  { id: 19, name: 'Антикоррозийная обработка', price: 55, image: 'https://images.unsplash.com/photo-1605515298946-d062f2598d5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Защитная обработка металлических элементов от коррозии', category: 'Защитные покрытия', duration: '70 мин', includes: ['Очистка поверхности', 'Нанесение состава', 'Защита скрытых полостей'], rating: 4.7, popular: false },
+  { id: 20, name: 'VIP детейлинг', price: 200, image: 'https://images.unsplash.com/photo-1621135802920-133df7cabc62?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Полный комплекс премиум услуг для идеального состояния автомобиля', category: 'VIP услуги', duration: '240 мин', includes: ['Полная полировка', 'Керамическое покрытие', 'Химчистка салона', 'Озонирование', 'Защита всех поверхностей'], rating: 5.0, popular: true }
+];
+
+const categories = ['Все', 'Базовые услуги', 'Детейлинг', 'Химчистка', 'Защитные покрытия', 'Дополнительные услуги', 'Сезонные услуги', 'VIP услуги'];
+
+const initialBookings: Booking[] = [
+  { id: 1, serviceName: 'Стандартная мойка', date: 'Завтра', time: '10:00', duration: '35 мин', price: 25, status: 'Подтверждено' },
+  { id: 2, serviceName: 'Химчистка салона', date: 'Пятница', time: '14:00', duration: '90 мин', price: 60, status: 'Подтверждено' },
+];
+
+export default function CarWash({ activeTab }: CarWashProps) {
+  const [selectedService, setSelectedService] = useState<typeof services[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [bookings, setBookings] = useState<Booking[]>(initialBookings);
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [favorites, setFavorites] = useState<number[]>([3, 7, 17, 20]);
+
+  const openServiceModal = (service: typeof services[0]) => {
+    setSelectedService(service);
+    setIsModalOpen(true);
+  };
+
+  const closeServiceModal = () => {
+    setIsModalOpen(false);
+    setSelectedService(null);
+  };
+
+  const toggleFavorite = (serviceId: number) => {
+    setFavorites(prev => 
+      prev.includes(serviceId) 
+        ? prev.filter(id => id !== serviceId)
+        : [...prev, serviceId]
+    );
+  };
+
+  const filteredServices = selectedCategory === 'Все' 
+    ? services 
+    : services.filter(service => service.category === selectedCategory);
+
+  const popularServices = services.filter(service => service.popular);
+
+  // Preload first 6 product images for instant visibility
+  useImagePreloader({
+    images: services.slice(0, 6).map(item => item.image),
+    priority: true
+  });
+
+
+  const renderHomeTab = () => (
+    <div className="max-w-md mx-auto px-4 space-y-6">
+      {/* Заголовок */}
+      <div className="text-center">
+        <h1 className="ios-title font-bold mb-2">Авто Блеск</h1>
+        <p className="ios-subheadline text-secondary-label">Профессиональная автомойка 🚗</p>
+      </div>
+
+      {/* Быстрое бронирование */}
+      <div className="ios-card p-4 bg-gradient-to-r from-orange-500 to-red-500 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="ios-headline font-semibold">Бронирование онлайн</h3>
+            <p className="ios-body">Забронируйте время и приезжайте к назначенному часу</p>
+          </div>
+          <Calendar className="w-8 h-8" />
+        </div>
+      </div>
+
+      {/* Популярные услуги */}
+      <div>
+        <h2 className="ios-title font-semibold mb-4">Популярные услуги</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {popularServices.slice(0, 4).map((service) => (
+            <div 
+              key={service.id} 
+              className="ios-card p-3 cursor-pointer"
+              onClick={() => openServiceModal(service)}
+            >
+              <OptimizedImage src={service.image} alt={service.name} className="w-full h-32 object-cover rounded-lg mb-2" />
+              <h4 className="ios-footnote font-semibold line-clamp-2">{service.name}</h4>
+              <p className="ios-caption2 text-secondary-label mb-2">{service.duration}</p>
+              <div className="flex items-center justify-between">
+                <span className="ios-caption font-bold text-system-orange">${service.price}</span>
+                <div className="flex items-center space-x-1">
+                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                  <span className="ios-caption2">{service.rating}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Быстрые услуги */}
+      <div>
+        <h2 className="ios-title font-semibold mb-4">Экспресс услуги</h2>
+        <div className="space-y-3">
+          {services.filter(s => parseInt(s.duration) <= 30).slice(0, 3).map((service) => (
+            <div 
+              key={service.id} 
+              className="ios-card p-3 cursor-pointer flex items-center space-x-3"
+              onClick={() => openServiceModal(service)}
+            >
+              <OptimizedImage src={service.image} alt={service.name} className="w-20 h-20 object-cover rounded-lg" />
+              <div className="flex-1">
+                <h4 className="ios-body font-semibold">{service.name}</h4>
+                <p className="ios-footnote text-secondary-label">{service.duration} • ${service.price}</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-tertiary-label" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Информация о автомойке */}
+      <div className="ios-card p-4">
+        <h3 className="ios-headline font-semibold mb-3">Наши преимущества</h3>
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Clock className="w-4 h-4 text-system-orange" />
+            <span className="ios-body">Работаем без выходных 8:00 - 22:00</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Shield className="w-4 h-4 text-system-orange" />
+            <span className="ios-body">Гарантия качества на все услуги</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-4 h-4 text-system-orange" />
+            <span className="ios-body">Профессиональная косметика и оборудование</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCatalogTab = () => (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="ios-title font-bold">Каталог услуг</h1>
+      
+      {/* Категории */}
+      <div className="flex space-x-2 overflow-x-auto pb-2">
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-4 py-2 rounded-full whitespace-nowrap ios-footnote font-medium ${
+              selectedCategory === category
+                ? 'bg-system-orange text-white'
+                : 'bg-quaternary-system-fill text-label'
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      {/* Список услуг */}
+      <div className="space-y-3">
+        {filteredServices.map((service) => (
+          <div 
+            key={service.id} 
+            className="ios-card p-4 cursor-pointer"
+            onClick={() => openServiceModal(service)}
+          >
+            <div className="flex items-center space-x-3">
+              <OptimizedImage src={service.image} alt={service.name} className="w-20 h-20 object-cover rounded-lg" />
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="ios-body font-semibold">{service.name}</h4>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(service.id);
+                    }}
+                    className="p-1"
+                  >
+                    <Heart 
+                      className={`w-4 h-4 ${
+                        favorites.includes(service.id) 
+                          ? 'fill-red-500 text-red-500' 
+                          : 'text-secondary-label'
+                      }`} 
+                    />
+                  </button>
+                </div>
+                <p className="ios-footnote text-secondary-label mb-2 line-clamp-2">{service.description}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-1">
+                      <Clock className="w-4 h-4 text-secondary-label" />
+                      <span className="ios-caption2">{service.duration}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <span className="ios-caption2">{service.rating}</span>
+                    </div>
+                    {service.popular && (
+                      <span className="px-2 py-1 rounded-full ios-caption2 font-semibold bg-system-orange/10 text-system-orange">
+                        Популярно
+                      </span>
+                    )}
+                  </div>
+                  <span className="ios-body font-bold text-system-orange">${service.price}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCartTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
+      <h1 className="ios-title font-bold">Мои записи</h1>
+      
+      {bookings.length === 0 ? (
+        <div className="text-center py-12">
+          <Car className="w-16 h-16 text-quaternary-label mx-auto mb-4" />
+          <p className="ios-body text-secondary-label">Нет активных записей</p>
+          <p className="ios-footnote text-tertiary-label">Забронируйте услугу из каталога</p>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3">
+            {bookings.map((booking) => (
+              <div key={booking.id} className="ios-card p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="ios-body font-semibold">{booking.serviceName}</h4>
+                  <span className={`px-2 py-1 rounded-full ios-caption2 font-semibold ${
+                    booking.status === 'Подтверждено' ? 'bg-green-100 text-green-700' :
+                    booking.status === 'В работе' ? 'bg-orange-100 text-orange-700' :
+                    'bg-blue-100 text-blue-700'
+                  }`}>
+                    {booking.status}
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="w-4 h-4 text-secondary-label" />
+                    <span className="ios-footnote">{booking.date}, {booking.time}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Clock className="w-4 h-4 text-secondary-label" />
+                    <span className="ios-footnote">Длительность: {booking.duration}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="ios-body font-bold text-system-orange">${booking.price}</span>
+                  </div>
+                </div>
+                <div className="flex space-x-2 mt-3">
+                  <button className="flex-1 bg-quaternary-system-fill text-label ios-footnote font-medium py-2 rounded-lg">
+                    Перенести
+                  </button>
+                  <button className="flex-1 bg-system-red text-white ios-footnote font-medium py-2 rounded-lg">
+                    Отменить
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="ios-card p-4">
+            <h3 className="ios-headline font-semibold mb-2">Итого записей: {bookings.length}</h3>
+            <p className="ios-body text-secondary-label">Общая стоимость: ${bookings.reduce((sum, booking) => sum + booking.price, 0)}</p>
+          </div>
+
+          {/* Адрес автомойки */}
+          <div className="ios-card p-4 bg-system-orange/5 border border-system-orange/20">
+            <div className="flex items-center space-x-2 mb-2">
+              <MapPin className="w-4 h-4 text-system-orange" />
+              <span className="ios-body font-semibold text-system-orange">Как нас найти</span>
+            </div>
+            <p className="ios-footnote text-secondary-label">
+              ул. Автомойщиков, 15 (рядом с заправкой Shell)
+            </p>
+            <p className="ios-footnote text-secondary-label">
+              Работаем: 8:00 - 22:00, без выходных
+            </p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderProfileTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
+      <h1 className="ios-title font-bold">Профиль автовладельца</h1>
+      
+      <div className="ios-card p-4">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-16 h-16 bg-system-orange rounded-full flex items-center justify-center">
+            <span className="ios-title font-bold text-white">АБ</span>
+          </div>
+          <div>
+            <h3 className="ios-headline font-semibold">Авто Блеск VIP</h3>
+            <p className="ios-body text-secondary-label">Постоянный клиент</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <p className="ios-title font-bold text-system-orange">31</p>
+            <p className="ios-footnote text-secondary-label">Посещений</p>
+          </div>
+          <div className="text-center">
+            <p className="ios-title font-bold text-system-green">10%</p>
+            <p className="ios-footnote text-secondary-label">Скидка</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h2 className="ios-headline font-semibold">Избранные услуги</h2>
+        {services.filter(service => favorites.includes(service.id)).map((service) => (
+          <div key={service.id} className="ios-card p-3 flex items-center space-x-3">
+            <OptimizedImage src={service.image} alt={service.name} className="w-20 h-20 object-cover rounded-lg" />
+            <div className="flex-1">
+              <h4 className="ios-body font-semibold">{service.name}</h4>
+              <p className="ios-footnote text-secondary-label">${service.price} • {service.duration}</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-tertiary-label" />
+          </div>
+        ))}
+      </div>
+
+      <div className="ios-card p-4">
+        <h3 className="ios-headline font-semibold mb-3">История обслуживания</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="ios-body">Последнее посещение:</span>
+            <span className="ios-body font-medium">14 дек 2024</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Любимая услуга:</span>
+            <span className="ios-body font-medium">Комплексная мойка</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Потрачено всего:</span>
+            <span className="ios-body font-medium text-system-orange">$1,240</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="ios-card p-4">
+        <h3 className="ios-headline font-semibold mb-3">Мой автомобиль</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="ios-body">Марка:</span>
+            <span className="ios-body font-medium">BMW X5</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Год:</span>
+            <span className="ios-body font-medium">2022</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Цвет:</span>
+            <span className="ios-body font-medium">Черный металлик</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="h-full flex flex-col bg-system-background">
+      <div className="flex-1 overflow-y-auto p-4">
+        {activeTab === 'home' && renderHomeTab()}
+        {activeTab === 'catalog' && renderCatalogTab()}
+        {activeTab === 'cart' && renderCartTab()}
+        {activeTab === 'profile' && renderProfileTab()}
+      </div>
+
+      {/* Модальное окно */}
+      {isModalOpen && selectedService && (
+        <div className="fixed inset-0 bg-black/50 flex items-end z-50">
+          <div className="bg-system-background max-w-md mx-auto w-full rounded-t-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start">
+              <h3 className="ios-title font-bold line-clamp-2">{selectedService.name}</h3>
+              <button onClick={closeServiceModal}>
+                <X className="w-6 h-6 text-secondary-label" />
+              </button>
+            </div>
+            
+            <OptimizedImage src={selectedService.image} alt={selectedService.name} className="w-full h-48 object-cover rounded-xl" />
+            
+            <div className="space-y-3">
+              <p className="ios-body text-secondary-label">{selectedService.description}</p>
+              
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-1">
+                  <Clock className="w-4 h-4 text-secondary-label" />
+                  <span className="ios-footnote">{selectedService.duration}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  <span className="ios-footnote">{selectedService.rating}</span>
+                </div>
+                <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-quaternary-system-fill text-label">
+                  {selectedService.category}
+                </span>
+              </div>
+              
+              <div className="space-y-2">
+                <h4 className="ios-body font-semibold">Что включено:</h4>
+                <div className="space-y-1">
+                  {selectedService.includes.map((item, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-system-green" />
+                      <span className="ios-footnote text-secondary-label">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="ios-title font-bold text-system-orange">${selectedService.price}</span>
+                {selectedService.popular && (
+                  <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-system-orange/10 text-system-orange">
+                    Популярная услуга
+                  </span>
+                )}
+              </div>
+              
+              <button className="w-full bg-system-orange text-white ios-body font-semibold py-3 rounded-xl">
+                Забронировать услугу
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}```
+
+### demos/Courses.tsx
+```tsx
+import { useState } from "react";
+import { 
+  BookOpen, 
+  Heart, 
+  Star, 
+  Clock, 
+  Play,
+  Plus,
+  Minus,
+  X,
+  ChevronRight,
+  Award,
+  Users,
+  CheckCircle,
+  BarChart3,
+  Download
+} from "lucide-react";
+import { createProductImageErrorHandler } from "@/utils/imageUtils";
+import { OptimizedImage } from "../OptimizedImage";
+import { useImagePreloader } from "../../hooks/useImagePreloader";
+
+interface CoursesProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+interface EnrolledCourse {
+  id: number;
+  name: string;
+  progress: number;
+  nextLesson: string;
+  image: string;
+}
+
+const courses = [
+  { id: 1, name: 'Основы программирования на Python', price: 49, image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Изучите Python с нуля и создайте свои первые программы', category: 'Программирование', instructor: 'Алексей Петров', duration: '12 часов', lessons: 24, students: 15420, rating: 4.8, level: 'Начинающий', certificate: true, language: 'Русский' },
+  { id: 2, name: 'Веб-разработка с JavaScript', price: 65, image: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Создание интерактивных веб-сайтов с использованием JavaScript', category: 'Веб-разработка', instructor: 'Мария Иванова', duration: '18 часов', lessons: 36, students: 8965, rating: 4.9, level: 'Средний', certificate: true, language: 'Русский' },
+  { id: 3, name: 'Дизайн интерфейсов в Figma', price: 55, image: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Научитесь создавать красивые и функциональные интерфейсы', category: 'Дизайн', instructor: 'Анна Смирнова', duration: '15 часов', lessons: 30, students: 12340, rating: 4.7, level: 'Начинающий', certificate: true, language: 'Русский' },
+  { id: 4, name: 'Машинное обучение для начинающих', price: 89, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Погрузитесь в мир искусственного интеллекта и машинного обучения', category: 'Data Science', instructor: 'Дмитрий Козлов', duration: '25 часов', lessons: 50, students: 6780, rating: 4.9, level: 'Продвинутый', certificate: true, language: 'Русский' },
+  { id: 5, name: 'Цифровой маркетинг 2024', price: 45, image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Актуальные стратегии продвижения в интернете', category: 'Маркетинг', instructor: 'Елена Волкова', duration: '10 часов', lessons: 20, students: 23450, rating: 4.6, level: 'Начинающий', certificate: true, language: 'Русский' },
+  { id: 6, name: 'Фотография и обработка', price: 38, image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'От основ фотографии до профессиональной обработки в Lightroom', category: 'Творчество', instructor: 'Игорь Белов', duration: '14 часов', lessons: 28, students: 9876, rating: 4.8, level: 'Средний', certificate: true, language: 'Русский' },
+  { id: 7, name: 'Excel для профессионалов', price: 35, image: 'https://images.unsplash.com/photo-1586861848620-bfe73d85fc92?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Продвинутые функции Excel для анализа данных и автоматизации', category: 'Офисные программы', instructor: 'Ольга Крылова', duration: '8 часов', lessons: 16, students: 18920, rating: 4.5, level: 'Средний', certificate: true, language: 'Русский' },
+  { id: 8, name: 'Мобильная разработка на React Native', price: 78, image: 'https://images.unsplash.com/photo-1555774698-0b77e0d5fac6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Создание мобильных приложений для iOS и Android', category: 'Мобильная разработка', instructor: 'Сергей Морозов', duration: '22 часов', lessons: 44, students: 5432, rating: 4.9, level: 'Продвинутый', certificate: true, language: 'Русский' },
+  { id: 9, name: 'Блокчейн и криптовалюты', price: 95, image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Понимание технологии блокчейн и криптовалютного рынка', category: 'Финтех', instructor: 'Владимир Титов', duration: '16 часов', lessons: 32, students: 3210, rating: 4.7, level: 'Продвинутый', certificate: true, language: 'Русский' },
+  { id: 10, name: 'Английский для IT-специалистов', price: 42, image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Технический английский для работы в международных IT-компаниях', category: 'Языки', instructor: 'Sarah Johnson', duration: '20 часов', lessons: 40, students: 14680, rating: 4.6, level: 'Средний', certificate: true, language: 'Русский' },
+  { id: 11, name: 'Стартап от идеи до продажи', price: 85, image: 'https://images.unsplash.com/photo-1556484687-30636164638b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Полный цикл создания и развития технологического стартапа', category: 'Бизнес', instructor: 'Андрей Соколов', duration: '30 часов', lessons: 60, students: 7890, rating: 4.8, level: 'Продвинутый', certificate: true, language: 'Русский' },
+  { id: 12, name: 'DevOps и облачные технологии', price: 92, image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Автоматизация разработки и развертывания приложений', category: 'DevOps', instructor: 'Максим Зайцев', duration: '28 часов', lessons: 56, students: 4560, rating: 4.9, level: 'Продвинутый', certificate: true, language: 'Русский' },
+  { id: 13, name: 'Кибербезопасность для всех', price: 58, image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Основы защиты информации и этичного хакинга', category: 'Безопасность', instructor: 'Татьяна Белова', duration: '18 часов', lessons: 36, students: 11230, rating: 4.7, level: 'Средний', certificate: true, language: 'Русский' },
+  { id: 14, name: 'Анимация и 3D-моделирование', price: 68, image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Создание 3D-моделей и анимации в Blender', category: 'Творчество', instructor: 'Валентин Орлов', duration: '24 часов', lessons: 48, students: 6750, rating: 4.8, level: 'Средний', certificate: true, language: 'Русский' },
+  { id: 15, name: 'Искусственный интеллект и ChatGPT', price: 72, image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Использование ИИ для повышения продуктивности в работе', category: 'ИИ и автоматизация', instructor: 'Николай Семенов', duration: '12 часов', lessons: 24, students: 19850, rating: 4.9, level: 'Начинающий', certificate: true, language: 'Русский' },
+  { id: 16, name: 'Игровая разработка на Unity', price: 75, image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Создание 2D и 3D игр с использованием движка Unity', category: 'Игровая разработка', instructor: 'Роман Крылов', duration: '35 часов', lessons: 70, students: 8420, rating: 4.8, level: 'Продвинутый', certificate: true, language: 'Русский' },
+  { id: 17, name: 'Дата-аналитика в Python', price: 82, image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Анализ данных с использованием Pandas, NumPy и Matplotlib', category: 'Data Science', instructor: 'Светлана Попова', duration: '26 часов', lessons: 52, students: 9630, rating: 4.9, level: 'Средний', certificate: true, language: 'Русский' },
+  { id: 18, name: 'UI/UX дизайн мобильных приложений', price: 62, image: 'https://images.unsplash.com/photo-1558655146-d09347e92766?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Проектирование пользовательского опыта для мобильных устройств', category: 'Дизайн', instructor: 'Юлия Волкова', duration: '16 часов', lessons: 32, students: 7890, rating: 4.7, level: 'Средний', certificate: true, language: 'Русский' },
+  { id: 19, name: 'Контент-маркетинг и SMM', price: 48, image: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Создание эффективного контента для социальных сетей', category: 'Маркетинг', instructor: 'Алина Козлова', duration: '14 часов', lessons: 28, students: 16540, rating: 4.6, level: 'Начинающий', certificate: true, language: 'Русский' },
+  { id: 20, name: 'Личная эффективность и тайм-менеджмент', price: 32, image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Техники управления временем и повышения продуктивности', category: 'Саморазвитие', instructor: 'Михаил Титов', duration: '8 часов', lessons: 16, students: 25670, rating: 4.5, level: 'Начинающий', certificate: true, language: 'Русский' }
+];
+
+const categories = ['Все', 'Программирование', 'Веб-разработка', 'Дизайн', 'Data Science', 'Маркетинг', 'Творчество', 'Мобильная разработка', 'Бизнес', 'Языки', 'ИИ и автоматизация', 'Саморазвитие'];
+
+const levels = ['Все', 'Начинающий', 'Средний', 'Продвинутый'];
+
+const initialEnrolledCourses: EnrolledCourse[] = [
+  { id: 1, name: 'Основы программирования на Python', progress: 75, nextLesson: 'Урок 18: Работа с файлами', image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60' },
+  { id: 3, name: 'Дизайн интерфейсов в Figma', progress: 35, nextLesson: 'Урок 11: Создание компонентов', image: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60' },
+];
+
+export default function Courses({ activeTab }: CoursesProps) {
+  const [selectedCourse, setSelectedCourse] = useState<typeof courses[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>(initialEnrolledCourses);
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [selectedLevel, setSelectedLevel] = useState('Все');
+  const [favorites, setFavorites] = useState<number[]>([1, 2, 4, 15]);
+
+  const openCourseModal = (course: typeof courses[0]) => {
+    setSelectedCourse(course);
+    setIsModalOpen(true);
+  };
+
+  const closeCourseModal = () => {
+    setIsModalOpen(false);
+    setSelectedCourse(null);
+  };
+
+  const toggleFavorite = (courseId: number) => {
+    setFavorites(prev => 
+      prev.includes(courseId) 
+        ? prev.filter(id => id !== courseId)
+        : [...prev, courseId]
+    );
+  };
+
+  const filteredCourses = courses.filter(course => {
+    const matchesCategory = selectedCategory === 'Все' || course.category === selectedCategory;
+    const matchesLevel = selectedLevel === 'Все' || course.level === selectedLevel;
+    
+    return matchesCategory && matchesLevel;
+  });
+
+  const popularCourses = courses.filter(course => course.students > 10000);
+
+  // Preload first 6 product images for instant visibility
+  useImagePreloader({
+    images: courses.slice(0, 6).map(item => item.image),
+    priority: true
+  });
+
+
+  const renderHomeTab = () => (
+    <div className="min-h-screen bg-purple-50 font-montserrat">
+      <div className="max-w-md mx-auto">
+        
+        {/* Learning Header */}
+        <div className="px-6 pt-20 pb-16 text-center">
+          <div className="w-20 h-20 bg-purple-600 rounded-xl flex items-center justify-center mx-auto mb-8">
+            <BookOpen className="w-6 h-6 text-white" />
+          </div>
+          <h1 className="text-2xl font-semibold text-purple-900 mb-3 tracking-wide">LearnHub</h1>
+          <p className="text-purple-600 text-sm font-medium">Premium Online Education</p>
+        </div>
+
+        {/* Hero Learning Section */}
+        <div className="px-6 pb-20">
+          <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-purple-100 mb-12 relative">
+            <OptimizedImage 
+              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=500&fit=crop&crop=center" 
+              alt="Premium Online Learning"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-900/40 to-transparent" />
+            <div className="absolute bottom-6 left-6 right-6 text-white">
+              <h2 className="text-xl font-semibold mb-2">Expand Your Knowledge</h2>
+              <p className="text-white/80 text-sm mb-4">Expert-led courses and certifications</p>
+              <button 
+                className="bg-white text-purple-900 px-6 py-2 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors"
+                onClick={() => openCourseModal(courses[0])}
+              >
+                Start Learning
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Learning Stats */}
+        <div className="px-6 py-20 border-t border-purple-200">
+          <div className="text-center mb-16">
+            <h3 className="text-lg font-semibold text-purple-900 mb-4">Learn With Excellence</h3>
+            <p className="text-purple-600 text-sm font-medium leading-relaxed">
+              Master new skills with industry-leading instructors and comprehensive curriculums.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-12 text-center">
+            {[
+              { number: '500+', label: 'Courses' },
+              { number: '50K+', label: 'Students' },
+              { number: '95%', label: 'Completion Rate' },
+              { number: '24/7', label: 'Support' }
+            ].map((stat, index) => (
+              <div key={index}>
+                <div className="text-2xl font-bold text-purple-600 mb-1">{stat.number}</div>
+                <div className="text-purple-500 text-xs font-medium">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Featured Courses */}
+        <div className="px-6 py-20 border-t border-purple-200">
+          <div className="flex items-center justify-between mb-12">
+            <h3 className="text-lg font-semibold text-purple-900">Popular Courses</h3>
+            <button 
+              className="text-purple-500 text-sm font-medium hover:text-purple-600 transition-colors"
+              onClick={() => setSelectedCategory('Все')}
+            >
+              View all
+            </button>
+          </div>
+          
+          <div className="space-y-12">
+            {courses.slice(0, 2).map((course, index) => (
+              <div 
+                key={course.id} 
+                className="group cursor-pointer"
+                onClick={() => openCourseModal(course)}
+              >
+                <div className="aspect-[5/3] rounded-xl overflow-hidden bg-purple-100 mb-6 relative">
+                  <OptimizedImage 
+                    src={course.image}
+                    alt={course.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute top-3 left-3 bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">
+                    {course.duration}
+                  </div>
+                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-purple-900 text-xs font-medium px-2 py-1 rounded flex items-center space-x-1">
+                    <Star className="w-3 h-3 text-purple-500 fill-current" />
+                    <span>{course.rating}</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="text-purple-900 font-semibold text-base">{course.name}</h4>
+                      <p className="text-purple-500 text-sm font-medium">{course.instructor}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-purple-900 font-semibold">${course.price}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+
+  const renderCatalogTab = () => (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="ios-title font-bold">Каталог курсов</h1>
+      
+      {/* Фильтры */}
+      <div className="space-y-3">
+        <div className="flex space-x-2 overflow-x-auto pb-2">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-4 py-2 rounded-full whitespace-nowrap ios-footnote font-medium ${
+                selectedCategory === category
+                  ? 'bg-system-indigo text-white'
+                  : 'bg-quaternary-system-fill text-label'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+        
+        <div className="flex space-x-2 overflow-x-auto pb-2">
+          {levels.map((level) => (
+            <button
+              key={level}
+              onClick={() => setSelectedLevel(level)}
+              className={`px-3 py-1 rounded-full whitespace-nowrap ios-caption2 font-medium ${
+                selectedLevel === level
+                  ? 'bg-system-purple text-white'
+                  : 'bg-fill text-secondary-label'
+              }`}
+            >
+              {level}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Список курсов */}
+      <div className="space-y-3">
+        {filteredCourses.map((course) => (
+          <div 
+            key={course.id} 
+            className="ios-card p-4 cursor-pointer"
+            onClick={() => openCourseModal(course)}
+          >
+            <div className="flex items-center space-x-3">
+              <OptimizedImage 
+                src={course.image} 
+                alt={course.name} 
+                className="w-20 h-20 object-cover rounded-lg"
+                onError={createProductImageErrorHandler('courses', 'service')}
+              />
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="ios-body font-semibold line-clamp-1">{course.name}</h4>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(course.id);
+                    }}
+                    className="p-1"
+                  >
+                    <Heart 
+                      className={`w-4 h-4 ${
+                        favorites.includes(course.id) 
+                          ? 'fill-red-500 text-red-500' 
+                          : 'text-secondary-label'
+                      }`} 
+                    />
+                  </button>
+                </div>
+                <p className="ios-footnote text-secondary-label mb-1">{course.instructor}</p>
+                <p className="ios-caption2 text-tertiary-label mb-2 line-clamp-1">{course.description}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-1">
+                      <Clock className="w-3 h-3 text-secondary-label" />
+                      <span className="ios-caption2">{course.duration}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <span className="ios-caption2">{course.rating}</span>
+                    </div>
+                    <span className="ios-caption2 px-2 py-1 bg-quaternary-system-fill rounded">{course.level}</span>
+                  </div>
+                  <span className="ios-body font-bold text-system-indigo">${course.price}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCartTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
+      <h1 className="ios-title font-bold">Мои курсы</h1>
+      
+      {enrolledCourses.length === 0 ? (
+        <div className="text-center py-12">
+          <BookOpen className="w-16 h-16 text-quaternary-label mx-auto mb-4" />
+          <p className="ios-body text-secondary-label">Нет записанных курсов</p>
+          <p className="ios-footnote text-tertiary-label">Выберите курс из каталога</p>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3">
+            {enrolledCourses.map((course) => (
+              <div key={course.id} className="ios-card p-4">
+                <div className="flex items-center space-x-3 mb-4">
+                  <OptimizedImage 
+                    src={course.image} 
+                    alt={course.name} 
+                    className="w-16 h-16 object-cover rounded-lg"
+                    onError={createProductImageErrorHandler('courses', 'service')}
+                  />
+                  <div className="flex-1">
+                    <h4 className="ios-body font-semibold line-clamp-2">{course.name}</h4>
+                    <p className="ios-footnote text-secondary-label">{course.nextLesson}</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="ios-footnote text-secondary-label">Прогресс обучения</span>
+                    <span className="ios-footnote font-semibold">{course.progress}%</span>
+                  </div>
+                  <div className="w-full bg-quaternary-system-fill rounded-full h-2">
+                    <div 
+                      className="bg-system-indigo h-2 rounded-full" 
+                      style={{ width: `${course.progress}%` }}
+                    ></div>
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    <button className="flex-1 bg-system-indigo text-white ios-footnote font-semibold py-2 rounded-lg flex items-center justify-center space-x-2">
+                      <Play className="w-4 h-4" />
+                      <span>Продолжить</span>
+                    </button>
+                    <button className="flex-1 bg-quaternary-system-fill text-label ios-footnote font-medium py-2 rounded-lg flex items-center justify-center space-x-2">
+                      <Download className="w-4 h-4" />
+                      <span>Материалы</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="ios-card p-4">
+            <h3 className="ios-headline font-semibold mb-2">Статистика обучения</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <p className="ios-title font-bold text-system-indigo">{enrolledCourses.length}</p>
+                <p className="ios-footnote text-secondary-label">Активных курсов</p>
+              </div>
+              <div className="text-center">
+                <p className="ios-title font-bold text-system-green">
+                  {Math.round(enrolledCourses.reduce((sum, course) => sum + course.progress, 0) / enrolledCourses.length)}%
+                </p>
+                <p className="ios-footnote text-secondary-label">Средний прогресс</p>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderProfileTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
+      <h1 className="ios-title font-bold">Профиль студента</h1>
+      
+      <div className="ios-card p-4">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-16 h-16 bg-system-indigo rounded-full flex items-center justify-center">
+            <span className="ios-title font-bold text-white">УХ</span>
+          </div>
+          <div>
+            <h3 className="ios-headline font-semibold">Студент Pro</h3>
+            <p className="ios-body text-secondary-label">Активный ученик</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <p className="ios-title font-bold text-system-indigo">8</p>
+            <p className="ios-footnote text-secondary-label">Завершено</p>
+          </div>
+          <div className="text-center">
+            <p className="ios-title font-bold text-system-green">12</p>
+            <p className="ios-footnote text-secondary-label">Сертификатов</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h2 className="ios-headline font-semibold">Избранные курсы</h2>
+        {courses.filter(course => favorites.includes(course.id)).map((course) => (
+          <div key={course.id} className="ios-card p-3 flex items-center space-x-3">
+            <OptimizedImage 
+              src={course.image} 
+              alt={course.name} 
+              className="w-20 h-20 object-cover rounded-lg"
+              onError={createProductImageErrorHandler('courses', 'service')}
+            />
+            <div className="flex-1">
+              <h4 className="ios-body font-semibold line-clamp-1">{course.name}</h4>
+              <p className="ios-footnote text-secondary-label">{course.instructor} • ${course.price}</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-tertiary-label" />
+          </div>
+        ))}
+      </div>
+
+      <div className="ios-card p-4">
+        <h3 className="ios-headline font-semibold mb-3">Достижения</h3>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { icon: '🏆', name: 'Первый курс', desc: 'Завершен' },
+            { icon: '🔥', name: 'Марафонец', desc: '7 дней подряд' },
+            { icon: '💎', name: 'Эксперт', desc: '5 сертификатов' }
+          ].map((achievement) => (
+            <div key={achievement.name} className="text-center">
+              <div className="w-20 h-20 bg-quaternary-system-fill rounded-full flex items-center justify-center mx-auto mb-1">
+                <span className="text-xl">{achievement.icon}</span>
+              </div>
+              <p className="ios-caption2 font-semibold">{achievement.name}</p>
+              <p className="ios-caption text-secondary-label">{achievement.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="ios-card p-4">
+        <h3 className="ios-headline font-semibold mb-3">Статистика обучения</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="ios-body">Общее время обучения:</span>
+            <span className="ios-body font-medium">156 часов</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Любимая категория:</span>
+            <span className="ios-body font-medium">Программирование</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Потрачено на курсы:</span>
+            <span className="ios-body font-medium text-system-indigo">$425</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="h-full flex flex-col bg-system-background">
+      <div className="flex-1 overflow-y-auto p-4">
+        {activeTab === 'home' && renderHomeTab()}
+        {activeTab === 'catalog' && renderCatalogTab()}
+        {activeTab === 'cart' && renderCartTab()}
+        {activeTab === 'profile' && renderProfileTab()}
+      </div>
+
+      {/* Модальное окно */}
+      {isModalOpen && selectedCourse && (
+        <div className="fixed inset-0 bg-black/50 flex items-end z-50">
+          <div className="bg-system-background max-w-md mx-auto w-full rounded-t-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start">
+              <h3 className="ios-title font-bold line-clamp-2">{selectedCourse.name}</h3>
+              <button onClick={closeCourseModal}>
+                <X className="w-6 h-6 text-secondary-label" />
+              </button>
+            </div>
+            
+            <OptimizedImage 
+              src={selectedCourse.image} 
+              alt={selectedCourse.name} 
+              className="w-full h-48 object-cover rounded-xl"
+              onError={createProductImageErrorHandler('courses', 'service')}
+            />
+            
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <span className="ios-body font-medium">{selectedCourse.instructor}</span>
+                <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-quaternary-system-fill text-label">
+                  {selectedCourse.level}
+                </span>
+              </div>
+              
+              <p className="ios-body text-secondary-label">{selectedCourse.description}</p>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="ios-card p-3">
+                  <p className="ios-caption2 text-secondary-label">Длительность</p>
+                  <p className="ios-body font-semibold">{selectedCourse.duration}</p>
+                </div>
+                <div className="ios-card p-3">
+                  <p className="ios-caption2 text-secondary-label">Уроков</p>
+                  <p className="ios-body font-semibold">{selectedCourse.lessons}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-1">
+                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  <span className="ios-footnote">{selectedCourse.rating}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Users className="w-4 h-4 text-secondary-label" />
+                  <span className="ios-footnote">{selectedCourse.students.toLocaleString()} студентов</span>
+                </div>
+                {selectedCourse.certificate && (
+                  <div className="flex items-center space-x-1">
+                    <Award className="w-4 h-4 text-system-green" />
+                    <span className="ios-footnote text-system-green">Сертификат</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="ios-title font-bold text-system-indigo">${selectedCourse.price}</span>
+                <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-system-indigo/10 text-system-indigo">
+                  {selectedCourse.category}
+                </span>
+              </div>
+              
+              <button className="w-full bg-system-indigo text-white ios-body font-semibold py-3 rounded-xl">
+                Записаться
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}```
+
+### demos/Fitness.tsx
+```tsx
+import { useState, useEffect, memo } from "react";
+import { m } from "framer-motion";
+import { 
+  Dumbbell, 
+  Heart, 
+  Star, 
+  X,
+  ChevronLeft,
+  Calendar,
+  User,
+  Trophy,
+  Flame,
+  TrendingUp,
+  Clock,
+  Target,
+  Zap,
+  Award
+} from "lucide-react";
+
+interface FitnessProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+interface Workout {
+  id: number;
+  name: string;
+  duration: number;
+  calories: number;
+  image: string;
+  description: string;
+  category: string;
+  level: 'Начальный' | 'Средний' | 'Продвинутый';
+  trainer: string;
+  rating: number;
+  isNew?: boolean;
+  isPopular?: boolean;
+}
+
+interface Achievement {
+  id: number;
+  title: string;
+  description: string;
+  icon: string;
+  progress: number;
+  total: number;
+  unlocked: boolean;
+}
+
+const workouts: Workout[] = [
+  { id: 1, name: 'HIIT Кардио', duration: 30, calories: 350, image: 'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=800&h=1200&fit=crop&q=90', description: 'Интенсивная кардио тренировка', category: 'Кардио', level: 'Средний', trainer: 'Анна Петрова', rating: 4.9, isPopular: true },
+  { id: 2, name: 'Йога для начинающих', duration: 45, calories: 180, image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&h=1200&fit=crop&q=90', description: 'Мягкая йога для гибкости', category: 'Йога', level: 'Начальный', trainer: 'Мария Иванова', rating: 4.8, isPopular: true },
+  { id: 3, name: 'Силовая тренировка', duration: 60, calories: 420, image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=1200&fit=crop&q=90', description: 'Тренировка всех групп мышц', category: 'Силовые', level: 'Продвинутый', trainer: 'Дмитрий Соколов', rating: 5.0, isNew: true, isPopular: true },
+  { id: 4, name: 'Пилатес', duration: 40, calories: 200, image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&h=1200&fit=crop&q=90', description: 'Укрепление кора и осанки', category: 'Пилатес', level: 'Средний', trainer: 'Елена Волкова', rating: 4.7, isNew: true },
+  { id: 5, name: 'Бокс для фитнеса', duration: 45, calories: 500, image: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=800&h=1200&fit=crop&q=90', description: 'Боксерская тренировка', category: 'Кардио', level: 'Продвинутый', trainer: 'Игорь Петров', rating: 4.9, isPopular: true },
+  { id: 6, name: 'Растяжка', duration: 25, calories: 100, image: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800&h=1200&fit=crop&q=90', description: 'Глубокая растяжка мышц', category: 'Растяжка', level: 'Начальный', trainer: 'Ольга Смирнова', rating: 4.6 },
+  { id: 7, name: 'Функциональный тренинг', duration: 50, calories: 380, image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=1200&fit=crop&q=90', description: 'Упражнения для повседневной жизни', category: 'Функциональные', level: 'Средний', trainer: 'Сергей Новиков', rating: 4.8, isNew: true },
+  { id: 8, name: 'Табата', duration: 20, calories: 280, image: 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=800&h=1200&fit=crop&q=90', description: 'Интервальная высокоинтенсивная тренировка', category: 'Кардио', level: 'Продвинутый', trainer: 'Анна Петрова', rating: 5.0, isPopular: true },
+];
+
+const categories = ['Все', 'Кардио', 'Силовые', 'Йога', 'Пилатес', 'Растяжка', 'Функциональные'];
+
+const collections = [
+  {
+    id: 1,
+    title: 'Жиросжигание',
+    subtitle: 'Интенсивные тренировки',
+    image: 'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=1200&h=800&fit=crop&q=90',
+    gradient: 'from-orange-600/30 to-red-600/30',
+    workouts: [1, 5, 8]
+  },
+  {
+    id: 2,
+    title: 'Сила и выносливость',
+    subtitle: 'Мощные тренировки',
+    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&h=800&fit=crop&q=90',
+    gradient: 'from-purple-600/30 to-indigo-600/30',
+    workouts: [3, 7]
+  },
+  {
+    id: 3,
+    title: 'Гибкость и баланс',
+    subtitle: 'Спокойные практики',
+    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&h=800&fit=crop&q=90',
+    gradient: 'from-green-600/30 to-emerald-600/30',
+    workouts: [2, 4, 6]
+  },
+];
+
+export default memo(function Fitness({ activeTab }: FitnessProps) {
+  const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [favorites, setFavorites] = useState<Set<number>>(new Set([1, 2, 3]));
+  
+  const [stats, setStats] = useState({
+    workoutsCompleted: 47,
+    totalMinutes: 1840,
+    caloriesBurned: 15680,
+    streak: 12,
+  });
+
+  const [achievements] = useState<Achievement[]>([
+    { id: 1, title: 'Первая тренировка', description: 'Завершите свою первую тренировку', icon: '🎯', progress: 1, total: 1, unlocked: true },
+    { id: 2, title: 'Марафонец', description: 'Завершите 50 тренировок', icon: '🏃', progress: 47, total: 50, unlocked: false },
+    { id: 3, title: 'Мастер огня', description: 'Сожгите 20000 калорий', icon: '🔥', progress: 15680, total: 20000, unlocked: false },
+    { id: 4, title: 'Стальная воля', description: 'Серия из 30 дней', icon: '💪', progress: 12, total: 30, unlocked: false },
+  ]);
+
+  useEffect(() => {
+    if (activeTab !== 'catalog') {
+      setSelectedWorkout(null);
+    }
+  }, [activeTab]);
+
+  const filteredWorkouts = workouts.filter(w => 
+    selectedCategory === 'Все' || w.category === selectedCategory
+  );
+
+  const toggleFavorite = (workoutId: number) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(workoutId)) {
+      newFavorites.delete(workoutId);
+    } else {
+      newFavorites.add(workoutId);
+    }
+    setFavorites(newFavorites);
+  };
+
+  const startWorkout = (workout: Workout) => {
+    setStats(prev => ({
+      workoutsCompleted: prev.workoutsCompleted + 1,
+      totalMinutes: prev.totalMinutes + workout.duration,
+      caloriesBurned: prev.caloriesBurned + workout.calories,
+      streak: prev.streak,
+    }));
+    setSelectedWorkout(null);
+  };
+
+  if (activeTab === 'home') {
+    return (
+      <div className="h-full overflow-y-auto">
+        <div className="relative h-[280px] bg-gradient-to-br from-orange-600/20 via-red-500/20 to-pink-600/20">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&h=800&fit=crop&q=90')] bg-cover bg-center opacity-30" />
+          <div className="absolute inset-0 backdrop-blur-xl bg-gradient-to-t from-black/60 to-transparent" />
+          
+          <div className="relative h-full flex flex-col justify-end p-6 pb-8">
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-2"
+            >
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-orange-500/20 backdrop-blur-xl rounded-xl border border-orange-400/30">
+                  <Dumbbell className="w-6 h-6 text-orange-300" />
+                </div>
+                <h1 className="text-3xl font-bold text-white">FitPro</h1>
+              </div>
+              <p className="text-white/80">Твой путь к идеальной форме</p>
+              
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <div className="px-3 py-2 bg-orange-500/20 backdrop-blur-xl rounded-xl border border-orange-400/30">
+                  <p className="text-orange-200 text-xs">Тренировок</p>
+                  <p className="text-white text-lg font-bold">{stats.workoutsCompleted}</p>
+                </div>
+                <div className="px-3 py-2 bg-red-500/20 backdrop-blur-xl rounded-xl border border-red-400/30">
+                  <p className="text-red-200 text-xs">Калорий</p>
+                  <p className="text-white text-lg font-bold">{stats.caloriesBurned.toLocaleString('ru-RU')}</p>
+                </div>
+              </div>
+            </m.div>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-6">
+          <div className="p-4 bg-gradient-to-br from-orange-500/10 to-red-500/10 backdrop-blur-xl rounded-2xl border border-orange-400/30">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Flame className="w-6 h-6 text-orange-600 dark:text-orange-500" />
+                <div>
+                  <h3 className="font-bold text-lg">{stats.streak} дней</h3>
+                  <p className="text-sm text-orange-700 dark:text-orange-300">Текущая серия</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-orange-600">{stats.totalMinutes}</p>
+                <p className="text-xs text-orange-700 dark:text-orange-300">минут всего</p>
+              </div>
+            </div>
+            <div className="h-2 bg-orange-900/20 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full"
+                style={{ width: `${(stats.streak / 30) * 100}%` }}
+              />
+            </div>
+            <p className="text-xs text-orange-700 dark:text-orange-300 mt-2">До достижения "Стальная воля": {30 - stats.streak} дней</p>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Программы тренировок</h2>
+              <TrendingUp className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <div className="grid gap-3">
+              {collections.map((collection) => (
+                <m.div
+                  key={collection.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="relative h-32 rounded-2xl overflow-hidden hover-elevate active-elevate-2 cursor-pointer"
+                >
+                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${collection.image})` }} />
+                  <div className="absolute inset-0 backdrop-blur-xl bg-gradient-to-r from-black/60 to-transparent" />
+                  <div className={`absolute inset-0 bg-gradient-to-r ${collection.gradient}`} />
+                  
+                  <div className="relative h-full p-5 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-1">{collection.title}</h3>
+                      <p className="text-white/80 text-sm">{collection.subtitle}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      {workouts.filter(w => collection.workouts.includes(w.id)).slice(0, 3).map(workout => (
+                        <div key={workout.id} className="w-12 h-12 rounded-lg overflow-hidden border-2 border-white/30">
+                          <img src={workout.image} alt="" className="w-full h-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </m.div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Популярное</h2>
+              <Star className="w-5 h-5 fill-orange-500 text-orange-500" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {workouts.filter(w => w.isPopular).map((workout) => (
+                <m.div
+                  key={workout.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedWorkout(workout)}
+                  className="bg-card/50 backdrop-blur-xl rounded-2xl overflow-hidden border border-border/50 hover-elevate active-elevate-2 cursor-pointer"
+                  data-testid={`card-workout-${workout.id}`}
+                >
+                  <div className="relative aspect-[3/4]">
+                    <img src={workout.image} alt={workout.name} className="w-full h-full object-cover" />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(workout.id);
+                      }}
+                      className="absolute top-2 right-2 p-2 bg-black/50 backdrop-blur-xl rounded-full border border-white/20"
+                      data-testid={`button-favorite-${workout.id}`}
+                    >
+                      <Heart className={`w-4 h-4 ${favorites.has(workout.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                    </button>
+                    <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-xl rounded-full border border-white/20">
+                      <span className="text-xs font-bold text-white flex items-center gap-1">
+                        <Flame className="w-3 h-3" />
+                        {workout.calories} ккал
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-medium mb-1 line-clamp-1">{workout.name}</h3>
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {workout.duration} мин
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-orange-500 text-orange-500" />
+                        <span>{workout.rating}</span>
+                      </div>
+                    </div>
+                  </div>
+                </m.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeTab === 'catalog') {
+    if (selectedWorkout) {
+      return (
+        <div className="h-full flex flex-col bg-background">
+          <div className="relative">
+            <div className="aspect-[3/4] relative">
+              <img src={selectedWorkout.image} alt={selectedWorkout.name} className="w-full h-full object-cover" />
+              <button
+                onClick={() => setSelectedWorkout(null)}
+                className="absolute top-4 left-4 p-2 bg-black/50 backdrop-blur-xl rounded-full border border-white/20"
+                data-testid="button-back"
+              >
+                <ChevronLeft className="w-6 h-6 text-white" />
+              </button>
+              <button
+                onClick={() => toggleFavorite(selectedWorkout.id)}
+                className="absolute top-4 right-4 p-2 bg-black/50 backdrop-blur-xl rounded-full border border-white/20"
+                data-testid={`button-favorite-detail-${selectedWorkout.id}`}
+              >
+                <Heart className={`w-6 h-6 ${favorites.has(selectedWorkout.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            <div>
+              <div className="flex items-start justify-between mb-2">
+                <h1 className="text-2xl font-bold">{selectedWorkout.name}</h1>
+                <div className="flex items-center gap-1 px-3 py-1 bg-orange-500/10 rounded-full">
+                  <Star className="w-4 h-4 fill-orange-500 text-orange-500" />
+                  <span className="font-bold text-orange-600">{selectedWorkout.rating}</span>
+                </div>
+              </div>
+              <p className="text-muted-foreground mb-3">{selectedWorkout.description}</p>
+              <p className="text-sm text-muted-foreground">Тренер: {selectedWorkout.trainer}</p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
+                <Clock className="w-5 h-5 mx-auto mb-1 text-orange-600" />
+                <p className="text-sm font-bold">{selectedWorkout.duration} мин</p>
+              </div>
+              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
+                <Flame className="w-5 h-5 mx-auto mb-1 text-red-600" />
+                <p className="text-sm font-bold">{selectedWorkout.calories} ккал</p>
+              </div>
+              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
+                <Target className="w-5 h-5 mx-auto mb-1 text-blue-600" />
+                <p className="text-xs font-bold">{selectedWorkout.level}</p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-gradient-to-br from-orange-500/10 to-red-500/10 backdrop-blur-xl rounded-xl border border-orange-400/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Trophy className="w-5 h-5 text-orange-600" />
+                <p className="font-semibold text-orange-900 dark:text-orange-100">Трекер достижений</p>
+              </div>
+              <p className="text-sm text-orange-800 dark:text-orange-200">
+                Завершите эту тренировку и получите +{selectedWorkout.calories} калорий к статистике
+              </p>
+            </div>
+
+            <button
+              onClick={() => startWorkout(selectedWorkout)}
+              className="w-full py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold rounded-2xl hover-elevate active-elevate-2 flex items-center justify-center gap-2"
+              data-testid="button-start-workout"
+            >
+              <Zap className="w-5 h-5" />
+              Начать тренировку
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="h-full overflow-y-auto">
+        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-5">
+          <h1 className="text-2xl font-bold mb-4">Тренировки</h1>
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
+                  selectedCategory === category
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-card/50 backdrop-blur-xl border border-border/50 hover-elevate'
+                }`}
+                data-testid={`button-category-${category}`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-4 grid grid-cols-2 gap-3">
+          {filteredWorkouts.map((workout) => (
+            <m.div
+              key={workout.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setSelectedWorkout(workout)}
+              className="bg-card/50 backdrop-blur-xl rounded-2xl overflow-hidden border border-border/50 hover-elevate active-elevate-2 cursor-pointer"
+              data-testid={`card-catalog-workout-${workout.id}`}
+            >
+              <div className="relative aspect-[3/4]">
+                <img src={workout.image} alt={workout.name} className="w-full h-full object-cover" />
+                {workout.isNew && (
+                  <div className="absolute top-2 left-2 px-2 py-1 bg-green-500/90 backdrop-blur-xl rounded-full border border-green-400/50">
+                    <span className="text-xs font-bold text-white">Новинка</span>
+                  </div>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(workout.id);
+                  }}
+                  className="absolute top-2 right-2 p-2 bg-black/50 backdrop-blur-xl rounded-full border border-white/20"
+                  data-testid={`button-favorite-catalog-${workout.id}`}
+                >
+                  <Heart className={`w-4 h-4 ${favorites.has(workout.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                </button>
+                <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-xl rounded-full border border-white/20">
+                  <span className="text-xs font-bold text-white flex items-center gap-1">
+                    <Flame className="w-3 h-3" />
+                    {workout.calories} ккал
+                  </span>
+                </div>
+              </div>
+              <div className="p-3">
+                <h3 className="font-medium mb-1 line-clamp-1">{workout.name}</h3>
+                <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{workout.description}</p>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    <Clock className="w-3 h-3" />
+                    {workout.duration} мин
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-orange-500 text-orange-500" />
+                    <span className="text-sm font-medium">{workout.rating}</span>
+                  </div>
+                </div>
+              </div>
+            </m.div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (activeTab === 'profile') {
+    return (
+      <div className="h-full overflow-y-auto">
+        <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center">
+              <User className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">Алексей Кузнецов</h2>
+              <p className="text-sm text-muted-foreground">+7 (999) 888-77-66</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="p-4 bg-orange-500/20 backdrop-blur-xl rounded-xl border border-orange-400/30">
+              <p className="text-sm text-muted-foreground mb-1">Тренировки</p>
+              <p className="text-2xl font-bold text-orange-600">{stats.workoutsCompleted}</p>
+            </div>
+            <div className="p-4 bg-red-500/20 backdrop-blur-xl rounded-xl border border-red-400/30">
+              <p className="text-sm text-muted-foreground mb-1">Калорий</p>
+              <p className="text-2xl font-bold text-red-600">{stats.caloriesBurned.toLocaleString('ru-RU')}</p>
+            </div>
+            <div className="p-4 bg-purple-500/20 backdrop-blur-xl rounded-xl border border-purple-400/30">
+              <p className="text-sm text-muted-foreground mb-1">Минут</p>
+              <p className="text-2xl font-bold text-purple-600">{stats.totalMinutes}</p>
+            </div>
+            <div className="p-4 bg-green-500/20 backdrop-blur-xl rounded-xl border border-green-400/30">
+              <p className="text-sm text-muted-foreground mb-1">Серия</p>
+              <p className="text-2xl font-bold text-green-600">{stats.streak} дней</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-4">
+          <div>
+            <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <Award className="w-5 h-5 text-orange-600" />
+              Достижения
+            </h3>
+            <div className="grid gap-3">
+              {achievements.map((achievement) => (
+                <div 
+                  key={achievement.id}
+                  className={`p-4 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 ${
+                    achievement.unlocked ? 'bg-green-500/5 border-green-400/30' : ''
+                  }`}
+                  data-testid={`achievement-${achievement.id}`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="text-3xl">{achievement.icon}</div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-medium">{achievement.title}</h4>
+                        {achievement.unlocked && (
+                          <span className="text-xs px-2 py-1 bg-green-500/20 text-green-600 rounded-full">
+                            Получено
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{achievement.description}</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full"
+                            style={{ width: `${(achievement.progress / achievement.total) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {achievement.progress}/{achievement.total}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button className="w-full p-4 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-history">
+            <div className="flex items-center gap-3">
+              <Calendar className="w-5 h-5 text-muted-foreground" />
+              <span className="font-medium">История тренировок</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+});
+```
+
+### demos/Florist.tsx
+```tsx
+import { useState } from "react";
+import { 
+  Flower, 
+  Heart, 
+  Star, 
+  MapPin, 
+  Clock,
+  Plus,
+  Minus,
+  X,
+  ChevronRight,
+  Gift,
+  Truck,
+  Calendar
+} from "lucide-react";
+import { OptimizedImage } from "../OptimizedImage";
+import { useImagePreloader } from "../../hooks/useImagePreloader";
+
+interface FloristProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+}
+
+const flowers = [
+  { id: 1, name: 'Букет из красных роз', price: 45, image: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Классический букет из 15 красных роз премиум качества', category: 'Розы', occasion: 'Романтика', size: 'Средний', freshness: '7 дней', rating: 4.9, inStock: 12 },
+  { id: 2, name: 'Белые пионы', price: 38, image: 'https://images.unsplash.com/photo-1463320726281-696a485928c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Нежный букет из белых пионов для особых моментов', category: 'Пионы', occasion: 'Свадьба', size: 'Большой', freshness: '5 дней', rating: 4.8, inStock: 8 },
+  { id: 3, name: 'Микс из тюльпанов', price: 32, image: 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Яркий весенний букет из разноцветных тюльпанов', category: 'Тюльпаны', occasion: 'Весна', size: 'Средний', freshness: '4 дня', rating: 4.7, inStock: 15 },
+  { id: 4, name: 'Орхидея в горшке', price: 55, image: 'https://images.unsplash.com/photo-1583624719088-e7ee3b0ad466?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Элегантная орхидея фаленопсис в декоративном горшке', category: 'Горшечные', occasion: 'Подарок', size: 'Маленький', freshness: '30 дней', rating: 4.8, inStock: 6 },
+  { id: 5, name: 'Букет невесты', price: 85, image: 'https://images.unsplash.com/photo-1594736797933-d0d4bce9b91a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Изысканный свадебный букет из белых роз и эустомы', category: 'Свадебные', occasion: 'Свадьба', size: 'Большой', freshness: '8 дней', rating: 4.9, inStock: 4 },
+  { id: 6, name: 'Хризантемы осенние', price: 28, image: 'https://images.unsplash.com/photo-1571043733612-39d1e4d57447?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Яркие осенние хризантемы в теплых оттенках', category: 'Хризантемы', occasion: 'Осень', size: 'Средний', freshness: '10 дней', rating: 4.5, inStock: 20 },
+  { id: 7, name: 'Лилии белые', price: 42, image: 'https://images.unsplash.com/photo-1574159103905-55b657e045cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Ароматные белые лилии с утонченным ароматом', category: 'Лилии', occasion: 'Траур', size: 'Большой', freshness: '6 дней', rating: 4.6, inStock: 10 },
+  { id: 8, name: 'Полевые цветы', price: 25, image: 'https://images.unsplash.com/photo-1586136867486-b9da8c85c8c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Романтичный букет из полевых цветов и зелени', category: 'Полевые', occasion: 'Романтика', size: 'Маленький', freshness: '3 дня', rating: 4.4, inStock: 25 },
+  { id: 9, name: 'Гортензия синяя', price: 48, image: 'https://images.unsplash.com/photo-1463320898994-e8e8ac0e3534?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Пышная синяя гортензия в элегантном оформлении', category: 'Гортензии', occasion: 'Подарок', size: 'Большой', freshness: '8 дней', rating: 4.7, inStock: 7 },
+  { id: 10, name: 'Подсолнухи', price: 35, image: 'https://images.unsplash.com/photo-1597848212624-e6bf2c8b4d8a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Солнечные подсолнухи для поднятия настроения', category: 'Подсолнухи', occasion: 'Радость', size: 'Большой', freshness: '5 дней', rating: 4.6, inStock: 18 },
+  { id: 11, name: 'Композиция в коробке', price: 65, image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Стильная композиция из роз и эвкалипта в шляпной коробке', category: 'Композиции', occasion: 'VIP подарок', size: 'Средний', freshness: '7 дней', rating: 4.8, inStock: 9 },
+  { id: 12, name: 'Эустома разноцветная', price: 40, image: 'https://images.unsplash.com/photo-1492552264149-86a37d023ceb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Нежная эустома в пастельных тонах', category: 'Эустома', occasion: 'Нежность', size: 'Средний', freshness: '6 дней', rating: 4.5, inStock: 14 },
+  { id: 13, name: 'Каллы элегантные', price: 52, image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2ac1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Изысканные белые каллы для торжественных событий', category: 'Каллы', occasion: 'Торжество', size: 'Большой', freshness: '7 дней', rating: 4.7, inStock: 6 },
+  { id: 14, name: 'Герберы яркие', price: 30, image: 'https://images.unsplash.com/photo-1516205651411-aef33a44f7c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Радостные герберы в ярких летних цветах', category: 'Герберы', occasion: 'Радость', size: 'Средний', freshness: '5 дней', rating: 4.4, inStock: 22 },
+  { id: 15, name: 'Фрезии ароматные', price: 36, image: 'https://images.unsplash.com/photo-1511713847398-1b5e9c03035e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Ароматные фрезии с утонченным запахом', category: 'Фрезии', occasion: 'Романтика', size: 'Маленький', freshness: '4 дня', rating: 4.6, inStock: 16 },
+  { id: 16, name: 'Антуриум красный', price: 58, image: 'https://images.unsplash.com/photo-1463320726281-696a485928c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Экзотический красный антуриум для особого случая', category: 'Экзотические', occasion: 'VIP подарок', size: 'Средний', freshness: '10 дней', rating: 4.8, inStock: 5 },
+  { id: 17, name: 'Букет "Весенний бриз"', price: 44, image: 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Свежий букет из нарциссов, тюльпанов и зелени', category: 'Сезонные', occasion: 'Весна', size: 'Большой', freshness: '5 дней', rating: 4.5, inStock: 11 },
+  { id: 18, name: 'Протея экзотическая', price: 72, image: 'https://images.unsplash.com/photo-1583624719088-e7ee3b0ad466?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Редкая экзотическая протея из Южной Африки', category: 'Экзотические', occasion: 'Коллекционирование', size: 'Маленький', freshness: '14 дней', rating: 4.9, inStock: 3 },
+  { id: 19, name: 'Сухоцветы винтаж', price: 38, image: 'https://images.unsplash.com/photo-1586136867486-b9da8c85c8c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Стильная композиция из сухоцветов в винтажном стиле', category: 'Сухоцветы', occasion: 'Декор', size: 'Средний', freshness: '365 дней', rating: 4.3, inStock: 13 },
+  { id: 20, name: 'Букет "Радужный"', price: 50, image: 'https://images.unsplash.com/photo-1597848212624-e6bf2c8b4d8a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', description: 'Многоцветный букет из разных видов цветов для яркого настроения', category: 'Микс', occasion: 'Радость', size: 'Большой', freshness: '6 дней', rating: 4.7, inStock: 8 }
+];
+
+const categories = ['Все', 'Розы', 'Тюльпаны', 'Пионы', 'Лилии', 'Свадебные', 'Горшечные', 'Экзотические', 'Сухоцветы', 'Композиции'];
+
+const occasions = ['Все', 'Романтика', 'Свадьба', 'Подарок', 'VIP подарок', 'Весна', 'Радость', 'Торжество', 'Декор'];
+
+const initialCartItems: CartItem[] = [
+  { id: 1, name: 'Букет из красных роз', price: 45, quantity: 1, image: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60' },
+  { id: 11, name: 'Композиция в коробке', price: 65, quantity: 1, image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60' },
+];
+
+export default function Florist({ activeTab }: FloristProps) {
+  const [selectedFlower, setSelectedFlower] = useState<typeof flowers[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [selectedOccasion, setSelectedOccasion] = useState('Все');
+  const [favorites, setFavorites] = useState<number[]>([1, 5, 11, 18]);
+
+  const openFlowerModal = (flower: typeof flowers[0]) => {
+    setSelectedFlower(flower);
+    setIsModalOpen(true);
+  };
+
+  const closeFlowerModal = () => {
+    setIsModalOpen(false);
+    setSelectedFlower(null);
+  };
+
+  const updateQuantity = (itemId: number, newQuantity: number) => {
+    if (newQuantity < 1) return;
+    setCartItems(prev => 
+      prev.map(item => 
+        item.id === itemId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const removeFromCart = (itemId: number) => {
+    setCartItems(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  const toggleFavorite = (flowerId: number) => {
+    setFavorites(prev => 
+      prev.includes(flowerId) 
+        ? prev.filter(id => id !== flowerId)
+        : [...prev, flowerId]
+    );
+  };
+
+  const filteredFlowers = flowers.filter(flower => {
+    const matchesCategory = selectedCategory === 'Все' || flower.category === selectedCategory;
+    const matchesOccasion = selectedOccasion === 'Все' || flower.occasion === selectedOccasion;
+    
+    return matchesCategory && matchesOccasion;
+  });
+
+  const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  // Preload first 6 product images for instant visibility
+  useImagePreloader({
+    images: flowers.slice(0, 6).map(item => item.image),
+    priority: true
+  });
+
+
+  const renderHomeTab = () => (
+    <div className="max-w-md mx-auto px-4 space-y-6">
+      {/* Заголовок */}
+      <div className="text-center">
+        <h1 className="ios-title font-bold mb-2">Цветочный Рай</h1>
+        <p className="ios-subheadline text-secondary-label">Свежие цветы каждый день 🌸</p>
+      </div>
+
+      {/* Быстрая доставка */}
+      <div className="ios-card p-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="ios-headline font-semibold">Доставка за 2 часа</h3>
+            <p className="ios-body">Свежие цветы прямо к вашей двери</p>
+          </div>
+          <Truck className="w-8 h-8" />
+        </div>
+      </div>
+
+      {/* Популярные категории */}
+      <div>
+        <h2 className="ios-title font-semibold mb-4">Популярные букеты</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {flowers.slice(0, 4).map((flower) => (
+            <div 
+              key={flower.id} 
+              className="ios-card p-3 cursor-pointer"
+              onClick={() => openFlowerModal(flower)}
+            >
+              <OptimizedImage src={flower.image} alt={flower.name} className="w-full h-32 object-cover rounded-lg mb-2" />
+              <h4 className="ios-footnote font-semibold line-clamp-2">{flower.name}</h4>
+              <p className="ios-caption2 text-secondary-label mb-2">{flower.category}</p>
+              <div className="flex items-center justify-between">
+                <span className="ios-caption font-bold text-system-green">${flower.price}</span>
+                <div className="flex items-center space-x-1">
+                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                  <span className="ios-caption2">{flower.rating}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Случаи для букетов */}
+      <div>
+        <h2 className="ios-title font-semibold mb-4">Букеты по случаю</h2>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { name: 'Романтика', icon: '💕', color: 'bg-pink-500' },
+            { name: 'Свадьба', icon: '💒', color: 'bg-purple-500' },
+            { name: 'VIP подарок', icon: '👑', color: 'bg-yellow-500' },
+            { name: 'Радость', icon: '🌈', color: 'bg-orange-500' },
+            { name: 'Торжество', icon: '🎉', color: 'bg-blue-500' },
+            { name: 'Декор', icon: '🏠', color: 'bg-green-500' }
+          ].map((occasion) => (
+            <div 
+              key={occasion.name} 
+              className="ios-card p-3 text-center cursor-pointer"
+              onClick={() => setSelectedOccasion(occasion.name)}
+            >
+              <div className={`w-10 h-10 ${occasion.color} rounded-full flex items-center justify-center mx-auto mb-2`}>
+                <span className="text-lg">{occasion.icon}</span>
+              </div>
+              <span className="ios-caption2 font-medium">{occasion.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Информация о магазине */}
+      <div className="ios-card p-4">
+        <h3 className="ios-headline font-semibold mb-3">Почему выбирают нас</h3>
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Flower className="w-4 h-4 text-system-green" />
+            <span className="ios-body">Свежие цветы каждое утро</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Clock className="w-4 h-4 text-system-green" />
+            <span className="ios-body">Доставка 24/7 по городу</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Gift className="w-4 h-4 text-system-green" />
+            <span className="ios-body">Красивая упаковка в подарок</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCatalogTab = () => (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="ios-title font-bold">Каталог цветов</h1>
+      
+      {/* Фильтры */}
+      <div className="space-y-3">
+        <div className="flex space-x-2 overflow-x-auto pb-2">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-4 py-2 rounded-full whitespace-nowrap ios-footnote font-medium ${
+                selectedCategory === category
+                  ? 'bg-system-green text-white'
+                  : 'bg-quaternary-system-fill text-label'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+        
+        <div className="flex space-x-2 overflow-x-auto pb-2">
+          {occasions.map((occasion) => (
+            <button
+              key={occasion}
+              onClick={() => setSelectedOccasion(occasion)}
+              className={`px-3 py-1 rounded-full whitespace-nowrap ios-caption2 font-medium ${
+                selectedOccasion === occasion
+                  ? 'bg-system-emerald text-white'
+                  : 'bg-fill text-secondary-label'
+              }`}
+            >
+              {occasion}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Список букетов */}
+      <div className="space-y-3">
+        {filteredFlowers.map((flower) => (
+          <div 
+            key={flower.id} 
+            className="ios-card p-4 cursor-pointer"
+            onClick={() => openFlowerModal(flower)}
+          >
+            <div className="flex items-center space-x-3">
+              <OptimizedImage src={flower.image} alt={flower.name} className="w-20 h-20 object-cover rounded-lg" />
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="ios-body font-semibold line-clamp-1">{flower.name}</h4>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(flower.id);
+                    }}
+                    className="p-1"
+                  >
+                    <Heart 
+                      className={`w-4 h-4 ${
+                        favorites.includes(flower.id) 
+                          ? 'fill-red-500 text-red-500' 
+                          : 'text-secondary-label'
+                      }`} 
+                    />
+                  </button>
+                </div>
+                <p className="ios-footnote text-secondary-label mb-2 line-clamp-2">{flower.description}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <span className="ios-caption2 px-2 py-1 bg-quaternary-system-fill rounded">{flower.category}</span>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <span className="ios-caption2">{flower.rating}</span>
+                    </div>
+                    <span className="ios-caption2 text-secondary-label">{flower.freshness}</span>
+                  </div>
+                  <span className="ios-body font-bold text-system-green">${flower.price}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCartTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
+      <h1 className="ios-title font-bold">Корзина</h1>
+      
+      {cartItems.length === 0 ? (
+        <div className="text-center py-12">
+          <Flower className="w-16 h-16 text-quaternary-label mx-auto mb-4" />
+          <p className="ios-body text-secondary-label">Корзина пуста</p>
+          <p className="ios-footnote text-tertiary-label">Добавьте букеты из каталога</p>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3">
+            {cartItems.map((item) => (
+              <div key={item.id} className="ios-card p-4">
+                <div className="flex items-center space-x-3">
+                  <OptimizedImage src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-lg" />
+                  <div className="flex-1">
+                    <h4 className="ios-body font-semibold">{item.name}</h4>
+                    <p className="ios-footnote text-secondary-label">${item.price} за букет</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      className="w-8 h-8 rounded-full bg-quaternary-system-fill flex items-center justify-center"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="ios-body font-semibold w-8 text-center">{item.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="w-8 h-8 rounded-full bg-system-green text-white flex items-center justify-center"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="text-right">
+                    <p className="ios-body font-bold">${(item.price * item.quantity).toFixed(2)}</p>
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="ios-footnote text-system-red"
+                    >
+                      Удалить
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Время доставки */}
+          <div className="ios-card p-4 bg-system-green/5 border border-system-green/20">
+            <div className="flex items-center space-x-2 mb-2">
+              <Clock className="w-4 h-4 text-system-green" />
+              <span className="ios-body font-semibold text-system-green">Быстрая доставка</span>
+            </div>
+            <p className="ios-footnote text-secondary-label">
+              Заказ будет доставлен в течение 2 часов
+            </p>
+          </div>
+
+          <div className="ios-card p-4 space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="ios-body">Подытог:</span>
+              <span className="ios-body font-semibold">${cartTotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="ios-body">Доставка:</span>
+              <span className="ios-body font-semibold">$8.00</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="ios-body">Упаковка:</span>
+              <span className="ios-body font-semibold text-system-green">Бесплатно</span>
+            </div>
+            <hr className="border-separator" />
+            <div className="flex justify-between items-center">
+              <span className="ios-headline font-bold">Итого:</span>
+              <span className="ios-headline font-bold text-system-green">${(cartTotal + 8).toFixed(2)}</span>
+            </div>
+            
+            <button className="w-full bg-system-green text-white ios-body font-semibold py-3 rounded-xl flex items-center justify-center space-x-2">
+              <Calendar className="w-5 h-5" />
+              <span>Выбрать время доставки</span>
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderProfileTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
+      <h1 className="ios-title font-bold">Профиль флориста</h1>
+      
+      <div className="ios-card p-4">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-16 h-16 bg-system-green rounded-full flex items-center justify-center">
+            <span className="ios-title font-bold text-white">ЦР</span>
+          </div>
+          <div>
+            <h3 className="ios-headline font-semibold">Цветочный VIP</h3>
+            <p className="ios-body text-secondary-label">Постоянный покупатель</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <p className="ios-title font-bold text-system-green">47</p>
+            <p className="ios-footnote text-secondary-label">Заказов</p>
+          </div>
+          <div className="text-center">
+            <p className="ios-title font-bold text-system-purple">12%</p>
+            <p className="ios-footnote text-secondary-label">Скидка</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h2 className="ios-headline font-semibold">Избранные букеты</h2>
+        {flowers.filter(flower => favorites.includes(flower.id)).map((flower) => (
+          <div key={flower.id} className="ios-card p-3 flex items-center space-x-3">
+            <OptimizedImage src={flower.image} alt={flower.name} className="w-20 h-20 object-cover rounded-lg" />
+            <div className="flex-1">
+              <h4 className="ios-body font-semibold line-clamp-1">{flower.name}</h4>
+              <p className="ios-footnote text-secondary-label">${flower.price} • {flower.category}</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-tertiary-label" />
+          </div>
+        ))}
+      </div>
+
+      <div className="ios-card p-4">
+        <h3 className="ios-headline font-semibold mb-3">История заказов</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="ios-body">Последний заказ:</span>
+            <span className="ios-body font-medium">16 дек 2024</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Любимые цветы:</span>
+            <span className="ios-body font-medium">Розы</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Потрачено всего:</span>
+            <span className="ios-body font-medium text-system-green">$2,340</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="ios-card p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
+        <div className="flex items-center space-x-2 mb-2">
+          <Gift className="w-5 h-5 text-system-green" />
+          <span className="ios-body font-semibold text-system-green">Программа лояльности</span>
+        </div>
+        <p className="ios-footnote text-secondary-label mb-2">
+          До следующей скидки осталось всего 3 заказа
+        </p>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="bg-system-green h-2 rounded-full" style={{ width: '70%' }}></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="h-full flex flex-col bg-system-background">
+      <div className="flex-1 overflow-y-auto p-4">
+        {activeTab === 'home' && renderHomeTab()}
+        {activeTab === 'catalog' && renderCatalogTab()}
+        {activeTab === 'cart' && renderCartTab()}
+        {activeTab === 'profile' && renderProfileTab()}
+      </div>
+
+      {/* Модальное окно */}
+      {isModalOpen && selectedFlower && (
+        <div className="fixed inset-0 bg-black/50 flex items-end z-50">
+          <div className="bg-system-background max-w-md mx-auto w-full rounded-t-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start">
+              <h3 className="ios-title font-bold line-clamp-2">{selectedFlower.name}</h3>
+              <button onClick={closeFlowerModal}>
+                <X className="w-6 h-6 text-secondary-label" />
+              </button>
+            </div>
+            
+            <OptimizedImage src={selectedFlower.image} alt={selectedFlower.name} className="w-full h-48 object-cover rounded-xl" />
+            
+            <div className="space-y-3">
+              <p className="ios-body text-secondary-label">{selectedFlower.description}</p>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="ios-card p-3">
+                  <p className="ios-caption2 text-secondary-label">Размер</p>
+                  <p className="ios-body font-semibold">{selectedFlower.size}</p>
+                </div>
+                <div className="ios-card p-3">
+                  <p className="ios-caption2 text-secondary-label">Свежесть</p>
+                  <p className="ios-body font-semibold">{selectedFlower.freshness}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-quaternary-system-fill text-label">
+                  {selectedFlower.category}
+                </span>
+                <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-system-green/10 text-system-green">
+                  {selectedFlower.occasion}
+                </span>
+                <div className="flex items-center space-x-1">
+                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  <span className="ios-footnote">{selectedFlower.rating}</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="ios-title font-bold text-system-green">${selectedFlower.price}</span>
+                <span className="ios-footnote text-secondary-label">
+                  В наличии: {selectedFlower.inStock} букетов
+                </span>
+              </div>
+              
+              <button className="w-full bg-system-green text-white ios-body font-semibold py-3 rounded-xl">
+                В корзину
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}```
+
+### demos/InteriorLux.tsx
+```tsx
+import { useState } from "react";
+import { 
+  Heart, 
+  Star, 
+  X, 
+  Home,
+  Sofa,
+  TrendingUp
+} from "lucide-react";
+import { OptimizedImage } from "../OptimizedImage";
+import { useImagePreloader } from "../../hooks/useImagePreloader";
+import { ConfirmDrawer } from "../ui/modern-drawer";
+
+interface InteriorLuxProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+const products = [
+  { id: 1, name: 'Диван Scandi', price: 2500, image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format,compress&fm=webp&q=75&w=400', description: 'Элегантный диван в скандинавском стиле с мягкой обивкой', category: 'Гостиная', inStock: 5, rating: 4.8, brand: 'Nordic Home', material: 'Ткань, дерево', dimensions: '220x90x80 см' },
+  { id: 2, name: 'Стол Oak Dining', price: 1800, image: 'https://images.unsplash.com/photo-1549497538-303791108f95?auto=format,compress&fm=webp&q=75&w=400', description: 'Обеденный стол из массива дуба с натуральной отделкой', category: 'Кухня', inStock: 8, rating: 4.9, brand: 'WoodCraft', material: 'Массив дуба', dimensions: '180x90x75 см' },
+  { id: 3, name: 'Кресло Vintage', price: 850, image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format,compress&fm=webp&q=75&w=400', description: 'Винтажное кресло с бархатной обивкой и деревянными ножками', category: 'Гостиная', inStock: 12, rating: 4.7, brand: 'Retro Style', material: 'Бархат, дерево', dimensions: '80x75x85 см' },
+  { id: 4, name: 'Кровать King Size', price: 2800, image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format,compress&fm=webp&q=75&w=400', description: 'Роскошная кровать с мягким изголовьем и ортопедическим основанием', category: 'Спальня', inStock: 6, rating: 4.9, brand: 'DreamBeds', material: 'Экокожа, дерево', dimensions: '200x200x120 см' },
+  { id: 5, name: 'Комод Chester', price: 950, image: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format,compress&fm=webp&q=75&w=400', description: 'Комод в английском стиле с латунными ручками', category: 'Спальня', inStock: 10, rating: 4.7, brand: 'ClassicFurniture', material: 'Массив ясеня', dimensions: '120x40x80 см' },
+  { id: 6, name: 'Ковер Persian', price: 680, image: 'https://images.unsplash.com/photo-1600121848594-d8644e57abab?auto=format,compress&fm=webp&q=75&w=400', description: 'Персидский ковер ручной работы с традиционным орнаментом', category: 'Декор', inStock: 15, rating: 4.5, brand: 'Orient Rugs', material: 'Шерсть', dimensions: '200x300 см' },
+  { id: 7, name: 'Люстра Crystal', price: 1500, image: 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format,compress&fm=webp&q=75&w=400', description: 'Хрустальная люстра в классическом стиле', category: 'Декор', inStock: 4, rating: 4.8, brand: 'CrystalLight', material: 'Хрусталь, металл', dimensions: '80x80x100 см' },
+  { id: 8, name: 'Столик Coffee', price: 650, image: 'https://images.unsplash.com/photo-1551298370-9d3d53740c72?auto=format,compress&fm=webp&q=75&w=400', description: 'Журнальный столик со стеклянной столешницей', category: 'Гостиная', inStock: 9, rating: 4.6, brand: 'GlassWorks', material: 'Стекло, металл', dimensions: '120x60x45 см' },
+  { id: 9, name: 'Шкаф Wardrobe Pro', price: 3200, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format,compress&fm=webp&q=75&w=400', description: 'Вместительный шкаф с зеркальными дверями', category: 'Спальня', inStock: 3, rating: 4.8, brand: 'StoragePlus', material: 'ЛДСП, зеркало', dimensions: '200x60x240 см' },
+  { id: 10, name: 'Картина Abstract', price: 350, image: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?auto=format,compress&fm=webp&q=75&w=400', description: 'Абстрактная картина маслом в современном стиле', category: 'Декор', inStock: 20, rating: 4.2, brand: 'ArtGallery', material: 'Холст, масло', dimensions: '60x80 см' },
+  { id: 11, name: 'Стеллаж Industrial', price: 1200, image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format,compress&fm=webp&q=75&w=400', description: 'Стеллаж в индустриальном стиле с полками из дерева', category: 'Гостиная', inStock: 7, rating: 4.6, brand: 'MetalWorks', material: 'Металл, дерево', dimensions: '180x40x200 см' },
+  { id: 12, name: 'Барный стул Loft', price: 280, image: 'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format,compress&fm=webp&q=75&w=400', description: 'Барный стул в стиле лофт с регулируемой высотой', category: 'Кухня', inStock: 18, rating: 4.4, brand: 'UrbanStyle', material: 'Металл, экокожа', dimensions: '45x45x85 см' },
+  { id: 13, name: 'Тумба TV Stand', price: 750, image: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format,compress&fm=webp&q=75&w=400', description: 'Современная тумба под телевизор с ящиками', category: 'Гостиная', inStock: 11, rating: 4.5, brand: 'MediaFurniture', material: 'МДФ, стекло', dimensions: '160x40x50 см' },
+  { id: 14, name: 'Зеркало Gold Frame', price: 320, image: 'https://images.unsplash.com/photo-1618220924273-338d82d6a886?auto=format,compress&fm=webp&q=75&w=400', description: 'Зеркало в золотой раме барокко', category: 'Декор', inStock: 14, rating: 4.4, brand: 'DecorArt', material: 'Дерево, позолота', dimensions: '80x120 см' },
+  { id: 15, name: 'Пуф Ottoman', price: 280, image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format,compress&fm=webp&q=75&w=400', description: 'Круглый пуф с местом для хранения', category: 'Гостиная', inStock: 16, rating: 4.3, brand: 'ComfortSeating', material: 'Ткань, поролон', dimensions: '60x60x40 см' },
+  { id: 16, name: 'Обеденный стул Nordic', price: 180, image: 'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format,compress&fm=webp&q=75&w=400', description: 'Скандинавский обеденный стул из массива бука', category: 'Кухня', inStock: 24, rating: 4.6, brand: 'Nordic Home', material: 'Массив бука, ткань', dimensions: '45x50x80 см' },
+  { id: 17, name: 'Подушки Velvet Set', price: 120, image: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format,compress&fm=webp&q=75&w=400', description: 'Набор бархатных подушек (4 шт)', category: 'Декор', inStock: 30, rating: 4.5, brand: 'SoftDecor', material: 'Бархат', dimensions: '45x45 см' },
+  { id: 18, name: 'Торшер Modern Arc', price: 450, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format,compress&fm=webp&q=75&w=400', description: 'Современный торшер с мраморным основанием', category: 'Декор', inStock: 8, rating: 4.6, brand: 'LightDesign', material: 'Мрамор, металл', dimensions: '40x40x180 см' },
+  { id: 19, name: 'Кухонный остров', price: 2200, image: 'https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?auto=format,compress&fm=webp&q=75&w=400', description: 'Кухонный остров с мраморной столешницей', category: 'Кухня', inStock: 4, rating: 4.9, brand: 'KitchenPro', material: 'Дерево, мрамор', dimensions: '180x90x90 см' },
+  { id: 20, name: 'Прикроватная тумба', price: 380, image: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format,compress&fm=webp&q=75&w=400', description: 'Прикроватная тумба с выдвижными ящиками', category: 'Спальня', inStock: 13, rating: 4.5, brand: 'DreamBeds', material: 'МДФ', dimensions: '50x40x60 см' }
+];
+
+const categories = ['Все', 'Гостиная', 'Спальня', 'Кухня', 'Декор'];
+
+export default function InteriorLux({ activeTab }: InteriorLuxProps) {
+  const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [favorites, setFavorites] = useState<number[]>([1, 4, 11]);
+
+  // Preload first 6 product images for instant visibility
+  useImagePreloader({
+    images: products.slice(0, 6).map(p => p.image),
+    priority: true
+  });
+
+  const openProductModal = (product: typeof products[0]) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const closeProductModal = () => {
+    setIsModalOpen(false);
+    setTimeout(() => setSelectedProduct(null), 300);
+  };
+
+  const toggleFavorite = (productId: number) => {
+    setFavorites(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  const filteredProducts = selectedCategory === 'Все' 
+    ? products 
+    : products.filter(p => p.category === selectedCategory);
+
+  // HOME TAB - Ultra Minimalist 2025
+  const renderHomeTab = () => (
+    <div className="min-h-screen bg-white font-montserrat pb-24">
+      <div className="max-w-md mx-auto px-4 py-8 space-y-8">
+        {/* Minimalist Header */}
+        <div className="text-center space-y-4">
+          <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl mx-auto flex items-center justify-center shadow-lg">
+            <Home className="w-10 h-10 text-white" strokeWidth={2} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">InteriorLux</h1>
+            <p className="text-sm text-gray-500">Дизайнерская мебель и декор</p>
+          </div>
+        </div>
+
+        {/* Hero Section */}
+        <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-8 text-white overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="relative z-10">
+            <h2 className="text-2xl font-bold mb-3">Коллекция 2025</h2>
+            <p className="text-white/90 mb-4">Создайте дом своей мечты с нашей мебелью</p>
+            <button 
+              onClick={() => setSelectedCategory('Гостиная')}
+              className="px-6 py-3 bg-white text-emerald-600 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
+              data-testid="button-view-collection"
+            >
+              Смотреть каталог
+            </button>
+          </div>
+        </div>
+
+        {/* Categories Grid */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">Категории</h2>
+            <TrendingUp className="w-5 h-5 text-emerald-600" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div 
+              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer"
+              onClick={() => setSelectedCategory('Гостиная')}
+              data-testid="category-living"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Sofa className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-center font-semibold text-gray-900 mb-1">Гостиная</h3>
+              <p className="text-center text-sm text-gray-500">42 товара</p>
+            </div>
+
+            <div 
+              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer"
+              onClick={() => setSelectedCategory('Спальня')}
+              data-testid="category-bedroom"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Star className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-center font-semibold text-gray-900 mb-1">Спальня</h3>
+              <p className="text-center text-sm text-gray-500">28 товаров</p>
+            </div>
+
+            <div 
+              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer"
+              onClick={() => setSelectedCategory('Кухня')}
+              data-testid="category-kitchen"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Home className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-center font-semibold text-gray-900 mb-1">Кухня</h3>
+              <p className="text-center text-sm text-gray-500">18 товаров</p>
+            </div>
+
+            <div 
+              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer"
+              onClick={() => setSelectedCategory('Декор')}
+              data-testid="category-decor"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Heart className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-center font-semibold text-gray-900 mb-1">Декор</h3>
+              <p className="text-center text-sm text-gray-500">34 товара</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Popular Items */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-gray-900">Популярное</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {products.slice(0, 6).map(product => (
+              <div 
+                key={product.id}
+                className="group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100"
+                onClick={() => openProductModal(product)}
+                data-testid={`product-card-${product.id}`}
+              >
+                <div className="relative aspect-square overflow-hidden bg-gray-100">
+                  <OptimizedImage 
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    priority={product.id <= 4}
+                  />
+                  <button 
+                    className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(product.id);
+                    }}
+                    data-testid={`button-favorite-${product.id}`}
+                  >
+                    <Heart 
+                      className={`w-5 h-5 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} 
+                      strokeWidth={2}
+                    />
+                  </button>
+                </div>
+                <div className="p-4 space-y-2">
+                  <div className="text-xs font-medium text-emerald-600 mb-1">{product.category}</div>
+                  <h3 className="font-semibold text-gray-900 line-clamp-2 text-sm">{product.name}</h3>
+                  <div className="flex items-center justify-between">
+                    <p className="text-lg font-bold text-gray-900">${product.price.toLocaleString()}</p>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs text-gray-600">{product.rating}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // CATALOG TAB - Modern Grid with Sticky Pills
+  const renderCatalogTab = () => (
+    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
+      {/* Sticky Category Pills */}
+      <div className="sticky top-0 z-20 bg-white border-b border-gray-200 py-5 px-4">
+        <div className="max-w-md mx-auto">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-full whitespace-nowrap transition-all duration-300 font-medium text-sm ${
+                  selectedCategory === cat 
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                data-testid={`filter-${cat.toLowerCase()}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Products Grid */}
+      <div className="max-w-md mx-auto px-4 py-6">
+        <div className="mb-4">
+          <p className="text-sm text-gray-600">Найдено {filteredProducts.length} товаров</p>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {filteredProducts.map(product => (
+            <div 
+              key={product.id}
+              className="group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+              onClick={() => openProductModal(product)}
+              data-testid={`product-${product.id}`}
+            >
+              <div className="relative aspect-square overflow-hidden bg-gray-100">
+                <OptimizedImage 
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  priority={product.id <= 4}
+                />
+                <button 
+                  className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(product.id);
+                  }}
+                  data-testid={`favorite-${product.id}`}
+                >
+                  <Heart 
+                    className={`w-5 h-5 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
+                    strokeWidth={2}
+                  />
+                </button>
+              </div>
+              <div className="p-4 space-y-2">
+                <div className="text-xs font-medium text-emerald-600 mb-1">{product.category}</div>
+                <h3 className="font-semibold text-gray-900 line-clamp-2 text-sm">{product.name}</h3>
+                <div className="flex items-center justify-between">
+                  <p className="text-lg font-bold text-gray-900">${product.price.toLocaleString()}</p>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-xs text-gray-600">{product.rating}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // CART TAB
+  const renderCartTab = () => (
+    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="text-2xl font-bold text-gray-900">Корзина</h1>
+        <div className="text-center py-16">
+          <Home className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500">Корзина пуста</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // PROFILE TAB
+  const renderProfileTab = () => (
+    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="text-2xl font-bold text-gray-900">Профиль</h1>
+        <div className="bg-white rounded-2xl p-6">
+          <p className="text-gray-600">Профиль пользователя</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // PRODUCT DETAIL MODAL
+  const renderProductModal = () => {
+    if (!selectedProduct) return null;
+
+    return (
+      <div 
+        className={`fixed inset-0 z-50 bg-white transition-all duration-300 ${
+          isModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        style={{ overflowY: 'auto' }}
+      >
+        <div className="max-w-md mx-auto">
+          {/* Close Button */}
+          <button 
+            onClick={closeProductModal}
+            className="fixed top-4 right-4 z-10 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+            data-testid="button-close-modal"
+          >
+            <X className="w-6 h-6 text-gray-900" />
+          </button>
+
+          {/* Product Image */}
+          <div className="relative aspect-square overflow-hidden bg-gray-100">
+            <OptimizedImage 
+              src={selectedProduct.image}
+              alt={selectedProduct.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Product Info */}
+          <div className="p-6 space-y-6">
+            {/* Category Badge */}
+            <div className="inline-block px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-full text-sm font-semibold">
+              {selectedProduct.category}
+            </div>
+
+            {/* Title & Price */}
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold text-gray-900">{selectedProduct.name}</h1>
+              <div className="flex items-center justify-between">
+                <p className="text-3xl font-bold text-emerald-600">${selectedProduct.price.toLocaleString()}</p>
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  <span className="text-lg font-semibold text-gray-900">{selectedProduct.rating}</span>
+                  <span className="text-gray-500">(87)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Brand */}
+            <div className="text-sm text-gray-600">
+              от <span className="font-semibold text-gray-900">{selectedProduct.brand}</span>
+            </div>
+
+            {/* Description */}
+            <p className="text-gray-700 leading-relaxed">{selectedProduct.description}</p>
+
+            {/* Specifications */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900">Характеристики</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-sm text-gray-500 mb-1">Размеры</p>
+                  <p className="font-semibold text-gray-900">{selectedProduct.dimensions}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-sm text-gray-500 mb-1">Материал</p>
+                  <p className="font-semibold text-gray-900">{selectedProduct.material}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stock */}
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-sm text-green-600 font-medium">В наличии {selectedProduct.inStock} шт</span>
+            </div>
+
+            {/* Add to Cart Button */}
+            <ConfirmDrawer
+              trigger={
+                <button 
+                  className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300"
+                  data-testid="button-add-to-cart"
+                >
+                  Добавить в корзину
+                </button>
+              }
+              title="Добавить в корзину?"
+              description={`${selectedProduct.name} — ${new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(selectedProduct.price)}`}
+              confirmText="Добавить"
+              cancelText="Отмена"
+              variant="default"
+              onConfirm={() => setSelectedProduct(null)}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      {activeTab === 'home' && renderHomeTab()}
+      {activeTab === 'catalog' && renderCatalogTab()}
+      {activeTab === 'cart' && renderCartTab()}
+      {activeTab === 'profile' && renderProfileTab()}
+      {renderProductModal()}
+    </>
+  );
+}
+```
+
+### demos/Medical.tsx
+```tsx
+import React, { useState } from 'react';
+import {
+  Heart,
+  Calendar,
+  UserCheck,
+  Clock,
+  Star,
+  Stethoscope,
+  Activity,
+  Pill,
+  Shield,
+  Phone,
+  MapPin,
+  Plus
+} from 'lucide-react';
+import { OptimizedImage } from "../OptimizedImage";
+
+interface MedicalProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onNavigate: (tab: string) => void;
+}
+
+interface Service {
+  id: number;
+  name: string;
+  specialty: string;
+  doctor: string;
+  price: number;
+  duration: string;
+  rating: number;
+  image: string;
+  available: boolean;
+}
+
+interface CartItem extends Service {
+  quantity: number;
+  appointment: string;
+}
+
+const services: Service[] = [
+  {
+    id: 1,
+    name: 'Общий осмотр',
+    specialty: 'Терапевт',
+    doctor: 'Др. Иванов А.С.',
+    price: 80,
+    duration: '30 мин',
+    rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=500&fit=crop&crop=center',
+    available: true
+  },
+  {
+    id: 2,
+    name: 'Кардиограмма',
+    specialty: 'Кардиолог',
+    doctor: 'Др. Петрова М.В.',
+    price: 120,
+    duration: '45 мин',
+    rating: 4.8,
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=500&fit=crop&crop=center',
+    available: true
+  },
+  {
+    id: 3,
+    name: 'УЗИ диагностика',
+    specialty: 'Диагност',
+    doctor: 'Др. Смирнов В.К.',
+    price: 150,
+    duration: '60 мин',
+    rating: 4.7,
+    image: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=800&h=500&fit=crop&crop=center',
+    available: true
+  },
+  {
+    id: 4,
+    name: 'Стоматология',
+    specialty: 'Стоматолог',
+    doctor: 'Др. Козлова Е.Н.',
+    price: 200,
+    duration: '90 мин',
+    rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=800&h=500&fit=crop&crop=center',
+    available: true
+  }
+];
+
+const categories = ['Все', 'Терапевт', 'Кардиолог', 'Диагност', 'Стоматолог'];
+
+export default function Medical({ activeTab, onNavigate }: MedicalProps) {
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+
+  const filteredServices = selectedCategory === 'Все' 
+    ? services 
+    : services.filter(service => service.specialty === selectedCategory);
+
+  const addToCart = (service: Service) => {
+    const existingItem = cartItems.find(item => item.id === service.id);
+    if (existingItem) {
+      setCartItems(prev => 
+        prev.map(item => 
+          item.id === service.id ? { ...item, quantity: item.quantity + 1 } : item
+        )
+      );
+    } else {
+      setCartItems(prev => [...prev, { ...service, quantity: 1, appointment: 'Ближайшее время' }]);
+    }
+  };
+
+  const removeFromCart = (serviceId: number) => {
+    setCartItems(prev => prev.filter(item => item.id !== serviceId));
+  };
+
+  const updateQuantity = (serviceId: number, newQuantity: number) => {
+    if (newQuantity === 0) {
+      removeFromCart(serviceId);
+      return;
+    }
+    setCartItems(prev => 
+      prev.map(item => 
+        item.id === serviceId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const openServiceModal = (service: Service) => {
+    setSelectedService(service);
+  };
+
+  const closeServiceModal = () => {
+    setSelectedService(null);
+  };
+
+  const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const renderHomeTab = () => (
+    <div className="min-h-screen bg-blue-50 font-montserrat">
+      <div className="max-w-md mx-auto">
+        
+        {/* Medical Header */}
+        <div className="px-6 pt-20 pb-16 text-center">
+          <div className="w-20 h-20 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-8">
+            <Heart className="w-6 h-6 text-white" />
+          </div>
+          <h1 className="text-2xl font-semibold text-blue-900 mb-3 tracking-wide">MediCare Center</h1>
+          <p className="text-blue-600 text-sm font-medium">Premium Healthcare Services</p>
+        </div>
+
+        {/* Hero Medical Section */}
+        <div className="px-6 pb-20">
+          <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-blue-100 mb-12 relative">
+            <OptimizedImage 
+              src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=800&h=500&fit=crop&crop=center" 
+              alt="Premium Medical Care"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-blue-900/40 to-transparent" />
+            <div className="absolute bottom-6 left-6 right-6 text-white">
+              <h2 className="text-xl font-semibold mb-2">Your Health, Our Priority</h2>
+              <p className="text-white/80 text-sm mb-4">Expert medical care with modern technology</p>
+              <button 
+                className="bg-white text-blue-900 px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors"
+                onClick={() => openServiceModal(services[0])}
+              >
+                Book Appointment
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Medical Stats */}
+        <div className="px-6 py-20 border-t border-blue-200">
+          <div className="text-center mb-16">
+            <h3 className="text-lg font-semibold text-blue-900 mb-4">Trusted Healthcare</h3>
+            <p className="text-blue-600 text-sm font-medium leading-relaxed">
+              Professional medical services with experienced doctors and modern equipment.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-12 text-center">
+            {[
+              { number: '50+', label: 'Doctors' },
+              { number: '10K+', label: 'Patients' },
+              { number: '24/7', label: 'Emergency' },
+              { number: '98%', label: 'Satisfaction' }
+            ].map((stat, index) => (
+              <div key={index}>
+                <div className="text-2xl font-bold text-blue-600 mb-1">{stat.number}</div>
+                <div className="text-blue-500 text-xs font-medium">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Featured Services */}
+        <div className="px-6 py-20 border-t border-blue-200">
+          <div className="flex items-center justify-between mb-12">
+            <h3 className="text-lg font-semibold text-blue-900">Popular Services</h3>
+            <button 
+              className="text-blue-500 text-sm font-medium hover:text-blue-600 transition-colors"
+              onClick={() => setSelectedCategory('Все')}
+            >
+              View all
+            </button>
+          </div>
+          
+          <div className="space-y-12">
+            {services.slice(0, 2).map((service, index) => (
+              <div 
+                key={service.id} 
+                className="group cursor-pointer"
+                onClick={() => openServiceModal(service)}
+              >
+                <div className="aspect-[5/3] rounded-xl overflow-hidden bg-blue-100 mb-6 relative">
+                  <OptimizedImage 
+                    src={service.image}
+                    alt={service.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
+                    {service.duration}
+                  </div>
+                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-blue-900 text-xs font-medium px-2 py-1 rounded flex items-center space-x-1">
+                    <Star className="w-3 h-3 text-blue-500 fill-current" />
+                    <span>{service.rating}</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="text-blue-900 font-semibold text-base">{service.name}</h4>
+                      <p className="text-blue-500 text-sm font-medium">{service.doctor}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-blue-900 font-semibold">${service.price}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+
+  const renderCatalogTab = () => (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="ios-title font-bold">Медицинские услуги</h1>
+      
+      {/* Categories */}
+      <div className="flex space-x-2 overflow-x-auto pb-2">
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-4 py-2 rounded-full whitespace-nowrap ios-footnote font-medium ${
+              selectedCategory === category
+                ? 'bg-system-blue text-white'
+                : 'bg-quaternary-system-fill text-label'
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      {/* Services List */}
+      <div className="space-y-3">
+        {filteredServices.map((service) => (
+          <div 
+            key={service.id} 
+            className="ios-card p-4 cursor-pointer"
+            onClick={() => openServiceModal(service)}
+          >
+            <div className="flex items-center space-x-3">
+              <OptimizedImage
+                src={service.image}
+                alt={service.name}
+                className="w-20 h-20 rounded-lg object-cover"
+              />
+              <div className="flex-1">
+                <h4 className="ios-body font-semibold">{service.name}</h4>
+                <p className="ios-footnote text-secondary-label">{service.doctor}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="ios-body font-bold text-system-blue">${service.price}</span>
+                  <div className="flex items-center space-x-1">
+                    <Star className="w-3 h-3 text-system-orange" />
+                    <span className="ios-caption2">{service.rating}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className={`w-3 h-3 rounded-full ${service.available ? 'bg-system-green' : 'bg-system-red'}`}></div>
+                <p className="ios-caption2 text-secondary-label mt-1">{service.duration}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+    </div>
+  );
+
+  const renderCartTab = () => (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="ios-title font-bold">Записи на прием</h1>
+        
+        {cartItems.length === 0 ? (
+          <div className="text-center py-12">
+            <Heart className="w-16 h-16 text-quaternary-label mx-auto mb-4" />
+            <h2 className="ios-title font-semibold text-secondary-label mb-2">Нет записей</h2>
+            <p className="ios-body text-tertiary-label">Выберите медицинскую услугу для записи</p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-3">
+              {cartItems.map((item) => (
+                <div key={item.id} className="ios-card p-4">
+                  <div className="flex items-center space-x-3">
+                    <OptimizedImage
+                      src={item.image}
+                      alt={item.name}
+                      className="w-20 h-20 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <h4 className="ios-body font-semibold">{item.name}</h4>
+                      <p className="ios-footnote text-secondary-label">{item.doctor}</p>
+                      <p className="ios-caption2 text-system-blue">${item.price}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        className="w-8 h-8 rounded-full bg-quaternary-system-fill flex items-center justify-center"
+                      >
+                        <span className="text-lg font-medium">-</span>
+                      </button>
+                      <span className="ios-body font-semibold w-8 text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="w-8 h-8 rounded-full bg-system-blue flex items-center justify-center"
+                      >
+                        <Plus className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="ios-card p-4">
+              <div className="flex justify-between items-center">
+                <span className="ios-headline font-semibold">Итого</span>
+                <span className="ios-headline font-bold text-system-blue">${cartTotal}</span>
+              </div>
+              <button className="w-full bg-system-blue text-white ios-body font-semibold py-3 rounded-xl mt-4">
+                Записаться на прием
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderProfileTab = () => (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="ios-title font-bold">Профиль пациента</h1>
+        
+        <div className="ios-card p-6 text-center">
+          <div className="w-20 h-20 bg-system-blue rounded-full flex items-center justify-center mx-auto mb-4">
+            <UserCheck className="w-10 h-10 text-white" />
+          </div>
+          <h2 className="ios-headline font-semibold mb-1">Иван Петров</h2>
+          <p className="ios-footnote text-secondary-label">Постоянный пациент</p>
+        </div>
+
+        <div className="space-y-1">
+          <div className="ios-list-item">
+            <Calendar className="w-5 h-5 text-system-blue" />
+            <span className="ios-body">История приемов</span>
+          </div>
+          <div className="ios-list-item">
+            <Activity className="w-5 h-5 text-system-green" />
+            <span className="ios-body">Медицинская карта</span>
+          </div>
+          <div className="ios-list-item">
+            <Shield className="w-5 h-5 text-system-orange" />
+            <span className="ios-body">Страховка</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Service Modal
+  if (selectedService) {
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="relative">
+            <OptimizedImage
+              src={selectedService.image}
+              alt={selectedService.name}
+              className="w-full h-48 object-cover rounded-t-2xl"
+            />
+            <button
+              onClick={closeServiceModal}
+              className="absolute top-4 right-4 w-8 h-8 bg-black/20 rounded-full flex items-center justify-center text-white"
+            >
+              ×
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-4">
+            <div>
+              <h2 className="ios-title font-bold mb-2">{selectedService.name}</h2>
+              <p className="ios-body text-secondary-label">{selectedService.doctor}</p>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-1">
+                <Star className="w-4 h-4 text-system-orange" />
+                <span className="ios-body">{selectedService.rating}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Clock className="w-4 h-4 text-system-blue" />
+                <span className="ios-body">{selectedService.duration}</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between py-4 border-t border-separator">
+              <span className="ios-headline font-semibold">${selectedService.price}</span>
+              <button
+                onClick={() => {
+                  addToCart(selectedService);
+                  closeServiceModal();
+                }}
+                className="bg-system-blue text-white px-6 py-2 rounded-xl ios-body font-semibold"
+              >
+                Записаться
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  switch (activeTab) {
+    case 'catalog':
+      return renderCatalogTab();
+    case 'cart':
+      return renderCartTab();
+    case 'profile':
+      return renderProfileTab();
+    default:
+      return renderHomeTab();
+  }
+}```
+
+### demos/PremiumFashionStore.tsx
+```tsx
+import { useState, useEffect, memo } from "react";
+import { m, AnimatePresence } from "framer-motion";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu } from "lucide-react";
+import { OptimizedImage } from "../OptimizedImage";
+import { ConfirmDrawer } from "../ui/modern-drawer";
+import { Skeleton } from "../ui/skeleton";
+import { useFilter } from "@/hooks/useFilter";
+import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
+import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
+
+// Video served from public/videos/ to reduce Docker image size  
+const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
+
+interface PremiumFashionStoreProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  size: string;
+  quantity: number;
+  image: string;
+  color: string;
+}
+
+interface Order {
+  id: number;
+  items: CartItem[];
+  total: number;
+  date: string;
+  status: 'processing' | 'shipped' | 'delivered';
+}
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  oldPrice?: number;
+  image: string;
+  hoverImage: string;
+  description: string;
+  sizes: string[];
+  colors: string[];
+  colorHex: string[];
+  category: string;
+  gender: 'Men' | 'Woman' | 'Children';
+  inStock: number;
+  rating: number;
+  brand: string;
+  isNew?: boolean;
+  isTrending?: boolean;
+}
+
+const products: Product[] = [
+  { 
+    id: 1, 
+    name: 'Carbon Collection Hoodie', 
+    price: 12900, 
+    oldPrice: 15900,
+    image: blackHoodieImage, 
+    hoverImage: blackHoodieImage,
+    description: 'Премиальный черный худи Carbon Collection с минималистичным дизайном', 
+    sizes: ['S', 'M', 'L', 'XL'], 
+    colors: ['Черный', 'Графит'], 
+    colorHex: ['#1A1A1A', '#2D2D2D'],
+    category: 'Худи', 
+    gender: 'Men',
+    inStock: 15, 
+    rating: 5.0, 
+    brand: 'CARBON',
+    isNew: true,
+    isTrending: true
+  },
+  { 
+    id: 2, 
+    name: 'Colorblock Hoodie', 
+    price: 13900, 
+    oldPrice: 17900,
+    image: colorfulHoodieImage, 
+    hoverImage: colorfulHoodieImage,
+    description: 'Яркий разноцветный худи с уникальной комбинацией цветов', 
+    sizes: ['S', 'M', 'L', 'XL'], 
+    colors: ['Мульти', 'Фиолетовый'], 
+    colorHex: ['#9B59B6', '#7E57C2'],
+    category: 'Худи', 
+    gender: 'Men',
+    inStock: 8, 
+    rating: 4.9, 
+    brand: 'URBAN',
+    isNew: true,
+    isTrending: true
+  },
+  { 
+    id: 3, 
+    name: 'Olive Puffer', 
+    price: 52900, 
+    oldPrice: 67000,
+    image: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=800&h=1200&fit=crop&q=90', 
+    hoverImage: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800&h=1200&fit=crop&q=90',
+    description: 'Роскошный пуховик оливкового цвета премиум класса', 
+    sizes: ['XS', 'S', 'M', 'L'], 
+    colors: ['Оливковый', 'Черный', 'Бежевый'], 
+    colorHex: ['#9CAF88', '#1A1A1A', '#D4A574'],
+    category: 'Куртки', 
+    gender: 'Men',
+    inStock: 5, 
+    rating: 5.0, 
+    brand: 'PUFF',
+    isNew: true,
+    isTrending: true
+  },
+  { 
+    id: 4, 
+    name: 'Orange Oversized', 
+    price: 25500, 
+    oldPrice: 35000,
+    image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=1200&fit=crop&q=90', 
+    hoverImage: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&h=1200&fit=crop&q=90',
+    description: 'Яркий оверсайз пуховик для стильного образа', 
+    sizes: ['S', 'M', 'L', 'XL'], 
+    colors: ['Оранжевый', 'Желтый'], 
+    colorHex: ['#F97316', '#EAB308'],
+    category: 'Куртки', 
+    gender: 'Woman',
+    inStock: 8, 
+    rating: 4.9, 
+    brand: 'PUFF',
+    isNew: true,
+    isTrending: true
+  },
+  { 
+    id: 5, 
+    name: 'Pink Classic', 
+    price: 35000, 
+    image: 'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=800&h=1200&fit=crop&q=90', 
+    hoverImage: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800&h=1200&fit=crop&q=90',
+    description: 'Элегантный розовый пуховик с капюшоном', 
+    sizes: ['XS', 'S', 'M', 'L'], 
+    colors: ['Розовый', 'Фиолетовый'], 
+    colorHex: ['#EC4899', '#A855F7'],
+    category: 'Куртки', 
+    gender: 'Woman',
+    inStock: 10, 
+    rating: 5.0, 
+    brand: 'PUFF',
+    isTrending: true
+  },
+  { 
+    id: 6, 
+    name: 'Blue Winter', 
+    price: 43000, 
+    image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&h=1200&fit=crop&q=90', 
+    hoverImage: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=1200&fit=crop&q=90',
+    description: 'Зимняя куртка с утеплителем премиум класса', 
+    sizes: ['S', 'M', 'L'], 
+    colors: ['Синий', 'Черный'], 
+    colorHex: ['#3B82F6', '#1A1A1A'],
+    category: 'Куртки', 
+    gender: 'Children',
+    inStock: 6, 
+    rating: 4.8, 
+    brand: 'PUFF' 
+  },
+  { 
+    id: 7, 
+    name: 'Black Bomber', 
+    price: 31000, 
+    image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&h=1200&fit=crop&q=90', 
+    hoverImage: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=1200&fit=crop&q=90',
+    description: 'Классический черный бомбер на любой случай', 
+    sizes: ['XS', 'S', 'M', 'L', 'XL'], 
+    colors: ['Черный', 'Серый'], 
+    colorHex: ['#1A1A1A', '#6B7280'],
+    category: 'Куртки', 
+    gender: 'Men',
+    inStock: 12, 
+    rating: 4.9, 
+    brand: 'PUFF',
+    isNew: true
+  },
+  { 
+    id: 8, 
+    name: 'Beige Trench', 
+    price: 57000, 
+    image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=800&h=1200&fit=crop&q=90', 
+    hoverImage: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=1200&fit=crop&q=90',
+    description: 'Элегантный тренч бежевого цвета', 
+    sizes: ['S', 'M', 'L'], 
+    colors: ['Бежевый', 'Кэмел'], 
+    colorHex: ['#D4A574', '#C19A6B'],
+    category: 'Пальто', 
+    gender: 'Woman',
+    inStock: 4, 
+    rating: 5.0, 
+    brand: 'PUFF' 
+  },
+];
+
+const categories = ['Все', 'Худи', 'Куртки', 'Пальто'];
+const genderFilters = ['All', 'Men', 'Woman', 'Children'];
+
+function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('Все');
+  const [selectedGender, setSelectedGender] = useState<string>('All');
+  const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+
+  const { filteredItems, searchQuery, handleSearch } = useFilter({
+    items: products,
+    searchFields: ['name', 'description', 'category', 'brand'] as (keyof Product)[],
+  });
+
+  useEffect(() => {
+    if (activeTab !== 'catalog') {
+      setSelectedProduct(null);
+    }
+    if (activeTab !== 'home') {
+      setSelectedGender('All');
+    }
+  }, [activeTab]);
+
+  const filteredProducts = filteredItems.filter(p => {
+    const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
+    
+    if (activeTab === 'home') {
+      const genderMatch = selectedGender === 'All' || p.gender === selectedGender;
+      return categoryMatch && genderMatch;
+    }
+    
+    return categoryMatch;
+  });
+
+  const handleImageLoad = (productId: number) => {
+    setLoadedImages(prev => new Set(prev).add(productId));
+  };
+
+  const toggleFavorite = (productId: number) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(productId)) {
+      newFavorites.delete(productId);
+    } else {
+      newFavorites.add(productId);
+    }
+    setFavorites(newFavorites);
+  };
+
+  const openProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setSelectedSize(product.sizes[0]);
+    setSelectedColor(product.colors[0]);
+  };
+
+  const addToCart = () => {
+    if (!selectedProduct) return;
+    
+    const cartItem: CartItem = {
+      id: Date.now(),
+      name: selectedProduct.name,
+      price: selectedProduct.price,
+      size: selectedSize,
+      quantity: 1,
+      image: selectedProduct.image,
+      color: selectedColor
+    };
+    
+    setCart([...cart, cartItem]);
+    setSelectedProduct(null);
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const newOrder: Order = {
+      id: Date.now(),
+      items: [...cart],
+      total: total,
+      date: new Date().toLocaleDateString('ru-RU'),
+      status: 'processing'
+    };
+    
+    setOrders([newOrder, ...orders]);
+    setCart([]);
+    setShowCheckoutSuccess(true);
+    setTimeout(() => setShowCheckoutSuccess(false), 3000);
+  };
+
+  // PRODUCT PAGE
+  if (activeTab === 'catalog' && selectedProduct) {
+    const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#1A1A1A';
+    
+    return (
+      <div className="min-h-screen text-white overflow-auto pb-24" style={{ backgroundColor: bgColor }}>
+        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
+          <button 
+            onClick={() => setSelectedProduct(null)}
+            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            data-testid="button-back"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFavorite(selectedProduct.id);
+            }}
+            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            data-testid={`button-favorite-${selectedProduct.id}`}
+          >
+            <Heart 
+              className={`w-5 h-5 ${favorites.has(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
+            />
+          </button>
+        </div>
+
+        <div className="relative h-[60vh]">
+          <img
+            src={selectedProduct.hoverImage}
+            alt={selectedProduct.name}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-xl rounded-t-3xl p-6 space-y-6 pb-32">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">{selectedProduct.name}</h2>
+            <div className="flex items-center justify-center gap-3">
+              <p className="text-3xl font-bold">{formatPrice(selectedProduct.price)}</p>
+              {selectedProduct.oldPrice && (
+                <p className="text-xl text-white/50 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
+              )}
+            </div>
+          </div>
+
+          <p className="text-sm text-white/80 text-center">{selectedProduct.description}</p>
+
+          <div>
+            <p className="text-sm mb-3 text-white/80 text-center">Выберите цвет:</p>
+            <div className="flex items-center justify-center gap-3">
+              {selectedProduct.colors.map((color, idx) => (
+                <button
+                  key={color}
+                  onClick={() => setSelectedColor(color)}
+                  className={`w-10 h-10 rounded-full border-2 transition-all ${
+                    selectedColor === color
+                      ? 'border-white scale-110'
+                      : 'border-white/30'
+                  }`}
+                  style={{ backgroundColor: selectedProduct.colorHex[idx] }}
+                  data-testid={`button-color-${color}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm mb-3 text-white/80 text-center">Выберите размер:</p>
+            <div className="flex items-center justify-center gap-3">
+              {selectedProduct.sizes.map((size) => (
+                <button
+                  key={size}
+                  onClick={() => setSelectedSize(size)}
+                  className={`w-12 h-12 rounded-full font-semibold transition-all ${
+                    selectedSize === size
+                      ? 'bg-[#CDFF38] text-black'
+                      : 'bg-white/20 text-white hover:bg-white/30'
+                  }`}
+                  data-testid={`button-size-${size}`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <ConfirmDrawer
+            trigger={
+              <button
+                className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
+                data-testid="button-buy-now"
+              >
+                Добавить в корзину
+              </button>
+            }
+            title="Добавить в корзину?"
+            description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
+            confirmText="Добавить"
+            cancelText="Отмена"
+            variant="default"
+            onConfirm={addToCart}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // HOME PAGE - REAL TIME SHOPPING STYLE
+  if (activeTab === 'home') {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
+        {/* Header */}
+        <div className="p-6 pb-4">
+          <div className="flex items-center justify-between mb-6 scroll-fade-in">
+            <button aria-label="Меню" data-testid="button-view-menu">
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="flex items-center gap-3">
+              <button aria-label="Корзина" data-testid="button-view-cart">
+                <ShoppingBag className="w-6 h-6" />
+              </button>
+              <button aria-label="Избранное" data-testid="button-view-favorites">
+                <Heart className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Title */}
+          <div className="mb-6">
+            <h1 className="text-4xl font-black mb-1 tracking-tight">
+              REAL TIME<br/>
+              SHOPPING
+            </h1>
+          </div>
+
+          {/* Gender Filters */}
+          <div className="flex items-center gap-4 mb-6">
+            <button 
+              className="p-2 bg-white rounded-full"
+              aria-label="Главная"
+              data-testid="button-view-home"
+            >
+              <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+              </svg>
+            </button>
+            {genderFilters.map((gender, idx) => (
+              <button
+                key={gender}
+                onClick={() => setSelectedGender(gender)}
+                className={`text-sm font-medium transition-colors ${
+                  selectedGender === gender
+                    ? 'text-white'
+                    : 'text-white/40'
+                }`}
+                data-testid={`button-filter-${gender.toLowerCase()}`}
+              >
+                {gender}
+              </button>
+            ))}
+          </div>
+
+          {/* Search Bar */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-full px-4 py-3 flex items-center gap-2">
+              <Search className="w-5 h-5 text-white/50" />
+              <input
+                type="text"
+                placeholder="Поиск товаров..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
+                data-testid="input-search"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Video Hero Banner */}
+        <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden" style={{ height: '500px' }}>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            data-testid="video-hero-banner"
+          >
+            <source src={fashionVideo} type="video/mp4" />
+          </video>
+          
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          
+          {/* Content Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-8">
+            <m.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <h2 className="text-5xl font-black mb-3 tracking-tight leading-tight">
+                НОВАЯ<br/>
+                КОЛЛЕКЦИЯ
+              </h2>
+              <p className="text-lg text-white/80 mb-6" style={{ letterSpacing: '0.1em' }}>
+                Эксклюзивные модели 2025
+              </p>
+              <button 
+                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105"
+                style={{
+                  background: '#CDFF38',
+                  boxShadow: '0 0 30px rgba(205, 255, 56, 0.4)'
+                }}
+                data-testid="button-view-collection"
+              >
+                Смотреть коллекцию
+              </button>
+            </m.div>
+          </div>
+        </div>
+
+        {/* Featured Product Cards */}
+        <div className="px-6 space-y-4">
+          {filteredProducts.slice(0, 3).map((product, idx) => (
+            <m.div
+              key={product.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              onClick={() => openProduct(product)}
+              className="relative cursor-pointer group rounded-3xl overflow-hidden"
+              style={{ height: idx === 0 ? '400px' : '320px' }}
+              data-testid={`featured-product-${product.id}`}
+            >
+              {/* Background Image with Skeleton */}
+              <div className="absolute inset-0">
+                {!loadedImages.has(product.id) && (
+                  <Skeleton className="w-full h-full absolute inset-0" />
+                )}
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
+                  loading="lazy"
+                  onLoad={() => handleImageLoad(product.id)}
+                />
+              </div>
+
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+
+              {/* Badge */}
+              <div className="absolute top-4 left-4">
+                <div className="px-3 py-1 bg-white/20 backdrop-blur-xl rounded-full">
+                  <span className="text-xs font-semibold text-white">
+                    {product.isNew ? 'New' : product.category}
+                  </span>
+                </div>
+              </div>
+
+              {/* Favorite */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(product.id);
+                }}
+                aria-label="Избранное"
+                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
+                data-testid={`button-favorite-${product.id}`}
+              >
+                <Heart 
+                  className={`w-5 h-5 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                />
+              </button>
+
+              {/* Content */}
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <div className="flex items-end justify-between">
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold mb-2 leading-tight">
+                      {product.name.split(' ').slice(0, 2).join(' ')}<br/>
+                      {product.name.split(' ').slice(2).join(' ')}
+                    </h3>
+                    <p className="text-sm text-white/80 mb-4">{product.gender}'s wear</p>
+                  </div>
+
+                  {/* Buy Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openProduct(product);
+                    }}
+                    aria-label="Добавить в корзину"
+                    className="w-14 h-14 rounded-full bg-[#CDFF38] flex items-center justify-center hover:bg-[#B8E633] transition-all hover:scale-110"
+                    data-testid={`button-add-to-cart-${product.id}`}
+                  >
+                    <ShoppingBag className="w-6 h-6 text-black" />
+                  </button>
+                </div>
+
+                {/* Price */}
+                <div className="mt-3">
+                  <p className="text-lg font-bold">{formatPrice(product.price)}</p>
+                </div>
+              </div>
+            </m.div>
+          ))}
+        </div>
+
+        {/* Bottom Spacer */}
+        <div className="h-8"></div>
+      </div>
+    );
+  }
+
+  // CATALOG PAGE
+  if (activeTab === 'catalog') {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6 scroll-fade-in">
+            <h1 className="text-2xl font-bold">Каталог</h1>
+            <div className="flex items-center gap-3">
+              <button className="p-2" aria-label="Поиск" data-testid="button-view-search">
+                <Search className="w-6 h-6" />
+              </button>
+              <button className="p-2" aria-label="Фильтр" data-testid="button-view-filter">
+                <Filter className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Categories */}
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
+                  selectedCategory === cat
+                    ? 'bg-[#CDFF38] text-black'
+                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                }`}
+                data-testid={`button-filter-${cat.toLowerCase()}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Products Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            {filteredProducts.map((product, idx) => (
+              <m.div
+                key={product.id}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => openProduct(product)}
+                className={`relative cursor-pointer scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
+                data-testid={`product-card-${product.id}`}
+              >
+                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
+                  {!loadedImages.has(product.id) && (
+                    <Skeleton className="w-full h-full absolute inset-0" />
+                  )}
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className={`w-full h-full object-cover transition-opacity ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
+                    loading="lazy"
+                    onLoad={() => handleImageLoad(product.id)}
+                  />
+                  
+                  {/* Favorite */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(product.id);
+                    }}
+                    aria-label="Избранное"
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
+                    data-testid={`button-favorite-catalog-${product.id}`}
+                  >
+                    <Heart 
+                      className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                    />
+                  </button>
+
+                  {/* Badge */}
+                  {product.isNew && (
+                    <div className="absolute top-2 left-2 px-2 py-1 bg-[#CDFF38] text-black text-xs font-bold rounded-full">
+                      NEW
+                    </div>
+                  )}
+                </div>
+
+                {/* Product Info */}
+                <div>
+                  <p className="text-sm font-semibold mb-1 truncate">{product.name}</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-base font-bold">{formatPrice(product.price)}</p>
+                    {product.oldPrice && (
+                      <p className="text-xs text-white/40 line-through">{formatPrice(product.oldPrice)}</p>
+                    )}
+                  </div>
+                </div>
+              </m.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // CART PAGE
+  if (activeTab === 'cart') {
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32">
+        <div className="p-6">
+          <h1 className="text-2xl font-bold mb-6">Корзина</h1>
+
+          {cart.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <ShoppingBag className="w-20 h-20 text-white/20 mb-4" />
+              <p className="text-white/50 text-center">Ваша корзина пуста</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {cart.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
+                  data-testid={`cart-item-${item.id}`}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-20 h-20 rounded-xl object-cover"
+                    loading="lazy"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-semibold mb-1">{item.name}</h3>
+                    <p className="text-sm text-white/60 mb-2">
+                      {item.color} • {item.size}
+                    </p>
+                    <p className="text-lg font-bold">{formatPrice(item.price)}</p>
+                  </div>
+                  <button
+                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
+                    aria-label="Удалить"
+                    className="w-8 h-8"
+                    data-testid={`button-remove-${item.id}`}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              ))}
+
+              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#0A0A0A] border-t border-white/10">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-lg font-semibold">Итого:</span>
+                  <span className="text-2xl font-bold">{formatPrice(total)}</span>
+                </div>
+                <ConfirmDrawer
+                  trigger={
+                    <button
+                      className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
+                      data-testid="button-checkout"
+                    >
+                      Оформить заказ
+                    </button>
+                  }
+                  title="Оформить заказ?"
+                  description={`${cart.length} товаров на сумму ${formatPrice(total)}`}
+                  confirmText="Оформить"
+                  cancelText="Отмена"
+                  variant="default"
+                  onConfirm={handleCheckout}
+                />
+              </div>
+              {showCheckoutSuccess && (
+                <div className="fixed top-20 left-4 right-4 bg-[#CDFF38] text-black p-4 rounded-2xl text-center font-bold z-50 animate-pulse">
+                  Заказ успешно оформлен!
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // PROFILE PAGE
+  if (activeTab === 'profile') {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
+        <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-[#CDFF38] to-[#B8E633] rounded-full flex items-center justify-center">
+              <User className="w-8 h-8 text-black" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">Александр Петров</h2>
+              <p className="text-sm text-muted-foreground">+7 (999) 123-45-67</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
+              <p className="text-sm text-white/70 mb-1">Заказы</p>
+              <p className="text-2xl font-bold">{orders.length}</p>
+            </div>
+            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
+              <p className="text-sm text-white/70 mb-1">Избранное</p>
+              <p className="text-2xl font-bold">{favorites.size}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-4">
+          <div className="scroll-fade-in">
+            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
+            {orders.length === 0 ? (
+              <div className="text-center py-8 text-white/50">
+                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>У вас пока нет заказов</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm text-white/70">Заказ #{order.id.toString().slice(-6)}</span>
+                      <span className="text-sm text-white/70">{order.date}</span>
+                    </div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-white/80">{order.items.length} товаров</span>
+                      <span className="font-bold">{formatPrice(order.total)}</span>
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-xs px-2 py-1 bg-[#CDFF38]/20 text-[#CDFF38] rounded-full">
+                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-orders">
+            <div className="flex items-center gap-3">
+              <Package className="w-5 h-5 text-white/70" />
+              <span className="font-medium">История заказов</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+          </button>
+
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
+            <div className="flex items-center gap-3">
+              <Heart className="w-5 h-5 text-white/70" />
+              <span className="font-medium">Избранное</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+          </button>
+
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
+            <div className="flex items-center gap-3">
+              <CreditCard className="w-5 h-5 text-white/70" />
+              <span className="font-medium">Способы оплаты</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+          </button>
+
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-address">
+            <div className="flex items-center gap-3">
+              <MapPin className="w-5 h-5 text-white/70" />
+              <span className="font-medium">Адреса доставки</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+          </button>
+
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
+            <div className="flex items-center gap-3">
+              <Settings className="w-5 h-5 text-white/70" />
+              <span className="font-medium">Настройки</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+          </button>
+
+          <button className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover-elevate active-elevate-2 mt-4" data-testid="button-logout">
+            <div className="flex items-center gap-3">
+              <LogOut className="w-5 h-5 text-red-400" />
+              <span className="font-medium text-red-400">Выйти</span>
+            </div>
+          </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+export default memo(PremiumFashionStore);
+```
+
+### demos/Taxi.tsx
+```tsx
+import { useState } from "react";
+import { 
+  Car, 
+  Heart, 
+  Star, 
+  MapPin, 
+  Clock,
+  Plus,
+  Minus,
+  X,
+  ChevronRight,
+  Navigation,
+  Shield,
+  CreditCard,
+  User,
+  Phone
+} from "lucide-react";
+import { OptimizedImage } from "../OptimizedImage";
+import { useImagePreloader } from "../../hooks/useImagePreloader";
+
+interface TaxiProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+interface Trip {
+  id: number;
+  from: string;
+  to: string;
+  date: string;
+  price: number;
+  status: 'Завершена' | 'В пути' | 'Ожидает';
+  driver: string;
+  car: string;
+}
+
+const drivers = [
+  { id: 1, name: 'Александр Петров', car: 'Toyota Camry', year: 2020, plate: 'А123БВ777', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.9, trips: 2840, category: 'Эконом', price: 8, features: ['Кондиционер', 'Музыка', 'USB зарядка'], eta: '3 мин', distance: '0.8 км' },
+  { id: 2, name: 'Михаил Иванов', car: 'BMW 3 Series', year: 2021, plate: 'В456ГД777', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.8, trips: 1920, category: 'Комфорт', price: 12, features: ['Кожаные сиденья', 'Wi-Fi', 'Минеральная вода'], eta: '5 мин', distance: '1.2 км' },
+  { id: 3, name: 'Дмитрий Сидоров', car: 'Mercedes E-Class', year: 2022, plate: 'С789ЕЖ777', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 5.0, trips: 1150, category: 'Бизнес', price: 18, features: ['Премиум салон', 'Шампанское', 'Газеты'], eta: '7 мин', distance: '2.1 км' },
+  { id: 4, name: 'Сергей Козлов', car: 'Kia Rio', year: 2019, plate: 'Д012ЗИ777', image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.7, trips: 3560, category: 'Эконом', price: 7, features: ['Кондиционер', 'Радио'], eta: '4 мин', distance: '1.0 км' },
+  { id: 5, name: 'Анатолий Волков', car: 'Hyundai Solaris', year: 2020, plate: 'Е345КЛ777', image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.6, trips: 2180, category: 'Эконом', price: 8, features: ['Кондиционер', 'Bluetooth'], eta: '6 мин', distance: '1.5 км' },
+  { id: 6, name: 'Владимир Новиков', car: 'Audi A6', year: 2021, plate: 'Ж678МН777', image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.9, trips: 980, category: 'Бизнес', price: 20, features: ['Премиум салон', 'Массаж сидений', 'Климат-контроль'], eta: '10 мин', distance: '3.2 км' },
+  { id: 7, name: 'Игорь Смирнов', car: 'Volkswagen Polo', year: 2020, plate: 'З901ОП777', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.5, trips: 2670, category: 'Эконом', price: 8, features: ['Кондиционер', 'USB'], eta: '8 мин', distance: '2.0 км' },
+  { id: 8, name: 'Роман Федоров', car: 'Lexus GS', year: 2022, plate: 'И234РС777', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 5.0, trips: 640, category: 'Премиум', price: 25, features: ['VIP салон', 'Личный водитель', 'Закуски'], eta: '12 мин', distance: '4.0 км' },
+  { id: 9, name: 'Евгений Морозов', car: 'Skoda Rapid', year: 2019, plate: 'К567ТУ777', image: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.4, trips: 4120, category: 'Эконом', price: 7, features: ['Радио', 'Кондиционер'], eta: '5 мин', distance: '1.1 км' },
+  { id: 10, name: 'Павел Орлов', car: 'Nissan Sentra', year: 2020, plate: 'Л890ФХ777', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.6, trips: 1890, category: 'Комфорт', price: 11, features: ['Кожаный салон', 'Музыка', 'Wi-Fi'], eta: '9 мин', distance: '2.8 км' },
+  { id: 11, name: 'Олег Крылов', car: 'Ford Focus', year: 2021, plate: 'М123ЦЧ777', image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.7, trips: 2340, category: 'Комфорт', price: 10, features: ['Подогрев сидений', 'Bluetooth', 'Зарядка'], eta: '7 мин', distance: '1.8 км' },
+  { id: 12, name: 'Виктор Зайцев', car: 'Renault Logan', year: 2019, plate: 'Н456ШЩ777', image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.3, trips: 5670, category: 'Эконом', price: 6, features: ['Кондиционер'], eta: '11 мин', distance: '3.5 км' },
+  { id: 13, name: 'Геннадий Белов', car: 'Mazda 6', year: 2020, plate: 'О789ЪЫ777', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.8, trips: 1560, category: 'Комфорт', price: 13, features: ['Премиум аудио', 'Кожа', 'Климат'], eta: '6 мин', distance: '1.6 км' },
+  { id: 14, name: 'Алексей Тихонов', car: 'Chevrolet Cruze', year: 2021, plate: 'П012ЬЭ777', image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.5, trips: 2890, category: 'Эконом', price: 8, features: ['USB зарядка', 'Кондиционер'], eta: '14 мин', distance: '4.2 км' },
+  { id: 15, name: 'Константин Попов', car: 'Infiniti Q50', year: 2022, plate: 'Р345ЮЯ777', image: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.9, trips: 780, category: 'Премиум', price: 22, features: ['VIP салон', 'Массаж', 'Шампанское'], eta: '15 мин', distance: '5.0 км' },
+  { id: 16, name: 'Станислав Гусев', car: 'Lada Vesta', year: 2020, plate: 'С678АБ777', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.2, trips: 3450, category: 'Эконом', price: 6, features: ['Радио'], eta: '13 мин', distance: '3.8 км' },
+  { id: 17, name: 'Денис Соколов', car: 'Peugeot 408', year: 2021, plate: 'Т901ВГ777', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.6, trips: 1670, category: 'Комфорт', price: 12, features: ['Панорамная крыша', 'Wi-Fi', 'Климат'], eta: '16 мин', distance: '5.5 км' },
+  { id: 18, name: 'Артём Лебедев', car: 'Mitsubishi Lancer', year: 2019, plate: 'У234ДЕ777', image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.4, trips: 2980, category: 'Эконом', price: 7, features: ['Кондиционер', 'Bluetooth'], eta: '18 мин', distance: '6.0 км' },
+  { id: 19, name: 'Валерий Кузнецов', car: 'Jaguar XF', year: 2022, plate: 'Ф567ЖЗ777', image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 5.0, trips: 420, category: 'Люкс', price: 30, features: ['Люкс салон', 'Персональный водитель', 'Встреча с табличкой'], eta: '20 мин', distance: '7.2 км' },
+  { id: 20, name: 'Максим Ефимов', car: 'Honda Civic', year: 2020, plate: 'Х890ИК777', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', rating: 4.7, trips: 2150, category: 'Комфорт', price: 11, features: ['Спортивный салон', 'Подогрев', 'Премиум звук'], eta: '22 мин', distance: '8.0 км' }
+];
+
+const categories = ['Все', 'Эконом', 'Комфорт', 'Бизнес', 'Премиум', 'Люкс'];
+
+const initialTrips: Trip[] = [
+  { id: 1, from: 'Красная площадь', to: 'Домодедово', date: 'Сегодня 14:30', price: 45, status: 'В пути', driver: 'Александр П.', car: 'Toyota Camry' },
+  { id: 2, from: 'Тверская, 15', to: 'Ленинский пр., 99', date: 'Вчера 09:15', price: 18, status: 'Завершена', driver: 'Михаил И.', car: 'BMW 3 Series' },
+];
+
+export default function Taxi({ activeTab }: TaxiProps) {
+  const [selectedDriver, setSelectedDriver] = useState<typeof drivers[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [trips, setTrips] = useState<Trip[]>(initialTrips);
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [favorites, setFavorites] = useState<number[]>([1, 2, 3, 6]);
+  const [currentLocation] = useState('Тверская площадь');
+  const [destination, setDestination] = useState('');
+
+  const openDriverModal = (driver: typeof drivers[0]) => {
+    setSelectedDriver(driver);
+    setIsModalOpen(true);
+  };
+
+  const closeDriverModal = () => {
+    setIsModalOpen(false);
+    setSelectedDriver(null);
+  };
+
+  const toggleFavorite = (driverId: number) => {
+    setFavorites(prev => 
+      prev.includes(driverId) 
+        ? prev.filter(id => id !== driverId)
+        : [...prev, driverId]
+    );
+  };
+
+  const filteredDrivers = selectedCategory === 'Все' 
+    ? drivers 
+    : drivers.filter(driver => driver.category === selectedCategory);
+
+  // Preload first 6 product images for instant visibility
+  useImagePreloader({
+    images: drivers.slice(0, 6).map(item => item.image),
+    priority: true
+  });
+
+
+  const renderHomeTab = () => (
+    <div className="min-h-screen bg-yellow-50 font-montserrat">
+      <div className="max-w-md mx-auto">
+        
+        {/* Modern Taxi Header */}
+        <div className="px-6 pt-20 pb-16 text-center">
+          <div className="w-20 h-20 bg-yellow-500 rounded-xl flex items-center justify-center mx-auto mb-8">
+            <Car className="w-6 h-6 text-yellow-900" />
+          </div>
+          <h1 className="text-2xl font-semibold text-yellow-900 mb-3 tracking-wide">CityRide</h1>
+          <p className="text-yellow-600 text-sm font-medium">Premium Urban Transport</p>
+        </div>
+
+        {/* Hero Taxi Section */}
+        <div className="px-6 pb-20">
+          <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-yellow-100 mb-12 relative">
+            <OptimizedImage 
+              src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=500&fit=crop&crop=center" 
+              alt="Premium City Transportation"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-yellow-900/80 via-yellow-900/40 to-transparent" />
+            <div className="absolute bottom-6 left-6 right-6 text-white">
+              <h2 className="text-xl font-semibold mb-2">Your Ride Awaits</h2>
+              <p className="text-white/80 text-sm mb-4">Professional drivers, premium vehicles</p>
+              <button 
+                className="bg-white text-yellow-900 px-6 py-2 rounded-lg text-sm font-medium hover:bg-yellow-50 transition-colors"
+                onClick={() => openDriverModal(drivers[0])}
+              >
+                Book Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Service Stats */}
+        <div className="px-6 py-20 border-t border-yellow-200">
+          <div className="text-center mb-16">
+            <h3 className="text-lg font-semibold text-yellow-900 mb-4">Why Choose Us</h3>
+            <p className="text-yellow-600 text-sm font-medium leading-relaxed">
+              Fast, reliable, and comfortable rides across the city.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-12 text-center">
+            {[
+              { number: '5 min', label: 'Average Wait' },
+              { number: '4.9★', label: 'Rating' },
+              { number: '50K+', label: 'Rides Daily' },
+              { number: '24/7', label: 'Available' }
+            ].map((stat, index) => (
+              <div key={index}>
+                <div className="text-2xl font-bold text-yellow-600 mb-1">{stat.number}</div>
+                <div className="text-yellow-500 text-xs font-medium">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Featured Drivers */}
+        <div className="px-6 py-20 border-t border-yellow-200">
+          <div className="flex items-center justify-between mb-12">
+            <h3 className="text-lg font-semibold text-yellow-900">Available Drivers</h3>
+            <button 
+              className="text-yellow-500 text-sm font-medium hover:text-yellow-600 transition-colors"
+              onClick={() => setSelectedCategory('Все')}
+            >
+              View all
+            </button>
+          </div>
+          
+          <div className="space-y-12">
+            {drivers.slice(0, 2).map((driver, index) => (
+              <div 
+                key={driver.id} 
+                className="group cursor-pointer"
+                onClick={() => openDriverModal(driver)}
+              >
+                <div className="aspect-[5/3] rounded-xl overflow-hidden bg-yellow-100 mb-6 relative">
+                  <OptimizedImage 
+                    src={index === 0 ? 
+                      "https://images.unsplash.com/photo-1485463611174-f302f6a5c1c9?w=800&h=480&fit=crop&crop=center" : 
+                      "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&h=480&fit=crop&crop=center"
+                    }
+                    alt={driver.car}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute top-3 left-3 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-1 rounded">
+                    {driver.eta}
+                  </div>
+                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-yellow-900 text-xs font-medium px-2 py-1 rounded flex items-center space-x-1">
+                    <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                    <span>{driver.rating}</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="text-yellow-900 font-semibold text-base">{driver.name}</h4>
+                      <p className="text-yellow-500 text-sm font-medium">{driver.car} • {driver.category}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-yellow-900 font-semibold">${driver.price}/km</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+
+  const renderCatalogTab = () => (
+    <div className="bg-white min-h-screen">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <h1 className="ios-title font-bold">Доступные водители</h1>
+      
+      {/* Фильтр по категориям */}
+      <div className="flex space-x-2 overflow-x-auto pb-2">
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-4 py-2 rounded-full whitespace-nowrap ios-footnote font-medium ${
+              selectedCategory === category
+                ? 'bg-system-orange text-white'
+                : 'bg-quaternary-system-fill text-label'
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      {/* Список водителей */}
+      <div className="space-y-3">
+        {filteredDrivers.map((driver) => (
+          <div 
+            key={driver.id} 
+            className="ios-card p-4 cursor-pointer"
+            onClick={() => openDriverModal(driver)}
+          >
+            <div className="flex items-center space-x-3">
+              <OptimizedImage src={driver.image} alt={driver.name} className="w-20 h-20 object-cover rounded-full" />
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="ios-body font-semibold">{driver.name}</h4>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(driver.id);
+                    }}
+                    className="p-1"
+                  >
+                    <Heart 
+                      className={`w-4 h-4 ${
+                        favorites.includes(driver.id) 
+                          ? 'fill-red-500 text-red-500' 
+                          : 'text-secondary-label'
+                      }`} 
+                    />
+                  </button>
+                </div>
+                <p className="ios-footnote text-secondary-label mb-1">{driver.car} ({driver.year}) • {driver.plate}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <span className="ios-caption2 px-2 py-1 bg-quaternary-system-fill rounded">{driver.category}</span>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <span className="ios-caption2">{driver.rating}</span>
+                    </div>
+                    <span className="ios-caption2 text-secondary-label">{driver.trips} поездок</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="ios-body font-bold text-system-orange">от ${driver.price}</p>
+                    <p className="ios-footnote text-system-green">{driver.eta}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCartTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
+      <h1 className="ios-title font-bold">Мои поездки</h1>
+      
+      {trips.length === 0 ? (
+        <div className="text-center py-12">
+          <Car className="w-16 h-16 text-quaternary-label mx-auto mb-4" />
+          <p className="ios-body text-secondary-label">Нет поездок</p>
+          <p className="ios-footnote text-tertiary-label">Закажите первую поездку</p>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3">
+            {trips.map((trip) => (
+              <div key={trip.id} className="ios-card p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <div className="w-2 h-2 bg-system-green rounded-full"></div>
+                      <span className="ios-footnote text-secondary-label">{trip.from}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-system-red rounded-full"></div>
+                      <span className="ios-footnote text-secondary-label">{trip.to}</span>
+                    </div>
+                  </div>
+                  <span className={`px-2 py-1 rounded-full ios-caption2 font-semibold ${
+                    trip.status === 'Завершена' ? 'bg-green-100 text-green-700' :
+                    trip.status === 'В пути' ? 'bg-blue-100 text-blue-700' :
+                    'bg-orange-100 text-orange-700'
+                  }`}>
+                    {trip.status}
+                  </span>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="ios-footnote text-secondary-label">Водитель:</span>
+                    <span className="ios-footnote font-medium">{trip.driver}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="ios-footnote text-secondary-label">Автомобиль:</span>
+                    <span className="ios-footnote font-medium">{trip.car}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="ios-footnote text-secondary-label">Дата:</span>
+                    <span className="ios-footnote font-medium">{trip.date}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="ios-body font-semibold">Стоимость:</span>
+                    <span className="ios-body font-bold text-system-orange">${trip.price}</span>
+                  </div>
+                </div>
+
+                {trip.status === 'В пути' && (
+                  <div className="flex space-x-2 mt-3">
+                    <button className="flex-1 bg-system-orange text-white ios-footnote font-semibold py-2 rounded-lg">
+                      Отследить поездку
+                    </button>
+                    <button className="flex-1 bg-quaternary-system-fill text-label ios-footnote font-medium py-2 rounded-lg">
+                      Связаться с водителем
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="ios-card p-4">
+            <h3 className="ios-headline font-semibold mb-2">Статистика поездок</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <p className="ios-title font-bold text-system-orange">{trips.length}</p>
+                <p className="ios-footnote text-secondary-label">Всего поездок</p>
+              </div>
+              <div className="text-center">
+                <p className="ios-title font-bold text-system-green">
+                  ${trips.reduce((sum, trip) => sum + trip.price, 0)}
+                </p>
+                <p className="ios-footnote text-secondary-label">Общая стоимость</p>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderProfileTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
+      <h1 className="ios-title font-bold">Профиль пассажира</h1>
+      
+      <div className="ios-card p-4">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-16 h-16 bg-system-orange rounded-full flex items-center justify-center">
+            <span className="ios-title font-bold text-white">СТ</span>
+          </div>
+          <div>
+            <h3 className="ios-headline font-semibold">Премиум пассажир</h3>
+            <p className="ios-body text-secondary-label">Постоянный клиент</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <p className="ios-title font-bold text-system-orange">87</p>
+            <p className="ios-footnote text-secondary-label">Поездок</p>
+          </div>
+          <div className="text-center">
+            <p className="ios-title font-bold text-system-yellow">4.9</p>
+            <p className="ios-footnote text-secondary-label">Рейтинг</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h2 className="ios-headline font-semibold">Избранные водители</h2>
+        {drivers.filter(driver => favorites.includes(driver.id)).map((driver) => (
+          <div key={driver.id} className="ios-card p-3 flex items-center space-x-3">
+            <OptimizedImage src={driver.image} alt={driver.name} className="w-20 h-20 object-cover rounded-full" />
+            <div className="flex-1">
+              <h4 className="ios-body font-semibold">{driver.name}</h4>
+              <p className="ios-footnote text-secondary-label">{driver.car} • {driver.rating} ⭐</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-tertiary-label" />
+          </div>
+        ))}
+      </div>
+
+      <div className="ios-card p-4">
+        <h3 className="ios-headline font-semibold mb-3">Способы оплаты</h3>
+        <div className="space-y-2">
+          <div className="flex items-center space-x-3">
+            <CreditCard className="w-5 h-5 text-system-blue" />
+            <div className="flex-1">
+              <p className="ios-body font-medium">•••• 4589</p>
+              <p className="ios-footnote text-secondary-label">Visa</p>
+            </div>
+            <span className="ios-caption2 px-2 py-1 bg-system-blue/10 text-system-blue rounded">Основная</span>
+          </div>
+          <div className="flex items-center space-x-3">
+            <CreditCard className="w-5 h-5 text-system-purple" />
+            <div className="flex-1">
+              <p className="ios-body font-medium">•••• 7821</p>
+              <p className="ios-footnote text-secondary-label">MasterCard</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="ios-card p-4">
+        <h3 className="ios-headline font-semibold mb-3">Статистика</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="ios-body">Любимый тариф:</span>
+            <span className="ios-body font-medium">Комфорт</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Средняя поездка:</span>
+            <span className="ios-body font-medium">$15</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="ios-body">Потрачено всего:</span>
+            <span className="ios-body font-medium text-system-orange">$1,290</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="h-full flex flex-col bg-system-background">
+      <div className="flex-1 overflow-y-auto p-4">
+        {activeTab === 'home' && renderHomeTab()}
+        {activeTab === 'catalog' && renderCatalogTab()}
+        {activeTab === 'cart' && renderCartTab()}
+        {activeTab === 'profile' && renderProfileTab()}
+      </div>
+
+      {/* Модальное окно */}
+      {isModalOpen && selectedDriver && (
+        <div className="fixed inset-0 bg-black/50 flex items-end z-50">
+          <div className="bg-system-background max-w-md mx-auto w-full rounded-t-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start">
+              <h3 className="ios-title font-bold">{selectedDriver.name}</h3>
+              <button onClick={closeDriverModal}>
+                <X className="w-6 h-6 text-secondary-label" />
+              </button>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <OptimizedImage src={selectedDriver.image} alt={selectedDriver.name} className="w-20 h-20 object-cover rounded-full" />
+              <div className="flex-1">
+                <h4 className="ios-headline font-semibold">{selectedDriver.car}</h4>
+                <p className="ios-body text-secondary-label">{selectedDriver.year} • {selectedDriver.plate}</p>
+                <div className="flex items-center space-x-1 mt-1">
+                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  <span className="ios-body font-medium">{selectedDriver.rating}</span>
+                  <span className="ios-footnote text-secondary-label">({selectedDriver.trips} поездок)</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="ios-card p-3 text-center">
+                <Clock className="w-5 h-5 text-secondary-label mx-auto mb-1" />
+                <p className="ios-caption2 text-secondary-label">Время прибытия</p>
+                <p className="ios-body font-semibold text-system-green">{selectedDriver.eta}</p>
+              </div>
+              <div className="ios-card p-3 text-center">
+                <MapPin className="w-5 h-5 text-secondary-label mx-auto mb-1" />
+                <p className="ios-caption2 text-secondary-label">Расстояние</p>
+                <p className="ios-body font-semibold">{selectedDriver.distance}</p>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="ios-body font-semibold">Удобства:</h4>
+              <div className="flex flex-wrap gap-2">
+                {selectedDriver.features.map((feature, index) => (
+                  <span key={index} className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-quaternary-system-fill text-label">
+                    {feature}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="ios-footnote text-secondary-label">Стоимость поездки</p>
+                <p className="ios-title font-bold text-system-orange">от ${selectedDriver.price}</p>
+              </div>
+              <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-system-orange/10 text-system-orange">
+                {selectedDriver.category}
+              </span>
+            </div>
+            
+            <div className="flex space-x-2">
+              <button className="flex-1 bg-system-orange text-white ios-body font-semibold py-3 rounded-xl">
+                Заказать поездку
+              </button>
+              <button className="flex-1 bg-quaternary-system-fill text-label ios-body font-medium py-3 rounded-xl">
+                Позвонить водителю
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}```
+
+### demos/TeaHouse.tsx
+```tsx
+import { useState } from "react";
+import { 
+  Star, 
+  Heart, 
+  Filter, 
+  Search, 
+  ShoppingBag, 
+  Plus, 
+  Minus, 
+  ChevronRight, 
+  Leaf,
+  Award,
+  Gift,
+  Clock,
+  Thermometer
+} from "lucide-react";
+import { OptimizedImage } from "../OptimizedImage";
+import { useImagePreloader } from "../../hooks/useImagePreloader";
+
+interface TeaHouseProps {
+  activeTab?: string;
+  onNavigate?: (tab: string) => void;
+}
+
+export default function TeaHouse({ activeTab = 'home', onNavigate }: TeaHouseProps) {
+  const [selectedCategory, setSelectedCategory] = useState('Все сорта');
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  
+  // 20 premium teas
+  const teas = [
+    {
+      id: '1',
+      name: 'Да Хун Пао',
+      origin: 'Китай, Фуцзянь',
+      price: 185,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Улун',
+      description: 'Легендарный улун с утесов Уи Шань',
+      rating: 4.95,
+      caffeine: 'Средний',
+      brewTime: '3-5 минут',
+      temperature: '95°C',
+      weight: '50г',
+      year: 2024,
+      premium: true
+    },
+    {
+      id: '2',
+      name: 'Лун Цзин',
+      origin: 'Китай, Чжэцзян',
+      price: 120,
+      image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400',
+      category: 'Зелёный',
+      description: 'Знаменитый зелёный чай из Ханчжоу',
+      rating: 4.8,
+      caffeine: 'Высокий',
+      brewTime: '2-3 минуты',
+      temperature: '80°C',
+      weight: '50г',
+      year: 2024,
+      premium: false
+    },
+    {
+      id: '3',
+      name: 'Пу-эр Шэн',
+      origin: 'Китай, Юньнань',
+      price: 95,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Пу-эр',
+      description: 'Выдержанный сырой пу-эр 15 лет',
+      rating: 4.7,
+      caffeine: 'Средний',
+      brewTime: '30 секунд',
+      temperature: '100°C',
+      weight: '357г (блин)',
+      year: 2009,
+      premium: true
+    },
+    {
+      id: '4',
+      name: 'Эрл Грей Супериор',
+      origin: 'Англия',
+      price: 65,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Чёрный',
+      description: 'Классический английский чай с бергамотом',
+      rating: 4.5,
+      caffeine: 'Высокий',
+      brewTime: '3-5 минут',
+      temperature: '100°C',
+      weight: '100г',
+      year: 2024,
+      premium: false
+    },
+    {
+      id: '5',
+      name: 'Гёкуро',
+      origin: 'Япония',
+      price: 240,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Зелёный',
+      description: 'Элитный японский теневой чай',
+      rating: 4.9,
+      caffeine: 'Высокий',
+      brewTime: '1-2 минуты',
+      temperature: '60°C',
+      weight: '30г',
+      year: 2024,
+      premium: true
+    },
+    {
+      id: '6',
+      name: 'Железная Богиня Гуаньинь',
+      origin: 'Китай, Фуцзянь',
+      price: 155,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Улун',
+      description: 'Классический Тигуаньинь высшего сорта',
+      rating: 4.8,
+      caffeine: 'Средний',
+      brewTime: '3-5 минут',
+      temperature: '95°C',
+      weight: '50г',
+      year: 2024,
+      premium: true
+    },
+    {
+      id: '7',
+      name: 'Дарджилинг FTGFOP',
+      origin: 'Индия',
+      price: 85,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Чёрный',
+      description: 'Мускатный аромат с гималайских склонов',
+      rating: 4.6,
+      caffeine: 'Высокий',
+      brewTime: '3-4 минуты',
+      temperature: '100°C',
+      weight: '100г',
+      year: 2024,
+      premium: false
+    },
+    {
+      id: '8',
+      name: 'Белый Пион',
+      origin: 'Китай, Фуцзянь',
+      price: 135,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Белый',
+      description: 'Деликатный белый чай с нежным вкусом',
+      rating: 4.7,
+      caffeine: 'Низкий',
+      brewTime: '5-7 минут',
+      temperature: '85°C',
+      weight: '50г',
+      year: 2024,
+      premium: false
+    },
+    {
+      id: '9',
+      name: 'Маття церемониальная',
+      origin: 'Япония',
+      price: 320,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Маття',
+      description: 'Церемониальная маття высшего сорта',
+      rating: 4.95,
+      caffeine: 'Очень высокий',
+      brewTime: 'Взбивание',
+      temperature: '70°C',
+      weight: '30г',
+      year: 2024,
+      premium: true
+    },
+    {
+      id: '10',
+      name: 'Лапсанг Сушонг',
+      origin: 'Китай, Фуцзянь',
+      price: 75,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Чёрный',
+      description: 'Копчёный чай с сосновым ароматом',
+      rating: 4.4,
+      caffeine: 'Высокий',
+      brewTime: '3-5 минут',
+      temperature: '100°C',
+      weight: '100г',
+      year: 2024,
+      premium: false
+    },
+    {
+      id: '11',
+      name: 'Жасминовые Жемчужины',
+      origin: 'Китай, Фуцзянь',
+      price: 105,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Ароматизированный',
+      description: 'Зелёный чай с цветами жасмина',
+      rating: 4.6,
+      caffeine: 'Средний',
+      brewTime: '2-3 минуты',
+      temperature: '85°C',
+      weight: '50г',
+      year: 2024,
+      premium: false
+    },
+    {
+      id: '12',
+      name: 'Ройбуш ванильный',
+      origin: 'ЮАР',
+      price: 45,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Травяной',
+      description: 'Африканский красный куст с ванилью',
+      rating: 4.3,
+      caffeine: 'Без кофеина',
+      brewTime: '5-7 минут',
+      temperature: '100°C',
+      weight: '100г',
+      year: 2024,
+      premium: false
+    },
+    {
+      id: '13',
+      name: 'Формоза Улун',
+      origin: 'Тайвань',
+      price: 195,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Улун',
+      description: 'Высокогорный тайваньский улун',
+      rating: 4.85,
+      caffeine: 'Средний',
+      brewTime: '3-5 минут',
+      temperature: '95°C',
+      weight: '50г',
+      year: 2024,
+      premium: true
+    },
+    {
+      id: '14',
+      name: 'Ассам TGFOP',
+      origin: 'Индия',
+      price: 70,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Чёрный',
+      description: 'Крепкий утренний чай из Ассама',
+      rating: 4.5,
+      caffeine: 'Очень высокий',
+      brewTime: '3-5 минут',
+      temperature: '100°C',
+      weight: '100г',
+      year: 2024,
+      premium: false
+    },
+    {
+      id: '15',
+      name: 'Кимун Конгоу',
+      origin: 'Китай, Аньхой',
+      price: 90,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Чёрный',
+      description: 'Китайский чёрный чай с винным букетом',
+      rating: 4.6,
+      caffeine: 'Высокий',
+      brewTime: '3-4 минуты',
+      temperature: '95°C',
+      weight: '100г',
+      year: 2024,
+      premium: false
+    },
+    {
+      id: '16',
+      name: 'Шен Пу-эр 2015',
+      origin: 'Китай, Юньнань',
+      price: 145,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Пу-эр',
+      description: 'Выдержанный сырой пу-эр из старых деревьев',
+      rating: 4.8,
+      caffeine: 'Средний',
+      brewTime: '20-30 секунд',
+      temperature: '100°C',
+      weight: '357г (блин)',
+      year: 2015,
+      premium: true
+    },
+    {
+      id: '17',
+      name: 'Чай Масала',
+      origin: 'Индия',
+      price: 55,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Пряный',
+      description: 'Традиционная индийская смесь со специями',
+      rating: 4.4,
+      caffeine: 'Высокий',
+      brewTime: '5-7 минут',
+      temperature: '100°C',
+      weight: '100г',
+      year: 2024,
+      premium: false
+    },
+    {
+      id: '18',
+      name: 'Серебряные Иглы',
+      origin: 'Китай, Фуцзянь',
+      price: 280,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Белый',
+      description: 'Элитный белый чай из почек',
+      rating: 4.9,
+      caffeine: 'Низкий',
+      brewTime: '5-10 минут',
+      temperature: '85°C',
+      weight: '30г',
+      year: 2024,
+      premium: true
+    },
+    {
+      id: '19',
+      name: 'Сенча Гёкуро стиль',
+      origin: 'Япония',
+      price: 125,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Зелёный',
+      description: 'Премиальная сенча теневой сушки',
+      rating: 4.7,
+      caffeine: 'Высокий',
+      brewTime: '1-2 минуты',
+      temperature: '70°C',
+      weight: '50г',
+      year: 2024,
+      premium: true
+    },
+    {
+      id: '20',
+      name: 'Тикуаньинь Ван',
+      origin: 'Китай, Фуцзянь',
+      price: 220,
+      image: 'https://images.unsplash.com/photo-1597318343706-0a1bb9cbae84?w=400',
+      category: 'Улун',
+      description: 'Король Железной Богини Милосердия',
+      rating: 4.95,
+      caffeine: 'Средний',
+      brewTime: '30 секунд',
+      temperature: '100°C',
+      weight: '50г',
+      year: 2024,
+      premium: true
+    }
+  ];
+
+  const categories = ['Все сорта', 'Зелёный', 'Чёрный', 'Улун', 'Пу-эр', 'Белый', 'Травяной', 'Ароматизированный', 'Маття', 'Пряный'];
+  
+  const filteredTeas = selectedCategory === 'Все сорта' 
+    ? teas 
+    : teas.filter(tea => tea.category === selectedCategory);
+
+  const toggleFavorite = (teaId: string) => {
+    setFavorites(prev => 
+      prev.includes(teaId) 
+        ? prev.filter(id => id !== teaId)
+        : [...prev, teaId]
+    );
+  };
+
+  const addToCart = (tea: any) => {
+    setCartItems(prev => {
+      const existing = prev.find(item => item.id === tea.id);
+      if (existing) {
+        return prev.map(item => 
+          item.id === tea.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prev, { ...tea, quantity: 1 }];
+    });
+  };
+
+  const updateQuantity = (teaId: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      setCartItems(prev => prev.filter(item => item.id !== teaId));
+      return;
+    }
+    setCartItems(prev => 
+      prev.map(item => 
+        item.id === teaId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  // Preload first 6 product images for instant visibility
+  useImagePreloader({
+    images: teas.slice(0, 6).map(item => item.image),
+    priority: true
+  });
+
+
+  const renderHomeTab = () => (
+    <div className="min-h-screen bg-gray-50 font-montserrat">
+      <div className="max-w-md mx-auto">
+        
+        {/* Zen Header */}
+        <div className="px-6 pt-20 pb-20 text-center">
+          <div className="w-1 h-20 bg-green-700 mx-auto mb-12"></div>
+          <h1 className="text-2xl font-normal text-gray-900 mb-4 tracking-[0.2em]">TeaHouse</h1>
+          <p className="text-gray-500 text-sm font-normal">Mindful Tea Ceremony</p>
+        </div>
+
+        {/* Zen Garden */}
+        <div className="px-6 pb-24">
+          <div className="aspect-[3/2] rounded-none overflow-hidden bg-gray-100 mb-16">
+            <OptimizedImage 
+              src="https://images.unsplash.com/photo-1564890269302-d38e2dc4cd19?w=800&h=533&fit=crop&crop=center" 
+              alt="Tea Ceremony"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          
+          <div className="text-center space-y-8">
+            <div className="space-y-6">
+              <h2 className="text-lg font-normal text-gray-900">Daily Ritual</h2>
+              <p className="text-gray-600 text-sm font-normal leading-relaxed max-w-xs mx-auto">
+                Experience the ancient art of tea through carefully selected leaves and mindful preparation.
+              </p>
+            </div>
+            <button 
+              className="border border-gray-300 text-gray-900 px-12 py-3 text-sm font-normal hover:bg-gray-100 transition-colors"
+              onClick={() => onNavigate?.('catalog')}
+            >
+              Browse Tea
+            </button>
+          </div>
+        </div>
+
+        {/* Philosophy */}
+        <div className="px-6 py-24 border-t border-gray-200">
+          <div className="text-center space-y-12">
+            <h3 className="text-base font-normal text-gray-900">The Way of Tea</h3>
+            <div className="grid grid-cols-1 gap-12 max-w-xs mx-auto">
+              {[
+                { word: '静', meaning: 'Stillness', desc: 'Find peace in the moment' },
+                { word: '和', meaning: 'Harmony', desc: 'Balance in every sip' },
+                { word: '清', meaning: 'Purity', desc: 'Clear mind and spirit' }
+              ].map((principle, index) => (
+                <div key={index} className="text-center space-y-3">
+                  <div className="text-3xl font-normal text-green-700">{principle.word}</div>
+                  <div className="text-gray-900 text-sm font-medium">{principle.meaning}</div>
+                  <div className="text-gray-500 text-xs font-normal">{principle.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Featured Selection */}
+        <div className="px-6 py-24 border-t border-gray-200">
+          <div className="space-y-16">
+            <div className="text-center">
+              <h3 className="text-base font-normal text-gray-900 mb-4">Curated Selection</h3>
+              <div className="w-12 h-px bg-gray-300 mx-auto"></div>
+            </div>
+            
+            <div className="space-y-20">
+              {teas.filter(tea => tea.premium).slice(0, 2).map((tea, index) => (
+                <div 
+                  key={tea.id} 
+                  className="group cursor-pointer text-center"
+                  onClick={() => onNavigate?.('catalog')}
+                >
+                  <div className="aspect-square rounded-none overflow-hidden bg-gray-100 mb-8 max-w-xs mx-auto">
+                    <OptimizedImage 
+                      src={tea.image} 
+                      alt={tea.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-gray-900 font-normal text-base">{tea.name}</h4>
+                    <p className="text-gray-500 text-sm font-normal">{tea.origin}</p>
+                    <div className="pt-2">
+                      <div className="w-6 h-px bg-gray-300 mx-auto mb-2"></div>
+                      <p className="text-gray-900 font-normal">${tea.price}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+
+  const renderCatalogTab = () => (
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 font-montserrat">
+      <div className="max-w-md mx-auto px-6 py-8 space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-3">
+          <h1 className="text-2xl font-montserrat font-bold text-gray-900">Каталог чая</h1>
+          <p className="text-gray-600 font-montserrat">Найдите свой идеальный вкус</p>
+        </div>
+
+        {/* Search */}
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/30 shadow-lg">
+          <div className="flex items-center space-x-3">
+            <div className="flex-1 flex items-center space-x-3 bg-gray-50 rounded-2xl px-4 py-3">
+              <Search className="w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Поиск чая..."
+                className="flex-1 bg-transparent border-none outline-none font-montserrat text-gray-900 placeholder-gray-400"
+              />
+            </div>
+            <button className="w-20 h-20 bg-gradient-to-r from-teal-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Filter className="w-5 h-5 text-white" />
+            </button>
+          </div>
+        </div>
+
+        {/* Categories */}
+        <div className="overflow-x-auto">
+          <div className="flex space-x-2 min-w-max">
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={`px-4 py-2 rounded-xl font-montserrat font-medium whitespace-nowrap transition-all ${
+                  selectedCategory === category 
+                    ? 'bg-gradient-to-r from-teal-500 to-green-600 text-white shadow-lg' 
+                    : 'bg-white/80 text-gray-700 border border-gray-200 hover:bg-white'
+                }`}
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Teas Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          {filteredTeas.map((tea) => (
+            <div key={tea.id} className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/30 shadow-lg hover:shadow-xl transition-all">
+              <div className="relative mb-3">
+                <OptimizedImage src={tea.image} alt={tea.name} className="w-full h-32 object-cover rounded-xl" />
+                <div className="absolute top-2 left-2 flex space-x-1">
+                  {tea.premium && (
+                    <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">PREMIUM</span>
+                  )}
+                </div>
+                <button
+                  onClick={() => toggleFavorite(tea.id)}
+                  className="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-md"
+                >
+                  <Heart className={`w-4 h-4 ${favorites.includes(tea.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
+                </button>
+              </div>
+              
+              <h3 className="text-gray-900 font-montserrat font-semibold text-sm mb-1 line-clamp-1">{tea.name}</h3>
+              <p className="text-teal-600 text-xs font-montserrat mb-1">{tea.origin}</p>
+              <p className="text-gray-500 text-xs font-montserrat mb-2">{tea.weight} • {tea.temperature}</p>
+              
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-1">
+                  <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                  <span className="text-gray-600 text-xs">{tea.rating}</span>
+                </div>
+                <span className="text-teal-600 font-bold text-sm">${tea.price}</span>
+              </div>
+              
+              <button
+                onClick={() => addToCart(tea)}
+                className="w-full bg-gradient-to-r from-teal-500 to-green-600 text-white font-montserrat font-semibold py-2 rounded-xl hover:shadow-lg transition-all"
+              >
+                В корзину
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCartTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4 bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 min-h-screen">
+      <h1 className="text-2xl font-montserrat font-bold text-gray-900">Корзина</h1>
+      
+      {cartItems.length === 0 ? (
+        <div className="text-center py-12">
+          <ShoppingBag className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600 font-montserrat">Корзина пуста</p>
+          <p className="text-gray-400 text-sm font-montserrat">Добавьте чай из каталога</p>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3">
+            {cartItems.map((item) => (
+              <div key={item.id} className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/30 shadow-lg">
+                <div className="flex items-center space-x-3">
+                  <OptimizedImage src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-xl" />
+                  <div className="flex-1">
+                    <h4 className="text-gray-900 font-montserrat font-semibold">{item.name}</h4>
+                    <p className="text-teal-600 text-sm font-montserrat">{item.origin}</p>
+                    <p className="text-gray-600 text-sm">{item.weight} • ${item.price}</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"
+                    >
+                      <Minus className="w-4 h-4 text-gray-600" />
+                    </button>
+                    <span className="text-gray-900 font-montserrat font-semibold w-8 text-center">{item.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/30 shadow-lg space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-700 font-montserrat">Подытог:</span>
+              <span className="text-gray-900 font-montserrat font-semibold">${cartTotal}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-700 font-montserrat">Доставка:</span>
+              <span className="text-gray-900 font-montserrat font-semibold">$10</span>
+            </div>
+            <hr className="border-gray-200" />
+            <div className="flex justify-between items-center">
+              <span className="text-xl font-montserrat font-bold text-gray-900">Итого:</span>
+              <span className="text-xl font-montserrat font-bold text-teal-600">${cartTotal + 10}</span>
+            </div>
+            
+            <button className="w-full bg-gradient-to-r from-teal-500 to-green-600 text-white font-montserrat font-semibold py-3 rounded-xl hover:shadow-xl transition-all">
+              Оформить заказ
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderProfileTab = () => (
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4 bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 min-h-screen">
+      <h1 className="text-2xl font-montserrat font-bold text-gray-900">Профиль</h1>
+      
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white/30 shadow-lg">
+        <div className="flex items-center space-x-4 mb-4">
+          <div className="w-16 h-16 bg-gradient-to-r from-teal-500 to-green-600 rounded-full flex items-center justify-center">
+            <span className="text-xl font-montserrat font-bold text-white">ЧД</span>
+          </div>
+          <div>
+            <h3 className="text-xl font-montserrat font-semibold text-gray-900">Tea Master</h3>
+            <p className="text-teal-600 font-montserrat">Ценитель чайного искусства</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <p className="text-2xl font-montserrat font-bold text-teal-600">89</p>
+            <p className="text-gray-600 text-sm font-montserrat">Сортов попробовано</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-montserrat font-bold text-green-600">$2.1K</p>
+            <p className="text-gray-600 text-sm font-montserrat">Потрачено</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h2 className="text-xl font-montserrat font-semibold text-gray-900">Избранные сорта</h2>
+        {teas.filter(tea => favorites.includes(tea.id)).map((tea) => (
+          <div key={tea.id} className="bg-white/80 backdrop-blur-xl rounded-2xl p-3 border border-white/30 shadow-lg flex items-center space-x-3">
+            <OptimizedImage src={tea.image} alt={tea.name} className="w-20 h-20 object-cover rounded-lg" />
+            <div className="flex-1">
+              <h4 className="text-gray-900 font-montserrat font-semibold">{tea.name}</h4>
+              <p className="text-teal-600 text-sm font-montserrat">{tea.origin} • ${tea.price}</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          </div>
+        ))}
+        {favorites.length === 0 && (
+          <p className="text-gray-500 text-center py-4 font-montserrat">Нет избранных сортов</p>
+        )}
+      </div>
+    </div>
+  );
+
+  switch (activeTab) {
+    case 'catalog':
+      return renderCatalogTab();
+    case 'cart':
+      return renderCartTab();
+    case 'profile':
+      return renderProfileTab();
+    default:
+      return renderHomeTab();
+  }
+}```
+
+### demos/TimeElite_PREMIUM.tsx
+```tsx
+import { useState } from "react";
+import { Heart, Star, X, Sparkles, Crown, Award } from "lucide-react";
+import { OptimizedImage } from "../OptimizedImage";
+import { useImagePreloader } from "../../hooks/useImagePreloader";
+
+interface TimeEliteProps {
+  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+}
+
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+}
+
+const products = [
+  { id: 1, name: 'Rolex Submariner', price: 12500, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format,compress&fm=webp&q=75&w=800', description: 'Легендарные швейцарские часы для дайвинга с автоматическим механизмом', brand: 'Rolex', category: 'Дайверские', movement: 'Automatic', waterResist: '300m', material: 'Нержавеющая сталь 904L', diameter: '41mm', inStock: 3, rating: 5.0 },
+  { id: 2, name: 'Omega Speedmaster', price: 8900, image: 'https://images.unsplash.com/photo-1434056886845-dac89ffe9b56?auto=format,compress&fm=webp&q=75&w=800', description: 'Легендарные лунные часы NASA с хронографом', brand: 'Omega', category: 'Хронографы', movement: 'Manual', waterResist: '50m', material: 'Нержавеющая сталь', diameter: '42mm', inStock: 5, rating: 4.9 },
+  { id: 3, name: 'Patek Philippe Nautilus', price: 45000, image: 'https://images.unsplash.com/photo-1587836374062-d60746f9f518?auto=format,compress&fm=webp&q=75&w=800', description: 'Эксклюзивные спортивно-элегантные часы из коллекции Nautilus', brand: 'Patek Philippe', category: 'Классические', movement: 'Automatic', waterResist: '120m', material: 'Платина', diameter: '40mm', inStock: 1, rating: 5.0 },
+  { id: 4, name: 'Audemars Piguet Royal Oak', price: 38000, image: 'https://images.unsplash.com/photo-1611078031785-f8ab1d3ed0dc?auto=format,compress&fm=webp&q=75&w=800', description: 'Икон��ческие часы с восьмиугольным безелем', brand: 'Audemars Piguet', category: 'Классические', movement: 'Automatic', waterResist: '50m', material: 'Розовое золото', diameter: '41mm', inStock: 2, rating: 5.0 },
+  { id: 5, name: 'Cartier Santos', price: 7200, image: 'https://images.unsplash.com/photo-1622434641406-a158123450f9?auto=format,compress&fm=webp&q=75&w=800', description: 'Элегантные часы с квадратным корпусом и римскими цифрами', brand: 'Cartier', category: 'Классические', movement: 'Automatic', waterResist: '100m', material: 'Сталь и золото', diameter: '39mm', inStock: 4, rating: 4.8 },
+  { id: 6, name: 'TAG Heuer Carrera', price: 5500, image: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format,compress&fm=webp&q=75&w=800', description: 'Спортивный хронограф вдохновленный автогонками', brand: 'TAG Heuer', category: 'Хронографы', movement: 'Automatic', waterResist: '100m', material: 'Нержавеющая сталь', diameter: '43mm', inStock: 6, rating: 4.7 },
+];
+
+const categories = ['Все', 'Rolex', 'Omega', 'Patek Philippe', 'Cartier', 'Audemars Piguet'];
+
+export default function TimeElite({ activeTab }: TimeEliteProps) {
+  const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [favorites, setFavorites] = useState<number[]>([1, 3]);
+
+  useImagePreloader({
+    images: products.slice(0, 6).map(p => p.image),
+    priority: true
+  });
+
+  const openProductModal = (product: typeof products[0]) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const closeProductModal = () => {
+    setIsModalOpen(false);
+    setTimeout(() => setSelectedProduct(null), 300);
+  };
+
+  const addToCart = () => {
+    if (!selectedProduct) return;
+    const newItem: CartItem = {
+      id: selectedProduct.id,
+      name: selectedProduct.name,
+      price: selectedProduct.price,
+      quantity: 1,
+      image: selectedProduct.image
+    };
+    setCartItems(prev => [...prev, newItem]);
+    closeProductModal();
+  };
+
+  const toggleFavorite = (productId: number) => {
+    setFavorites(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  const filteredProducts = selectedCategory === 'Все' 
+    ? products 
+    : products.filter(p => p.brand === selectedCategory);
+
+  // PREMIUM HOME PAGE
+  const renderHomeTab = () => (
+    <div className="min-h-screen bg-black font-montserrat pb-24 overflow-hidden">
+      {/* Premium Gradient Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-amber-900/20 via-black to-yellow-900/20 pointer-events-none"></div>
+      
+      <div className="relative max-w-md mx-auto">
+        {/* Luxury Header */}
+        <div className="text-center px-6 pt-12 pb-8">
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 rounded-full mb-6 shadow-2xl shadow-yellow-500/50">
+            <Crown className="w-12 h-12 text-black" strokeWidth={2.5} />
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-yellow-200 via-amber-100 to-yellow-200 bg-clip-text text-transparent mb-3 tracking-tight">
+            TimeElite
+          </h1>
+          <p className="text-amber-200/80 text-sm font-semibold">Luxury Swiss Timepieces</p>
+        </div>
+
+        {/* Hero Section - Large Image */}
+        <div className="px-6 mb-12">
+          <div className="relative rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openProductModal(products[0])}>
+            <div className="aspect-[4/5] bg-gradient-to-br from-gray-900 to-black">
+              <OptimizedImage 
+                src={products[0].image}
+                alt={products[0].name}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                priority
+              />
+            </div>
+            {/* Glass Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent">
+              <div className="absolute bottom-0 left-0 right-0 p-8">
+                <div className="flex items-center gap-2 mb-3">
+                  <Award className="w-5 h-5 text-yellow-400" />
+                  <span className="text-yellow-400 text-xs font-bold">Featured Collection</span>
+                </div>
+                <h2 className="text-3xl font-bold text-white mb-2">{products[0].name}</h2>
+                <p className="text-amber-100/80 mb-4">{products[0].description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold text-yellow-400">${products[0].price.toLocaleString()}</span>
+                  <button className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-black rounded-full font-bold hover:shadow-2xl hover:shadow-yellow-500/50 transition-all duration-300">
+                    Explore
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Premium Brands */}
+        <div className="px-6 mb-12">
+          <h2 className="text-2xl font-bold text-white mb-6">Exclusive Brands</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {['Rolex', 'Patek Philippe', 'Omega', 'Cartier'].map((brand) => (
+              <button
+                key={brand}
+                onClick={() => setSelectedCategory(brand)}
+                className="group relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 hover:bg-white/10 hover:border-yellow-500/50 transition-all duration-300"
+                data-testid={`brand-${brand.toLowerCase().replace(' ', '-')}`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative">
+                  <Sparkles className="w-8 h-8 text-yellow-400 mb-3 group-hover:scale-110 transition-transform" />
+                  <h3 className="text-white font-bold mb-1">{brand}</h3>
+                  <p className="text-amber-200/60 text-xs">Swiss Excellence</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Luxury Collection */}
+        <div className="px-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white">Luxury Collection</h2>
+            <Crown className="w-6 h-6 text-yellow-400" />
+          </div>
+          <div className="space-y-6">
+            {products.slice(0, 3).map(product => (
+              <div 
+                key={product.id}
+                onClick={() => openProductModal(product)}
+                className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 hover:border-yellow-500/50 transition-all duration-300 cursor-pointer"
+                data-testid={`product-card-${product.id}`}
+              >
+                <div className="flex gap-6 p-6">
+                  <div className="w-32 h-32 rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 to-black flex-shrink-0">
+                    <OptimizedImage 
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      priority={product.id <= 3}
+                    />
+                  </div>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full">{product.brand}</span>
+                        {product.inStock <= 3 && (
+                          <span className="px-3 py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded-full">Limited</span>
+                        )}
+                      </div>
+                      <h3 className="text-white font-bold text-lg mb-2">{product.name}</h3>
+                      <div className="flex items-center gap-1 mb-3">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-yellow-400">${product.price.toLocaleString()}</span>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(product.id);
+                        }}
+                        className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                      >
+                        <Heart className={`w-5 h-5 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // PREMIUM CATALOG
+  const renderCatalogTab = () => (
+    <div className="min-h-screen bg-black font-montserrat pb-24">
+      <div className="fixed inset-0 bg-gradient-to-br from-amber-900/20 via-black to-yellow-900/20 pointer-events-none"></div>
+      
+      {/* Sticky Pills */}
+      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-2xl border-b border-white/10 py-5 px-4">
+        <div className="max-w-md mx-auto">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-5 py-2 rounded-full whitespace-nowrap transition-all duration-300 font-semibold text-sm ${
+                  selectedCategory === cat 
+                    ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-black shadow-lg shadow-yellow-500/50' 
+                    : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                }`}
+                data-testid={`filter-${cat.toLowerCase()}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Products Grid */}
+      <div className="relative max-w-md mx-auto px-4 py-6">
+        <div className="mb-4">
+          <p className="text-amber-200/60 text-sm">{filteredProducts.length} Timepieces Available</p>
+        </div>
+        <div className="grid grid-cols-1 gap-6">
+          {filteredProducts.map(product => (
+            <div 
+              key={product.id}
+              onClick={() => openProductModal(product)}
+              className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 hover:border-yellow-500/50 transition-all duration-300 cursor-pointer"
+              data-testid={`product-${product.id}`}
+            >
+              <div className="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-gray-900 to-black">
+                <OptimizedImage 
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  priority={product.id <= 4}
+                />
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(product.id);
+                  }}
+                  className="absolute top-4 right-4 w-12 h-12 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center hover:bg-black/80 transition-all"
+                >
+                  <Heart className={`w-6 h-6 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                </button>
+              </div>
+              <div className="p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full">{product.brand}</span>
+                  {product.inStock <= 3 && (
+                    <span className="px-3 py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded-full">Only {product.inStock} left</span>
+                  )}
+                </div>
+                <h3 className="text-white font-bold text-xl mb-2">{product.name}</h3>
+                <p className="text-amber-200/60 text-sm mb-4 line-clamp-2">{product.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold text-yellow-400">${product.price.toLocaleString()}</span>
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // PREMIUM MODAL
+  const renderProductModal = () => {
+    if (!selectedProduct || !isModalOpen) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 bg-black overflow-y-auto font-montserrat">
+        <div className="fixed inset-0 bg-gradient-to-br from-amber-900/20 via-black to-yellow-900/20"></div>
+        
+        <div className="relative max-w-md mx-auto">
+          <button 
+            onClick={closeProductModal}
+            className="fixed top-6 right-6 z-10 w-14 h-14 bg-white/10 backdrop-blur-2xl rounded-full flex items-center justify-center hover:bg-white/20 transition-all border border-white/20"
+            data-testid="button-close-modal"
+          >
+            <X className="w-7 h-7 text-white" strokeWidth={2} />
+          </button>
+
+          {/* Large Product Image */}
+          <div className="relative aspect-square bg-gradient-to-br from-gray-900 to-black">
+            <OptimizedImage 
+              src={selectedProduct.image}
+              alt={selectedProduct.name}
+              className="w-full h-full object-cover"
+              priority
+            />
+            <button 
+              onClick={() => toggleFavorite(selectedProduct.id)}
+              className="absolute top-6 left-6 w-14 h-14 bg-black/60 backdrop-blur-2xl rounded-full flex items-center justify-center hover:bg-black/80 transition-all border border-white/20"
+            >
+              <Heart className={`w-7 h-7 ${favorites.includes(selectedProduct.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+            </button>
+          </div>
+
+          {/* Product Info */}
+          <div className="p-8 space-y-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="px-4 py-2 bg-yellow-500/20 text-yellow-400 text-sm font-bold rounded-full">{selectedProduct.brand}</span>
+                {selectedProduct.inStock <= 3 && (
+                  <span className="px-4 py-2 bg-red-500/20 text-red-400 text-sm font-bold rounded-full">Only {selectedProduct.inStock} Available</span>
+                )}
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-4 leading-tight">{selectedProduct.name}</h1>
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-4xl font-bold text-yellow-400">${selectedProduct.price.toLocaleString()}</span>
+                <div className="flex items-center gap-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                  ))}
+                  <span className="text-amber-200 ml-2">({selectedProduct.rating})</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+            <div>
+              <h3 className="text-white font-bold text-lg mb-3">Description</h3>
+              <p className="text-amber-200/80 leading-relaxed">{selectedProduct.description}</p>
+            </div>
+
+            <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+            <div>
+              <h3 className="text-white font-bold text-lg mb-4">Specifications</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <p className="text-amber-200/60 text-xs mb-1">Movement</p>
+                  <p className="text-white font-semibold">{selectedProduct.movement}</p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <p className="text-amber-200/60 text-xs mb-1">Water Resistance</p>
+                  <p className="text-white font-semibold">{selectedProduct.waterResist}</p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <p className="text-amber-200/60 text-xs mb-1">Material</p>
+                  <p className="text-white font-semibold">{selectedProduct.material}</p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <p className="text-amber-200/60 text-xs mb-1">Diameter</p>
+                  <p className="text-white font-semibold">{selectedProduct.diameter}</p>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={addToCart}
+              className="w-full py-5 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 text-black rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-yellow-500/50 transition-all duration-300 relative overflow-hidden group"
+              data-testid="button-add-to-cart"
+            >
+              <span className="relative z-10">Add to Collection</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Cart & Profile (simplified for demo)
+  const renderCartTab = () => (
+    <div className="min-h-screen bg-black font-montserrat pb-24">
+      <div className="max-w-md mx-auto px-6 py-8">
+        <h1 className="text-3xl font-bold text-white mb-6">Your Collection</h1>
+        {cartItems.length === 0 ? (
+          <div className="text-center py-16">
+            <Crown className="w-16 h-16 text-yellow-400/50 mx-auto mb-4" />
+            <p className="text-amber-200/60">No timepieces added yet</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {cartItems.map(item => (
+              <div key={item.id} className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                <h3 className="text-white font-bold">{item.name}</h3>
+                <p className="text-yellow-400 font-bold">${item.price.toLocaleString()}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderProfileTab = () => (
+    <div className="min-h-screen bg-black font-montserrat pb-24">
+      <div className="max-w-md mx-auto px-6 py-8">
+        <h1 className="text-3xl font-bold text-white mb-6">Profile</h1>
+        <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 text-center">
+          <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <span className="text-3xl font-bold text-black">VIP</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Luxury Member</h2>
+          <p className="text-amber-200/60">collector@timeelite.com</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {activeTab === 'home' && renderHomeTab()}
+      {activeTab === 'catalog' && renderCatalogTab()}
+      {activeTab === 'cart' && renderCartTab()}
+      {activeTab === 'profile' && renderProfileTab()}
+      {renderProductModal()}
+    </>
+  );
+}
+```
+
+## ИКОНКИ И ОБЩИЕ КОМПОНЕНТЫ
+
+### icons/GamificationIcons.tsx
+```tsx
+import React from 'react';
+
+export const BronzeMedal = ({ className = "w-8 h-8" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bronze" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#CD7F32', stopOpacity: 1 }} />
+        <stop offset="50%" style={{ stopColor: '#E8A87C', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#8B5A2B', stopOpacity: 1 }} />
+      </linearGradient>
+      <filter id="shadow">
+        <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+    <circle cx="32" cy="32" r="28" fill="url(#bronze)" filter="url(#shadow)" />
+    <circle cx="32" cy="32" r="24" fill="none" stroke="#FFF" strokeWidth="1" opacity="0.3" />
+    <text x="32" y="40" fontSize="24" fontWeight="bold" fill="#FFF" textAnchor="middle" fontFamily="Arial, sans-serif">3</text>
+  </svg>
+);
+
+export const SilverMedal = ({ className = "w-8 h-8" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="silver" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#C0C0C0', stopOpacity: 1 }} />
+        <stop offset="50%" style={{ stopColor: '#E8E8E8', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#A8A8A8', stopOpacity: 1 }} />
+      </linearGradient>
+      <filter id="shadowSilver">
+        <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.4"/>
+      </filter>
+    </defs>
+    <circle cx="32" cy="32" r="28" fill="url(#silver)" filter="url(#shadowSilver)" />
+    <circle cx="32" cy="32" r="24" fill="none" stroke="#FFF" strokeWidth="1" opacity="0.5" />
+    <text x="32" y="40" fontSize="24" fontWeight="bold" fill="#444" textAnchor="middle" fontFamily="Arial, sans-serif">2</text>
+  </svg>
+);
+
+export const GoldMedal = ({ className = "w-8 h-8" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#FFD700', stopOpacity: 1 }} />
+        <stop offset="50%" style={{ stopColor: '#FFF4A3', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#DAA520', stopOpacity: 1 }} />
+      </linearGradient>
+      <filter id="shadowGold">
+        <feDropShadow dx="0" dy="3" stdDeviation="4" floodOpacity="0.5"/>
+      </filter>
+    </defs>
+    <circle cx="32" cy="32" r="28" fill="url(#gold)" filter="url(#shadowGold)" />
+    <circle cx="32" cy="32" r="24" fill="none" stroke="#FFF" strokeWidth="1.5" opacity="0.6" />
+    <text x="32" y="40" fontSize="24" fontWeight="bold" fill="#8B6914" textAnchor="middle" fontFamily="Arial, sans-serif">1</text>
+  </svg>
+);
+
+export const PlatinumMedal = ({ className = "w-8 h-8" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="platinum" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#E5E4E2', stopOpacity: 1 }} />
+        <stop offset="25%" style={{ stopColor: '#B0E0E6', stopOpacity: 1 }} />
+        <stop offset="50%" style={{ stopColor: '#E0E0E0', stopOpacity: 1 }} />
+        <stop offset="75%" style={{ stopColor: '#87CEEB', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#D3D3D3', stopOpacity: 1 }} />
+      </linearGradient>
+      <filter id="shadowPlatinum">
+        <feDropShadow dx="0" dy="4" stdDeviation="5" floodOpacity="0.6"/>
+      </filter>
+      <radialGradient id="shine">
+        <stop offset="0%" style={{ stopColor: '#FFF', stopOpacity: 0.8 }} />
+        <stop offset="100%" style={{ stopColor: '#FFF', stopOpacity: 0 }} />
+      </radialGradient>
+    </defs>
+    <circle cx="32" cy="32" r="28" fill="url(#platinum)" filter="url(#shadowPlatinum)" />
+    <circle cx="32" cy="32" r="24" fill="none" stroke="#FFF" strokeWidth="2" opacity="0.7" />
+    <circle cx="28" cy="24" r="6" fill="url(#shine)" opacity="0.5" />
+    <path d="M 32 20 L 34 26 L 40 26 L 35 30 L 37 36 L 32 32 L 27 36 L 29 30 L 24 26 L 30 26 Z" fill="#FFF" opacity="0.8" />
+  </svg>
+);
+
+export const ShieldIcon = ({ className = "w-12 h-12" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <path d="M32 8 L52 16 L52 32 C52 44 42 54 32 56 C22 54 12 44 12 32 L12 16 Z" fill="url(#shieldGrad)" stroke="#FFF" strokeWidth="2"/>
+    <path d="M28 32 L30 34 L36 28" stroke="#FFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+  </svg>
+);
+
+export const CrownIcon = ({ className = "w-12 h-12" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="crownGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#FFD700', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#FFA500', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <path d="M8 44 L16 24 L24 32 L32 16 L40 32 L48 24 L56 44 Z" fill="url(#crownGrad)" stroke="#FFF" strokeWidth="2"/>
+    <rect x="8" y="44" width="48" height="8" rx="2" fill="url(#crownGrad)" stroke="#FFF" strokeWidth="2"/>
+    <circle cx="16" cy="24" r="3" fill="#FFF"/>
+    <circle cx="32" cy="16" r="3" fill="#FFF"/>
+    <circle cx="48" cy="24" r="3" fill="#FFF"/>
+  </svg>
+);
+
+export const DiamondIcon = ({ className = "w-12 h-12" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="diamondGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#60A5FA', stopOpacity: 1 }} />
+        <stop offset="50%" style={{ stopColor: '#93C5FD', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#3B82F6', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <path d="M32 8 L48 24 L32 56 L16 24 Z" fill="url(#diamondGrad)" stroke="#FFF" strokeWidth="2"/>
+    <path d="M16 24 L48 24 L32 8 Z" fill="#FFF" opacity="0.3"/>
+    <line x1="32" y1="8" x2="32" y2="56" stroke="#FFF" strokeWidth="1" opacity="0.4"/>
+  </svg>
+);
+
+export const LightningIcon = ({ className = "w-12 h-12" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="lightningGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#FBBF24', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#F59E0B', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <path d="M36 8 L20 32 L28 32 L24 56 L44 28 L36 28 Z" fill="url(#lightningGrad)" stroke="#FFF" strokeWidth="2" strokeLinejoin="round"/>
+  </svg>
+);
+
+export const StarBurstIcon = ({ className = "w-12 h-12" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#A78BFA', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#8B5CF6', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <path d="M32 4 L36 24 L56 20 L40 32 L56 44 L36 40 L32 60 L28 40 L8 44 L24 32 L8 20 L28 24 Z" fill="url(#starGrad)" stroke="#FFF" strokeWidth="2"/>
+    <circle cx="32" cy="32" r="8" fill="#FFF" opacity="0.5"/>
+  </svg>
+);
+
+export const TrophyStarIcon = ({ className = "w-12 h-12" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="trophyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#EC4899', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#DB2777', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <path d="M20 12 L20 24 C20 32 24 36 32 36 C40 36 44 32 44 24 L44 12 Z" fill="url(#trophyGrad)" stroke="#FFF" strokeWidth="2"/>
+    <path d="M16 12 L12 12 C12 16 14 20 18 22" stroke="#FFF" strokeWidth="2" fill="none"/>
+    <path d="M48 12 L52 12 C52 16 50 20 46 22" stroke="#FFF" strokeWidth="2" fill="none"/>
+    <rect x="28" y="36" width="8" height="12" fill="url(#trophyGrad)" stroke="#FFF" strokeWidth="2"/>
+    <rect x="22" y="48" width="20" height="6" rx="2" fill="url(#trophyGrad)" stroke="#FFF" strokeWidth="2"/>
+    <path d="M32 16 L34 22 L40 22 L35 26 L37 32 L32 28 L27 32 L29 26 L24 22 L30 22 Z" fill="#FFF"/>
+  </svg>
+);
+
+export const RocketIcon = ({ className = "w-12 h-12" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="rocketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#06B6D4', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#0891B2', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <path d="M32 8 C32 8 44 12 44 28 L44 44 L38 50 L32 56 L26 50 L20 44 L20 28 C20 12 32 8 32 8 Z" fill="url(#rocketGrad)" stroke="#FFF" strokeWidth="2"/>
+    <circle cx="32" cy="28" r="6" fill="#FFF" opacity="0.6"/>
+    <path d="M26 50 L20 56 L16 52 L22 46" fill="#F59E0B" stroke="#FFF" strokeWidth="1.5"/>
+    <path d="M38 50 L44 56 L48 52 L42 46" fill="#F59E0B" stroke="#FFF" strokeWidth="1.5"/>
+    <ellipse cx="32" cy="56" rx="10" ry="4" fill="#F59E0B" opacity="0.5"/>
+  </svg>
+);
+
+export const GemIcon = ({ className = "w-12 h-12" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10B981', stopOpacity: 1 }} />
+        <stop offset="50%" style={{ stopColor: '#34D399', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <path d="M24 14 L40 14 L52 26 L32 54 L12 26 Z" fill="url(#gemGrad)" stroke="#FFF" strokeWidth="2"/>
+    <path d="M24 14 L32 26 L40 14" stroke="#FFF" strokeWidth="1.5" fill="none"/>
+    <path d="M12 26 L32 26 L52 26" stroke="#FFF" strokeWidth="1.5"/>
+    <line x1="32" y1="26" x2="32" y2="54" stroke="#FFF" strokeWidth="1.5"/>
+  </svg>
+);
+```
+
+### components/icons.ts
+```tsx
+export {
+  ArrowLeft,
+  ArrowRight,
+  Award,
+  AlertCircle,
+  BarChart,
+  BarChart3,
+  Bell,
+  Building,
+  Briefcase,
+  Calendar,
+  Camera,
+  Car,
+  Check,
+  CheckCircle,
+  ChefHat,
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  Clock,
+  Coffee,
+  CreditCard,
+  Crown,
+  Diamond,
+  Droplets,
+  Dumbbell,
+  Eye,
+  EyeOff,
+  ExternalLink,
+  FastForward,
+  FileText,
+  Filter,
+  Flower,
+  Globe,
+  GraduationCap,
+  Headphones,
+  Heart,
+  Home,
+  Info,
+  Key,
+  Leaf,
+  Lock,
+  LogOut,
+  Mail,
+  MapPin,
+  Menu,
+  MessageCircle,
+  MessageSquare,
+  Minus,
+  Monitor,
+  MoreHorizontal,
+  Navigation,
+  Package,
+  PanelLeft,
+  Phone,
+  Pizza,
+  Play,
+  Plus,
+  Redo,
+  Rewind,
+  Rocket,
+  Ruler,
+  Scale,
+  Search,
+  Send,
+  Settings,
+  Shield,
+  ShoppingBag,
+  ShoppingCart,
+  Smartphone,
+  Soup,
+  Sparkles,
+  Star,
+  ThumbsUp,
+  Timer,
+  Trash2,
+  TrendingUp,
+  Truck,
+  Undo,
+  Upload,
+  User,
+  UserCircle2,
+  Users,
+  Utensils,
+  Volume2,
+  Wifi,
+  Wrench,
+  X,
+  Zap
+} from 'lucide-react';
+```
+
+### shared/ProductCard.tsx
+```tsx
+import { memo } from 'react';
+import { Heart, ShoppingCart } from 'lucide-react';
+import { LazyImage } from '../LazyImage';
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category?: string;
+  description?: string;
+  discount?: number;
+  rating?: number;
+  inStock?: boolean;
+}
+
+interface ProductCardProps {
+  product: Product;
+  isFavorite?: boolean;
+  onToggleFavorite?: (productId: string) => void;
+  onAddToCart?: (product: Product) => void;
+  onClick?: () => void;
+  showAddToCart?: boolean;
+  className?: string;
+}
+
+export const ProductCard = memo(({ 
+  product,
+  isFavorite = false,
+  onToggleFavorite,
+  onAddToCart,
+  onClick,
+  showAddToCart = true,
+  className = ''
+}: ProductCardProps) => {
+  const finalPrice = product.discount 
+    ? product.price * (1 - product.discount / 100) 
+    : product.price;
+  
+  const hasDiscount = product.discount && product.discount > 0;
+
+  return (
+    <div 
+      className={`bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow ${className}`}
+      onClick={onClick}
+    >
+      <div className="relative aspect-square">
+        <LazyImage
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-cover"
+        />
+        
+        {hasDiscount && (
+          <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
+            -{product.discount}%
+          </div>
+        )}
+        
+        {product.inStock === false && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="text-white font-bold">Нет в наличии</span>
+          </div>
+        )}
+
+        {onToggleFavorite && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite(product.id);
+            }}
+            className="absolute top-2 right-2 p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
+            aria-label={isFavorite ? "Удалить из избранного" : "Добавить в избранное"}
+          >
+            <Heart 
+              className={`w-5 h-5 transition-colors ${
+                isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'
+              }`}
+            />
+          </button>
+        )}
+      </div>
+
+      <div className="p-4">
+        {product.category && (
+          <p className="text-xs text-gray-500 mb-1">{product.category}</p>
+        )}
+        
+        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+          {product.name}
+        </h3>
+
+        {product.description && (
+          <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+            {product.description}
+          </p>
+        )}
+
+        {product.rating && (
+          <div className="flex items-center gap-1 mb-2">
+            <span className="text-yellow-500">★</span>
+            <span className="text-sm text-gray-600">{product.rating.toFixed(1)}</span>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-bold text-gray-900">
+              {finalPrice.toLocaleString()}₽
+            </span>
+            {hasDiscount && (
+              <span className="text-sm text-gray-400 line-through">
+                {product.price.toLocaleString()}₽
+              </span>
+            )}
+          </div>
+
+          {showAddToCart && onAddToCart && product.inStock !== false && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCart(product);
+              }}
+              className="p-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+              aria-label="Добавить в корзину"
+            >
+              <ShoppingCart className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+ProductCard.displayName = 'ProductCard';
+```
+
+### design-tokens.ts
+```tsx
+export const DesignTokens = {
+  spacing: {
+    xs: '8px',
+    sm: '16px',
+    md: '24px',
+    lg: '32px',
+    xl: '48px',
+    '2xl': '64px',
+    '3xl': '96px',
+  },
+  
+  radius: {
+    none: '0',
+    sm: '4px',
+    md: '8px',
+    lg: '12px',
+    xl: '16px',
+    '2xl': '24px',
+    '3xl': '32px',
+    full: '9999px',
+  },
+  
+  fontSize: {
+    xs: '12px',
+    sm: '14px',
+    base: '16px',
+    lg: '18px',
+    xl: '20px',
+    '2xl': '24px',
+    '3xl': '32px',
+    '4xl': '40px',
+    '5xl': '48px',
+    '6xl': '56px',
+  },
+  
+  fontWeight: {
+    regular: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700,
+    extrabold: 800,
+  },
+  
+  lineHeight: {
+    tight: 1.2,
+    snug: 1.25,
+    normal: 1.5,
+    relaxed: 1.75,
+  },
+  
+  shadow: {
+    sm: '0 2px 8px rgba(0, 0, 0, 0.08)',
+    md: '0 4px 16px rgba(0, 0, 0, 0.12)',
+    lg: '0 8px 32px rgba(0, 0, 0, 0.16)',
+    xl: '0 16px 48px rgba(0, 0, 0, 0.20)',
+    apple: `
+      0 2px 8px rgba(0, 0, 0, 0.04),
+      0 4px 16px rgba(0, 0, 0, 0.08),
+      0 8px 32px rgba(0, 0, 0, 0.06)
+    `,
+    appleHover: `
+      0 4px 12px rgba(0, 0, 0, 0.06),
+      0 8px 24px rgba(0, 0, 0, 0.10),
+      0 16px 48px rgba(0, 0, 0, 0.08)
+    `,
+    premium: `
+      0 4px 12px rgba(16, 185, 129, 0.15),
+      0 8px 24px rgba(16, 185, 129, 0.10),
+      0 16px 48px rgba(0, 0, 0, 0.08)
+    `,
+  },
+  
+  transition: {
+    fast: '150ms cubic-bezier(0.4, 0, 0.2, 1)',
+    base: '250ms cubic-bezier(0.4, 0, 0.2, 1)',
+    slow: '350ms cubic-bezier(0.4, 0, 0.2, 1)',
+    spring: '400ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+  },
+  
+  easing: {
+    apple: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+    appleIn: 'cubic-bezier(0.42, 0, 1, 1)',
+    appleOut: 'cubic-bezier(0, 0, 0.58, 1)',
+    appleInOut: 'cubic-bezier(0.42, 0, 0.58, 1)',
+    springBounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    springSmooth: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+  },
+  
+  colors: {
+    black: '#1d1d1f',
+    white: '#f5f5f7',
+    textPrimary: 'rgba(255, 255, 255, 0.92)',
+    textSecondary: 'rgba(255, 255, 255, 0.70)',
+    textTertiary: 'rgba(255, 255, 255, 0.45)',
+    textQuaternary: 'rgba(255, 255, 255, 0.25)',
+    emeraldApple: '#30d158',
+    blueApple: '#0a84ff',
+  },
+  
+  spring: {
+    default: {
+      stiffness: 300,
+      damping: 25,
+      mass: 0.5,
+    },
+    bouncy: {
+      stiffness: 400,
+      damping: 20,
+      mass: 0.5,
+    },
+    gentle: {
+      stiffness: 200,
+      damping: 30,
+      mass: 0.5,
+    },
+  },
+} as const;
+
+export type DesignTokens = typeof DesignTokens;
+```
+
