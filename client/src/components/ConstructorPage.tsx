@@ -295,174 +295,116 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
     <div className="min-h-screen bg-black text-white pb-32" style={{ paddingTop: '140px' }}>
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
-        {/* Payment Model Section */}
+        {/* Payment Model Section - Apple Minimalist Style */}
         <section className="scroll-fade-in">
-          <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-7 overflow-hidden">
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-system-blue/5 via-transparent to-system-purple/5 pointer-events-none"/>
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h3 className="text-[28px] font-semibold tracking-tight text-white mb-2">Прозрачная оплата</h3>
+            <p className="text-[15px] text-white/60 leading-relaxed">
+              Платите поэтапно — минимальный риск, максимальный контроль
+            </p>
+          </div>
+
+          {/* Payment Timeline */}
+          <div className="relative">
+            {/* Vertical line */}
+            <div className="absolute left-[23px] top-8 bottom-8 w-[1px] bg-white/10" />
             
-            <div className="relative z-10">
-              {/* Header */}
-              <div className="text-center mb-6 scroll-fade-in-delay-1">
-                <h3 className="ios-title2 mb-2 text-white font-bold">Прозрачная оплата</h3>
-                <p className="ios-subheadline text-white/70 max-w-xs mx-auto">
-                  Платите поэтапно — минимальный риск, максимальный контроль
+            {/* Stage 1 */}
+            <div className="relative flex items-start gap-5 mb-6">
+              <div className="relative z-10 w-[46px] h-[46px] rounded-full bg-[#1C1C1E] border border-white/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-[17px] font-semibold text-white">1</span>
+              </div>
+              <div className="flex-1 pt-2">
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-[20px] font-semibold text-white">35%</span>
+                  <span className="text-[15px] text-white/60">предоплата</span>
+                </div>
+                <p className="text-[13px] text-white/40 leading-relaxed">
+                  Запуск разработки вашего приложения
                 </p>
               </div>
+            </div>
 
-              {/* Payment Stages */}
-              <div className="space-y-3 mb-6">
-                {/* Stage 1 - 35% Prepayment */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-system-green/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
-                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-green/40 transition-all">
-                    <div className="flex items-start space-x-4">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-system-green/30 rounded-xl blur-md"/>
-                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-green/30 to-system-green/10 rounded-xl flex items-center justify-center border border-system-green/30">
-                          <Zap className="w-6 h-6 text-system-green" />
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <div className="ios-headline font-bold text-white mb-0.5">35% предоплата</div>
-                            <div className="ios-caption1 text-system-green font-semibold">Запуск разработки</div>
-                          </div>
-                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
-                            <span className="ios-caption2 font-bold text-system-green">1</span>
-                          </div>
-                        </div>
-                        <p className="ios-footnote text-white/70 leading-relaxed">
-                          Мы начинаем создавать ваше приложение сразу после внесения предоплаты
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stage 2 - 65% After Delivery */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-system-blue/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
-                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-blue/40 transition-all">
-                    <div className="flex items-start space-x-4">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-system-blue/30 rounded-xl blur-md"/>
-                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-blue/30 to-system-blue/10 rounded-xl flex items-center justify-center border border-system-blue/30">
-                          <CheckCircle className="w-6 h-6 text-system-blue" />
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <div className="ios-headline font-bold text-white mb-0.5">65% при получении</div>
-                            <div className="ios-caption1 text-system-blue font-semibold">Готовое приложение</div>
-                          </div>
-                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
-                            <span className="ios-caption2 font-bold text-system-green">2</span>
-                          </div>
-                        </div>
-                        <p className="ios-footnote text-white/70 leading-relaxed">
-                          Оплачиваете остаток только после тестирования и принятия работы
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stage 3 - Monthly Subscription */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-system-green/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
-                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-green/40 transition-all">
-                    <div className="flex items-start space-x-4">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-system-green/30 rounded-xl blur-md"/>
-                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-green/30 to-system-green/10 rounded-xl flex items-center justify-center border border-system-green/30">
-                          <TrendingUp className="w-6 h-6 text-system-green" />
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <div className="ios-headline font-bold text-white mb-0.5">Поддержка и развитие</div>
-                            <div className="ios-caption1 text-system-green font-semibold">Ежемесячная подписка</div>
-                          </div>
-                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
-                            <span className="ios-caption2 font-bold text-system-green">3</span>
-                          </div>
-                        </div>
-                        <p className="ios-footnote text-white/70 leading-relaxed">
-                          Стабильная работа, обновления и поддержка вашего бизнеса 24/7
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            {/* Stage 2 */}
+            <div className="relative flex items-start gap-5 mb-6">
+              <div className="relative z-10 w-[46px] h-[46px] rounded-full bg-[#1C1C1E] border border-white/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-[17px] font-semibold text-white">2</span>
               </div>
-
-              {/* Monthly Subscription Details */}
-              <div className="relative mt-6 pt-6 border-t border-white/10">
-                <div className="text-center mb-5">
-                  <div className="inline-flex items-center justify-center px-3 py-1 bg-system-green/10 border border-system-green/30 rounded-full mb-3">
-                    <Rocket className="w-3.5 h-3.5 text-system-green mr-2" />
-                    <span className="ios-caption1 text-system-green font-semibold">Что входит в подписку</span>
-                  </div>
+              <div className="flex-1 pt-2">
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-[20px] font-semibold text-white">65%</span>
+                  <span className="text-[15px] text-white/60">при получении</span>
                 </div>
-                
-                {/* What's included - Grid Layout */}
-                <div className="grid grid-cols-2 gap-3 mb-5">
-                  <div className="flex items-start space-x-2.5">
-                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-system-green" />
-                    </div>
-                    <span className="ios-caption1 text-white/90 leading-tight">Хостинг и сервера</span>
-                  </div>
-                  <div className="flex items-start space-x-2.5">
-                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-system-green" />
-                    </div>
-                    <span className="ios-caption1 text-white/90 leading-tight">Поддержка 24/7</span>
-                  </div>
-                  <div className="flex items-start space-x-2.5">
-                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-system-green" />
-                    </div>
-                    <span className="ios-caption1 text-white/90 leading-tight">Обновления</span>
-                  </div>
-                  <div className="flex items-start space-x-2.5">
-                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-system-green" />
-                    </div>
-                    <span className="ios-caption1 text-white/90 leading-tight">Резервные копии</span>
-                  </div>
-                </div>
-
-                {/* Price Card */}
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-system-blue/20 via-system-purple/20 to-system-green/20 rounded-2xl blur-xl"/>
-                  <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border border-white/30 p-6 text-center">
-                    {/* Free Month Badge */}
-                    <div className="inline-flex items-center justify-center px-4 py-1.5 bg-system-green/20 border border-system-green/40 rounded-full mb-4">
-                      <Gift className="w-3.5 h-3.5 text-system-green mr-2" />
-                      <span className="ios-caption1 text-system-green font-bold">Первый месяц в подарок</span>
-                    </div>
-                    
-                    {/* Price */}
-                    <div className="mb-3">
-                      <div className="flex items-baseline justify-center space-x-1">
-                        <span className="ios-title1 font-bold text-system-green">5,999</span>
-                        <span className="ios-body text-system-green">₽</span>
-                      </div>
-                      <div className="ios-footnote text-white/60 mt-1">в месяц со второго месяца</div>
-                    </div>
-
-                    {/* Value proposition */}
-                    <div className="ios-caption2 text-white/50">
-                      Всё включено • Без скрытых платежей
-                    </div>
-                  </div>
-                </div>
+                <p className="text-[13px] text-white/40 leading-relaxed">
+                  После тестирования и принятия работы
+                </p>
               </div>
+            </div>
+
+            {/* Stage 3 */}
+            <div className="relative flex items-start gap-5">
+              <div className="relative z-10 w-[46px] h-[46px] rounded-full bg-[#1C1C1E] border border-white/10 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-5 h-5 text-white/70" />
+              </div>
+              <div className="flex-1 pt-2">
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-[20px] font-semibold text-white">Подписка</span>
+                </div>
+                <p className="text-[13px] text-white/40 leading-relaxed">
+                  Поддержка и развитие вашего бизнеса
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="h-[1px] bg-white/10 my-8" />
+
+          {/* Subscription Card */}
+          <div className="bg-[#1C1C1E] rounded-2xl p-6">
+            {/* Badge */}
+            <div className="flex justify-center mb-5">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#34C759]/10 rounded-full">
+                <Gift className="w-3.5 h-3.5 text-[#34C759]" />
+                <span className="text-[12px] font-medium text-[#34C759]">Первый месяц бесплатно</span>
+              </div>
+            </div>
+            
+            {/* Price */}
+            <div className="text-center mb-6">
+              <div className="flex items-baseline justify-center gap-1">
+                <span className="text-[44px] font-bold tracking-tight text-white">5 999</span>
+                <span className="text-[17px] text-white/60">₽/мес</span>
+              </div>
+              <p className="text-[13px] text-white/40 mt-1">со второго месяца</p>
+            </div>
+
+            {/* Features */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Check className="w-4 h-4 text-[#34C759]" />
+                <span className="text-[15px] text-white/80">Хостинг и сервера</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="w-4 h-4 text-[#34C759]" />
+                <span className="text-[15px] text-white/80">Поддержка 24/7</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="w-4 h-4 text-[#34C759]" />
+                <span className="text-[15px] text-white/80">Обновления и улучшения</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="w-4 h-4 text-[#34C759]" />
+                <span className="text-[15px] text-white/80">Резервные копии данных</span>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-6 pt-5 border-t border-white/5">
+              <p className="text-[12px] text-white/30 text-center">
+                Всё включено · Без скрытых платежей
+              </p>
             </div>
           </div>
         </section>
