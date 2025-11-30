@@ -2,30 +2,25 @@
     auto_https off
 }
 
-:$PORT {
+:{$PORT} {
     root * /app/dist
     encode gzip
     
-    # Matcher for static assets (cache forever - they have hashed names)
     @assets {
         path *.css *.js *.jpg *.jpeg *.png *.svg *.gif *.webp *.avif *.woff *.woff2 *.ico *.pdf *.mp4 *.webm
     }
     
-    # Matcher for HTML (never cache)
     @html {
         path /
         path *.html
     }
     
-    # Cache static assets for 1 year (immutable - hashed filenames)
     header @assets Cache-Control "public, max-age=31536000, immutable"
     
-    # Never cache HTML - always get fresh version for Telegram Mini App
     header @html Cache-Control "no-cache, no-store, must-revalidate"
     header @html Pragma "no-cache"
     header @html Expires "0"
     
-    # SPA fallback routing
     try_files {path} /index.html
     
     file_server
