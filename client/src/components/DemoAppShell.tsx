@@ -42,10 +42,10 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   
   if (!demoApp) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="bg-gray-100 rounded-3xl p-6 mx-4 text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Демо не найдено</h3>
-          <p className="text-sm text-gray-500">
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mx-4 text-center">
+          <h3 className="text-lg font-semibold text-white mb-2">Демо не найдено</h3>
+          <p className="text-sm text-white/50">
             Приложение временно недоступно
           </p>
         </div>
@@ -84,10 +84,10 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     // Check if demo is available in registry
     if (!isDemoAvailable(baseAppType)) {
       return (
-        <div className="min-h-screen bg-white flex items-center justify-center">
-          <div className="bg-gray-100 rounded-3xl p-6 mx-4 text-center">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Демо недоступно</h3>
-            <p className="text-sm text-gray-500">
+        <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mx-4 text-center">
+            <h3 className="text-lg font-semibold text-white mb-2">Демо недоступно</h3>
+            <p className="text-sm text-white/50">
               Приложение {baseAppType} временно недоступно
             </p>
           </div>
@@ -100,10 +100,10 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     
     if (!DemoComponent) {
       return (
-        <div className="min-h-screen bg-white flex items-center justify-center">
-          <div className="bg-gray-100 rounded-3xl p-6 mx-4 text-center">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Ошибка загрузки</h3>
-            <p className="text-sm text-gray-500">
+        <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mx-4 text-center">
+            <h3 className="text-lg font-semibold text-white mb-2">Ошибка загрузки</h3>
+            <p className="text-sm text-white/50">
               Не удалось загрузить приложение
             </p>
           </div>
@@ -119,11 +119,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     
   };
 
-  // Check if this is a dark-themed app
-  const isDarkTheme = demoId.includes('clothing-store') || 
-                      demoId.includes('electronics') || 
-                      demoId.includes('beauty') ||
-                      demoId.includes('restaurant');
+  // All apps use dark theme by default for premium look
+  const isDarkTheme = true;
   
   // Theme colors for each app
   const getThemeColors = () => {
@@ -156,18 +153,27 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   
   const theme = getThemeColors();
   
-  // Get background gradient based on app
+  // Get background gradient based on app - all dark by default
   const getBackgroundGradient = () => {
-    if (demoId.includes('clothing-store')) {
-      return 'bg-[#1A1A1A]';
-    } else if (demoId.includes('electronics')) {
+    if (demoId.includes('clothing-store') || demoId.includes('fashion') || demoId.includes('rascal') || demoId.includes('store')) {
+      return 'bg-[#0A0A0A]';
+    } else if (demoId.includes('electronics') || demoId.includes('sneaker') || demoId.includes('time')) {
       return 'bg-gradient-to-br from-gray-900 via-blue-950 to-black';
-    } else if (demoId.includes('beauty')) {
+    } else if (demoId.includes('beauty') || demoId.includes('fragrance') || demoId.includes('florist')) {
       return 'bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950';
-    } else if (demoId.includes('restaurant')) {
+    } else if (demoId.includes('restaurant') || demoId.includes('tea')) {
       return 'bg-gradient-to-br from-gray-900 via-amber-950 to-black';
+    } else if (demoId.includes('nft') || demoId.includes('oxyz')) {
+      return 'bg-[#050505]';
+    } else if (demoId.includes('fitness') || demoId.includes('medical')) {
+      return 'bg-gradient-to-br from-gray-900 via-emerald-950 to-black';
+    } else if (demoId.includes('taxi') || demoId.includes('car')) {
+      return 'bg-gradient-to-br from-gray-900 via-yellow-950 to-black';
+    } else if (demoId.includes('banking') || demoId.includes('courses')) {
+      return 'bg-gradient-to-br from-gray-900 via-indigo-950 to-black';
     }
-    return 'bg-white';
+    // Default dark background for all other apps
+    return 'bg-[#0A0A0A]';
   };
 
   return (
