@@ -396,19 +396,38 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
   }
 
   // ========================================
-  // HOME PAGE
+  // HOME PAGE - PREMIUM EXCLUSIVE STORE
   // ========================================
   if (activeTab === 'home') {
+    const featuredCategories = [
+      { name: 'Skincare', image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=500&fit=crop&q=90', count: 24 },
+      { name: 'Makeup', image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&h=500&fit=crop&q=90', count: 18 },
+      { name: 'Fragrance', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=500&fit=crop&q=90', count: 12 },
+    ];
+
+    const testimonials = [
+      { name: 'Sarah M.', text: 'The serum transformed my skin in just 2 weeks!', rating: 5, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=90' },
+      { name: 'Jessica L.', text: 'Best luxury skincare I have ever used.', rating: 5, avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&q=90' },
+    ];
+
+    const ingredients = [
+      { name: 'Retinol', benefit: 'Anti-aging', icon: Sparkles },
+      { name: 'Vitamin C', benefit: 'Brightening', icon: Sun },
+      { name: 'Hyaluronic', benefit: 'Hydration', icon: Droplets },
+      { name: 'Niacinamide', benefit: 'Pore care', icon: Leaf },
+    ];
+
     return (
       <div 
         className="min-h-screen text-white overflow-auto pb-24"
         style={{ background: COLORS.primaryGradient }}
       >
         <div className="demo-nav-safe px-5">
+          {/* Header */}
           <m.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between mb-8"
+            className="flex items-center justify-between mb-6"
           >
             <button 
               className="w-11 h-11 rounded-xl flex items-center justify-center"
@@ -418,10 +437,10 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
               <Menu className="w-5 h-5" style={{ color: COLORS.textSecondary }} />
             </button>
             
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Crown className="w-5 h-5" style={{ color: COLORS.accent1 }} />
               <span 
-                className="text-[18px] font-bold tracking-wide"
+                className="text-[17px] font-bold tracking-wide"
                 style={{ color: COLORS.textPrimary }}
               >
                 EMILY CARTER
@@ -445,145 +464,161 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
             </button>
           </m.div>
 
+          {/* Hero Banner */}
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="relative rounded-[28px] overflow-hidden mb-8"
-            style={{ height: '220px' }}
+            transition={{ delay: 0.05 }}
+            className="relative rounded-[28px] overflow-hidden mb-6"
+            style={{ height: '280px' }}
           >
             <img
-              src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=500&fit=crop&q=90"
-              alt="Beauty collection"
+              src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop&q=90"
+              alt="Luxury beauty"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-            <div className="absolute inset-0 flex flex-col justify-center px-6">
-              <span 
-                className="text-[11px] font-semibold tracking-[0.2em] uppercase mb-2"
-                style={{ color: COLORS.accent1 }}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+            <div className="absolute inset-0 flex flex-col justify-end p-6">
+              <div 
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-3 self-start"
+                style={{ background: 'rgba(212, 165, 116, 0.2)', border: '1px solid rgba(212, 165, 116, 0.3)' }}
               >
-                NEW COLLECTION
-              </span>
+                <Sparkles className="w-3.5 h-3.5" style={{ color: COLORS.accent1 }} />
+                <span className="text-[11px] font-semibold tracking-wider" style={{ color: COLORS.accent1 }}>
+                  LIMITED EDITION
+                </span>
+              </div>
               <h2 
-                className="text-[28px] font-bold leading-tight mb-3"
-                style={{ color: COLORS.textPrimary }}
+                className="text-[32px] font-bold leading-[1.1] mb-2"
+                style={{ color: COLORS.textPrimary, letterSpacing: '-0.02em' }}
               >
-                Winter Glow<br/>Essentials
+                The Midnight<br/>Rose Collection
               </h2>
+              <p className="text-[13px] mb-4" style={{ color: COLORS.textSecondary }}>
+                Exclusive anti-aging formulas with pure rose extract
+              </p>
               <button 
-                className="self-start px-5 py-2.5 rounded-full text-[13px] font-semibold"
-                style={{ background: COLORS.accent1, color: '#0A0A0A' }}
+                className="self-start px-6 py-3 rounded-full text-[13px] font-bold tracking-wide uppercase"
+                style={{ background: COLORS.accent1, color: '#0A0A0A', boxShadow: COLORS.glowGold }}
                 data-testid="button-shop-collection"
               >
-                Shop Now
+                Discover Now
               </button>
             </div>
           </m.div>
 
+          {/* Benefits Strip */}
           <m.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="flex items-center gap-3 py-4 mb-6 border-y"
-            style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+            transition={{ delay: 0.1 }}
+            className="flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide mb-6"
           >
             {[
-              { value: '50K+', label: 'Customers' },
-              { value: '4.9', label: 'Rating' },
-              { value: '100%', label: 'Natural' }
-            ].map((stat, idx) => (
-              <div key={idx} className="flex items-center gap-2 flex-1 justify-center">
-                <span 
-                  className="text-[16px] font-bold"
-                  style={{ color: COLORS.textPrimary }}
-                >
-                  {stat.value}
-                </span>
-                <span 
-                  className="text-[12px]"
-                  style={{ color: COLORS.textSecondary }}
-                >
-                  {stat.label}
+              { icon: Package, text: 'Free Shipping $50+' },
+              { icon: Sparkles, text: 'Luxury Samples' },
+              { icon: Clock, text: 'Same Day Delivery' },
+              { icon: Crown, text: 'VIP Rewards' },
+            ].map((benefit, idx) => (
+              <div 
+                key={idx}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-full flex-shrink-0"
+                style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${COLORS.cardBorder}` }}
+              >
+                <benefit.icon className="w-4 h-4" style={{ color: COLORS.accent1 }} />
+                <span className="text-[12px] font-medium whitespace-nowrap" style={{ color: COLORS.textSecondary }}>
+                  {benefit.text}
                 </span>
               </div>
             ))}
           </m.div>
 
+          {/* Shop by Category */}
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mb-8"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[18px] font-bold" style={{ color: COLORS.textPrimary }}>
+                Shop by Category
+              </h3>
+              <button className="text-[13px] font-medium flex items-center gap-1" style={{ color: COLORS.accent1 }}>
+                All <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {featuredCategories.map((cat, idx) => (
+                <m.div
+                  key={cat.name}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.15 + idx * 0.05 }}
+                  className="relative rounded-2xl overflow-hidden cursor-pointer"
+                  style={{ aspectRatio: '3/4' }}
+                  onClick={() => setSelectedCategory(cat.name)}
+                >
+                  <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <p className="text-[13px] font-bold" style={{ color: COLORS.textPrimary }}>{cat.name}</p>
+                    <p className="text-[10px]" style={{ color: COLORS.textSecondary }}>{cat.count} products</p>
+                  </div>
+                </m.div>
+              ))}
+            </div>
+          </m.div>
+
+          {/* Bestsellers */}
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-6"
+            className="mb-8"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 
-                className="text-[18px] font-bold"
-                style={{ color: COLORS.textPrimary }}
-              >
-                Bestsellers
-              </h3>
-              <button 
-                className="text-[13px] font-medium flex items-center gap-1"
-                style={{ color: COLORS.accent1 }}
-              >
-                View All
-                <ChevronRight className="w-4 h-4" />
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                <h3 className="text-[18px] font-bold" style={{ color: COLORS.textPrimary }}>Bestsellers</h3>
+              </div>
+              <button className="text-[13px] font-medium flex items-center gap-1" style={{ color: COLORS.accent1 }}>
+                View All <ChevronRight className="w-4 h-4" />
               </button>
             </div>
-
             <div className="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
               {products.filter(p => p.isBestseller).map((product) => (
                 <m.div
                   key={product.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex-shrink-0 w-[160px] cursor-pointer"
+                  className="flex-shrink-0 w-[155px] cursor-pointer"
                   onClick={() => setSelectedProduct(product)}
                 >
-                  <div 
-                    className="relative rounded-2xl overflow-hidden mb-3"
-                    style={{ height: '200px' }}
-                  >
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="relative rounded-2xl overflow-hidden mb-3" style={{ height: '195px' }}>
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
                       className="absolute top-3 right-3 w-8 h-8 rounded-full backdrop-blur-xl flex items-center justify-center"
                       style={{ background: 'rgba(0,0,0,0.4)' }}
                     >
-                      <Heart 
-                        className="w-4 h-4"
-                        style={{ 
-                          color: favorites.has(product.id) ? COLORS.accent1 : '#fff',
-                          fill: favorites.has(product.id) ? COLORS.accent1 : 'transparent'
-                        }}
-                      />
+                      <Heart className="w-4 h-4" style={{ color: favorites.has(product.id) ? COLORS.accent1 : '#fff', fill: favorites.has(product.id) ? COLORS.accent1 : 'transparent' }} />
                     </button>
-                  </div>
-                  <p 
-                    className="text-[13px] font-medium mb-1 truncate"
-                    style={{ color: COLORS.textPrimary }}
-                  >
-                    {product.name}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <span 
-                      className="text-[15px] font-bold"
-                      style={{ color: COLORS.accent1 }}
-                    >
-                      {formatPrice(product.price)}
-                    </span>
                     {product.originalPrice && (
-                      <span 
-                        className="text-[12px] line-through"
-                        style={{ color: COLORS.textSecondary }}
-                      >
-                        {formatPrice(product.originalPrice)}
-                      </span>
+                      <div className="absolute top-3 left-3 px-2 py-1 rounded-full text-[10px] font-bold" style={{ background: '#EF4444', color: '#fff' }}>
+                        -{Math.round((1 - product.price / product.originalPrice) * 100)}%
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 mb-1">
+                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                    <span className="text-[11px]" style={{ color: COLORS.textSecondary }}>{product.rating} ({product.reviews})</span>
+                  </div>
+                  <p className="text-[13px] font-medium mb-1 truncate" style={{ color: COLORS.textPrimary }}>{product.name}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[15px] font-bold" style={{ color: COLORS.accent1 }}>{formatPrice(product.price)}</span>
+                    {product.originalPrice && (
+                      <span className="text-[12px] line-through" style={{ color: COLORS.textSecondary }}>{formatPrice(product.originalPrice)}</span>
                     )}
                   </div>
                 </m.div>
@@ -591,36 +626,207 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
             </div>
           </m.div>
 
+          {/* New Arrivals Grid */}
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="rounded-2xl p-5"
+            className="mb-8"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5" style={{ color: COLORS.accent1 }} />
+                <h3 className="text-[18px] font-bold" style={{ color: COLORS.textPrimary }}>New Arrivals</h3>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {products.filter(p => p.isNew).slice(0, 4).map((product, idx) => (
+                <m.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 + idx * 0.05 }}
+                  className="cursor-pointer"
+                  onClick={() => setSelectedProduct(product)}
+                >
+                  <div className="relative rounded-2xl overflow-hidden mb-2" style={{ aspectRatio: '4/5' }}>
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-[9px] font-bold tracking-wider" style={{ background: COLORS.accent1, color: '#0A0A0A' }}>
+                      NEW
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
+                      className="absolute top-2 right-2 w-7 h-7 rounded-full backdrop-blur-xl flex items-center justify-center"
+                      style={{ background: 'rgba(0,0,0,0.4)' }}
+                    >
+                      <Heart className="w-3.5 h-3.5" style={{ color: favorites.has(product.id) ? COLORS.accent1 : '#fff', fill: favorites.has(product.id) ? COLORS.accent1 : 'transparent' }} />
+                    </button>
+                  </div>
+                  <p className="text-[12px] font-medium truncate" style={{ color: COLORS.textPrimary }}>{product.name}</p>
+                  <span className="text-[14px] font-bold" style={{ color: COLORS.accent1 }}>{formatPrice(product.price)}</span>
+                </m.div>
+              ))}
+            </div>
+          </m.div>
+
+          {/* Featured Ingredients */}
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-8"
+          >
+            <h3 className="text-[18px] font-bold mb-4" style={{ color: COLORS.textPrimary }}>
+              Powerful Ingredients
+            </h3>
+            <div className="grid grid-cols-4 gap-2">
+              {ingredients.map((ing, idx) => (
+                <div 
+                  key={idx}
+                  className="flex flex-col items-center p-3 rounded-2xl text-center"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${COLORS.cardBorder}` }}
+                >
+                  <div 
+                    className="w-10 h-10 rounded-full flex items-center justify-center mb-2"
+                    style={{ background: 'rgba(212, 165, 116, 0.15)' }}
+                  >
+                    <ing.icon className="w-5 h-5" style={{ color: COLORS.accent1 }} />
+                  </div>
+                  <p className="text-[11px] font-semibold" style={{ color: COLORS.textPrimary }}>{ing.name}</p>
+                  <p className="text-[9px]" style={{ color: COLORS.textSecondary }}>{ing.benefit}</p>
+                </div>
+              ))}
+            </div>
+          </m.div>
+
+          {/* Skincare Routine Banner */}
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="relative rounded-2xl overflow-hidden mb-8"
+            style={{ background: COLORS.cardBg, border: `1px solid ${COLORS.cardBorder}` }}
+          >
+            <div className="flex items-center p-4 gap-4">
+              <div 
+                className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0"
+              >
+                <img 
+                  src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=200&h=200&fit=crop&q=90" 
+                  alt="Routine" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Leaf className="w-3.5 h-3.5" style={{ color: COLORS.accent1 }} />
+                  <span className="text-[10px] font-semibold tracking-wider" style={{ color: COLORS.accent1 }}>ROUTINE BUILDER</span>
+                </div>
+                <h4 className="text-[15px] font-bold mb-1" style={{ color: COLORS.textPrimary }}>
+                  Build Your Perfect Routine
+                </h4>
+                <p className="text-[11px]" style={{ color: COLORS.textSecondary }}>
+                  Get personalized recommendations
+                </p>
+              </div>
+              <ChevronRight className="w-5 h-5 flex-shrink-0" style={{ color: COLORS.textSecondary }} />
+            </div>
+          </m.div>
+
+          {/* Customer Reviews */}
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[18px] font-bold" style={{ color: COLORS.textPrimary }}>What Clients Say</h3>
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <span className="text-[13px] font-semibold" style={{ color: COLORS.textPrimary }}>4.9</span>
+                <span className="text-[12px]" style={{ color: COLORS.textSecondary }}>(12.4K)</span>
+              </div>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
+              {testimonials.map((review, idx) => (
+                <div 
+                  key={idx}
+                  className="flex-shrink-0 w-[260px] p-4 rounded-2xl"
+                  style={{ background: COLORS.cardBg, border: `1px solid ${COLORS.cardBorder}` }}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <img src={review.avatar} alt={review.name} className="w-10 h-10 rounded-full object-cover" />
+                    <div>
+                      <p className="text-[13px] font-semibold" style={{ color: COLORS.textPrimary }}>{review.name}</p>
+                      <div className="flex gap-0.5">
+                        {[...Array(review.rating)].map((_, i) => (
+                          <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[13px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
+                    "{review.text}"
+                  </p>
+                </div>
+              ))}
+            </div>
+          </m.div>
+
+          {/* VIP Loyalty Card */}
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="rounded-2xl p-5 mb-6"
             style={{ 
-              background: 'linear-gradient(135deg, rgba(212, 165, 116, 0.15) 0%, rgba(212, 165, 116, 0.05) 100%)',
-              border: '1px solid rgba(212, 165, 116, 0.2)'
+              background: 'linear-gradient(135deg, rgba(212, 165, 116, 0.2) 0%, rgba(180, 130, 80, 0.1) 100%)',
+              border: '1px solid rgba(212, 165, 116, 0.3)'
             }}
           >
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4" style={{ color: COLORS.accent1 }} />
-              <span 
-                className="text-[11px] font-semibold tracking-[0.15em] uppercase"
-                style={{ color: COLORS.accent1 }}
+            <div className="flex items-start gap-4">
+              <div 
+                className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #D4A574 0%, #B8956A 100%)' }}
               >
-                LOYALTY REWARDS
-              </span>
+                <Crown className="w-7 h-7" style={{ color: '#0A0A0A' }} />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-[16px] font-bold" style={{ color: COLORS.textPrimary }}>Join VIP Club</h4>
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold" style={{ background: 'rgba(34, 197, 94, 0.2)', color: '#22C55E' }}>
+                    FREE
+                  </span>
+                </div>
+                <p className="text-[12px] mb-3" style={{ color: COLORS.textSecondary }}>
+                  Earn 5% back on every purchase + exclusive member perks
+                </p>
+                <button 
+                  className="px-5 py-2 rounded-full text-[12px] font-semibold"
+                  style={{ background: COLORS.accent1, color: '#0A0A0A' }}
+                >
+                  Join Now
+                </button>
+              </div>
             </div>
-            <h4 
-              className="text-[16px] font-bold mb-1"
-              style={{ color: COLORS.textPrimary }}
-            >
-              Earn 3x points today
+          </m.div>
+
+          {/* Brand Story */}
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="text-center mb-4"
+          >
+            <p className="text-[11px] tracking-[0.2em] uppercase mb-2" style={{ color: COLORS.accent1 }}>
+              SINCE 2018
+            </p>
+            <h4 className="text-[16px] font-bold mb-2" style={{ color: COLORS.textPrimary }}>
+              Luxury Meets Nature
             </h4>
-            <p 
-              className="text-[13px]"
-              style={{ color: COLORS.textSecondary }}
-            >
-              Shop now and unlock exclusive member rewards
+            <p className="text-[12px] leading-relaxed" style={{ color: COLORS.textSecondary }}>
+              Crafted with the finest natural ingredients, our formulas deliver visible results while honoring our commitment to sustainability.
             </p>
           </m.div>
         </div>
