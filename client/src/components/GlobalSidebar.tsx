@@ -244,22 +244,15 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           justify-content: center;
           border-radius: 12px;
           background: rgba(255,255,255,0.08);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255,255,255,0.12);
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
-          will-change: transform, background, box-shadow;
-        }
-        .hamburger-btn:hover {
-          background: rgba(255,255,255,0.15);
-          border-color: rgba(255,255,255,0.2);
-          transform: scale(1.05);
-          box-shadow: 0 4px 20px rgba(139,92,246,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+          transition: transform 0.15s ease-out, background 0.15s ease-out;
+          will-change: transform;
+          -webkit-tap-highlight-color: transparent;
         }
         .hamburger-btn:active {
-          transform: scale(0.95);
+          transform: scale(0.92);
+          background: rgba(255,255,255,0.15);
         }
         
         .hamburger-icon {
@@ -277,9 +270,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           height: 2px;
           background: #FAFAFA;
           border-radius: 2px;
-          transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          transition: transform 0.2s ease-out, opacity 0.15s ease-out;
           transform-origin: center;
-          will-change: transform, opacity;
+          will-change: transform;
         }
         
         .hamburger-line.line-1.open {
@@ -299,12 +292,10 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           position: fixed;
           inset: 0;
           z-index: 100;
-          background: rgba(0,0,0,0.7);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
+          background: rgba(0,0,0,0.85);
           opacity: 0;
           pointer-events: none;
-          transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: opacity 0.2s ease-out;
           will-change: opacity;
         }
         .sidebar-overlay.open {
@@ -319,22 +310,19 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           height: 100%;
           z-index: 101;
           width: min(320px, calc(100vw - 48px));
-          background: rgba(12,12,14,0.92);
-          backdrop-filter: blur(40px) saturate(180%);
-          -webkit-backdrop-filter: blur(40px) saturate(180%);
+          background: #0C0C0E;
           border-right: 1px solid rgba(255,255,255,0.08);
           display: flex;
           flex-direction: column;
           overflow-y: auto;
           overflow-x: hidden;
           transform: translateX(-100%);
-          transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease;
+          transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
           will-change: transform;
           -webkit-overflow-scrolling: touch;
         }
         .sidebar-panel.open {
           transform: translateX(0);
-          box-shadow: 20px 0 80px rgba(0,0,0,0.6), inset 0 0 60px rgba(139,92,246,0.03);
         }
         
         .sidebar-gradient-line {
@@ -360,33 +348,15 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           background: transparent;
           border: 1px solid transparent;
           cursor: pointer;
-          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: background 0.12s ease-out, transform 0.12s ease-out;
           position: relative;
-          overflow: hidden;
           width: 100%;
           text-align: left;
-          opacity: 0;
-          transform: translateX(-20px);
-          will-change: transform, opacity, background;
-        }
-        .sidebar-panel.open .menu-item {
-          opacity: 1;
-          transform: translateX(0);
-        }
-        .menu-item:nth-child(1) { transition-delay: 0.08s; }
-        .menu-item:nth-child(2) { transition-delay: 0.12s; }
-        .menu-item:nth-child(3) { transition-delay: 0.16s; }
-        .menu-item:nth-child(4) { transition-delay: 0.20s; }
-        .menu-item:nth-child(5) { transition-delay: 0.24s; }
-        .menu-item:nth-child(6) { transition-delay: 0.28s; }
-        
-        .menu-item:hover {
-          background: rgba(255,255,255,0.04);
+          -webkit-tap-highlight-color: transparent;
         }
         .menu-item:active {
-          transform: scale(0.98) !important;
+          transform: scale(0.98);
           background: rgba(139, 92, 246, 0.2);
-          border-color: rgba(139, 92, 246, 0.35);
         }
         .menu-item.active {
           background: rgba(255,255,255,0.06);
@@ -432,14 +402,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.06);
           cursor: pointer;
-          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-          will-change: transform, background;
-        }
-        .social-link:hover {
-          transform: translateY(-2px);
+          transition: transform 0.12s ease-out, background 0.12s ease-out;
+          -webkit-tap-highlight-color: transparent;
         }
         .social-link:active {
-          transform: translateY(0) scale(0.95);
+          transform: scale(0.95);
+          background: rgba(255,255,255,0.08);
         }
         
         .boost-btn {
@@ -447,29 +415,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           width: 100%;
           padding: 14px 20px;
           border-radius: 12px;
-          background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 50%, #A78BFA 100%);
+          background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%);
           border: none;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          overflow: visible;
-          box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2);
-        }
-        .boost-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 32px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3);
+          transition: transform 0.12s ease-out;
+          -webkit-tap-highlight-color: transparent;
         }
         .boost-btn:active {
-          transform: translateY(0) scale(0.98);
-        }
-        .boost-btn-glow {
-          position: absolute;
-          bottom: -8px;
-          left: 20%;
-          right: 20%;
-          height: 20px;
-          background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.6) 0%, transparent 70%);
-          filter: blur(12px);
-          pointer-events: none;
+          transform: scale(0.98);
         }
         
         .close-btn {
@@ -482,15 +435,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.06);
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: transform 0.12s ease-out;
           flex-shrink: 0;
-        }
-        .close-btn:hover {
-          background: rgba(255,255,255,0.08);
-          border-color: rgba(255,255,255,0.1);
+          -webkit-tap-highlight-color: transparent;
         }
         .close-btn:active {
-          transform: scale(0.95);
+          transform: scale(0.92);
         }
         
         .progress-bar {
@@ -533,12 +483,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           left: 0;
           right: 0;
           z-index: 90;
-          background: rgba(15,15,20,0.65);
-          backdrop-filter: blur(40px) saturate(180%);
-          -webkit-backdrop-filter: blur(40px) saturate(180%);
+          background: rgba(10,10,10,0.95);
           border-bottom: 1px solid rgba(255,255,255,0.06);
           padding-top: max(env(safe-area-inset-top, 0px), 48px);
-          box-shadow: 0 4px 30px rgba(0,0,0,0.3);
         }
       `}</style>
 
