@@ -3447,3 +3447,216 @@ html.slow-network video {
     display: none !important;
   }
 }
+
+/* === PREMIUM 2025 ANIMATIONS === */
+
+/* Animated Gradient Background */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animated-gradient-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.15) 0%,
+    rgba(6, 182, 212, 0.1) 25%,
+    rgba(139, 92, 246, 0.08) 50%,
+    rgba(16, 185, 129, 0.15) 100%
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+/* Subtle ambient glow for premium cards */
+.premium-glow {
+  position: relative;
+}
+
+.premium-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.3) 0%,
+    rgba(6, 182, 212, 0.2) 50%,
+    rgba(16, 185, 129, 0.3) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+  filter: blur(20px);
+}
+
+.premium-glow:hover::before {
+  opacity: 1;
+}
+
+/* Floating animation for featured elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.float-animation {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Pulse glow for CTAs */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.2); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Premium shimmer loading effect */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+/* Staggered card entrance */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card-animate {
+  animation: card-enter 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.card-animate:nth-child(1) { animation-delay: 0.1s; }
+.card-animate:nth-child(2) { animation-delay: 0.2s; }
+.card-animate:nth-child(3) { animation-delay: 0.3s; }
+.card-animate:nth-child(4) { animation-delay: 0.4s; }
+.card-animate:nth-child(5) { animation-delay: 0.5s; }
+.card-animate:nth-child(6) { animation-delay: 0.6s; }
+
+/* Premium glassmorphism */
+.glass-premium {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Subtle border glow on hover */
+.border-glow {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.border-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(6, 182, 212, 0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.border-glow:hover::after {
+  opacity: 1;
+}
+
+/* Text gradient animation */
+@keyframes text-gradient-shift {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+
+.animated-text-gradient {
+  background: linear-gradient(
+    90deg,
+    #10B981,
+    #06B6D4,
+    #8B5CF6,
+    #10B981
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-gradient-shift 5s ease infinite;
+}
+
+/* Subtle scale on tap (mobile) */
+.tap-scale {
+  transition: transform 0.15s ease;
+}
+
+.tap-scale:active {
+  transform: scale(0.97);
+}
+
+/* Premium shadow layers */
+.shadow-premium {
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 16px 32px rgba(0, 0, 0, 0.15),
+    0 32px 64px rgba(0, 0, 0, 0.1);
+}
+
+/* Ambient light effect */
+.ambient-light {
+  position: relative;
+}
+
+.ambient-light::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(16, 185, 129, 0.08) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.ambient-light:hover::before {
+  opacity: 1;
+}

@@ -39,6 +39,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
+      {/* Premium ambient background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 animated-gradient-bg opacity-40" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px]" />
+        <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-[80px]" />
+      </div>
+      
       <div className="max-w-md mx-auto min-h-screen px-3 pb-4 relative z-10" style={{ paddingTop: '120px' }}>
         
         <div className="relative rounded-2xl overflow-hidden mb-6"
@@ -107,14 +114,14 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           
           {/* Main Hero Card - White/Light style like T-P67 */}
           <div 
-            className="relative rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+            className="relative rounded-3xl overflow-hidden group cursor-pointer tap-scale card-animate premium-glow"
             onClick={() => handleOpenDemo('clothing-store')}
             onMouseEnter={() => preloadDemo('clothing-store')}
             onTouchStart={() => preloadDemo('clothing-store')}
             data-testid="demo-card-clothing"
             style={{ 
               background: 'linear-gradient(180deg, #F5F5F7 0%, #E8E8ED 100%)',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255,255,255,0.1)'
             }}
           >
             <div className="p-5 pb-4">
@@ -159,7 +166,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <div className="grid grid-cols-2 gap-3">
             {/* ART STORE style card */}
             <div 
-              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer tap-scale card-animate border-glow"
               onClick={() => handleOpenDemo('sneaker-store')}
               onMouseEnter={() => preloadDemo('sneaker-store')}
               onTouchStart={() => preloadDemo('sneaker-store')}
@@ -183,7 +190,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
             {/* SOUND SHOP style card - Blue tinted */}
             <div 
-              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer tap-scale card-animate border-glow"
               onClick={() => handleOpenDemo('luxury-watches')}
               onMouseEnter={() => preloadDemo('luxury-watches')}
               onTouchStart={() => preloadDemo('luxury-watches')}
@@ -212,7 +219,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <div className="grid grid-cols-2 gap-3">
             {/* Olive/Khaki card like T-P67 DISCOVER */}
             <div 
-              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer tap-scale card-animate border-glow"
               onClick={() => handleOpenDemo('futuristic-fashion-1')}
               onMouseEnter={() => preloadDemo('futuristic-fashion-1')}
               onTouchStart={() => preloadDemo('futuristic-fashion-1')}
@@ -244,7 +251,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
             {/* Dark gray card like MUSIC CLUB */}
             <div 
-              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer tap-scale card-animate border-glow"
               onClick={() => handleOpenDemo('futuristic-fashion-2')}
               onMouseEnter={() => preloadDemo('futuristic-fashion-2')}
               onTouchStart={() => preloadDemo('futuristic-fashion-2')}
@@ -273,7 +280,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <div className="grid grid-cols-2 gap-3">
             {/* Brand card */}
             <div 
-              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer tap-scale card-animate border-glow"
               onClick={() => handleOpenDemo('futuristic-fashion-3')}
               onMouseEnter={() => preloadDemo('futuristic-fashion-3')}
               onTouchStart={() => preloadDemo('futuristic-fashion-3')}
@@ -297,7 +304,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
             {/* Catalog card */}
             <div 
-              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-300 active:scale-[0.98]"
+              className="relative h-[180px] rounded-3xl overflow-hidden group cursor-pointer tap-scale card-animate border-glow"
               onClick={() => handleOpenDemo('futuristic-fashion-4')}
               onMouseEnter={() => preloadDemo('futuristic-fashion-4')}
               onTouchStart={() => preloadDemo('futuristic-fashion-4')}
@@ -327,7 +334,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <MotionBox variant="fadeInScale">
             <HoverScale scale={1.02}>
               <div 
-                className="sm:col-span-2 relative rounded-2xl p-4 sm:p-6 cursor-pointer overflow-hidden group tg-interactive"
+                className="sm:col-span-2 relative rounded-2xl p-4 sm:p-6 cursor-pointer overflow-hidden group tg-interactive tap-scale pulse-glow"
                 style={{
                   background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
                   boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
