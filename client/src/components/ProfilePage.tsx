@@ -371,8 +371,14 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
   const toggleNotifications = useCallback(() => setNotificationsEnabled(prev => !prev), []);
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24" style={{ paddingTop: '140px' }}>
-      <div className="max-w-md mx-auto px-4 pt-4 pb-6 space-y-6">
+    <div className="min-h-screen bg-black text-white pb-24 relative" style={{ paddingTop: '140px' }}>
+      {/* Premium ambient background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-20 left-1/3 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px]" />
+        <div className="absolute bottom-40 right-0 w-48 h-48 bg-cyan-500/5 rounded-full blur-[60px]" />
+      </div>
+      
+      <div className="max-w-md mx-auto px-4 pt-4 pb-6 space-y-6 relative z-10">
         
         {/* User Profile Card */}
         <div className="scroll-fade-in">
