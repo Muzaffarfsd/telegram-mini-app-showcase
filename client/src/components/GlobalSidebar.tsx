@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { Menu, X, Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight } from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight } from "lucide-react";
 import { SiInstagram, SiTelegram } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
 
@@ -12,10 +12,34 @@ interface GlobalSidebarProps {
   };
 }
 
+function AnimatedHamburgerIcon({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="hamburger-btn"
+      aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
+      aria-expanded={isOpen}
+      data-testid="button-hamburger"
+    >
+      <div className="hamburger-icon">
+        <span className={`hamburger-line line-1 ${isOpen ? 'open' : ''}`} />
+        <span className={`hamburger-line line-2 ${isOpen ? 'open' : ''}`} />
+        <span className={`hamburger-line line-3 ${isOpen ? 'open' : ''}`} />
+      </div>
+    </button>
+  );
+}
+
 export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pressedItem, setPressedItem] = useState<string | null>(null);
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const triggerButtonRef = useRef<HTMLButtonElement>(null);
+  const firstFocusableRef = useRef<HTMLButtonElement>(null);
+  const touchStartX = useRef<number>(0);
+  const touchCurrentX = useRef<number>(0);
+  const [swipeOffset, setSwipeOffset] = useState(0);
 
   const menuItems = [
     { 
@@ -55,17 +79,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     },
   ];
 
-  const isActive = (routes: string[]) => routes.includes(currentRoute);
-
-  const handleNavClick = useCallback((section: string) => {
-    setPressedItem(section);
-    setTimeout(() => {
-      onNavigate(section);
-      setSidebarOpen(false);
-      setPressedItem(null);
-    }, 180);
-  }, [onNavigate]);
-
   const socialLinks = [
     { 
       icon: SiInstagram, 
@@ -90,66 +103,470 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     },
   ];
 
+  const triggerHaptic = useCallback((type: 'light' | 'medium' | 'heavy' = 'light') => {
+    try {
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg?.HapticFeedback) {
+        if (type === 'light') tg.HapticFeedback.impactOccurred('light');
+        else if (type === 'medium') tg.HapticFeedback.impactOccurred('medium');
+        else tg.HapticFeedback.impactOccurred('heavy');
+      }
+    } catch (e) {}
+  }, []);
+
+  const openSidebar = useCallback(() => {
+    setIsAnimating(true);
+    setSidebarOpen(true);
+    triggerHaptic('medium');
+    setTimeout(() => {
+      firstFocusableRef.current?.focus();
+    }, 100);
+  }, [triggerHaptic]);
+
+  const closeSidebar = useCallback(() => {
+    setIsAnimating(true);
+    setSidebarOpen(false);
+    setSwipeOffset(0);
+    triggerHaptic('light');
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 350);
+  }, [triggerHaptic]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && sidebarOpen) {
+        closeSidebar();
+      }
+    };
+    
+    if (sidebarOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [sidebarOpen, closeSidebar]);
+
+  useEffect(() => {
+    if (!sidebarOpen || !sidebarRef.current) return;
+
+    const sidebar = sidebarRef.current;
+    const focusableElements = sidebar.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0] as HTMLElement;
+    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    sidebar.addEventListener('keydown', handleTabKey);
+    return () => sidebar.removeEventListener('keydown', handleTabKey);
+  }, [sidebarOpen]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchCurrentX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    touchCurrentX.current = e.touches[0].clientX;
+    const diff = touchStartX.current - touchCurrentX.current;
+    if (diff > 0) {
+      setSwipeOffset(Math.min(diff, 320));
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    const diff = touchStartX.current - touchCurrentX.current;
+    if (diff > 100) {
+      closeSidebar();
+    } else {
+      setSwipeOffset(0);
+    }
+    touchStartX.current = 0;
+    touchCurrentX.current = 0;
+  }, [closeSidebar]);
+
+  const isActive = (routes: string[]) => routes.includes(currentRoute);
+
+  const handleNavClick = useCallback((section: string) => {
+    setPressedItem(section);
+    triggerHaptic('light');
+    setTimeout(() => {
+      onNavigate(section);
+      closeSidebar();
+      setPressedItem(null);
+    }, 150);
+  }, [onNavigate, closeSidebar, triggerHaptic]);
+
   const isProfileActive = ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute);
   const isProfilePressed = pressedItem === 'profile';
-  const isProfileHovered = hoveredItem === 'profile';
 
   return (
     <>
-      {/* SIDEBAR OVERLAY */}
+      <style>{`
+        .hamburger-btn {
+          width: 44px;
+          height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 12px;
+          background: rgba(255,255,255,0.08);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.12);
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+          will-change: transform, background, box-shadow;
+        }
+        .hamburger-btn:hover {
+          background: rgba(255,255,255,0.15);
+          border-color: rgba(255,255,255,0.2);
+          transform: scale(1.05);
+          box-shadow: 0 4px 20px rgba(139,92,246,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .hamburger-btn:active {
+          transform: scale(0.95);
+        }
+        
+        .hamburger-icon {
+          width: 18px;
+          height: 14px;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+        
+        .hamburger-line {
+          display: block;
+          width: 100%;
+          height: 2px;
+          background: #FAFAFA;
+          border-radius: 2px;
+          transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          transform-origin: center;
+          will-change: transform, opacity;
+        }
+        
+        .hamburger-line.line-1.open {
+          transform: translateY(6px) rotate(45deg);
+        }
+        
+        .hamburger-line.line-2.open {
+          opacity: 0;
+          transform: scaleX(0);
+        }
+        
+        .hamburger-line.line-3.open {
+          transform: translateY(-6px) rotate(-45deg);
+        }
+        
+        .sidebar-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 100;
+          background: rgba(0,0,0,0.7);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          will-change: opacity;
+        }
+        .sidebar-overlay.open {
+          opacity: 1;
+          pointer-events: auto;
+        }
+        
+        .sidebar-panel {
+          position: fixed;
+          top: 0;
+          left: 0;
+          height: 100%;
+          z-index: 101;
+          width: min(320px, calc(100vw - 48px));
+          background: rgba(12,12,14,0.92);
+          backdrop-filter: blur(40px) saturate(180%);
+          -webkit-backdrop-filter: blur(40px) saturate(180%);
+          border-right: 1px solid rgba(255,255,255,0.08);
+          display: flex;
+          flex-direction: column;
+          overflow-y: auto;
+          overflow-x: hidden;
+          transform: translateX(-100%);
+          transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease;
+          will-change: transform;
+          -webkit-overflow-scrolling: touch;
+        }
+        .sidebar-panel.open {
+          transform: translateX(0);
+          box-shadow: 20px 0 80px rgba(0,0,0,0.6), inset 0 0 60px rgba(139,92,246,0.03);
+        }
+        
+        .sidebar-gradient-line {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.6) 50%, transparent 100%);
+          opacity: 0;
+          transition: opacity 0.5s ease 0.2s;
+        }
+        .sidebar-panel.open .sidebar-gradient-line {
+          opacity: 1;
+        }
+        
+        .menu-item {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 14px 16px;
+          border-radius: 14px;
+          background: transparent;
+          border: 1px solid transparent;
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+          width: 100%;
+          text-align: left;
+          opacity: 0;
+          transform: translateX(-20px);
+          will-change: transform, opacity, background;
+        }
+        .sidebar-panel.open .menu-item {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        .menu-item:nth-child(1) { transition-delay: 0.08s; }
+        .menu-item:nth-child(2) { transition-delay: 0.12s; }
+        .menu-item:nth-child(3) { transition-delay: 0.16s; }
+        .menu-item:nth-child(4) { transition-delay: 0.20s; }
+        .menu-item:nth-child(5) { transition-delay: 0.24s; }
+        .menu-item:nth-child(6) { transition-delay: 0.28s; }
+        
+        .menu-item:hover {
+          background: rgba(255,255,255,0.04);
+        }
+        .menu-item:active {
+          transform: scale(0.98) !important;
+          background: rgba(139, 92, 246, 0.2);
+          border-color: rgba(139, 92, 246, 0.35);
+        }
+        .menu-item.active {
+          background: rgba(255,255,255,0.06);
+          border-color: rgba(255,255,255,0.08);
+        }
+        
+        .menu-item-glow {
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 3px;
+          height: 24px;
+          border-radius: 0 4px 4px 0;
+          background: linear-gradient(180deg, #A78BFA 0%, #8B5CF6 100%);
+          box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+        }
+        
+        .menu-icon-wrap {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 12px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid transparent;
+          transition: all 0.25s ease;
+          flex-shrink: 0;
+        }
+        .menu-item.active .menu-icon-wrap {
+          background: rgba(139, 92, 246, 0.15);
+          border-color: rgba(139, 92, 246, 0.2);
+        }
+        
+        .social-link {
+          width: 48px;
+          height: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 14px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.06);
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          will-change: transform, background;
+        }
+        .social-link:hover {
+          transform: translateY(-2px);
+        }
+        .social-link:active {
+          transform: translateY(0) scale(0.95);
+        }
+        
+        .boost-btn {
+          position: relative;
+          width: 100%;
+          padding: 14px 20px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 50%, #A78BFA 100%);
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          overflow: visible;
+          box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2);
+        }
+        .boost-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 32px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3);
+        }
+        .boost-btn:active {
+          transform: translateY(0) scale(0.98);
+        }
+        .boost-btn-glow {
+          position: absolute;
+          bottom: -8px;
+          left: 20%;
+          right: 20%;
+          height: 20px;
+          background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.6) 0%, transparent 70%);
+          filter: blur(12px);
+          pointer-events: none;
+        }
+        
+        .close-btn {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 12px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.06);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+        }
+        .close-btn:hover {
+          background: rgba(255,255,255,0.08);
+          border-color: rgba(255,255,255,0.1);
+        }
+        .close-btn:active {
+          transform: scale(0.95);
+        }
+        
+        .progress-bar {
+          position: relative;
+          width: 100%;
+          height: 6px;
+          border-radius: 4px;
+          background: rgba(255,255,255,0.06);
+          overflow: hidden;
+        }
+        .progress-fill {
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 100%;
+          width: 5%;
+          border-radius: 4px;
+          background: linear-gradient(90deg, #8B5CF6 0%, #A78BFA 50%, #C4B5FD 100%);
+          box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+          transition: width 0.5s ease;
+        }
+        .progress-shimmer {
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 100%;
+          width: 100%;
+          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+          animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        
+        .top-bar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 90;
+          background: rgba(15,15,20,0.65);
+          backdrop-filter: blur(40px) saturate(180%);
+          -webkit-backdrop-filter: blur(40px) saturate(180%);
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          padding-top: max(env(safe-area-inset-top, 0px), 48px);
+          box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+        }
+      `}</style>
+
       <div 
-        className={`fixed inset-0 z-[100] transition-all duration-300 ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-        style={{ 
-          background: 'rgba(0,0,0,0.6)', 
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)'
-        }}
-        onClick={() => setSidebarOpen(false)}
+        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+        onClick={closeSidebar}
+        aria-hidden="true"
       />
       
-      {/* SIDEBAR PANEL - Glassmorphism */}
       <div 
-        className={`fixed top-0 left-0 h-full z-[100] transition-transform duration-300 ease-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{ 
-          width: '320px',
-          background: 'rgba(12,12,14,0.85)',
-          backdropFilter: 'blur(40px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-          borderRight: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: sidebarOpen ? '20px 0 80px rgba(0,0,0,0.6), inset 0 0 60px rgba(139,92,246,0.03)' : 'none',
-          display: 'flex',
-          flexDirection: 'column',
-          overflowY: 'auto',
-          overflowX: 'hidden'
+        ref={sidebarRef}
+        className={`sidebar-panel ${sidebarOpen ? 'open' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Главное меню"
+        style={{
+          transform: sidebarOpen 
+            ? `translateX(${-swipeOffset}px)` 
+            : 'translateX(-100%)'
         }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
-        {/* Decorative gradient line at top */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '2px',
-          background: 'linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.5) 50%, transparent 100%)'
-        }} />
+        <div className="sidebar-gradient-line" />
 
-        {/* Sidebar Header with User */}
         <div style={{ 
           padding: '60px 24px 28px 24px',
           borderBottom: '1px solid rgba(255,255,255,0.05)'
         }}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div style={{
-                position: 'relative'
-              }}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-4 min-w-0 flex-1">
+              <div style={{ position: 'relative', flexShrink: 0 }}>
                 <UserAvatar
                   photoUrl={user?.photo_url}
                   firstName={user?.first_name}
                   size="md"
                   className="ring-2 ring-white/10"
                 />
-                {/* Online indicator */}
                 <div style={{
                   position: 'absolute',
                   bottom: '2px',
@@ -161,17 +578,19 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   border: '2px solid #0C0C0E'
                 }} />
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{
                   fontSize: '16px',
                   fontWeight: 600,
                   letterSpacing: '-0.02em',
-                  color: '#FAFAFA'
+                  color: '#FAFAFA',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
                 }}>
                   {user?.first_name || 'Гость'}
                 </p>
                 
-                {/* Level Progress Bar */}
                 <div style={{ marginTop: '8px' }}>
                   <div style={{
                     display: 'flex',
@@ -215,74 +634,27 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                     </span>
                   </div>
                   
-                  {/* Progress Bar */}
-                  <div style={{
-                    position: 'relative',
-                    width: '100%',
-                    height: '6px',
-                    borderRadius: '4px',
-                    background: 'rgba(255,255,255,0.06)',
-                    overflow: 'hidden'
-                  }}>
-                    {/* Progress Fill */}
-                    <div style={{
-                      position: 'absolute',
-                      left: 0,
-                      top: 0,
-                      height: '100%',
-                      width: '5%',
-                      borderRadius: '4px',
-                      background: 'linear-gradient(90deg, #8B5CF6 0%, #A78BFA 50%, #C4B5FD 100%)',
-                      boxShadow: '0 0 12px rgba(139, 92, 246, 0.5)',
-                      transition: 'width 0.5s ease'
-                    }} />
-                    {/* Shimmer Effect */}
-                    <div style={{
-                      position: 'absolute',
-                      left: 0,
-                      top: 0,
-                      height: '100%',
-                      width: '100%',
-                      background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
-                      animation: 'shimmer 2s infinite'
-                    }} />
+                  <div className="progress-bar">
+                    <div className="progress-fill" />
+                    <div className="progress-shimmer" />
                   </div>
                 </div>
               </div>
             </div>
             <button
-              onClick={() => setSidebarOpen(false)}
-              style={{
-                width: '40px',
-                height: '40px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '12px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                flexShrink: 0
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
-              }}
+              ref={firstFocusableRef}
+              onClick={closeSidebar}
+              className="close-btn"
               aria-label="Закрыть меню"
               data-testid="button-close-sidebar"
             >
-              <X size={18} color="#A1A1AA" />
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M4 4L14 14M14 4L4 14" stroke="#A1A1AA" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
             </button>
           </div>
           
-          {/* Minimalist App Progress */}
           <div style={{ marginTop: '24px' }}>
-            {/* Section Label */}
             <p style={{
               fontSize: '10px',
               fontWeight: 700,
@@ -294,14 +666,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               Статус вашего проекта
             </p>
             
-            {/* Progress Card */}
             <div style={{
               padding: '16px',
               borderRadius: '14px',
               background: 'rgba(255,255,255,0.02)',
               border: '1px solid rgba(255,255,255,0.06)'
             }}>
-              {/* Title Row */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -325,7 +695,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 </span>
               </div>
               
-              {/* Minimal Progress Bar */}
               <div style={{
                 width: '100%',
                 height: '4px',
@@ -343,7 +712,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 }} />
               </div>
               
-              {/* Stages Row */}
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -362,7 +730,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                     alignItems: 'center',
                     gap: '8px'
                   }}>
-                    {/* Number Circle */}
                     <div style={{
                       width: '28px',
                       height: '28px',
@@ -385,7 +752,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                         {stage.num}
                       </span>
                     </div>
-                    {/* Label */}
                     <span style={{
                       fontSize: '10px',
                       fontWeight: stage.active ? 600 : 500,
@@ -401,7 +767,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </div>
         </div>
         
-        {/* Sidebar Navigation */}
         <nav style={{ padding: '24px 16px', flex: 1 }}>
           <p style={{
             fontSize: '10px',
@@ -415,90 +780,32 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             Навигация
           </p>
           
-          {/* Nav Items */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {menuItems.map((item) => {
               const active = isActive(item.routes);
               const isPressed = pressedItem === item.section;
-              const isHovered = hoveredItem === item.section;
               
               return (
                 <button
                   key={item.section}
                   onClick={() => handleNavClick(item.section)}
-                  onMouseEnter={() => setHoveredItem(item.section)}
-                  onMouseLeave={() => setHoveredItem(null)}
-                  className="w-full group"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '14px',
-                    padding: '14px 16px',
-                    borderRadius: '14px',
-                    background: isPressed 
-                      ? 'rgba(139, 92, 246, 0.2)' 
-                      : active 
-                        ? 'rgba(255,255,255,0.06)' 
-                        : isHovered
-                          ? 'rgba(255,255,255,0.04)'
-                          : 'transparent',
-                    border: isPressed 
-                      ? '1px solid rgba(139, 92, 246, 0.35)'
-                      : active 
-                        ? '1px solid rgba(255,255,255,0.08)' 
-                        : '1px solid transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    transform: isPressed ? 'scale(0.98)' : 'scale(1)',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
+                  className={`menu-item ${active ? 'active' : ''} ${isPressed ? 'pressed' : ''}`}
                   data-testid={`button-nav-${item.section || 'home'}`}
                 >
-                  {/* Glow effect for active */}
-                  {active && (
-                    <div style={{
-                      position: 'absolute',
-                      left: 0,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      width: '3px',
-                      height: '24px',
-                      borderRadius: '0 4px 4px 0',
-                      background: 'linear-gradient(180deg, #A78BFA 0%, #8B5CF6 100%)',
-                      boxShadow: '0 0 12px rgba(139, 92, 246, 0.5)'
-                    }} />
-                  )}
+                  {active && <div className="menu-item-glow" />}
                   
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '12px',
-                    background: isPressed 
-                      ? 'rgba(139, 92, 246, 0.3)'
-                      : active 
-                        ? 'rgba(139, 92, 246, 0.15)' 
-                        : 'rgba(255,255,255,0.04)',
-                    border: active ? '1px solid rgba(139, 92, 246, 0.2)' : '1px solid transparent',
-                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    flexShrink: 0
-                  }}>
+                  <div className="menu-icon-wrap">
                     <item.icon 
                       size={20} 
-                      color={isPressed || active ? '#A78BFA' : isHovered ? '#E4E4E7' : '#71717A'} 
-                      style={{ transition: 'color 0.2s ease' }}
+                      color={isPressed || active ? '#A78BFA' : '#71717A'} 
                     />
                   </div>
                   
-                  <div style={{ flex: 1, textAlign: 'left' }}>
+                  <div style={{ flex: 1 }}>
                     <span style={{
                       fontSize: '15px',
                       fontWeight: isPressed || active ? 600 : 500,
-                      color: isPressed || active ? '#FAFAFA' : isHovered ? '#E4E4E7' : '#A1A1AA',
-                      transition: 'all 0.2s ease',
+                      color: isPressed || active ? '#FAFAFA' : '#A1A1AA',
                       display: 'block'
                     }}>
                       {item.label}
@@ -507,9 +814,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                       fontSize: '11px',
                       color: '#52525B',
                       marginTop: '2px',
-                      display: 'block',
-                      opacity: active || isHovered ? 1 : 0.7,
-                      transition: 'opacity 0.2s ease'
+                      display: 'block'
                     }}>
                       {item.description}
                     </span>
@@ -518,69 +823,25 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   <ChevronRight 
                     size={16} 
                     color={active ? '#A78BFA' : '#3F3F46'}
-                    style={{
-                      opacity: active || isHovered ? 1 : 0,
-                      transform: isHovered && !active ? 'translateX(2px)' : 'translateX(0)',
-                      transition: 'all 0.2s ease'
-                    }}
+                    style={{ opacity: active ? 1 : 0.5 }}
                   />
                 </button>
               );
             })}
           </div>
           
-          {/* Divider */}
           <div style={{
             height: '1px',
             background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%)',
             margin: '16px 0'
           }} />
           
-          {/* Profile Button with Avatar */}
           <button
             onClick={() => handleNavClick('profile')}
-            onMouseEnter={() => setHoveredItem('profile')}
-            onMouseLeave={() => setHoveredItem(null)}
-            className="w-full group"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '14px',
-              padding: '14px 16px',
-              borderRadius: '14px',
-              background: isProfilePressed
-                ? 'rgba(139, 92, 246, 0.2)'
-                : isProfileActive 
-                  ? 'rgba(255,255,255,0.06)' 
-                  : isProfileHovered
-                    ? 'rgba(255,255,255,0.04)'
-                    : 'transparent',
-              border: isProfilePressed
-                ? '1px solid rgba(139, 92, 246, 0.35)'
-                : isProfileActive 
-                  ? '1px solid rgba(255,255,255,0.08)' 
-                  : '1px solid transparent',
-              cursor: 'pointer',
-              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-              transform: isProfilePressed ? 'scale(0.98)' : 'scale(1)',
-              position: 'relative'
-            }}
+            className={`menu-item ${isProfileActive ? 'active' : ''} ${isProfilePressed ? 'pressed' : ''}`}
             data-testid="button-nav-profile"
           >
-            {/* Glow effect for active */}
-            {isProfileActive && (
-              <div style={{
-                position: 'absolute',
-                left: 0,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: '3px',
-                height: '24px',
-                borderRadius: '0 4px 4px 0',
-                background: 'linear-gradient(180deg, #A78BFA 0%, #8B5CF6 100%)',
-                boxShadow: '0 0 12px rgba(139, 92, 246, 0.5)'
-              }} />
-            )}
+            {isProfileActive && <div className="menu-item-glow" />}
             
             <div style={{
               position: 'relative',
@@ -598,12 +859,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               />
             </div>
             
-            <div style={{ flex: 1, textAlign: 'left' }}>
+            <div style={{ flex: 1 }}>
               <span style={{
                 fontSize: '15px',
                 fontWeight: isProfilePressed || isProfileActive ? 600 : 500,
-                color: isProfilePressed || isProfileActive ? '#FAFAFA' : isProfileHovered ? '#E4E4E7' : '#A1A1AA',
-                transition: 'all 0.2s ease',
+                color: isProfilePressed || isProfileActive ? '#FAFAFA' : '#A1A1AA',
                 display: 'block'
               }}>
                 Мой профиль
@@ -612,9 +872,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 fontSize: '11px',
                 color: '#52525B',
                 marginTop: '2px',
-                display: 'block',
-                opacity: isProfileActive || isProfileHovered ? 1 : 0.7,
-                transition: 'opacity 0.2s ease'
+                display: 'block'
               }}>
                 Награды и достижения
               </span>
@@ -623,16 +881,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             <ChevronRight 
               size={16} 
               color={isProfileActive ? '#A78BFA' : '#3F3F46'}
-              style={{
-                opacity: isProfileActive || isProfileHovered ? 1 : 0,
-                transform: isProfileHovered && !isProfileActive ? 'translateX(2px)' : 'translateX(0)',
-                transition: 'all 0.2s ease'
-              }}
+              style={{ opacity: isProfileActive ? 1 : 0.5 }}
             />
           </button>
         </nav>
         
-        {/* Quick Stats Card */}
         <div style={{
           margin: '0 16px 16px',
           padding: '20px',
@@ -642,7 +895,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           position: 'relative',
           overflow: 'hidden'
         }}>
-          {/* Decorative gradient orb */}
           <div style={{
             position: 'absolute',
             top: '-20px',
@@ -684,7 +936,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </div>
         </div>
         
-        {/* Boost with AI Card - Like in reference */}
         <div style={{ 
           padding: '16px 20px',
           marginTop: 'auto'
@@ -719,47 +970,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               ИИ-ассистент для бизнеса: ответы 24/7, рост продаж на 300%
             </p>
             
-            {/* Glow Button */}
             <button
               onClick={() => handleNavClick('ai-process')}
-              style={{
-                position: 'relative',
-                width: '100%',
-                padding: '14px 20px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 50%, #A78BFA 100%)',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                overflow: 'visible'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2)';
-              }}
-              onMouseDown={(e) => {
-                e.currentTarget.style.transform = 'translateY(0) scale(0.98)';
-              }}
-              onMouseUp={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px) scale(1)';
-              }}
+              className="boost-btn"
               data-testid="button-upgrade-pro"
             >
-              {/* Glow effect underneath */}
-              <div style={{
-                position: 'absolute',
-                bottom: '-8px',
-                left: '20%',
-                right: '20%',
-                height: '20px',
-                background: 'radial-gradient(ellipse at center, rgba(139, 92, 246, 0.6) 0%, transparent 70%)',
-                filter: 'blur(12px)',
-                pointerEvents: 'none'
-              }} />
+              <div className="boost-btn-glow" />
               <span style={{
                 position: 'relative',
                 fontSize: '14px',
@@ -773,13 +989,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </div>
         </div>
 
-        {/* Sidebar Footer with Social Links */}
         <div style={{
           padding: '20px 24px 28px',
           borderTop: '1px solid rgba(255,255,255,0.05)',
           background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.2) 100%)'
         }}>
-          {/* Social Links Label */}
           <p style={{
             fontSize: '10px',
             fontWeight: 700,
@@ -791,7 +1005,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             Связаться с нами
           </p>
           
-          {/* Social Links */}
           <div style={{
             display: 'flex',
             gap: '10px',
@@ -803,30 +1016,18 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '14px',
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  cursor: 'pointer',
-                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
+                className="social-link"
+                style={{ '--hover-bg': social.hoverBg, '--hover-border': `${social.color}40` } as any}
                 aria-label={social.label}
                 data-testid={`link-social-${social.label.toLowerCase().replace(' ', '-')}`}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = social.hoverBg;
                   e.currentTarget.style.borderColor = `${social.color}40`;
-                  e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = `0 8px 24px ${social.color}20`;
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
-                  e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
@@ -835,7 +1036,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             ))}
           </div>
           
-          {/* Copyright */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -876,63 +1076,13 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         </div>
       </div>
 
-      {/* TOP BAR WITH MENU BUTTON - Glassmorphism Style */}
-      <div 
-        className="fixed top-0 left-0 right-0 z-[90]"
-        style={{
-          background: 'rgba(15,15,20,0.65)',
-          backdropFilter: 'blur(40px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          paddingTop: 'max(env(safe-area-inset-top, 0px), 48px)',
-          boxShadow: '0 4px 30px rgba(0,0,0,0.3)'
-        }}
-      >
-        <div className="max-w-md mx-auto px-5 py-6 flex items-center justify-between">
-          {/* Glass Menu Button */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="glass-menu-btn"
-            style={{
-              width: '44px',
-              height: '44px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '12px',
-              background: 'rgba(255,255,255,0.08)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              cursor: 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
-              e.currentTarget.style.transform = 'scale(1.05)';
-              e.currentTarget.style.boxShadow = '0 4px 20px rgba(139,92,246,0.25), inset 0 1px 0 rgba(255,255,255,0.15)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)';
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)';
-            }}
-            onMouseDown={(e) => {
-              e.currentTarget.style.transform = 'scale(0.95)';
-            }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.transform = 'scale(1.05)';
-            }}
-            aria-label="Открыть меню"
-            data-testid="button-open-sidebar"
-          >
-            <Menu size={20} color="#FAFAFA" />
-          </button>
+      <div className="top-bar">
+        <div className="max-w-md mx-auto px-5 py-6 flex items-center justify-between gap-4">
+          <AnimatedHamburgerIcon 
+            isOpen={sidebarOpen} 
+            onClick={() => sidebarOpen ? closeSidebar() : openSidebar()} 
+          />
           
-          {/* Logo */}
           <p style={{
             fontSize: '13px',
             fontWeight: 600,
@@ -944,7 +1094,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             WEB4TG STUDIO
           </p>
           
-          {/* Empty space for balance */}
           <div style={{ width: '44px' }} />
         </div>
       </div>
