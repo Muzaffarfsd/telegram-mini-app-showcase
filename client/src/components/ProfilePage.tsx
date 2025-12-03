@@ -95,7 +95,7 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
   const photoUrl = telegramUser?.photo_url;
   
   return (
-    <section className="liquid-glass-card-elevated rounded-2xl p-6 text-center liquid-glass-shimmer relative overflow-hidden">
+    <section className="p-6 text-center relative overflow-hidden">
       {/* Background Brand Text */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
         <span 
