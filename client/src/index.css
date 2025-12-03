@@ -943,12 +943,12 @@ body {
   /* === DEMO APP SAFE NAVIGATION === */
   /* Класс для верхней навигации в демо-приложениях */
   /* Учитывает safe area + дополнительный padding для fullscreen режима Telegram */
-  /* Left padding увеличен до 70px чтобы избежать перекрытия кнопкой закрытия Telegram */
+  /* Симметричные отступы слева и справа для правильного центрирования на мобильных */
   .demo-nav-safe {
     padding-top: max(env(safe-area-inset-top, 0px), 3.5rem);
-    padding-left: max(env(safe-area-inset-left, 0px), 4.5rem);
-    padding-right: max(env(safe-area-inset-right, 0px), 1.5rem);
-    padding-bottom: 1.5rem;
+    padding-left: max(env(safe-area-inset-left, 0px), 0px);
+    padding-right: max(env(safe-area-inset-right, 0px), 0px);
+    padding-bottom: 0.5rem;
   }
 
   /* === TELEGRAM MINI APP ACTIVE STATES === */
