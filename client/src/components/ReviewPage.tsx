@@ -1,30 +1,12 @@
 import { useState, memo } from "react";
-import { ArrowRight, Star, Send, CheckCircle, MessageSquare, TrendingUp, Award } from "lucide-react";
+import { ArrowRight, Star, Send, CheckCircle, MessageSquare, TrendingUp, Award, MapPin, Building2, Loader2 } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import type { Review } from "@shared/schema";
 
 interface ReviewPageProps {
   onBack: () => void;
 }
-
-const reviews = [
-  {
-    name: "Анна К.",
-    company: "Бутик «Элегант»",
-    text: "Продажи выросли на 180% за первый месяц. Клиенты в восторге от удобства.",
-    rating: 5
-  },
-  {
-    name: "Михаил П.",
-    company: "Ресторан доставки",
-    text: "Заказы идут круглосуточно. Лучшее вложение в бизнес за последние годы.",
-    rating: 5
-  },
-  {
-    name: "Елена С.",
-    company: "Фитнес-центр",
-    text: "Запись на тренировки автоматизирована. Высвободили 3 часа в день.",
-    rating: 5
-  }
-];
 
 const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
   const [rating, setRating] = useState(0);
@@ -32,18 +14,50 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { data: reviews = [], isLoading } = useQuery<Review[]>({
+    queryKey: ['/api/reviews'],
+  });
+
+  const submitMutation = useMutation({
+    mutationFn: async (data: { name: string; company?: string; rating: number; text: string }) => {
+      const payload: Record<string, unknown> = {
+        name: data.name,
+        rating: data.rating,
+        text: data.text,
+      };
+      if (data.company) {
+        payload.company = data.company;
+      }
+      return apiRequest('/api/reviews', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    },
+    onSuccess: () => {
+      setSubmitted(true);
+      queryClient.invalidateQueries({ queryKey: ['/api/reviews'] });
+    },
+  });
 
   const handleSubmit = async () => {
     if (rating > 0 && comment.trim().length >= 10 && name.trim().length >= 2) {
-      setIsSubmitting(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setIsSubmitting(false);
-      setSubmitted(true);
+      const trimmedCompany = company.trim();
+      submitMutation.mutate({
+        name: name.trim(),
+        ...(trimmedCompany ? { company: trimmedCompany } : {}),
+        rating,
+        text: comment.trim(),
+      });
     }
   };
 
   const isValid = rating > 0 && comment.trim().length >= 10 && name.trim().length >= 2;
+  const isSubmitting = submitMutation.isPending;
+
+  const avgRating = reviews.length > 0 
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+    : '5.0';
 
   if (submitted) {
     return (
@@ -84,7 +98,7 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
               color: '#71717A',
               marginBottom: '24px'
             }}>
-              Ваше мнение важно для нас
+              Отзыв отправлен на модерацию
             </p>
             
             <button
@@ -211,8 +225,8 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
             {[
-              { icon: Star, value: '4.9', label: 'рейтинг' },
-              { icon: MessageSquare, value: '127', label: 'отзывов' },
+              { icon: Star, value: avgRating, label: 'рейтинг' },
+              { icon: MessageSquare, value: String(reviews.length || 127), label: 'отзывов' },
               { icon: TrendingUp, value: '96%', label: 'рекомендуют' }
             ].map((stat, index) => (
               <div 
@@ -389,7 +403,10 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
             data-testid="button-submit-review"
           >
             {isSubmitting ? (
-              <span>Отправляем...</span>
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                <span>Отправляем...</span>
+              </>
             ) : (
               <>
                 <Send size={18} />
@@ -415,56 +432,164 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
             Отзывы клиентов
           </p>
           
-          <div className="space-y-4">
-            {reviews.map((review, index) => (
-              <div 
-                key={index}
-                style={{
-                  padding: '20px',
-                  borderRadius: '14px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.04)'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '10px',
-                    background: 'rgba(139, 92, 246, 0.1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
+          {isLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+              <Loader2 size={24} color="#A78BFA" className="animate-spin" />
+            </div>
+          ) : reviews.length === 0 ? (
+            <div style={{
+              padding: '40px 20px',
+              borderRadius: '14px',
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid rgba(255, 255, 255, 0.04)',
+              textAlign: 'center'
+            }}>
+              <MessageSquare size={32} color="#52525B" style={{ margin: '0 auto 12px' }} />
+              <p style={{ fontSize: '14px', color: '#71717A' }}>
+                Станьте первым, кто оставит отзыв
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {reviews.map((review) => (
+                <div 
+                  key={review.id}
+                  style={{
+                    padding: '20px',
+                    borderRadius: '14px',
+                    background: review.isFeatured 
+                      ? 'linear-gradient(135deg, rgba(139,92,246,0.06) 0%, rgba(255,255,255,0.02) 100%)'
+                      : 'rgba(255, 255, 255, 0.02)',
+                    border: review.isFeatured 
+                      ? '1px solid rgba(139, 92, 246, 0.15)'
+                      : '1px solid rgba(255, 255, 255, 0.04)'
+                  }}
+                  data-testid={`card-review-${review.id}`}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                    {/* Avatar/Logo */}
+                    {review.logoUrl ? (
+                      <div style={{
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '10px',
+                        background: '#FAFAFA',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        flexShrink: 0
+                      }}>
+                        <img 
+                          src={review.logoUrl} 
+                          alt={review.company || review.name}
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            objectFit: 'contain'
+                          }}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div style={{
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '10px',
+                        background: 'linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                      }}>
+                        <span style={{ fontSize: '18px', fontWeight: 600, color: '#FAFAFA' }}>
+                          {review.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <p style={{ 
+                          fontSize: '15px', 
+                          fontWeight: 600, 
+                          color: '#FAFAFA',
+                          lineHeight: '1.3'
+                        }}>
+                          {review.name}
+                        </p>
+                        {review.isFeatured && (
+                          <span style={{
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            background: 'rgba(167, 139, 250, 0.15)',
+                            fontSize: '10px',
+                            fontWeight: 600,
+                            color: '#A78BFA',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em'
+                          }}>
+                            Top
+                          </span>
+                        )}
+                      </div>
+                      
+                      {review.company && (
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '4px',
+                          marginTop: '2px'
+                        }}>
+                          <Building2 size={12} color="#52525B" />
+                          <p style={{ fontSize: '13px', color: '#71717A' }}>
+                            {review.company}
+                          </p>
+                        </div>
+                      )}
+                      
+                      {review.location && (
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '4px',
+                          marginTop: '2px'
+                        }}>
+                          <MapPin size={11} color="#52525B" />
+                          <p style={{ fontSize: '12px', color: '#52525B' }}>
+                            {review.location}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Rating stars */}
+                    <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star 
+                          key={i} 
+                          size={12} 
+                          fill={i < review.rating ? '#F59E0B' : 'none'} 
+                          color={i < review.rating ? '#F59E0B' : '#3F3F46'} 
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#A1A1AA',
+                    lineHeight: '1.6',
+                    fontStyle: 'italic'
                   }}>
-                    <span style={{ fontSize: '16px', fontWeight: 600, color: '#A78BFA' }}>
-                      {review.name.charAt(0)}
-                    </span>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '14px', fontWeight: 600, color: '#FAFAFA' }}>
-                      {review.name}
-                    </p>
-                    <p style={{ fontSize: '12px', color: '#52525B' }}>
-                      {review.company}
-                    </p>
-                  </div>
-                  <div style={{ marginLeft: 'auto', display: 'flex', gap: '2px' }}>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} size={12} fill="#F59E0B" color="#F59E0B" />
-                    ))}
-                  </div>
+                    «{review.text}»
+                  </p>
                 </div>
-                <p style={{
-                  fontSize: '14px',
-                  color: '#A1A1AA',
-                  lineHeight: '1.5',
-                  fontStyle: 'italic'
-                }}>
-                  «{review.text}»
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* CTA */}
