@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, forwardRef } from "react";
 import { Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight } from "lucide-react";
 import { SiInstagram, SiTelegram } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
@@ -12,23 +12,33 @@ interface GlobalSidebarProps {
   };
 }
 
-function AnimatedHamburgerIcon({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="hamburger-btn"
-      aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
-      aria-expanded={isOpen}
-      data-testid="button-hamburger"
-    >
-      <div className="hamburger-icon">
-        <span className={`hamburger-line line-1 ${isOpen ? 'open' : ''}`} />
-        <span className={`hamburger-line line-2 ${isOpen ? 'open' : ''}`} />
-        <span className={`hamburger-line line-3 ${isOpen ? 'open' : ''}`} />
-      </div>
-    </button>
-  );
+interface AnimatedHamburgerIconProps {
+  isOpen: boolean;
+  onClick: () => void;
 }
+
+const AnimatedHamburgerIcon = forwardRef<HTMLButtonElement, AnimatedHamburgerIconProps>(
+  ({ isOpen, onClick }, ref) => {
+    return (
+      <button
+        ref={ref}
+        onClick={onClick}
+        className="hamburger-btn"
+        aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
+        aria-expanded={isOpen}
+        data-testid="button-hamburger"
+      >
+        <div className="hamburger-icon">
+          <span className={`hamburger-line line-1 ${isOpen ? 'open' : ''}`} />
+          <span className={`hamburger-line line-2 ${isOpen ? 'open' : ''}`} />
+          <span className={`hamburger-line line-3 ${isOpen ? 'open' : ''}`} />
+        </div>
+      </button>
+    );
+  }
+);
+
+AnimatedHamburgerIcon.displayName = 'AnimatedHamburgerIcon';
 
 export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -130,6 +140,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     triggerHaptic('light');
     setTimeout(() => {
       setIsAnimating(false);
+      triggerButtonRef.current?.focus();
     }, 350);
   }, [triggerHaptic]);
 
@@ -1079,6 +1090,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       <div className="top-bar">
         <div className="max-w-md mx-auto px-5 py-6 flex items-center justify-between gap-4">
           <AnimatedHamburgerIcon 
+            ref={triggerButtonRef}
             isOpen={sidebarOpen} 
             onClick={() => sidebarOpen ? closeSidebar() : openSidebar()} 
           />
