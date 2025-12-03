@@ -137,6 +137,17 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
           )}
         </div>
       </div>
+      
+      {/* User name */}
+      <h2 className="ios-title2 mt-4 text-white" data-testid="user-name">
+        {profileData.name}
+      </h2>
+      
+      {profileData.username && (
+        <div className="ios-footnote text-white/50 mt-1" data-testid="user-username">
+          {profileData.username}
+        </div>
+      )}
     </section>
   );
 });
