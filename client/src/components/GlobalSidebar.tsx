@@ -485,7 +485,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           z-index: 90;
           background: rgba(10,10,10,0.95);
           border-bottom: 1px solid rgba(255,255,255,0.06);
-          padding-top: env(safe-area-inset-top, 0px);
+          padding-top: max(env(safe-area-inset-top, 0px), 12px);
         }
       `}</style>
 
@@ -1035,7 +1035,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       </div>
 
       <div className="top-bar">
-        <div className="max-w-md mx-auto px-5 pt-6 pb-2 flex items-center justify-between gap-4">
+        <div className="max-w-md mx-auto px-5 pt-8 pb-4 flex items-center justify-between gap-4">
           <AnimatedHamburgerIcon 
             ref={triggerButtonRef}
             isOpen={sidebarOpen} 
@@ -1043,11 +1043,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           />
           
           <p style={{
-            fontSize: '12px',
+            fontSize: '13px',
             fontWeight: 600,
-            letterSpacing: '0.12em',
+            letterSpacing: '0.14em',
             color: '#FAFAFA',
-            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+            textShadow: '0 0 20px rgba(255,255,255,0.1)'
           }}>
             WEB4TG STUDIO
           </p>
