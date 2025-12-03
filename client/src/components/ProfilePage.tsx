@@ -106,10 +106,23 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
         </span>
       </div>
       
-      {/* User Avatar - Black circle with real photo */}
-      <div className="relative w-24 h-24 mx-auto mb-4 z-10" data-testid="user-avatar">
+      {/* User Avatar - Premium black with glow */}
+      <div className="relative w-24 h-24 mx-auto z-10" data-testid="user-avatar">
+        {/* Glow effect */}
         <div 
-          className="w-full h-full rounded-full bg-black flex items-center justify-center shadow-lg border border-white/10 overflow-hidden"
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
+            filter: 'blur(8px)',
+            transform: 'scale(1.15)'
+          }}
+        />
+        <div 
+          className="relative w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden"
+          style={{
+            boxShadow: '0 0 20px rgba(255,255,255,0.1), 0 0 40px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.15)'
+          }}
           data-testid="avatar-container"
         >
           {photoUrl ? (
@@ -126,16 +139,6 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
           )}
         </div>
       </div>
-      
-      <h2 className="ios-title2 mb-2 text-white relative z-10" data-testid="user-name">
-        {profileData.name}
-      </h2>
-      
-      {profileData.username && (
-        <div className="ios-footnote text-white/50 relative z-10" data-testid="user-username">
-          {profileData.username}
-        </div>
-      )}
     </section>
   );
 });
