@@ -11,14 +11,20 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
 
   return (
     <div 
-      className="min-h-screen pb-32"
+      className="min-h-screen pb-32 relative"
       style={{ 
         background: '#09090B',
         color: '#E4E4E7',
         paddingTop: '140px'
       }}
     >
-      <div className="max-w-md mx-auto">
+      {/* Premium ambient background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-32 right-0 w-72 h-72 bg-violet-500/5 rounded-full blur-[100px]" />
+        <div className="absolute bottom-48 left-0 w-56 h-56 bg-blue-500/5 rounded-full blur-[80px]" />
+      </div>
+      
+      <div className="max-w-md mx-auto relative z-10">
         
         {/* ═══════════════════════════════════════════════════════
             TIER 1: HERO — Authority-Led, Understated

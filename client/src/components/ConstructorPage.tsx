@@ -292,8 +292,14 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
   }, [selectedFeatures, selectedTemplate]);
 
   return (
-    <div className="min-h-screen bg-black text-white pb-32" style={{ paddingTop: '140px' }}>
-      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-black text-white pb-32 relative" style={{ paddingTop: '140px' }}>
+      {/* Premium ambient background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-40 right-0 w-56 h-56 bg-green-500/5 rounded-full blur-[80px]" />
+        <div className="absolute bottom-60 left-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[100px]" />
+      </div>
+      
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6 relative z-10">
         
         {/* Payment Model Section */}
         <section className="scroll-fade-in">
