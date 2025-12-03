@@ -464,13 +464,12 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
             </button>
           </m.div>
 
-          {/* Hero Banner */}
+          {/* Hero Banner - Responsive */}
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="relative rounded-[28px] overflow-hidden mb-6"
-            style={{ height: '280px' }}
+            className="relative rounded-responsive-lg overflow-hidden mb-6 h-responsive-banner"
           >
             <img
               src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop&q=90"
@@ -478,27 +477,27 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-            <div className="absolute inset-0 flex flex-col justify-end p-6">
+            <div className="absolute inset-0 flex flex-col justify-end p-responsive">
               <div 
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-3 self-start"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full mb-2 self-start"
                 style={{ background: 'rgba(212, 165, 116, 0.2)', border: '1px solid rgba(212, 165, 116, 0.3)' }}
               >
-                <Sparkles className="w-3.5 h-3.5" style={{ color: COLORS.accent1 }} />
-                <span className="text-[11px] font-semibold tracking-wider" style={{ color: COLORS.accent1 }}>
+                <Sparkles className="w-3 h-3" style={{ color: COLORS.accent1 }} />
+                <span className="text-responsive-xs font-semibold tracking-wider" style={{ color: COLORS.accent1 }}>
                   LIMITED EDITION
                 </span>
               </div>
               <h2 
-                className="text-[32px] font-bold leading-[1.1] mb-2"
+                className="text-responsive-hero font-bold leading-[1.1] mb-1.5"
                 style={{ color: COLORS.textPrimary, letterSpacing: '-0.02em' }}
               >
                 The Midnight<br/>Rose Collection
               </h2>
-              <p className="text-[13px] mb-4" style={{ color: COLORS.textSecondary }}>
+              <p className="text-responsive-sm mb-3" style={{ color: COLORS.textSecondary }}>
                 Exclusive anti-aging formulas with pure rose extract
               </p>
               <button 
-                className="self-start px-6 py-3 rounded-full text-[13px] font-bold tracking-wide uppercase"
+                className="self-start px-5 py-2.5 rounded-full text-responsive-sm font-bold tracking-wide uppercase touch-target"
                 style={{ background: COLORS.accent1, color: '#0A0A0A', boxShadow: COLORS.glowGold }}
                 data-testid="button-shop-collection"
               >
@@ -533,37 +532,37 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
             ))}
           </m.div>
 
-          {/* Shop by Category */}
+          {/* Shop by Category - Responsive */}
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="mb-8"
+            className="mb-6"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[18px] font-bold" style={{ color: COLORS.textPrimary }}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-responsive-xl font-bold" style={{ color: COLORS.textPrimary }}>
                 Shop by Category
               </h3>
-              <button className="text-[13px] font-medium flex items-center gap-1" style={{ color: COLORS.accent1 }}>
+              <button className="text-responsive-sm font-medium flex items-center gap-1 touch-target-sm" style={{ color: COLORS.accent1 }}>
                 All <ChevronRight className="w-4 h-4" />
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid-responsive-3">
               {featuredCategories.map((cat, idx) => (
                 <m.div
                   key={cat.name}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.15 + idx * 0.05 }}
-                  className="relative rounded-2xl overflow-hidden cursor-pointer"
+                  className="relative rounded-responsive overflow-hidden cursor-pointer"
                   style={{ aspectRatio: '3/4' }}
                   onClick={() => setSelectedCategory(cat.name)}
                 >
                   <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <p className="text-[13px] font-bold" style={{ color: COLORS.textPrimary }}>{cat.name}</p>
-                    <p className="text-[10px]" style={{ color: COLORS.textSecondary }}>{cat.count} products</p>
+                  <div className="absolute bottom-2 left-2 right-2">
+                    <p className="text-responsive-sm font-bold" style={{ color: COLORS.textPrimary }}>{cat.name}</p>
+                    <p className="text-responsive-xs" style={{ color: COLORS.textSecondary }}>{cat.count} products</p>
                   </div>
                 </m.div>
               ))}

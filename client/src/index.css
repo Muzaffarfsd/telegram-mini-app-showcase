@@ -29,6 +29,11 @@ html {
   
   /* Fast touch response */
   touch-action: manipulation;
+  
+  /* === GLOBAL RESPONSIVE FONT SCALING === */
+  /* Auto-scales all rem-based sizes for different screens */
+  /* iPhone SE (320px) to iPhone Pro Max (430px+) */
+  font-size: clamp(14px, calc(14px + (16 - 14) * ((100vw - 320px) / (430 - 320))), 16px);
 }
 
 body {
@@ -60,6 +65,103 @@ body {
   
   /* Instant touch response (no 300ms delay) */
   touch-action: pan-y;
+}
+
+/* === GLOBAL AUTO-RESPONSIVE SYSTEM (2025) === */
+/* Автоматическая адаптация под ВСЕ размеры мобильных экранов */
+
+/* Extra small screens (iPhone SE 1st gen, 320px) */
+@media (max-width: 350px) {
+  html { font-size: 13px; }
+  
+  /* Compact spacing for small screens */
+  .px-5 { padding-left: 0.875rem !important; padding-right: 0.875rem !important; }
+  .px-6 { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .p-5 { padding: 0.875rem !important; }
+  .p-6 { padding: 1rem !important; }
+  .gap-4 { gap: 0.75rem !important; }
+  .gap-3 { gap: 0.5rem !important; }
+  .mb-8 { margin-bottom: 1.5rem !important; }
+  .mb-6 { margin-bottom: 1.25rem !important; }
+  
+  /* Smaller text for tiny screens */
+  .text-\[32px\] { font-size: 22px !important; }
+  .text-\[28px\] { font-size: 20px !important; }
+  .text-\[24px\] { font-size: 18px !important; }
+  .text-\[22px\] { font-size: 17px !important; }
+  .text-\[20px\] { font-size: 16px !important; }
+  .text-\[18px\] { font-size: 15px !important; }
+  .text-\[16px\] { font-size: 14px !important; }
+  .text-\[15px\] { font-size: 13px !important; }
+  .text-\[14px\] { font-size: 12px !important; }
+  .text-\[13px\] { font-size: 11px !important; }
+  .text-\[12px\] { font-size: 10px !important; }
+  .text-\[11px\] { font-size: 10px !important; }
+  .text-\[10px\] { font-size: 9px !important; }
+  
+  /* Smaller heights for cards/banners */
+  [style*="height: 280px"] { height: 180px !important; }
+  [style*="height: 260px"] { height: 170px !important; }
+  [style*="height: 240px"] { height: 160px !important; }
+  [style*="height: 220px"] { height: 150px !important; }
+  [style*="height: 200px"] { height: 140px !important; }
+  [style*="height: 195px"] { height: 145px !important; }
+  [style*="height: 180px"] { height: 130px !important; }
+  
+  /* Adjust grid gaps */
+  .grid-cols-2 { gap: 0.5rem !important; }
+  .grid-cols-3 { gap: 0.375rem !important; }
+  
+  /* Smaller product cards in carousels */
+  .w-\[160px\] { width: 130px !important; }
+  .w-\[155px\] { width: 125px !important; }
+  .w-\[150px\] { width: 120px !important; }
+  
+  /* Smaller buttons */
+  .w-11 { width: 2.5rem !important; }
+  .h-11 { height: 2.5rem !important; }
+  .w-10 { width: 2.25rem !important; }
+  .h-10 { height: 2.25rem !important; }
+  
+  /* Smaller rounded corners */
+  .rounded-\[28px\] { border-radius: 20px !important; }
+  .rounded-\[24px\] { border-radius: 18px !important; }
+  .rounded-3xl { border-radius: 16px !important; }
+  .rounded-2xl { border-radius: 12px !important; }
+}
+
+/* Small screens (iPhone 12 mini, 375px) */
+@media (min-width: 351px) and (max-width: 390px) {
+  html { font-size: 14px; }
+  
+  .text-\[32px\] { font-size: 26px !important; }
+  .text-\[28px\] { font-size: 23px !important; }
+  .text-\[24px\] { font-size: 20px !important; }
+  
+  [style*="height: 280px"] { height: 220px !important; }
+  [style*="height: 260px"] { height: 200px !important; }
+  [style*="height: 240px"] { height: 190px !important; }
+  
+  .w-\[160px\] { width: 145px !important; }
+  .w-\[155px\] { width: 140px !important; }
+}
+
+/* Standard screens (iPhone 12/13/14, 390-414px) */
+@media (min-width: 391px) and (max-width: 420px) {
+  html { font-size: 15px; }
+  
+  .text-\[32px\] { font-size: 28px !important; }
+  .text-\[28px\] { font-size: 25px !important; }
+  
+  [style*="height: 280px"] { height: 250px !important; }
+  [style*="height: 260px"] { height: 230px !important; }
+}
+
+/* Large screens (iPhone Pro Max, 428px+) */
+@media (min-width: 421px) {
+  html { font-size: 16px; }
+  
+  /* Full sizes - no changes needed */
 }
 
 :root {
@@ -949,6 +1051,126 @@ body {
     padding-left: max(env(safe-area-inset-left, 0px), 0px);
     padding-right: max(env(safe-area-inset-right, 0px), 0px);
     padding-bottom: 0.5rem;
+  }
+
+  /* === MOBILE RESPONSIVE UTILITIES (2025) === */
+  /* Оптимизация для всех размеров мобильных экранов */
+  
+  /* Responsive text sizes - mobile first approach */
+  .text-responsive-xs { font-size: clamp(0.625rem, 2.5vw, 0.75rem); }
+  .text-responsive-sm { font-size: clamp(0.6875rem, 3vw, 0.8125rem); }
+  .text-responsive-base { font-size: clamp(0.75rem, 3.5vw, 0.875rem); }
+  .text-responsive-lg { font-size: clamp(0.875rem, 4vw, 1rem); }
+  .text-responsive-xl { font-size: clamp(1rem, 4.5vw, 1.25rem); }
+  .text-responsive-2xl { font-size: clamp(1.125rem, 5vw, 1.5rem); }
+  .text-responsive-3xl { font-size: clamp(1.375rem, 6vw, 2rem); }
+  .text-responsive-hero { font-size: clamp(1.5rem, 7vw, 2.5rem); }
+  
+  /* Responsive spacing */
+  .p-responsive { padding: clamp(0.75rem, 3vw, 1.25rem); }
+  .px-responsive { padding-left: clamp(0.75rem, 3vw, 1.25rem); padding-right: clamp(0.75rem, 3vw, 1.25rem); }
+  .py-responsive { padding-top: clamp(0.5rem, 2vw, 1rem); padding-bottom: clamp(0.5rem, 2vw, 1rem); }
+  .gap-responsive { gap: clamp(0.5rem, 2vw, 1rem); }
+  .gap-responsive-sm { gap: clamp(0.25rem, 1.5vw, 0.5rem); }
+  .gap-responsive-lg { gap: clamp(0.75rem, 3vw, 1.5rem); }
+  
+  /* Responsive border radius */
+  .rounded-responsive { border-radius: clamp(0.75rem, 3vw, 1.5rem); }
+  .rounded-responsive-lg { border-radius: clamp(1rem, 4vw, 2rem); }
+  
+  /* Responsive icon sizes */
+  .icon-responsive-sm { width: clamp(0.875rem, 3.5vw, 1rem); height: clamp(0.875rem, 3.5vw, 1rem); }
+  .icon-responsive { width: clamp(1rem, 4vw, 1.25rem); height: clamp(1rem, 4vw, 1.25rem); }
+  .icon-responsive-lg { width: clamp(1.25rem, 5vw, 1.5rem); height: clamp(1.25rem, 5vw, 1.5rem); }
+  
+  /* Responsive button heights */
+  .btn-responsive { 
+    min-height: clamp(2.5rem, 10vw, 3rem); 
+    padding-left: clamp(1rem, 4vw, 1.5rem);
+    padding-right: clamp(1rem, 4vw, 1.5rem);
+  }
+  
+  /* Responsive card heights */
+  .h-responsive-card { height: clamp(180px, 50vw, 280px); }
+  .h-responsive-banner { height: clamp(200px, 60vw, 320px); }
+  .h-responsive-product { height: clamp(160px, 45vw, 220px); }
+  
+  /* Responsive grid columns - adapts to screen width */
+  .grid-responsive-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(0.5rem, 2vw, 1rem);
+  }
+  
+  .grid-responsive-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(0.375rem, 1.5vw, 0.75rem);
+  }
+  
+  /* Touch target optimization - minimum 44px for accessibility */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .touch-target-sm {
+    min-width: 36px;
+    min-height: 36px;
+  }
+  
+  /* Small screens optimization (iPhone SE, small Android) */
+  @media (max-width: 350px) {
+    .demo-nav-safe {
+      padding-top: max(env(safe-area-inset-top, 0px), 3rem);
+    }
+    
+    .text-responsive-hero { font-size: 1.375rem; }
+    .text-responsive-3xl { font-size: 1.25rem; }
+    .text-responsive-2xl { font-size: 1rem; }
+    .text-responsive-xl { font-size: 0.9375rem; }
+    
+    .grid-responsive-3 {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.375rem;
+    }
+    
+    .h-responsive-card { height: 160px; }
+    .h-responsive-banner { height: 180px; }
+    .h-responsive-product { height: 140px; }
+  }
+  
+  /* Compact screens (iPhone 12 mini, iPhone SE 2nd gen) */
+  @media (min-width: 351px) and (max-width: 380px) {
+    .text-responsive-hero { font-size: 1.5rem; }
+    .text-responsive-3xl { font-size: 1.375rem; }
+    
+    .h-responsive-card { height: 180px; }
+    .h-responsive-banner { height: 220px; }
+  }
+  
+  /* Standard screens (iPhone 12/13/14, most Android) */
+  @media (min-width: 381px) and (max-width: 420px) {
+    .text-responsive-hero { font-size: 1.75rem; }
+    .text-responsive-3xl { font-size: 1.5rem; }
+    
+    .h-responsive-card { height: 200px; }
+    .h-responsive-banner { height: 260px; }
+  }
+  
+  /* Large screens (iPhone Pro Max, large Android) */
+  @media (min-width: 421px) {
+    .text-responsive-hero { font-size: 2rem; }
+    .text-responsive-3xl { font-size: 1.75rem; }
+    .text-responsive-2xl { font-size: 1.25rem; }
+    
+    .h-responsive-card { height: 240px; }
+    .h-responsive-banner { height: 300px; }
+    .h-responsive-product { height: 200px; }
+    
+    .grid-responsive-3 {
+      gap: 0.75rem;
+    }
   }
 
   /* === TELEGRAM MINI APP ACTIVE STATES === */

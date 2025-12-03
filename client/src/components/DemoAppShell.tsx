@@ -184,8 +184,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
         </div>
       </div>
 
-      {/* Liquid Glass Bottom Navigation - Same style as main page */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
+      {/* Liquid Glass Bottom Navigation - Responsive for all screens */}
+      <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto" style={{ bottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}>
         <div className="relative">
           {/* Animated Background Glow */}
           <div 
