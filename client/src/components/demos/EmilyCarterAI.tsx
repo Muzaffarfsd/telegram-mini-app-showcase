@@ -1,398 +1,924 @@
-import { useState, memo } from "react";
+import { useState, useCallback, useMemo, memo } from "react";
 import { m } from "framer-motion";
-import { Heart, MessageCircle, ChevronLeft, ChevronRight, Check, Lock, Star, Sparkles, X, Send, Image as ImageIcon, Settings, Grid } from "lucide-react";
+import { 
+  Heart, ShoppingBag, ChevronLeft, ChevronRight, Star, Clock, 
+  Sparkles, Menu, Search, User, Package, Minus, Plus, X,
+  Crown, Leaf, Droplets, Sun
+} from "lucide-react";
+import { ConfirmDrawer } from "../ui/modern-drawer";
 
 interface EmilyCarterAIProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
 }
 
-interface Post {
+interface Product {
   id: number;
-  text: string;
+  name: string;
+  brand: string;
   price: number;
-  image?: string;
-  locked: boolean;
-  likes: number;
+  originalPrice?: number;
+  image: string;
+  category: 'Skincare' | 'Makeup' | 'Fragrance' | 'Haircare';
+  description: string;
+  rating: number;
+  reviews: number;
+  isNew?: boolean;
+  isBestseller?: boolean;
 }
 
-const posts: Post[] = [
+interface CartItem extends Product {
+  quantity: number;
+}
+
+const COLORS = {
+  primary: '#0A0A0A',
+  primaryGradient: 'linear-gradient(180deg, #0A0A0A 0%, #121214 100%)',
+  accent1: '#D4A574',
+  accent2: '#E8D5C4',
+  textPrimary: '#FAFAF9',
+  textSecondary: '#A1A1AA',
+  cardBg: 'linear-gradient(160deg, #18181B 0%, #0F0F12 100%)',
+  cardBorder: 'rgba(255, 255, 255, 0.06)',
+  glowGold: '0 0 40px rgba(212, 165, 116, 0.3)',
+};
+
+const products: Product[] = [
   {
     id: 1,
-    text: "Hi! Set for those who want to see awesome gameplay! Spoiler alert - i win!",
-    price: 5.99,
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&q=90",
-    locked: true,
-    likes: 847
+    name: "Midnight Rose Serum",
+    brand: "EMILY CARTER",
+    price: 128,
+    originalPrice: 168,
+    image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&h=1000&fit=crop&q=90",
+    category: "Skincare",
+    description: "Luxurious anti-aging serum with rose extract and retinol",
+    rating: 4.9,
+    reviews: 2847,
+    isNew: true,
+    isBestseller: true
   },
   {
     id: 2,
-    text: "New cosplay photos are ready! Check out my latest Zodiac collection",
-    price: 9.99,
-    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop&q=90",
-    locked: true,
-    likes: 1234
+    name: "Velvet Glow Foundation",
+    brand: "EMILY CARTER",
+    price: 68,
+    originalPrice: 85,
+    image: "https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?w=800&h=1000&fit=crop&q=90",
+    category: "Makeup",
+    description: "Buildable coverage with natural satin finish",
+    rating: 4.8,
+    reviews: 1923,
+    isBestseller: true
   },
   {
     id: 3,
-    text: "Behind the scenes of my latest photoshoot. Exclusive access!",
-    price: 14.99,
-    locked: true,
-    likes: 2156
+    name: "Hydra Cloud Cream",
+    brand: "EMILY CARTER",
+    price: 95,
+    image: "https://images.unsplash.com/photo-1570194065650-d99fb4b38b15?w=800&h=1000&fit=crop&q=90",
+    category: "Skincare",
+    description: "72-hour hydration with hyaluronic acid complex",
+    rating: 4.7,
+    reviews: 1456,
+    isNew: true
+  },
+  {
+    id: 4,
+    name: "Golden Hour Palette",
+    brand: "EMILY CARTER",
+    price: 78,
+    originalPrice: 98,
+    image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&h=1000&fit=crop&q=90",
+    category: "Makeup",
+    description: "12 warm-toned eyeshadows for endless looks",
+    rating: 4.9,
+    reviews: 3241,
+    isBestseller: true
+  },
+  {
+    id: 5,
+    name: "Essence de Lune",
+    brand: "EMILY CARTER",
+    price: 185,
+    image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=1000&fit=crop&q=90",
+    category: "Fragrance",
+    description: "Enchanting blend of jasmine, sandalwood and vanilla",
+    rating: 4.8,
+    reviews: 892,
+    isNew: true
+  },
+  {
+    id: 6,
+    name: "Silk Repair Hair Mask",
+    brand: "EMILY CARTER",
+    price: 52,
+    originalPrice: 65,
+    image: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=800&h=1000&fit=crop&q=90",
+    category: "Haircare",
+    description: "Intensive treatment for damaged hair",
+    rating: 4.6,
+    reviews: 745
+  },
+  {
+    id: 7,
+    name: "Lip Velvet Collection",
+    brand: "EMILY CARTER",
+    price: 42,
+    image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800&h=1000&fit=crop&q=90",
+    category: "Makeup",
+    description: "Long-lasting matte lipstick set of 4 shades",
+    rating: 4.7,
+    reviews: 1834,
+    isBestseller: true
+  },
+  {
+    id: 8,
+    name: "Crystal Eye Cream",
+    brand: "EMILY CARTER",
+    price: 88,
+    originalPrice: 110,
+    image: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=800&h=1000&fit=crop&q=90",
+    category: "Skincare",
+    description: "De-puffing and brightening eye treatment",
+    rating: 4.8,
+    reviews: 1127,
+    isNew: true
   }
 ];
 
+const categories = ['All', 'Skincare', 'Makeup', 'Fragrance', 'Haircare'];
+
 function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
-  const [selectedPlan, setSelectedPlan] = useState<'yearly' | 'weekly'>('yearly');
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [following, setFollowing] = useState(false);
-  const [showMessages, setShowMessages] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [favorites, setFavorites] = useState<Set<number>>(new Set([1, 4]));
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const toggleFavorite = useCallback((id: number) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(id)) {
+        newFavorites.delete(id);
+      } else {
+        newFavorites.add(id);
+      }
+      return newFavorites;
+    });
+  }, []);
+
+  const addToCart = useCallback((product: Product) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      if (existing) {
+        return prev.map(item => 
+          item.id === product.id 
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+    setSelectedProduct(null);
+  }, []);
+
+  const removeFromCart = useCallback((id: number) => {
+    setCart(prev => prev.filter(item => item.id !== id));
+  }, []);
+
+  const updateQuantity = useCallback((id: number, delta: number) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        const newQty = Math.max(1, Math.min(10, item.quantity + delta));
+        return { ...item, quantity: newQty };
+      }
+      return item;
+    }));
+  }, []);
+
+  const cartTotal = useMemo(() => 
+    cart.reduce((sum, item) => sum + item.price * item.quantity, 0), 
+    [cart]
+  );
+
+  const filteredProducts = useMemo(() => 
+    selectedCategory === 'All' 
+      ? products 
+      : products.filter(p => p.category === selectedCategory),
+    [selectedCategory]
+  );
+
+  const formatPrice = (price: number) => `$${price}`;
 
   // ========================================
-  // HOME PAGE - Subscription screen (Light mode)
+  // PRODUCT DETAIL VIEW
   // ========================================
-  if (activeTab === 'home') {
+  if (activeTab === 'catalog' && selectedProduct) {
     return (
-      <div className="min-h-screen bg-[#F5F4F0] text-[#1A1A1A] overflow-auto pb-24">
-        <div className="demo-nav-safe px-5">
-          {/* Hero Image */}
-          <m.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative rounded-[32px] overflow-hidden mb-6"
-            style={{ height: '420px' }}
-          >
+      <div 
+        className="min-h-screen text-white overflow-auto pb-24"
+        style={{ background: COLORS.primaryGradient }}
+      >
+        <div className="relative">
+          <div className="relative h-[55vh]">
             <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=1000&fit=crop&q=95"
-              alt="Emily Carter"
+              src={selectedProduct.image}
+              alt={selectedProduct.name}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/30 to-transparent" />
             
-            {/* AI Creator Badge */}
-            <div className="absolute bottom-6 left-6">
-              <div 
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-3"
-                style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)' }}
+            <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe px-5 flex items-center justify-between">
+              <m.button 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                onClick={() => setSelectedProduct(null)}
+                className="w-11 h-11 rounded-full backdrop-blur-xl flex items-center justify-center"
+                style={{ background: 'rgba(10, 10, 10, 0.6)', border: `1px solid ${COLORS.cardBorder}` }}
+                data-testid="button-back-detail"
               >
-                <Sparkles className="w-3.5 h-3.5" style={{ color: '#A78BFA' }} />
-                <span className="text-white text-[12px] font-medium">AI Creator</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-white text-[28px] font-bold">Emily Carter</h2>
-                <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
-                  <Check className="w-3 h-3 text-white" />
-                </div>
-              </div>
-            </div>
-          </m.div>
-
-          {/* Subscription Section */}
-          <div className="bg-white rounded-[24px] p-6 shadow-sm">
-            <h3 className="text-[18px] font-semibold text-center mb-6">Select your plan</h3>
-            
-            {/* Yearly Plan */}
-            <m.button
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setSelectedPlan('yearly')}
-              className={`w-full p-4 rounded-2xl mb-3 flex items-center justify-between transition-all ${
-                selectedPlan === 'yearly' 
-                  ? 'bg-[#F5F4F0] border-2 border-[#1A1A1A]' 
-                  : 'bg-[#F5F4F0] border-2 border-transparent'
-              }`}
-              data-testid="button-plan-yearly"
-            >
-              <div className="flex items-center gap-3">
-                <div 
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    selectedPlan === 'yearly' ? 'border-[#1A1A1A] bg-[#1A1A1A]' : 'border-gray-300'
-                  }`}
-                >
-                  {selectedPlan === 'yearly' && <Check className="w-3 h-3 text-white" />}
-                </div>
-                <div className="text-left">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Yearly</span>
-                    <span 
-                      className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
-                      style={{ background: '#22C55E' }}
-                    >
-                      Save 90%
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="font-bold">$0.77 <span className="font-normal text-gray-500">/ week</span></div>
-                <div className="text-[12px] text-gray-400">just $39.99 year</div>
-              </div>
-            </m.button>
-
-            {/* Weekly Plan */}
-            <m.button
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setSelectedPlan('weekly')}
-              className={`w-full p-4 rounded-2xl mb-6 flex items-center justify-between transition-all ${
-                selectedPlan === 'weekly' 
-                  ? 'bg-[#F5F4F0] border-2 border-[#1A1A1A]' 
-                  : 'bg-[#F5F4F0] border-2 border-transparent'
-              }`}
-              data-testid="button-plan-weekly"
-            >
-              <div className="flex items-center gap-3">
-                <div 
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    selectedPlan === 'weekly' ? 'border-[#1A1A1A] bg-[#1A1A1A]' : 'border-gray-300'
-                  }`}
-                >
-                  {selectedPlan === 'weekly' && <Check className="w-3 h-3 text-white" />}
-                </div>
-                <span className="font-semibold">Weekly</span>
-              </div>
-              <div className="font-bold">$6.99 <span className="font-normal text-gray-500">/ week</span></div>
-            </m.button>
-
-            {/* Subscribe Button */}
-            <button 
-              onClick={() => setIsSubscribed(true)}
-              className="w-full py-4 rounded-full bg-[#1A1A1A] text-white font-semibold text-[15px]"
-              data-testid="button-subscribe"
-            >
-              Subscribe
-            </button>
-
-            <p className="text-center text-gray-400 text-[13px] mt-4">Cancel anytime</p>
-            
-            <div className="flex items-center justify-center gap-4 mt-3">
-              <span className="text-[12px] text-gray-400 underline">Terms of use</span>
-              <span className="text-gray-300">|</span>
-              <span className="text-[12px] text-gray-400 underline">Privacy policy</span>
-              <span className="text-gray-300">|</span>
-              <span className="text-[12px] text-gray-400 underline">Purchases</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ========================================
-  // CATALOG/PROFILE PAGE - Dark mode profile
-  // ========================================
-  if (activeTab === 'catalog') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="demo-nav-safe px-5">
-          {/* Back button */}
-          <button 
-            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-6"
-            data-testid="button-back"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-
-          {/* Profile Section */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="text-center flex-1">
-              <span className="text-[24px] font-bold">34.9 K</span>
-              <p className="text-white/50 text-[12px]">followers</p>
-            </div>
-            
-            {/* Avatar */}
-            <div className="relative">
-              <div 
-                className="w-[100px] h-[100px] rounded-full overflow-hidden"
-                style={{ border: '3px solid rgba(255,255,255,0.1)' }}
+                <ChevronLeft className="w-5 h-5" style={{ color: COLORS.textPrimary }} />
+              </m.button>
+              <m.button
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                onClick={() => toggleFavorite(selectedProduct.id)}
+                className="w-11 h-11 rounded-full backdrop-blur-xl flex items-center justify-center"
+                style={{ background: 'rgba(10, 10, 10, 0.6)', border: `1px solid ${COLORS.cardBorder}` }}
+                data-testid={`button-favorite-detail-${selectedProduct.id}`}
               >
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=90"
-                  alt="Emily Carter"
-                  className="w-full h-full object-cover"
+                <Heart 
+                  className="w-5 h-5"
+                  style={{ 
+                    color: favorites.has(selectedProduct.id) ? COLORS.accent1 : COLORS.textPrimary,
+                    fill: favorites.has(selectedProduct.id) ? COLORS.accent1 : 'transparent'
+                  }}
                 />
-              </div>
+              </m.button>
             </div>
 
-            <div className="text-center flex-1">
-              <span className="text-[24px] font-bold">2245</span>
-              <p className="text-white/50 text-[12px]">following</p>
-            </div>
-          </div>
-
-          {/* Name and Bio */}
-          <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-[20px] font-bold">Emily Carter</span>
-              <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
-                <Check className="w-3 h-3 text-white" />
-              </div>
-            </div>
-            <p className="text-white/50 text-[13px]">E-gamer | Kawaii lover | Zodiac girl</p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 mb-8">
-            <button 
-              onClick={() => setFollowing(!following)}
-              className={`flex-1 py-3 rounded-full font-semibold text-[14px] flex items-center justify-center gap-2 ${
-                following 
-                  ? 'bg-white/10 text-white' 
-                  : 'bg-white text-black'
-              }`}
-              data-testid="button-follow"
-            >
-              <Heart className={`w-4 h-4 ${following ? 'fill-red-500 text-red-500' : ''}`} />
-              {following ? 'Following' : 'Follow'}
-            </button>
-            <button 
-              onClick={() => setShowMessages(true)}
-              className="flex-1 py-3 rounded-full bg-white/10 font-semibold text-[14px] flex items-center justify-center gap-2"
-              data-testid="button-messages"
-            >
-              <MessageCircle className="w-4 h-4" />
-              Messages
-            </button>
-          </div>
-
-          {/* Posts */}
-          <div className="space-y-4">
-            {posts.slice(0, 1).map(post => (
-              <div 
-                key={post.id}
-                className="rounded-[24px] p-4"
-                style={{ background: 'linear-gradient(160deg, #2A2A2C 0%, #1C1C1E 100%)' }}
+            {selectedProduct.isNew && (
+              <m.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="absolute top-28 right-5 z-10"
               >
-                <div className="flex items-start gap-3 mb-4">
-                  <img
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&q=90"
-                    alt="Emily"
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-[14px]">Emily Carter</span>
-                      <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
-                        <Check className="w-2.5 h-2.5 text-white" />
-                      </div>
-                    </div>
-                    <p className="text-white/60 text-[13px]">{post.text}</p>
-                  </div>
-                </div>
-                
-                {post.image && (
-                  <div className="relative rounded-2xl overflow-hidden mb-4">
-                    <img
-                      src={post.image}
-                      alt="Post"
-                      className="w-full h-[120px] object-cover"
-                      style={{ filter: post.locked ? 'blur(20px)' : 'none' }}
-                    />
-                    {post.locked && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Lock className="w-8 h-8 text-white/80" />
-                      </div>
-                    )}
-                    <div className="absolute bottom-3 right-3 px-2 py-1 rounded-lg bg-black/60 text-[11px]">
-                      21:24
-                    </div>
-                  </div>
-                )}
-                
-                <button 
-                  className="w-full py-3 rounded-full text-[14px] font-semibold"
-                  style={{ background: 'rgba(255,255,255,0.1)' }}
-                  data-testid={`button-buy-${post.id}`}
+                <span 
+                  className="px-4 py-2 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
+                  style={{ 
+                    background: COLORS.accent1, 
+                    color: '#0A0A0A',
+                    boxShadow: COLORS.glowGold
+                  }}
                 >
-                  Buy ${post.price}
-                </button>
-              </div>
-            ))}
+                  NEW
+                </span>
+              </m.div>
+            )}
           </div>
 
-          {/* Upgrade Card */}
-          <div 
-            className="rounded-[24px] p-5 mt-4"
-            style={{ background: 'linear-gradient(160deg, #F5F4F0 0%, #E8E7E3 100%)' }}
+          <m.div 
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="relative -mt-16 rounded-t-[32px] px-6 pt-8 pb-32"
+            style={{ background: COLORS.primary }}
           >
-            <div className="flex items-start gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="w-4 h-4 text-gray-600" />
-                  <span className="text-[12px] text-gray-500">The best price</span>
-                </div>
-                <h3 className="text-[#1A1A1A] text-[18px] font-bold mb-1">Unlock all exclusive content</h3>
-                <p className="text-gray-500 text-[13px]">Upgrade to Silver</p>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <span className="text-[14px] font-semibold" style={{ color: COLORS.textPrimary }}>
+                  {selectedProduct.rating}
+                </span>
               </div>
-              <div 
-                className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, #E5E7EB 0%, #9CA3AF 100%)' }}
-              >
-                <Star className="w-8 h-8 text-white" />
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Action Bar */}
-          <div className="flex items-center justify-center gap-3 mt-6">
-            {[Star, Heart, MessageCircle, Grid].map((Icon, idx) => (
-              <button
-                key={idx}
-                className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ background: idx === 0 ? '#1A1A1A' : 'rgba(255,255,255,0.1)' }}
-              >
-                <Icon className="w-5 h-5" />
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ========================================
-  // CART PAGE - Content purchases
-  // ========================================
-  if (activeTab === 'cart') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="demo-nav-safe px-5">
-          <h1 className="text-[24px] font-bold mb-6">My Purchases</h1>
-
-          {isSubscribed ? (
-            <div className="space-y-4">
-              {posts.map(post => (
-                <div 
-                  key={post.id}
-                  className="rounded-[20px] p-4"
-                  style={{ background: 'linear-gradient(160deg, #1C1C1E 0%, #0D0D0D 100%)' }}
+              <span className="text-[13px]" style={{ color: COLORS.textSecondary }}>
+                ({selectedProduct.reviews.toLocaleString()} reviews)
+              </span>
+              {selectedProduct.isBestseller && (
+                <span 
+                  className="px-2 py-0.5 rounded-full text-[10px] font-semibold ml-auto"
+                  style={{ background: 'rgba(212, 165, 116, 0.15)', color: COLORS.accent1 }}
                 >
-                  <div className="flex gap-4">
-                    <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden">
-                      <img
-                        src={post.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=90"}
-                        alt="Content"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[14px] mb-2 line-clamp-2">{post.text}</p>
-                      <div className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-green-500" />
-                        <span className="text-green-500 text-[12px]">Unlocked</span>
-                      </div>
-                    </div>
-                  </div>
+                  BESTSELLER
+                </span>
+              )}
+            </div>
+
+            <p 
+              className="text-[11px] font-semibold tracking-[0.2em] uppercase mb-1"
+              style={{ color: COLORS.accent1 }}
+            >
+              {selectedProduct.brand}
+            </p>
+            <h2 
+              className="text-[24px] font-bold tracking-tight mb-2"
+              style={{ color: COLORS.textPrimary, letterSpacing: '-0.02em' }}
+            >
+              {selectedProduct.name}
+            </h2>
+
+            <p 
+              className="text-[14px] leading-relaxed mb-6"
+              style={{ color: COLORS.textSecondary }}
+            >
+              {selectedProduct.description}
+            </p>
+
+            <div className="flex items-center gap-4 mb-6">
+              {[
+                { icon: Leaf, label: 'Vegan' },
+                { icon: Droplets, label: 'Hydrating' },
+                { icon: Sun, label: 'SPF 30' }
+              ].map((feature, idx) => (
+                <div 
+                  key={idx}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                  style={{ background: 'rgba(255,255,255,0.05)' }}
+                >
+                  <feature.icon className="w-4 h-4" style={{ color: COLORS.accent1 }} />
+                  <span className="text-[12px]" style={{ color: COLORS.textSecondary }}>
+                    {feature.label}
+                  </span>
                 </div>
               ))}
             </div>
+
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <p 
+                  className="text-[32px] font-bold"
+                  style={{ color: COLORS.textPrimary }}
+                >
+                  {formatPrice(selectedProduct.price)}
+                </p>
+                {selectedProduct.originalPrice && (
+                  <p 
+                    className="text-[16px] line-through"
+                    style={{ color: COLORS.textSecondary }}
+                  >
+                    {formatPrice(selectedProduct.originalPrice)}
+                  </p>
+                )}
+              </div>
+              <div 
+                className="px-3 py-1.5 rounded-full text-[12px] font-medium"
+                style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22C55E' }}
+              >
+                In Stock
+              </div>
+            </div>
+
+            <ConfirmDrawer
+              trigger={
+                <button 
+                  className="w-full py-4 rounded-full font-bold text-[15px] tracking-wide uppercase transition-all flex items-center justify-center gap-3"
+                  style={{ 
+                    background: COLORS.accent1,
+                    boxShadow: COLORS.glowGold,
+                    color: '#0A0A0A'
+                  }}
+                  data-testid="button-add-to-bag"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  ADD TO BAG
+                </button>
+              }
+              title="Added to Bag"
+              description={`${selectedProduct.name} - ${formatPrice(selectedProduct.price)}`}
+              confirmText="View Bag"
+              cancelText="Continue Shopping"
+              variant="default"
+              onConfirm={() => addToCart(selectedProduct)}
+            />
+          </m.div>
+        </div>
+      </div>
+    );
+  }
+
+  // ========================================
+  // HOME PAGE
+  // ========================================
+  if (activeTab === 'home') {
+    return (
+      <div 
+        className="min-h-screen text-white overflow-auto pb-24"
+        style={{ background: COLORS.primaryGradient }}
+      >
+        <div className="demo-nav-safe px-5">
+          <m.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between mb-8"
+          >
+            <button 
+              className="w-11 h-11 rounded-xl flex items-center justify-center"
+              style={{ background: 'rgba(255,255,255,0.05)', border: `1px solid ${COLORS.cardBorder}` }}
+              data-testid="button-menu"
+            >
+              <Menu className="w-5 h-5" style={{ color: COLORS.textSecondary }} />
+            </button>
+            
+            <div className="flex items-center gap-1">
+              <Crown className="w-5 h-5" style={{ color: COLORS.accent1 }} />
+              <span 
+                className="text-[18px] font-bold tracking-wide"
+                style={{ color: COLORS.textPrimary }}
+              >
+                EMILY CARTER
+              </span>
+            </div>
+
+            <button 
+              className="w-11 h-11 rounded-xl flex items-center justify-center relative"
+              style={{ background: 'rgba(255,255,255,0.05)', border: `1px solid ${COLORS.cardBorder}` }}
+              data-testid="button-cart-home"
+            >
+              <ShoppingBag className="w-5 h-5" style={{ color: COLORS.textSecondary }} />
+              {cart.length > 0 && (
+                <span 
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center"
+                  style={{ background: COLORS.accent1, color: '#0A0A0A' }}
+                >
+                  {cart.length}
+                </span>
+              )}
+            </button>
+          </m.div>
+
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="relative rounded-[28px] overflow-hidden mb-8"
+            style={{ height: '220px' }}
+          >
+            <img
+              src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=500&fit=crop&q=90"
+              alt="Beauty collection"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-center px-6">
+              <span 
+                className="text-[11px] font-semibold tracking-[0.2em] uppercase mb-2"
+                style={{ color: COLORS.accent1 }}
+              >
+                NEW COLLECTION
+              </span>
+              <h2 
+                className="text-[28px] font-bold leading-tight mb-3"
+                style={{ color: COLORS.textPrimary }}
+              >
+                Winter Glow<br/>Essentials
+              </h2>
+              <button 
+                className="self-start px-5 py-2.5 rounded-full text-[13px] font-semibold"
+                style={{ background: COLORS.accent1, color: '#0A0A0A' }}
+                data-testid="button-shop-collection"
+              >
+                Shop Now
+              </button>
+            </div>
+          </m.div>
+
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="flex items-center gap-3 py-4 mb-6 border-y"
+            style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+          >
+            {[
+              { value: '50K+', label: 'Customers' },
+              { value: '4.9', label: 'Rating' },
+              { value: '100%', label: 'Natural' }
+            ].map((stat, idx) => (
+              <div key={idx} className="flex items-center gap-2 flex-1 justify-center">
+                <span 
+                  className="text-[16px] font-bold"
+                  style={{ color: COLORS.textPrimary }}
+                >
+                  {stat.value}
+                </span>
+                <span 
+                  className="text-[12px]"
+                  style={{ color: COLORS.textSecondary }}
+                >
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </m.div>
+
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 
+                className="text-[18px] font-bold"
+                style={{ color: COLORS.textPrimary }}
+              >
+                Bestsellers
+              </h3>
+              <button 
+                className="text-[13px] font-medium flex items-center gap-1"
+                style={{ color: COLORS.accent1 }}
+              >
+                View All
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
+              {products.filter(p => p.isBestseller).map((product) => (
+                <m.div
+                  key={product.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex-shrink-0 w-[160px] cursor-pointer"
+                  onClick={() => setSelectedProduct(product)}
+                >
+                  <div 
+                    className="relative rounded-2xl overflow-hidden mb-3"
+                    style={{ height: '200px' }}
+                  >
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
+                      className="absolute top-3 right-3 w-8 h-8 rounded-full backdrop-blur-xl flex items-center justify-center"
+                      style={{ background: 'rgba(0,0,0,0.4)' }}
+                    >
+                      <Heart 
+                        className="w-4 h-4"
+                        style={{ 
+                          color: favorites.has(product.id) ? COLORS.accent1 : '#fff',
+                          fill: favorites.has(product.id) ? COLORS.accent1 : 'transparent'
+                        }}
+                      />
+                    </button>
+                  </div>
+                  <p 
+                    className="text-[13px] font-medium mb-1 truncate"
+                    style={{ color: COLORS.textPrimary }}
+                  >
+                    {product.name}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span 
+                      className="text-[15px] font-bold"
+                      style={{ color: COLORS.accent1 }}
+                    >
+                      {formatPrice(product.price)}
+                    </span>
+                    {product.originalPrice && (
+                      <span 
+                        className="text-[12px] line-through"
+                        style={{ color: COLORS.textSecondary }}
+                      >
+                        {formatPrice(product.originalPrice)}
+                      </span>
+                    )}
+                  </div>
+                </m.div>
+              ))}
+            </div>
+          </m.div>
+
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="rounded-2xl p-5"
+            style={{ 
+              background: 'linear-gradient(135deg, rgba(212, 165, 116, 0.15) 0%, rgba(212, 165, 116, 0.05) 100%)',
+              border: '1px solid rgba(212, 165, 116, 0.2)'
+            }}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-4 h-4" style={{ color: COLORS.accent1 }} />
+              <span 
+                className="text-[11px] font-semibold tracking-[0.15em] uppercase"
+                style={{ color: COLORS.accent1 }}
+              >
+                LOYALTY REWARDS
+              </span>
+            </div>
+            <h4 
+              className="text-[16px] font-bold mb-1"
+              style={{ color: COLORS.textPrimary }}
+            >
+              Earn 3x points today
+            </h4>
+            <p 
+              className="text-[13px]"
+              style={{ color: COLORS.textSecondary }}
+            >
+              Shop now and unlock exclusive member rewards
+            </p>
+          </m.div>
+        </div>
+      </div>
+    );
+  }
+
+  // ========================================
+  // CATALOG PAGE
+  // ========================================
+  if (activeTab === 'catalog') {
+    return (
+      <div 
+        className="min-h-screen text-white overflow-auto pb-24"
+        style={{ background: COLORS.primaryGradient }}
+      >
+        <div className="demo-nav-safe px-5">
+          <m.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between mb-6"
+          >
+            <h1 
+              className="text-[24px] font-bold"
+              style={{ color: COLORS.textPrimary }}
+            >
+              Shop
+            </h1>
+            <button 
+              className="w-11 h-11 rounded-xl flex items-center justify-center"
+              style={{ background: 'rgba(255,255,255,0.05)', border: `1px solid ${COLORS.cardBorder}` }}
+              data-testid="button-search"
+            >
+              <Search className="w-5 h-5" style={{ color: COLORS.textSecondary }} />
+            </button>
+          </m.div>
+
+          <m.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex gap-2 overflow-x-auto pb-4 -mx-5 px-5 scrollbar-hide mb-6"
+          >
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className="px-4 py-2 rounded-full text-[13px] font-medium whitespace-nowrap transition-all"
+                style={{
+                  background: selectedCategory === cat ? COLORS.accent1 : 'rgba(255,255,255,0.05)',
+                  color: selectedCategory === cat ? '#0A0A0A' : COLORS.textSecondary,
+                  border: `1px solid ${selectedCategory === cat ? COLORS.accent1 : COLORS.cardBorder}`
+                }}
+                data-testid={`button-category-${cat.toLowerCase()}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </m.div>
+
+          <div className="grid grid-cols-2 gap-4">
+            {filteredProducts.map((product, idx) => (
+              <m.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + idx * 0.05 }}
+                className="cursor-pointer"
+                onClick={() => setSelectedProduct(product)}
+              >
+                <div 
+                  className="relative rounded-2xl overflow-hidden mb-3"
+                  style={{ aspectRatio: '3/4' }}
+                >
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full backdrop-blur-xl flex items-center justify-center"
+                    style={{ background: 'rgba(0,0,0,0.4)' }}
+                  >
+                    <Heart 
+                      className="w-4 h-4"
+                      style={{ 
+                        color: favorites.has(product.id) ? COLORS.accent1 : '#fff',
+                        fill: favorites.has(product.id) ? COLORS.accent1 : 'transparent'
+                      }}
+                    />
+                  </button>
+                  {product.isNew && (
+                    <div 
+                      className="absolute top-3 left-3 px-2 py-1 rounded-full text-[10px] font-bold"
+                      style={{ background: COLORS.accent1, color: '#0A0A0A' }}
+                    >
+                      NEW
+                    </div>
+                  )}
+                </div>
+                <p 
+                  className="text-[13px] font-medium mb-1 truncate"
+                  style={{ color: COLORS.textPrimary }}
+                >
+                  {product.name}
+                </p>
+                <div className="flex items-center gap-1 mb-1">
+                  <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                  <span className="text-[11px]" style={{ color: COLORS.textSecondary }}>
+                    {product.rating}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span 
+                    className="text-[15px] font-bold"
+                    style={{ color: COLORS.accent1 }}
+                  >
+                    {formatPrice(product.price)}
+                  </span>
+                  {product.originalPrice && (
+                    <span 
+                      className="text-[12px] line-through"
+                      style={{ color: COLORS.textSecondary }}
+                    >
+                      {formatPrice(product.originalPrice)}
+                    </span>
+                  )}
+                </div>
+              </m.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ========================================
+  // CART PAGE
+  // ========================================
+  if (activeTab === 'cart') {
+    return (
+      <div 
+        className="min-h-screen text-white overflow-auto pb-24"
+        style={{ background: COLORS.primaryGradient }}
+      >
+        <div className="demo-nav-safe px-5">
+          <h1 
+            className="text-[24px] font-bold mb-6"
+            style={{ color: COLORS.textPrimary }}
+          >
+            Shopping Bag
+          </h1>
+
+          {cart.length > 0 ? (
+            <>
+              <div className="space-y-4 mb-6">
+                {cart.map(item => (
+                  <m.div
+                    key={item.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex gap-4 p-4 rounded-2xl"
+                    style={{ background: COLORS.cardBg, border: `1px solid ${COLORS.cardBorder}` }}
+                  >
+                    <div className="w-[80px] h-[100px] rounded-xl overflow-hidden flex-shrink-0">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="min-w-0">
+                          <p 
+                            className="text-[14px] font-medium truncate"
+                            style={{ color: COLORS.textPrimary }}
+                          >
+                            {item.name}
+                          </p>
+                          <p 
+                            className="text-[12px]"
+                            style={{ color: COLORS.textSecondary }}
+                          >
+                            {item.category}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ background: 'rgba(255,255,255,0.05)' }}
+                        >
+                          <X className="w-4 h-4" style={{ color: COLORS.textSecondary }} />
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div 
+                          className="flex items-center gap-3 px-2 py-1 rounded-full"
+                          style={{ background: 'rgba(255,255,255,0.05)' }}
+                        >
+                          <button
+                            onClick={() => updateQuantity(item.id, -1)}
+                            className="w-6 h-6 rounded-full flex items-center justify-center"
+                            data-testid={`button-minus-${item.id}`}
+                          >
+                            <Minus className="w-3 h-3" style={{ color: COLORS.textSecondary }} />
+                          </button>
+                          <span 
+                            className="text-[13px] font-medium min-w-[20px] text-center"
+                            style={{ color: COLORS.textPrimary }}
+                          >
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item.id, 1)}
+                            className="w-6 h-6 rounded-full flex items-center justify-center"
+                            data-testid={`button-plus-${item.id}`}
+                          >
+                            <Plus className="w-3 h-3" style={{ color: COLORS.textSecondary }} />
+                          </button>
+                        </div>
+                        <span 
+                          className="text-[16px] font-bold"
+                          style={{ color: COLORS.accent1 }}
+                        >
+                          {formatPrice(item.price * item.quantity)}
+                        </span>
+                      </div>
+                    </div>
+                  </m.div>
+                ))}
+              </div>
+
+              <div 
+                className="rounded-2xl p-5 mb-6"
+                style={{ background: COLORS.cardBg, border: `1px solid ${COLORS.cardBorder}` }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span style={{ color: COLORS.textSecondary }}>Subtotal</span>
+                  <span style={{ color: COLORS.textPrimary }}>{formatPrice(cartTotal)}</span>
+                </div>
+                <div className="flex items-center justify-between mb-3">
+                  <span style={{ color: COLORS.textSecondary }}>Shipping</span>
+                  <span style={{ color: '#22C55E' }}>Free</span>
+                </div>
+                <div 
+                  className="h-px my-4"
+                  style={{ background: COLORS.cardBorder }}
+                />
+                <div className="flex items-center justify-between">
+                  <span 
+                    className="text-[16px] font-bold"
+                    style={{ color: COLORS.textPrimary }}
+                  >
+                    Total
+                  </span>
+                  <span 
+                    className="text-[20px] font-bold"
+                    style={{ color: COLORS.accent1 }}
+                  >
+                    {formatPrice(cartTotal)}
+                  </span>
+                </div>
+              </div>
+
+              <button 
+                className="w-full py-4 rounded-full font-bold text-[15px] uppercase"
+                style={{ 
+                  background: COLORS.accent1, 
+                  color: '#0A0A0A',
+                  boxShadow: COLORS.glowGold
+                }}
+                data-testid="button-checkout"
+              >
+                Checkout
+              </button>
+            </>
           ) : (
             <div className="text-center py-20">
               <div 
                 className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
                 style={{ background: 'rgba(255,255,255,0.05)' }}
               >
-                <Lock className="w-8 h-8 text-white/30" />
+                <ShoppingBag className="w-8 h-8" style={{ color: COLORS.textSecondary }} />
               </div>
-              <p className="text-white/60 font-medium text-[15px]">No purchases yet</p>
-              <p className="text-white/30 text-[13px] mt-2">Subscribe to unlock exclusive content</p>
+              <p 
+                className="font-medium text-[16px] mb-2"
+                style={{ color: COLORS.textPrimary }}
+              >
+                Your bag is empty
+              </p>
+              <p 
+                className="text-[13px]"
+                style={{ color: COLORS.textSecondary }}
+              >
+                Start shopping to add items
+              </p>
             </div>
           )}
         </div>
@@ -401,46 +927,103 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
   }
 
   // ========================================
-  // PROFILE PAGE - Settings
+  // PROFILE PAGE
   // ========================================
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
+      <div 
+        className="min-h-screen text-white overflow-auto pb-24"
+        style={{ background: COLORS.primaryGradient }}
+      >
         <div className="demo-nav-safe px-5">
           <div className="text-center mb-8">
-            <div className="relative w-[88px] h-[88px] mx-auto mb-4">
-              <img
-                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop&q=80"
-                alt="Profile"
-                className="w-full h-full rounded-full object-cover"
-                style={{ border: '3px solid #A78BFA' }}
-              />
+            <div 
+              className="w-[88px] h-[88px] rounded-full mx-auto mb-4 flex items-center justify-center"
+              style={{ 
+                background: 'linear-gradient(135deg, rgba(212, 165, 116, 0.3) 0%, rgba(212, 165, 116, 0.1) 100%)',
+                border: '2px solid rgba(212, 165, 116, 0.3)'
+              }}
+            >
+              <User className="w-10 h-10" style={{ color: COLORS.accent1 }} />
             </div>
-            <h2 className="text-[22px] font-bold">My Account</h2>
-            <p className="text-white/40 text-[13px]">@viewer</p>
+            <h2 
+              className="text-[22px] font-bold mb-1"
+              style={{ color: COLORS.textPrimary }}
+            >
+              Welcome
+            </h2>
+            <p 
+              className="text-[13px]"
+              style={{ color: COLORS.textSecondary }}
+            >
+              Sign in to access your account
+            </p>
+          </div>
+
+          <div 
+            className="rounded-2xl p-5 mb-6"
+            style={{ 
+              background: 'linear-gradient(135deg, rgba(212, 165, 116, 0.15) 0%, rgba(212, 165, 116, 0.05) 100%)',
+              border: '1px solid rgba(212, 165, 116, 0.2)'
+            }}
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <Crown className="w-5 h-5" style={{ color: COLORS.accent1 }} />
+              <span 
+                className="text-[15px] font-semibold"
+                style={{ color: COLORS.textPrimary }}
+              >
+                Join Beauty Rewards
+              </span>
+            </div>
+            <p 
+              className="text-[13px] mb-4"
+              style={{ color: COLORS.textSecondary }}
+            >
+              Earn points on every purchase and unlock exclusive perks
+            </p>
+            <button 
+              className="w-full py-3 rounded-full text-[14px] font-semibold"
+              style={{ background: COLORS.accent1, color: '#0A0A0A' }}
+              data-testid="button-join-rewards"
+            >
+              Join Now
+            </button>
           </div>
 
           <div className="space-y-3">
             {[
-              { icon: Heart, label: 'Favorites', value: '12 creators' },
-              { icon: Lock, label: 'Subscriptions', value: isSubscribed ? 'Active' : 'None' },
-              { icon: ImageIcon, label: 'Purchases', value: isSubscribed ? '3 items' : '0 items' },
-              { icon: Settings, label: 'Settings', value: '' }
+              { icon: Heart, label: 'Wishlist', value: `${favorites.size} items` },
+              { icon: Package, label: 'Orders', value: '0 orders' },
+              { icon: Star, label: 'Reviews', value: '0 reviews' },
+              { icon: Clock, label: 'Recently Viewed', value: '' }
             ].map((item, idx) => (
               <button
                 key={idx}
-                className="w-full flex items-center gap-4 p-4 rounded-[18px]"
-                style={{ background: 'linear-gradient(160deg, #1C1C1E 0%, #0D0D0D 100%)' }}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl"
+                style={{ background: COLORS.cardBg, border: `1px solid ${COLORS.cardBorder}` }}
               >
                 <div 
                   className="w-11 h-11 rounded-full flex items-center justify-center"
                   style={{ background: 'rgba(255,255,255,0.05)' }}
                 >
-                  <item.icon className="w-5 h-5" />
+                  <item.icon className="w-5 h-5" style={{ color: COLORS.accent1 }} />
                 </div>
-                <span className="font-medium text-[15px] flex-1 text-left">{item.label}</span>
-                {item.value && <span className="text-white/40 text-[13px]">{item.value}</span>}
-                <ChevronRight className="w-5 h-5 text-white/30" />
+                <span 
+                  className="font-medium text-[15px] flex-1 text-left"
+                  style={{ color: COLORS.textPrimary }}
+                >
+                  {item.label}
+                </span>
+                {item.value && (
+                  <span 
+                    className="text-[13px]"
+                    style={{ color: COLORS.textSecondary }}
+                  >
+                    {item.value}
+                  </span>
+                )}
+                <ChevronRight className="w-5 h-5" style={{ color: COLORS.textSecondary }} />
               </button>
             ))}
           </div>
