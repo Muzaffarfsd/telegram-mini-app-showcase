@@ -92,30 +92,44 @@ const getGradientForUser = (userId: number | null): string => {
 const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData: any, isAvailable: boolean, telegramUser: any }) => {
   const hasValidUser = !!telegramUser && !!telegramUser.first_name;
   const initials = getUserInitials(profileData.name);
-  const gradient = getGradientForUser(profileData.telegramId);
+  const photoUrl = telegramUser?.photo_url;
   
   return (
-    <section className="liquid-glass-card-elevated rounded-2xl p-6 text-center liquid-glass-shimmer">
-      {/* User Avatar with Initials */}
-      <div className="relative w-24 h-24 mx-auto mb-4" data-testid="user-avatar">
-        {hasValidUser ? (
-          <div 
-            className="w-full h-full rounded-full flex items-center justify-center shadow-lg border-2 border-white/20"
-            style={{ background: gradient }}
-            data-testid="avatar-initials"
-          >
-            <span className="text-3xl font-bold text-white">{initials}</span>
-          </div>
-        ) : (
-          <div className="w-full h-full bg-system-blue/10 rounded-full flex items-center justify-center">
-            <User className="w-10 h-10 text-system-blue" />
-          </div>
-        )}
+    <section className="liquid-glass-card-elevated rounded-2xl p-6 text-center liquid-glass-shimmer relative overflow-hidden">
+      {/* Background Brand Text */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+        <span 
+          className="text-[32px] font-bold tracking-[0.2em] text-white/[0.03] whitespace-nowrap"
+          style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
+        >
+          WEB4TG STUDIO
+        </span>
+      </div>
+      
+      {/* User Avatar - Black circle with real photo */}
+      <div className="relative w-24 h-24 mx-auto mb-4 z-10" data-testid="user-avatar">
+        <div 
+          className="w-full h-full rounded-full bg-black flex items-center justify-center shadow-lg border border-white/10 overflow-hidden"
+          data-testid="avatar-container"
+        >
+          {photoUrl ? (
+            <img 
+              src={photoUrl} 
+              alt={profileData.name}
+              className="w-full h-full object-cover"
+              data-testid="avatar-image"
+            />
+          ) : hasValidUser ? (
+            <span className="text-3xl font-bold text-white/80">{initials}</span>
+          ) : (
+            <User className="w-10 h-10 text-white/50" />
+          )}
+        </div>
         
         {/* Telegram Status Badge */}
         {isAvailable && hasValidUser && (
           <div 
-            className="absolute bottom-0 right-0 w-7 h-7 bg-system-green rounded-full border-2 border-background flex items-center justify-center"
+            className="absolute bottom-0 right-0 w-7 h-7 bg-system-green rounded-full border-2 border-black flex items-center justify-center"
             data-testid="telegram-status-badge"
           >
             <CheckCircle className="w-4 h-4 text-white" />
@@ -123,17 +137,17 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
         )}
       </div>
       
-      <h2 className="ios-title2 mb-2 text-white" data-testid="user-name">
+      <h2 className="ios-title2 mb-2 text-white relative z-10" data-testid="user-name">
         {profileData.name}
       </h2>
       
       {profileData.username && (
-        <div className="ios-footnote text-system-blue mb-3" data-testid="user-username">
+        <div className="ios-footnote text-system-blue mb-3 relative z-10" data-testid="user-username">
           {profileData.username}
         </div>
       )}
       
-      <div className="flex items-center justify-center space-x-2 mb-4" data-testid="connection-status">
+      <div className="flex items-center justify-center space-x-2 gap-2 mb-4 relative z-10" data-testid="connection-status">
         {isAvailable && hasValidUser ? (
           <>
             <CheckCircle className="w-4 h-4 text-system-green" />
@@ -148,7 +162,7 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
       </div>
 
       {profileData.telegramId && (
-        <div className="bg-system-blue/10 backdrop-blur-xl rounded-xl border border-system-blue/30 p-3" data-testid="user-telegram-id">
+        <div className="bg-system-blue/10 backdrop-blur-xl rounded-xl border border-system-blue/30 p-3 relative z-10" data-testid="user-telegram-id">
           <div className="ios-caption1 text-white/70 mb-1 font-medium">ID пользователя</div>
           <div className="ios-footnote font-mono text-system-blue font-semibold">#{profileData.telegramId}</div>
         </div>
