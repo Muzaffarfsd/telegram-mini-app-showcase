@@ -96,10 +96,10 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
   
   return (
     <section className="p-6 text-center relative overflow-hidden">
-      {/* Background Brand Text */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+      {/* Background Brand Text - positioned behind avatar */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style={{ top: '20px' }}>
         <span 
-          className="text-[32px] font-bold tracking-[0.2em] text-white/[0.03] whitespace-nowrap"
+          className="text-[28px] font-bold tracking-[0.15em] text-white/[0.06] whitespace-nowrap"
           style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
         >
           WEB4TG STUDIO
@@ -125,16 +125,6 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
             <User className="w-10 h-10 text-white/50" />
           )}
         </div>
-        
-        {/* Telegram Status Badge */}
-        {isAvailable && hasValidUser && (
-          <div 
-            className="absolute bottom-0 right-0 w-7 h-7 bg-system-green rounded-full border-2 border-black flex items-center justify-center"
-            data-testid="telegram-status-badge"
-          >
-            <CheckCircle className="w-4 h-4 text-white" />
-          </div>
-        )}
       </div>
       
       <h2 className="ios-title2 mb-2 text-white relative z-10" data-testid="user-name">
@@ -142,29 +132,8 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
       </h2>
       
       {profileData.username && (
-        <div className="ios-footnote text-system-blue mb-3 relative z-10" data-testid="user-username">
+        <div className="ios-footnote text-white/50 relative z-10" data-testid="user-username">
           {profileData.username}
-        </div>
-      )}
-      
-      <div className="flex items-center justify-center space-x-2 gap-2 mb-4 relative z-10" data-testid="connection-status">
-        {isAvailable && hasValidUser ? (
-          <>
-            <CheckCircle className="w-4 h-4 text-system-green" />
-            <span className="ios-footnote text-system-green">Подключен к Telegram</span>
-          </>
-        ) : (
-          <>
-            <Smartphone className="w-4 h-4 text-system-blue" />
-            <span className="ios-footnote text-system-blue">WEB4TG Client</span>
-          </>
-        )}
-      </div>
-
-      {profileData.telegramId && (
-        <div className="bg-system-blue/10 backdrop-blur-xl rounded-xl border border-system-blue/30 p-3 relative z-10" data-testid="user-telegram-id">
-          <div className="ios-caption1 text-white/70 mb-1 font-medium">ID пользователя</div>
-          <div className="ios-footnote font-mono text-system-blue font-semibold">#{profileData.telegramId}</div>
         </div>
       )}
     </section>
