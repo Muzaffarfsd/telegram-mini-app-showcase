@@ -106,22 +106,30 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
         </span>
       </div>
       
-      {/* User Avatar - Premium black with glow */}
+      {/* User Avatar - Premium animated gradient glow */}
       <div className="relative w-24 h-24 mx-auto z-10" data-testid="user-avatar">
-        {/* Glow effect */}
+        {/* Animated gradient glow ring */}
         <div 
-          className="absolute inset-0 rounded-full"
+          className="absolute inset-[-3px] rounded-full animate-premium-glow"
           style={{
-            background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
-            filter: 'blur(8px)',
-            transform: 'scale(1.15)'
+            background: 'conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6)',
+            filter: 'blur(6px)',
+            opacity: 0.4
           }}
         />
+        {/* Gradient border */}
+        <div 
+          className="absolute inset-[-2px] rounded-full animate-premium-glow"
+          style={{
+            background: 'conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6)',
+            opacity: 0.6
+          }}
+        />
+        {/* Inner black circle */}
         <div 
           className="relative w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden"
           style={{
-            boxShadow: '0 0 20px rgba(255,255,255,0.1), 0 0 40px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.15)'
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)'
           }}
           data-testid="avatar-container"
         >

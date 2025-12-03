@@ -1294,6 +1294,16 @@ body {
     to { transform: rotate(360deg); }
   }
   
+  /* Premium animated gradient glow for avatar */
+  @keyframes premium-glow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .animate-premium-glow {
+    animation: premium-glow 4s linear infinite;
+  }
+  
   /* === 2025 NEUMORPHISM UTILITIES === */
   
   /* Neumorphic Card */
