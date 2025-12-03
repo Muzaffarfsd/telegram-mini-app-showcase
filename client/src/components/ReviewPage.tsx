@@ -1,100 +1,49 @@
 import { useState, memo } from "react";
-import { 
-  Star,
-  Send,
-  CheckCircle,
-  MessageCircle,
-  TrendingUp,
-  ArrowRight,
-  Quote,
-  ThumbsUp
-} from "lucide-react";
+import { ArrowRight, Star, Send, CheckCircle, MessageSquare, TrendingUp, Award } from "lucide-react";
 
 interface ReviewPageProps {
   onBack: () => void;
 }
 
-const existingReviews = [
+const reviews = [
   {
-    id: 1,
-    name: "Анна Козлова",
-    rating: 5,
-    date: "3 дня назад",
-    comment: "Потрясающий результат! Приложение для моего бутика превзошло все ожидания. Продажи выросли на 180% за первый месяц.",
-    project: "Бутик женской одежды",
-    location: "Москва"
+    name: "Анна К.",
+    company: "Бутик «Элегант»",
+    text: "Продажи выросли на 180% за первый месяц. Клиенты в восторге от удобства.",
+    rating: 5
   },
   {
-    id: 2,
-    name: "Михаил Петров",
-    rating: 5,
-    date: "1 неделю назад", 
-    comment: "Заказывал приложение для ресторана доставки. Результат превосходный! Теперь принимаем заказы 24/7 через Telegram.",
-    project: "Ресторан \"Вкусная Азия\"",
-    location: "Санкт-Петербург"
+    name: "Михаил П.",
+    company: "Ресторан доставки",
+    text: "Заказы идут круглосуточно. Лучшее вложение в бизнес за последние годы.",
+    rating: 5
   },
   {
-    id: 3,
-    name: "Елена Смирнова",
-    rating: 5,
-    date: "2 недели назад",
-    comment: "Фитнес-центр получил отличное приложение! Запись на тренировки стала проще, клиенты могут видеть расписание.",
-    project: "Фитнес-центр \"Энергия\"",
-    location: "Екатеринбург"
+    name: "Елена С.",
+    company: "Фитнес-центр",
+    text: "Запись на тренировки автоматизирована. Высвободили 3 часа в день.",
+    rating: 5
   }
 ];
 
 const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
   const [rating, setRating] = useState(0);
-  const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState("");
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmitReview = async () => {
-    if (isFormValid) {
+  const handleSubmit = async () => {
+    if (rating > 0 && comment.trim().length >= 10 && name.trim().length >= 2) {
       setIsSubmitting(true);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       setIsSubmitting(false);
       setSubmitted(true);
     }
   };
 
-  const isFormValid = rating > 0 && comment.trim().length >= 10 && name.trim().length >= 2;
-
-  const renderStars = (currentRating: number, interactive = false, size = 24) => {
-    return Array.from({ length: 5 }, (_, index) => {
-      const starValue = index + 1;
-      const isActive = interactive 
-        ? starValue <= (hoveredRating || rating)
-        : starValue <= currentRating;
-      
-      return (
-        <button
-          key={index}
-          className="transition-all duration-200"
-          style={{ cursor: interactive ? 'pointer' : 'default' }}
-          onClick={interactive ? () => setRating(starValue) : undefined}
-          onMouseEnter={interactive ? () => setHoveredRating(starValue) : undefined}
-          onMouseLeave={interactive ? () => setHoveredRating(0) : undefined}
-          disabled={!interactive}
-          data-testid={interactive ? `button-star-${starValue}` : undefined}
-        >
-          <Star
-            size={size}
-            style={{
-              color: isActive ? '#F59E0B' : '#52525B',
-              fill: isActive ? '#F59E0B' : 'none',
-              transform: interactive && hoveredRating >= starValue ? 'scale(1.1)' : 'scale(1)',
-              transition: 'all 0.2s'
-            }}
-          />
-        </button>
-      );
-    });
-  };
+  const isValid = rating > 0 && comment.trim().length >= 10 && name.trim().length >= 2;
 
   if (submitted) {
     return (
@@ -106,56 +55,37 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
           paddingTop: '140px'
         }}
       >
-        <div className="max-w-md mx-auto flex items-center justify-center min-h-[60vh] px-7">
-          <div className="text-center">
-            <div 
-              style={{
-                width: '80px',
-                height: '80px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '20px',
-                background: 'rgba(34, 197, 94, 0.1)',
-                margin: '0 auto 24px'
-              }}
-            >
-              <CheckCircle size={40} color="#22C55E" />
+        <div className="max-w-md mx-auto px-7 flex items-center justify-center" style={{ minHeight: '60vh' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '64px',
+              height: '64px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '16px',
+              background: 'rgba(34, 197, 94, 0.1)',
+              margin: '0 auto 20px'
+            }}>
+              <CheckCircle size={32} color="#22C55E" />
             </div>
             
             <h2 style={{
-              fontSize: '28px',
+              fontSize: '24px',
               fontWeight: 600,
               color: '#FAFAFA',
-              marginBottom: '12px'
+              marginBottom: '8px'
             }}>
-              Спасибо за отзыв!
+              Спасибо за отзыв
             </h2>
             
             <p style={{
-              fontSize: '15px',
+              fontSize: '14px',
               color: '#71717A',
-              lineHeight: '1.6',
-              marginBottom: '32px',
-              maxWidth: '280px',
-              margin: '0 auto 32px'
+              marginBottom: '24px'
             }}>
-              Ваша оценка очень важна для нас. Мы учтем ваши комментарии для улучшения сервиса.
+              Ваше мнение важно для нас
             </p>
-            
-            <div 
-              style={{
-                padding: '16px 20px',
-                borderRadius: '12px',
-                background: 'rgba(139, 92, 246, 0.1)',
-                border: '1px solid rgba(139, 92, 246, 0.2)',
-                marginBottom: '24px'
-              }}
-            >
-              <p style={{ fontSize: '14px', fontWeight: 500, color: '#A78BFA' }}>
-                Скидка 10% на следующий проект активирована!
-              </p>
-            </div>
             
             <button
               onClick={onBack}
@@ -174,7 +104,7 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
               }}
               data-testid="button-back-profile"
             >
-              Вернуться в профиль
+              Вернуться
               <ArrowRight size={18} />
             </button>
           </div>
@@ -194,8 +124,29 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
     >
       <div className="max-w-md mx-auto">
         
-        {/* HERO SECTION */}
+        {/* HERO */}
         <header className="px-7 pt-8 pb-16">
+          <button
+            onClick={onBack}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'none',
+              border: 'none',
+              color: '#71717A',
+              fontSize: '13px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              marginBottom: '20px',
+              padding: 0
+            }}
+            data-testid="button-back"
+          >
+            <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} />
+            Назад
+          </button>
+          
           <p 
             className="scroll-fade-in"
             style={{
@@ -221,9 +172,9 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
               color: '#FAFAFA'
             }}
           >
-            Расскажите о
+            Ваше мнение
             <br />
-            <span style={{ color: '#F59E0B' }}>вашем опыте</span>
+            <span style={{ color: '#A78BFA' }}>формирует нас.</span>
           </h1>
           
           <p 
@@ -238,275 +189,52 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
               maxWidth: '320px'
             }}
           >
-            Ваше мнение поможет нам стать лучше и поможет другим клиентам сделать выбор.
+            Расскажите о вашем опыте работы с нами — это поможет другим принять решение.
           </p>
         </header>
 
         {/* Hairline */}
-        <div 
-          className="mx-7"
-          style={{ height: '1px', background: '#27272A' }}
-        />
+        <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
 
-        {/* RATING SECTION */}
+        {/* STATS */}
         <section className="px-7 py-12">
-          <p 
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: '#52525B',
-              textTransform: 'uppercase',
-              marginBottom: '20px'
-            }}
-          >
-            Ваша оценка
+          <p style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            color: '#52525B',
+            textTransform: 'uppercase',
+            marginBottom: '20px'
+          }}>
+            Статистика
           </p>
           
-          <div 
-            style={{
-              padding: '32px 24px',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(234,88,12,0.04) 100%)',
-              border: '1px solid rgba(245, 158, 11, 0.15)',
-              textAlign: 'center'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '16px' }}>
-              {renderStars(rating, true, 32)}
-            </div>
-            
-            {rating > 0 && (
-              <p style={{ fontSize: '15px', fontWeight: 500, color: '#F59E0B' }}>
-                {rating === 5 ? 'Превосходно!' : rating === 4 ? 'Очень хорошо!' : rating === 3 ? 'Хорошо' : rating === 2 ? 'Удовлетворительно' : 'Плохо'}
-              </p>
-            )}
-          </div>
-        </section>
-
-        {/* FORM SECTION */}
-        <section className="px-7 py-8">
-          <p 
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: '#52525B',
-              textTransform: 'uppercase',
-              marginBottom: '20px'
-            }}
-          >
-            Детали отзыва
-          </p>
-          
-          <div className="space-y-5">
-            {/* Name Field */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: 500,
-                color: '#71717A',
-                marginBottom: '8px'
-              }}>
-                Ваше имя *
-              </label>
-              <input
-                type="text"
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  borderRadius: '12px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  color: '#FAFAFA',
-                  fontSize: '15px',
-                  outline: 'none',
-                  transition: 'border-color 0.2s'
-                }}
-                placeholder="Как к вам обращаться?"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={50}
-                data-testid="input-name"
-              />
-            </div>
-
-            {/* Company Field */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: 500,
-                color: '#71717A',
-                marginBottom: '8px'
-              }}>
-                Название компании
-              </label>
-              <input
-                type="text"
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  borderRadius: '12px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  color: '#FAFAFA',
-                  fontSize: '15px',
-                  outline: 'none'
-                }}
-                placeholder="Опционально"
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                maxLength={100}
-                data-testid="input-company"
-              />
-            </div>
-
-            {/* Comment Field */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: 500,
-                color: '#71717A',
-                marginBottom: '8px'
-              }}>
-                Ваш отзыв *
-              </label>
-              <textarea
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  borderRadius: '12px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  color: '#FAFAFA',
-                  fontSize: '15px',
-                  outline: 'none',
-                  resize: 'none',
-                  minHeight: '120px'
-                }}
-                placeholder="Поделитесь впечатлениями..."
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                maxLength={500}
-                data-testid="input-comment"
-              />
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between',
-                marginTop: '8px'
-              }}>
-                <span style={{ fontSize: '12px', color: comment.length >= 10 || comment.length === 0 ? '#52525B' : '#EF4444' }}>
-                  {comment.length > 0 && comment.length < 10 ? 'Минимум 10 символов' : ''}
-                </span>
-                <span style={{ fontSize: '12px', color: '#52525B' }}>{comment.length}/500</span>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              onClick={handleSubmitReview}
-              disabled={!isFormValid || isSubmitting}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '16px 24px',
-                borderRadius: '12px',
-                background: isFormValid ? '#A78BFA' : 'rgba(255, 255, 255, 0.05)',
-                border: 'none',
-                color: isFormValid ? '#09090B' : '#52525B',
-                fontSize: '15px',
-                fontWeight: 600,
-                cursor: isFormValid ? 'pointer' : 'not-allowed',
-                marginTop: '12px'
-              }}
-              data-testid="button-submit-review"
-            >
-              {isSubmitting ? (
-                <>
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '2px solid rgba(0,0,0,0.2)',
-                    borderTopColor: '#09090B',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }} />
-                  <span>Отправляем...</span>
-                </>
-              ) : (
-                <>
-                  <Send size={18} />
-                  <span>Отправить отзыв</span>
-                </>
-              )}
-            </button>
-          </div>
-        </section>
-
-        {/* Hairline */}
-        <div 
-          className="mx-7"
-          style={{ height: '1px', background: '#27272A' }}
-        />
-
-        {/* STATS SECTION */}
-        <section className="px-7 py-12">
-          <p 
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: '#52525B',
-              textTransform: 'uppercase',
-              marginBottom: '20px'
-            }}
-          >
-            Доверие клиентов
-          </p>
-          
-          <div 
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              gap: '12px'
-            }}
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
             {[
-              { value: '4.9', label: 'рейтинг', icon: Star, color: '#F59E0B' },
-              { value: '127', label: 'отзывов', icon: MessageCircle, color: '#3B82F6' },
-              { value: '96%', label: 'рекомендуют', icon: TrendingUp, color: '#22C55E' }
+              { icon: Star, value: '4.9', label: 'рейтинг' },
+              { icon: MessageSquare, value: '127', label: 'отзывов' },
+              { icon: TrendingUp, value: '96%', label: 'рекомендуют' }
             ].map((stat, index) => (
               <div 
                 key={index}
                 style={{
-                  padding: '20px 16px',
+                  padding: '20px 12px',
                   borderRadius: '14px',
                   background: 'rgba(255, 255, 255, 0.02)',
                   border: '1px solid rgba(255, 255, 255, 0.04)',
                   textAlign: 'center'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <stat.icon size={16} color={stat.color} />
-                  <span style={{
-                    fontSize: '22px',
-                    fontWeight: 700,
-                    color: '#FAFAFA',
-                    letterSpacing: '-0.03em'
-                  }}>
-                    {stat.value}
-                  </span>
-                </div>
+                <stat.icon size={18} color="#A78BFA" style={{ margin: '0 auto 8px' }} />
                 <p style={{
-                  fontSize: '11px',
-                  color: '#52525B'
+                  fontSize: '22px',
+                  fontWeight: 700,
+                  color: '#FAFAFA',
+                  letterSpacing: '-0.03em'
                 }}>
+                  {stat.value}
+                </p>
+                <p style={{ fontSize: '11px', color: '#52525B', marginTop: '2px' }}>
                   {stat.label}
                 </p>
               </div>
@@ -514,25 +242,183 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
           </div>
         </section>
 
-        {/* REVIEWS SECTION */}
-        <section className="px-7 py-8 pb-16">
-          <p 
+        {/* FORM */}
+        <section className="px-7 py-8">
+          <p style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            color: '#52525B',
+            textTransform: 'uppercase',
+            marginBottom: '20px'
+          }}>
+            Оставить отзыв
+          </p>
+          
+          {/* Rating */}
+          <div 
             style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: '#52525B',
-              textTransform: 'uppercase',
-              marginBottom: '20px'
+              padding: '24px',
+              borderRadius: '16px',
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.04) 100%)',
+              border: '1px solid rgba(139, 92, 246, 0.15)',
+              marginBottom: '16px',
+              textAlign: 'center'
             }}
           >
+            <p style={{ fontSize: '13px', color: '#71717A', marginBottom: '12px' }}>
+              Ваша оценка
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => setRating(star)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px'
+                  }}
+                  data-testid={`button-star-${star}`}
+                >
+                  <Star
+                    size={28}
+                    fill={star <= rating ? '#F59E0B' : 'none'}
+                    color={star <= rating ? '#F59E0B' : '#52525B'}
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Name */}
+          <div style={{ marginBottom: '12px' }}>
+            <input
+              type="text"
+              placeholder="Ваше имя"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={50}
+              style={{
+                width: '100%',
+                padding: '16px 20px',
+                borderRadius: '14px',
+                background: 'rgba(255, 255, 255, 0.02)',
+                border: '1px solid rgba(255, 255, 255, 0.04)',
+                color: '#FAFAFA',
+                fontSize: '15px',
+                outline: 'none'
+              }}
+              data-testid="input-name"
+            />
+          </div>
+
+          {/* Company */}
+          <div style={{ marginBottom: '12px' }}>
+            <input
+              type="text"
+              placeholder="Название компании (опционально)"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              maxLength={100}
+              style={{
+                width: '100%',
+                padding: '16px 20px',
+                borderRadius: '14px',
+                background: 'rgba(255, 255, 255, 0.02)',
+                border: '1px solid rgba(255, 255, 255, 0.04)',
+                color: '#FAFAFA',
+                fontSize: '15px',
+                outline: 'none'
+              }}
+              data-testid="input-company"
+            />
+          </div>
+
+          {/* Comment */}
+          <div style={{ marginBottom: '16px' }}>
+            <textarea
+              placeholder="Расскажите о вашем опыте..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              maxLength={500}
+              style={{
+                width: '100%',
+                padding: '16px 20px',
+                borderRadius: '14px',
+                background: 'rgba(255, 255, 255, 0.02)',
+                border: '1px solid rgba(255, 255, 255, 0.04)',
+                color: '#FAFAFA',
+                fontSize: '15px',
+                outline: 'none',
+                resize: 'none',
+                minHeight: '120px'
+              }}
+              data-testid="input-comment"
+            />
+            <p style={{ 
+              fontSize: '11px', 
+              color: '#52525B', 
+              textAlign: 'right',
+              marginTop: '6px'
+            }}>
+              {comment.length}/500
+            </p>
+          </div>
+
+          {/* Submit */}
+          <button
+            onClick={handleSubmit}
+            disabled={!isValid || isSubmitting}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '16px 24px',
+              borderRadius: '12px',
+              background: isValid ? '#A78BFA' : 'rgba(255, 255, 255, 0.05)',
+              border: 'none',
+              color: isValid ? '#09090B' : '#52525B',
+              fontSize: '15px',
+              fontWeight: 600,
+              cursor: isValid ? 'pointer' : 'not-allowed'
+            }}
+            data-testid="button-submit-review"
+          >
+            {isSubmitting ? (
+              <span>Отправляем...</span>
+            ) : (
+              <>
+                <Send size={18} />
+                Отправить отзыв
+              </>
+            )}
+          </button>
+        </section>
+
+        {/* Hairline */}
+        <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
+
+        {/* REVIEWS */}
+        <section className="px-7 py-12">
+          <p style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            color: '#52525B',
+            textTransform: 'uppercase',
+            marginBottom: '20px'
+          }}>
             Отзывы клиентов
           </p>
           
           <div className="space-y-4">
-            {existingReviews.map((review) => (
+            {reviews.map((review, index) => (
               <div 
-                key={review.id}
+                key={index}
                 style={{
                   padding: '20px',
                   borderRadius: '14px',
@@ -540,100 +426,89 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
                   border: '1px solid rgba(255, 255, 255, 0.04)'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                   <div style={{
                     width: '40px',
                     height: '40px',
                     borderRadius: '10px',
-                    background: 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(59,130,246,0.1) 100%)',
+                    background: 'rgba(139, 92, 246, 0.1)',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
+                    justifyContent: 'center'
                   }}>
                     <span style={{ fontSize: '16px', fontWeight: 600, color: '#A78BFA' }}>
                       {review.name.charAt(0)}
                     </span>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <p style={{ fontSize: '15px', fontWeight: 600, color: '#FAFAFA' }}>{review.name}</p>
-                      <div style={{ display: 'flex', gap: '2px' }}>
-                        {renderStars(review.rating, false, 12)}
-                      </div>
-                    </div>
+                  <div>
+                    <p style={{ fontSize: '14px', fontWeight: 600, color: '#FAFAFA' }}>
+                      {review.name}
+                    </p>
                     <p style={{ fontSize: '12px', color: '#52525B' }}>
-                      {review.project} · {review.location}
+                      {review.company}
                     </p>
                   </div>
+                  <div style={{ marginLeft: 'auto', display: 'flex', gap: '2px' }}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} size={12} fill="#F59E0B" color="#F59E0B" />
+                    ))}
+                  </div>
                 </div>
-                
                 <p style={{
                   fontSize: '14px',
                   color: '#A1A1AA',
                   lineHeight: '1.5',
-                  marginBottom: '12px'
+                  fontStyle: 'italic'
                 }}>
-                  "{review.comment}"
+                  «{review.text}»
                 </p>
-                
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '12px', color: '#52525B' }}>{review.date}</span>
-                  <button 
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      background: 'none',
-                      border: 'none',
-                      color: '#52525B',
-                      fontSize: '12px',
-                      cursor: 'pointer'
-                    }}
-                    data-testid={`button-helpful-${review.id}`}
-                  >
-                    <ThumbsUp size={12} />
-                    <span>Полезно</span>
-                  </button>
-                </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* INCENTIVE CTA */}
-        <section className="px-7 py-8 pb-24">
+        {/* CTA */}
+        <section className="px-7 py-8 pb-16">
           <div 
             style={{
-              padding: '24px',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(59,130,246,0.05) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px'
+              padding: '28px',
+              borderRadius: '20px',
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(59,130,246,0.08) 100%)',
+              border: '1px solid rgba(139, 92, 246, 0.2)',
+              textAlign: 'center'
             }}
           >
             <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              background: 'rgba(139, 92, 246, 0.15)',
+              width: '56px',
+              height: '56px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              flexShrink: 0
+              borderRadius: '16px',
+              background: 'rgba(139, 92, 246, 0.2)',
+              margin: '0 auto 16px'
             }}>
-              <Quote size={24} color="#A78BFA" />
+              <Award size={28} color="#A78BFA" />
             </div>
-            <div>
-              <p style={{ fontSize: '15px', fontWeight: 600, color: '#FAFAFA', marginBottom: '4px' }}>
-                Получите скидку 10%
-              </p>
-              <p style={{ fontSize: '13px', color: '#71717A' }}>
-                На следующий проект за честный отзыв
-              </p>
-            </div>
+            
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: 600,
+              color: '#FAFAFA',
+              marginBottom: '8px'
+            }}>
+              Бонус за отзыв
+            </h3>
+            
+            <p style={{
+              fontSize: '14px',
+              color: '#71717A',
+              lineHeight: '1.5'
+            }}>
+              Скидка 10% на следующий проект
+              <br />
+              за честный отзыв
+            </p>
           </div>
         </section>
 

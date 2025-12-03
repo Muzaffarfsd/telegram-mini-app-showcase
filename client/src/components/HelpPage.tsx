@@ -1,141 +1,53 @@
-import { useState, memo } from "react";
+import { memo, useState } from "react";
 import { 
-  MessageCircle,
-  Phone,
-  Mail,
+  ArrowRight, 
+  MessageCircle, 
+  Phone, 
+  Mail, 
+  ChevronDown, 
+  ChevronUp,
   Clock,
   Shield,
+  Zap,
   CreditCard,
   Code,
-  ChevronDown,
-  ChevronUp,
-  Zap,
-  ArrowRight,
-  Headphones,
-  HelpCircle,
-  Settings,
-  Smartphone,
-  Package,
-  DollarSign
+  Headphones
 } from "lucide-react";
 
 interface HelpPageProps {
   onBack: () => void;
 }
 
-interface FAQItem {
-  id: number;
-  question: string;
-  answer: string;
-  icon: any;
-  color: string;
-}
-
-const faqItems: FAQItem[] = [
+const faq = [
   {
-    id: 1,
-    question: "Сколько времени занимает разработка?",
-    answer: "Простой магазин — 5-7 дней\nРесторан с доставкой — 7-10 дней\nФитнес-центр — 8-12 дней\nСложные проекты — до 14 дней",
-    icon: Clock,
-    color: "#3B82F6"
+    q: "Сколько времени занимает разработка?",
+    a: "Простой магазин — 5-7 дней. Ресторан с доставкой — 7-10 дней. Сложные проекты — до 14 дней.",
+    icon: Clock
   },
   {
-    id: 2,
-    question: "Какие способы оплаты вы принимаете?",
-    answer: "Банковские карты, СБП, онлайн-банкинг, электронные кошельки.\nОплата поэтапно: 50% аванс, 50% при сдаче проекта.",
-    icon: CreditCard,
-    color: "#22C55E"
+    q: "Какие способы оплаты вы принимаете?",
+    a: "Банковские карты, СБП, электронные кошельки. Оплата поэтапно: 50% аванс, 50% при сдаче.",
+    icon: CreditCard
   },
   {
-    id: 3,
-    question: "Нужен ли мне Telegram Bot Token?",
-    answer: "Нет! Мы создаём Mini App, которое работает внутри Telegram без отдельного бота.\nАвтоматическая интеграция, работает на всех устройствах.",
-    icon: Smartphone,
-    color: "#A78BFA"
+    q: "Нужен ли мне Telegram Bot Token?",
+    a: "Нет. Мы создаём Mini App, которое работает внутри Telegram без отдельного бота.",
+    icon: Code
   },
   {
-    id: 4,
-    question: "Можно ли вносить изменения после запуска?",
-    answer: "Первый месяц — бесплатная поддержка.\nМелкие правки — бесплатно.\nСрочные исправления — в течение 2 часов.",
-    icon: Package,
-    color: "#F59E0B"
+    q: "Можно ли вносить изменения после запуска?",
+    a: "Первый месяц — бесплатная поддержка. Мелкие правки — бесплатно. Срочные исправления — 2 часа.",
+    icon: Shield
   },
   {
-    id: 5,
-    question: "Насколько безопасны платежи?",
-    answer: "Сертифицированные платёжные системы.\nЗащищённый протокол HTTPS.\nСтандарт PCI DSS.\nИнтеграция с Telegram Payments.",
-    icon: Shield,
-    color: "#EF4444"
-  },
-  {
-    id: 6,
-    question: "Какую поддержку вы предоставляете?",
-    answer: "Техподдержка 24/7.\nОтвет в Telegram — 30 минут.\nКритические ошибки — 15 минут.\nОбучение работе с админ-панелью.",
-    icon: Headphones,
-    color: "#14B8A6"
-  },
-  {
-    id: 7,
-    question: "Что входит в базовый пакет?",
-    answer: "Каталог товаров/услуг.\nКорзина и оформление заказов.\nАдминистративная панель.\nАдаптивный дизайн.\nБазовая аналитика.",
-    icon: Settings,
-    color: "#3B82F6"
-  },
-  {
-    id: 8,
-    question: "Сколько стоит разработка?",
-    answer: "Магазин — от 25 000 ₽\nРесторан — от 30 000 ₽\nФитнес — от 35 000 ₽\nУникальные проекты — от 40 000 ₽",
-    icon: DollarSign,
-    color: "#22C55E"
-  },
-  {
-    id: 9,
-    question: "Предоставляете ли вы исходный код?",
-    answer: "Да! Полный исходный код.\nДокументация по развёртыванию.\nПрава на коммерческое использование.\nВы — полноправный владелец.",
-    icon: Code,
-    color: "#A78BFA"
-  }
-];
-
-const contactMethods = [
-  {
-    id: 1,
-    title: "Telegram",
-    description: "@web4tgs",
-    detail: "Отвечаем за 30 минут",
-    action: () => window.open('https://t.me/web4tgs', '_blank'),
-    icon: MessageCircle,
-    color: "#3B82F6",
-    urgent: true
-  },
-  {
-    id: 2,
-    title: "Телефон",
-    description: "+7 (999) 999-99-99",
-    detail: "9:00 — 21:00 МСК",
-    action: () => window.open('tel:+79999999999', '_blank'),
-    icon: Phone,
-    color: "#22C55E",
-    urgent: false
-  },
-  {
-    id: 3,
-    title: "Email",
-    description: "support@web4tg.com",
-    detail: "Подробные вопросы",
-    action: () => window.open('mailto:support@web4tg.com', '_blank'),
-    icon: Mail,
-    color: "#A78BFA",
-    urgent: false
+    q: "Какую поддержку вы предоставляете?",
+    a: "Техподдержка 24/7. Ответ в Telegram — 30 минут. Критические ошибки — 15 минут.",
+    icon: Headphones
   }
 ];
 
 const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
-  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
-
-  const toggleFAQ = (id: number) => {
-    setExpandedFAQ(expandedFAQ === id ? null : id);
-  };
+  const [expanded, setExpanded] = useState<number | null>(null);
 
   return (
     <div 
@@ -148,8 +60,29 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
     >
       <div className="max-w-md mx-auto">
         
-        {/* HERO SECTION */}
+        {/* HERO */}
         <header className="px-7 pt-8 pb-16">
+          <button
+            onClick={onBack}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'none',
+              border: 'none',
+              color: '#71717A',
+              fontSize: '13px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              marginBottom: '20px',
+              padding: 0
+            }}
+            data-testid="button-back"
+          >
+            <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} />
+            Назад
+          </button>
+          
           <p 
             className="scroll-fade-in"
             style={{
@@ -175,9 +108,9 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
               color: '#FAFAFA'
             }}
           >
-            Центр
+            Мы всегда
             <br />
-            <span style={{ color: '#3B82F6' }}>поддержки</span>
+            <span style={{ color: '#A78BFA' }}>на связи.</span>
           </h1>
           
           <p 
@@ -192,126 +125,130 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
               maxWidth: '320px'
             }}
           >
-            Найдите ответы на все вопросы о создании Telegram приложений.
+            Ответы на вопросы, техническая помощь и консультации — быстро и без очереди.
           </p>
         </header>
 
         {/* Hairline */}
-        <div 
-          className="mx-7"
-          style={{ height: '1px', background: '#27272A' }}
-        />
+        <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
 
-        {/* CONTACT SECTION */}
+        {/* CONTACT */}
         <section className="px-7 py-12">
-          <p 
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: '#52525B',
-              textTransform: 'uppercase',
-              marginBottom: '20px'
-            }}
-          >
-            Связаться с нами
+          <p style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            color: '#52525B',
+            textTransform: 'uppercase',
+            marginBottom: '20px'
+          }}>
+            Связаться
           </p>
           
           <div className="space-y-3">
-            {contactMethods.map((method) => {
-              const IconComponent = method.icon;
-              return (
-                <div 
-                  key={method.id}
-                  onClick={method.action}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '16px',
-                    padding: '20px',
-                    borderRadius: '14px',
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid rgba(255, 255, 255, 0.04)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  data-testid={`button-contact-${method.id}`}
-                >
-                  <div style={{
-                    width: '48px',
-                    height: '48px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '12px',
-                    background: `${method.color}15`,
-                    flexShrink: 0
-                  }}>
-                    <IconComponent size={24} color={method.color} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <p style={{
-                        fontSize: '15px',
-                        fontWeight: 600,
-                        color: '#FAFAFA'
-                      }}>
-                        {method.title}
-                      </p>
-                      {method.urgent && (
-                        <span style={{
-                          padding: '2px 8px',
-                          borderRadius: '6px',
-                          background: 'rgba(239, 68, 68, 0.1)',
-                          fontSize: '10px',
-                          fontWeight: 600,
-                          color: '#EF4444',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em'
-                        }}>
-                          Быстро
-                        </span>
-                      )}
-                    </div>
-                    <p style={{ fontSize: '14px', color: '#A1A1AA' }}>{method.description}</p>
-                    <p style={{ fontSize: '12px', color: '#52525B' }}>{method.detail}</p>
-                  </div>
-                  <ArrowRight size={18} color="#52525B" />
+            {[
+              { 
+                icon: MessageCircle, 
+                title: 'Telegram', 
+                value: '@web4tg_studio',
+                desc: 'Ответ за 30 минут',
+                action: () => window.open('https://t.me/web4tgs', '_blank'),
+                primary: true
+              },
+              { 
+                icon: Phone, 
+                title: 'Телефон', 
+                value: '+7 (999) 999-99-99',
+                desc: '10:00 — 19:00 МСК',
+                action: () => window.open('tel:+79999999999', '_blank'),
+                primary: false
+              },
+              { 
+                icon: Mail, 
+                title: 'Email', 
+                value: 'hello@web4tg.studio',
+                desc: 'Для документов',
+                action: () => window.open('mailto:hello@web4tg.studio', '_blank'),
+                primary: false
+              }
+            ].map((item, index) => (
+              <button
+                key={index}
+                onClick={item.action}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px',
+                  padding: '20px',
+                  borderRadius: '14px',
+                  background: item.primary 
+                    ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.04) 100%)'
+                    : 'rgba(255, 255, 255, 0.02)',
+                  border: item.primary 
+                    ? '1px solid rgba(139, 92, 246, 0.15)'
+                    : '1px solid rgba(255, 255, 255, 0.04)',
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+                data-testid={`button-contact-${index}`}
+              >
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '12px',
+                  background: 'rgba(139, 92, 246, 0.1)',
+                  flexShrink: 0
+                }}>
+                  <item.icon size={20} color="#A78BFA" />
                 </div>
-              );
-            })}
+                <div style={{ flex: 1 }}>
+                  <p style={{
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    color: '#FAFAFA',
+                    marginBottom: '2px'
+                  }}>
+                    {item.title}
+                  </p>
+                  <p style={{ fontSize: '13px', color: '#A1A1AA' }}>
+                    {item.value}
+                  </p>
+                  <p style={{ fontSize: '11px', color: '#52525B', marginTop: '2px' }}>
+                    {item.desc}
+                  </p>
+                </div>
+                <ArrowRight size={18} color="#52525B" />
+              </button>
+            ))}
           </div>
         </section>
 
         {/* Hairline */}
-        <div 
-          className="mx-7"
-          style={{ height: '1px', background: '#27272A' }}
-        />
+        <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
 
-        {/* FAQ SECTION */}
+        {/* FAQ */}
         <section className="px-7 py-12">
-          <p 
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: '#52525B',
-              textTransform: 'uppercase',
-              marginBottom: '20px'
-            }}
-          >
+          <p style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            color: '#52525B',
+            textTransform: 'uppercase',
+            marginBottom: '20px'
+          }}>
             Частые вопросы
           </p>
           
           <div className="space-y-3">
-            {faqItems.map((item) => {
-              const IconComponent = item.icon;
-              const isExpanded = expandedFAQ === item.id;
-              
+            {faq.map((item, index) => {
+              const isOpen = expanded === index;
               return (
                 <div 
-                  key={item.id}
+                  key={index}
                   style={{
                     borderRadius: '14px',
                     background: 'rgba(255, 255, 255, 0.02)',
@@ -320,19 +257,19 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
                   }}
                 >
                   <button
-                    onClick={() => toggleFAQ(item.id)}
+                    onClick={() => setExpanded(isOpen ? null : index)}
                     style={{
                       width: '100%',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '12px',
-                      padding: '16px 20px',
+                      gap: '14px',
+                      padding: '18px 20px',
                       background: 'transparent',
                       border: 'none',
                       cursor: 'pointer',
                       textAlign: 'left'
                     }}
-                    data-testid={`button-faq-${item.id}`}
+                    data-testid={`button-faq-${index}`}
                   >
                     <div style={{
                       width: '36px',
@@ -341,10 +278,10 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
                       alignItems: 'center',
                       justifyContent: 'center',
                       borderRadius: '10px',
-                      background: `${item.color}15`,
+                      background: 'rgba(139, 92, 246, 0.1)',
                       flexShrink: 0
                     }}>
-                      <IconComponent size={18} color={item.color} />
+                      <item.icon size={18} color="#A78BFA" />
                     </div>
                     <p style={{
                       flex: 1,
@@ -353,26 +290,23 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
                       color: '#FAFAFA',
                       lineHeight: '1.4'
                     }}>
-                      {item.question}
+                      {item.q}
                     </p>
-                    {isExpanded ? (
+                    {isOpen ? (
                       <ChevronUp size={18} color="#52525B" />
                     ) : (
                       <ChevronDown size={18} color="#52525B" />
                     )}
                   </button>
                   
-                  {isExpanded && (
-                    <div style={{
-                      padding: '0 20px 16px 68px'
-                    }}>
+                  {isOpen && (
+                    <div style={{ padding: '0 20px 18px 70px' }}>
                       <p style={{
                         fontSize: '13px',
                         color: '#71717A',
-                        lineHeight: '1.6',
-                        whiteSpace: 'pre-line'
+                        lineHeight: '1.6'
                       }}>
-                        {item.answer}
+                        {item.a}
                       </p>
                     </div>
                   )}
@@ -383,92 +317,66 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
         </section>
 
         {/* Hairline */}
-        <div 
-          className="mx-7"
-          style={{ height: '1px', background: '#27272A' }}
-        />
+        <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
 
-        {/* FEATURES SECTION */}
+        {/* STATS */}
         <section className="px-7 py-12">
-          <p 
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: '#52525B',
-              textTransform: 'uppercase',
-              marginBottom: '20px'
-            }}
-          >
-            Почему мы
+          <p style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            color: '#52525B',
+            textTransform: 'uppercase',
+            marginBottom: '20px'
+          }}>
+            Наши гарантии
           </p>
           
-          <div 
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '12px'
-            }}
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             {[
-              { icon: Zap, value: '5-14', label: 'дней на разработку', color: '#A78BFA' },
-              { icon: Shield, value: '100%', label: 'гарантия качества', color: '#22C55E' },
-              { icon: Clock, value: '24/7', label: 'техподдержка', color: '#3B82F6' },
-              { icon: Headphones, value: '30м', label: 'время ответа', color: '#F59E0B' }
-            ].map((feature, index) => {
-              const IconComponent = feature.icon;
-              return (
-                <div 
-                  key={index}
-                  style={{
-                    padding: '20px',
-                    borderRadius: '14px',
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid rgba(255, 255, 255, 0.04)',
-                    textAlign: 'center'
-                  }}
-                >
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '10px',
-                    background: `${feature.color}15`,
-                    margin: '0 auto 12px'
-                  }}>
-                    <IconComponent size={20} color={feature.color} />
-                  </div>
-                  <p style={{
-                    fontSize: '24px',
-                    fontWeight: 700,
-                    color: '#FAFAFA',
-                    letterSpacing: '-0.03em',
-                    marginBottom: '4px'
-                  }}>
-                    {feature.value}
-                  </p>
-                  <p style={{
-                    fontSize: '12px',
-                    color: '#52525B'
-                  }}>
-                    {feature.label}
-                  </p>
-                </div>
-              );
-            })}
+              { value: '30м', label: 'время ответа' },
+              { value: '24/7', label: 'техподдержка' },
+              { value: '100%', label: 'гарантия качества' },
+              { value: '14', label: 'дней на проект' }
+            ].map((stat, index) => (
+              <div 
+                key={index}
+                style={{
+                  padding: '20px',
+                  borderRadius: '14px',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid rgba(255, 255, 255, 0.04)',
+                  textAlign: 'center'
+                }}
+              >
+                <p style={{
+                  fontSize: '28px',
+                  fontWeight: 700,
+                  color: '#FAFAFA',
+                  letterSpacing: '-0.03em'
+                }}>
+                  {stat.value}
+                </p>
+                <p style={{
+                  fontSize: '12px',
+                  color: '#52525B',
+                  marginTop: '4px'
+                }}>
+                  {stat.label}
+                </p>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* CTA SECTION */}
-        <section className="px-7 py-8 pb-24">
+        {/* CTA */}
+        <section className="px-7 py-8 pb-16">
           <div 
             style={{
               padding: '28px',
               borderRadius: '20px',
-              background: 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(139,92,246,0.08) 100%)',
-              border: '1px solid rgba(59, 130, 246, 0.2)',
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(59,130,246,0.08) 100%)',
+              border: '1px solid rgba(139, 92, 246, 0.2)',
               textAlign: 'center'
             }}
           >
@@ -479,10 +387,10 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: '16px',
-              background: 'rgba(59, 130, 246, 0.2)',
+              background: 'rgba(139, 92, 246, 0.2)',
               margin: '0 auto 16px'
             }}>
-              <HelpCircle size={28} color="#3B82F6" />
+              <Zap size={28} color="#A78BFA" />
             </div>
             
             <h3 style={{
@@ -500,9 +408,9 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
               marginBottom: '20px',
               lineHeight: '1.5'
             }}>
-              Напишите нам в Telegram —
+              Напишите нам — ответим
               <br />
-              ответим в течение 30 минут
+              в течение 30 минут
             </p>
             
             <button
@@ -513,18 +421,17 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
                 gap: '8px',
                 padding: '14px 28px',
                 borderRadius: '12px',
-                background: '#3B82F6',
+                background: '#A78BFA',
                 border: 'none',
-                color: '#FFFFFF',
+                color: '#09090B',
                 fontSize: '15px',
                 fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s'
+                cursor: 'pointer'
               }}
               data-testid="button-telegram-support"
             >
-              <MessageCircle size={18} />
               Написать в Telegram
+              <ArrowRight size={18} />
             </button>
           </div>
         </section>
