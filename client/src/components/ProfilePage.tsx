@@ -96,16 +96,6 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
   
   return (
     <section className="p-6 text-center relative overflow-hidden">
-      {/* Background Brand Text - positioned behind avatar */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style={{ top: '20px' }}>
-        <span 
-          className="text-[28px] font-bold tracking-[0.15em] text-white/[0.06] whitespace-nowrap"
-          style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
-        >
-          WEB4TG STUDIO
-        </span>
-      </div>
-      
       {/* User Avatar - Premium animated gradient glow */}
       <div className="relative w-24 h-24 mx-auto z-10" data-testid="user-avatar">
         {/* Animated gradient glow ring */}
