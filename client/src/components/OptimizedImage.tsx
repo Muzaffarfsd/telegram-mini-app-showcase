@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, ImgHTMLAttributes } from 'react';
+import { useState, useEffect, useRef, ImgHTMLAttributes, memo } from 'react';
 
 interface OptimizedImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'srcSet' | 'sizes'> {
   src: string;
@@ -10,9 +10,10 @@ interface OptimizedImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 
   sizes?: string;
   onLoad?: () => void;
   fallbackColor?: string;
+  optional?: boolean;
 }
 
-export function OptimizedImage({
+export const OptimizedImage = memo(function OptimizedImage({
   src,
   alt,
   width = 800,
@@ -23,6 +24,7 @@ export function OptimizedImage({
   className = '',
   onLoad,
   fallbackColor = 'bg-gradient-to-br from-gray-800 to-gray-900',
+  optional = false,
   ...props
 }: OptimizedImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -131,7 +133,7 @@ export function OptimizedImage({
       />
     </div>
   );
-}
+});
 
 export async function getBlurDataURL(imageUrl: string): Promise<string> {
   if (imageUrl.includes('unsplash.com')) {

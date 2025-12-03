@@ -1,6 +1,12 @@
-// Service Worker for WEB4TG - Offline-First PWA
-const CACHE_NAME = 'web4tg-v1';
-const RUNTIME_CACHE = 'runtime-v1';
+// Service Worker for WEB4TG - Offline-First PWA with Performance Optimizations
+const CACHE_NAME = 'web4tg-v2';
+const RUNTIME_CACHE = 'runtime-v2';
+const IMAGE_CACHE = 'images-v2';
+const FONT_CACHE = 'fonts-v2';
+
+// Cache size limits
+const MAX_IMAGE_CACHE_SIZE = 50; // Max images to cache
+const MAX_RUNTIME_CACHE_SIZE = 100;
 
 // Critical assets to cache on install
 const PRECACHE_ASSETS = [
@@ -8,6 +14,18 @@ const PRECACHE_ASSETS = [
   '/index.html',
   '/manifest.json',
 ];
+
+// Helper to limit cache size
+async function trimCache(cacheName, maxSize) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > maxSize) {
+    const deleteCount = keys.length - maxSize;
+    for (let i = 0; i < deleteCount; i++) {
+      await cache.delete(keys[i]);
+    }
+  }
+}
 
 // Install event - cache critical assets
 self.addEventListener('install', (event) => {
@@ -23,18 +41,31 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  const currentCaches = [CACHE_NAME, RUNTIME_CACHE, IMAGE_CACHE, FONT_CACHE];
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((name) => name !== CACHE_NAME && name !== RUNTIME_CACHE)
+            .filter((name) => !currentCaches.includes(name))
             .map((name) => caches.delete(name))
         );
       })
       .then(() => self.clients.claim())
   );
 });
+
+// Check if URL is an image
+function isImageRequest(url) {
+  return url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i) ||
+         url.hostname.includes('unsplash.com') ||
+         url.hostname.includes('images.unsplash.com');
+}
+
+// Check if URL is a font
+function isFontRequest(url) {
+  return url.pathname.match(/\.(woff|woff2|ttf|otf|eot)$/i);
+}
 
 // Fetch event - Network First strategy for API, Cache First for assets
 self.addEventListener('fetch', (event) => {
@@ -48,6 +79,49 @@ self.addEventListener('fetch', (event) => {
 
   // Skip Chrome extensions
   if (url.protocol === 'chrome-extension:') {
+    return;
+  }
+
+  // Images - Cache First with long expiry (stale-while-revalidate)
+  if (isImageRequest(url)) {
+    event.respondWith(
+      caches.open(IMAGE_CACHE)
+        .then(cache => cache.match(request)
+          .then(cachedResponse => {
+            const fetchPromise = fetch(request)
+              .then(networkResponse => {
+                if (networkResponse && networkResponse.status === 200) {
+                  cache.put(request, networkResponse.clone());
+                  trimCache(IMAGE_CACHE, MAX_IMAGE_CACHE_SIZE);
+                }
+                return networkResponse;
+              })
+              .catch(() => cachedResponse);
+            
+            return cachedResponse || fetchPromise;
+          }))
+    );
+    return;
+  }
+
+  // Fonts - Cache First (fonts rarely change)
+  if (isFontRequest(url)) {
+    event.respondWith(
+      caches.open(FONT_CACHE)
+        .then(cache => cache.match(request)
+          .then(cachedResponse => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            return fetch(request)
+              .then(networkResponse => {
+                if (networkResponse && networkResponse.status === 200) {
+                  cache.put(request, networkResponse.clone());
+                }
+                return networkResponse;
+              });
+          }))
+    );
     return;
   }
 

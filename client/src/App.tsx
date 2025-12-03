@@ -6,6 +6,7 @@ import { useTelegram } from "./hooks/useTelegram";
 import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
+import { usePerformanceMode } from "./hooks/usePerformanceMode";
 
 // Eager load providers to prevent blank screen (Suspense fallback={null} + #root:empty CSS loop)
 import { RewardsProvider } from "./contexts/RewardsContext";
@@ -95,6 +96,9 @@ function App() {
   const [route, setRoute] = useState<Route>({ path: '/', component: 'showcase', params: {} });
   const [orderData, setOrderData] = useState<any>(null);
   const { hapticFeedback, user } = useTelegram();
+  
+  // Initialize performance mode detection
+  const performanceMode = usePerformanceMode();
   
   // Initialize route after mount to ensure showcase is default
   useEffect(() => {

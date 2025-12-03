@@ -30,7 +30,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const trackInteraction = useTrackInteraction();
   
   const videoRef2 = useVideoPreload();
-  const videoRef3 = useVideoLazyLoad();
+  const { videoRef: videoRef3 } = useVideoLazyLoad();
   
   const handleOpenDemo = useCallback((demoId: string) => {
     haptic.light();

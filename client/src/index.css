@@ -1,18 +1,9 @@
-/* Fonts - 2025 Premium Typography */
+/* Fonts - Optimized for Performance */
+/* Only load essential weights to reduce bundle size */
 @import '@fontsource/inter/latin-400.css';
-@import '@fontsource/inter/latin-500.css';
 @import '@fontsource/inter/latin-600.css';
 @import '@fontsource/inter/latin-700.css';
-@import '@fontsource/inter/latin-800.css';
-@import '@fontsource/inter/latin-900.css';
-@import '@fontsource/playfair-display/latin-400.css';
-@import '@fontsource/playfair-display/latin-600.css';
-@import '@fontsource/playfair-display/latin-700.css';
-@import '@fontsource/playfair-display/latin-800.css';
-@import '@fontsource/cormorant-garamond/latin-300.css';
-@import '@fontsource/cormorant-garamond/latin-400.css';
-@import '@fontsource/cormorant-garamond/latin-600.css';
-@import '@fontsource/orbitron';
+/* Secondary fonts loaded only when needed via font-display: swap */
 
 /* Apple Quality Standards */
 @import './styles/apple.css';
@@ -3091,5 +3082,136 @@ img, video {
   /* Reduce work during scroll */
   * {
     -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ========================================
+   PERFORMANCE MODE - LOW END DEVICES
+   ======================================== */
+
+/* Detect system preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Low Performance Mode - Disable all animations */
+html.low-performance *,
+html.low-performance *::before,
+html.low-performance *::after,
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Low Performance Mode - Disable blur effects (major GPU saver) */
+html.low-performance .backdrop-blur-xl,
+html.low-performance .backdrop-blur-lg,
+html.low-performance .backdrop-blur-md,
+html.low-performance .backdrop-blur-sm,
+html.low-performance .backdrop-blur,
+html.low-performance [style*="backdrop-filter"],
+html.low-performance [style*="blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Low Performance Mode - Replace blur with solid backgrounds */
+html.low-performance .glass-card,
+html.low-performance .ios-card,
+html.low-performance .ios-card-elevated,
+html.low-performance .liquid-glass,
+html.low-performance .liquid-glass-strong,
+html.low-performance .liquid-glass-subtle,
+html.low-performance .premium-glass {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(30, 30, 30, 0.95) !important;
+}
+
+/* Low Performance Mode - Simplify shadows (CPU saver) */
+html.low-performance *[class*="shadow"] {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Low Performance Mode - Disable complex gradients in pseudo elements */
+html.low-performance *::before,
+html.low-performance *::after {
+  background-image: none !important;
+  filter: none !important;
+}
+
+/* Low Performance Mode - Disable shimmer animations */
+html.low-performance .liquid-glass-shimmer::before,
+html.low-performance .shimmer::before,
+html.low-performance *[class*="shimmer"]::before {
+  display: none !important;
+}
+
+/* Low Performance Mode - Disable marquee animations */
+html.low-performance .animate-marquee {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Low Performance Mode - Simplify video placeholder */
+html.low-performance video {
+  background: #1a1a1a;
+}
+
+/* Low Performance Mode - Optimize images */
+html.low-performance img {
+  image-rendering: optimizeSpeed;
+}
+
+/* Low Performance Mode - Content visibility for off-screen optimization */
+html.low-performance .demo-card,
+html.low-performance .bento-item,
+html.low-performance section,
+html.low-performance article {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
+}
+
+/* Slow Network Mode - Hide non-essential images */
+html.slow-network img[data-optional="true"],
+html.slow-network .decorative-image {
+  display: none !important;
+}
+
+/* Slow Network Mode - Show placeholder backgrounds */
+html.slow-network img:not([src]):not([data-loaded]) {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+}
+
+/* Slow Network Mode - Simplify video */
+html.slow-network video {
+  background: #1a1a1a;
+}
+
+/* GPU Acceleration Hints for supported devices */
+@media (min-resolution: 2dppx) and (hover: hover) {
+  html:not(.low-performance) .glass-card,
+  html:not(.low-performance) .ios-card,
+  html:not(.low-performance) .liquid-glass {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+}
+
+/* Optimize for reduced data mode */
+@media (prefers-reduced-data: reduce) {
+  img[data-optional="true"],
+  video[data-optional="true"],
+  .decorative-image {
+    display: none !important;
   }
 }
