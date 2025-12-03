@@ -29,14 +29,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#000000] pb-24 overflow-hidden relative" style={{ paddingTop: '140px' }}>
-      {/* Premium ambient background */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-24 left-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[100px]" />
-        <div className="absolute bottom-32 right-0 w-48 h-48 bg-cyan-500/5 rounded-full blur-[80px]" />
-      </div>
-      
-      <div className="max-w-md mx-auto relative z-10">
+    <div className="min-h-screen bg-[#000000] pb-24 overflow-hidden" style={{ paddingTop: '140px' }}>
+      <div className="max-w-md mx-auto">
         
         {/* Apple-Style Hero with Parallax */}
         <section className="relative px-6 pt-8 pb-16">

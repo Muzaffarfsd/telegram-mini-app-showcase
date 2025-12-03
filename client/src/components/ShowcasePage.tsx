@@ -39,14 +39,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
-      {/* Premium ambient background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 animated-gradient-bg opacity-40" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px]" />
-        <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-[80px]" />
-      </div>
       
-      <div className="max-w-md mx-auto min-h-screen px-3 pb-4 relative z-10" style={{ paddingTop: '120px' }}>
+      <div className="max-w-md mx-auto min-h-screen px-3 pb-4" style={{ paddingTop: '120px' }}>
         
         <div className="relative rounded-2xl overflow-hidden mb-6"
           style={{ boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)' }}
