@@ -166,3 +166,34 @@ export type TasksProgress = typeof tasksProgress.$inferSelect;
 export type InsertTasksProgress = z.infer<typeof insertTasksProgressSchema>;
 export type UserCoinsBalance = typeof userCoinsBalance.$inferSelect;
 export type InsertUserCoinsBalance = z.infer<typeof insertUserCoinsBalanceSchema>;
+
+// Таблица отзывов клиентов
+export const reviews = pgTable("reviews", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  company: varchar("company", { length: 200 }),
+  logoUrl: varchar("logo_url", { length: 500 }),
+  rating: integer("rating").notNull().default(5),
+  text: text("text").notNull(),
+  location: varchar("location", { length: 100 }),
+  telegramId: bigint("telegram_id", { mode: "number" }),
+  isApproved: boolean("is_approved").default(false).notNull(),
+  isFeatured: boolean("is_featured").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Zod schema для отзывов
+export const insertReviewSchema = createInsertSchema(reviews).omit({
+  id: true,
+  createdAt: true,
+  isApproved: true,
+  isFeatured: true,
+}).extend({
+  rating: z.number().min(1).max(5),
+  text: z.string().min(10).max(500),
+  name: z.string().min(2).max(100),
+});
+
+// TypeScript types
+export type Review = typeof reviews.$inferSelect;
+export type InsertReview = z.infer<typeof insertReviewSchema>;
