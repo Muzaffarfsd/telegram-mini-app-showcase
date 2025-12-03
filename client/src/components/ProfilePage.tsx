@@ -96,30 +96,13 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
   
   return (
     <section className="p-6 text-center relative overflow-hidden">
-      {/* User Avatar - Premium animated gradient glow */}
+      {/* User Avatar - Premium minimal style */}
       <div className="relative w-24 h-24 mx-auto z-10" data-testid="user-avatar">
-        {/* Animated gradient glow ring */}
         <div 
-          className="absolute inset-[-3px] rounded-full animate-premium-glow"
+          className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden"
           style={{
-            background: 'conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6)',
-            filter: 'blur(6px)',
-            opacity: 0.4
-          }}
-        />
-        {/* Gradient border */}
-        <div 
-          className="absolute inset-[-2px] rounded-full animate-premium-glow"
-          style={{
-            background: 'conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6)',
-            opacity: 0.6
-          }}
-        />
-        {/* Inner black circle */}
-        <div 
-          className="relative w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden"
-          style={{
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)'
+            border: '1.5px solid rgba(255,255,255,0.2)',
+            boxShadow: '0 0 0 1px rgba(0,0,0,0.5)'
           }}
           data-testid="avatar-container"
         >
