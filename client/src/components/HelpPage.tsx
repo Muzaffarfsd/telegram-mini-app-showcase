@@ -1,36 +1,23 @@
 import { useState, memo } from "react";
 import { 
+  MessageCircle,
   Phone,
   Mail,
-  MessageCircle,
   Clock,
   Shield,
   CreditCard,
-  Package,
-  Smartphone,
-  Star,
-  CheckCircle,
-  AlertCircle,
-  Info,
-  HelpCircle,
-  Search,
+  Code,
   ChevronDown,
   ChevronUp,
   Zap,
-  Users,
-  Code,
-  Globe,
-  DollarSign,
-  Calendar,
-  Settings,
-  Lock,
+  ArrowRight,
   Headphones,
-  Award,
-  TrendingUp,
-  FileText,
-  Download
+  HelpCircle,
+  Settings,
+  Smartphone,
+  Package,
+  DollarSign
 } from "lucide-react";
-import { BackHeader } from "./BackHeader";
 
 interface HelpPageProps {
   onBack: () => void;
@@ -40,450 +27,508 @@ interface FAQItem {
   id: number;
   question: string;
   answer: string;
-  category: string;
   icon: any;
   color: string;
 }
 
-const faqCategories = [
-  { id: 'all', name: 'Все вопросы', icon: HelpCircle },
-  { id: 'development', name: 'Разработка', icon: Code },
-  { id: 'payment', name: 'Оплата', icon: CreditCard },
-  { id: 'support', name: 'Поддержка', icon: Headphones },
-  { id: 'features', name: 'Функции', icon: Settings }
-];
-
 const faqItems: FAQItem[] = [
   {
     id: 1,
-    question: "Сколько времени занимает разработка приложения?",
-    answer: "Сроки разработки зависят от сложности проекта:\n\n• Простой магазин (каталог + корзина) — 5-7 дней\n• Ресторан с доставкой — 7-10 дней\n• Фитнес-центр с записью — 8-12 дней\n• Сложные проекты с уникальным функционалом — до 14 дней\n\nМы всегда соблюдаем оговоренные сроки и информируем о ходе работ ежедневно.",
-    category: "development",
+    question: "Сколько времени занимает разработка?",
+    answer: "Простой магазин — 5-7 дней\nРесторан с доставкой — 7-10 дней\nФитнес-центр — 8-12 дней\nСложные проекты — до 14 дней",
     icon: Clock,
-    color: "text-system-blue"
+    color: "#3B82F6"
   },
   {
     id: 2,
     question: "Какие способы оплаты вы принимаете?",
-    answer: "Мы работаем со всеми популярными способами оплаты:\n\n• Банковские карты (Visa, MasterCard, МИР)\n• СБП (Система быстрых платежей)\n• Онлайн-банкинг (Сбербанк, Тинькофф, Альфа-Банк)\n• Электронные кошельки (ЮMoney, QIWI)\n• Банковские переводы для юридических лиц\n\nОплата происходит поэтапно: 50% аванс, 50% при сдаче проекта.",
-    category: "payment",
+    answer: "Банковские карты, СБП, онлайн-банкинг, электронные кошельки.\nОплата поэтапно: 50% аванс, 50% при сдаче проекта.",
     icon: CreditCard,
-    color: "text-system-green"
+    color: "#22C55E"
   },
   {
     id: 3,
-    question: "Нужен ли мне собственный Telegram Bot Token?",
-    answer: "Нет, не нужен! Мы создаем Mini App (мини-приложение), которое работает внутри Telegram без создания отдельного бота.\n\nПреимущества Mini App:\n• Не требует токенов или настройки API\n• Автоматически интегрируется с Telegram\n• Доступно всем пользователям Telegram\n• Работает на всех устройствах\n• Поддерживает платежи через Telegram\n\nВам нужно только предоставить контент и пожелания по дизайну.",
-    category: "development",
+    question: "Нужен ли мне Telegram Bot Token?",
+    answer: "Нет! Мы создаём Mini App, которое работает внутри Telegram без отдельного бота.\nАвтоматическая интеграция, работает на всех устройствах.",
     icon: Smartphone,
-    color: "text-system-purple"
+    color: "#A78BFA"
   },
   {
     id: 4,
     question: "Можно ли вносить изменения после запуска?",
-    answer: "Конечно! Мы предоставляем полную техподдержку:\n\n• Первый месяц — бесплатная поддержка\n• Мелкие правки (тексты, цены) — бесплатно\n• Добавление новых товаров/услуг — бесплатно\n• Крупные изменения функционала — по отдельному тарифу\n• Срочные исправления — в течение 2 часов\n\nВсе изменения вносятся через удобную админ-панель или по вашему запросу.",
-    category: "support",
+    answer: "Первый месяц — бесплатная поддержка.\nМелкие правки — бесплатно.\nСрочные исправления — в течение 2 часов.",
     icon: Package,
-    color: "text-system-orange"
+    color: "#F59E0B"
   },
   {
     id: 5,
-    question: "Насколько безопасны платежи в приложении?",
-    answer: "Безопасность платежей — наш приоритет №1:\n\n• Используем только сертифицированные платежные системы\n• Все данные передаются по защищенному протоколу HTTPS\n• Платежные данные не сохраняются на наших серверах\n• Соответствуем стандарту PCI DSS\n• Интеграция с Telegram Payments (высший уровень безопасности)\n• Автоматическое шифрование всех транзакций\n\nВаши клиенты могут быть уверены в безопасности своих данных.",
-    category: "features",
+    question: "Насколько безопасны платежи?",
+    answer: "Сертифицированные платёжные системы.\nЗащищённый протокол HTTPS.\nСтандарт PCI DSS.\nИнтеграция с Telegram Payments.",
     icon: Shield,
-    color: "text-system-red"
+    color: "#EF4444"
   },
   {
     id: 6,
-    question: "Какую поддержку вы предоставляете после запуска?",
-    answer: "Мы обеспечиваем комплексную поддержку 24/7:\n\n• Техническая поддержка — круглосуточно\n• Ответ в Telegram — в течение 30 минут\n• Устранение критических ошибок — в течение 15 минут\n• Бесплатные консультации — первые 30 дней\n• Обучение работе с админ-панелью\n• Помощь в настройке аналитики\n\nКонтакты поддержки: @web4tgs в Telegram",
-    category: "support",
-    icon: MessageCircle,
-    color: "text-system-teal"
+    question: "Какую поддержку вы предоставляете?",
+    answer: "Техподдержка 24/7.\nОтвет в Telegram — 30 минут.\nКритические ошибки — 15 минут.\nОбучение работе с админ-панелью.",
+    icon: Headphones,
+    color: "#14B8A6"
   },
   {
     id: 7,
-    question: "Какие функции входят в базовый пакет?",
-    answer: "Базовый пакет включает все необходимое для работы:\n\n• Каталог товаров/услуг с фото и описаниями\n• Корзина и оформление заказов\n• Система уведомлений\n• Админ-панель для управления\n• Интеграция с Telegram\n• Адаптивный дизайн для всех устройств\n• Базовая аналитика заказов\n• SSL-сертификат безопасности\n\nДополнительно можно добавить: платежи, доставку, бонусную систему, расширенную аналитику.",
-    category: "features",
-    icon: Package,
-    color: "text-system-blue"
+    question: "Что входит в базовый пакет?",
+    answer: "Каталог товаров/услуг.\nКорзина и оформление заказов.\nАдминистративная панель.\nАдаптивный дизайн.\nБазовая аналитика.",
+    icon: Settings,
+    color: "#3B82F6"
   },
   {
     id: 8,
-    question: "Сколько стоит разработка приложения?",
-    answer: "Стоимость зависит от типа и сложности приложения:\n\n• Простой магазин — от 25 000 ₽\n• Ресторан/кафе — от 30 000 ₽\n• Фитнес-центр — от 35 000 ₽\n• Сфера услуг — от 28 000 ₽\n• Уникальные проекты — от 40 000 ₽\n\nВ стоимость входит: разработка, дизайн, тестирование, запуск, месяц поддержки.\nДополнительные функции: платежи (+15 000 ₽), доставка (+12 000 ₽), аналитика (+12 000 ₽).",
-    category: "payment",
+    question: "Сколько стоит разработка?",
+    answer: "Магазин — от 25 000 ₽\nРесторан — от 30 000 ₽\nФитнес — от 35 000 ₽\nУникальные проекты — от 40 000 ₽",
     icon: DollarSign,
-    color: "text-system-green"
+    color: "#22C55E"
   },
   {
     id: 9,
     question: "Предоставляете ли вы исходный код?",
-    answer: "Да, после полной оплаты вы получаете:\n\n• Полный исходный код приложения\n• Документацию по развертыванию\n• Инструкции по внесению изменений\n• Доступ к административной панели\n• Права на коммерческое использование\n• Техническую документацию\n\nВы становитесь полноправным владельцем приложения и можете модифицировать его по своему усмотрению.",
-    category: "development",
+    answer: "Да! Полный исходный код.\nДокументация по развёртыванию.\nПрава на коммерческое использование.\nВы — полноправный владелец.",
     icon: Code,
-    color: "text-system-purple"
-  },
-  {
-    id: 10,
-    question: "Можете ли вы интегрировать приложение с моей CRM?",
-    answer: "Да, мы интегрируем приложения с популярными CRM-системами:\n\n• amoCRM — автоматическая передача заказов\n• Битрикс24 — синхронизация клиентов и сделок\n• RetailCRM — управление заказами и складом\n• МойСклад — учет товаров и продаж\n• 1С — интеграция с учетными системами\n• Собственные API — разработаем под ваши нужды\n\nИнтеграция позволяет автоматизировать все бизнес-процессы.",
-    category: "features",
-    icon: Settings,
-    color: "text-system-orange"
+    color: "#A78BFA"
   }
 ];
 
 const contactMethods = [
   {
     id: 1,
-    title: "Telegram поддержка",
-    description: "Самый быстрый способ получить помощь",
-    detail: "Отвечаем в течение 30 минут, 24/7",
+    title: "Telegram",
+    description: "@web4tgs",
+    detail: "Отвечаем за 30 минут",
     action: () => window.open('https://t.me/web4tgs', '_blank'),
     icon: MessageCircle,
-    color: "bg-system-blue/10 text-system-blue",
+    color: "#3B82F6",
     urgent: true
   },
   {
     id: 2,
-    title: "Телефонная поддержка",
+    title: "Телефон",
     description: "+7 (999) 999-99-99",
-    detail: "Звонки принимаем с 9:00 до 21:00 МСК",
+    detail: "9:00 — 21:00 МСК",
     action: () => window.open('tel:+79999999999', '_blank'),
     icon: Phone,
-    color: "bg-system-green/10 text-system-green",
+    color: "#22C55E",
     urgent: false
   },
   {
     id: 3,
-    title: "Email поддержка",
+    title: "Email",
     description: "support@web4tg.com",
-    detail: "Подробные вопросы и техническая документация",
+    detail: "Подробные вопросы",
     action: () => window.open('mailto:support@web4tg.com', '_blank'),
     icon: Mail,
-    color: "bg-system-purple/10 text-system-purple",
+    color: "#A78BFA",
     urgent: false
   }
 ];
 
-const serviceFeatures = [
-  {
-    icon: CheckCircle,
-    title: "Гарантия качества",
-    description: "100% возврат средств, если результат не устроит",
-    color: "text-system-green"
-  },
-  {
-    icon: Star,
-    title: "4.9/5 рейтинг",
-    description: "Средняя оценка от 127+ довольных клиентов",
-    color: "text-system-orange"
-  },
-  {
-    icon: Shield,
-    title: "Полная безопасность",
-    description: "Соблюдаем GDPR и российские стандарты защиты данных",
-    color: "text-system-blue"
-  },
-  {
-    icon: Zap,
-    title: "Быстрая разработка",
-    description: "От идеи до запуска за 5-14 дней",
-    color: "text-system-purple"
-  },
-  {
-    icon: TrendingUp,
-    title: "Рост продаж",
-    description: "Клиенты увеличивают выручку в среднем на 180%",
-    color: "text-system-green"
-  },
-  {
-    icon: Award,
-    title: "Премиум качество",
-    description: "Используем только современные технологии и лучшие практики",
-    color: "text-system-red"
-  }
-];
-
 const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
-
-  const filteredFAQs = faqItems.filter(item => {
-    const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
-    const matchesSearch = searchQuery === '' || 
-                         item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.answer.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
 
   const toggleFAQ = (id: number) => {
     setExpandedFAQ(expandedFAQ === id ? null : id);
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-32" style={{ paddingTop: '140px' }}>
-      <BackHeader onBack={onBack} title="Справка" />
+    <div 
+      className="min-h-screen pb-32"
+      style={{ 
+        background: '#09090B',
+        color: '#E4E4E7',
+        paddingTop: '140px'
+      }}
+    >
+      <div className="max-w-md mx-auto">
+        
+        {/* HERO SECTION */}
+        <header className="px-7 pt-8 pb-16">
+          <p 
+            className="scroll-fade-in"
+            style={{
+              fontSize: '11px',
+              fontWeight: 500,
+              letterSpacing: '0.18em',
+              color: '#71717A',
+              textTransform: 'uppercase',
+              marginBottom: '24px'
+            }}
+          >
+            Поддержка
+          </p>
+          
+          <h1 
+            className="scroll-fade-in-delay-1"
+            style={{
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              fontSize: '32px',
+              fontWeight: 600,
+              letterSpacing: '-0.025em',
+              lineHeight: '1.2',
+              color: '#FAFAFA'
+            }}
+          >
+            Центр
+            <br />
+            <span style={{ color: '#3B82F6' }}>поддержки</span>
+          </h1>
+          
+          <p 
+            className="scroll-fade-in-delay-2"
+            style={{
+              fontSize: '15px',
+              fontWeight: 400,
+              letterSpacing: '-0.01em',
+              lineHeight: '1.6',
+              color: '#71717A',
+              marginTop: '20px',
+              maxWidth: '320px'
+            }}
+          >
+            Найдите ответы на все вопросы о создании Telegram приложений.
+          </p>
+        </header>
 
-      <div className="max-w-md mx-auto px-4 space-y-6 mt-4">
-        {/* Hero Section */}
-        <section className="ios-slide-up scroll-fade-in">
-          <div className="glass-card p-6 text-center">
-            <div className="w-16 h-16 bg-system-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <HelpCircle className="w-8 h-8 text-system-blue" />
+        {/* Hairline */}
+        <div 
+          className="mx-7"
+          style={{ height: '1px', background: '#27272A' }}
+        />
+
+        {/* CONTACT SECTION */}
+        <section className="px-7 py-12">
+          <p 
+            style={{
+              fontSize: '10px',
+              fontWeight: 600,
+              letterSpacing: '0.12em',
+              color: '#52525B',
+              textTransform: 'uppercase',
+              marginBottom: '20px'
+            }}
+          >
+            Связаться с нами
+          </p>
+          
+          <div className="space-y-3">
+            {contactMethods.map((method) => {
+              const IconComponent = method.icon;
+              return (
+                <div 
+                  key={method.id}
+                  onClick={method.action}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                    padding: '20px',
+                    borderRadius: '14px',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.04)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  data-testid={`button-contact-${method.id}`}
+                >
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '12px',
+                    background: `${method.color}15`,
+                    flexShrink: 0
+                  }}>
+                    <IconComponent size={24} color={method.color} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <p style={{
+                        fontSize: '15px',
+                        fontWeight: 600,
+                        color: '#FAFAFA'
+                      }}>
+                        {method.title}
+                      </p>
+                      {method.urgent && (
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          fontSize: '10px',
+                          fontWeight: 600,
+                          color: '#EF4444',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em'
+                        }}>
+                          Быстро
+                        </span>
+                      )}
+                    </div>
+                    <p style={{ fontSize: '14px', color: '#A1A1AA' }}>{method.description}</p>
+                    <p style={{ fontSize: '12px', color: '#52525B' }}>{method.detail}</p>
+                  </div>
+                  <ArrowRight size={18} color="#52525B" />
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Hairline */}
+        <div 
+          className="mx-7"
+          style={{ height: '1px', background: '#27272A' }}
+        />
+
+        {/* FAQ SECTION */}
+        <section className="px-7 py-12">
+          <p 
+            style={{
+              fontSize: '10px',
+              fontWeight: 600,
+              letterSpacing: '0.12em',
+              color: '#52525B',
+              textTransform: 'uppercase',
+              marginBottom: '20px'
+            }}
+          >
+            Частые вопросы
+          </p>
+          
+          <div className="space-y-3">
+            {faqItems.map((item) => {
+              const IconComponent = item.icon;
+              const isExpanded = expandedFAQ === item.id;
+              
+              return (
+                <div 
+                  key={item.id}
+                  style={{
+                    borderRadius: '14px',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.04)',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <button
+                    onClick={() => toggleFAQ(item.id)}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '16px 20px',
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      textAlign: 'left'
+                    }}
+                    data-testid={`button-faq-${item.id}`}
+                  >
+                    <div style={{
+                      width: '36px',
+                      height: '36px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '10px',
+                      background: `${item.color}15`,
+                      flexShrink: 0
+                    }}>
+                      <IconComponent size={18} color={item.color} />
+                    </div>
+                    <p style={{
+                      flex: 1,
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#FAFAFA',
+                      lineHeight: '1.4'
+                    }}>
+                      {item.question}
+                    </p>
+                    {isExpanded ? (
+                      <ChevronUp size={18} color="#52525B" />
+                    ) : (
+                      <ChevronDown size={18} color="#52525B" />
+                    )}
+                  </button>
+                  
+                  {isExpanded && (
+                    <div style={{
+                      padding: '0 20px 16px 68px'
+                    }}>
+                      <p style={{
+                        fontSize: '13px',
+                        color: '#71717A',
+                        lineHeight: '1.6',
+                        whiteSpace: 'pre-line'
+                      }}>
+                        {item.answer}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Hairline */}
+        <div 
+          className="mx-7"
+          style={{ height: '1px', background: '#27272A' }}
+        />
+
+        {/* FEATURES SECTION */}
+        <section className="px-7 py-12">
+          <p 
+            style={{
+              fontSize: '10px',
+              fontWeight: 600,
+              letterSpacing: '0.12em',
+              color: '#52525B',
+              textTransform: 'uppercase',
+              marginBottom: '20px'
+            }}
+          >
+            Почему мы
+          </p>
+          
+          <div 
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '12px'
+            }}
+          >
+            {[
+              { icon: Zap, value: '5-14', label: 'дней на разработку', color: '#A78BFA' },
+              { icon: Shield, value: '100%', label: 'гарантия качества', color: '#22C55E' },
+              { icon: Clock, value: '24/7', label: 'техподдержка', color: '#3B82F6' },
+              { icon: Headphones, value: '30м', label: 'время ответа', color: '#F59E0B' }
+            ].map((feature, index) => {
+              const IconComponent = feature.icon;
+              return (
+                <div 
+                  key={index}
+                  style={{
+                    padding: '20px',
+                    borderRadius: '14px',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.04)',
+                    textAlign: 'center'
+                  }}
+                >
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '10px',
+                    background: `${feature.color}15`,
+                    margin: '0 auto 12px'
+                  }}>
+                    <IconComponent size={20} color={feature.color} />
+                  </div>
+                  <p style={{
+                    fontSize: '24px',
+                    fontWeight: 700,
+                    color: '#FAFAFA',
+                    letterSpacing: '-0.03em',
+                    marginBottom: '4px'
+                  }}>
+                    {feature.value}
+                  </p>
+                  <p style={{
+                    fontSize: '12px',
+                    color: '#52525B'
+                  }}>
+                    {feature.label}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* CTA SECTION */}
+        <section className="px-7 py-8 pb-24">
+          <div 
+            style={{
+              padding: '28px',
+              borderRadius: '20px',
+              background: 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(139,92,246,0.08) 100%)',
+              border: '1px solid rgba(59, 130, 246, 0.2)',
+              textAlign: 'center'
+            }}
+          >
+            <div style={{
+              width: '56px',
+              height: '56px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '16px',
+              background: 'rgba(59, 130, 246, 0.2)',
+              margin: '0 auto 16px'
+            }}>
+              <HelpCircle size={28} color="#3B82F6" />
             </div>
-            <h2 className="ios-title3 mb-2">Центр поддержки</h2>
-            <p className="ios-body text-secondary-label mb-4">
-              Найдите ответы на все вопросы о создании Telegram приложений
+            
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: 600,
+              color: '#FAFAFA',
+              marginBottom: '8px'
+            }}>
+              Не нашли ответ?
+            </h3>
+            
+            <p style={{
+              fontSize: '14px',
+              color: '#71717A',
+              marginBottom: '20px',
+              lineHeight: '1.5'
+            }}>
+              Напишите нам в Telegram —
+              <br />
+              ответим в течение 30 минут
             </p>
-            <button 
-              className="ios-button-filled"
+            
+            <button
               onClick={() => window.open('https://t.me/web4tgs', '_blank')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '14px 28px',
+                borderRadius: '12px',
+                background: '#3B82F6',
+                border: 'none',
+                color: '#FFFFFF',
+                fontSize: '15px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              data-testid="button-telegram-support"
             >
-              Связаться с поддержкой
+              <MessageCircle size={18} />
+              Написать в Telegram
             </button>
           </div>
         </section>
 
-        {/* Search */}
-        <section className="ios-slide-up scroll-fade-in-delay-1">
-          <div className="glass-card p-4">
-            <div className="flex items-center space-x-3 bg-secondary-system-fill rounded-xl px-4 py-3">
-              <Search className="w-5 h-5 text-secondary-label" />
-              <input
-                type="text"
-                placeholder="Поиск по справке..."
-                className="flex-1 bg-transparent border-none outline-none ios-body"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ Categories */}
-        <section className="ios-slide-up scroll-fade-in-delay-2">
-          <div className="glass-card p-4">
-            <div className="overflow-x-auto no-scrollbar">
-              <div className="flex space-x-2 min-w-max">
-                {faqCategories.map((category) => {
-                  const IconComponent = category.icon;
-                  return (
-                    <button
-                      key={category.id}
-                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all duration-200 ${
-                        activeCategory === category.id
-                          ? 'bg-system-blue text-white'
-                          : 'bg-secondary-system-fill text-secondary-label hover:bg-tertiary-system-fill'
-                      }`}
-                      onClick={() => setActiveCategory(category.id)}
-                    >
-                      <IconComponent className="w-4 h-4" />
-                      <span className="ios-footnote font-medium">{category.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ Items */}
-        <section className="ios-slide-up scroll-fade-in-delay-3">
-          <div className="glass-card p-4">
-            <h3 className="ios-headline font-semibold mb-4">
-              {activeCategory === 'all' ? 'Все вопросы' : faqCategories.find(c => c.id === activeCategory)?.name}
-              <span className="ios-footnote text-secondary-label ml-2">({filteredFAQs.length})</span>
-            </h3>
-            
-            <div className="space-y-3">
-              {filteredFAQs.map((item) => {
-                const IconComponent = item.icon;
-                const isExpanded = expandedFAQ === item.id;
-                
-                return (
-                  <div key={item.id} className="glass-card overflow-hidden">
-                    <button
-                      className="w-full p-4 text-left transition-colors hover:bg-secondary-system-fill/50"
-                      onClick={() => toggleFAQ(item.id)}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          item.color === 'text-system-blue' ? 'bg-system-blue/10' :
-                          item.color === 'text-system-green' ? 'bg-system-green/10' :
-                          item.color === 'text-system-purple' ? 'bg-system-purple/10' :
-                          item.color === 'text-system-orange' ? 'bg-system-orange/10' :
-                          item.color === 'text-system-red' ? 'bg-system-red/10' :
-                          'bg-system-teal/10'
-                        }`}>
-                          <IconComponent className={`w-4 h-4 ${item.color}`} />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="ios-body font-semibold">{item.question}</h4>
-                        </div>
-                        <div className="flex-shrink-0">
-                          {isExpanded ? (
-                            <ChevronUp className="w-5 h-5 text-secondary-label" />
-                          ) : (
-                            <ChevronDown className="w-5 h-5 text-secondary-label" />
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                    
-                    {isExpanded && (
-                      <div className="px-4 pb-4">
-                        <div className="ml-11 pl-3 border-l-2 border-secondary-system-fill">
-                          <div className="ios-footnote text-secondary-label leading-relaxed whitespace-pre-line">
-                            {item.answer}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            
-            {filteredFAQs.length === 0 && (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-quaternary-system-fill rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-8 h-8 text-quaternary-label" />
-                </div>
-                <h3 className="ios-body font-semibold mb-2">Ничего не найдено</h3>
-                <p className="ios-footnote text-secondary-label">
-                  Попробуйте изменить запрос или выберите другую категорию
-                </p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Contact Methods */}
-        <section className="ios-slide-up scroll-fade-in-delay-4">
-          <div className="glass-card p-4">
-            <h3 className="ios-headline font-semibold mb-4">Не нашли ответ?</h3>
-            <div className="space-y-3">
-              {contactMethods.map((method) => {
-                const IconComponent = method.icon;
-                return (
-                  <div 
-                    key={method.id} 
-                    className="glass-card p-4 cursor-pointer transition-all duration-200 hover:glass-floating"
-                    onClick={method.action}
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${method.color}`}>
-                        <IconComponent className="w-6 h-6" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <div className="ios-body font-semibold">{method.title}</div>
-                          {method.urgent && (
-                            <div className="px-2 py-1 bg-system-red/10 rounded-full">
-                              <span className="ios-caption2 text-system-red font-semibold">Быстро</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="ios-footnote text-secondary-label">{method.description}</div>
-                        <div className="ios-caption2 text-tertiary-label">{method.detail}</div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* Service Features */}
-        <section className="ios-slide-up scroll-fade-in">
-          <div className="glass-card p-4">
-            <h3 className="ios-headline font-semibold mb-4">Почему выбирают нас</h3>
-            <div className="space-y-4">
-              {serviceFeatures.map((feature, index) => {
-                const IconComponent = feature.icon;
-                return (
-                  <div key={index} className="glass-card p-4">
-                    <div className="flex items-start space-x-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        feature.color === 'text-system-green' ? 'bg-system-green/10' :
-                        feature.color === 'text-system-orange' ? 'bg-system-orange/10' :
-                        feature.color === 'text-system-blue' ? 'bg-system-blue/10' :
-                        feature.color === 'text-system-purple' ? 'bg-system-purple/10' :
-                        feature.color === 'text-system-red' ? 'bg-system-red/10' :
-                        'bg-quaternary-system-fill'
-                      }`}>
-                        <IconComponent className={`w-5 h-5 ${feature.color}`} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="ios-body font-semibold mb-1">{feature.title}</div>
-                        <div className="ios-footnote text-secondary-label">{feature.description}</div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* Documentation Links */}
-        <section className="ios-slide-up scroll-fade-in-delay-1">
-          <div className="glass-card p-4">
-            <h3 className="ios-headline font-semibold mb-4">Полезные материалы</h3>
-            <div className="space-y-3">
-              <div className="glass-card p-4 cursor-pointer hover:glass-floating transition-all duration-200">
-                <div className="flex items-center space-x-3">
-                  <FileText className="w-5 h-5 text-system-blue" />
-                  <div className="flex-1">
-                    <div className="ios-body font-semibold">Техническая документация</div>
-                    <div className="ios-footnote text-secondary-label">API, интеграции, настройки</div>
-                  </div>
-                  <Download className="w-4 h-4 text-tertiary-label" />
-                </div>
-              </div>
-              
-              <div className="glass-card p-4 cursor-pointer hover:glass-floating transition-all duration-200">
-                <div className="flex items-center space-x-3">
-                  <Globe className="w-5 h-5 text-system-green" />
-                  <div className="flex-1">
-                    <div className="ios-body font-semibold">Примеры проектов</div>
-                    <div className="ios-footnote text-secondary-label">Портфолио готовых решений</div>
-                  </div>
-                  <Download className="w-4 h-4 text-tertiary-label" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Emergency */}
-        <section className="ios-slide-up scroll-fade-in-delay-2">
-          <div className="glass-card p-4 bg-system-red/5 border-system-red/20">
-            <div className="flex items-start space-x-3">
-              <AlertCircle className="w-6 h-6 text-system-red flex-shrink-0 mt-1" />
-              <div>
-                <div className="ios-body font-semibold text-system-red mb-2">Экстренная поддержка</div>
-                <div className="ios-footnote text-secondary-label leading-relaxed">
-                  Если ваше приложение не работает или произошла критическая ошибка, 
-                  немедленно напишите нам в Telegram <span className="font-semibold">@web4tgs</span>.
-                  
-                  <br/><br/>
-                  
-                  <span className="font-semibold">Время реакции:</span>
-                  <br/>• Критические ошибки — 15 минут
-                  <br/>• Проблемы с платежами — 30 минут  
-                  <br/>• Обычные вопросы — 2 часа
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
     </div>
   );
