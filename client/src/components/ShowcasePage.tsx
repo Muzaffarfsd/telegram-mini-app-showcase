@@ -129,7 +129,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="text-[17px] leading-[1.5]"
                 style={{ color: 'rgba(255,255,255,0.5)' }}
               >
-                WB, Ozon, Яндекс Маркет — комиссии от 15 до 25 процентов, штрафы, чужие правила.
+                WB, Ozon, Яндекс Маркет — комиссии от 15 до 25%, штрафы, чужие правила.
               </p>
               <p 
                 className="text-[17px] leading-[1.5] mt-3"
