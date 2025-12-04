@@ -190,184 +190,113 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
         </div>
       </div>
 
-      {/* Liquid Glass Bottom Navigation - Outside all containers for proper fixed positioning */}
-      <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto" style={{ bottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}>
-        <div className="relative">
-          {/* Liquid Glass Container */}
-          <div 
-            className={`relative backdrop-blur-xl rounded-full border px-4 py-3 shadow-2xl ${
-              isDarkTheme 
-                ? 'border-white/20' 
-                : 'border-white/30'
-            }`}
-            style={{
-              background: isDarkTheme 
-                ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%)'
-                : 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)',
-              boxShadow: isDarkTheme 
-                ? `0 8px 32px rgba(0, 0, 0, 0.6),
-                   inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                   inset 0 -1px 0 rgba(0, 0, 0, 0.3)`
-                : `0 8px 32px rgba(0, 0, 0, 0.4),
-                   inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                   inset 0 -1px 0 rgba(0, 0, 0, 0.2)`,
-            }}
-          >
-            {/* Inner Highlight */}
+      {/* Liquid Glass Bottom Navigation - Clean minimal design */}
+      <nav 
+        className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-white/10 px-4 py-3"
+        style={{ 
+          bottom: 'max(1rem, env(safe-area-inset-bottom, 0px))',
+          background: 'rgba(30, 30, 30, 0.9)',
+          backdropFilter: 'blur(10px)',
+        }}
+        role="navigation" 
+        aria-label="Навигация демо"
+      >
+        {/* Главная */}
+        <button
+          onClick={() => handleTabSwitch('home')}
+          className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/10"
+          aria-label="Главная"
+          aria-current={activeTab === 'home' ? 'page' : undefined}
+          data-testid="nav-home"
+        >
+          <Home
+            className={`transition-all duration-300 ${activeTab === 'home' ? 'w-6 h-6 text-white' : 'w-5 h-5 text-white/60'}`}
+            strokeWidth={2}
+          />
+          {activeTab === 'home' && (
             <div 
-              className="absolute top-1 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent rounded-full"
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: `radial-gradient(circle, ${theme.glowColor} 0%, transparent 70%)`,
+                filter: 'blur(8px)',
+                zIndex: -1,
+              }}
             />
-            
-            <nav className="relative flex items-center justify-center gap-2" role="navigation" aria-label="Навигация демо">
-              {/* Liquid Glass Blob - анимированная капля под активной иконкой */}
-              <div 
-                className="absolute transition-all duration-500 ease-out pointer-events-none"
-                style={{
-                  left: activeTab === 'home' ? '-2px' :
-                        activeTab === 'catalog' ? '54px' :
-                        activeTab === 'cart' ? '110px' :
-                        activeTab === 'profile' ? '166px' : '-2px',
-                  top: '-2px',
-                  width: '52px',
-                  height: '52px',
-                  zIndex: 1,
-                }}
-              >
-                {/* Основной слой капли */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    background: `radial-gradient(ellipse 100% 90% at 50% 45%, ${theme.glowColor.replace('0.6', '0.35')} 0%, ${theme.glowColor.replace('0.6', '0.22')} 40%, transparent 70%)`,
-                    borderRadius: '45% 55% 50% 50% / 50% 50% 45% 55%',
-                    filter: 'blur(12px)',
-                    animation: 'liquid-morph 4s ease-in-out infinite',
-                  }}
-                />
-                {/* Второй слой капли */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    background: `radial-gradient(ellipse at center, ${theme.glowColor.replace('0.6', '0.28')} 0%, ${theme.glowColor.replace('0.6', '0.15')} 50%, transparent 70%)`,
-                    borderRadius: '50% 45% 55% 50% / 55% 50% 50% 45%',
-                    filter: 'blur(16px)',
-                    animation: 'liquid-morph-reverse 5s ease-in-out infinite',
-                  }}
-                />
-                {/* Внутреннее свечение */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    background: `radial-gradient(circle at center, ${theme.glowColor.replace('0.6', '0.4')} 0%, ${theme.glowColor.replace('0.6', '0.18')} 30%, transparent 60%)`,
-                    borderRadius: '50%',
-                    filter: 'blur(8px)',
-                  }}
-                />
-              </div>
-              
-              {/* Главная */}
-              <button
-                onClick={() => handleTabSwitch('home')}
-                className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                  isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-white/10'
-                }`}
-                style={{ zIndex: 10 }}
-                aria-label="Главная"
-                aria-current={activeTab === 'home' ? 'page' : undefined}
-                data-testid="nav-home"
-              >
-                <Home
-                  className={`transition-all duration-300 ${
-                    activeTab === 'home' 
-                      ? 'w-6 h-6' 
-                      : 'w-5 h-5'
-                  } ${
-                    isDarkTheme 
-                      ? (activeTab === 'home' ? 'text-white' : 'text-white/70 hover:text-white')
-                      : (activeTab === 'home' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900')
-                  }`}
-                  strokeWidth={2}
-                />
-              </button>
-              
-              {/* Каталог */}
-              <button
-                onClick={() => handleTabSwitch('catalog')}
-                className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                  isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-white/10'
-                }`}
-                style={{ zIndex: 10 }}
-                aria-label="Каталог"
-                aria-current={activeTab === 'catalog' ? 'page' : undefined}
-                data-testid="nav-catalog"
-              >
-                <Grid3X3
-                  className={`transition-all duration-300 ${
-                    activeTab === 'catalog' 
-                      ? 'w-6 h-6' 
-                      : 'w-5 h-5'
-                  } ${
-                    isDarkTheme 
-                      ? (activeTab === 'catalog' ? 'text-white' : 'text-white/70 hover:text-white')
-                      : (activeTab === 'catalog' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900')
-                  }`}
-                  strokeWidth={2}
-                />
-              </button>
-              
-              {/* Корзина */}
-              <button
-                onClick={() => handleTabSwitch('cart')}
-                className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                  isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-white/10'
-                }`}
-                style={{ zIndex: 10 }}
-                aria-label="Корзина"
-                aria-current={activeTab === 'cart' ? 'page' : undefined}
-                data-testid="nav-cart"
-              >
-                <ShoppingCart
-                  className={`transition-all duration-300 ${
-                    activeTab === 'cart' 
-                      ? 'w-6 h-6' 
-                      : 'w-5 h-5'
-                  } ${
-                    isDarkTheme 
-                      ? (activeTab === 'cart' ? 'text-white' : 'text-white/70 hover:text-white')
-                      : (activeTab === 'cart' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900')
-                  }`}
-                  strokeWidth={2}
-                />
-              </button>
-              
-              {/* Профиль */}
-              <button
-                onClick={() => handleTabSwitch('profile')}
-                className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                  isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-white/10'
-                }`}
-                style={{ zIndex: 10 }}
-                aria-label="Профиль"
-                aria-current={activeTab === 'profile' ? 'page' : undefined}
-                data-testid="nav-profile"
-              >
-                <User
-                  className={`transition-all duration-300 ${
-                    activeTab === 'profile' 
-                      ? 'w-6 h-6' 
-                      : 'w-5 h-5'
-                  } ${
-                    isDarkTheme 
-                      ? (activeTab === 'profile' ? 'text-white' : 'text-white/70 hover:text-white')
-                      : (activeTab === 'profile' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900')
-                  }`}
-                  strokeWidth={2}
-                />
-              </button>
-              
-            </nav>
-          </div>
-        </div>
-      </div>
+          )}
+        </button>
+        
+        {/* Каталог */}
+        <button
+          onClick={() => handleTabSwitch('catalog')}
+          className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/10"
+          aria-label="Каталог"
+          aria-current={activeTab === 'catalog' ? 'page' : undefined}
+          data-testid="nav-catalog"
+        >
+          <Grid3X3
+            className={`transition-all duration-300 ${activeTab === 'catalog' ? 'w-6 h-6 text-white' : 'w-5 h-5 text-white/60'}`}
+            strokeWidth={2}
+          />
+          {activeTab === 'catalog' && (
+            <div 
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: `radial-gradient(circle, ${theme.glowColor} 0%, transparent 70%)`,
+                filter: 'blur(8px)',
+                zIndex: -1,
+              }}
+            />
+          )}
+        </button>
+        
+        {/* Корзина */}
+        <button
+          onClick={() => handleTabSwitch('cart')}
+          className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/10"
+          aria-label="Корзина"
+          aria-current={activeTab === 'cart' ? 'page' : undefined}
+          data-testid="nav-cart"
+        >
+          <ShoppingCart
+            className={`transition-all duration-300 ${activeTab === 'cart' ? 'w-6 h-6 text-white' : 'w-5 h-5 text-white/60'}`}
+            strokeWidth={2}
+          />
+          {activeTab === 'cart' && (
+            <div 
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: `radial-gradient(circle, ${theme.glowColor} 0%, transparent 70%)`,
+                filter: 'blur(8px)',
+                zIndex: -1,
+              }}
+            />
+          )}
+        </button>
+        
+        {/* Профиль */}
+        <button
+          onClick={() => handleTabSwitch('profile')}
+          className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/10"
+          aria-label="Профиль"
+          aria-current={activeTab === 'profile' ? 'page' : undefined}
+          data-testid="nav-profile"
+        >
+          <User
+            className={`transition-all duration-300 ${activeTab === 'profile' ? 'w-6 h-6 text-white' : 'w-5 h-5 text-white/60'}`}
+            strokeWidth={2}
+          />
+          {activeTab === 'profile' && (
+            <div 
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: `radial-gradient(circle, ${theme.glowColor} 0%, transparent 70%)`,
+                filter: 'blur(8px)',
+                zIndex: -1,
+              }}
+            />
+          )}
+        </button>
+      </nav>
     </>
   );
 });
