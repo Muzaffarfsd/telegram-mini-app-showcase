@@ -339,7 +339,7 @@ function App() {
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
                   <div className="relative">
                     {/* Liquid Glass Container */}
-                    <div className="bg-black/40 backdrop-blur-md rounded-full border border-white/10 shadow-xl px-4 py-3" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
+                    <div className="bg-black/70 backdrop-blur-md rounded-full border border-white/10 shadow-xl px-4 py-3" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)' }}>
                       <nav className="flex items-center gap-2" role="navigation" aria-label="Главное меню">
                       
                         {/* Главная */}
