@@ -62,9 +62,6 @@ body {
   /* iOS momentum scrolling - CRITICAL for buttery smooth native feel */
   -webkit-overflow-scrolling: touch;
   
-  /* Removed transform and perspective to allow fixed positioning to work correctly */
-  will-change: scroll-position;
-  
   /* Contain scroll within app - prevents overscroll bounce */
   overscroll-behavior-y: contain;
   overscroll-behavior-x: none;
@@ -72,12 +69,9 @@ body {
   /* Instant touch response (removes 300ms tap delay) */
   touch-action: pan-y pinch-zoom;
   
-  /* Smooth scroll for programmatic scrolling (links, buttons) */
-  scroll-behavior: smooth;
-  
-  /* Backface visibility optimization */
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  /* NOTE: scroll-behavior: smooth removed - conflicts with native momentum scrolling */
+  /* NOTE: will-change: scroll-position removed - overuse hurts performance */
+  /* NOTE: backface-visibility removed - not needed on modern browsers */
 }
 
 /* Global touch optimizations */
@@ -96,20 +90,17 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
   user-select: text;
 }
 
-/* GPU-accelerated scrolling for any scrollable container */
+/* Scrollable container optimizations */
 [data-scroll], .scroll-container {
   -webkit-overflow-scrolling: touch;
-  will-change: scroll-position;
-  /* Removed transform to allow fixed positioning to work correctly */
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  /* NOTE: will-change removed - browser handles this automatically now */
 }
 
-/* Optimize content during scroll - reduces paint operations */
+/* Optimize scrollable content children for paint performance */
 [data-scroll="main"] > * {
-  /* Removed transform to allow fixed positioning to work correctly */
-  /* Contain paint within each element */
-  contain: content;
+  /* content-visibility enables lazy rendering - huge performance win */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 200px;
 }
 
 /* ========================================
@@ -124,12 +115,7 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
   /* iOS momentum scrolling */
   -webkit-overflow-scrolling: touch;
   
-  /* Removed transform to allow fixed positioning to work correctly */
-  will-change: scroll-position;
-  
-  /* Backface optimization */
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  /* NOTE: will-change and backface-visibility removed for better performance */
 }
 
 /* Demo app scroll container */
@@ -141,7 +127,8 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
   
   /* iOS-like smooth scrolling */
   -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
+  
+  /* NOTE: scroll-behavior: smooth removed - conflicts with native momentum */
   
   /* Contain scroll bouncing */
   overscroll-behavior-y: contain;
@@ -150,12 +137,7 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
   touch-action: pan-y pinch-zoom;
 }
 
-/* Scroll optimization - only apply to scrollable content, not fixed elements */
-.smooth-scroll-page,
-.demo-scroll-container {
-  /* Content containment for painting */
-  contain: layout style;
-}
+/* NOTE: contain: layout style removed from scroll containers - it blocks paint operations */
 
 /* === GLOBAL AUTO-RESPONSIVE SYSTEM (2025) === */
 /* Автоматическая адаптация под ВСЕ размеры мобильных экранов */
@@ -3675,29 +3657,36 @@ html.slow-network video {
   animation: shimmer 2s infinite;
 }
 
-/* Staggered card entrance */
+/* Staggered card entrance - optimized for performance */
 @keyframes card-enter {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.98);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 .card-animate {
-  animation: card-enter 0.6s ease-out forwards;
+  animation: card-enter 0.4s ease-out forwards;
   opacity: 0;
+  /* GPU compositing layer for smooth animation */
+  will-change: transform, opacity;
 }
 
-.card-animate:nth-child(1) { animation-delay: 0.1s; }
-.card-animate:nth-child(2) { animation-delay: 0.2s; }
-.card-animate:nth-child(3) { animation-delay: 0.3s; }
-.card-animate:nth-child(4) { animation-delay: 0.4s; }
-.card-animate:nth-child(5) { animation-delay: 0.5s; }
-.card-animate:nth-child(6) { animation-delay: 0.6s; }
+/* Animation complete - remove will-change to free GPU memory */
+.card-animate:not([style*="animation"]) {
+  will-change: auto;
+}
+
+.card-animate:nth-child(1) { animation-delay: 0.05s; }
+.card-animate:nth-child(2) { animation-delay: 0.1s; }
+.card-animate:nth-child(3) { animation-delay: 0.15s; }
+.card-animate:nth-child(4) { animation-delay: 0.2s; }
+.card-animate:nth-child(5) { animation-delay: 0.25s; }
+.card-animate:nth-child(6) { animation-delay: 0.3s; }
 
 /* Premium glassmorphism */
 .glass-premium {
@@ -3707,10 +3696,11 @@ html.slow-network video {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Subtle border glow on hover */
+/* Subtle border glow on hover - optimized */
 .border-glow {
   position: relative;
-  transition: all 0.3s ease;
+  /* Use specific properties instead of 'all' for better performance */
+  transition: opacity 0.2s ease;
 }
 
 .border-glow::after {
@@ -3755,11 +3745,13 @@ html.slow-network video {
 
 /* Subtle scale on tap (mobile) */
 .tap-scale {
-  transition: transform 0.15s ease;
+  /* Fast GPU-accelerated transform */
+  transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1);
+  transform: translateZ(0); /* Promote to GPU layer */
 }
 
 .tap-scale:active {
-  transform: scale(0.97);
+  transform: scale(0.97) translateZ(0);
 }
 
 /* Premium shadow layers */
