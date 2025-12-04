@@ -325,105 +325,185 @@ function App() {
                   />
                 )}
                 
-                <div className="pb-28">
+                <div className="pb-24">
                   {renderRoute()}
                 </div>
             
-                {/* Original Bottom Navigation */}
+                {/* Liquid Glass Bottom Navigation */}
                 {shouldShowBottomNav && (
-                  <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-4">
+                  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
                     <div className="relative">
-                      {/* Ambient glow */}
+                      {/* Animated Background Glow */}
                       <div 
-                        className="absolute -inset-3 rounded-[28px] opacity-30"
+                        className="absolute -inset-2 rounded-full opacity-20"
                         style={{
-                          background: 'radial-gradient(ellipse 80% 100% at 50% 100%, rgba(139, 92, 246, 0.4) 0%, transparent 70%)',
-                          filter: 'blur(16px)',
+                          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.6) 0%, rgba(16, 185, 129, 0.2) 50%, transparent 70%)',
+                          filter: 'blur(20px)',
+                          animation: 'pulse 3s ease-in-out infinite',
                         }}
                       />
                       
-                      {/* Glass container */}
+                      {/* Liquid Glass Container */}
                       <div 
-                        className="relative flex items-center gap-1 px-2 py-2 rounded-full"
+                        className="relative backdrop-blur-xl rounded-full border border-white/30 px-4 py-3 shadow-2xl"
                         style={{
-                          background: 'rgba(24, 24, 27, 0.85)',
-                          backdropFilter: 'blur(20px)',
-                          WebkitBackdropFilter: 'blur(20px)',
-                          border: '1px solid rgba(255, 255, 255, 0.08)',
-                          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)',
+                          boxShadow: `
+                            0 8px 32px rgba(0, 0, 0, 0.4),
+                            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                            inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+                            0 0 60px rgba(16, 185, 129, 0.2)
+                          `,
                         }}
                       >
-                        {[
-                          { id: 'showcase', icon: Home, path: '/', label: 'Главная' },
-                          { id: 'aiProcess', icon: Bot, path: '/ai-process', label: 'AI' },
-                          { id: 'projects', icon: Briefcase, path: '/projects', label: 'Витрина' },
-                          { id: 'constructor', icon: ShoppingCart, path: '/constructor', label: 'Заказ' },
-                        ].map((item) => {
-                          const isActive = route.component === item.id || 
-                            (item.id === 'showcase' && route.component === 'showcase') ||
-                            (item.id === 'aiProcess' && ['aiAgent', 'aiProcess'].includes(route.component));
-                          
-                          return (
-                            <button
-                              key={item.id}
-                              onClick={() => {
-                                hapticFeedback.light();
-                                navigate(item.path);
-                              }}
-                              className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300"
-                              style={{
-                                background: isActive ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
-                              }}
-                              data-testid={`nav-${item.id}`}
-                            >
-                              <item.icon 
-                                className="w-5 h-5 transition-colors duration-300"
-                                style={{
-                                  color: isActive ? '#A78BFA' : 'rgba(255, 255, 255, 0.5)',
-                                }}
-                                strokeWidth={isActive ? 2.5 : 2}
-                              />
-                              {isActive && (
-                                <div 
-                                  className="absolute -bottom-1 w-1 h-1 rounded-full"
-                                  style={{ background: '#A78BFA' }}
-                                />
-                              )}
-                            </button>
-                          );
-                        })}
+                        {/* Inner Highlight */}
+                        <div 
+                          className="absolute top-1 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent rounded-full"
+                        />
                         
-                        {/* Profile avatar */}
-                        <button
-                          onClick={() => {
-                            hapticFeedback.light();
-                            navigate('/profile');
-                          }}
-                          className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300"
-                          style={{
-                            background: ['profile', 'referral', 'rewards', 'earning'].includes(route.component) 
-                              ? 'rgba(139, 92, 246, 0.2)' 
-                              : 'transparent',
-                          }}
-                          data-testid="nav-profile"
-                        >
-                          <UserAvatar 
-                            user={user} 
-                            size="sm"
-                            className="ring-2 transition-all duration-300"
+                        <nav className="relative flex items-center justify-center gap-2" role="navigation" aria-label="Главное меню">
+                          {/* Liquid Glass Blob - анимированная капля под активной иконкой */}
+                          <div 
+                            className="absolute transition-all duration-500 ease-out pointer-events-none"
                             style={{
-                              ringColor: ['profile', 'referral', 'rewards', 'earning'].includes(route.component)
-                                ? 'rgba(167, 139, 250, 0.6)'
-                                : 'rgba(255, 255, 255, 0.1)',
+                              left: route.component === 'showcase' ? '-2px' :
+                                    route.component === 'aiProcess' || route.component === 'aiAgent' ? '54px' :
+                                    route.component === 'projects' ? '110px' :
+                                    route.component === 'constructor' ? '166px' :
+                                    ['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? '222px' : '-2px',
+                              top: '-2px',
+                              width: '52px',
+                              height: '52px',
+                              zIndex: 1,
                             }}
-                          />
-                          {['profile', 'referral', 'rewards', 'earning'].includes(route.component) && (
+                          >
+                            {/* Основной слой капли */}
                             <div 
-                              className="absolute -bottom-1 w-1 h-1 rounded-full"
-                              style={{ background: '#A78BFA' }}
+                              className="absolute inset-0"
+                              style={{
+                                background: 'radial-gradient(ellipse 100% 90% at 50% 45%, rgba(16, 185, 129, 0.35) 0%, rgba(16, 185, 129, 0.22) 40%, transparent 70%)',
+                                borderRadius: '45% 55% 50% 50% / 50% 50% 45% 55%',
+                                filter: 'blur(12px)',
+                                animation: 'liquid-morph 4s ease-in-out infinite',
+                              }}
                             />
-                          )}
-                        </button>
+                            {/* Второй слой капли */}
+                            <div 
+                              className="absolute inset-0"
+                              style={{
+                                background: 'radial-gradient(ellipse at center, rgba(16, 185, 129, 0.28) 0%, rgba(16, 185, 129, 0.15) 50%, transparent 70%)',
+                                borderRadius: '50% 45% 55% 50% / 55% 50% 50% 45%',
+                                filter: 'blur(16px)',
+                                animation: 'liquid-morph 4s ease-in-out infinite reverse',
+                              }}
+                            />
+                            {/* Центральное свечение */}
+                            <div 
+                              className="absolute inset-2"
+                              style={{
+                                background: 'radial-gradient(circle, rgba(16, 185, 129, 0.45) 0%, transparent 60%)',
+                                filter: 'blur(8px)',
+                              }}
+                            />
+                          </div>
+                    
+                          {/* Главная */}
+                          <button
+                            onClick={() => {navigate('/'); hapticFeedback.light();}}
+                            className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
+                            style={{ zIndex: 10 }}
+                            aria-label="Главная страница"
+                            aria-current={route.component === 'showcase' ? 'page' : undefined}
+                            data-testid="nav-showcase"
+                          >
+                            <Home
+                              className={`transition-all duration-300 ${
+                                route.component === 'showcase' 
+                                  ? 'w-6 h-6 text-white' 
+                                  : 'w-5 h-5 text-white/70 hover:text-white'
+                              }`}
+                              strokeWidth={2}
+                            />
+                          </button>
+                          
+                          {/* ИИ Агент */}
+                          <button
+                            onClick={() => {navigate('/ai-process'); hapticFeedback.light();}}
+                            className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
+                            style={{ zIndex: 10 }}
+                            aria-label="ИИ агенты для бизнеса"
+                            aria-current={route.component === 'aiProcess' || route.component === 'aiAgent' ? 'page' : undefined}
+                            data-testid="nav-ai"
+                          >
+                            <Bot
+                              className={`transition-all duration-300 ${
+                                route.component === 'aiProcess' || route.component === 'aiAgent'
+                                  ? 'w-6 h-6 text-white' 
+                                  : 'w-5 h-5 text-white/70 hover:text-white'
+                              }`}
+                              strokeWidth={2}
+                            />
+                          </button>
+                          
+                          {/* Витрина */}
+                          <button
+                            onClick={() => {navigate('/projects'); hapticFeedback.light();}}
+                            className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
+                            style={{ zIndex: 10 }}
+                            aria-label="Витрина проектов"
+                            aria-current={route.component === 'projects' ? 'page' : undefined}
+                            data-testid="nav-projects"
+                          >
+                            <Briefcase
+                              className={`transition-all duration-300 ${
+                                route.component === 'projects' 
+                                  ? 'w-6 h-6 text-white' 
+                                  : 'w-5 h-5 text-white/70 hover:text-white'
+                              }`}
+                              strokeWidth={2}
+                            />
+                          </button>
+                          
+                          {/* Заказать */}
+                          <button
+                            onClick={() => {navigate('/constructor'); hapticFeedback.light();}}
+                            className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
+                            style={{ zIndex: 10 }}
+                            aria-label="Заказать проект"
+                            aria-current={route.component === 'constructor' ? 'page' : undefined}
+                            data-testid="nav-constructor"
+                          >
+                            <ShoppingCart
+                              className={`transition-all duration-300 ${
+                                route.component === 'constructor'
+                                  ? 'w-6 h-6 text-white' 
+                                  : 'w-5 h-5 text-white/70 hover:text-white'
+                              }`}
+                              strokeWidth={2}
+                            />
+                          </button>
+                          
+                          {/* Профиль - с аватаром Telegram */}
+                          <button
+                            onClick={() => {navigate('/profile'); hapticFeedback.light();}}
+                            className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
+                            style={{ zIndex: 10 }}
+                            aria-label="Профиль пользователя"
+                            aria-current={route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning' ? 'page' : undefined}
+                            data-testid="nav-profile"
+                          >
+                            <UserAvatar
+                              user={user}
+                              size="sm"
+                              className={`transition-all duration-300 ${
+                                route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning'
+                                  ? 'ring-2 ring-white/50 scale-110' 
+                                  : 'opacity-80 hover:opacity-100'
+                              }`}
+                            />
+                          </button>
+                    
+                        </nav>
                       </div>
                     </div>
                   </div>
