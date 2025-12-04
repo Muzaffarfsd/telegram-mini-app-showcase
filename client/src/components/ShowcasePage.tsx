@@ -208,7 +208,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   +<AnimatedCounter value={300} suffix="%" delay={0.5} />
                 </div>
                 <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'rgba(16,185,129,0.6)' }}>
-                  продажи
+                  к продажам
                 </div>
               </m.div>
             </div>
