@@ -26,7 +26,7 @@ export function useTelegramButtons(
     demoName?: string;
   }
 ) {
-  const { mainButton, secondaryButton, shareApp, downloadFile, openTelegramLink, hapticFeedback } = useTelegram();
+  const { mainButton, secondaryButton, shareApp, openTelegramLink, hapticFeedback } = useTelegram();
   const cleanupRef = useRef<(() => void) | null>(null);
 
   const navigate = useCallback((path: string) => {
@@ -61,11 +61,9 @@ export function useTelegramButtons(
 
   const handleDownloadPDF = useCallback(() => {
     hapticFeedback.light();
-    downloadFile(
-      '/api/commercial-proposal.pdf',
-      'Web4TG_Commercial_Proposal.pdf'
-    );
-  }, [downloadFile, hapticFeedback]);
+    // Redirect to Telegram for personalized commercial proposal
+    openTelegramLink('https://t.me/web4tgs?start=proposal');
+  }, [openTelegramLink, hapticFeedback]);
 
   useEffect(() => {
     if (cleanupRef.current) {

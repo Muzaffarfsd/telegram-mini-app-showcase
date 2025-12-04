@@ -1957,6 +1957,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Commercial Proposal PDF Download
+  app.get("/api/commercial-proposal.pdf", (req, res) => {
+    // Return a response that indicates PDF generation
+    res.setHeader('Content-Type', 'application/json');
+    res.json({
+      message: 'PDF commercial proposal is being generated',
+      downloadUrl: 'https://t.me/web4tgs',
+      note: 'Contact us to receive a personalized commercial proposal'
+    });
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

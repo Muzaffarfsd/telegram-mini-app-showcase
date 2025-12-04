@@ -1,4 +1,4 @@
-import { ArrowLeft, Star, Play, ExternalLink } from "lucide-react";
+import { ArrowLeft, Star, Play, ExternalLink, Share2 } from "lucide-react";
 import { demoApps } from "@/data/demoApps";
 import { useTelegram } from "@/hooks/useTelegram";
 
@@ -7,7 +7,7 @@ interface DemoAppLandingProps {
 }
 
 export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
-  const { hapticFeedback } = useTelegram();
+  const { hapticFeedback, shareApp } = useTelegram();
   
   // Find the demo app
   const demoApp = demoApps.find(app => app.id === demoId);
@@ -41,6 +41,11 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
     window.location.hash = '/';
   };
 
+  const handleShare = () => {
+    hapticFeedback?.medium();
+    shareApp(`Посмотри демо "${demoApp.title}" в Web4TG!`);
+  };
+
   const { home } = demoApp;
 
   return (
@@ -62,9 +67,19 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
               <p className="ios-caption1 text-system-blue">{demoApp.category}</p>
             </div>
             
-            <div className="flex items-center space-x-1">
-              <Star className="w-4 h-4 text-system-yellow fill-current" />
-              <span className="ios-caption2 font-medium">4.9</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleShare}
+                className="p-1 rounded-full hover-elevate active-elevate-2"
+                aria-label="Поделиться"
+                data-testid="button-share-demo"
+              >
+                <Share2 className="w-5 h-5" />
+              </button>
+              <div className="flex items-center space-x-1">
+                <Star className="w-4 h-4 text-system-yellow fill-current" />
+                <span className="ios-caption2 font-medium">4.9</span>
+              </div>
             </div>
           </div>
         </div>
