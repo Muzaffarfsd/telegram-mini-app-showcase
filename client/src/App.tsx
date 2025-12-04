@@ -334,16 +334,17 @@ function App() {
                 </div>
               </div>
             
-              {/* Liquid Glass Bottom Navigation - Clean minimal design */}
+              {/* Liquid Glass Bottom Navigation - Premium glass design */}
               {shouldShowBottomNav && (
                 <nav 
-                  className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-white/15 px-4 py-3"
+                  className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full px-4 py-3 overflow-hidden"
                   style={{ 
                     bottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))',
-                    background: 'rgba(20, 20, 20, 0.85)',
-                    backdropFilter: 'blur(16px)',
-                    WebkitBackdropFilter: 'blur(16px)',
-                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 20px rgba(0, 0, 0, 0.5)',
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0.06) 100%), rgba(18, 18, 20, 0.92)',
+                    backdropFilter: 'blur(24px) saturate(150%)',
+                    WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 32px rgba(0, 0, 0, 0.5)',
                   }}
                   role="navigation" 
                   aria-label="Главное меню"
