@@ -134,6 +134,29 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 </span>
               </m.button>
             </div>
+
+            <div className="flex items-center gap-8 mt-12">
+              <div>
+                <div className="text-[28px] font-semibold" style={{ color: '#FFFFFF' }}>127+</div>
+                <div className="text-[11px] uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                  клиентов
+                </div>
+              </div>
+              <div className="w-px h-10" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }} />
+              <div>
+                <div className="text-[28px] font-semibold" style={{ color: '#FFFFFF' }}>24ч</div>
+                <div className="text-[11px] uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                  до запуска
+                </div>
+              </div>
+              <div className="w-px h-10" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }} />
+              <div>
+                <div className="text-[28px] font-semibold" style={{ color: '#10B981' }}>+300%</div>
+                <div className="text-[11px] uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                  продажи
+                </div>
+              </div>
+            </div>
           </m.div>
         </m.section>
 
