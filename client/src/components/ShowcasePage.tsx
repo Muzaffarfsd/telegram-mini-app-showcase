@@ -39,9 +39,9 @@ function AnimatedCounter({ value, suffix = "", delay = 0 }: { value: number; suf
 
 const headlines = [
   "продаёт",
-  "зарабатывает", 
-  "масштабируется",
-  "растёт"
+  "работает",
+  "масштабируется", 
+  "зарабатывает"
 ];
 
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
@@ -98,13 +98,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="block text-[44px] leading-[1.02] font-semibold"
                 style={{ color: '#FFFFFF', letterSpacing: '-0.035em' }}
               >
-                Пока вы спите,
+                Бизнес нового
               </span>
               <span 
                 className="block text-[44px] leading-[1.02] font-semibold"
                 style={{ color: '#FFFFFF', letterSpacing: '-0.035em' }}
               >
-                ваш бизнес
+                поколения
               </span>
               <div className="h-[54px] overflow-hidden mt-1">
                 <AnimatePresence mode="wait">
@@ -117,10 +117,16 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     className="block text-[44px] leading-[1.02] font-semibold"
                     style={{ color: '#10B981', letterSpacing: '-0.035em' }}
                   >
-                    {headlines[headlineIndex]}.
+                    {headlines[headlineIndex]}
                   </m.span>
                 </AnimatePresence>
               </div>
+              <span 
+                className="block text-[22px] leading-[1.3] font-medium mt-2"
+                style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '-0.02em' }}
+              >
+                — без вашего участия.
+              </span>
             </h1>
 
             <p 
