@@ -87,7 +87,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="min-h-[70vh] flex flex-col justify-center pt-8"
+          className="min-h-[75vh] flex flex-col justify-center pt-16"
         >
           <m.div
             initial={{ opacity: 0, y: 40 }}
