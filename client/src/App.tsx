@@ -3,8 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { useTelegram } from "./hooks/useTelegram";
-import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
-import GlassActionButtons from "./components/GlassActionButtons";
+import { Home, ShoppingCart, Briefcase, Bot, Sparkles, MessageCircle, Share2, Users } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
@@ -34,6 +33,7 @@ const PremiumTasksEarningPage = lazy(() => import("./components/PremiumTasksEarn
 
 // Global components
 import GlobalSidebar from "./components/GlobalSidebar";
+import UnifiedBottomBar from "./components/UnifiedBottomBar";
 
 // Simple hash router types
 interface Route {
@@ -326,194 +326,19 @@ function App() {
                   />
                 )}
                 
-                <div className="pb-32">
+                <div className="pb-28">
                   {renderRoute()}
                 </div>
-                
-                {/* Glass Action Buttons - above bottom nav */}
+            
+                {/* Unified Liquid Glass Bottom Bar - Navigation + Actions */}
                 {shouldShowBottomNav && (
-                  <GlassActionButtons 
+                  <UnifiedBottomBar 
                     currentRoute={route.component}
+                    user={user}
                     onNavigate={handleNavigate}
+                    hapticFeedback={hapticFeedback}
                   />
                 )}
-            
-                {/* Liquid Glass Bottom Navigation */}
-                {shouldShowBottomNav && (
-                  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
-                    <div className="relative">
-                      {/* Animated Background Glow */}
-                      <div 
-                        className="absolute -inset-2 rounded-full opacity-20"
-                        style={{
-                          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.6) 0%, rgba(16, 185, 129, 0.2) 50%, transparent 70%)',
-                          filter: 'blur(20px)',
-                          animation: 'pulse 3s ease-in-out infinite',
-                        }}
-                      />
-                      
-                      {/* Liquid Glass Container */}
-                      <div 
-                        className="relative backdrop-blur-xl rounded-full border border-white/30 px-4 py-3 shadow-2xl"
-                        style={{
-                          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)',
-                          boxShadow: `
-                            0 8px 32px rgba(0, 0, 0, 0.4),
-                            inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                            inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-                            0 0 60px rgba(16, 185, 129, 0.2)
-                          `,
-                        }}
-                      >
-                        {/* Inner Highlight */}
-                        <div 
-                          className="absolute top-1 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent rounded-full"
-                        />
-                        
-                        <nav className="relative flex items-center justify-center gap-2" role="navigation" aria-label="Главное меню">
-                          {/* Liquid Glass Blob - анимированная капля под активной иконкой */}
-                          <div 
-                            className="absolute transition-all duration-500 ease-out pointer-events-none"
-                            style={{
-                              left: route.component === 'showcase' ? '-2px' :
-                                    route.component === 'aiAgent' ? '54px' :
-                                    route.component === 'projects' ? '110px' :
-                                    route.component === 'constructor' ? '166px' :
-                                    ['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? '222px' : '-2px',
-                              top: '-2px',
-                              width: '52px',
-                              height: '52px',
-                              zIndex: 1,
-                            }}
-                          >
-                            {/* Основной слой капли */}
-                            <div 
-                              className="absolute inset-0"
-                              style={{
-                                background: 'radial-gradient(ellipse 100% 90% at 50% 45%, rgba(16, 185, 129, 0.35) 0%, rgba(16, 185, 129, 0.22) 40%, transparent 70%)',
-                                borderRadius: '45% 55% 50% 50% / 50% 50% 45% 55%',
-                                filter: 'blur(12px)',
-                                animation: 'liquid-morph 4s ease-in-out infinite',
-                              }}
-                            />
-                            {/* Второй слой капли */}
-                            <div 
-                              className="absolute inset-0"
-                              style={{
-                                background: 'radial-gradient(ellipse at center, rgba(16, 185, 129, 0.28) 0%, rgba(16, 185, 129, 0.15) 50%, transparent 70%)',
-                                borderRadius: '50% 45% 55% 50% / 55% 50% 50% 45%',
-                                filter: 'blur(16px)',
-                                animation: 'liquid-morph-reverse 5s ease-in-out infinite',
-                              }}
-                            />
-                            {/* Внутреннее свечение */}
-                            <div 
-                              className="absolute inset-0"
-                              style={{
-                                background: 'radial-gradient(circle at center, rgba(16, 185, 129, 0.4) 0%, rgba(16, 185, 129, 0.18) 30%, transparent 60%)',
-                                borderRadius: '50%',
-                                filter: 'blur(8px)',
-                              }}
-                            />
-                          </div>
-                    
-                          {/* Главная */}
-                          <button
-                            onClick={() => {navigate('/'); hapticFeedback.light();}}
-                            className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
-                            style={{ zIndex: 10 }}
-                            aria-label="Главная страница"
-                            aria-current={route.component === 'showcase' ? 'page' : undefined}
-                          >
-                            <Home
-                              className={`transition-all duration-300 ${
-                                route.component === 'showcase' 
-                                  ? 'w-6 h-6 text-white' 
-                                  : 'w-5 h-5 text-white/70 hover:text-white'
-                              }`}
-                              strokeWidth={2}
-                            />
-                          </button>
-                          
-                          {/* ИИ Агент */}
-                          <button
-                            onClick={() => {navigate('/ai-process'); hapticFeedback.light();}}
-                            className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
-                            style={{ zIndex: 10 }}
-                            aria-label="ИИ агенты для бизнеса"
-                            aria-current={route.component === 'aiProcess' || route.component === 'aiAgent' ? 'page' : undefined}
-                          >
-                            <Bot
-                              className={`transition-all duration-300 ${
-                                route.component === 'aiProcess' || route.component === 'aiAgent'
-                                  ? 'w-6 h-6 text-white' 
-                                  : 'w-5 h-5 text-white/70 hover:text-white'
-                              }`}
-                              strokeWidth={2}
-                            />
-                          </button>
-                          
-                          {/* Витрина */}
-                          <button
-                            onClick={() => {navigate('/projects'); hapticFeedback.light();}}
-                            className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
-                            style={{ zIndex: 10 }}
-                            aria-label="Витрина проектов"
-                            aria-current={route.component === 'projects' ? 'page' : undefined}
-                          >
-                            <Briefcase
-                              className={`transition-all duration-300 ${
-                                route.component === 'projects' 
-                                  ? 'w-6 h-6 text-white' 
-                                  : 'w-5 h-5 text-white/70 hover:text-white'
-                              }`}
-                              strokeWidth={2}
-                            />
-                          </button>
-                          
-                          {/* Заказать */}
-                          <button
-                            onClick={() => {navigate('/constructor'); hapticFeedback.light();}}
-                            className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
-                            style={{ zIndex: 10 }}
-                            aria-label="Заказать проект"
-                            aria-current={route.component === 'constructor' ? 'page' : undefined}
-                          >
-                            <ShoppingCart
-                              className={`transition-all duration-300 ${
-                                route.component === 'constructor'
-                                  ? 'w-6 h-6 text-white' 
-                                  : 'w-5 h-5 text-white/70 hover:text-white'
-                              }`}
-                              strokeWidth={2}
-                            />
-                          </button>
-                          
-                          {/* Профиль - с аватаром Telegram */}
-                          <button
-                            onClick={() => {navigate('/profile'); hapticFeedback.light();}}
-                            className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/5"
-                            style={{ zIndex: 10 }}
-                            aria-label="Профиль пользователя"
-                            aria-current={route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning' ? 'page' : undefined}
-                          >
-                            <UserAvatar
-                              photoUrl={user?.photo_url}
-                              firstName={user?.first_name}
-                              size="sm"
-                              className={`transition-all duration-300 ${
-                                route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning'
-                                  ? 'ring-2 ring-white/50 scale-110' 
-                                  : 'opacity-80 hover:opacity-100'
-                              }`}
-                            />
-                          </button>
-                    
-                  </nav>
-                </div>
-              </div>
-            </div>
-          )}
           
           <Toaster />
         </div>
