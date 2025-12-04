@@ -190,26 +190,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
         </div>
       </div>
 
-      {/* Liquid Glass Bottom Navigation - Telegram WebView optimized */}
+      {/* Liquid Glass Bottom Navigation */}
       <nav 
-        className="tg-nav-glass fixed z-50 flex items-center justify-center rounded-full"
-        style={{ 
-          left: '50%',
-          transform: 'translateX(-50%) translateZ(0)',
-          bottom: 'calc(20px + env(safe-area-inset-bottom, 0px))',
-          width: '320px',
-          maxWidth: 'calc(100vw - 32px)',
-          height: '68px',
-          padding: '0 24px',
-          gap: '12px',
-          background: 'linear-gradient(180deg, rgba(40, 40, 45, 0.98) 0%, rgba(25, 25, 28, 0.98) 100%)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
-          boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.1), inset 0 -1px 1px rgba(0, 0, 0, 0.2), 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.3)',
-          isolation: 'isolate',
-          willChange: 'transform',
-        }}
+        className="tg-nav-glass flex items-center justify-center gap-3"
         role="navigation" 
         aria-label="Навигация демо"
       >

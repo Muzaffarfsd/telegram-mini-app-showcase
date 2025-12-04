@@ -3793,35 +3793,65 @@ html.slow-network video {
    TELEGRAM MINI APP - MOBILE OPTIMIZATIONS
    ======================================== */
 
-/* Telegram Navigation Glass Effect - CRITICAL: Fixed positioning */
+/* =============================================
+   LIQUID GLASS NAVIGATION - Premium glassmorphism
+   ============================================= */
 .tg-nav-glass {
-  /* CRITICAL: Force fixed positioning */
+  /* CRITICAL: Fixed positioning */
   position: fixed !important;
   left: 50% !important;
   transform: translateX(-50%) translateZ(0) !important;
-  bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
   z-index: 9999 !important;
   
-  /* Force explicit dimensions */
+  /* Dimensions */
+  width: min(92vw, 340px) !important;
   min-width: 300px !important;
-  min-height: 64px !important;
+  height: 68px !important;
+  padding: 0 20px !important;
+  border-radius: 999px !important;
   
-  /* Ensure visibility */
-  opacity: 1 !important;
-  visibility: visible !important;
+  /* LIQUID GLASS: Semi-transparent with gradient */
+  background: linear-gradient(
+    135deg,
+    rgba(28, 28, 32, 0.75) 0%,
+    rgba(20, 20, 24, 0.8) 50%,
+    rgba(32, 32, 38, 0.72) 100%
+  ) !important;
   
-  /* GPU acceleration */
+  /* Blur effect - the core of glass */
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  
+  /* Glass border */
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  
+  /* Depth shadows */
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.12),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.15) !important;
+  
+  /* Layer isolation */
+  isolation: isolate;
+  
+  /* GPU optimization */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   will-change: transform;
   
-  /* Prevent text selection */
+  /* Visibility */
+  opacity: 1 !important;
+  visibility: visible !important;
+  
+  /* Touch */
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
 }
 
-/* Glass shine overlay */
+/* Glass highlight reflection at top */
 .tg-nav-glass::before {
   content: '';
   position: absolute;
@@ -3829,17 +3859,56 @@ html.slow-network video {
   left: 0;
   right: 0;
   height: 50%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.05) 40%,
+    transparent 100%
+  );
   border-radius: inherit;
   pointer-events: none;
   z-index: 1;
 }
 
-/* Fallback for devices without backdrop-filter support */
-@supports not (backdrop-filter: blur(1px)) {
+/* Subtle noise texture for glass depth */
+.tg-nav-glass::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: 
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 30%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+  opacity: 0.6;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Fallback for devices WITHOUT backdrop-filter */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .tg-nav-glass {
-    background: rgba(30, 30, 35, 0.98) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    /* Solid frosted look without blur */
+    background: linear-gradient(
+      180deg,
+      rgba(22, 22, 26, 0.94) 0%,
+      rgba(16, 16, 20, 0.96) 100%
+    ) !important;
+    box-shadow: 
+      0 12px 40px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .tg-nav-glass::before {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%
+    );
   }
 }
 
