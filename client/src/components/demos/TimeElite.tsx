@@ -577,7 +577,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
 
     return (
       <div 
-        className={`fixed inset-0 z-50 bg-white transition-all duration-300 ${
+        className={`fixed inset-0 z-50 bg-white transition-all duration-300 smooth-scroll-page ${
           isModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         style={{ overflowY: 'auto' }}

@@ -162,11 +162,11 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   return (
     <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-gray-100'}`}>
       {/* Mobile Container - Max width for desktop view */}
-      <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
+      <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl demo-scroll-container`}>
         
-        {/* Demo Content Area - Telegram safe area bottom */}
+        {/* Demo Content Area - Telegram safe area bottom with GPU optimization */}
         <div 
-          className="flex-1 tg-content-safe-bottom" 
+          className="flex-1 tg-content-safe-bottom smooth-scroll-page" 
           style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} 
           data-testid="demo-content"
         >

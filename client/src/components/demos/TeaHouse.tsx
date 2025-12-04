@@ -399,7 +399,7 @@ export default function TeaHouse({ activeTab = 'home', onNavigate }: TeaHousePro
 
 
   const renderHomeTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat">
+    <div className="min-h-screen bg-gray-50 font-montserrat smooth-scroll-page">
       <div className="max-w-md mx-auto">
         
         {/* Zen Header */}
@@ -496,7 +496,7 @@ export default function TeaHouse({ activeTab = 'home', onNavigate }: TeaHousePro
   );
 
   const renderCatalogTab = () => (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 font-montserrat">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 font-montserrat smooth-scroll-page">
       <div className="max-w-md mx-auto px-6 py-8 space-y-6">
         {/* Header */}
         <div className="text-center space-y-3">
@@ -585,7 +585,7 @@ export default function TeaHouse({ activeTab = 'home', onNavigate }: TeaHousePro
   );
 
   const renderCartTab = () => (
-    <div className="max-w-md mx-auto px-4 py-6 space-y-4 bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 min-h-screen">
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4 bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 min-h-screen smooth-scroll-page">
       <h1 className="text-2xl font-montserrat font-bold text-gray-900">Корзина</h1>
       
       {cartItems.length === 0 ? (
@@ -651,7 +651,7 @@ export default function TeaHouse({ activeTab = 'home', onNavigate }: TeaHousePro
   );
 
   const renderProfileTab = () => (
-    <div className="max-w-md mx-auto px-4 py-6 space-y-4 bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 min-h-screen">
+    <div className="max-w-md mx-auto px-4 py-6 space-y-4 bg-gradient-to-br from-teal-50 via-green-50 to-emerald-50 min-h-screen smooth-scroll-page">
       <h1 className="text-2xl font-montserrat font-bold text-gray-900">Профиль</h1>
       
       <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white/30 shadow-lg">

@@ -291,7 +291,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
     if (!selectedProduct || !isModalOpen) return null;
 
     return (
-      <div className="fixed inset-0 z-50 bg-black overflow-y-auto font-montserrat">
+      <div className="fixed inset-0 z-50 bg-black overflow-y-auto font-montserrat smooth-scroll-page">
         <div className="fixed inset-0 bg-gradient-to-br from-amber-900/20 via-black to-yellow-900/20"></div>
         
         <div className="relative max-w-md mx-auto">

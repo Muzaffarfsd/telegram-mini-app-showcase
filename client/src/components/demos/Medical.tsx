@@ -135,7 +135,7 @@ export default function Medical({ activeTab, onNavigate }: MedicalProps) {
   const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const renderHomeTab = () => (
-    <div className="min-h-screen bg-blue-50 font-montserrat">
+    <div className="min-h-screen bg-blue-50 font-montserrat smooth-scroll-page">
       <div className="max-w-md mx-auto">
         
         {/* Medical Header */}
@@ -247,7 +247,7 @@ export default function Medical({ activeTab, onNavigate }: MedicalProps) {
   );
 
   const renderCatalogTab = () => (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="ios-title font-bold">Медицинские услуги</h1>
       
@@ -306,7 +306,7 @@ export default function Medical({ activeTab, onNavigate }: MedicalProps) {
   );
 
   const renderCartTab = () => (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="ios-title font-bold">Записи на прием</h1>
         
@@ -368,7 +368,7 @@ export default function Medical({ activeTab, onNavigate }: MedicalProps) {
   );
 
   const renderProfileTab = () => (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="ios-title font-bold">Профиль пациента</h1>
         

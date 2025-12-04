@@ -137,7 +137,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
 
   if (activeTab === 'home') {
     return (
-      <div className="h-full overflow-y-auto">
+      <div className="h-full overflow-y-auto smooth-scroll-page">
         <div className="relative h-[280px] bg-gradient-to-br from-orange-600/20 via-red-500/20 to-pink-600/20">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&h=800&fit=crop&q=90')] bg-cover bg-center opacity-30" />
           <div className="absolute inset-0 backdrop-blur-xl bg-gradient-to-t from-black/60 to-transparent" />
@@ -288,7 +288,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
   if (activeTab === 'catalog') {
     if (selectedWorkout) {
       return (
-        <div className="h-full flex flex-col bg-background">
+        <div className="h-full flex flex-col bg-background smooth-scroll-page">
           <div className="relative">
             <div className="aspect-[3/4] relative">
               <img src={selectedWorkout.image} alt={selectedWorkout.name} className="w-full h-full object-cover" />
@@ -361,7 +361,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
     }
 
     return (
-      <div className="h-full overflow-y-auto">
+      <div className="h-full overflow-y-auto smooth-scroll-page">
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-5">
           <h1 className="text-2xl font-bold mb-4">Тренировки</h1>
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
@@ -441,7 +441,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
 
   if (activeTab === 'profile') {
     return (
-      <div className="h-full overflow-y-auto">
+      <div className="h-full overflow-y-auto smooth-scroll-page">
         <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center">

@@ -152,7 +152,7 @@ export default function CarRental({ activeTab, onNavigate }: CarRentalProps) {
   const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity * item.rentalDays), 0);
 
   const renderHomeTab = () => (
-    <div className="min-h-screen bg-red-50 font-montserrat">
+    <div className="min-h-screen bg-red-50 font-montserrat smooth-scroll-page">
       <div className="max-w-md mx-auto">
         
         {/* Car Rental Header */}
@@ -264,7 +264,7 @@ export default function CarRental({ activeTab, onNavigate }: CarRentalProps) {
   );
 
   const renderCatalogTab = () => (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="ios-title font-bold">Автомобили в аренду</h1>
       
@@ -329,7 +329,7 @@ export default function CarRental({ activeTab, onNavigate }: CarRentalProps) {
   );
 
   const renderCartTab = () => (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="ios-title font-bold">Корзина аренды</h1>
         
@@ -391,7 +391,7 @@ export default function CarRental({ activeTab, onNavigate }: CarRentalProps) {
   );
 
   const renderProfileTab = () => (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="ios-title font-bold">Профиль водителя</h1>
         

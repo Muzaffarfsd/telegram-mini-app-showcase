@@ -174,10 +174,10 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
   touch-action: pan-y pinch-zoom;
 }
 
-/* Optimize child elements inside scroll containers */
-.smooth-scroll-page > *,
-.demo-scroll-container > * {
-  /* GPU layer per child */
+/* Optimize child elements inside scroll containers - exclude fixed/sticky positioned elements */
+.smooth-scroll-page > *:not([class*="fixed"]):not([class*="sticky"]),
+.demo-scroll-container > *:not([class*="fixed"]):not([class*="sticky"]) {
+  /* GPU layer per child - preserve existing transforms */
   transform: translateZ(0);
   
   /* Content containment for painting */

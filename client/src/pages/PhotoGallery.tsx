@@ -104,7 +104,7 @@ export default function PhotoGallery() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white smooth-scroll-page">
       {/* Header - Glassmorphism Sticky */}
       <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-xl border-b border-white/20 h-16">
         <div className="h-full px-4 py-5 flex items-center justify-between">

@@ -11,7 +11,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
 
   return (
     <div 
-      className="min-h-screen pb-32"
+      className="min-h-screen pb-32 smooth-scroll-page"
      
       style={{ 
         background: '#09090B',

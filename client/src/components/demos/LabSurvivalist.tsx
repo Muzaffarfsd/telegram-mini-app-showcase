@@ -346,7 +346,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
     const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#000000';
     
     return (
-      <div className="min-h-screen text-white overflow-auto" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white overflow-auto smooth-scroll-page" style={{ backgroundColor: bgColor }}>
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
@@ -464,7 +464,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
   // HOME PAGE
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-black text-white overflow-auto pb-24">
+      <div className="min-h-screen bg-black text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <Menu className="w-6 h-6" data-testid="button-view-menu" />
@@ -638,7 +638,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-black text-white overflow-auto pb-24">
+      <div className="min-h-screen bg-black text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-3xl font-black tracking-tight">КАТАЛОГ</h1>
@@ -728,7 +728,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     return (
-      <div className="min-h-screen bg-black text-white overflow-auto pb-32">
+      <div className="min-h-screen bg-black text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
           <h1 className="text-3xl font-black mb-6 tracking-tight scroll-fade-in">КОРЗИНА</h1>
 
@@ -815,7 +815,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
   // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-black text-white overflow-auto pb-24">
+      <div className="min-h-screen bg-black text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6 bg-gradient-to-b from-white/5 to-transparent backdrop-blur-xl border-b border-white/10 scroll-fade-in">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-white to-gray-400 rounded-2xl flex items-center justify-center">

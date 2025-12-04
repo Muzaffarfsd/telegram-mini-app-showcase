@@ -76,7 +76,7 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
 
   // HOME TAB - Ultra Minimalist 2025
   const renderHomeTab = () => (
-    <div className="min-h-screen bg-white font-montserrat pb-24">
+    <div className="min-h-screen bg-white font-montserrat pb-24 smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-8 space-y-8">
         {/* Minimalist Header */}
         <div className="text-center space-y-4">
@@ -216,7 +216,7 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
 
   // CATALOG TAB - Modern Grid with Sticky Pills
   const renderCatalogTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
+    <div className="min-h-screen bg-gray-50 font-montserrat pb-24 smooth-scroll-page">
       {/* Sticky Category Pills */}
       <div className="sticky top-0 z-20 bg-white border-b border-gray-200 py-5 px-4">
         <div className="max-w-md mx-auto">
@@ -293,7 +293,7 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
 
   // CART TAB
   const renderCartTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
+    <div className="min-h-screen bg-gray-50 font-montserrat pb-24 smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="text-2xl font-bold text-gray-900">Корзина</h1>
         <div className="text-center py-16">
@@ -306,7 +306,7 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
 
   // PROFILE TAB
   const renderProfileTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
+    <div className="min-h-screen bg-gray-50 font-montserrat pb-24 smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="text-2xl font-bold text-gray-900">Профиль</h1>
         <div className="bg-white rounded-2xl p-6">
@@ -322,7 +322,7 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
 
     return (
       <div 
-        className={`fixed inset-0 z-50 bg-white transition-all duration-300 ${
+        className={`fixed inset-0 z-50 bg-white transition-all duration-300 smooth-scroll-page ${
           isModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         style={{ overflowY: 'auto' }}

@@ -215,7 +215,7 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
   if (activeTab === 'catalog' && selectedProduct) {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24"
+        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -420,7 +420,7 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
 
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24"
+        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -841,7 +841,7 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
   if (activeTab === 'catalog') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24"
+        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -972,7 +972,7 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
   if (activeTab === 'cart') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24"
+        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -1141,7 +1141,7 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
   if (activeTab === 'profile') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24"
+        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >

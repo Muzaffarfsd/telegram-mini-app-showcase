@@ -114,7 +114,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
 
   if (activeTab === 'home') {
     return (
-      <div className="h-full overflow-y-auto">
+      <div className="h-full overflow-y-auto smooth-scroll-page">
         <div className="relative h-[280px] bg-gradient-to-br from-blue-600/20 via-cyan-500/20 to-indigo-600/20">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200&h=800&fit=crop&q=90')] bg-cover bg-center opacity-20" />
           <div className="absolute inset-0 backdrop-blur-xl bg-gradient-to-t from-black/60 to-transparent" />
@@ -253,7 +253,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
   if (activeTab === 'catalog') {
     if (selectedAsset) {
       return (
-        <div className="h-full flex flex-col bg-background">
+        <div className="h-full flex flex-col bg-background smooth-scroll-page">
           <div className="relative">
             <div className="aspect-[3/4] relative">
               <img src={selectedAsset.image} alt={selectedAsset.name} className="w-full h-full object-cover" />
@@ -333,7 +333,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
     }
 
     return (
-      <div className="h-full overflow-y-auto">
+      <div className="h-full overflow-y-auto smooth-scroll-page">
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-5">
           <h1 className="text-2xl font-bold mb-4">Активы</h1>
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
@@ -407,7 +407,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
 
   if (activeTab === 'profile') {
     return (
-      <div className="h-full overflow-y-auto">
+      <div className="h-full overflow-y-auto smooth-scroll-page">
         <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center">
