@@ -62,10 +62,8 @@ body {
   /* iOS momentum scrolling - CRITICAL for buttery smooth native feel */
   -webkit-overflow-scrolling: touch;
   
-  /* GPU compositing layer - prevents CPU rendering during scroll */
+  /* Removed transform and perspective to allow fixed positioning to work correctly */
   will-change: scroll-position;
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
   
   /* Contain scroll within app - prevents overscroll bounce */
   overscroll-behavior-y: contain;
@@ -77,16 +75,9 @@ body {
   /* Smooth scroll for programmatic scrolling (links, buttons) */
   scroll-behavior: smooth;
   
-  /* Backface visibility optimization for GPU layer */
+  /* Backface visibility optimization */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  
-  /* Perspective for 3D GPU acceleration */
-  -webkit-perspective: 1000px;
-  perspective: 1000px;
-  
-  /* Contain layout calculations within scroll container */
-  contain: layout style;
 }
 
 /* Global touch optimizations */
@@ -109,16 +100,14 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
 [data-scroll], .scroll-container {
   -webkit-overflow-scrolling: touch;
   will-change: scroll-position;
-  transform: translate3d(0, 0, 0);
+  /* Removed transform to allow fixed positioning to work correctly */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 
 /* Optimize content during scroll - reduces paint operations */
 [data-scroll="main"] > * {
-  /* Each child gets its own GPU layer */
-  transform: translateZ(0);
-  
+  /* Removed transform to allow fixed positioning to work correctly */
   /* Contain paint within each element */
   contain: content;
 }
@@ -135,17 +124,12 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
   /* iOS momentum scrolling */
   -webkit-overflow-scrolling: touch;
   
-  /* GPU compositing for smooth scroll */
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
-  will-change: transform;
+  /* Removed transform to allow fixed positioning to work correctly */
+  will-change: scroll-position;
   
   /* Backface optimization */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  
-  /* Contain layout for performance */
-  contain: layout style;
 }
 
 /* Demo app scroll container */

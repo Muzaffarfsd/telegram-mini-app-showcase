@@ -160,35 +160,37 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   };
 
   return (
-    <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-gray-100'}`}>
-      {/* Mobile Container - Max width for desktop view */}
-      <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
-        
-        {/* Demo Content Area - Telegram safe area bottom with GPU optimization */}
-        <div 
-          className="flex-1 tg-content-safe-bottom smooth-scroll-page" 
-          style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} 
-          data-testid="demo-content"
-        >
-          {renderDemoContent()}
-        </div>
+    <>
+      <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-gray-100'}`}>
+        {/* Mobile Container - Max width for desktop view */}
+        <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
+          
+          {/* Demo Content Area - Telegram safe area bottom with GPU optimization */}
+          <div 
+            className="flex-1 tg-content-safe-bottom" 
+            style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} 
+            data-testid="demo-content"
+          >
+            {renderDemoContent()}
+          </div>
 
-        {/* Sticky Home Button */}
-        <div 
-          className="sticky right-5 z-50 pointer-events-none"
-          style={{
-            bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
-            marginLeft: 'auto',
-            width: 'fit-content'
-          }}
-        >
-          <div className="pointer-events-auto">
-            <LiquidHomeButton onNavigateHome={handleNavigateHome} />
+          {/* Sticky Home Button */}
+          <div 
+            className="sticky right-5 z-50 pointer-events-none"
+            style={{
+              bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
+              marginLeft: 'auto',
+              width: 'fit-content'
+            }}
+          >
+            <div className="pointer-events-auto">
+              <LiquidHomeButton onNavigateHome={handleNavigateHome} />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Liquid Glass Bottom Navigation - Responsive for all screens */}
+      {/* Liquid Glass Bottom Navigation - Outside all containers for proper fixed positioning */}
       <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto" style={{ bottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}>
         <div className="relative">
           {/* Animated Background Glow */}
@@ -378,7 +380,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 });
 
