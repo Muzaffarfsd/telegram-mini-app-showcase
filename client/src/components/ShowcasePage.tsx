@@ -15,10 +15,10 @@ interface ShowcasePageProps {
 }
 
 const headlines = [
-  "продают",
-  "отвечают",
-  "работают",
-  "растут"
+  "продаёт",
+  "зарабатывает",
+  "масштабируется",
+  "растёт"
 ];
 
 function AnimatedCounter({ target, suffix = "", duration = 2000 }: { target: number; suffix?: string; duration?: number }) {
@@ -111,7 +111,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     fontFamily: 'Inter, -apple-system, sans-serif'
                   }}
                 >
-                  ваши боты
+                  ваш бизнес
                 </span>
                 <div className="h-[52px] overflow-hidden">
                   <AnimatePresence mode="wait">
@@ -138,7 +138,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="text-[16px] leading-[1.6] mb-8 max-w-[300px]"
                 style={{ color: 'rgba(255,255,255,0.55)' }}
               >
-                Автоматизируем продажи в Telegram. Магазин, записи, оплаты — всё внутри мессенджера.
+                Запускаем Telegram-приложения для бизнеса за 24 часа. Продажи, записи, оплаты — без вашего участия.
               </p>
 
               <div className="flex items-center gap-3">
