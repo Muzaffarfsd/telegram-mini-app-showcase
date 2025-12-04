@@ -159,14 +159,6 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
   
-  /* GPU acceleration */
-  transform: translate3d(0, 0, 0);
-  will-change: scroll-position;
-  
-  /* Backface visibility for GPU layer */
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  
   /* Contain scroll bouncing */
   overscroll-behavior-y: contain;
   
@@ -174,24 +166,11 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
   touch-action: pan-y pinch-zoom;
 }
 
-/* Optimize child elements inside scroll containers - exclude fixed/sticky positioned elements */
-.smooth-scroll-page > *:not([class*="fixed"]):not([class*="sticky"]),
-.demo-scroll-container > *:not([class*="fixed"]):not([class*="sticky"]) {
-  /* GPU layer per child - preserve existing transforms */
-  transform: translateZ(0);
-  
+/* Scroll optimization - only apply to scrollable content, not fixed elements */
+.smooth-scroll-page,
+.demo-scroll-container {
   /* Content containment for painting */
-  contain: content;
-}
-
-/* Cards and interactive elements inside scroll */
-.smooth-scroll-page .card,
-.demo-scroll-container .card,
-.smooth-scroll-page [class*="rounded"],
-.demo-scroll-container [class*="rounded"] {
-  /* Prevent jank during scroll */
-  transform: translateZ(0);
-  will-change: transform;
+  contain: layout style;
 }
 
 /* === GLOBAL AUTO-RESPONSIVE SYSTEM (2025) === */
