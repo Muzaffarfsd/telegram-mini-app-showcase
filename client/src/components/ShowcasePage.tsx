@@ -1,4 +1,4 @@
-import { ArrowRight, Play, Check, Star } from "lucide-react";
+import { ArrowRight, Check, Star } from "lucide-react";
 import { useCallback, memo, useState, useEffect } from "react";
 import { m, AnimatePresence } from 'framer-motion';
 import { useTelegram } from '../hooks/useTelegram';
@@ -50,7 +50,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       setHeadlineIndex((prev) => (prev + 1) % headlines.length);
-    }, 2500);
+    }, 1800);
     return () => clearInterval(interval);
   }, []);
   
@@ -85,13 +85,6 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
             >
-              <div 
-                className="text-[11px] font-bold tracking-[0.25em] uppercase mb-8"
-                style={{ color: '#10B981' }}
-              >
-                Telegram Mini Apps
-              </div>
-
               <h1 className="mb-6">
                 <span 
                   className="block text-[42px] leading-[1.05] font-black"
@@ -156,7 +149,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     className="text-[14px] font-bold"
                     style={{ color: '#000000' }}
                   >
-                    Начать проект
+                    Заказать проект
                   </span>
                   <ArrowRight className="w-4 h-4 text-black" />
                 </m.button>
@@ -173,12 +166,11 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   }}
                   data-testid="cta-demo"
                 >
-                  <Play className="w-3.5 h-3.5 text-white fill-white" />
                   <span 
                     className="text-[14px] font-medium"
                     style={{ color: 'rgba(255,255,255,0.9)' }}
                   >
-                    Демо
+                    Открыть приложение
                   </span>
                 </m.button>
               </div>
