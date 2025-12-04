@@ -193,16 +193,6 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       {/* Liquid Glass Bottom Navigation - Outside all containers for proper fixed positioning */}
       <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto" style={{ bottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}>
         <div className="relative">
-          {/* Animated Background Glow */}
-          <div 
-            className="absolute -inset-2 rounded-full opacity-20"
-            style={{
-              background: `radial-gradient(circle, ${theme.glowColor} 0%, ${theme.glowColor.replace('0.6', '0.2')} 50%, transparent 70%)`,
-              filter: 'blur(20px)',
-              animation: 'pulse 3s ease-in-out infinite',
-            }}
-          />
-          
           {/* Liquid Glass Container */}
           <div 
             className={`relative backdrop-blur-xl rounded-full border px-4 py-3 shadow-2xl ${
@@ -217,12 +207,10 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               boxShadow: isDarkTheme 
                 ? `0 8px 32px rgba(0, 0, 0, 0.6),
                    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                   inset 0 -1px 0 rgba(0, 0, 0, 0.3),
-                   0 0 60px ${theme.glowColor.replace('0.6', '0.15')}`
+                   inset 0 -1px 0 rgba(0, 0, 0, 0.3)`
                 : `0 8px 32px rgba(0, 0, 0, 0.4),
                    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                   inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-                   0 0 60px ${theme.glowColor.replace('0.6', '0.2')}`,
+                   inset 0 -1px 0 rgba(0, 0, 0, 0.2)`,
             }}
           >
             {/* Inner Highlight */}
