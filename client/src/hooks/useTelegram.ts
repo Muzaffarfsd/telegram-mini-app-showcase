@@ -9,6 +9,26 @@ interface SafeAreaInset {
   right: number;
 }
 
+// MainButton interface
+interface TelegramButton {
+  text: string;
+  color: string;
+  textColor: string;
+  isVisible: boolean;
+  isActive: boolean;
+  isProgressVisible: boolean;
+  setText: (text: string) => void;
+  show: () => void;
+  hide: () => void;
+  enable: () => void;
+  disable: () => void;
+  showProgress: (leaveActive?: boolean) => void;
+  hideProgress: () => void;
+  onClick: (callback: () => void) => void;
+  offClick: (callback: () => void) => void;
+  setParams: (params: { text?: string; color?: string; text_color?: string; is_active?: boolean; is_visible?: boolean }) => void;
+}
+
 interface TelegramWebApp {
   ready: () => void;
   expand: () => void;
@@ -33,6 +53,7 @@ interface TelegramWebApp {
   HapticFeedback: {
     impactOccurred: (style: 'light' | 'medium' | 'heavy') => void;
     selectionChanged: () => void;
+    notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
   };
   BackButton: {
     isVisible: boolean;
@@ -41,6 +62,11 @@ interface TelegramWebApp {
     onClick: (callback: () => void) => void;
     offClick: (callback: () => void) => void;
   };
+  
+  // MainButton & SecondaryButton (Bot API 6.0+)
+  MainButton: TelegramButton;
+  SecondaryButton: TelegramButton;
+  
   initDataUnsafe: {
     user?: {
       id: number;
@@ -73,6 +99,17 @@ interface TelegramWebApp {
   // Swipe behavior control (Bot API 7.7+)
   disableVerticalSwipes: () => void;
   enableVerticalSwipes: () => void;
+  
+  // 2025 Share & Download API
+  shareMessage: (msg_id: string, callback?: (success: boolean) => void) => void;
+  downloadFile: (params: { url: string; file_name: string }, callback?: (success: boolean) => void) => void;
+  
+  // Open links
+  openLink: (url: string, options?: { try_instant_view?: boolean }) => void;
+  openTelegramLink: (url: string) => void;
+  
+  // Switch inline query
+  switchInlineQuery: (query: string, choose_chat_types?: string[]) => void;
 }
 
 declare global {
@@ -349,6 +386,129 @@ export function useTelegram() {
     status: homeScreenStatus,
   };
 
+  // MainButton methods
+  const mainButton = {
+    show: (text: string, onClick: () => void, color?: string) => {
+      if (webApp?.MainButton) {
+        webApp.MainButton.setText(text);
+        if (color) {
+          webApp.MainButton.setParams({ color });
+        }
+        webApp.MainButton.onClick(onClick);
+        webApp.MainButton.show();
+        console.log('[TG API] MainButton shown:', text);
+      }
+    },
+    hide: () => {
+      if (webApp?.MainButton) {
+        webApp.MainButton.hide();
+        console.log('[TG API] MainButton hidden');
+      }
+    },
+    setText: (text: string) => {
+      if (webApp?.MainButton) {
+        webApp.MainButton.setText(text);
+      }
+    },
+    showProgress: () => {
+      if (webApp?.MainButton) {
+        webApp.MainButton.showProgress(true);
+      }
+    },
+    hideProgress: () => {
+      if (webApp?.MainButton) {
+        webApp.MainButton.hideProgress();
+      }
+    },
+    isAvailable: !!webApp?.MainButton,
+  };
+
+  // SecondaryButton methods
+  const secondaryButton = {
+    show: (text: string, onClick: () => void, color?: string) => {
+      if (webApp?.SecondaryButton) {
+        webApp.SecondaryButton.setText(text);
+        if (color) {
+          webApp.SecondaryButton.setParams({ color });
+        }
+        webApp.SecondaryButton.onClick(onClick);
+        webApp.SecondaryButton.show();
+        console.log('[TG API] SecondaryButton shown:', text);
+      }
+    },
+    hide: () => {
+      if (webApp?.SecondaryButton) {
+        webApp.SecondaryButton.hide();
+        console.log('[TG API] SecondaryButton hidden');
+      }
+    },
+    isAvailable: !!webApp?.SecondaryButton,
+  };
+
+  // Share message (2025 API)
+  const shareApp = (text?: string) => {
+    const botUsername = 'web4tg_bot'; // Bot username
+    const shareUrl = `https://t.me/${botUsername}/app`;
+    const shareText = text || 'Посмотри крутые Mini Apps для бизнеса!';
+    
+    // Use Telegram's native sharing
+    if (webApp?.switchInlineQuery) {
+      webApp.switchInlineQuery(shareText, ['users', 'groups', 'channels']);
+      console.log('[TG API] Sharing via inline query');
+    } else if (webApp?.openTelegramLink) {
+      // Fallback: open share dialog
+      const encodedText = encodeURIComponent(shareText + '\n' + shareUrl);
+      webApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodedText}`);
+      console.log('[TG API] Sharing via link');
+    } else {
+      // Browser fallback
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
+    }
+    hapticFeedback.medium();
+  };
+
+  // Download file (2025 API)
+  const downloadFile = (url: string, fileName: string) => {
+    if (webApp?.downloadFile) {
+      webApp.downloadFile({ url, file_name: fileName }, (success) => {
+        if (success) {
+          console.log('[TG API] File download started:', fileName);
+          hapticFeedback.light();
+        } else {
+          console.warn('[TG API] File download failed');
+        }
+      });
+    } else {
+      // Browser fallback
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      console.log('[TG API] File download via browser:', fileName);
+    }
+  };
+
+  // Open external link
+  const openLink = (url: string, instantView?: boolean) => {
+    if (webApp?.openLink) {
+      webApp.openLink(url, { try_instant_view: instantView });
+    } else {
+      window.open(url, '_blank');
+    }
+  };
+
+  // Open Telegram link
+  const openTelegramLink = (url: string) => {
+    if (webApp?.openTelegramLink) {
+      webApp.openTelegramLink(url);
+    } else {
+      window.open(url, '_blank');
+    }
+  };
+
   return {
     webApp,
     user,
@@ -367,5 +527,15 @@ export function useTelegram() {
     
     // Performance Optimization
     devicePerformance, // 'low' | 'medium' | 'high' for adaptive quality
+    
+    // MainButton & SecondaryButton
+    mainButton,
+    secondaryButton,
+    
+    // Share & Download
+    shareApp,
+    downloadFile,
+    openLink,
+    openTelegramLink,
   };
 }
