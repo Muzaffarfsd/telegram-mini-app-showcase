@@ -337,8 +337,7 @@ function App() {
               {/* Bottom Navigation */}
               {shouldShowBottomNav && (
                 <nav 
-                  className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-white/20 px-4 py-3"
-                  style={{ background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}
+                  className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-white/12 bg-black/70 px-4 py-3 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.35)]"
                   role="navigation" 
                   aria-label="Главное меню"
                 >
@@ -346,14 +345,14 @@ function App() {
                   <button
                     onClick={() => {navigate('/'); hapticFeedback.light();}}
                     className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95 ${
-                      route.component === 'showcase' ? 'bg-green-400/20' : 'hover:bg-white/10'
+                      route.component === 'showcase' ? 'bg-emerald-500/20' : 'hover:bg-white/10'
                     }`}
                     aria-label="Главная страница"
                     data-testid="nav-showcase"
                   >
                     <Home
                       className={`w-6 h-6 transition-all duration-300 ${
-                        route.component === 'showcase' ? 'text-green-400 scale-110' : 'text-white/70 hover:text-white'
+                        route.component === 'showcase' ? 'text-emerald-400 scale-110' : 'text-white/70'
                       }`}
                       strokeWidth={route.component === 'showcase' ? 2.5 : 2}
                     />
@@ -363,14 +362,14 @@ function App() {
                   <button
                     onClick={() => {navigate('/ai-process'); hapticFeedback.light();}}
                     className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95 ${
-                      route.component === 'aiProcess' || route.component === 'aiAgent' ? 'bg-green-400/20' : 'hover:bg-white/10'
+                      route.component === 'aiProcess' || route.component === 'aiAgent' ? 'bg-emerald-500/20' : 'hover:bg-white/10'
                     }`}
                     aria-label="ИИ агенты для бизнеса"
                     data-testid="nav-ai"
                   >
                     <Bot
                       className={`w-6 h-6 transition-all duration-300 ${
-                        route.component === 'aiProcess' || route.component === 'aiAgent' ? 'text-green-400 scale-110' : 'text-white/70 hover:text-white'
+                        route.component === 'aiProcess' || route.component === 'aiAgent' ? 'text-emerald-400 scale-110' : 'text-white/70'
                       }`}
                       strokeWidth={route.component === 'aiProcess' || route.component === 'aiAgent' ? 2.5 : 2}
                     />
@@ -380,14 +379,14 @@ function App() {
                   <button
                     onClick={() => {navigate('/projects'); hapticFeedback.light();}}
                     className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95 ${
-                      route.component === 'projects' ? 'bg-green-400/20' : 'hover:bg-white/10'
+                      route.component === 'projects' ? 'bg-emerald-500/20' : 'hover:bg-white/10'
                     }`}
                     aria-label="Витрина проектов"
                     data-testid="nav-projects"
                   >
                     <Briefcase
                       className={`w-6 h-6 transition-all duration-300 ${
-                        route.component === 'projects' ? 'text-green-400 scale-110' : 'text-white/70 hover:text-white'
+                        route.component === 'projects' ? 'text-emerald-400 scale-110' : 'text-white/70'
                       }`}
                       strokeWidth={route.component === 'projects' ? 2.5 : 2}
                     />
@@ -397,14 +396,14 @@ function App() {
                   <button
                     onClick={() => {navigate('/constructor'); hapticFeedback.light();}}
                     className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95 ${
-                      route.component === 'constructor' ? 'bg-green-400/20' : 'hover:bg-white/10'
+                      route.component === 'constructor' ? 'bg-emerald-500/20' : 'hover:bg-white/10'
                     }`}
                     aria-label="Заказать проект"
                     data-testid="nav-constructor"
                   >
                     <ShoppingCart
                       className={`w-6 h-6 transition-all duration-300 ${
-                        route.component === 'constructor' ? 'text-green-400 scale-110' : 'text-white/70 hover:text-white'
+                        route.component === 'constructor' ? 'text-emerald-400 scale-110' : 'text-white/70'
                       }`}
                       strokeWidth={route.component === 'constructor' ? 2.5 : 2}
                     />
@@ -414,7 +413,7 @@ function App() {
                   <button
                     onClick={() => {navigate('/profile'); hapticFeedback.light();}}
                     className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95 ${
-                      ['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 'bg-green-400/20' : 'hover:bg-white/10'
+                      ['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 'bg-emerald-500/20' : 'hover:bg-white/10'
                     }`}
                     aria-label="Профиль пользователя"
                     data-testid="nav-profile"
@@ -424,7 +423,7 @@ function App() {
                       firstName={user?.first_name}
                       size="sm"
                       className={`w-7 h-7 transition-all duration-300 ${
-                        ['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 'ring-2 ring-green-400/50 scale-110' : 'opacity-80'
+                        ['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 'ring-2 ring-emerald-400/50 scale-110' : 'opacity-80'
                       }`}
                     />
                   </button>
