@@ -29,7 +29,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#000000] pb-24 overflow-hidden" style={{ paddingTop: '140px' }}>
+    <div className="min-h-screen bg-[#000000] pb-24 overflow-hidden smooth-scroll-page" data-scroll="ai-process" style={{ paddingTop: '140px' }}>
       <div className="max-w-md mx-auto">
         
         {/* Apple-Style Hero with Parallax */}

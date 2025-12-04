@@ -162,10 +162,15 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   return (
     <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-gray-100'}`}>
       {/* Mobile Container - Max width for desktop view */}
-      <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
+      <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl demo-scroll-container`}>
         
-        {/* Demo Content Area - Telegram safe area bottom */}
-        <div className="flex-1 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
+        {/* Demo Content Area - Telegram safe area bottom with GPU optimization */}
+        <div 
+          className="flex-1 tg-content-safe-bottom smooth-scroll-page" 
+          style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} 
+          data-testid="demo-content"
+          data-scroll="demo"
+        >
           {renderDemoContent()}
         </div>
 
@@ -187,13 +192,16 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       {/* Liquid Glass Bottom Navigation - Responsive for all screens */}
       <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto" style={{ bottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}>
         <div className="relative">
-          {/* Animated Background Glow */}
+          {/* Animated Background Glow - GPU optimized */}
           <div 
-            className="absolute -inset-2 rounded-full opacity-20"
+            className="absolute -inset-2 rounded-full opacity-20 pointer-events-none"
             style={{
               background: `radial-gradient(circle, ${theme.glowColor} 0%, ${theme.glowColor.replace('0.6', '0.2')} 50%, transparent 70%)`,
               filter: 'blur(20px)',
               animation: 'pulse 3s ease-in-out infinite',
+              transform: 'translateZ(0)',
+              willChange: 'opacity',
+              contain: 'strict',
             }}
           />
           

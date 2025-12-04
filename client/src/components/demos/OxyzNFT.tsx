@@ -276,7 +276,8 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
   if (activeTab === 'catalog' && selectedProduct) {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24"
+        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        data-scroll="demo-oxyz-nft"
         style={{ background: COLORS.primaryGradient }}
       >
         <div className="relative">
@@ -482,7 +483,8 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
   if (activeTab === 'home') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24"
+        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        data-scroll="demo-oxyz-nft"
         style={{ background: COLORS.primaryGradient }}
       >
         <div className="demo-nav-safe px-5">
@@ -775,7 +777,8 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
   if (activeTab === 'catalog') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24"
+        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        data-scroll="demo-oxyz-nft"
         style={{ background: COLORS.primaryGradient }}
       >
         <div className="demo-nav-safe px-5">
@@ -964,7 +967,8 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
     
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24"
+        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        data-scroll="demo-oxyz-nft"
         style={{ background: COLORS.primaryGradient }}
       >
         <div className="demo-nav-safe px-5">
@@ -1277,7 +1281,8 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
 
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24"
+        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        data-scroll="demo-oxyz-nft"
         style={{ background: COLORS.primaryGradient }}
       >
         <div className="demo-nav-safe px-5">

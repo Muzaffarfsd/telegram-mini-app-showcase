@@ -169,7 +169,7 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
 
   if (!stripePromise) {
     return (
-      <div className="min-h-screen bg-black text-white p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-black text-white p-4 flex items-center justify-center smooth-scroll-page" data-scroll="checkout">
         <div className="liquid-glass-card rounded-2xl max-w-md w-full">
           <div className="pt-6 px-6 pb-6 text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-red-500/20 rounded-full flex items-center justify-center">
@@ -190,7 +190,7 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black text-white p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-black text-white p-4 flex items-center justify-center smooth-scroll-page" data-scroll="checkout">
         <div className="liquid-glass-card rounded-2xl max-w-md w-full">
           <div className="pt-6 px-6 pb-6 text-center">
             <div className="animate-spin w-8 h-8 border-4 border-system-blue border-t-transparent rounded-full mx-auto mb-4" />
@@ -212,7 +212,7 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-80">
+    <div className="min-h-screen bg-black text-white pb-80 smooth-scroll-page" data-scroll="checkout">
       <BackHeader onBack={onBack} title="Оплата заказа" />
       
       <div className="max-w-md mx-auto p-4">

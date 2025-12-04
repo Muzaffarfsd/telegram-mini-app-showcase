@@ -123,6 +123,77 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
   contain: content;
 }
 
+/* ========================================
+   PREMIUM SMOOTH SCROLL CONTAINER
+   Apply to any scrollable page/component
+   ======================================== */
+.smooth-scroll-page {
+  /* Full viewport scroll container */
+  width: 100%;
+  min-height: 100%;
+  
+  /* iOS momentum scrolling */
+  -webkit-overflow-scrolling: touch;
+  
+  /* GPU compositing for smooth scroll */
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  will-change: transform;
+  
+  /* Backface optimization */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Contain layout for performance */
+  contain: layout style;
+}
+
+/* Demo app scroll container */
+.demo-scroll-container {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  /* iOS-like smooth scrolling */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  
+  /* GPU acceleration */
+  transform: translate3d(0, 0, 0);
+  will-change: scroll-position;
+  
+  /* Backface visibility for GPU layer */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Contain scroll bouncing */
+  overscroll-behavior-y: contain;
+  
+  /* Touch optimization */
+  touch-action: pan-y pinch-zoom;
+}
+
+/* Optimize child elements inside scroll containers */
+.smooth-scroll-page > *,
+.demo-scroll-container > * {
+  /* GPU layer per child */
+  transform: translateZ(0);
+  
+  /* Content containment for painting */
+  contain: content;
+}
+
+/* Cards and interactive elements inside scroll */
+.smooth-scroll-page .card,
+.demo-scroll-container .card,
+.smooth-scroll-page [class*="rounded"],
+.demo-scroll-container [class*="rounded"] {
+  /* Prevent jank during scroll */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
 /* === GLOBAL AUTO-RESPONSIVE SYSTEM (2025) === */
 /* Автоматическая адаптация под ВСЕ размеры мобильных экранов */
 

@@ -152,7 +152,7 @@ export default function CarRental({ activeTab, onNavigate }: CarRentalProps) {
   const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity * item.rentalDays), 0);
 
   const renderHomeTab = () => (
-    <div className="min-h-screen bg-red-50 font-montserrat">
+    <div className="min-h-screen bg-red-50 font-montserrat smooth-scroll-page" data-scroll="demo-car-rental">
       <div className="max-w-md mx-auto">
         
         {/* Car Rental Header */}

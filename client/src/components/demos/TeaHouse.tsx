@@ -399,7 +399,7 @@ export default function TeaHouse({ activeTab = 'home', onNavigate }: TeaHousePro
 
 
   const renderHomeTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat">
+    <div className="min-h-screen bg-gray-50 font-montserrat smooth-scroll-page" data-scroll="demo-tea-house">
       <div className="max-w-md mx-auto">
         
         {/* Zen Header */}
