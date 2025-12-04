@@ -331,16 +331,26 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
   // Share app with referral link
   const handleInviteFriend = useCallback(() => {
+    console.log('[Profile] Invite friend clicked, code:', myReferralCode);
     hapticFeedback?.medium();
     const shareText = `Создай своё Telegram приложение для бизнеса! Мой код: ${myReferralCode}`;
     shareApp(shareText);
-  }, [myReferralCode, shareApp, hapticFeedback]);
+    toast({
+      title: "Приглашение",
+      description: "Открываю окно для отправки приглашения...",
+    });
+  }, [myReferralCode, shareApp, hapticFeedback, toast]);
 
   // Share app
   const handleShareApp = useCallback(() => {
+    console.log('[Profile] Share app clicked');
     hapticFeedback?.medium();
     shareApp('Посмотри крутые Mini Apps для бизнеса!');
-  }, [shareApp, hapticFeedback]);
+    toast({
+      title: "Поделиться",
+      description: "Открываю окно для отправки...",
+    });
+  }, [shareApp, hapticFeedback, toast]);
 
   // Apply friend's referral code
   const handleApplyReferralCode = useCallback(async () => {

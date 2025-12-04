@@ -480,21 +480,35 @@ export function useTelegram() {
     const botUsername = 'web4tg_bot'; // Bot username
     const shareUrl = `https://t.me/${botUsername}/app`;
     const shareText = text || 'Посмотри крутые Mini Apps для бизнеса!';
+    const fullShareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
     
-    // Use Telegram's native sharing
-    if (webApp?.switchInlineQuery) {
-      webApp.switchInlineQuery(shareText, ['users', 'groups', 'channels']);
-      console.log('[TG API] Sharing via inline query');
-    } else if (webApp?.openTelegramLink) {
-      // Fallback: open share dialog
-      const encodedText = encodeURIComponent(shareText + '\n' + shareUrl);
-      webApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodedText}`);
-      console.log('[TG API] Sharing via link');
-    } else {
-      // Browser fallback
-      window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
+    console.log('[TG API] Attempting to share:', { shareText, shareUrl, webAppAvailable: !!webApp });
+    
+    try {
+      // Primary method: openTelegramLink for share dialog
+      if (webApp?.openTelegramLink) {
+        console.log('[TG API] Using openTelegramLink');
+        webApp.openTelegramLink(fullShareUrl);
+        hapticFeedback.medium();
+        return;
+      }
+      
+      // Fallback: switchInlineQuery (requires bot to have inline mode)
+      if (webApp?.switchInlineQuery) {
+        console.log('[TG API] Using switchInlineQuery');
+        webApp.switchInlineQuery(shareText, ['users', 'groups', 'channels']);
+        hapticFeedback.medium();
+        return;
+      }
+      
+      // Browser/external fallback
+      console.log('[TG API] Using browser fallback');
+      window.open(fullShareUrl, '_blank');
+    } catch (error) {
+      console.error('[TG API] Share error:', error);
+      // Ultimate fallback
+      window.open(fullShareUrl, '_blank');
     }
-    hapticFeedback.medium();
   };
 
   // Download file (2025 API)
