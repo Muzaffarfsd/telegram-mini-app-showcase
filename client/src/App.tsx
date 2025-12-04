@@ -337,11 +337,13 @@ function App() {
               {/* Liquid Glass Bottom Navigation - Clean minimal design */}
               {shouldShowBottomNav && (
                 <nav 
-                  className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-white/10 px-4 py-3"
+                  className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-white/15 px-4 py-3"
                   style={{ 
                     bottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))',
-                    background: 'rgba(30, 30, 30, 0.9)',
-                    backdropFilter: 'blur(10px)',
+                    background: 'rgba(20, 20, 20, 0.85)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 20px rgba(0, 0, 0, 0.5)',
                   }}
                   role="navigation" 
                   aria-label="Главное меню"
