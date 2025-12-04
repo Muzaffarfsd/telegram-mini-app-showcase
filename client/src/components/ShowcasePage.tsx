@@ -127,7 +127,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               className="text-[17px] leading-[1.5] mb-10 max-w-[340px]"
               style={{ color: 'rgba(255,255,255,0.5)' }}
             >
-              WB, Ozon, Яндекс — комиссии 15-25%, штрафы, чужие правила. <span style={{ color: '#10B981', whiteSpace: 'nowrap' }}>Своё приложение</span> — 0% комиссий, ваши клиенты, ваши правила.
+              WB, Ozon, Яндекс — комиссии 15-25%, штрафы, чужие правила. Хватит кормить посредников — продавайте напрямую через <span style={{ color: '#10B981', whiteSpace: 'nowrap' }}>своё приложение</span>.
             </p>
 
             <div className="flex items-center gap-4">
