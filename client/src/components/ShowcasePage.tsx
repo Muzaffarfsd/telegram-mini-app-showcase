@@ -1,4 +1,4 @@
-import { ArrowRight, Zap, MessageSquare, BarChart3, Rocket } from "lucide-react";
+import { ArrowRight, Play, Check, Star } from "lucide-react";
 import { useCallback, memo, useState, useEffect } from "react";
 import { m, AnimatePresence } from 'framer-motion';
 import { useTelegram } from '../hooks/useTelegram';
@@ -6,6 +6,7 @@ import { useHaptic } from '../hooks/useHaptic';
 import { preloadDemo } from './demos/DemoRegistry';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
+import nikeAcgImage from "@assets/acc835fff3bb452f0c3b534056fbe1ea_1763719574494.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
 
 interface ShowcasePageProps {
@@ -13,35 +14,43 @@ interface ShowcasePageProps {
   onOpenDemo: (demoId: string) => void;
 }
 
-const words = [
-  "приносят выручку",
-  "общаются с клиентами", 
-  "собирают заявки",
-  "масштабируются"
+const headlines = [
+  "продают",
+  "отвечают",
+  "работают",
+  "растут"
 ];
 
-const timeline = [
-  { icon: MessageSquare, title: "Бриф", desc: "1 час", active: true },
-  { icon: Zap, title: "Спринт", desc: "24 часа", active: false },
-  { icon: Rocket, title: "Запуск", desc: "Live", active: false },
-  { icon: BarChart3, title: "Рост", desc: "∞", active: false },
-];
-
-const demos = [
-  { id: 'clothing-store', image: nikeDestinyImage, type: 'Retail', metric: '+340%' },
-  { id: 'sneaker-store', image: nikeGreenImage, type: 'Luxury', metric: '+280%' },
-  { id: 'luxury-watches', image: rascalImage, type: 'Services', metric: '+195%' },
-];
+function AnimatedCounter({ target, suffix = "", duration = 2000 }: { target: number; suffix?: string; duration?: number }) {
+  const [count, setCount] = useState(0);
+  
+  useEffect(() => {
+    let start = 0;
+    const increment = target / (duration / 16);
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(start));
+      }
+    }, 16);
+    return () => clearInterval(timer);
+  }, [target, duration]);
+  
+  return <span>{count}{suffix}</span>;
+}
 
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
-  useTelegram();
+  const { hapticFeedback } = useTelegram();
   const haptic = useHaptic();
-  const [wordIndex, setWordIndex] = useState(0);
+  const [headlineIndex, setHeadlineIndex] = useState(0);
   
   useEffect(() => {
     const interval = setInterval(() => {
-      setWordIndex((prev) => (prev + 1) % words.length);
-    }, 3000);
+      setHeadlineIndex((prev) => (prev + 1) % headlines.length);
+    }, 2500);
     return () => clearInterval(interval);
   }, []);
   
@@ -58,308 +67,486 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   return (
     <div 
       className="min-h-screen overflow-x-hidden"
-      style={{ backgroundColor: '#000000' }}
+      style={{ backgroundColor: '#0A0A0B' }}
     >
-      <div style={{ paddingTop: '140px' }} className="pb-32">
-        
-        <m.section
+      <div 
+        className="max-w-md mx-auto px-5"
+        style={{ paddingTop: '140px' }}
+      >
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-          className="px-6 mb-20"
+          transition={{ duration: 0.8 }}
+          className="min-h-[calc(100vh-120px)] flex flex-col"
         >
-          <div className="max-w-md mx-auto">
+          <div className="flex-1 flex flex-col justify-center pb-8">
             <m.div
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.7, delay: 0.2 }}
             >
-              <h1>
+              <div 
+                className="text-[11px] font-bold tracking-[0.25em] uppercase mb-8"
+                style={{ color: '#10B981' }}
+              >
+                Telegram Mini Apps
+              </div>
+
+              <h1 className="mb-6">
                 <span 
-                  className="block text-[15px] font-medium tracking-wide mb-8"
-                  style={{ color: 'rgba(255,255,255,0.35)' }}
-                >
-                  Когда другие обещают —
-                </span>
-                
-                <span 
-                  className="block text-[36px] leading-[1.1] font-semibold mb-2"
+                  className="block text-[42px] leading-[1.05] font-black"
                   style={{ 
                     color: '#FFFFFF',
-                    letterSpacing: '-0.03em'
+                    letterSpacing: '-0.04em',
+                    fontFamily: 'Inter, -apple-system, sans-serif'
                   }}
                 >
-                  ваши продукты уже
+                  Пока вы спите,
                 </span>
-                
-                <div className="h-[50px] overflow-hidden">
+                <span 
+                  className="block text-[42px] leading-[1.05] font-black"
+                  style={{ 
+                    color: '#FFFFFF',
+                    letterSpacing: '-0.04em',
+                    fontFamily: 'Inter, -apple-system, sans-serif'
+                  }}
+                >
+                  ваши боты
+                </span>
+                <div className="h-[52px] overflow-hidden">
                   <AnimatePresence mode="wait">
                     <m.span
-                      key={wordIndex}
-                      initial={{ y: 60, opacity: 0, filter: 'blur(12px)' }}
-                      animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
-                      exit={{ y: -60, opacity: 0, filter: 'blur(12px)' }}
-                      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                      className="block text-[36px] leading-[1.1] font-semibold"
+                      key={headlineIndex}
+                      initial={{ y: 50, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -50, opacity: 0 }}
+                      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                      className="block text-[42px] leading-[1.05] font-black"
                       style={{ 
                         color: '#10B981',
-                        letterSpacing: '-0.03em'
+                        letterSpacing: '-0.04em',
+                        fontFamily: 'Inter, -apple-system, sans-serif'
                       }}
                     >
-                      {words[wordIndex]}.
+                      {headlines[headlineIndex]}.
                     </m.span>
                   </AnimatePresence>
                 </div>
               </h1>
+
+              <p 
+                className="text-[16px] leading-[1.6] mb-8 max-w-[300px]"
+                style={{ color: 'rgba(255,255,255,0.55)' }}
+              >
+                Автоматизируем продажи в Telegram. Магазин, записи, оплаты — всё внутри мессенджера.
+              </p>
+
+              <div className="flex items-center gap-3">
+                <m.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => handleNavigate('projects')}
+                  className="flex items-center gap-2.5 px-6 py-3.5 rounded-full"
+                  style={{
+                    background: '#10B981',
+                    boxShadow: '0 0 40px rgba(16,185,129,0.4)'
+                  }}
+                  data-testid="cta-primary"
+                >
+                  <span 
+                    className="text-[14px] font-bold"
+                    style={{ color: '#000000' }}
+                  >
+                    Начать проект
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-black" />
+                </m.button>
+                
+                <m.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => handleOpenDemo('clothing-store')}
+                  onMouseEnter={() => preloadDemo('clothing-store')}
+                  onTouchStart={() => preloadDemo('clothing-store')}
+                  className="flex items-center gap-2 px-5 py-3.5 rounded-full"
+                  style={{
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    backgroundColor: 'rgba(255,255,255,0.03)'
+                  }}
+                  data-testid="cta-demo"
+                >
+                  <Play className="w-3.5 h-3.5 text-white fill-white" />
+                  <span 
+                    className="text-[14px] font-medium"
+                    style={{ color: 'rgba(255,255,255,0.9)' }}
+                  >
+                    Демо
+                  </span>
+                </m.button>
+              </div>
             </m.div>
           </div>
-        </m.section>
 
-        <m.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 }}
-          className="px-6 mb-16"
-        >
-          <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-between">
-              {timeline.map((step, i) => (
-                <div key={i} className="flex flex-col items-center">
-                  <div 
-                    className="w-11 h-11 rounded-full flex items-center justify-center mb-2 transition-all duration-300"
-                    style={{ 
-                      backgroundColor: i === 0 ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.03)',
-                      border: i === 0 ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(255,255,255,0.06)'
-                    }}
-                  >
-                    <step.icon 
-                      className="w-4.5 h-4.5"
-                      style={{ color: i === 0 ? '#10B981' : 'rgba(255,255,255,0.4)' }}
-                    />
-                  </div>
-                  <span 
-                    className="text-[12px] font-medium"
-                    style={{ color: i === 0 ? '#FFFFFF' : 'rgba(255,255,255,0.4)' }}
-                  >
-                    {step.title}
-                  </span>
-                  <span 
-                    className="text-[10px] font-medium"
-                    style={{ color: i === 0 ? '#10B981' : 'rgba(255,255,255,0.25)' }}
-                  >
-                    {step.desc}
-                  </span>
-                </div>
-              ))}
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="grid grid-cols-3 gap-2 mb-10"
+          >
+            <div 
+              className="text-center py-4 rounded-2xl"
+              style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
+            >
+              <div 
+                className="text-[28px] font-bold mb-0.5"
+                style={{ color: '#FFFFFF', letterSpacing: '-0.02em' }}
+              >
+                <AnimatedCounter target={127} suffix="+" />
+              </div>
+              <div 
+                className="text-[10px] font-medium uppercase tracking-wider"
+                style={{ color: 'rgba(255,255,255,0.35)' }}
+              >
+                Клиентов
+              </div>
             </div>
             <div 
-              className="h-px mt-4"
-              style={{ 
-                background: 'linear-gradient(90deg, #10B981 0%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.05) 100%)'
-              }}
-            />
-          </div>
-        </m.section>
+              className="text-center py-4 rounded-2xl"
+              style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
+            >
+              <div 
+                className="text-[28px] font-bold mb-0.5"
+                style={{ color: '#10B981', letterSpacing: '-0.02em' }}
+              >
+                <AnimatedCounter target={24} suffix="ч" />
+              </div>
+              <div 
+                className="text-[10px] font-medium uppercase tracking-wider"
+                style={{ color: 'rgba(255,255,255,0.35)' }}
+              >
+                До запуска
+              </div>
+            </div>
+            <div 
+              className="text-center py-4 rounded-2xl"
+              style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
+            >
+              <div 
+                className="text-[28px] font-bold mb-0.5"
+                style={{ color: '#FFFFFF', letterSpacing: '-0.02em' }}
+              >
+                <AnimatedCounter target={300} suffix="%" />
+              </div>
+              <div 
+                className="text-[10px] font-medium uppercase tracking-wider"
+                style={{ color: 'rgba(255,255,255,0.35)' }}
+              >
+                К продажам
+              </div>
+            </div>
+          </m.div>
+        </m.div>
 
-        <m.section
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.7 }}
-          className="mb-16"
+          transition={{ duration: 0.6, delay: 0.7 }}
+          className="pb-8"
         >
-          <div className="max-w-md mx-auto px-6 mb-5">
-            <div className="flex items-center justify-between">
-              <span 
-                className="text-[11px] font-semibold tracking-[0.15em] uppercase"
-                style={{ color: 'rgba(255,255,255,0.3)' }}
-              >
-                Результаты
-              </span>
-              <button
-                onClick={() => handleNavigate('projects')}
-                className="text-[12px] font-medium transition-colors"
-                style={{ color: 'rgba(255,255,255,0.5)' }}
-                data-testid="view-all"
-              >
-                Все проекты
-              </button>
-            </div>
+          <div 
+            className="text-[10px] font-bold tracking-[0.2em] uppercase mb-5"
+            style={{ color: 'rgba(255,255,255,0.25)' }}
+          >
+            Кейсы
           </div>
-          
-          <div className="flex gap-4 px-6 overflow-x-auto pb-2 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
-            {demos.map((demo, index) => (
-              <m.div
-                key={demo.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-                whileTap={{ scale: 0.98 }}
-                className="relative flex-shrink-0 w-[200px] rounded-2xl overflow-hidden cursor-pointer group snap-start"
-                onClick={() => handleOpenDemo(demo.id)}
-                onMouseEnter={() => preloadDemo(demo.id)}
-                onTouchStart={() => preloadDemo(demo.id)}
-                data-testid={`demo-${demo.id}`}
-              >
-                <div className="relative h-[280px]">
+
+          <div className="space-y-3">
+            <m.div
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              className="relative rounded-3xl overflow-hidden cursor-pointer group"
+              onClick={() => handleOpenDemo('clothing-store')}
+              onMouseEnter={() => preloadDemo('clothing-store')}
+              onTouchStart={() => preloadDemo('clothing-store')}
+              data-testid="demo-card-main"
+              style={{ backgroundColor: '#0A0A0A' }}
+            >
+              <div className="relative h-[220px] overflow-hidden">
+                <img
+                  src={nikeDestinyImage}
+                  alt="Fashion Store"
+                  loading="eager"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  style={{ filter: 'brightness(0.85)' }}
+                />
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%)'
+                  }}
+                />
+                
+                <div className="absolute top-4 left-4">
+                  <div 
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                    style={{ backgroundColor: 'rgba(16,185,129,0.9)' }}
+                  >
+                    <Star className="w-3 h-3 text-black fill-black" />
+                    <span className="text-[10px] font-bold text-black">ТОП</span>
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <div 
+                    className="text-[22px] font-bold mb-1"
+                    style={{ color: '#FFFFFF', letterSpacing: '-0.02em' }}
+                  >
+                    Fashion Store
+                  </div>
+                  <div 
+                    className="text-[13px] mb-3"
+                    style={{ color: 'rgba(255,255,255,0.6)' }}
+                  >
+                    Каталог • Корзина • Оплата • CRM
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {['Продажи +340%', 'LTV +85%'].map((stat) => (
+                      <div 
+                        key={stat}
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                        style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                      >
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span 
+                          className="text-[11px] font-medium"
+                          style={{ color: 'rgba(255,255,255,0.8)' }}
+                        >
+                          {stat}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </m.div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { id: 'sneaker-store', image: nikeGreenImage, title: 'Sneaker Store', tag: 'E-commerce' },
+                { id: 'luxury-watches', image: rascalImage, title: 'Luxury Watches', tag: 'Премиум' },
+              ].map((item) => (
+                <m.div
+                  key={item.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[4/5]"
+                  onClick={() => handleOpenDemo(item.id)}
+                  onMouseEnter={() => preloadDemo(item.id)}
+                  onTouchStart={() => preloadDemo(item.id)}
+                  data-testid={`demo-card-${item.id}`}
+                  style={{ backgroundColor: '#0A0A0A' }}
+                >
                   <img
-                    src={demo.image}
-                    alt={demo.type}
-                    loading={index === 0 ? "eager" : "lazy"}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    src={item.image}
+                    alt={item.title}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    style={{ filter: 'brightness(0.8)' }}
                   />
                   <div 
                     className="absolute inset-0"
-                    style={{ background: 'linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.9) 100%)' }}
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.9) 100%)'
+                    }}
                   />
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <div className="flex items-end justify-between">
-                      <div>
-                        <div 
-                          className="text-[11px] font-medium uppercase tracking-wider mb-1"
-                          style={{ color: 'rgba(255,255,255,0.5)' }}
-                        >
-                          {demo.type}
-                        </div>
-                      </div>
-                      <div 
-                        className="text-[20px] font-bold"
-                        style={{ color: '#10B981' }}
-                      >
-                        {demo.metric}
-                      </div>
+                  <div className="absolute top-3 left-3">
+                    <div 
+                      className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase"
+                      style={{ 
+                        backgroundColor: 'rgba(255,255,255,0.15)',
+                        color: 'rgba(255,255,255,0.8)'
+                      }}
+                    >
+                      {item.tag}
                     </div>
                   </div>
-                </div>
-              </m.div>
-            ))}
-          </div>
-        </m.section>
-
-        <m.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1 }}
-          className="px-6 mb-16"
-        >
-          <div className="max-w-md mx-auto">
-            <div 
-              className="text-[11px] font-semibold tracking-[0.15em] uppercase mb-5"
-              style={{ color: 'rgba(255,255,255,0.3)' }}
-            >
-              Интеграции
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div 
+                      className="text-[15px] font-bold"
+                      style={{ color: '#FFFFFF' }}
+                    >
+                      {item.title}
+                    </div>
+                  </div>
+                </m.div>
+              ))}
             </div>
-            <div className="flex flex-wrap gap-2">
-              {['Stripe', 'ЮKassa', 'OpenAI', 'Notion', 'Airtable', 'WhatsApp'].map((name) => (
-                <div
-                  key={name}
-                  className="px-4 py-2 rounded-full text-[12px] font-medium"
-                  style={{ 
-                    backgroundColor: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    color: 'rgba(255,255,255,0.6)'
-                  }}
+
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { id: 'futuristic-fashion-1', image: nikeAcgImage, title: 'Outdoor Gear' },
+                { id: 'futuristic-fashion-2', title: 'Все проекты', isLink: true },
+              ].map((item) => (
+                <m.div
+                  key={item.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-square"
+                  onClick={() => item.isLink ? handleNavigate('projects') : handleOpenDemo(item.id)}
+                  onMouseEnter={() => !item.isLink && preloadDemo(item.id)}
+                  onTouchStart={() => !item.isLink && preloadDemo(item.id)}
+                  data-testid={item.isLink ? 'view-all' : `demo-card-${item.id}`}
+                  style={{ backgroundColor: item.isLink ? '#111111' : '#0A0A0A' }}
                 >
-                  {name}
-                </div>
+                  {!item.isLink && item.image && (
+                    <>
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        style={{ filter: 'brightness(0.75)' }}
+                      />
+                      <div 
+                        className="absolute inset-0"
+                        style={{
+                          background: 'linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.85) 100%)'
+                        }}
+                      />
+                    </>
+                  )}
+                  {item.isLink ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div 
+                        className="w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110"
+                        style={{ 
+                          border: '1px solid rgba(255,255,255,0.15)',
+                          backgroundColor: 'rgba(255,255,255,0.03)'
+                        }}
+                      >
+                        <ArrowRight className="w-5 h-5 text-white" />
+                      </div>
+                      <div 
+                        className="text-[13px] font-semibold"
+                        style={{ color: 'rgba(255,255,255,0.7)' }}
+                      >
+                        {item.title}
+                      </div>
+                      <div 
+                        className="text-[11px] mt-1"
+                        style={{ color: 'rgba(255,255,255,0.35)' }}
+                      >
+                        50+ кейсов
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <div 
+                        className="text-[14px] font-semibold"
+                        style={{ color: '#FFFFFF' }}
+                      >
+                        {item.title}
+                      </div>
+                    </div>
+                  )}
+                </m.div>
               ))}
             </div>
           </div>
-        </m.section>
+        </m.div>
 
-        <m.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.1 }}
-          className="px-6 mb-16"
-        >
-          <div className="max-w-md mx-auto">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <div 
-                  className="text-[28px] font-bold mb-1"
-                  style={{ color: '#10B981', letterSpacing: '-0.02em' }}
-                >
-                  24ч
-                </div>
-                <div 
-                  className="text-[10px] font-medium uppercase tracking-wider"
-                  style={{ color: 'rgba(255,255,255,0.3)' }}
-                >
-                  Time to Value
-                </div>
-              </div>
-              <div className="text-center">
-                <div 
-                  className="text-[28px] font-bold mb-1"
-                  style={{ color: '#FFFFFF', letterSpacing: '-0.02em' }}
-                >
-                  4.9
-                </div>
-                <div 
-                  className="text-[10px] font-medium uppercase tracking-wider"
-                  style={{ color: 'rgba(255,255,255,0.3)' }}
-                >
-                  CSAT Score
-                </div>
-              </div>
-              <div className="text-center">
-                <div 
-                  className="text-[28px] font-bold mb-1"
-                  style={{ color: '#FFFFFF', letterSpacing: '-0.02em' }}
-                >
-                  99.9%
-                </div>
-                <div 
-                  className="text-[10px] font-medium uppercase tracking-wider"
-                  style={{ color: 'rgba(255,255,255,0.3)' }}
-                >
-                  Uptime
-                </div>
-              </div>
-            </div>
-          </div>
-        </m.section>
-
-        <m.section
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
-          className="px-6"
+          transition={{ duration: 0.5, delay: 0.9 }}
+          className="py-8"
         >
-          <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-center gap-6">
-              <button
-                onClick={() => handleNavigate('projects')}
-                className="flex items-center gap-2 text-[14px] font-medium transition-colors"
-                style={{ color: '#10B981' }}
-                data-testid="cta-start"
-              >
-                <span>Создать проект</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              
-              <button
-                onClick={() => handleOpenDemo('clothing-store')}
-                onMouseEnter={() => preloadDemo('clothing-store')}
-                onTouchStart={() => preloadDemo('clothing-store')}
-                className="text-[14px] font-medium transition-colors"
-                style={{ color: 'rgba(255,255,255,0.4)' }}
-                data-testid="cta-demo"
-              >
-                Смотреть процесс
-              </button>
-            </div>
-            
-            <div className="text-center mt-12">
+          <div 
+            className="text-[10px] font-bold tracking-[0.2em] uppercase mb-5"
+            style={{ color: 'rgba(255,255,255,0.25)' }}
+          >
+            Что включено
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { title: 'AI-Ассистент', desc: 'Отвечает 24/7' },
+              { title: 'Оплаты', desc: 'Stripe, ЮKassa' },
+              { title: 'CRM система', desc: 'Клиенты и заказы' },
+              { title: 'Аналитика', desc: 'Метрики в реальном времени' },
+            ].map((item, i) => (
               <div 
-                className="text-[10px] font-medium tracking-[0.2em] uppercase"
-                style={{ color: 'rgba(255,255,255,0.12)' }}
+                key={i}
+                className="p-4 rounded-xl"
+                style={{ 
+                  backgroundColor: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,255,255,0.05)'
+                }}
               >
-                WEB4TG
+                <div 
+                  className="text-[13px] font-semibold mb-0.5"
+                  style={{ color: '#FFFFFF' }}
+                >
+                  {item.title}
+                </div>
+                <div 
+                  className="text-[11px]"
+                  style={{ color: 'rgba(255,255,255,0.4)' }}
+                >
+                  {item.desc}
+                </div>
+              </div>
+            ))}
+          </div>
+        </m.div>
+
+        <m.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 1 }}
+          className="pb-32"
+        >
+          <m.div
+            whileTap={{ scale: 0.99 }}
+            className="rounded-2xl p-6 cursor-pointer"
+            onClick={() => handleNavigate('projects')}
+            data-testid="cta-bottom"
+            style={{
+              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+              boxShadow: '0 0 60px rgba(16,185,129,0.3)'
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <div 
+                  className="text-[18px] font-bold mb-0.5"
+                  style={{ color: '#000000', letterSpacing: '-0.01em' }}
+                >
+                  Готовы запустить?
+                </div>
+                <div 
+                  className="text-[13px]"
+                  style={{ color: 'rgba(0,0,0,0.6)' }}
+                >
+                  Бесплатная консультация
+                </div>
+              </div>
+              <div 
+                className="w-11 h-11 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: 'rgba(0,0,0,0.15)' }}
+              >
+                <ArrowRight className="w-5 h-5 text-black" />
               </div>
             </div>
+          </m.div>
+          
+          <div className="text-center mt-8">
+            <div 
+              className="text-[10px] font-medium tracking-[0.15em] uppercase"
+              style={{ color: 'rgba(255,255,255,0.15)' }}
+            >
+              WEB4TG STUDIO
+            </div>
           </div>
-        </m.section>
+        </m.div>
       </div>
     </div>
   );
