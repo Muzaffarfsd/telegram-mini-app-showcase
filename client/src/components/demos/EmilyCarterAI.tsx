@@ -1,4 +1,5 @@
-import { useState, useCallback, useMemo, memo } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m } from "framer-motion";
 import { 
   Heart, ShoppingBag, ChevronLeft, ChevronRight, Star, Clock, 
@@ -165,6 +166,10 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
     { icon: <User className="w-5 h-5" />, label: 'Профиль' },
     { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
   ];
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   const toggleFavorite = useCallback((id: number) => {
     setFavorites(prev => {

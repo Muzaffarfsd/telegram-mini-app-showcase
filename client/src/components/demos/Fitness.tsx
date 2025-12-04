@@ -16,6 +16,7 @@ import {
   Zap,
   Award
 } from "lucide-react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 
 interface FitnessProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -106,6 +107,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
   ]);
 
   useEffect(() => {
+    scrollToTop();
     if (activeTab !== 'catalog') {
       setSelectedWorkout(null);
     }

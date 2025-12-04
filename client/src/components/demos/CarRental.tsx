@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Car,
   Fuel,
@@ -15,6 +15,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { OptimizedImage } from "../OptimizedImage";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 
 interface CarRentalProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -107,6 +108,10 @@ export default function CarRental({ activeTab, onNavigate }: CarRentalProps) {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   const filteredVehicles = selectedCategory === 'Все' 
     ? vehicles 

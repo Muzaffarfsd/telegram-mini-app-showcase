@@ -1,4 +1,5 @@
 import { useState, useEffect, memo, useMemo, useCallback } from "react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
 import { 
   Heart, ShoppingBag, X, ChevronLeft, ChevronRight, Star, Clock, 
@@ -209,6 +210,10 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
     { icon: <User className="w-5 h-5" />, label: 'Профиль' },
     { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
   ];
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   useEffect(() => {
     const timer = setInterval(() => {

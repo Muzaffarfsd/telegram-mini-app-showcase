@@ -1,4 +1,5 @@
 import { useState, useEffect, memo } from "react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Grid, Minus, Plus, Shirt, Check } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
@@ -294,6 +295,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
   };
 
   useEffect(() => {
+    scrollToTop();
     if (activeTab !== 'catalog') {
       setSelectedProduct(null);
     }

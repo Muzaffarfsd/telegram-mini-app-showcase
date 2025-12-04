@@ -18,6 +18,7 @@ import {
   History,
   Settings
 } from "lucide-react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 
 interface BankingProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -86,6 +87,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
   const [gainPercent, setGainPercent] = useState(18.6);
 
   useEffect(() => {
+    scrollToTop();
     if (activeTab !== 'catalog') {
       setSelectedAsset(null);
     }

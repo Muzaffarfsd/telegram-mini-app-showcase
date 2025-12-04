@@ -19,6 +19,7 @@ import {
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { Skeleton } from "../ui/skeleton";
 import { useFilter } from "@/hooks/useFilter";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 
 interface RestaurantProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -121,6 +122,7 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
   });
 
   useEffect(() => {
+    scrollToTop();
     if (activeTab !== 'catalog') {
       setSelectedDish(null);
     }

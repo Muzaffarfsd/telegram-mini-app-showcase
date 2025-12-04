@@ -1,4 +1,5 @@
 import { useState, useEffect, memo } from "react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Flower2, Crown, Droplets, Home, Grid, Tag } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
@@ -217,6 +218,7 @@ function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
   ];
 
   useEffect(() => {
+    scrollToTop();
     if (activeTab !== 'catalog') {
       setSelectedPerfume(null);
     }

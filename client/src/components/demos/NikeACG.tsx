@@ -1,4 +1,5 @@
 import { useState, useEffect, memo } from "react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Search, Menu, ChevronUp, ChevronDown, Check } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
@@ -241,6 +242,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   };
 
   useEffect(() => {
+    scrollToTop();
     if (activeTab !== 'catalog') {
       setSelectedProduct(null);
     }

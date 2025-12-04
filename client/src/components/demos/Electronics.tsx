@@ -33,6 +33,7 @@ import {
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { Skeleton } from "../ui/skeleton";
 import { useFilter } from "@/hooks/useFilter";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 interface ElectronicsProps {
@@ -201,6 +202,10 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
   const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
   const sidebar = useDemoSidebar();
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   const sidebarMenuItems = [
     { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },

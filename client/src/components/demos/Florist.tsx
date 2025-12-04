@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import { 
   Flower, 
   Heart, 
@@ -67,6 +68,10 @@ export default function Florist({ activeTab }: FloristProps) {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [selectedOccasion, setSelectedOccasion] = useState('Все');
   const [favorites, setFavorites] = useState<number[]>([1, 5, 11, 18]);
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   const openFlowerModal = (flower: typeof flowers[0]) => {
     setSelectedFlower(flower);

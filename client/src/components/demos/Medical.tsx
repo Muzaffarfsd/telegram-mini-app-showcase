@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Heart,
   Calendar,
@@ -14,6 +14,7 @@ import {
   Plus
 } from 'lucide-react';
 import { OptimizedImage } from "../OptimizedImage";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 
 interface MedicalProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -90,6 +91,10 @@ export default function Medical({ activeTab, onNavigate }: MedicalProps) {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   const filteredServices = selectedCategory === 'Все' 
     ? services 

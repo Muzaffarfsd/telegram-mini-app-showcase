@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import { 
   Car, 
   Heart, 
@@ -71,6 +72,10 @@ export default function Taxi({ activeTab }: TaxiProps) {
   const [favorites, setFavorites] = useState<number[]>([1, 2, 3, 6]);
   const [currentLocation] = useState('Тверская площадь');
   const [destination, setDestination] = useState('');
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   const openDriverModal = (driver: typeof drivers[0]) => {
     setSelectedDriver(driver);

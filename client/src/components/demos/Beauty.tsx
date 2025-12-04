@@ -22,6 +22,7 @@ import {
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { Skeleton } from "../ui/skeleton";
 import { useFilter } from "@/hooks/useFilter";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 
 interface BeautyProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -126,6 +127,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
   });
 
   useEffect(() => {
+    scrollToTop();
     if (activeTab !== 'catalog') {
       setSelectedService(null);
     }

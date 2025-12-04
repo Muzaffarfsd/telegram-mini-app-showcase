@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Car, 
   Heart,
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 
 interface CarWashProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -68,6 +69,10 @@ export default function CarWash({ activeTab }: CarWashProps) {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [favorites, setFavorites] = useState<number[]>([3, 7, 17, 20]);
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   const openServiceModal = (service: typeof services[0]) => {
     setSelectedService(service);

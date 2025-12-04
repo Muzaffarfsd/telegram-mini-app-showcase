@@ -5,6 +5,7 @@ import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { Skeleton } from "../ui/skeleton";
 import { useFilter } from "@/hooks/useFilter";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
@@ -232,6 +233,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
   });
 
   useEffect(() => {
+    scrollToTop();
     if (activeTab !== 'catalog') {
       setSelectedProduct(null);
     }

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import { 
   BookOpen, 
   Heart, 
@@ -65,6 +66,10 @@ export default function Bookstore({ activeTab }: BookstoreProps) {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [favorites, setFavorites] = useState<number[]>([3, 6, 14, 15]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   const openBookModal = (book: typeof books[0]) => {
     setSelectedBook(book);

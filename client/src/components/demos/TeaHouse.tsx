@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import { 
   Star, 
   Heart, 
@@ -26,6 +27,10 @@ export default function TeaHouse({ activeTab = 'home', onNavigate }: TeaHousePro
   const [selectedCategory, setSelectedCategory] = useState('Все сорта');
   const [favorites, setFavorites] = useState<string[]>([]);
   const [cartItems, setCartItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
   
   // 20 premium teas
   const teas = [

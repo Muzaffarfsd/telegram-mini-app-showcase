@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   BookOpen, 
   Heart, 
@@ -18,6 +18,7 @@ import {
 import { createProductImageErrorHandler } from "@/utils/imageUtils";
 import { OptimizedImage } from "../OptimizedImage";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 
 interface CoursesProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -70,6 +71,10 @@ export default function Courses({ activeTab }: CoursesProps) {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [selectedLevel, setSelectedLevel] = useState('Все');
   const [favorites, setFavorites] = useState<number[]>([1, 2, 4, 15]);
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   const openCourseModal = (course: typeof courses[0]) => {
     setSelectedCourse(course);

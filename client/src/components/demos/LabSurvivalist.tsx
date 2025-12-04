@@ -1,4 +1,5 @@
 import { useState, useEffect, memo } from "react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Shield, Target, Check, Home, Grid, Tag } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
@@ -276,6 +277,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
   };
 
   useEffect(() => {
+    scrollToTop();
     if (activeTab !== 'catalog') {
       setSelectedProduct(null);
     }

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 import { 
   Heart, 
   Star, 
@@ -89,6 +90,10 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
     images: products.slice(0, 6).map(p => p.image),
     priority: true
   });
+
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
 
   const openProductModal = (product: typeof products[0]) => {
     setSelectedProduct(product);
