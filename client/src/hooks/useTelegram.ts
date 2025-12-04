@@ -475,39 +475,82 @@ export function useTelegram() {
     isAvailable: !!webApp?.SecondaryButton,
   };
 
-  // Share message (2025 API)
-  const shareApp = (text?: string) => {
-    const botUsername = 'web4tg_bot'; // Bot username
-    const shareUrl = `https://t.me/${botUsername}/app`;
-    const shareText = text || 'Посмотри крутые Mini Apps для бизнеса!';
-    const fullShareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+  // Share message (2025 API) - Native Telegram deep link sharing
+  // referralCode: user's referral code to include in the deep link (e.g., "W4T123")
+  // text: optional custom message text
+  // Returns: { success: boolean, method: string } for toast notifications
+  const shareApp = (text?: string, referralCode?: string): { success: boolean; method: string } => {
+    // Build the deep link URL with referral code
+    // Format: https://t.me/w4tg_bot/w4tg?startapp=REFCODE
+    const baseUrl = 'https://t.me/w4tg_bot/w4tg';
+    const deepLink = referralCode ? `${baseUrl}?startapp=${referralCode}` : baseUrl;
     
-    console.log('[TG API] Attempting to share:', { shareText, shareUrl, webAppAvailable: !!webApp });
+    const shareText = text || 'Создай своё Telegram приложение для бизнеса!';
+    const fullMessage = referralCode 
+      ? `${shareText}\n\nМой реферальный код: ${referralCode}\n${deepLink}`
+      : `${shareText}\n${deepLink}`;
+    
+    // For t.me/share/url we need to encode the full message
+    const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=${encodeURIComponent(shareText + (referralCode ? `\n\nМой реферальный код: ${referralCode}` : ''))}`;
+    
+    console.log('[TG API] Sharing:', { deepLink, referralCode, webAppAvailable: !!webApp });
     
     try {
-      // Primary method: openTelegramLink for share dialog
+      // Primary method: openTelegramLink - opens Telegram share dialog
       if (webApp?.openTelegramLink) {
-        console.log('[TG API] Using openTelegramLink');
-        webApp.openTelegramLink(fullShareUrl);
+        console.log('[TG API] Using openTelegramLink with:', telegramShareUrl);
+        webApp.openTelegramLink(telegramShareUrl);
         hapticFeedback.medium();
-        return;
+        return { success: true, method: 'telegram' };
       }
       
-      // Fallback: switchInlineQuery (requires bot to have inline mode)
-      if (webApp?.switchInlineQuery) {
-        console.log('[TG API] Using switchInlineQuery');
-        webApp.switchInlineQuery(shareText, ['users', 'groups', 'channels']);
-        hapticFeedback.medium();
-        return;
-      }
-      
-      // Browser/external fallback
-      console.log('[TG API] Using browser fallback');
-      window.open(fullShareUrl, '_blank');
+      // Fallback: Direct navigation to Telegram share URL
+      console.log('[TG API] Using window.location for Telegram share');
+      window.location.href = telegramShareUrl;
+      hapticFeedback.medium();
+      return { success: true, method: 'redirect' };
     } catch (error) {
       console.error('[TG API] Share error:', error);
-      // Ultimate fallback
-      window.open(fullShareUrl, '_blank');
+      
+      // Ultimate fallback: open in new tab
+      try {
+        window.open(telegramShareUrl, '_blank');
+        return { success: true, method: 'browser' };
+      } catch (fallbackError) {
+        console.error('[TG API] All share methods failed:', fallbackError);
+        return { success: false, method: 'failed' };
+      }
+    }
+  };
+
+  // Invite friend with direct Telegram deep link (native method)
+  // Opens Telegram directly with the app link including referral code
+  const inviteFriend = (referralCode: string): { success: boolean; method: string } => {
+    const deepLink = `https://t.me/w4tg_bot/w4tg?startapp=${referralCode}`;
+    const shareText = `Присоединяйся к WEB4TG! Используй мой реферальный код: ${referralCode}`;
+    const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=${encodeURIComponent(shareText)}`;
+    
+    console.log('[TG API] Inviting friend:', { deepLink, referralCode });
+    
+    try {
+      if (webApp?.openTelegramLink) {
+        console.log('[TG API] Using openTelegramLink for invite');
+        webApp.openTelegramLink(telegramShareUrl);
+        hapticFeedback.medium();
+        return { success: true, method: 'telegram' };
+      }
+      
+      window.location.href = telegramShareUrl;
+      hapticFeedback.medium();
+      return { success: true, method: 'redirect' };
+    } catch (error) {
+      console.error('[TG API] Invite error:', error);
+      try {
+        window.open(telegramShareUrl, '_blank');
+        return { success: true, method: 'browser' };
+      } catch {
+        return { success: false, method: 'failed' };
+      }
     }
   };
 
@@ -578,6 +621,7 @@ export function useTelegram() {
     
     // Share & Download
     shareApp,
+    inviteFriend,
     downloadFile,
     openLink,
     openTelegramLink,

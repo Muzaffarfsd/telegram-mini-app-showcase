@@ -99,7 +99,7 @@ const StatsCard = memo(({ icon: Icon, value, label, subtext, iconBg, textColor }
 StatsCard.displayName = 'StatsCard';
 
 export function ReferralProgram({ className = '' }: ReferralProgramProps) {
-  const { user, initData, shareApp } = useTelegram();
+  const { user, initData, shareApp, inviteFriend } = useTelegram();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [showReferralInput, setShowReferralInput] = useState(false);
@@ -185,20 +185,52 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
 
   // Memoized handlers
   const copyReferralCode = useCallback(() => {
+    if (!stats.referralCode) {
+      toast({
+        title: "Ошибка",
+        description: "Реферальный код не найден",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     navigator.clipboard.writeText(stats.referralCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }, [stats.referralCode]);
+    
+    toast({
+      title: "Код скопирован",
+      description: `Ваш реферальный код: ${stats.referralCode}`,
+    });
+  }, [stats.referralCode, toast]);
 
   const shareReferralLink = useCallback(() => {
     console.log('[Referral] Share link clicked:', stats.referralCode);
-    const shareText = `Присоединяйся к WEB4TG и получи бонусы! Мой код: ${stats.referralCode}`;
-    shareApp(shareText);
-    toast({
-      title: "Поделиться",
-      description: "Открываю окно для отправки...",
-    });
-  }, [stats.referralCode, shareApp, toast]);
+    
+    if (!stats.referralCode) {
+      toast({
+        title: "Ошибка",
+        description: "Реферальный код не найден. Попробуйте обновить страницу.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const result = inviteFriend(stats.referralCode);
+    
+    if (result.success) {
+      toast({
+        title: "Приглашение отправлено",
+        description: `Ваш код ${stats.referralCode} добавлен в ссылку https://t.me/w4tg_bot/w4tg`,
+      });
+    } else {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось открыть Telegram. Скопируйте код вручную.",
+        variant: "destructive",
+      });
+    }
+  }, [stats.referralCode, inviteFriend, toast]);
 
   // Memoized tier color
   const tierColor = useMemo(() => {

@@ -297,7 +297,7 @@ const generateReferralCode = (userId: number | null): string => {
 
 // Profile Page Component
 function ProfilePage({ onNavigate }: ProfilePageProps) {
-  const { user, isAvailable, homeScreen, shareApp, hapticFeedback } = useTelegram();
+  const { user, isAvailable, homeScreen, shareApp, inviteFriend, hapticFeedback } = useTelegram();
   const { toast } = useToast();
   const [userProjects, setUserProjects] = useState<any[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
@@ -329,28 +329,45 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
     });
   }, [myReferralCode, hapticFeedback, toast]);
 
-  // Share app with referral link
+  // Invite friend with referral code - uses native Telegram deep link
   const handleInviteFriend = useCallback(() => {
     console.log('[Profile] Invite friend clicked, code:', myReferralCode);
-    hapticFeedback?.medium();
-    const shareText = `Создай своё Telegram приложение для бизнеса! Мой код: ${myReferralCode}`;
-    shareApp(shareText);
-    toast({
-      title: "Приглашение",
-      description: "Открываю окно для отправки приглашения...",
-    });
-  }, [myReferralCode, shareApp, hapticFeedback, toast]);
+    
+    const result = inviteFriend(myReferralCode);
+    
+    if (result.success) {
+      toast({
+        title: "Приглашение отправлено",
+        description: `Ваш реферальный код ${myReferralCode} добавлен в ссылку`,
+      });
+    } else {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось открыть Telegram. Попробуйте скопировать код вручную.",
+        variant: "destructive",
+      });
+    }
+  }, [myReferralCode, inviteFriend, toast]);
 
-  // Share app
+  // Share app without referral code
   const handleShareApp = useCallback(() => {
     console.log('[Profile] Share app clicked');
-    hapticFeedback?.medium();
-    shareApp('Посмотри крутые Mini Apps для бизнеса!');
-    toast({
-      title: "Поделиться",
-      description: "Открываю окно для отправки...",
-    });
-  }, [shareApp, hapticFeedback, toast]);
+    
+    const result = shareApp('Посмотри WEB4TG - платформа для создания Telegram приложений!');
+    
+    if (result.success) {
+      toast({
+        title: "Отправлено",
+        description: "Открываю Telegram для отправки...",
+      });
+    } else {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось открыть Telegram",
+        variant: "destructive",
+      });
+    }
+  }, [shareApp, toast]);
 
   // Apply friend's referral code
   const handleApplyReferralCode = useCallback(async () => {
