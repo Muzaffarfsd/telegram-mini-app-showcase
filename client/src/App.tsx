@@ -3,7 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { useTelegram } from "./hooks/useTelegram";
-import { Home, ShoppingCart, Briefcase, Bot, Sparkles, MessageCircle, Share2, Users } from "lucide-react";
+import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
@@ -33,7 +33,6 @@ const PremiumTasksEarningPage = lazy(() => import("./components/PremiumTasksEarn
 
 // Global components
 import GlobalSidebar from "./components/GlobalSidebar";
-import UnifiedBottomBar from "./components/UnifiedBottomBar";
 
 // Simple hash router types
 interface Route {
@@ -330,14 +329,104 @@ function App() {
                   {renderRoute()}
                 </div>
             
-                {/* Unified Liquid Glass Bottom Bar - Navigation + Actions */}
+                {/* Original Bottom Navigation */}
                 {shouldShowBottomNav && (
-                  <UnifiedBottomBar 
-                    currentRoute={route.component}
-                    user={user}
-                    onNavigate={handleNavigate}
-                    hapticFeedback={hapticFeedback}
-                  />
+                  <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-4">
+                    <div className="relative">
+                      {/* Ambient glow */}
+                      <div 
+                        className="absolute -inset-3 rounded-[28px] opacity-30"
+                        style={{
+                          background: 'radial-gradient(ellipse 80% 100% at 50% 100%, rgba(139, 92, 246, 0.4) 0%, transparent 70%)',
+                          filter: 'blur(16px)',
+                        }}
+                      />
+                      
+                      {/* Glass container */}
+                      <div 
+                        className="relative flex items-center gap-1 px-2 py-2 rounded-full"
+                        style={{
+                          background: 'rgba(24, 24, 27, 0.85)',
+                          backdropFilter: 'blur(20px)',
+                          WebkitBackdropFilter: 'blur(20px)',
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                        }}
+                      >
+                        {[
+                          { id: 'showcase', icon: Home, path: '/', label: 'Главная' },
+                          { id: 'aiProcess', icon: Bot, path: '/ai-process', label: 'AI' },
+                          { id: 'projects', icon: Briefcase, path: '/projects', label: 'Витрина' },
+                          { id: 'constructor', icon: ShoppingCart, path: '/constructor', label: 'Заказ' },
+                        ].map((item) => {
+                          const isActive = route.component === item.id || 
+                            (item.id === 'showcase' && route.component === 'showcase') ||
+                            (item.id === 'aiProcess' && ['aiAgent', 'aiProcess'].includes(route.component));
+                          
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                hapticFeedback.light();
+                                navigate(item.path);
+                              }}
+                              className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300"
+                              style={{
+                                background: isActive ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+                              }}
+                              data-testid={`nav-${item.id}`}
+                            >
+                              <item.icon 
+                                className="w-5 h-5 transition-colors duration-300"
+                                style={{
+                                  color: isActive ? '#A78BFA' : 'rgba(255, 255, 255, 0.5)',
+                                }}
+                                strokeWidth={isActive ? 2.5 : 2}
+                              />
+                              {isActive && (
+                                <div 
+                                  className="absolute -bottom-1 w-1 h-1 rounded-full"
+                                  style={{ background: '#A78BFA' }}
+                                />
+                              )}
+                            </button>
+                          );
+                        })}
+                        
+                        {/* Profile avatar */}
+                        <button
+                          onClick={() => {
+                            hapticFeedback.light();
+                            navigate('/profile');
+                          }}
+                          className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300"
+                          style={{
+                            background: ['profile', 'referral', 'rewards', 'earning'].includes(route.component) 
+                              ? 'rgba(139, 92, 246, 0.2)' 
+                              : 'transparent',
+                          }}
+                          data-testid="nav-profile"
+                        >
+                          <UserAvatar 
+                            user={user} 
+                            size="sm"
+                            className="ring-2 transition-all duration-300"
+                            style={{
+                              ringColor: ['profile', 'referral', 'rewards', 'earning'].includes(route.component)
+                                ? 'rgba(167, 139, 250, 0.6)'
+                                : 'rgba(255, 255, 255, 0.1)',
+                            }}
+                          />
+                          {['profile', 'referral', 'rewards', 'earning'].includes(route.component) && (
+                            <div 
+                              className="absolute -bottom-1 w-1 h-1 rounded-full"
+                              style={{ background: '#A78BFA' }}
+                            />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 )}
           
           <Toaster />
