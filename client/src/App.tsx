@@ -337,17 +337,20 @@ function App() {
                 {shouldShowBottomNav && (
                   <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
                     <div className="relative">
-                      {/* Animated Background Glow */}
+                      {/* Animated Background Glow - GPU optimized */}
                       <div 
-                        className="absolute -inset-2 rounded-full opacity-20"
+                        className="absolute -inset-2 rounded-full opacity-20 pointer-events-none"
                         style={{
                           background: 'radial-gradient(circle, rgba(16, 185, 129, 0.6) 0%, rgba(16, 185, 129, 0.2) 50%, transparent 70%)',
                           filter: 'blur(20px)',
                           animation: 'pulse 3s ease-in-out infinite',
+                          transform: 'translateZ(0)',
+                          willChange: 'opacity',
+                          contain: 'strict',
                         }}
                       />
                       
-                      {/* Liquid Glass Container */}
+                      {/* Liquid Glass Container - GPU optimized */}
                       <div 
                         className="relative backdrop-blur-xl rounded-full border border-white/30 px-4 py-3 shadow-2xl"
                         style={{
@@ -358,6 +361,9 @@ function App() {
                             inset 0 -1px 0 rgba(0, 0, 0, 0.2),
                             0 0 60px rgba(16, 185, 129, 0.2)
                           `,
+                          transform: 'translateZ(0)',
+                          backfaceVisibility: 'hidden',
+                          contain: 'layout paint',
                         }}
                       >
                         {/* Inner Highlight */}

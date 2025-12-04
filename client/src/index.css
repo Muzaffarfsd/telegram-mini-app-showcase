@@ -57,42 +57,70 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   
-  /* === PREMIUM SMOOTH SCROLLING (iOS-like feel) === */
+  /* === PREMIUM SMOOTH SCROLLING (iOS/Android native feel) === */
   
-  /* iOS momentum scrolling - CRITICAL for smooth native feel */
+  /* iOS momentum scrolling - CRITICAL for buttery smooth native feel */
   -webkit-overflow-scrolling: touch;
   
-  /* GPU acceleration for buttery smooth scroll */
+  /* GPU compositing layer - prevents CPU rendering during scroll */
   will-change: scroll-position;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
   
-  /* Contain scroll within app - prevents bounce going outside */
+  /* Contain scroll within app - prevents overscroll bounce */
   overscroll-behavior-y: contain;
   overscroll-behavior-x: none;
   
-  /* Instant touch response (no 300ms delay) */
+  /* Instant touch response (removes 300ms tap delay) */
   touch-action: pan-y pinch-zoom;
   
-  /* Smooth scroll for programmatic scrolling */
+  /* Smooth scroll for programmatic scrolling (links, buttons) */
   scroll-behavior: smooth;
   
-  /* Backface visibility for GPU layer */
+  /* Backface visibility optimization for GPU layer */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Perspective for 3D GPU acceleration */
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+  
+  /* Contain layout calculations within scroll container */
+  contain: layout style;
+}
+
+/* Global touch optimizations */
+* {
+  /* Remove tap highlight for cleaner touch experience */
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Disable text selection during scroll gestures */
+  -webkit-touch-callout: none;
+}
+
+/* Allow text selection only where needed */
+p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* GPU-accelerated scrolling for any scrollable container */
+[data-scroll], .scroll-container {
+  -webkit-overflow-scrolling: touch;
+  will-change: scroll-position;
+  transform: translate3d(0, 0, 0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 
-/* Optimize scroll performance on all scrollable elements */
-* {
-  /* Prevent layout thrashing during scroll */
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* GPU-accelerated scrolling for any scrollable container */
-[data-scroll], .scroll-container, [style*="overflow"] {
-  -webkit-overflow-scrolling: touch;
-  will-change: scroll-position;
+/* Optimize content during scroll - reduces paint operations */
+[data-scroll="main"] > * {
+  /* Each child gets its own GPU layer */
   transform: translateZ(0);
+  
+  /* Contain paint within each element */
+  contain: content;
 }
 
 /* === GLOBAL AUTO-RESPONSIVE SYSTEM (2025) === */
