@@ -75,7 +75,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
 
   // PREMIUM HOME PAGE
   const renderHomeTab = () => (
-    <div className="min-h-screen bg-black font-montserrat pb-24 overflow-hidden smooth-scroll-page" data-scroll="demo-time-elite-premium">
+    <div className="min-h-screen bg-black font-montserrat pb-24 overflow-hidden">
       {/* Premium Gradient Background */}
       <div className="fixed inset-0 bg-gradient-to-br from-amber-900/20 via-black to-yellow-900/20 pointer-events-none"></div>
       
@@ -206,7 +206,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
 
   // PREMIUM CATALOG
   const renderCatalogTab = () => (
-    <div className="min-h-screen bg-black font-montserrat pb-24 smooth-scroll-page" data-scroll="demo-time-elite-premium">
+    <div className="min-h-screen bg-black font-montserrat pb-24">
       <div className="fixed inset-0 bg-gradient-to-br from-amber-900/20 via-black to-yellow-900/20 pointer-events-none"></div>
       
       {/* Sticky Pills */}
@@ -387,7 +387,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
 
   // Cart & Profile (simplified for demo)
   const renderCartTab = () => (
-    <div className="min-h-screen bg-black font-montserrat pb-24 smooth-scroll-page" data-scroll="demo-time-elite-premium">
+    <div className="min-h-screen bg-black font-montserrat pb-24">
       <div className="max-w-md mx-auto px-6 py-8">
         <h1 className="text-3xl font-bold text-white mb-6">Your Collection</h1>
         {cartItems.length === 0 ? (
@@ -410,7 +410,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
   );
 
   const renderProfileTab = () => (
-    <div className="min-h-screen bg-black font-montserrat pb-24 smooth-scroll-page" data-scroll="demo-time-elite-premium">
+    <div className="min-h-screen bg-black font-montserrat pb-24">
       <div className="max-w-md mx-auto px-6 py-8">
         <h1 className="text-3xl font-bold text-white mb-6">Profile</h1>
         <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 text-center">

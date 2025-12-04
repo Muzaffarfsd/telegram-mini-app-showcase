@@ -106,7 +106,7 @@ export default function Courses({ activeTab }: CoursesProps) {
 
 
   const renderHomeTab = () => (
-    <div className="min-h-screen bg-purple-50 font-montserrat smooth-scroll-page" data-scroll="demo-courses">
+    <div className="min-h-screen bg-purple-50 font-montserrat">
       <div className="max-w-md mx-auto">
         
         {/* Learning Header */}

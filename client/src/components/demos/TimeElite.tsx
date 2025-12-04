@@ -152,7 +152,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
     : (searchQuery ? filteredItems : products).filter(p => p.category === selectedCategory);
 
   const renderHomeTab = () => (
-    <div className="min-h-screen bg-white font-montserrat pb-24 smooth-scroll-page" data-scroll="demo-time-elite">
+    <div className="min-h-screen bg-white font-montserrat pb-24">
       <div className="max-w-md mx-auto px-4 py-8 space-y-8">
         <div className="text-center space-y-4 scroll-fade-in">
           <div className="w-20 h-20 bg-gradient-to-br from-yellow-600 to-amber-700 rounded-3xl mx-auto flex items-center justify-center shadow-lg">
@@ -308,7 +308,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
   );
 
   const renderCatalogTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat pb-24 smooth-scroll-page" data-scroll="demo-time-elite">
+    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
       <div className="sticky top-0 z-20 bg-white border-b border-gray-200 py-5 px-4">
         <div className="max-w-md mx-auto space-y-4">
           <div className="flex items-center gap-3">
@@ -402,7 +402,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
   );
 
   const renderCartTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat pb-24 smooth-scroll-page" data-scroll="demo-time-elite">
+    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="text-2xl font-bold text-gray-900 scroll-fade-in">Корзина</h1>
         
@@ -473,7 +473,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
   );
 
   const renderProfileTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat pb-24 smooth-scroll-page" data-scroll="demo-time-elite">
+    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <div className="bg-white rounded-2xl p-6 scroll-fade-in">
           <div className="flex items-center gap-4 mb-6">

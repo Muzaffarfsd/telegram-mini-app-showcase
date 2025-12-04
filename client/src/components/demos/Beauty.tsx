@@ -200,7 +200,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
   // SERVICE DETAIL PAGE
   if (activeTab === 'catalog' && selectedService) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24 smooth-scroll-page" data-scroll="demo-beauty">
+      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24">
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedService(null)}
@@ -295,7 +295,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
   // HOME PAGE - Liquid Glass 2025
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24 smooth-scroll-page" data-scroll="demo-beauty">
+      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24">
         <div className="p-6 space-y-6">
           
           {/* Collections Grid - Liquid Glass Cards */}
@@ -435,7 +435,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24 smooth-scroll-page" data-scroll="demo-beauty">
+      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24">
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-xl font-bold">Услуги</h1>
@@ -555,7 +555,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
     const total = bookings.reduce((sum, booking) => sum + booking.price, 0);
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-32 smooth-scroll-page" data-scroll="demo-beauty">
+      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-32">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Мои записи</h1>
 
@@ -634,7 +634,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
   // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24 smooth-scroll-page" data-scroll="demo-beauty">
+      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24">
         <div className="p-6">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-2xl font-bold">Профиль</h1>

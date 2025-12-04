@@ -7,8 +7,8 @@ interface AboutPageProps {
 export default function AboutPage({ onNavigate }: AboutPageProps) {
   return (
     <div 
-      className="min-h-screen pb-32 smooth-scroll-page"
-      data-scroll="about"
+      className="min-h-screen pb-32"
+     
       style={{ 
         background: '#09090B',
         color: '#E4E4E7',

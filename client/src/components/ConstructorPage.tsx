@@ -292,7 +292,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
   }, [selectedFeatures, selectedTemplate]);
 
   return (
-    <div className="min-h-screen bg-black text-white pb-32 smooth-scroll-page" data-scroll="constructor" style={{ paddingTop: '140px' }}>
+    <div className="min-h-screen bg-black text-white pb-32" style={{ paddingTop: '140px' }}>
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
         {/* Payment Model Section */}

@@ -307,7 +307,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
     const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#1A1A1A';
     
     return (
-      <div className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page" data-scroll="demo-premium-fashion" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white overflow-auto pb-24" style={{ backgroundColor: bgColor }}>
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
@@ -415,7 +415,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
   // HOME PAGE - REAL TIME SHOPPING STYLE
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page" data-scroll="demo-premium-fashion">
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         {/* Header */}
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
@@ -624,7 +624,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page" data-scroll="demo-premium-fashion">
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
@@ -724,7 +724,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32 smooth-scroll-page" data-scroll="demo-premium-fashion">
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
@@ -802,7 +802,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
   // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page" data-scroll="demo-premium-fashion">
+      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
         <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-[#CDFF38] to-[#B8E633] rounded-full flex items-center justify-center">

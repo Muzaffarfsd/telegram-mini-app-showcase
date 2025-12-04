@@ -215,8 +215,8 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
   if (activeTab === 'catalog' && selectedProduct) {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
-        data-scroll="demo-emily-carter-ai"
+        className="min-h-screen text-white overflow-auto pb-24"
+       
         style={{ background: COLORS.primaryGradient }}
       >
         <div className="relative">
@@ -420,8 +420,8 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
 
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
-        data-scroll="demo-emily-carter-ai"
+        className="min-h-screen text-white overflow-auto pb-24"
+       
         style={{ background: COLORS.primaryGradient }}
       >
         <div className="demo-nav-safe px-5">
@@ -841,8 +841,8 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
   if (activeTab === 'catalog') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
-        data-scroll="demo-emily-carter-ai"
+        className="min-h-screen text-white overflow-auto pb-24"
+       
         style={{ background: COLORS.primaryGradient }}
       >
         <div className="demo-nav-safe px-5">
@@ -972,8 +972,8 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
   if (activeTab === 'cart') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
-        data-scroll="demo-emily-carter-ai"
+        className="min-h-screen text-white overflow-auto pb-24"
+       
         style={{ background: COLORS.primaryGradient }}
       >
         <div className="demo-nav-safe px-5">
@@ -1141,8 +1141,8 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
   if (activeTab === 'profile') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
-        data-scroll="demo-emily-carter-ai"
+        className="min-h-screen text-white overflow-auto pb-24"
+       
         style={{ background: COLORS.primaryGradient }}
       >
         <div className="demo-nav-safe px-5">

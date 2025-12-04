@@ -432,7 +432,7 @@ export default function Bookstore({ activeTab }: BookstoreProps) {
   );
 
   return (
-    <div className="h-full flex flex-col bg-system-background smooth-scroll-page" data-scroll="demo-bookstore">
+    <div className="h-full flex flex-col bg-system-background">
       <div className="flex-1 overflow-y-auto p-4">
         {activeTab === 'home' && renderHomeTab()}
         {activeTab === 'catalog' && renderCatalogTab()}

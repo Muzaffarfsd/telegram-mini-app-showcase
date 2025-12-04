@@ -102,7 +102,7 @@ export default function Taxi({ activeTab }: TaxiProps) {
 
 
   const renderHomeTab = () => (
-    <div className="min-h-screen bg-yellow-50 font-montserrat smooth-scroll-page" data-scroll="demo-taxi">
+    <div className="min-h-screen bg-yellow-50 font-montserrat">
       <div className="max-w-md mx-auto">
         
         {/* Modern Taxi Header */}

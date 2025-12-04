@@ -135,7 +135,7 @@ export default function Medical({ activeTab, onNavigate }: MedicalProps) {
   const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const renderHomeTab = () => (
-    <div className="min-h-screen bg-blue-50 font-montserrat smooth-scroll-page" data-scroll="demo-medical">
+    <div className="min-h-screen bg-blue-50 font-montserrat">
       <div className="max-w-md mx-auto">
         
         {/* Medical Header */}
