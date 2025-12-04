@@ -228,8 +228,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   // Edge swipe to open handlers
   const handleEdgeTouchStart = useCallback((e: TouchEvent) => {
     const touch = e.touches[0];
-    // Activate if touch starts within 50px of left edge (wider zone for comfort)
-    if (touch.clientX <= 50 && !sidebarOpen) {
+    // Activate if touch starts within 80px of left edge (larger zone for easier access)
+    if (touch.clientX <= 80 && !sidebarOpen) {
       isSwipingToOpen.current = true;
       edgeSwipeStartX.current = touch.clientX;
       edgeSwipeStartY.current = touch.clientY;
@@ -1114,7 +1114,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       </div>
 
       <div className="top-bar">
-        <div className="max-w-md mx-auto px-5 pt-12 pb-4 flex items-center justify-between gap-4">
+        <div className="max-w-md mx-auto px-5 pt-16 pb-4 flex items-center justify-between gap-4">
           <AnimatedHamburgerIcon 
             ref={triggerButtonRef}
             isOpen={sidebarOpen} 
