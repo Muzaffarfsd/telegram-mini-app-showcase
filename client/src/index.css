@@ -3793,9 +3793,16 @@ html.slow-network video {
    TELEGRAM MINI APP - MOBILE OPTIMIZATIONS
    ======================================== */
 
-/* Telegram Navigation Glass Effect - Optimized for WebView */
+/* Telegram Navigation Glass Effect - CRITICAL: Fixed positioning */
 .tg-nav-glass {
-  /* Force explicit dimensions - prevents WebView scaling issues */
+  /* CRITICAL: Force fixed positioning */
+  position: fixed !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateZ(0) !important;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 9999 !important;
+  
+  /* Force explicit dimensions */
   min-width: 300px !important;
   min-height: 64px !important;
   
@@ -3804,19 +3811,17 @@ html.slow-network video {
   visibility: visible !important;
   
   /* GPU acceleration */
-  transform: translateX(-50%) translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  will-change: transform;
   
   /* Prevent text selection */
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
-  
-  /* Glass shine overlay */
-  position: relative;
 }
 
+/* Glass shine overlay */
 .tg-nav-glass::before {
   content: '';
   position: absolute;
@@ -3824,9 +3829,10 @@ html.slow-network video {
   left: 0;
   right: 0;
   height: 50%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
   border-radius: inherit;
   pointer-events: none;
+  z-index: 1;
 }
 
 /* Fallback for devices without backdrop-filter support */
@@ -3835,26 +3841,6 @@ html.slow-network video {
     background: rgba(30, 30, 35, 0.98) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
   }
-}
-
-/* Fixed navigation for Telegram WebView - Explicit sizing to prevent shrinking */
-nav[role="navigation"] {
-  /* Force minimum dimensions */
-  min-width: 280px !important;
-  min-height: 56px !important;
-  
-  /* Ensure visibility */
-  opacity: 1 !important;
-  visibility: visible !important;
-  
-  /* GPU acceleration for fixed positioning */
-  transform: translateX(-50%) translateZ(0) !important;
-  backface-visibility: hidden;
-  
-  /* Prevent text selection */
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
 }
 
 /* Touch device optimizations - reduces jank during scroll */
