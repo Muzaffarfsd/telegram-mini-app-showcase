@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ensureTelegramPolyfill } from '../lib/telegram';
 
 // Telegram WebApp SDK types (complete as per official documentation + 2025 features)
@@ -386,9 +386,9 @@ export function useTelegram() {
     status: homeScreenStatus,
   };
 
-  // Track current handlers for cleanup
-  const mainButtonHandlerRef = { current: null as (() => void) | null };
-  const secondaryButtonHandlerRef = { current: null as (() => void) | null };
+  // Track current handlers for cleanup - use refs to persist across renders
+  const mainButtonHandlerRef = useRef<(() => void) | null>(null);
+  const secondaryButtonHandlerRef = useRef<(() => void) | null>(null);
 
   // MainButton methods
   const mainButton = {
