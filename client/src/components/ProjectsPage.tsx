@@ -52,12 +52,14 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               color: '#FAFAFA'
             }}
           >
-            Ваш следующий клиент
+            Пока вы спите —
             <br />
-            напишет через 4 минуты.
+            <span style={{ color: '#34D399' }}>
+              ваш бот закрывает сделки.
+            </span>
             <br />
-            <span style={{ color: '#FFFFFF' }}>
-              Кто ему ответит?
+            <span style={{ color: '#71717A', fontSize: '22px' }}>
+              Продажи 24/7 без менеджеров.
             </span>
           </h1>
           
