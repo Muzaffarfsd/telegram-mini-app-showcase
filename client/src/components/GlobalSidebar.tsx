@@ -50,6 +50,13 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   const touchStartX = useRef<number>(0);
   const touchCurrentX = useRef<number>(0);
   const [swipeOffset, setSwipeOffset] = useState(0);
+  
+  // Swipe to open state
+  const [swipeOpenOffset, setSwipeOpenOffset] = useState(0);
+  const isSwipingToOpen = useRef(false);
+  const edgeSwipeStartX = useRef<number>(0);
+  const edgeSwipeStartY = useRef<number>(0);
+  const swipeDirection = useRef<'horizontal' | 'vertical' | null>(null);
 
   const menuItems = [
     { 
@@ -217,6 +224,71 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     touchStartX.current = 0;
     touchCurrentX.current = 0;
   }, [closeSidebar]);
+
+  // Edge swipe to open handlers
+  const handleEdgeTouchStart = useCallback((e: TouchEvent) => {
+    const touch = e.touches[0];
+    // Only activate if touch starts within 30px of left edge
+    if (touch.clientX <= 30 && !sidebarOpen) {
+      isSwipingToOpen.current = true;
+      edgeSwipeStartX.current = touch.clientX;
+      edgeSwipeStartY.current = touch.clientY;
+      swipeDirection.current = null;
+    }
+  }, [sidebarOpen]);
+
+  const handleEdgeTouchMove = useCallback((e: TouchEvent) => {
+    if (!isSwipingToOpen.current) return;
+    
+    const touch = e.touches[0];
+    const diffX = touch.clientX - edgeSwipeStartX.current;
+    const diffY = touch.clientY - edgeSwipeStartY.current;
+    
+    // Determine swipe direction on first significant movement
+    if (swipeDirection.current === null && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
+      swipeDirection.current = Math.abs(diffX) > Math.abs(diffY) ? 'horizontal' : 'vertical';
+    }
+    
+    // Only process horizontal swipes
+    if (swipeDirection.current === 'horizontal' && diffX > 0) {
+      // Prevent scrolling while swiping to open
+      e.preventDefault();
+      const sidebarWidth = Math.min(320, window.innerWidth - 48);
+      const offset = Math.min(diffX, sidebarWidth);
+      setSwipeOpenOffset(offset);
+    }
+  }, []);
+
+  const handleEdgeTouchEnd = useCallback(() => {
+    if (!isSwipingToOpen.current) return;
+    
+    const sidebarWidth = Math.min(320, window.innerWidth - 48);
+    // Open if swiped more than 30% of sidebar width
+    if (swipeOpenOffset > sidebarWidth * 0.3) {
+      openSidebar();
+    }
+    
+    setSwipeOpenOffset(0);
+    isSwipingToOpen.current = false;
+    edgeSwipeStartX.current = 0;
+    edgeSwipeStartY.current = 0;
+    swipeDirection.current = null;
+  }, [swipeOpenOffset, openSidebar]);
+
+  // Global edge swipe detection
+  useEffect(() => {
+    if (sidebarOpen) return;
+    
+    document.addEventListener('touchstart', handleEdgeTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleEdgeTouchMove, { passive: false });
+    document.addEventListener('touchend', handleEdgeTouchEnd, { passive: true });
+    
+    return () => {
+      document.removeEventListener('touchstart', handleEdgeTouchStart);
+      document.removeEventListener('touchmove', handleEdgeTouchMove);
+      document.removeEventListener('touchend', handleEdgeTouchEnd);
+    };
+  }, [sidebarOpen, handleEdgeTouchStart, handleEdgeTouchMove, handleEdgeTouchEnd]);
 
   const isActive = (routes: string[]) => routes.includes(currentRoute);
 
@@ -493,6 +565,10 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
         onClick={closeSidebar}
         aria-hidden="true"
+        style={{
+          opacity: sidebarOpen ? 1 : swipeOpenOffset > 0 ? swipeOpenOffset / 320 : 0,
+          pointerEvents: sidebarOpen ? 'auto' : swipeOpenOffset > 0 ? 'auto' : 'none'
+        }}
       />
       
       <div 
@@ -504,7 +580,10 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         style={{
           transform: sidebarOpen 
             ? `translateX(${-swipeOffset}px)` 
-            : 'translateX(-100%)'
+            : swipeOpenOffset > 0
+              ? `translateX(calc(-100% + ${swipeOpenOffset}px))`
+              : 'translateX(-100%)',
+          transition: swipeOpenOffset > 0 ? 'none' : undefined
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
