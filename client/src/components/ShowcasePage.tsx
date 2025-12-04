@@ -404,14 +404,16 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <m.div
             variants={cardVariants}
             className="flex items-center justify-center gap-3 py-4"
+            data-testid="features-strip"
           >
             {[
-              { icon: Sparkles, label: 'AI' },
-              { icon: CreditCard, label: 'Payments' },
-              { icon: Users, label: 'CRM' }
-            ].map((item, index) => (
+              { icon: Sparkles, label: 'AI', id: 'ai' },
+              { icon: CreditCard, label: 'Payments', id: 'payments' },
+              { icon: Users, label: 'CRM', id: 'crm' }
+            ].map((item) => (
               <div
-                key={index}
+                key={item.id}
+                data-testid={`feature-pill-${item.id}`}
                 className="flex items-center gap-2 px-4 py-2 rounded-full"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.05)',
