@@ -332,9 +332,10 @@ function App() {
                 <div className="pb-36" data-scroll="main">
                   {renderRoute()}
                 </div>
+              </div>
             
-                {/* Liquid Glass Bottom Navigation */}
-                {shouldShowBottomNav && (
+              {/* Liquid Glass Bottom Navigation - Outside of transformed containers for proper fixed positioning */}
+              {shouldShowBottomNav && (
                   <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto" style={{ bottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))' }}>
                     <div className="relative">
                       {/* Animated Background Glow - GPU optimized */}
@@ -521,9 +522,8 @@ function App() {
                 )}
 
           
-          <Toaster />
-        </div>
-      </XPNotificationProvider>
+              <Toaster />
+          </XPNotificationProvider>
       </RewardsProvider>
       </LazyMotionProvider>
     </QueryClientProvider>
