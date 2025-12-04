@@ -176,7 +176,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               <div className="relative h-[280px] overflow-hidden">
                 <video
                   ref={videoRef}
-                  src="/videos/ae01958370d099047455d799eba60389_1762352751328.mp4"
+                  src="/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4"
                   autoPlay
                   loop
                   muted
