@@ -3,6 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { useTelegram } from "./hooks/useTelegram";
+import { useTelegramButtons } from "./hooks/useTelegramButtons";
 import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
@@ -33,7 +34,6 @@ const PremiumTasksEarningPage = lazy(() => import("./components/PremiumTasksEarn
 
 // Global components
 import GlobalSidebar from "./components/GlobalSidebar";
-import FloatingActionButton from "./components/FloatingActionButton";
 
 // Simple hash router types
 interface Route {
@@ -100,6 +100,9 @@ function App() {
   
   // Initialize performance mode detection
   const performanceMode = usePerformanceMode();
+  
+  // Native Telegram buttons (MainButton & SecondaryButton)
+  useTelegramButtons(route.component as any);
   
   // Initialize route after mount to ensure showcase is default
   useEffect(() => {
@@ -330,15 +333,6 @@ function App() {
                   {renderRoute()}
                 </div>
             
-                {/* Floating Action Button */}
-                {shouldShowBottomNav && (
-                  <FloatingActionButton
-                    currentRoute={route.component}
-                    onNavigate={handleNavigate}
-                    hapticFeedback={hapticFeedback}
-                  />
-                )}
-
                 {/* Liquid Glass Bottom Navigation */}
                 {shouldShowBottomNav && (
                   <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
