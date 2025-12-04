@@ -4,9 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { useTelegram } from "./hooks/useTelegram";
 import { useTelegramButtons } from "./hooks/useTelegramButtons";
-import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
+import { Grid3x3, ShoppingCart, Briefcase, Sparkles, CircleUser } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
-import UserAvatar from "./components/UserAvatar";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
 
 // Eager load providers to prevent blank screen (Suspense fallback={null} + #root:empty CSS loop)
@@ -334,73 +333,127 @@ function App() {
                 </div>
               </div>
             
-              {/* Liquid Glass Bottom Navigation */}
+              {/* Ultra-Minimal Glassmorphic Bottom Navigation */}
               {shouldShowBottomNav && (
-                <nav 
-                  className="tg-nav-glass flex items-center justify-center gap-2"
-                  role="navigation" 
-                  aria-label="Главное меню"
-                >
-                  {/* Главная */}
-                  <button
-                    onClick={() => {navigate('/'); hapticFeedback.light();}}
-                    className={`relative flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 ${route.component === 'showcase' ? 'bg-emerald-500' : 'hover:bg-white/10'}`}
-                    aria-label="Главная страница"
-                    aria-current={route.component === 'showcase' ? 'page' : undefined}
-                    data-testid="nav-showcase"
-                  >
-                    <Home className={`w-5 h-5 ${route.component === 'showcase' ? 'text-white' : 'text-white/70'}`} strokeWidth={2} />
-                  </button>
-                  
-                  {/* ИИ Агент */}
-                  <button
-                    onClick={() => {navigate('/ai-process'); hapticFeedback.light();}}
-                    className={`relative flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 ${route.component === 'aiProcess' || route.component === 'aiAgent' ? 'bg-emerald-500' : 'hover:bg-white/10'}`}
-                    aria-label="ИИ агенты для бизнеса"
-                    aria-current={route.component === 'aiProcess' || route.component === 'aiAgent' ? 'page' : undefined}
-                    data-testid="nav-ai"
-                  >
-                    <Bot className={`w-5 h-5 ${route.component === 'aiProcess' || route.component === 'aiAgent' ? 'text-white' : 'text-white/70'}`} strokeWidth={2} />
-                  </button>
-                  
-                  {/* Витрина */}
-                  <button
-                    onClick={() => {navigate('/projects'); hapticFeedback.light();}}
-                    className={`relative flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 ${route.component === 'projects' ? 'bg-emerald-500' : 'hover:bg-white/10'}`}
-                    aria-label="Витрина проектов"
-                    aria-current={route.component === 'projects' ? 'page' : undefined}
-                    data-testid="nav-projects"
-                  >
-                    <Briefcase className={`w-5 h-5 ${route.component === 'projects' ? 'text-white' : 'text-white/70'}`} strokeWidth={2} />
-                  </button>
-                  
-                  {/* Заказать */}
-                  <button
-                    onClick={() => {navigate('/constructor'); hapticFeedback.light();}}
-                    className={`relative flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 ${route.component === 'constructor' ? 'bg-emerald-500' : 'hover:bg-white/10'}`}
-                    aria-label="Заказать проект"
-                    aria-current={route.component === 'constructor' ? 'page' : undefined}
-                    data-testid="nav-constructor"
-                  >
-                    <ShoppingCart className={`w-5 h-5 ${route.component === 'constructor' ? 'text-white' : 'text-white/70'}`} strokeWidth={2} />
-                  </button>
-                  
-                  {/* Профиль */}
-                  <button
-                    onClick={() => {navigate('/profile'); hapticFeedback.light();}}
-                    className={`relative flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 ${['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 'bg-emerald-500' : 'hover:bg-white/10'}`}
-                    aria-label="Профиль пользователя"
-                    aria-current={['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 'page' : undefined}
-                    data-testid="nav-profile"
-                  >
-                    <UserAvatar
-                      photoUrl={user?.photo_url}
-                      firstName={user?.first_name}
-                      size="sm"
-                      className="w-7 h-7"
-                    />
-                  </button>
-                </nav>
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+                  <div className="relative">
+                    {/* Glassmorphic Container */}
+                    <div className="bg-white/10 backdrop-blur-xl rounded-full border border-white/20 shadow-2xl px-4 py-3">
+                      <nav className="flex items-center gap-2" role="navigation" aria-label="Главное меню">
+                      
+                        {/* Главная */}
+                        <button
+                          onClick={() => {navigate('/'); hapticFeedback.light();}}
+                          className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95 ${
+                            route.component === 'showcase'
+                              ? 'bg-green-400/20'
+                              : 'hover:bg-white/10'
+                          }`}
+                          aria-label="Главная страница"
+                          aria-current={route.component === 'showcase' ? 'page' : undefined}
+                          data-testid="nav-showcase"
+                        >
+                          <Grid3x3
+                            className={`w-6 h-6 transition-all duration-300 ${
+                              route.component === 'showcase' 
+                                ? 'text-green-400 scale-110' 
+                                : 'text-white/70 hover:text-white'
+                            }`}
+                            strokeWidth={route.component === 'showcase' ? 2.5 : 2}
+                          />
+                        </button>
+                        
+                        {/* ИИ Агент */}
+                        <button
+                          onClick={() => {navigate('/ai-process'); hapticFeedback.light();}}
+                          className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95 ${
+                            route.component === 'aiProcess' || route.component === 'aiAgent'
+                              ? 'bg-green-400/20'
+                              : 'hover:bg-white/10'
+                          }`}
+                          aria-label="ИИ агенты для бизнеса"
+                          aria-current={route.component === 'aiProcess' || route.component === 'aiAgent' ? 'page' : undefined}
+                          data-testid="nav-ai"
+                        >
+                          <Sparkles
+                            className={`w-6 h-6 transition-all duration-300 ${
+                              route.component === 'aiProcess' || route.component === 'aiAgent'
+                                ? 'text-green-400 scale-110' 
+                                : 'text-white/70 hover:text-white'
+                            }`}
+                            strokeWidth={route.component === 'aiProcess' || route.component === 'aiAgent' ? 2.5 : 2}
+                          />
+                        </button>
+                        
+                        {/* Витрина */}
+                        <button
+                          onClick={() => {navigate('/projects'); hapticFeedback.light();}}
+                          className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95 ${
+                            route.component === 'projects'
+                              ? 'bg-green-400/20'
+                              : 'hover:bg-white/10'
+                          }`}
+                          aria-label="Витрина проектов"
+                          aria-current={route.component === 'projects' ? 'page' : undefined}
+                          data-testid="nav-projects"
+                        >
+                          <Briefcase
+                            className={`w-6 h-6 transition-all duration-300 ${
+                              route.component === 'projects' 
+                                ? 'text-green-400 scale-110' 
+                                : 'text-white/70 hover:text-white'
+                            }`}
+                            strokeWidth={route.component === 'projects' ? 2.5 : 2}
+                          />
+                        </button>
+                        
+                        {/* Заказать */}
+                        <button
+                          onClick={() => {navigate('/constructor'); hapticFeedback.light();}}
+                          className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95 ${
+                            route.component === 'constructor'
+                              ? 'bg-green-400/20'
+                              : 'hover:bg-white/10'
+                          }`}
+                          aria-label="Заказать проект"
+                          aria-current={route.component === 'constructor' ? 'page' : undefined}
+                          data-testid="nav-constructor"
+                        >
+                          <ShoppingCart
+                            className={`w-6 h-6 transition-all duration-300 ${
+                              route.component === 'constructor' 
+                                ? 'text-green-400 scale-110' 
+                                : 'text-white/70 hover:text-white'
+                            }`}
+                            strokeWidth={route.component === 'constructor' ? 2.5 : 2}
+                          />
+                        </button>
+                        
+                        {/* Профиль */}
+                        <button
+                          onClick={() => {navigate('/profile'); hapticFeedback.light();}}
+                          className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95 ${
+                            ['profile', 'referral', 'rewards', 'earning'].includes(route.component)
+                              ? 'bg-green-400/20'
+                              : 'hover:bg-white/10'
+                          }`}
+                          aria-label="Профиль пользователя"
+                          aria-current={['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 'page' : undefined}
+                          data-testid="nav-profile"
+                        >
+                          <CircleUser
+                            className={`w-6 h-6 transition-all duration-300 ${
+                              ['profile', 'referral', 'rewards', 'earning'].includes(route.component)
+                                ? 'text-green-400 scale-110' 
+                                : 'text-white/70 hover:text-white'
+                            }`}
+                            strokeWidth={['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 2.5 : 2}
+                          />
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
               )}
 
           
