@@ -74,17 +74,7 @@ export function useTelegramButtons(
 
     switch (currentRoute) {
       case 'showcase':
-        config = {
-          mainButton: {
-            text: 'Заказать проект',
-            onClick: handleOrderProject,
-            color: '#8B5CF6',
-          },
-          secondaryButton: {
-            text: 'Консультация',
-            onClick: handleConsultation,
-          },
-        };
+        // Без нативных кнопок на главном экране
         break;
 
       case 'projects':
