@@ -1,8 +1,9 @@
 import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
+import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import fashionImg1 from '@assets/stock_images/futuristic_techwear__e958e42c.jpg';
 import fashionImg2 from '@assets/stock_images/futuristic_techwear__737df842.jpg';
 import fashionImg3 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
@@ -255,6 +256,17 @@ function RascalStore({ activeTab }: RascalStoreProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
   const [selectedGender, setSelectedGender] = useState<string>('All');
   const [showCheckout, setShowCheckout] = useState<boolean>(false);
+  const sidebar = useDemoSidebar();
+
+  const sidebarMenuItems = [
+    { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
+    { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
+    { icon: <Heart className="w-5 h-5" />, label: 'Избранное' },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина' },
+    { icon: <Tag className="w-5 h-5" />, label: 'Акции' },
+    { icon: <User className="w-5 h-5" />, label: 'Профиль' },
+    { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
+  ];
 
   useEffect(() => {
     if (activeTab !== 'catalog') {
@@ -456,9 +468,21 @@ function RascalStore({ activeTab }: RascalStoreProps) {
   if (activeTab === 'home') {
     return (
       <div className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page" style={{ backgroundColor: '#1a2e2a' }}>
+        <DemoSidebar
+          isOpen={sidebar.isOpen}
+          onClose={sidebar.close}
+          onOpen={sidebar.open}
+          menuItems={sidebarMenuItems}
+          title="RASCAL"
+          subtitle="STORE"
+          accentColor="#10B981"
+          bgColor="#0A0A0A"
+        />
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <Menu className="w-6 h-6" data-testid="button-menu" />
+            <button onClick={sidebar.open} aria-label="Меню" data-testid="button-menu">
+              <Menu className="w-6 h-6" />
+            </button>
             <div className="flex items-center gap-3">
               <ShoppingBag className="w-6 h-6" data-testid="button-view-cart" />
               <Heart className="w-6 h-6" data-testid="button-view-favorites" />

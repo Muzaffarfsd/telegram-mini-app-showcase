@@ -3,10 +3,12 @@ import { m, AnimatePresence } from "framer-motion";
 import { 
   Heart, ShoppingBag, X, ChevronLeft, ChevronRight, Star, Clock, 
   Sparkles, Menu, Search, User, Package, ArrowRight, Minus, Plus,
-  History, Ruler, Settings, Crown, Zap, Eye, TrendingUp, MessageCircle
+  History, Ruler, Settings, Crown, Zap, Eye, TrendingUp, MessageCircle,
+  Home, Grid, Tag
 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { ConfirmDrawer } from "../ui/modern-drawer";
+import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 interface OxyzNFTProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -196,6 +198,17 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
   const [tierProgress] = useState(72);
+  const sidebar = useDemoSidebar();
+
+  const sidebarMenuItems = [
+    { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
+    { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
+    { icon: <Heart className="w-5 h-5" />, label: 'Избранное' },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина' },
+    { icon: <Tag className="w-5 h-5" />, label: 'Акции' },
+    { icon: <User className="w-5 h-5" />, label: 'Профиль' },
+    { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -487,6 +500,16 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
        
         style={{ background: COLORS.primaryGradient }}
       >
+        <DemoSidebar
+          isOpen={sidebar.isOpen}
+          onClose={sidebar.close}
+          onOpen={sidebar.open}
+          menuItems={sidebarMenuItems}
+          title="OXYZ"
+          subtitle="NFT"
+          accentColor="#8B5CF6"
+          bgColor="#0A0A0A"
+        />
         <div className="demo-nav-safe px-5">
           <m.div 
             initial={{ opacity: 0, y: -10 }}
@@ -494,6 +517,7 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
             className="flex items-center justify-between mb-8"
           >
             <button 
+              onClick={sidebar.open}
               className="w-12 h-12 rounded-xl flex items-center justify-center"
               style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${COLORS.cardBorder}` }}
               data-testid="button-menu"

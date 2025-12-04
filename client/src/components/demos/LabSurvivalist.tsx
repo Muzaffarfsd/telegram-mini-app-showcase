@@ -1,10 +1,11 @@
 import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Shield, Target, Check } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Shield, Target, Check, Home, Grid, Tag } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { useFilter } from "@/hooks/useFilter";
 import { Skeleton } from "@/components/ui/skeleton";
+import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import img1 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
 import img2 from '@assets/stock_images/futuristic_fashion_m_b5d87157.jpg';
 import img3 from '@assets/stock_images/futuristic_fashion_m_472b5d38.jpg';
@@ -253,6 +254,17 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const sidebar = useDemoSidebar();
+
+  const sidebarMenuItems = [
+    { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
+    { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
+    { icon: <Heart className="w-5 h-5" />, label: 'Избранное' },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина' },
+    { icon: <Tag className="w-5 h-5" />, label: 'Акции' },
+    { icon: <User className="w-5 h-5" />, label: 'Профиль' },
+    { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
+  ];
 
   const { filteredItems, searchQuery, handleSearch } = useFilter({
     items: products,
@@ -465,9 +477,21 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
   if (activeTab === 'home') {
     return (
       <div className="min-h-screen bg-black text-white overflow-auto pb-24 smooth-scroll-page">
+        <DemoSidebar
+          isOpen={sidebar.isOpen}
+          onClose={sidebar.close}
+          onOpen={sidebar.open}
+          menuItems={sidebarMenuItems}
+          title="LAB"
+          subtitle="SURVIVALIST"
+          accentColor="#22C55E"
+          bgColor="#0A0A0A"
+        />
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <Menu className="w-6 h-6" data-testid="button-view-menu" />
+            <button onClick={sidebar.open} aria-label="Меню" data-testid="button-menu">
+              <Menu className="w-6 h-6" />
+            </button>
             <div className="flex items-center gap-3">
               <ShoppingBag className="w-6 h-6" data-testid="button-view-cart" />
               <Heart className="w-6 h-6" data-testid="button-view-favorites" />

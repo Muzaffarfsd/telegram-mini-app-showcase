@@ -1,10 +1,11 @@
 import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { Skeleton } from "../ui/skeleton";
 import { useFilter } from "@/hooks/useFilter";
+import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
 
@@ -212,6 +213,18 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
   const [selectedGender, setSelectedGender] = useState<string>('All');
   const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  
+  const sidebar = useDemoSidebar();
+  
+  const sidebarMenuItems = [
+    { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
+    { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
+    { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favorites.size > 0 ? String(favorites.size) : undefined },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cart.length > 0 ? String(cart.length) : undefined, badgeColor: '#CDFF38' },
+    { icon: <Tag className="w-5 h-5" />, label: 'Акции', badge: 'NEW', badgeColor: '#EF4444' },
+    { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
+    { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
+  ];
 
   const { filteredItems, searchQuery, handleSearch } = useFilter({
     items: products,
@@ -416,10 +429,24 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
   if (activeTab === 'home') {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+        <DemoSidebar
+          isOpen={sidebar.isOpen}
+          onClose={sidebar.close}
+          onOpen={sidebar.open}
+          menuItems={sidebarMenuItems}
+          title="REAL TIME"
+          subtitle="SHOPPING"
+          accentColor="#CDFF38"
+          bgColor="#0A0A0A"
+        />
         {/* Header */}
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <button aria-label="Меню" data-testid="button-view-menu">
+            <button 
+              onClick={sidebar.open}
+              aria-label="Меню" 
+              data-testid="button-view-menu"
+            >
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-3">
