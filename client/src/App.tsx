@@ -33,6 +33,7 @@ const PremiumTasksEarningPage = lazy(() => import("./components/PremiumTasksEarn
 
 // Global components
 import GlobalSidebar from "./components/GlobalSidebar";
+import FloatingActionButton from "./components/FloatingActionButton";
 
 // Simple hash router types
 interface Route {
@@ -329,6 +330,15 @@ function App() {
                   {renderRoute()}
                 </div>
             
+                {/* Floating Action Button */}
+                {shouldShowBottomNav && (
+                  <FloatingActionButton
+                    currentRoute={route.component}
+                    onNavigate={handleNavigate}
+                    hapticFeedback={hapticFeedback}
+                  />
+                )}
+
                 {/* Liquid Glass Bottom Navigation */}
                 {shouldShowBottomNav && (
                   <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
