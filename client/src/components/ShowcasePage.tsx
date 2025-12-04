@@ -135,27 +135,43 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </m.button>
             </div>
 
-            <div className="flex items-center gap-8 mt-12">
-              <div>
-                <div className="text-[28px] font-semibold" style={{ color: '#FFFFFF' }}>127+</div>
-                <div className="text-[11px] uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            <div className="grid grid-cols-3 gap-3 mt-12">
+              <m.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="p-4 rounded-2xl text-center"
+                style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}
+              >
+                <div className="text-[26px] font-semibold" style={{ color: '#FFFFFF' }}>127+</div>
+                <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>
                   клиентов
                 </div>
-              </div>
-              <div className="w-px h-10" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }} />
-              <div>
-                <div className="text-[28px] font-semibold" style={{ color: '#FFFFFF' }}>24ч</div>
-                <div className="text-[11px] uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              </m.div>
+              <m.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="p-4 rounded-2xl text-center"
+                style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}
+              >
+                <div className="text-[26px] font-semibold" style={{ color: '#FFFFFF' }}>24ч</div>
+                <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>
                   до запуска
                 </div>
-              </div>
-              <div className="w-px h-10" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }} />
-              <div>
-                <div className="text-[28px] font-semibold" style={{ color: '#10B981' }}>+300%</div>
-                <div className="text-[11px] uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              </m.div>
+              <m.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="p-4 rounded-2xl text-center"
+                style={{ backgroundColor: 'rgba(16,185,129,0.1)' }}
+              >
+                <div className="text-[26px] font-semibold" style={{ color: '#10B981' }}>+300%</div>
+                <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'rgba(16,185,129,0.6)' }}>
                   продажи
                 </div>
-              </div>
+              </m.div>
             </div>
           </m.div>
         </m.section>
