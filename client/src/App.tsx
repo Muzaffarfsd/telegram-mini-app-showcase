@@ -3,8 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { useTelegram } from "./hooks/useTelegram";
-import { useTelegramButtons } from "./hooks/useTelegramButtons";
-import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
+import { Home, ShoppingCart, Briefcase, Bot, Sparkles, MessageCircle, Share2, Users } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
@@ -101,8 +100,7 @@ function App() {
   // Initialize performance mode detection
   const performanceMode = usePerformanceMode();
   
-  // Native Telegram buttons (MainButton & SecondaryButton)
-  useTelegramButtons(route.component as any);
+  const { shareApp, openTelegramLink } = useTelegram();
   
   // Initialize route after mount to ensure showcase is default
   useEffect(() => {
@@ -329,13 +327,13 @@ function App() {
                   />
                 )}
                 
-                <div className="pb-24">
+                <div className="pb-36">
                   {renderRoute()}
                 </div>
             
                 {/* Liquid Glass Bottom Navigation */}
                 {shouldShowBottomNav && (
-                  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
+                  <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-auto">
                     <div className="relative">
                       {/* Animated Background Glow */}
                       <div 
@@ -497,7 +495,8 @@ function App() {
                             data-testid="nav-profile"
                           >
                             <UserAvatar
-                              user={user}
+                              photoUrl={user?.photo_url}
+                              firstName={user?.first_name}
                               size="sm"
                               className={`transition-all duration-300 ${
                                 route.component === 'profile' || route.component === 'referral' || route.component === 'rewards' || route.component === 'earning'
@@ -509,6 +508,82 @@ function App() {
                     
                         </nav>
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons Bar - Below Navigation */}
+                {shouldShowBottomNav && !['constructor', 'checkout'].includes(route.component) && (
+                  <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40">
+                    <div 
+                      className="flex items-center justify-center gap-2"
+                    >
+                      {/* Primary Action Button */}
+                      <button
+                        onClick={() => {
+                          hapticFeedback.medium();
+                          if (['profile', 'referral', 'rewards', 'earning'].includes(route.component)) {
+                            shareApp('Присоединяйся к Web4TG!');
+                          } else {
+                            navigate('/constructor');
+                          }
+                        }}
+                        className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-full transition-all duration-300 active:scale-[0.98]"
+                        style={{
+                          background: ['profile', 'referral', 'rewards', 'earning'].includes(route.component)
+                            ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+                            : 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+                          boxShadow: ['profile', 'referral', 'rewards', 'earning'].includes(route.component)
+                            ? '0 4px 20px rgba(16, 185, 129, 0.4)'
+                            : '0 4px 20px rgba(139, 92, 246, 0.4)',
+                        }}
+                        data-testid="action-primary"
+                      >
+                        {['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? (
+                          <>
+                            <Users className="w-5 h-5 text-white" strokeWidth={2} />
+                            <span className="text-white font-semibold text-sm">Пригласить</span>
+                          </>
+                        ) : ['aiAgent', 'aiProcess'].includes(route.component) ? (
+                          <>
+                            <Bot className="w-5 h-5 text-white" strokeWidth={2} />
+                            <span className="text-white font-semibold text-sm">Подключить ИИ</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-5 h-5 text-white" strokeWidth={2} />
+                            <span className="text-white font-semibold text-sm">Заказать</span>
+                          </>
+                        )}
+                      </button>
+
+                      {/* Secondary Action Button */}
+                      {!['profile', 'referral', 'rewards', 'earning'].includes(route.component) && (
+                        <button
+                          onClick={() => {
+                            hapticFeedback.light();
+                            if (['projects', 'demoLanding', 'demoApp'].includes(route.component)) {
+                              shareApp('Посмотри крутые Mini Apps для бизнеса!');
+                            } else {
+                              openTelegramLink('https://t.me/web4tgs');
+                            }
+                          }}
+                          className="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-[0.95]"
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.08)',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            backdropFilter: 'blur(10px)',
+                            WebkitBackdropFilter: 'blur(10px)',
+                          }}
+                          data-testid="action-secondary"
+                        >
+                          {['projects', 'demoLanding', 'demoApp'].includes(route.component) ? (
+                            <Share2 className="w-5 h-5 text-white/80" strokeWidth={2} />
+                          ) : (
+                            <MessageCircle className="w-5 h-5 text-white/80" strokeWidth={2} />
+                          )}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
