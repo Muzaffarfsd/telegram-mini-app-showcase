@@ -127,7 +127,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               className="text-[17px] leading-[1.5] mb-10 max-w-[340px]"
               style={{ color: 'rgba(255,255,255,0.5)' }}
             >
-              Telegram-приложения для бизнеса. Продажи, записи, оплаты — работают без вашего участия.
+              <span style={{ color: 'rgba(255,255,255,0.7)' }}>WB, Ozon, Яндекс</span> — комиссии 15-25%, штрафы, чужие правила. 
+              <span style={{ color: '#10B981' }}> Своё приложение</span> — 0% комиссий, ваши клиенты, ваши правила.
             </p>
 
             <div className="flex items-center gap-4">
