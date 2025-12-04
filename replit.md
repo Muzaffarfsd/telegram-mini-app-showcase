@@ -15,8 +15,9 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Styling**: Tailwind CSS with a 2025 premium design system, including a global dark theme, glassmorphism, neumorphism, gradients, and micro-interactions.
 - **UI Components**: Shadcn/ui (Radix UI), Lucide React, Phosphor Icons.
 - **State Management**: React Query for server state.
-- **Design System**: Responsive mobile-first design with desktop layout in Telegram (1200px viewport), minimalist aesthetics, full-screen layouts, and an 8px spacing grid.
-- **Structure**: Main App router, `ShowcasePage`, `DemoAppShell` for universal navigation, and individual Demo Components for business simulations.
+- **Design System**: Responsive mobile-first design with desktop layout in Telegram (1200px viewport), Apple-style minimalism with premium aesthetics, full-screen layouts, and an 8px spacing grid.
+- **Structure**: Main App router, `ShowcasePage` (premium Bento grid layout), `DemoAppShell` for universal navigation, and individual Demo Components for business simulations.
+- **ShowcasePage Design (Dec 2024)**: Apple-style minimalist Bento grid with hero video section, metrics cards (50+ projects, 24h launch), mixed-media demo tiles, feature pills (AI/Payments/CRM), emerald CTA section. Color tokens: #0A0A0B background, #111113 cards, #10B981 emerald accent. Framer-motion stagger animations.
 - **Navigation**: Ultra-minimal glassmorphic bottom navigation with Telegram user avatar integration (`UserAvatar` component with photo_url support, initials fallback).
 - **Telegram Integration**: Home screen shortcut support (`homeScreen.add()` with error handling and toast notifications for unsupported versions).
 - **Technical Implementations**: Custom hooks, `ErrorBoundary`, performance optimizations (`React.memo`, `useMemo`, `useCallback`), `OptimizedImage`, `ModernAnimatedIcons`, and vertical stack card layouts.
