@@ -123,12 +123,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </div>
             </h1>
 
-            <p 
-              className="text-[17px] leading-[1.5] mb-10 max-w-[340px]"
-              style={{ color: 'rgba(255,255,255,0.5)' }}
-            >
-              WB, Ozon, Яндекс — комиссии 15-25%, штрафы, чужие правила. Хватит кормить посредников — продавайте напрямую через <span style={{ color: '#10B981', whiteSpace: 'nowrap' }}>своё приложение</span>.
-            </p>
+            <div className="mb-10 max-w-[340px]">
+              <p 
+                className="text-[17px] leading-[1.5]"
+                style={{ color: 'rgba(255,255,255,0.5)' }}
+              >
+                WB, Ozon, Яндекс — комиссии 15-25%, штрафы, чужие правила.
+              </p>
+              <p 
+                className="text-[17px] leading-[1.5] mt-3"
+                style={{ color: 'rgba(255,255,255,0.5)' }}
+              >
+                Хватит кормить посредников — продавайте напрямую через <span style={{ color: '#10B981', whiteSpace: 'nowrap' }}>своё приложение</span>.
+              </p>
+            </div>
 
             <div className="flex items-center gap-4">
               <m.button
