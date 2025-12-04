@@ -3391,7 +3391,8 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
 }
 
 /* CRITICAL: Fixed elements must not interfere with scroll */
-.fixed, [class*="fixed"] {
+.fixed:not([class*="-translate-"]):not([class*="translate-"]), 
+[class*="fixed"]:not([class*="-translate-"]):not([class*="translate-"]) {
   /* GPU layer - prevents repaints during scroll */
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
@@ -3403,6 +3404,17 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
   
   /* Isolate fixed elements from scroll context */
   contain: layout style;
+}
+
+/* For fixed elements that use translate transforms - use alternative GPU optimization */
+.fixed[class*="-translate-"],
+.fixed[class*="translate-"],
+[class*="fixed"][class*="-translate-"],
+[class*="fixed"][class*="translate-"] {
+  /* Backface hidden for GPU optimization */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 /* Bottom navigation specific optimization */

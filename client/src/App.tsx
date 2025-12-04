@@ -335,8 +335,8 @@ function App() {
             
                 {/* Liquid Glass Bottom Navigation */}
                 {shouldShowBottomNav && (
-                  <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-                    <div className="relative pointer-events-auto">
+                  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto" style={{ bottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))' }}>
+                    <div className="relative">
                       {/* Animated Background Glow - GPU optimized */}
                       <div 
                         className="absolute -inset-2 rounded-full opacity-20 pointer-events-none"
