@@ -4,8 +4,9 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { useTelegram } from "./hooks/useTelegram";
 import { useTelegramButtons } from "./hooks/useTelegramButtons";
-import { Grid3x3, ShoppingCart, Briefcase, Sparkles, CircleUser } from "lucide-react";
+import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
+import UserAvatar from "./components/UserAvatar";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
 
 // Eager load providers to prevent blank screen (Suspense fallback={null} + #root:empty CSS loop)
@@ -353,7 +354,7 @@ function App() {
                           aria-current={route.component === 'showcase' ? 'page' : undefined}
                           data-testid="nav-showcase"
                         >
-                          <Grid3x3
+                          <Home
                             className={`w-6 h-6 transition-all duration-300 ${
                               route.component === 'showcase' 
                                 ? 'text-green-400 scale-110' 
@@ -375,7 +376,7 @@ function App() {
                           aria-current={route.component === 'aiProcess' || route.component === 'aiAgent' ? 'page' : undefined}
                           data-testid="nav-ai"
                         >
-                          <Sparkles
+                          <Bot
                             className={`w-6 h-6 transition-all duration-300 ${
                               route.component === 'aiProcess' || route.component === 'aiAgent'
                                 ? 'text-green-400 scale-110' 
@@ -441,13 +442,15 @@ function App() {
                           aria-current={['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 'page' : undefined}
                           data-testid="nav-profile"
                         >
-                          <CircleUser
-                            className={`w-6 h-6 transition-all duration-300 ${
+                          <UserAvatar
+                            photoUrl={user?.photo_url}
+                            firstName={user?.first_name}
+                            size="sm"
+                            className={`w-7 h-7 transition-all duration-300 ${
                               ['profile', 'referral', 'rewards', 'earning'].includes(route.component)
-                                ? 'text-green-400 scale-110' 
-                                : 'text-white/70 hover:text-white'
+                                ? 'ring-2 ring-green-400/50 scale-110' 
+                                : 'opacity-80'
                             }`}
-                            strokeWidth={['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 2.5 : 2}
                           />
                         </button>
                       </nav>
