@@ -99,7 +99,7 @@ const StatsCard = memo(({ icon: Icon, value, label, subtext, iconBg, textColor }
 StatsCard.displayName = 'StatsCard';
 
 export function ReferralProgram({ className = '' }: ReferralProgramProps) {
-  const { user, initData } = useTelegram();
+  const { user, initData, shareApp } = useTelegram();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [showReferralInput, setShowReferralInput] = useState(false);
@@ -191,19 +191,14 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
   }, [stats.referralCode]);
 
   const shareReferralLink = useCallback(() => {
-    const link = `https://t.me/web4tg_bot?start=${stats.referralCode}`;
-    if (navigator.share) {
-      navigator.share({
-        title: 'WEB4TG - Telegram Mini Apps',
-        text: 'Присоединяйся к WEB4TG и получи бонусы!',
-        url: link
-      });
-    } else {
-      navigator.clipboard.writeText(link);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  }, [stats.referralCode]);
+    console.log('[Referral] Share link clicked:', stats.referralCode);
+    const shareText = `Присоединяйся к WEB4TG и получи бонусы! Мой код: ${stats.referralCode}`;
+    shareApp(shareText);
+    toast({
+      title: "Поделиться",
+      description: "Открываю окно для отправки...",
+    });
+  }, [stats.referralCode, shareApp, toast]);
 
   // Memoized tier color
   const tierColor = useMemo(() => {
