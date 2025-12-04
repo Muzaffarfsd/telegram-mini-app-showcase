@@ -3788,3 +3788,156 @@ html.slow-network video {
 .ambient-light:hover::before {
   opacity: 1;
 }
+
+/* ========================================
+   TELEGRAM MINI APP - MOBILE OPTIMIZATIONS
+   ======================================== */
+
+/* Telegram Navigation Glass Effect - Optimized for WebView */
+.tg-nav-glass {
+  /* Force explicit dimensions - prevents WebView scaling issues */
+  min-width: 300px !important;
+  min-height: 64px !important;
+  
+  /* Ensure visibility */
+  opacity: 1 !important;
+  visibility: visible !important;
+  
+  /* GPU acceleration */
+  transform: translateX(-50%) translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  
+  /* Prevent text selection */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  
+  /* Glass shine overlay */
+  position: relative;
+}
+
+.tg-nav-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Fallback for devices without backdrop-filter support */
+@supports not (backdrop-filter: blur(1px)) {
+  .tg-nav-glass {
+    background: rgba(30, 30, 35, 0.98) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
+}
+
+/* Fixed navigation for Telegram WebView - Explicit sizing to prevent shrinking */
+nav[role="navigation"] {
+  /* Force minimum dimensions */
+  min-width: 280px !important;
+  min-height: 56px !important;
+  
+  /* Ensure visibility */
+  opacity: 1 !important;
+  visibility: visible !important;
+  
+  /* GPU acceleration for fixed positioning */
+  transform: translateX(-50%) translateZ(0) !important;
+  backface-visibility: hidden;
+  
+  /* Prevent text selection */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Touch device optimizations - reduces jank during scroll */
+@media (hover: none) and (pointer: coarse) {
+  /* Reduce blur intensity on touch devices for better performance */
+  nav[role="navigation"] {
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+  
+  /* Simpler shadows on mobile */
+  nav[role="navigation"] {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  }
+  
+  /* Optimize all cards for touch scrolling */
+  .demo-card,
+  .bento-item,
+  [class*="glass"],
+  [class*="liquid"] {
+    /* Reduce blur on mobile */
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+  
+  /* Disable hover effects on touch - they're not needed */
+  .hover-elevate:hover,
+  [class*="hover:"]:hover {
+    transform: none !important;
+  }
+  
+  /* Faster transitions on mobile */
+  * {
+    transition-duration: 0.15s !important;
+  }
+  
+  /* Reduce animation complexity */
+  @keyframes none {}
+  
+  /* Simple touch feedback */
+  button:active,
+  a:active,
+  [role="button"]:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+}
+
+/* Telegram WebView specific - detected via user agent or CSS support */
+@supports (-webkit-touch-callout: none) {
+  /* iOS/Telegram WebView optimizations */
+  #root {
+    /* Ensure proper touch handling */
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent rubber-banding at edges */
+  html, body {
+    overscroll-behavior: none;
+  }
+}
+
+/* Small screens (phones) - maximize nav visibility */
+@media (max-width: 480px) {
+  nav[role="navigation"] {
+    /* Larger touch targets on small screens */
+    min-width: 300px !important;
+    min-height: 60px !important;
+    padding: 0 16px !important;
+    gap: 8px !important;
+  }
+  
+  nav[role="navigation"] button {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
+/* Very small screens (older phones) */
+@media (max-width: 360px) {
+  nav[role="navigation"] {
+    min-width: 280px !important;
+    width: 95vw !important;
+  }
+}

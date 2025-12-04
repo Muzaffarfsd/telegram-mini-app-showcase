@@ -140,11 +140,28 @@
     if (window.Telegram && window.Telegram.WebApp) {
       const tg = window.Telegram.WebApp;
       
+      // Debug viewport info
+      console.log('[TG Debug] Platform:', tg.platform);
+      console.log('[TG Debug] Version:', tg.version);
+      console.log('[TG Debug] viewportHeight:', tg.viewportHeight);
+      console.log('[TG Debug] viewportStableHeight:', tg.viewportStableHeight);
+      console.log('[TG Debug] window.innerWidth:', window.innerWidth);
+      console.log('[TG Debug] window.innerHeight:', window.innerHeight);
+      console.log('[TG Debug] devicePixelRatio:', window.devicePixelRatio);
+      if (window.visualViewport) {
+        console.log('[TG Debug] visualViewport.width:', window.visualViewport.width);
+        console.log('[TG Debug] visualViewport.height:', window.visualViewport.height);
+        console.log('[TG Debug] visualViewport.scale:', window.visualViewport.scale);
+      }
+      
       // Set full viewport height after DOM is ready
       function setViewportHeight() {
         if (tg.viewportHeight) {
           document.documentElement.style.height = tg.viewportHeight + 'px';
           document.body.style.height = tg.viewportHeight + 'px';
+          // Also set CSS custom property for flexible usage
+          document.documentElement.style.setProperty('--tg-viewport-height', tg.viewportHeight + 'px');
+          document.documentElement.style.setProperty('--tg-viewport-width', window.innerWidth + 'px');
         }
       }
       

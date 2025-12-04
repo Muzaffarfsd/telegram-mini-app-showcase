@@ -334,17 +334,26 @@ function App() {
                 </div>
               </div>
             
-              {/* Liquid Glass Bottom Navigation - Premium glass design */}
+              {/* Liquid Glass Bottom Navigation - Telegram WebView optimized */}
               {shouldShowBottomNav && (
                 <nav 
-                  className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full px-4 py-3 overflow-hidden"
+                  className="tg-nav-glass fixed z-50 flex items-center justify-center rounded-full"
                   style={{ 
-                    bottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))',
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0.06) 100%), rgba(18, 18, 20, 0.92)',
-                    backdropFilter: 'blur(24px) saturate(150%)',
-                    WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 32px rgba(0, 0, 0, 0.5)',
+                    left: '50%',
+                    transform: 'translateX(-50%) translateZ(0)',
+                    bottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
+                    width: '320px',
+                    maxWidth: 'calc(100vw - 32px)',
+                    height: '68px',
+                    padding: '0 24px',
+                    gap: '12px',
+                    background: 'linear-gradient(180deg, rgba(40, 40, 45, 0.98) 0%, rgba(25, 25, 28, 0.98) 100%)',
+                    backdropFilter: 'blur(20px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.1), inset 0 -1px 1px rgba(0, 0, 0, 0.2), 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.3)',
+                    isolation: 'isolate',
+                    willChange: 'transform',
                   }}
                   role="navigation" 
                   aria-label="Главное меню"
