@@ -107,6 +107,16 @@
   
   <!-- CRITICAL: Call ready() and expand() immediately for fullscreen -->
   <script>
+    // CRITICAL: Disable browser scroll restoration - always start at top
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    
+    // Force scroll to top immediately
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
     if (window.Telegram && window.Telegram.WebApp) {
       const tg = window.Telegram.WebApp;
       
@@ -118,6 +128,18 @@
       setTimeout(() => tg.expand(), 100);
       setTimeout(() => tg.expand(), 300);
       setTimeout(() => tg.expand(), 500);
+      
+      // Force scroll to top after Telegram initializes
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }, 50);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }, 150);
     }
   </script>
   

@@ -4,6 +4,7 @@ import { demoApps } from "../data/demoApps";
 import { useTelegram } from "../hooks/useTelegram";
 import { getDemoComponent, isDemoAvailable } from "./demos/DemoRegistry";
 import { LiquidHomeButton } from "./ui/liquid-home-button";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 
 interface DemoAppShellProps {
   demoId: string;
@@ -23,12 +24,15 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const { hapticFeedback } = useTelegram();
   
-  // Scroll to top when demo opens - single optimized call
+  // Scroll to top when demo opens
   useEffect(() => {
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    });
+    scrollToTop();
   }, [demoId]);
+  
+  // Scroll to top when tab changes
+  useEffect(() => {
+    scrollToTop();
+  }, [activeTab]);
   
   // Extract base app type from ID to support variants (e.g., 'clothing-store-2' → 'clothing-store')
   const getBaseAppType = (id: string): string => {
@@ -55,6 +59,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
 
   const handleTabSwitch = (tab: TabType) => {
     setActiveTab(tab);
+    scrollToTop(); // Scroll to top on tab change
     if (hapticFeedback?.selection) {
       hapticFeedback.selection();
     }
@@ -170,6 +175,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
             className="flex-1 tg-content-safe-bottom" 
             style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} 
             data-testid="demo-content"
+            data-scroll-container="true"
           >
             {renderDemoContent()}
           </div>

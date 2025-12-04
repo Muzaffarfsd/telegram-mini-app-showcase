@@ -105,6 +105,20 @@ function App() {
   // Native Telegram buttons
   useTelegramButtons(route.component as any);
   
+  // Force scroll to top on initial app load (Telegram preserves scroll position)
+  useEffect(() => {
+    // Immediate scroll on mount
+    scrollToTop();
+    
+    // Additional scroll after Telegram WebApp initializes
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      // Wait for Telegram to finish its initialization
+      setTimeout(() => scrollToTop(), 100);
+      setTimeout(() => scrollToTop(), 300);
+    }
+  }, []);
+  
   // Initialize route after mount to ensure showcase is default
   useEffect(() => {
     setRoute(parseHash());
