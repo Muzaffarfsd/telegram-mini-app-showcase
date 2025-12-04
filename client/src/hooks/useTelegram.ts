@@ -386,14 +386,26 @@ export function useTelegram() {
     status: homeScreenStatus,
   };
 
+  // Track current handlers for cleanup
+  const mainButtonHandlerRef = { current: null as (() => void) | null };
+  const secondaryButtonHandlerRef = { current: null as (() => void) | null };
+
   // MainButton methods
   const mainButton = {
     show: (text: string, onClick: () => void, color?: string) => {
       if (webApp?.MainButton) {
+        // CRITICAL: Remove old handler before adding new one
+        if (mainButtonHandlerRef.current) {
+          webApp.MainButton.offClick(mainButtonHandlerRef.current);
+        }
+        
         webApp.MainButton.setText(text);
         if (color) {
           webApp.MainButton.setParams({ color });
         }
+        
+        // Store and set new handler
+        mainButtonHandlerRef.current = onClick;
         webApp.MainButton.onClick(onClick);
         webApp.MainButton.show();
         console.log('[TG API] MainButton shown:', text);
@@ -401,6 +413,11 @@ export function useTelegram() {
     },
     hide: () => {
       if (webApp?.MainButton) {
+        // Remove handler on hide
+        if (mainButtonHandlerRef.current) {
+          webApp.MainButton.offClick(mainButtonHandlerRef.current);
+          mainButtonHandlerRef.current = null;
+        }
         webApp.MainButton.hide();
         console.log('[TG API] MainButton hidden');
       }
@@ -427,10 +444,18 @@ export function useTelegram() {
   const secondaryButton = {
     show: (text: string, onClick: () => void, color?: string) => {
       if (webApp?.SecondaryButton) {
+        // CRITICAL: Remove old handler before adding new one
+        if (secondaryButtonHandlerRef.current) {
+          webApp.SecondaryButton.offClick(secondaryButtonHandlerRef.current);
+        }
+        
         webApp.SecondaryButton.setText(text);
         if (color) {
           webApp.SecondaryButton.setParams({ color });
         }
+        
+        // Store and set new handler
+        secondaryButtonHandlerRef.current = onClick;
         webApp.SecondaryButton.onClick(onClick);
         webApp.SecondaryButton.show();
         console.log('[TG API] SecondaryButton shown:', text);
@@ -438,6 +463,11 @@ export function useTelegram() {
     },
     hide: () => {
       if (webApp?.SecondaryButton) {
+        // Remove handler on hide
+        if (secondaryButtonHandlerRef.current) {
+          webApp.SecondaryButton.offClick(secondaryButtonHandlerRef.current);
+          secondaryButtonHandlerRef.current = null;
+        }
         webApp.SecondaryButton.hide();
         console.log('[TG API] SecondaryButton hidden');
       }
