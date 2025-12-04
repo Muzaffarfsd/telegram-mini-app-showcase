@@ -329,7 +329,7 @@ function App() {
                   />
                 )}
                 
-                <div className="pb-36">
+                <div className="pb-36" data-scroll="main">
                   {renderRoute()}
                 </div>
             

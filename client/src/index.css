@@ -57,14 +57,42 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   
-  /* iOS momentum scrolling (smooth native feel) */
+  /* === PREMIUM SMOOTH SCROLLING (iOS-like feel) === */
+  
+  /* iOS momentum scrolling - CRITICAL for smooth native feel */
   -webkit-overflow-scrolling: touch;
   
-  /* Contain scroll within app */
-  overscroll-behavior: contain;
+  /* GPU acceleration for buttery smooth scroll */
+  will-change: scroll-position;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  
+  /* Contain scroll within app - prevents bounce going outside */
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: none;
   
   /* Instant touch response (no 300ms delay) */
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
+  
+  /* Smooth scroll for programmatic scrolling */
+  scroll-behavior: smooth;
+  
+  /* Backface visibility for GPU layer */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Optimize scroll performance on all scrollable elements */
+* {
+  /* Prevent layout thrashing during scroll */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* GPU-accelerated scrolling for any scrollable container */
+[data-scroll], .scroll-container, [style*="overflow"] {
+  -webkit-overflow-scrolling: touch;
+  will-change: scroll-position;
+  transform: translateZ(0);
 }
 
 /* === GLOBAL AUTO-RESPONSIVE SYSTEM (2025) === */
@@ -3284,6 +3312,31 @@ body {
   contain-intrinsic-size: auto 400px;
 }
 
+/* CRITICAL: Fixed elements must not interfere with scroll */
+.fixed, [class*="fixed"] {
+  /* GPU layer - prevents repaints during scroll */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  
+  /* Backface hidden for GPU optimization */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Isolate fixed elements from scroll context */
+  contain: layout style;
+}
+
+/* Bottom navigation specific optimization */
+.fixed.bottom-6,
+[class*="fixed"][class*="bottom-"] {
+  /* Create separate stacking context */
+  isolation: isolate;
+  
+  /* Hint GPU about position changes */
+  will-change: transform, opacity;
+}
+
 /* Reduce GPU load during scroll by pausing animations */
 @media (prefers-reduced-motion: no-preference) {
   /* Pause heavy animations when scrolling */
@@ -3299,8 +3352,8 @@ img, video {
   /* Hint browser about decoding strategy */
   image-rendering: auto;
   
-  /* Optimize rendering */
-  rendering-intent: auto;
+  /* Prevent layout shifts */
+  contain: content;
 }
 
 /* Improve scroll smoothness on touch devices */
@@ -3314,6 +3367,15 @@ img, video {
   /* Reduce work during scroll */
   * {
     -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Optimize main scroll container on touch */
+  #root {
+    /* iOS-like momentum scrolling */
+    scroll-snap-type: y proximity;
+    
+    /* Prevent overscroll bounce affecting performance */
+    overscroll-behavior: contain;
   }
 }
 
