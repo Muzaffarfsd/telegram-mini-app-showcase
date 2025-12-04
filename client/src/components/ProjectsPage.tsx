@@ -52,14 +52,14 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               color: '#FAFAFA'
             }}
           >
-            Пока вы спите —
+            50+ бизнесов уже
             <br />
             <span style={{ color: '#34D399' }}>
-              ваш бот закрывает сделки.
+              продают через Telegram.
             </span>
             <br />
-            <span style={{ color: '#71717A', fontSize: '22px' }}>
-              Продажи 24/7 без менеджеров.
+            <span style={{ color: '#FFFFFF' }}>
+              Следующий — ваш?
             </span>
           </h1>
           
