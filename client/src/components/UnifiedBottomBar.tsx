@@ -274,15 +274,6 @@ export default function UnifiedBottomBar({ currentRoute, user, onNavigate, hapti
                 <span className="text-sm font-semibold text-white whitespace-nowrap">
                   {actionButton.text}
                 </span>
-                
-                {/* Shine effect */}
-                <div 
-                  className="absolute inset-0 rounded-full overflow-hidden pointer-events-none"
-                  style={{
-                    background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.12) 55%, transparent 60%)',
-                    animation: 'shine 4s ease-in-out infinite',
-                  }}
-                />
               </button>
               
               {/* Secondary Action (Icon only) */}
@@ -303,13 +294,6 @@ export default function UnifiedBottomBar({ currentRoute, user, onNavigate, hapti
           )}
         </div>
       </div>
-      
-      <style>{`
-        @keyframes shine {
-          0%, 100% { transform: translateX(-150%); }
-          50% { transform: translateX(150%); }
-        }
-      `}</style>
     </div>
   );
 }
