@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef, ReactNode } from "react";
 import { X, Home, ShoppingBag, Heart, User, Settings, LogOut, ChevronRight } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
+import { scrollToTop } from "@/hooks/useScrollToTop";
 
 export interface DemoMenuItem {
   icon: ReactNode;
@@ -273,6 +274,8 @@ export default function DemoSidebar({
                     onClick={() => {
                       item.onClick?.();
                       onClose();
+                      // Always scroll to top when navigating via menu
+                      scrollToTop();
                     }}
                     className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 ${
                       item.active 

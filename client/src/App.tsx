@@ -8,6 +8,7 @@ import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
+import { scrollToTop } from "./hooks/useScrollToTop";
 
 // Eager load providers to prevent blank screen (Suspense fallback={null} + #root:empty CSS loop)
 import { RewardsProvider } from "./contexts/RewardsContext";
@@ -120,12 +121,10 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Optimized scroll to top - single reliable mechanism
+  // Global scroll to top on every route change - fixed for all pages
   useEffect(() => {
-    // Single scroll after content renders
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    });
+    // Use global scrollToTop helper for reliable scroll reset
+    scrollToTop();
   }, [route.component, route.params?.id]);
 
   // Telegram BackButton - показываем на всех страницах кроме главной
