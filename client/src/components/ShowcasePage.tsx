@@ -38,10 +38,11 @@ function AnimatedCounter({ value, suffix = "", delay = 0 }: { value: number; suf
 }
 
 const headlines = [
-  "клиентов",
-  "деньги",
-  "заказы", 
-  "продажи"
+  "у конкурентов",
+  "на рынке",
+  "в России", 
+  "в СНГ",
+  "в вашей нише"
 ];
 
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
@@ -98,13 +99,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="block text-[44px] leading-[1.02] font-semibold"
                 style={{ color: '#FFFFFF', letterSpacing: '-0.035em' }}
               >
-                Каждый день
+                Приложение,
               </span>
               <span 
                 className="block text-[44px] leading-[1.02] font-semibold"
                 style={{ color: '#FFFFFF', letterSpacing: '-0.035em' }}
               >
-                вы теряете
+                которого ещё нет
               </span>
               <div className="h-[54px] overflow-hidden mt-1">
                 <AnimatePresence mode="wait">
@@ -117,7 +118,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     className="block text-[44px] leading-[1.02] font-semibold"
                     style={{ color: '#10B981', letterSpacing: '-0.035em' }}
                   >
-                    {headlines[headlineIndex]}.
+                    {headlines[headlineIndex]}
                   </m.span>
                 </AnimatePresence>
               </div>
