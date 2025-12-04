@@ -48,15 +48,15 @@ const StatusIcon = memo(({ status }: { status: string }) => {
   switch (status) {
     case 'Готово':
     case 'Завершен':
-      return <CheckCircle className="w-4 h-4 text-[#A78BFA]" />;
+      return <CheckCircle className="w-4 h-4 text-system-green" />;
     case 'В разработке':
     case 'Разработка':
-      return <Clock className="w-4 h-4 text-[#A78BFA]" />;
+      return <Clock className="w-4 h-4 text-system-orange" />;
     case 'Планирование':
     case 'Оплачено':
-      return <Package className="w-4 h-4 text-[#A78BFA]" />;
+      return <Package className="w-4 h-4 text-system-blue" />;
     default:
-      return <Clock className="w-4 h-4 text-[#A78BFA]/60" />;
+      return <Clock className="w-4 h-4 text-secondary-label" />;
   }
 });
 StatusIcon.displayName = 'StatusIcon';
@@ -141,24 +141,24 @@ const StatsCard = memo(({ stats }: { stats: { total: number, completed: number, 
   <div className="liquid-glass-card rounded-2xl p-4">
     <div className="grid grid-cols-3 gap-4">
       <div className="text-center">
-        <div className="w-12 h-12 bg-[#A78BFA]/10 rounded-full flex items-center justify-center mx-auto mb-2">
-          <Package className="w-6 h-6 text-[#A78BFA]" />
+        <div className="w-12 h-12 bg-system-blue/10 rounded-full flex items-center justify-center mx-auto mb-2">
+          <Package className="w-6 h-6 text-system-blue" />
         </div>
-        <div className="ios-title3 font-bold text-[#A78BFA]">{stats.total}</div>
+        <div className="ios-title3 font-bold text-system-blue">{stats.total}</div>
         <div className="ios-caption2 text-white/70">Проектов</div>
       </div>
       <div className="text-center">
-        <div className="w-12 h-12 bg-[#A78BFA]/10 rounded-full flex items-center justify-center mx-auto mb-2">
-          <CheckCircle className="w-6 h-6 text-[#A78BFA]" />
+        <div className="w-12 h-12 bg-system-green/10 rounded-full flex items-center justify-center mx-auto mb-2">
+          <CheckCircle className="w-6 h-6 text-system-green" />
         </div>
-        <div className="ios-title3 font-bold text-[#A78BFA]">{stats.completed}</div>
+        <div className="ios-title3 font-bold text-system-green">{stats.completed}</div>
         <div className="ios-caption2 text-white/70">Завершено</div>
       </div>
       <div className="text-center">
-        <div className="w-12 h-12 bg-[#A78BFA]/10 rounded-full flex items-center justify-center mx-auto mb-2">
-          <Clock className="w-6 h-6 text-[#A78BFA]" />
+        <div className="w-12 h-12 bg-system-orange/10 rounded-full flex items-center justify-center mx-auto mb-2">
+          <Clock className="w-6 h-6 text-system-orange" />
         </div>
-        <div className="ios-title3 font-bold text-[#A78BFA]">{stats.inProgress}</div>
+        <div className="ios-title3 font-bold text-system-orange">{stats.inProgress}</div>
         <div className="ios-caption2 text-white/70">В работе</div>
       </div>
     </div>
@@ -174,7 +174,11 @@ const ProjectItem = memo(({ project, isLast }: { project: any, isLast: boolean }
       <div className="flex-1">
         <div className="ios-body font-bold text-white">{project.name}</div>
         <div className="flex items-center space-x-2">
-          <span className="ios-caption2 font-semibold text-[#A78BFA]">
+          <span className={`ios-caption2 font-semibold ${
+            project.status === 'Готово' || project.status === 'Завершен' ? 'text-system-green' :
+            project.status === 'В разработке' || project.status === 'Разработка' ? 'text-system-orange' :
+            'text-system-blue'
+          }`}>
             {project.status}
           </span>
           <span className="ios-caption2 text-white/40">•</span>
@@ -182,7 +186,11 @@ const ProjectItem = memo(({ project, isLast }: { project: any, isLast: boolean }
         </div>
         <div className="w-full bg-white/20 rounded-full h-1.5 mt-2">
           <div 
-            className="h-1.5 rounded-full transition-all duration-300 bg-[#A78BFA]"
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              project.status === 'Готово' || project.status === 'Завершен' ? 'bg-system-green' : 
+              project.status === 'В разработке' || project.status === 'Разработка' ? 'bg-system-orange' : 
+              'bg-system-blue'
+            }`}
             style={{ width: `${project.progress || 0}%` }}
           />
         </div>
@@ -241,11 +249,11 @@ const ProjectsVirtualList = memo(({ projects, onNavigateConstructor }: {
                   >
                     <div className="p-4 border-t border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={onNavigateConstructor}>
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                          <Wrench className="w-5 h-5 text-[#A78BFA]" />
+                        <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
+                          <Wrench className="w-5 h-5 text-system-blue" />
                         </div>
                         <div className="flex-1">
-                          <div className="ios-body font-bold text-[#A78BFA]">Создать новый проект</div>
+                          <div className="ios-body font-bold text-system-blue">Создать новый проект</div>
                           <div className="ios-footnote text-white/70">Запустите еще одно приложение</div>
                         </div>
                         <ChevronRight className="w-5 h-5 text-white/40" />
@@ -385,8 +393,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
               <StatsCard stats={stats} />
             ) : (
               <div className="liquid-glass-card rounded-2xl p-6 text-center">
-                <div className="w-16 h-16 bg-[#A78BFA]/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Package className="w-8 h-8 text-[#A78BFA]" />
+                <div className="w-16 h-16 bg-system-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Package className="w-8 h-8 text-system-blue" />
                 </div>
                 <h3 className="ios-body font-bold mb-2 text-white">Пора создать первое приложение!</h3>
                 <p className="ios-footnote text-white/70 mb-4 leading-relaxed">
@@ -417,8 +425,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             <div className="liquid-glass-card rounded-2xl overflow-hidden">
             <div className="p-4 border-b border-white/10">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <Send className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
+                  <Send className="w-5 h-5 text-system-blue" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Язык интерфейса</div>
@@ -429,14 +437,14 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
             <div className="p-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <Smartphone className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-system-green/20 rounded-xl flex items-center justify-center">
+                  <Smartphone className="w-5 h-5 text-system-green" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Статус подключения</div>
                   <div className="ios-footnote text-white/70">{profileData.joinedAt}</div>
                 </div>
-                {isAvailable && <CheckCircle className="w-5 h-5 text-[#A78BFA]" />}
+                {isAvailable && <CheckCircle className="w-5 h-5 text-system-green" />}
               </div>
             </div>
             </div>
@@ -451,8 +459,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             <div className="liquid-glass-card rounded-2xl overflow-hidden">
               <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleNavigateReferral}>
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                    <Users className="w-5 h-5 text-[#A78BFA]" />
+                  <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                    <Users className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div className="flex-1">
                     <div className="ios-body text-white font-semibold">Реферальная программа</div>
@@ -464,8 +472,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
               <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleNavigateRewards}>
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                    <Gift className="w-5 h-5 text-[#A78BFA]" />
+                  <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
+                    <Gift className="w-5 h-5 text-amber-400" />
                   </div>
                   <div className="flex-1">
                     <div className="ios-body text-white font-semibold">Цифровые награды</div>
@@ -477,8 +485,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
               <div className="p-4 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleNavigateEarning}>
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                    <Coins className="w-5 h-5 text-[#A78BFA]" />
+                  <div className="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+                    <Coins className="w-5 h-5 text-yellow-400" />
                   </div>
                   <div className="flex-1">
                     <div className="ios-body text-white font-semibold">Заработок монет</div>
@@ -507,8 +515,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             <div className="liquid-glass-card rounded-2xl overflow-hidden">
             <div className="p-4 border-b border-white/10">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-system-green/20 rounded-xl flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-system-green" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Автосохранение</div>
@@ -525,8 +533,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             
             <div className="p-4 border-b border-white/10">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-system-blue" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Резервные копии</div>
@@ -543,8 +551,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             
             <div className="p-4 border-b border-white/10">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <Bell className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-system-purple/20 rounded-xl flex items-center justify-center">
+                  <Bell className="w-5 h-5 text-system-purple" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Уведомления о статусе</div>
@@ -561,8 +569,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
             <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <Settings className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-system-orange/20 rounded-xl flex items-center justify-center">
+                  <Settings className="w-5 h-5 text-system-orange" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Тема оформления</div>
@@ -599,8 +607,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
               }}
             >
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <Smartphone className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                  <Smartphone className="w-5 h-5 text-emerald-500" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Добавить на главный экран</div>
@@ -621,8 +629,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             <div className="liquid-glass-card rounded-2xl overflow-hidden">
             <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleTelegramClick}>
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
+                  <MessageCircle className="w-5 h-5 text-system-blue" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Связаться с нами</div>
@@ -634,8 +642,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             
             <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleTelegramClick}>
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <Send className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
+                  <Send className="w-5 h-5 text-system-blue" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Telegram</div>
@@ -647,8 +655,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             
             <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleInstagramClick}>
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <Instagram className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <Instagram className="w-5 h-5 text-white/90" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Instagram</div>
@@ -660,8 +668,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             
             <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleTikTokClick}>
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <Music className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/20">
+                  <Music className="w-5 h-5 text-white/90" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">TikTok</div>
@@ -673,8 +681,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             
             <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleNavigateHelp}>
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <HelpCircle className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-system-green/20 rounded-xl flex items-center justify-center">
+                  <HelpCircle className="w-5 h-5 text-system-green" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Справка</div>
@@ -686,8 +694,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             
             <div className="p-4 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleNavigateReview}>
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#A78BFA]/20 rounded-xl flex items-center justify-center">
-                  <Star className="w-5 h-5 text-[#A78BFA]" />
+                <div className="w-10 h-10 bg-system-orange/20 rounded-xl flex items-center justify-center">
+                  <Star className="w-5 h-5 text-system-orange" />
                 </div>
                 <div className="flex-1">
                   <div className="ios-body text-white font-semibold">Оставить отзыв</div>
