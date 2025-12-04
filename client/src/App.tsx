@@ -3,8 +3,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { useTelegram } from "./hooks/useTelegram";
-import { useTelegramButtons } from "./hooks/useTelegramButtons";
 import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
+import GlassActionButtons from "./components/GlassActionButtons";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
@@ -100,12 +100,6 @@ function App() {
   
   // Initialize performance mode detection
   const performanceMode = usePerformanceMode();
-  
-  // Initialize Telegram MainButton & SecondaryButton based on current route
-  const routeType = route.component as any;
-  useTelegramButtons(routeType, {
-    demoName: route.params?.id,
-  });
   
   // Initialize route after mount to ensure showcase is default
   useEffect(() => {
@@ -332,9 +326,17 @@ function App() {
                   />
                 )}
                 
-                <div className="pb-24">
+                <div className="pb-32">
                   {renderRoute()}
                 </div>
+                
+                {/* Glass Action Buttons - above bottom nav */}
+                {shouldShowBottomNav && (
+                  <GlassActionButtons 
+                    currentRoute={route.component}
+                    onNavigate={handleNavigate}
+                  />
+                )}
             
                 {/* Liquid Glass Bottom Navigation */}
                 {shouldShowBottomNav && (
