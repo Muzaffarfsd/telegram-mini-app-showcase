@@ -1324,6 +1324,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Apply referral code
+  app.post("/api/referral/apply", async (req, res) => {
+    try {
+      const { userId, referralCode } = req.body;
+
+      if (!userId || !referralCode) {
+        return res.status(400).json({ message: 'userId and referralCode are required' });
+      }
+
+      // Decode referral code to get referrer's telegram ID
+      const codePrefix = 'W4T';
+      if (!referralCode.startsWith(codePrefix)) {
+        return res.status(400).json({ message: 'Неверный формат кода' });
+      }
+
+      const encodedId = referralCode.slice(codePrefix.length);
+      const referrerTelegramId = parseInt(encodedId, 36);
+
+      if (isNaN(referrerTelegramId)) {
+        return res.status(400).json({ message: 'Неверный реферальный код' });
+      }
+
+      // Check if user is trying to use their own code
+      if (referrerTelegramId === userId) {
+        return res.status(400).json({ message: 'Нельзя использовать свой собственный код' });
+      }
+
+      // Check if referrer exists
+      const [referrer] = await db.select().from(users).where(eq(users.telegramId, referrerTelegramId));
+      if (!referrer) {
+        return res.status(400).json({ message: 'Пользователь с таким кодом не найден' });
+      }
+
+      // Check if user already has a referrer
+      const [existingReferral] = await db.select().from(referrals)
+        .where(eq(referrals.referredTelegramId, userId));
+      
+      if (existingReferral) {
+        return res.status(400).json({ message: 'Вы уже использовали реферальный код' });
+      }
+
+      // Create referral record
+      const bonusAmount = "100"; // Bonus coins for referrer (as string for decimal)
+      await db.insert(referrals).values({
+        referrerTelegramId: referrerTelegramId,
+        referredTelegramId: userId,
+        bonusAmount: bonusAmount,
+        status: 'pending',
+      });
+
+      // Update referrer's referral count
+      await db.update(users)
+        .set({ 
+          totalReferrals: sql`COALESCE(${users.totalReferrals}, 0) + 1`,
+          totalEarnings: sql`COALESCE(${users.totalEarnings}, 0) + 100`
+        })
+        .where(eq(users.telegramId, referrerTelegramId));
+
+      res.json({ success: true, message: 'Реферальный код успешно применён!' });
+    } catch (error) {
+      console.error('Error applying referral code:', error);
+      res.status(500).json({ message: 'Ошибка при применении кода' });
+    }
+  });
+
   // ===== GAMIFICATION API =====
 
   // Получить gamification stats

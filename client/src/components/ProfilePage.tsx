@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { useTelegram } from "../hooks/useTelegram";
 import { useToast } from "@/hooks/use-toast";
+import { Copy, Share2, UserPlus } from "lucide-react";
 
 interface ProfilePageProps {
   onNavigate: (section: string) => void;
@@ -287,15 +288,24 @@ const ProjectsVirtualList = memo(({ projects, onNavigateConstructor }: {
 });
 ProjectsVirtualList.displayName = 'ProjectsVirtualList';
 
+// Generate referral code from user ID
+const generateReferralCode = (userId: number | null): string => {
+  if (!userId) return 'WEB4TG';
+  const base = userId.toString(36).toUpperCase();
+  return `W4T${base}`;
+};
+
 // Profile Page Component
 function ProfilePage({ onNavigate }: ProfilePageProps) {
-  const { user, isAvailable, homeScreen } = useTelegram();
+  const { user, isAvailable, homeScreen, shareApp, hapticFeedback } = useTelegram();
   const { toast } = useToast();
   const [userProjects, setUserProjects] = useState<any[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
   const [backupEnabled, setBackupEnabled] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [friendReferralCode, setFriendReferralCode] = useState('');
+  const [isApplyingCode, setIsApplyingCode] = useState(false);
 
   // Memoized profile data
   const profileData = useMemo(() => ({
@@ -305,6 +315,82 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
     language: user?.language_code || 'ru',
     joinedAt: user ? 'Активен в Telegram' : 'Не подключен'
   }), [user]);
+
+  // Generate user's referral code
+  const myReferralCode = useMemo(() => generateReferralCode(user?.id || null), [user?.id]);
+  
+  // Copy referral code to clipboard
+  const handleCopyReferralCode = useCallback(() => {
+    navigator.clipboard.writeText(myReferralCode);
+    hapticFeedback?.light();
+    toast({
+      title: "Код скопирован",
+      description: `Ваш реферальный код: ${myReferralCode}`,
+    });
+  }, [myReferralCode, hapticFeedback, toast]);
+
+  // Share app with referral link
+  const handleInviteFriend = useCallback(() => {
+    hapticFeedback?.medium();
+    const shareText = `Создай своё Telegram приложение для бизнеса! Мой код: ${myReferralCode}`;
+    shareApp(shareText);
+  }, [myReferralCode, shareApp, hapticFeedback]);
+
+  // Share app
+  const handleShareApp = useCallback(() => {
+    hapticFeedback?.medium();
+    shareApp('Посмотри крутые Mini Apps для бизнеса!');
+  }, [shareApp, hapticFeedback]);
+
+  // Apply friend's referral code
+  const handleApplyReferralCode = useCallback(async () => {
+    if (!friendReferralCode.trim()) {
+      toast({
+        title: "Введите код",
+        description: "Пожалуйста, введите реферальный код друга",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsApplyingCode(true);
+    hapticFeedback?.light();
+
+    try {
+      const response = await fetch('/api/referral/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user?.id,
+          referralCode: friendReferralCode.trim().toUpperCase(),
+        }),
+      });
+
+      if (response.ok) {
+        hapticFeedback?.medium();
+        toast({
+          title: "Код применён",
+          description: "Реферальный код успешно активирован!",
+        });
+        setFriendReferralCode('');
+      } else {
+        const error = await response.json();
+        toast({
+          title: "Ошибка",
+          description: error.message || "Не удалось применить код",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось применить код. Попробуйте позже.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsApplyingCode(false);
+    }
+  }, [friendReferralCode, user?.id, hapticFeedback, toast]);
 
   // Fetch projects with transition for smooth UI
   useEffect(() => {
@@ -447,6 +533,95 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                 {isAvailable && <CheckCircle className="w-5 h-5 text-system-green" />}
               </div>
             </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Referral System Section */}
+        <section className="scroll-fade-in-delay-3">
+          <div className="space-y-3">
+            <div className="ios-list-header text-white/70 font-medium px-2">Пригласить друзей</div>
+            
+            <div className="liquid-glass-card rounded-2xl overflow-hidden">
+              {/* My Referral Code */}
+              <div className="p-4 border-b border-white/10">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                    <Gift className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios-body text-white font-semibold">Ваш реферальный код</div>
+                    <div className="ios-footnote text-white/70">Поделитесь с друзьями</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 bg-white/10 rounded-xl px-4 py-3 font-mono text-lg text-emerald-400 text-center tracking-wider">
+                    {myReferralCode}
+                  </div>
+                  <button 
+                    onClick={handleCopyReferralCode}
+                    className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center hover:bg-emerald-500/30 transition-colors"
+                    data-testid="button-copy-referral"
+                  >
+                    <Copy className="w-5 h-5 text-emerald-400" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Invite Friend Button */}
+              <div className="p-4 border-b border-white/10">
+                <button 
+                  onClick={handleInviteFriend}
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
+                  data-testid="button-invite-friend"
+                >
+                  <UserPlus className="w-5 h-5" />
+                  Пригласить друга
+                </button>
+              </div>
+
+              {/* Enter Friend's Code */}
+              <div className="p-4 border-b border-white/10">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                    <Users className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios-body text-white font-semibold">Код друга</div>
+                    <div className="ios-footnote text-white/70">Введите реферальный код</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={friendReferralCode}
+                    onChange={(e) => setFriendReferralCode(e.target.value.toUpperCase())}
+                    placeholder="W4TXXXXXX"
+                    className="flex-1 bg-white/10 rounded-xl px-4 py-3 font-mono text-white placeholder-white/30 text-center tracking-wider border border-white/10 focus:border-blue-500/50 focus:outline-none transition-colors"
+                    data-testid="input-friend-referral"
+                  />
+                  <button 
+                    onClick={handleApplyReferralCode}
+                    disabled={isApplyingCode}
+                    className="px-4 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white font-semibold rounded-xl transition-colors"
+                    data-testid="button-apply-referral"
+                  >
+                    {isApplyingCode ? '...' : 'Применить'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Share App Button */}
+              <div className="p-4">
+                <button 
+                  onClick={handleShareApp}
+                  className="w-full bg-white/10 hover:bg-white/15 text-white font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors border border-white/10"
+                  data-testid="button-share-app"
+                >
+                  <Share2 className="w-5 h-5" />
+                  Поделиться приложением
+                </button>
+              </div>
             </div>
           </div>
         </section>
