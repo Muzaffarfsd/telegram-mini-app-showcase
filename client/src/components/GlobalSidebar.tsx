@@ -228,8 +228,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   // Edge swipe to open handlers
   const handleEdgeTouchStart = useCallback((e: TouchEvent) => {
     const touch = e.touches[0];
-    // Only activate if touch starts within 30px of left edge
-    if (touch.clientX <= 30 && !sidebarOpen) {
+    // Activate if touch starts within 50px of left edge (wider zone for comfort)
+    if (touch.clientX <= 50 && !sidebarOpen) {
       isSwipingToOpen.current = true;
       edgeSwipeStartX.current = touch.clientX;
       edgeSwipeStartY.current = touch.clientY;
