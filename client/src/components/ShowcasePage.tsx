@@ -1,6 +1,6 @@
 import { ArrowRight, ArrowUpRight, Play } from "lucide-react";
 import { useCallback, memo, useState, useEffect, useRef } from "react";
-import { m, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence, useSpring, useTransform, useInView } from 'framer-motion';
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
 import { preloadDemo } from './demos/DemoRegistry';
@@ -11,6 +11,30 @@ import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
   onOpenDemo: (demoId: string) => void;
+}
+
+function AnimatedCounter({ value, suffix = "", delay = 0 }: { value: number; suffix?: string; delay?: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true });
+  const spring = useSpring(0, { duration: 1500, bounce: 0 });
+  const display = useTransform(spring, (v) => Math.round(v));
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    if (isInView) {
+      const timeout = setTimeout(() => {
+        spring.set(value);
+      }, delay * 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isInView, spring, value, delay]);
+
+  useEffect(() => {
+    const unsubscribe = display.on("change", (v) => setDisplayValue(v));
+    return () => unsubscribe();
+  }, [display]);
+
+  return <span ref={ref}>{displayValue}{suffix}</span>;
 }
 
 const headlines = [
@@ -143,7 +167,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="p-4 rounded-2xl text-center"
                 style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}
               >
-                <div className="text-[26px] font-semibold" style={{ color: '#FFFFFF' }}>127+</div>
+                <div className="text-[26px] font-semibold" style={{ color: '#FFFFFF' }}>
+                  <AnimatedCounter value={127} suffix="+" delay={0.3} />
+                </div>
                 <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>
                   клиентов
                 </div>
@@ -155,7 +181,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="p-4 rounded-2xl text-center"
                 style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}
               >
-                <div className="text-[26px] font-semibold" style={{ color: '#FFFFFF' }}>24ч</div>
+                <div className="text-[26px] font-semibold" style={{ color: '#FFFFFF' }}>
+                  <AnimatedCounter value={24} suffix="ч" delay={0.4} />
+                </div>
                 <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>
                   до запуска
                 </div>
@@ -167,7 +195,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="p-4 rounded-2xl text-center"
                 style={{ backgroundColor: 'rgba(16,185,129,0.1)' }}
               >
-                <div className="text-[26px] font-semibold" style={{ color: '#10B981' }}>+300%</div>
+                <div className="text-[26px] font-semibold" style={{ color: '#10B981' }}>
+                  +<AnimatedCounter value={300} suffix="%" delay={0.5} />
+                </div>
                 <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'rgba(16,185,129,0.6)' }}>
                   продажи
                 </div>
