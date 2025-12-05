@@ -21,8 +21,8 @@ import { usePersistentCart } from "@/hooks/usePersistentCart";
 import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
 import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
-import { EmptyState } from "@/components/EmptyState";
-import { CheckoutDrawer } from "@/components/CheckoutDrawer";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 
 const STORE_KEY = 'interiorlux-store';
 
