@@ -269,8 +269,6 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
     [selectedCategory]
   );
 
-  const formatPrice = (price: number) => `$${price}`;
-
   // ========================================
   // PRODUCT DETAIL VIEW
   // ========================================
