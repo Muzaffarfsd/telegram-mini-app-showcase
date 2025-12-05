@@ -15,6 +15,7 @@ const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4
 
 interface PremiumFashionStoreProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: string) => void;
 }
 
 interface CartItem {
@@ -203,7 +204,7 @@ const products: Product[] = [
 const categories = ['Все', 'Худи', 'Куртки', 'Пальто'];
 const genderFilters = ['All', 'Men', 'Woman', 'Children'];
 
-function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
+function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -269,6 +270,7 @@ function PremiumFashionStore({ activeTab }: PremiumFashionStoreProps) {
 
   const openProduct = (product: Product) => {
     scrollToTop();
+    onTabChange?.('catalog');
     setSelectedProduct(product);
     setSelectedSize(product.sizes[0]);
     setSelectedColor(product.colors[0]);

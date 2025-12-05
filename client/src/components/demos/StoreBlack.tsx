@@ -37,6 +37,7 @@ import sunglassesImg2 from '@assets/stock_images/black_sunglasses_pre_9e5b9b98.j
 
 interface StoreBlackProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: string) => void;
 }
 
 interface CartItem {
@@ -272,7 +273,7 @@ const getDelayClass = (index: number) => {
   return delays[index % delays.length];
 };
 
-function StoreBlack({ activeTab }: StoreBlackProps) {
+function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -327,6 +328,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
 
   const openProduct = (product: Product) => {
     scrollToTop();
+    onTabChange?.('catalog');
     setSelectedProduct(product);
     setSelectedSize(product.sizes[0]);
     setSelectedColor(product.colors[0]);

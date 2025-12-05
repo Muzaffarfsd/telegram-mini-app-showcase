@@ -16,6 +16,7 @@ import fashionImg8 from '@assets/stock_images/futuristic_techwear__95b77175.jpg'
 
 interface RascalStoreProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: string) => void;
 }
 
 interface CartItem {
@@ -247,7 +248,7 @@ const products: Product[] = [
 const categories = ['Все', 'Куртки', 'Кроссовки', 'Худи'];
 const genderFilters = ['All', 'Men', 'Woman'];
 
-function RascalStore({ activeTab }: RascalStoreProps) {
+function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -305,6 +306,7 @@ function RascalStore({ activeTab }: RascalStoreProps) {
 
   const openProduct = (product: Product) => {
     scrollToTop();
+    onTabChange?.('catalog');
     setSelectedProduct(product);
     setSelectedSize(product.sizes[0]);
     setSelectedColor(product.colors[0]);

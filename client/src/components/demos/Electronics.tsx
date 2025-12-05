@@ -38,6 +38,7 @@ import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 interface ElectronicsProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: string) => void;
 }
 
 interface CartItem {
@@ -192,7 +193,7 @@ const products: Product[] = [
 const categories = ['Все', 'Смартфоны', 'Ноутбуки', 'Планшеты', 'Наушники', 'Камеры'];
 const genderFilters = ['All', 'Popular', 'New', 'Sale'];
 
-export default memo(function Electronics({ activeTab }: ElectronicsProps) {
+export default memo(function Electronics({ activeTab, onTabChange }: ElectronicsProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -261,6 +262,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
 
   const openProduct = (product: Product) => {
     scrollToTop();
+    onTabChange?.('catalog');
     setSelectedProduct(product);
   };
 

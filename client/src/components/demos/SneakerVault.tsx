@@ -15,6 +15,7 @@ const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4
 
 interface SneakerVaultProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: string) => void;
 }
 
 interface CartItem {
@@ -195,7 +196,7 @@ const sneakers: Sneaker[] = [
 const categories = ['Все', 'Лайфстайл', 'Баскетбол', 'Беговые', 'Коллаб'];
 const genderFilters = ['All', 'Men', 'Woman', 'Unisex'];
 
-function SneakerVault({ activeTab }: SneakerVaultProps) {
+function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
   const [selectedSneaker, setSelectedSneaker] = useState<Sneaker | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
@@ -252,9 +253,9 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
 
   const openSneaker = (sneaker: Sneaker) => {
     scrollToTop();
+    onTabChange?.('catalog');
     setSelectedSneaker(sneaker);
     setSelectedSize(sneaker.sizes[0]);
-    // Note: User can manually navigate to catalog tab via bottom navigation
   };
 
   const addToCart = () => {

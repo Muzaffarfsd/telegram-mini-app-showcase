@@ -13,6 +13,7 @@ import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 interface OxyzNFTProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: string) => void;
 }
 
 interface Product {
@@ -190,7 +191,7 @@ const containerVariants = {
   }
 };
 
-function OxyzNFT({ activeTab }: OxyzNFTProps) {
+function OxyzNFT({ activeTab, onTabChange }: OxyzNFTProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -245,6 +246,7 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
 
   const openProduct = (product: Product) => {
     scrollToTop();
+    onTabChange?.('catalog');
     setSelectedProduct(product);
   };
 

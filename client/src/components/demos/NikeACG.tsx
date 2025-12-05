@@ -265,6 +265,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
 
   const openProduct = (product: Product) => {
     scrollToTop();
+    onTabChange?.('catalog');
     setSelectedProduct(product);
     setSelectedSize(product.sizes[0]);
     setSelectedColor(product.colors[0]);

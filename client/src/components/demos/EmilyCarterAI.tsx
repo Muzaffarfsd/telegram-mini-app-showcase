@@ -11,6 +11,7 @@ import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 interface EmilyCarterAIProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: string) => void;
 }
 
 interface Product {
@@ -150,7 +151,7 @@ const products: Product[] = [
 
 const categories = ['All', 'Skincare', 'Makeup', 'Fragrance', 'Haircare'];
 
-function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
+function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [favorites, setFavorites] = useState<Set<number>>(new Set([1, 4]));
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -185,6 +186,7 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
 
   const openProduct = (product: Product) => {
     scrollToTop();
+    onTabChange?.('catalog');
     setSelectedProduct(product);
   };
 

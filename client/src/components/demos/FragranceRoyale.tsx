@@ -8,6 +8,7 @@ import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 interface FragranceRoyaleProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: string) => void;
 }
 
 interface CartItem {
@@ -196,7 +197,7 @@ const perfumes: Perfume[] = [
 const categories = ['Все', 'Fresh', 'Oriental', 'Floral', 'Woody', 'Amber'];
 const genderFilters = ['All', 'Men', 'Woman', 'Unisex'];
 
-function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
+function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   const [selectedPerfume, setSelectedPerfume] = useState<Perfume | null>(null);
   const [selectedVolume, setSelectedVolume] = useState<string>('');
   const [selectedConcentration, setSelectedConcentration] = useState<string>('');
@@ -250,6 +251,7 @@ function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
 
   const openPerfume = (perfume: Perfume) => {
     scrollToTop();
+    onTabChange?.('catalog');
     setSelectedPerfume(perfume);
     setSelectedVolume(perfume.volumes[0]);
     setSelectedConcentration(perfume.concentrations[0]);

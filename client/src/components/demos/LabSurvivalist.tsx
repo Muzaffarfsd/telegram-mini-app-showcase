@@ -15,6 +15,7 @@ import img5 from '@assets/stock_images/futuristic_fashion_m_4950c20e.jpg';
 
 interface LabSurvivalistProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: string) => void;
 }
 
 interface CartItem {
@@ -244,7 +245,7 @@ const getDelayClass = (index: number) => {
   return delays[index % delays.length];
 };
 
-function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
+function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -309,6 +310,7 @@ function LabSurvivalist({ activeTab }: LabSurvivalistProps) {
 
   const openProduct = (product: Product) => {
     scrollToTop();
+    onTabChange?.('catalog');
     setSelectedProduct(product);
     setSelectedSize(product.sizes[0]);
     setSelectedColor(product.colors[0]);
