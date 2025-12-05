@@ -1,11 +1,17 @@
 import { useState, useEffect, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { Skeleton } from "../ui/skeleton";
 import { useFilter } from "@/hooks/useFilter";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
@@ -208,21 +214,42 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
   const [selectedGender, setSelectedGender] = useState<string>('All');
-  const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   
+  const { toast } = useToast();
   const sidebar = useDemoSidebar();
+  
+  const { 
+    cartItems: cart, 
+    addToCart: addToCartPersistent, 
+    removeFromCart, 
+    updateQuantity,
+    clearCart, 
+    totalAmount: cartTotal,
+    totalItems: cartCount 
+  } = usePersistentCart({ storageKey: 'radiance_cart' });
+  
+  const { 
+    favorites, 
+    toggleFavorite, 
+    isFavorite,
+    favoritesCount 
+  } = usePersistentFavorites({ storageKey: 'radiance_favorites' });
+  
+  const { 
+    orders, 
+    createOrder,
+    ordersCount 
+  } = usePersistentOrders({ storageKey: 'radiance_orders' });
   
   const sidebarMenuItems = [
     { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
     { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
-    { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favorites.size > 0 ? String(favorites.size) : undefined },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cart.length > 0 ? String(cart.length) : undefined, badgeColor: '#CDFF38' },
+    { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: '#CDFF38' },
     { icon: <Tag className="w-5 h-5" />, label: 'Акции', badge: 'NEW', badgeColor: '#EF4444' },
     { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
     { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
@@ -258,14 +285,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     setLoadedImages(prev => new Set(prev).add(productId));
   };
 
-  const toggleFavorite = (productId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(productId)) {
-      newFavorites.delete(productId);
-    } else {
-      newFavorites.add(productId);
-    }
-    setFavorites(newFavorites);
+  const handleToggleFavorite = (productId: number) => {
+    toggleFavorite(productId);
+    const isNowFavorite = !isFavorite(productId);
+    toast({
+      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
+      duration: 1500,
+    });
   };
 
   const openProduct = (product: Product) => {
@@ -279,17 +305,21 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   const addToCart = () => {
     if (!selectedProduct) return;
     
-    const cartItem: CartItem = {
-      id: Date.now(),
+    addToCartPersistent({
+      id: String(selectedProduct.id),
       name: selectedProduct.name,
       price: selectedProduct.price,
       size: selectedSize,
-      quantity: 1,
       image: selectedProduct.image,
       color: selectedColor
-    };
+    });
     
-    setCart([...cart, cartItem]);
+    toast({
+      title: 'Добавлено в корзину',
+      description: `${selectedProduct.name} • ${selectedColor} • ${selectedSize}`,
+      duration: 2000,
+    });
+    
     setSelectedProduct(null);
   };
 
@@ -302,22 +332,30 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     }).format(price);
   };
 
-  const handleCheckout = () => {
-    if (cart.length === 0) return;
+  const handleCheckout = (orderId: string) => {
+    const orderItems = cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image,
+      size: item.size,
+      color: item.color
+    }));
     
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cart],
-      total: total,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
+    createOrder(orderItems, cartTotal, {
+      address: 'Москва',
+      phone: '+7 (999) 123-45-67'
+    });
     
-    setOrders([newOrder, ...orders]);
-    setCart([]);
-    setShowCheckoutSuccess(true);
-    setTimeout(() => setShowCheckoutSuccess(false), 3000);
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Заказ оформлен!',
+      description: `Номер заказа: ${orderId}`,
+      duration: 3000,
+    });
   };
 
   // PRODUCT PAGE
@@ -337,13 +375,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleFavorite(selectedProduct.id);
+              handleToggleFavorite(selectedProduct.id);
             }}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
             data-testid={`button-favorite-${selectedProduct.id}`}
           >
             <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
+              className={`w-5 h-5 ${isFavorite(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
             />
           </button>
         </div>
@@ -602,14 +641,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleFavorite(product.id);
+                  handleToggleFavorite(product.id);
                 }}
-                aria-label="Избранное"
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
+                aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
                 data-testid={`button-favorite-${product.id}`}
               >
                 <Heart 
-                  className={`w-5 h-5 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                  className={`w-5 h-5 ${isFavorite(product.id) ? 'fill-white text-white' : 'text-white'}`}
                 />
               </button>
 
@@ -714,14 +753,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(product.id);
+                      handleToggleFavorite(product.id);
                     }}
-                    aria-label="Избранное"
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
+                    aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
                     data-testid={`button-favorite-catalog-${product.id}`}
                   >
                     <Heart 
-                      className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                      className={`w-4 h-4 ${isFavorite(product.id) ? 'fill-white text-white' : 'text-white'}`}
                     />
                   </button>
 
@@ -753,23 +792,23 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
   // CART PAGE
   if (activeTab === 'cart') {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
           {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <ShoppingBag className="w-20 h-20 text-white/20 mb-4" />
-              <p className="text-white/50 text-center">Ваша корзина пуста</p>
-            </div>
+            <EmptyState
+              type="cart"
+              actionLabel="В каталог"
+              onAction={() => onTabChange?.('catalog')}
+              className="py-20"
+            />
           ) : (
             <div className="space-y-4">
               {cart.map((item) => (
                 <div
-                  key={item.id}
+                  key={`${item.id}-${item.size}-${item.color}`}
                   className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
                   data-testid={`cart-item-${item.id}`}
                 >
@@ -784,12 +823,33 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     <p className="text-sm text-white/60 mb-2">
                       {item.color} • {item.size}
                     </p>
-                    <p className="text-lg font-bold">{formatPrice(item.price)}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-lg font-bold">{formatPrice(item.price * item.quantity)}</p>
+                      <div className="flex items-center gap-2 bg-white/10 rounded-full px-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                          className="w-8 h-8 flex items-center justify-center"
+                          aria-label="Уменьшить количество"
+                          data-testid={`button-decrease-${item.id}`}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-6 text-center font-semibold">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                          className="w-8 h-8 flex items-center justify-center"
+                          aria-label="Увеличить количество"
+                          data-testid={`button-increase-${item.id}`}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <button
-                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
-                    aria-label="Удалить"
-                    className="w-8 h-8"
+                    onClick={() => removeFromCart(item.id, item.size, item.color)}
+                    aria-label="Удалить из корзины"
+                    className="w-10 h-10 flex items-center justify-center"
                     data-testid={`button-remove-${item.id}`}
                   >
                     <X className="w-5 h-5" />
@@ -800,30 +860,34 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#0A0A0A] border-t border-white/10">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold">{formatPrice(total)}</span>
+                  <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
                 </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
-                      data-testid="button-checkout"
-                    >
-                      Оформить заказ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cart.length} товаров на сумму ${formatPrice(total)}`}
-                  confirmText="Оформить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
+                <button
+                  onClick={() => setIsCheckoutOpen(true)}
+                  className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all min-h-[48px]"
+                  data-testid="button-checkout"
+                >
+                  Оформить заказ
+                </button>
               </div>
-              {showCheckoutSuccess && (
-                <div className="fixed top-20 left-4 right-4 bg-[#CDFF38] text-black p-4 rounded-2xl text-center font-bold z-50 animate-pulse">
-                  Заказ успешно оформлен!
-                </div>
-              )}
+              
+              <CheckoutDrawer
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                items={cart.map(item => ({
+                  id: parseInt(item.id) || 0,
+                  name: item.name,
+                  price: item.price,
+                  quantity: item.quantity,
+                  size: item.size,
+                  color: item.color,
+                  image: item.image
+                }))}
+                total={cartTotal}
+                currency="₽"
+                onOrderComplete={handleCheckout}
+                storeName="RADIANCE"
+              />
             </div>
           )}
         </div>
@@ -849,11 +913,11 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{orders.length}</p>
+              <p className="text-2xl font-bold">{ordersCount}</p>
             </div>
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Избранное</p>
-              <p className="text-2xl font-bold">{favorites.size}</p>
+              <p className="text-2xl font-bold">{favoritesCount}</p>
             </div>
           </div>
         </div>
@@ -871,8 +935,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 {orders.map((order) => (
                   <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-white/70">Заказ #{order.id.toString().slice(-6)}</span>
-                      <span className="text-sm text-white/70">{order.date}</span>
+                      <span className="text-sm text-white/70">Заказ #{order.id.slice(-6)}</span>
+                      <span className="text-sm text-white/70">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
                     </div>
                     <div className="flex justify-between mb-2">
                       <span className="text-white/80">{order.items.length} товаров</span>
@@ -880,7 +944,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     </div>
                     <div className="mt-2">
                       <span className="text-xs px-2 py-1 bg-[#CDFF38]/20 text-[#CDFF38] rounded-full">
-                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                        {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
                       </span>
                     </div>
                   </div>
