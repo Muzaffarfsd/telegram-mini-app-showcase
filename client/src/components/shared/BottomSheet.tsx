@@ -3,7 +3,7 @@ import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from '
 import { X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { FocusTrap } from '@/hooks/useFocusTrap';
 
 export type BottomSheetSnapPoint = number | 'content' | 'full';
 
