@@ -294,6 +294,11 @@ function OxyzNFT({ activeTab, onTabChange }: OxyzNFTProps) {
     setSelectedProduct(null);
   }, [addToCartHook, toast]);
 
+  const vipDiscount = useMemo(() => cartSubtotal * 0.15, [cartSubtotal]);
+  const cartTotal = useMemo(() => cartSubtotal - vipDiscount, [cartSubtotal, vipDiscount]);
+
+  const formatPrice = (price: number) => `$${price.toLocaleString()}`;
+
   const handleCheckout = useCallback(() => {
     if (cart.length === 0) return;
     
@@ -320,14 +325,9 @@ function OxyzNFT({ activeTab, onTabChange }: OxyzNFTProps) {
     });
   }, [cart, cartTotal, addOrder, clearCart, toast]);
 
-  const vipDiscount = useMemo(() => cartSubtotal * 0.15, [cartSubtotal]);
-  const cartTotal = useMemo(() => cartSubtotal - vipDiscount, [cartSubtotal, vipDiscount]);
-
   const handleImageLoad = useCallback((id: number) => {
     setLoadedImages(prev => new Set(prev).add(id));
   }, []);
-
-  const formatPrice = (price: number) => `$${price.toLocaleString()}`;
 
   const filteredProducts = useMemo(() => 
     selectedCategory === 'All' 

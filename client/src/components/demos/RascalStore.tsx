@@ -267,13 +267,13 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
   const { toast } = useToast();
 
   const {
-    cart,
+    cartItems,
     addToCart: addToCartHook,
     removeFromCart,
     updateQuantity,
     clearCart,
-    cartTotal,
-    cartCount
+    totalAmount,
+    totalItems
   } = usePersistentCart({ storageKey: STORE_KEY });
 
   const {
@@ -284,7 +284,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
 
   const {
     orders,
-    addOrder,
+    createOrder,
     ordersCount
   } = usePersistentOrders({ storageKey: STORE_KEY });
 
@@ -370,11 +370,11 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
   };
 
   const handleCheckout = () => {
-    if (cart.length === 0) return;
+    if (cartItems.length === 0) return;
     
-    addOrder({
-      items: cart.map(item => ({
-        id: parseInt(item.id) || 0,
+    createOrder(
+      cartItems.map(item => ({
+        id: item.id,
         name: item.name,
         price: item.price,
         quantity: item.quantity,
@@ -382,8 +382,8 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
         color: item.color,
         image: item.image
       })),
-      total: cartTotal
-    });
+      totalAmount
+    );
     
     clearCart();
     setIsCheckoutOpen(false);
@@ -801,7 +801,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
-          {cart.length === 0 ? (
+          {cartItems.length === 0 ? (
             <EmptyState
               type="cart"
               actionLabel="В каталог"
@@ -810,7 +810,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
             />
           ) : (
             <div className="space-y-4">
-              {cart.map((item) => (
+              {cartItems.map((item) => (
                 <div
                   key={`${item.id}-${item.size}-${item.color}`}
                   className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
@@ -864,7 +864,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
               <div className="fixed bottom-24 left-0 right-0 p-6 border-t border-white/10" style={{ backgroundColor: '#1a2e2a' }}>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
+                  <span className="text-2xl font-bold">{formatPrice(totalAmount)}</span>
                 </div>
                 <button
                   onClick={() => setIsCheckoutOpen(true)}
@@ -879,7 +879,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
               <CheckoutDrawer
                 isOpen={isCheckoutOpen}
                 onClose={() => setIsCheckoutOpen(false)}
-                items={cart.map(item => ({
+                items={cartItems.map(item => ({
                   id: parseInt(item.id) || 0,
                   name: item.name,
                   price: item.price,
@@ -888,7 +888,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
                   color: item.color,
                   image: item.image
                 }))}
-                total={cartTotal}
+                total={totalAmount}
                 currency="₽"
                 onOrderComplete={handleCheckout}
                 storeName="NIKE Rascal"

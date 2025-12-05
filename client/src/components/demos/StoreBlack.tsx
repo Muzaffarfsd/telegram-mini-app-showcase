@@ -293,13 +293,13 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
   const { toast } = useToast();
 
   const {
-    cart,
+    cartItems,
     addToCart: addToCartHook,
     removeFromCart,
     updateQuantity: updateCartQuantity,
     clearCart,
-    cartTotal,
-    cartCount
+    totalAmount,
+    totalItems
   } = usePersistentCart({ storageKey: STORE_KEY });
 
   const {
@@ -310,7 +310,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
 
   const {
     orders,
-    addOrder,
+    createOrder,
     ordersCount
   } = usePersistentOrders({ storageKey: STORE_KEY });
 
@@ -387,11 +387,11 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
   };
 
   const handleCheckout = () => {
-    if (cart.length === 0) return;
+    if (cartItems.length === 0) return;
     
-    addOrder({
-      items: cart.map(item => ({
-        id: parseInt(item.id) || 0,
+    createOrder(
+      cartItems.map(item => ({
+        id: item.id,
         name: item.name,
         price: item.price,
         quantity: item.quantity,
@@ -399,8 +399,8 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
         color: item.color,
         image: item.image
       })),
-      total: cartTotal
-    });
+      totalAmount
+    );
     
     clearCart();
     setIsCheckoutOpen(false);
@@ -596,14 +596,14 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
             <div className="flex items-center gap-3">
               <button className="relative" data-testid="button-view-cart" aria-label="Корзина">
                 <ShoppingBag className="w-6 h-6" style={{ color: '#FFD700' }} />
-                {cart.length > 0 && (
+                {cartItems.length > 0 && (
                   <span className="absolute -top-2 -right-2 w-5 h-5 bg-[#FFD700] text-black text-xs font-bold rounded-full flex items-center justify-center">
-                    {cart.length}
+                    {cartItems.length}
                   </span>
                 )}
               </button>
               <button data-testid="button-view-favorites" aria-label="Избранное">
-                <Heart className="w-6 h-6" style={{ color: favorites.size > 0 ? '#FFD700' : 'white' }} />
+                <Heart className="w-6 h-6" style={{ color: favoritesCount > 0 ? '#FFD700' : 'white' }} />
               </button>
             </div>
           </div>
@@ -887,7 +887,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
               <ShoppingBag className="w-6 h-6" style={{ color: '#FFD700' }} />
               <h1 className="text-3xl font-bold">Корзина</h1>
             </div>
-            {cart.length > 0 && (
+            {cartItems.length > 0 && (
               <button 
                 onClick={() => clearCart()}
                 className="text-sm text-white/60 hover:text-white transition-colors"
@@ -898,7 +898,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
             )}
           </div>
 
-          {cart.length === 0 ? (
+          {cartItems.length === 0 ? (
             <EmptyState
               type="cart"
               actionLabel="В каталог"
@@ -907,7 +907,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
             />
           ) : (
             <div className="space-y-4">
-              {cart.map((item, idx) => (
+              {cartItems.map((item, idx) => (
                 <div
                   key={`${item.id}-${item.size}-${item.color}`}
                   className={`bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4 border border-white/10 ${idx < 2 ? 'scroll-fade-in' : getDelayClass(idx)}`}
@@ -965,7 +965,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
               <div className="fixed bottom-24 left-0 right-0 p-6 bg-black border-t border-white/10">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold" style={{ color: '#FFD700' }}>{formatPrice(cartTotal)}</span>
+                  <span className="text-2xl font-bold" style={{ color: '#FFD700' }}>{formatPrice(totalAmount)}</span>
                 </div>
                 <button
                   onClick={() => setIsCheckoutOpen(true)}
@@ -980,7 +980,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
               <CheckoutDrawer
                 isOpen={isCheckoutOpen}
                 onClose={() => setIsCheckoutOpen(false)}
-                items={cart.map(item => ({
+                items={cartItems.map(item => ({
                   id: parseInt(item.id) || 0,
                   name: item.name,
                   price: item.price,
@@ -989,7 +989,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
                   color: item.color,
                   image: item.image
                 }))}
-                total={cartTotal}
+                total={totalAmount}
                 currency="₽"
                 onOrderComplete={handleCheckout}
                 storeName="Store Black"
