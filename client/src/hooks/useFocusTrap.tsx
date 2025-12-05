@@ -134,22 +134,24 @@ export const useFocusTrap = (options: FocusTrapOptions = {}) => {
   };
 };
 
-export const FocusTrap = ({
+interface FocusTrapComponentProps extends FocusTrapOptions {
+  children: React.ReactNode;
+  active?: boolean;
+  className?: string;
+}
+
+export function FocusTrap({
   children,
+  active = true,
   enabled = true,
   initialFocus,
   returnFocusOnDeactivate = true,
   preventScroll = false,
   allowOutsideClick = false,
-  as: Component = 'div',
-  ...props
-}: FocusTrapOptions & {
-  children: React.ReactNode;
-  as?: React.ElementType;
-  [key: string]: any;
-}) => {
+  className,
+}: FocusTrapComponentProps): React.ReactElement {
   const { ref } = useFocusTrap({
-    enabled,
+    enabled: active && enabled,
     initialFocus,
     returnFocusOnDeactivate,
     preventScroll,
@@ -157,8 +159,8 @@ export const FocusTrap = ({
   });
 
   return (
-    <Component ref={ref} {...props}>
+    <div ref={ref} className={className}>
       {children}
-    </Component>
+    </div>
   );
-};
+}
