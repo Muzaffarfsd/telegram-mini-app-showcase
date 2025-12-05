@@ -1,5 +1,5 @@
 // Схема БД для хранения метаданных фотографий
-import { pgTable, serial, varchar, text, timestamp, bigint, integer, decimal, boolean, date, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, text, timestamp, bigint, integer, decimal, boolean, date, jsonb, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -125,7 +125,9 @@ export const tasksProgress = pgTable("tasks_progress", {
   completedAt: timestamp("completed_at"),
   verificationData: jsonb("verification_data"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  uniqueTelegramTask: unique().on(table.telegramId, table.taskId),
+}));
 
 // Таблица баланса монет пользователей
 export const userCoinsBalance = pgTable("user_coins_balance", {

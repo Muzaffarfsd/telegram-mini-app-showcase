@@ -1164,11 +1164,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { telegramId, channelUsername } = req.body;
-      const userTelegramId = telegramId || req.telegramUser.id;
+      const authTelegramId = req.telegramUser.id;
 
-      if (!userTelegramId) {
-        return res.status(400).json({ error: 'telegramId is required' });
+      // Security: if telegramId is provided in body, it must match authenticated user
+      if (telegramId !== undefined && Number(telegramId) !== authTelegramId) {
+        console.log(`[Tasks] Security violation: body telegramId ${telegramId} does not match auth ${authTelegramId}`);
+        return res.status(403).json({ 
+          error: 'Forbidden',
+          message: 'Cannot verify subscription for another user'
+        });
       }
+
+      const userTelegramId = authTelegramId;
 
       if (!channelUsername) {
         return res.status(400).json({ error: 'channelUsername is required' });
@@ -1193,27 +1200,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!result.ok) {
         console.log(`[Tasks] Telegram API error:`, result.description);
+        const errorDesc = result.description || '';
         
         // If user is not found or not a member
-        if (result.description?.includes('user not found') || result.description?.includes('USER_NOT_PARTICIPANT')) {
+        if (errorDesc.includes('user not found') || 
+            errorDesc.includes('USER_NOT_PARTICIPANT') ||
+            errorDesc.includes('PARTICIPANT_NOT_FOUND')) {
           return res.json({
             subscribed: false,
             status: 'not_member',
-            message: 'User is not a member of the channel'
+            message: 'Вы не подписаны на канал. Пожалуйста, подпишитесь и попробуйте снова.'
           });
         }
 
-        // If bot doesn't have admin rights or channel doesn't exist
-        if (result.description?.includes('chat not found') || result.description?.includes('CHAT_ADMIN_REQUIRED')) {
+        // If bot doesn't have admin rights
+        if (errorDesc.includes('CHAT_ADMIN_REQUIRED') || 
+            errorDesc.includes('member list is inaccessible')) {
+          console.error(`[Tasks] Bot is not admin in channel ${normalizedChannel}`);
           return res.status(400).json({
-            error: 'Cannot verify subscription',
-            message: result.description
+            error: 'bot_not_admin',
+            message: 'Не удалось проверить подписку. Бот не имеет прав администратора в канале.'
           });
         }
 
+        // If channel doesn't exist
+        if (errorDesc.includes('chat not found') || errorDesc.includes('CHAT_NOT_FOUND')) {
+          return res.status(400).json({
+            error: 'channel_not_found',
+            message: 'Канал не найден. Проверьте правильность имени канала.'
+          });
+        }
+
+        // Other errors
         return res.status(400).json({
-          error: 'Telegram API error',
-          message: result.description
+          error: 'telegram_api_error',
+          message: 'Ошибка проверки подписки. Попробуйте позже.'
         });
       }
 
@@ -1225,7 +1246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         subscribed: isSubscribed,
         status: memberStatus,
-        message: isSubscribed ? 'User is subscribed to the channel' : 'User is not subscribed to the channel'
+        message: isSubscribed ? 'Подписка подтверждена!' : 'Вы не подписаны на канал'
       });
 
     } catch (error) {
@@ -1237,8 +1258,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoint для выполнения задания и начисления монет
   app.post("/api/tasks/complete", verifyTelegramUser, async (req: any, res) => {
     try {
-      const telegramId = req.telegramUser.id;
-      const { task_id, platform, coins_reward, channelUsername } = req.body;
+      const authTelegramId = req.telegramUser.id;
+      const { telegramId: bodyTelegramId, task_id, platform, coins_reward, channelUsername } = req.body;
+
+      // Security: if telegramId is provided in body, it must match authenticated user
+      if (bodyTelegramId !== undefined && Number(bodyTelegramId) !== authTelegramId) {
+        console.log(`[Tasks] Security violation: body telegramId ${bodyTelegramId} does not match auth ${authTelegramId}`);
+        return res.status(403).json({ 
+          error: 'Forbidden',
+          message: 'Cannot complete task for another user'
+        });
+      }
+
+      const telegramId = authTelegramId;
 
       if (!task_id || !platform || coins_reward === undefined) {
         return res.status(400).json({ error: 'task_id, platform, and coins_reward are required' });
@@ -1302,10 +1334,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         if (!result.ok) {
           console.log(`[Tasks] Telegram verification failed:`, result.description);
+          const errorDesc = result.description || '';
+          
+          // Handle USER_NOT_PARTICIPANT explicitly
+          if (errorDesc.includes('USER_NOT_PARTICIPANT') || 
+              errorDesc.includes('PARTICIPANT_NOT_FOUND') ||
+              errorDesc.includes('user not found')) {
+            return res.status(400).json({
+              error: 'not_subscribed',
+              subscribed: false,
+              message: 'Вы не подписаны на канал. Пожалуйста, подпишитесь и попробуйте снова.'
+            });
+          }
+          
+          // Handle bot not admin
+          if (errorDesc.includes('CHAT_ADMIN_REQUIRED') || 
+              errorDesc.includes('member list is inaccessible')) {
+            console.error(`[Tasks] Bot is not admin in channel ${normalizedChannel}`);
+            return res.status(400).json({
+              error: 'bot_not_admin',
+              subscribed: false,
+              message: 'Не удалось проверить подписку. Бот не имеет прав администратора в канале.'
+            });
+          }
+          
+          // Handle channel not found
+          if (errorDesc.includes('chat not found') || errorDesc.includes('CHAT_NOT_FOUND')) {
+            return res.status(400).json({
+              error: 'channel_not_found',
+              subscribed: false,
+              message: 'Канал не найден. Проверьте правильность имени канала.'
+            });
+          }
+          
           return res.status(400).json({
-            error: 'Subscription verification failed',
+            error: 'telegram_api_error',
             subscribed: false,
-            message: result.description || 'Could not verify subscription'
+            message: 'Ошибка проверки подписки. Попробуйте позже.'
           });
         }
 
@@ -1315,17 +1380,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!isSubscribed) {
           console.log(`[Tasks] User ${telegramId} is not subscribed to ${normalizedChannel} (status: ${memberStatus})`);
           return res.status(400).json({
-            error: 'Not subscribed',
+            error: 'not_subscribed',
             subscribed: false,
             status: memberStatus,
-            message: 'Please subscribe to the channel first'
+            message: 'Пожалуйста, сначала подпишитесь на канал'
           });
         }
 
         console.log(`[Tasks] Subscription verified: user ${telegramId} is ${memberStatus} of ${normalizedChannel}`);
       }
 
-      // Save task progress as completed
+      // Save task progress as completed using upsert to avoid duplicates
       const [taskProgress] = await db.insert(tasksProgress).values({
         telegramId: telegramId,
         taskId: task_id,
@@ -1339,9 +1404,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         startedAt: new Date(),
         completedAt: new Date(),
         verificationData: { platform, channelUsername }
-      }).returning();
+      })
+      .onConflictDoUpdate({
+        target: [tasksProgress.telegramId, tasksProgress.taskId],
+        set: {
+          completed: true,
+          verificationStatus: 'verified',
+          completedAt: new Date(),
+          lastAttemptAt: new Date(),
+          attempts: sql`${tasksProgress.attempts} + 1`,
+          verificationData: { platform, channelUsername }
+        }
+      })
+      .returning();
 
-      console.log(`[Tasks] Task progress saved: id ${taskProgress.id}`);
+      console.log(`[Tasks] Task progress saved (upsert): id ${taskProgress.id}`);
 
       // Update user coins balance
       let [userBalance] = await db.select().from(userCoinsBalance)
@@ -1812,9 +1889,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Получить ежедневные задачи
-  app.get("/api/gamification/daily-tasks/:telegram_id", async (req, res) => {
+  app.get("/api/gamification/daily-tasks/:telegram_id", verifyTelegramUser, async (req: any, res) => {
     try {
       const telegram_id = parseInt(req.params.telegram_id);
+      const authTelegramId = req.telegramUser.id;
+
+      // Security: only allow users to fetch their own daily tasks
+      if (telegram_id !== authTelegramId) {
+        console.log(`[Gamification] Security violation: params telegram_id ${telegram_id} does not match auth ${authTelegramId}`);
+        return res.status(403).json({ 
+          error: 'Forbidden',
+          message: 'Cannot view another user\'s daily tasks'
+        });
+      }
+
       const today = new Date().toISOString().split('T')[0];
 
       // Получить задачи на сегодня
