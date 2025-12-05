@@ -198,26 +198,25 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
   
   // Persistent hooks
   const { 
-    cart, 
+    cartItems, 
     addToCart: addToCartHook, 
     removeFromCart, 
     updateQuantity, 
     clearCart, 
-    cartTotal 
-  } = usePersistentCart(STORE_KEY);
+    totalAmount 
+  } = usePersistentCart({ storageKey: STORE_KEY });
   
   const { 
-    favorites, 
     toggleFavorite: toggleFavoriteHook, 
     isFavorite, 
     favoritesCount 
-  } = usePersistentFavorites(STORE_KEY);
+  } = usePersistentFavorites({ storageKey: STORE_KEY });
   
   const { 
     orders, 
-    addOrder, 
+    createOrder, 
     ordersCount 
-  } = usePersistentOrders(STORE_KEY);
+  } = usePersistentOrders({ storageKey: STORE_KEY });
 
   useEffect(() => {
     scrollToTop();
@@ -266,9 +265,10 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
   };
 
   const handleToggleFavorite = (productId: number) => {
-    const wasAdded = toggleFavoriteHook(String(productId));
+    const wasInFavorites = isFavorite(String(productId));
+    toggleFavoriteHook(String(productId));
     toast({
-      title: wasAdded ? 'Добавлено в избранное' : 'Удалено из избранного',
+      title: !wasInFavorites ? 'Добавлено в избранное' : 'Удалено из избранного',
       duration: 1500
     });
   };
@@ -311,10 +311,10 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
   };
 
   const handleCheckout = () => {
-    if (cart.length === 0) return;
+    if (cartItems.length === 0) return;
     
-    addOrder(
-      cart.map(item => ({
+    createOrder(
+      cartItems.map((item: typeof cartItems[0]) => ({
         id: item.id,
         name: item.name,
         price: item.price,
@@ -323,7 +323,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
         size: item.size,
         color: item.color
       })),
-      cartTotal
+      totalAmount
     );
     
     clearCart();
@@ -331,7 +331,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
     
     toast({
       title: 'Заказ успешно оформлен!',
-      description: `На сумму ${formatPrice(cartTotal)}`,
+      description: `На сумму ${formatPrice(totalAmount)}`,
       duration: 3000
     });
   };
@@ -757,7 +757,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
-          {cart.length === 0 ? (
+          {cartItems.length === 0 ? (
             <EmptyState
               type="cart"
               actionLabel="В каталог"
@@ -766,7 +766,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
             />
           ) : (
             <div className="space-y-4">
-              {cart.map((item) => (
+              {cartItems.map((item: typeof cartItems[0]) => (
                 <div
                   key={`${item.id}-${item.size}-${item.color}`}
                   className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
@@ -817,7 +817,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
               <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#0A0A0A] border-t border-white/10">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
+                  <span className="text-2xl font-bold">{formatPrice(totalAmount)}</span>
                 </div>
                 <button
                   onClick={() => setIsCheckoutOpen(true)}
@@ -831,7 +831,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
               <CheckoutDrawer
                 isOpen={isCheckoutOpen}
                 onClose={() => setIsCheckoutOpen(false)}
-                items={cart.map(item => ({
+                items={cartItems.map((item: typeof cartItems[0]) => ({
                   id: parseInt(item.id) || 0,
                   name: item.name,
                   price: item.price,
@@ -840,7 +840,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                   color: item.color,
                   image: item.image
                 }))}
-                total={cartTotal}
+                total={totalAmount}
                 currency="₽"
                 onOrderComplete={handleCheckout}
                 storeName="TECHHUB"
