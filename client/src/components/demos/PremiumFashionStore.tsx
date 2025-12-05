@@ -12,6 +12,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
@@ -249,7 +250,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
     { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
     { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: '#CDFF38' },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: 'var(--theme-primary)' },
     { icon: <Tag className="w-5 h-5" />, label: 'Акции', badge: 'NEW', badgeColor: '#EF4444' },
     { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
     { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
@@ -388,11 +389,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         </div>
 
         <div className="relative h-[60vh]">
-          <img
+          <LazyImage
             src={selectedProduct.hoverImage}
             alt={selectedProduct.name}
             className="w-full h-full object-cover"
-            loading="lazy"
           />
         </div>
 
@@ -437,7 +437,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   onClick={() => setSelectedSize(size)}
                   className={`w-12 h-12 rounded-full font-semibold transition-all ${
                     selectedSize === size
-                      ? 'bg-[#CDFF38] text-black'
+                      ? 'bg-[var(--theme-primary)] text-black'
                       : 'bg-white/20 text-white hover:bg-white/30'
                   }`}
                   data-testid={`button-size-${size}`}
@@ -451,7 +451,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           <ConfirmDrawer
             trigger={
               <button
-                className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
+                className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all"
                 data-testid="button-buy-now"
               >
                 Добавить в корзину
@@ -472,7 +472,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   // HOME PAGE - REAL TIME SHOPPING STYLE
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <DemoSidebar
           isOpen={sidebar.isOpen}
           onClose={sidebar.close}
@@ -480,8 +480,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           menuItems={sidebarMenuItems}
           title="REAL TIME"
           subtitle="SHOPPING"
-          accentColor="#CDFF38"
-          bgColor="#0A0A0A"
+          accentColor="var(--theme-primary)"
+          bgColor="var(--theme-background)"
         />
         {/* Header */}
         <div className="p-6 pb-4">
@@ -587,8 +587,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               <button 
                 className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105"
                 style={{
-                  background: '#CDFF38',
-                  boxShadow: '0 0 30px rgba(205, 255, 56, 0.4)'
+                  background: 'var(--theme-primary)',
+                  boxShadow: '0 0 30px var(--theme-primary-glow, rgba(205, 255, 56, 0.4))'
                 }}
                 data-testid="button-view-collection"
               >
@@ -613,15 +613,11 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             >
               {/* Background Image with Skeleton */}
               <div className="absolute inset-0">
-                {!loadedImages.has(product.id) && (
-                  <Skeleton className="w-full h-full absolute inset-0" />
-                )}
-                <img
+                <LazyImage
                   src={product.image}
                   alt={product.name}
-                  className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
-                  loading="lazy"
-                  onLoad={() => handleImageLoad(product.id)}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  onLoadComplete={() => handleImageLoad(product.id)}
                 />
               </div>
 
@@ -670,7 +666,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       openProduct(product);
                     }}
                     aria-label="Добавить в корзину"
-                    className="w-14 h-14 rounded-full bg-[#CDFF38] flex items-center justify-center hover:bg-[#B8E633] transition-all hover:scale-110"
+                    className="w-14 h-14 rounded-full bg-[var(--theme-primary)] flex items-center justify-center hover:bg-[var(--theme-accent)] transition-all hover:scale-110"
                     data-testid={`button-add-to-cart-${product.id}`}
                   >
                     <ShoppingBag className="w-6 h-6 text-black" />
@@ -680,6 +676,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 {/* Price */}
                 <div className="mt-3">
                   <p className="text-lg font-bold">{formatPrice(product.price)}</p>
+                  {product.inStock < 10 && (
+                    <UrgencyIndicator 
+                      type="stock"
+                      value={product.inStock}
+                      variant="badge"
+                      className="mt-2"
+                    />
+                  )}
                 </div>
               </div>
             </m.div>
@@ -695,7 +699,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
@@ -717,7 +721,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                   selectedCategory === cat
-                    ? 'bg-[#CDFF38] text-black'
+                    ? 'bg-[var(--theme-primary)] text-black'
                     : 'bg-white/10 text-white/70 hover:bg-white/20'
                 }`}
                 data-testid={`button-filter-${cat.toLowerCase()}`}
@@ -738,15 +742,11 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 data-testid={`product-card-${product.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
-                  {!loadedImages.has(product.id) && (
-                    <Skeleton className="w-full h-full absolute inset-0" />
-                  )}
-                  <img
+                  <LazyImage
                     src={product.image}
                     alt={product.name}
-                    className={`w-full h-full object-cover transition-opacity ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
-                    loading="lazy"
-                    onLoad={() => handleImageLoad(product.id)}
+                    className="w-full h-full object-cover"
+                    onLoadComplete={() => handleImageLoad(product.id)}
                   />
                   
                   {/* Favorite */}
@@ -766,7 +766,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
                   {/* Badge */}
                   {product.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-[#CDFF38] text-black text-xs font-bold rounded-full">
+                    <div className="absolute top-2 left-2 px-2 py-1 bg-[var(--theme-primary)] text-black text-xs font-bold rounded-full">
                       NEW
                     </div>
                   )}
@@ -781,6 +781,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       <p className="text-xs text-white/40 line-through">{formatPrice(product.oldPrice)}</p>
                     )}
                   </div>
+                  {product.inStock < 10 && (
+                    <UrgencyIndicator 
+                      type="stock"
+                      value={product.inStock}
+                      variant="badge"
+                      className="mt-1"
+                    />
+                  )}
                 </div>
               </m.div>
             ))}
@@ -793,7 +801,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   // CART PAGE
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
@@ -812,11 +820,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
                   data-testid={`cart-item-${item.id}`}
                 >
-                  <img
+                  <LazyImage
                     src={item.image}
                     alt={item.name}
                     className="w-20 h-20 rounded-xl object-cover"
-                    loading="lazy"
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1">{item.name}</h3>
@@ -857,14 +864,15 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 </div>
               ))}
 
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#0A0A0A] border-t border-white/10">
+              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[var(--theme-background)] border-t border-white/10">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
                   <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
                 </div>
+                <TrustBadges variant="compact" className="mb-4" />
                 <button
                   onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all min-h-[48px]"
+                  className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all min-h-[48px]"
                   data-testid="button-checkout"
                 >
                   Оформить заказ
@@ -898,10 +906,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#CDFF38] to-[#B8E633] rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-accent)] rounded-full flex items-center justify-center">
               <User className="w-8 h-8 text-black" />
             </div>
             <div>
@@ -943,7 +951,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       <span className="font-bold">{formatPrice(order.total)}</span>
                     </div>
                     <div className="mt-2">
-                      <span className="text-xs px-2 py-1 bg-[#CDFF38]/20 text-[#CDFF38] rounded-full">
+                      <span className="text-xs px-2 py-1 bg-[var(--theme-primary)]/20 text-[var(--theme-primary)] rounded-full">
                         {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
                       </span>
                     </div>

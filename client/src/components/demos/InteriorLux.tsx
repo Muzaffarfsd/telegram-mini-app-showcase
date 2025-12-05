@@ -23,6 +23,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 
 const STORE_KEY = 'interiorlux-store';
 
@@ -398,7 +399,7 @@ export default function InteriorLux({ activeTab, onTabChange }: InteriorLuxProps
                   data-testid={`cart-item-${item.id}`}
                 >
                   <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    <LazyImage src={item.image} alt={item.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between gap-2 mb-2">
@@ -459,6 +460,8 @@ export default function InteriorLux({ activeTab, onTabChange }: InteriorLuxProps
                 <span className="font-bold text-xl text-emerald-600">${cartTotal.toLocaleString()}</span>
               </div>
             </div>
+            
+            <TrustBadges />
             
             <button
               onClick={() => setIsCheckoutOpen(true)}

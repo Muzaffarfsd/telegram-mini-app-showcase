@@ -23,6 +23,7 @@ import { ConfirmDrawer } from "../ui/modern-drawer";
 import { Skeleton } from "../ui/skeleton";
 import { useFilter } from "@/hooks/useFilter";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 
 interface BeautyProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -81,15 +82,14 @@ const services: Service[] = [
 
 const categories = ['Все', 'Парикмахерские', 'Маникюр', 'Педикюр', 'Косметология', 'Массаж'];
 
-// Featured collections for homepage
 const collections = [
   {
     id: 1,
     title: 'Уход за волосами',
     subtitle: 'Стрижка + окрашивание',
     image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=1200&h=800&fit=crop&q=90',
-    gradient: 'from-pink-500/30 to-rose-500/30',
-    accentColor: '#EC4899',
+    gradient: 'from-[var(--theme-primary)]/30 to-[var(--theme-accent)]/30',
+    accentColor: 'var(--theme-primary)',
     services: [1, 2, 3]
   },
   {
@@ -97,7 +97,7 @@ const collections = [
     title: 'Маникюр & Педикюр',
     subtitle: 'Идеальные ногти',
     image: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=1200&h=800&fit=crop&q=90',
-    gradient: 'from-purple-500/30 to-pink-500/30',
+    gradient: 'from-purple-500/30 to-[var(--theme-primary)]/30',
     accentColor: '#A855F7',
     services: [4, 5, 6]
   },
@@ -199,10 +199,9 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
     setTimeout(() => setShowCheckoutSuccess(false), 3000);
   };
 
-  // SERVICE DETAIL PAGE
   if (activeTab === 'catalog' && selectedService) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedService(null)}
@@ -222,17 +221,17 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
             aria-label="Добавить в избранное"
           >
             <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedService.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`}
+              className={`w-5 h-5 ${favorites.has(selectedService.id) ? 'text-white' : 'text-white'}`}
+              style={favorites.has(selectedService.id) ? { fill: 'var(--theme-primary)', color: 'var(--theme-primary)' } : {}}
             />
           </button>
         </div>
 
         <div className="relative h-[60vh] overflow-hidden">
-          <img
+          <LazyImage
             src={selectedService.image}
             alt={selectedService.name}
             className="w-full h-full object-cover"
-            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
         </div>
@@ -240,9 +239,9 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
         <div className="bg-black/40 backdrop-blur-xl rounded-t-3xl -mt-8 relative z-10 p-6 space-y-6 pb-32">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm text-pink-300 font-semibold">{selectedService.category}</span>
+              <span className="text-sm font-semibold" style={{ color: 'var(--theme-primary)' }}>{selectedService.category}</span>
               {selectedService.isNew && (
-                <span className="px-2 py-1 bg-pink-500/20 text-pink-300 text-xs font-bold rounded-full flex items-center gap-1">
+                <span className="px-2 py-1 text-xs font-bold rounded-full flex items-center gap-1" style={{ backgroundColor: 'var(--theme-primary)', color: 'var(--theme-background)' }}>
                   <Sparkles className="w-3 h-3" />
                   NEW
                 </span>
@@ -255,7 +254,7 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
             </div>
             <h2 className="text-2xl font-bold mb-3">{selectedService.name}</h2>
             <div className="flex items-center gap-3 mb-4">
-              <p className="text-3xl font-bold text-pink-400">{formatPrice(selectedService.price)}</p>
+              <p className="text-3xl font-bold" style={{ color: 'var(--theme-primary)' }}>{formatPrice(selectedService.price)}</p>
             </div>
             <div className="flex items-center gap-2 mb-4">
               <div className="flex">
@@ -271,20 +270,23 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white/5 backdrop-blur-xl rounded-xl p-3 border border-white/10">
-              <Clock className="w-5 h-5 text-pink-400 mb-2" />
+              <Clock className="w-5 h-5 mb-2" style={{ color: 'var(--theme-primary)' }} />
               <p className="text-xs text-white/60">Длительность</p>
               <p className="text-sm font-semibold">{selectedService.duration}</p>
             </div>
             <div className="bg-white/5 backdrop-blur-xl rounded-xl p-3 border border-white/10">
-              <User className="w-5 h-5 text-pink-400 mb-2" />
+              <User className="w-5 h-5 mb-2" style={{ color: 'var(--theme-primary)' }} />
               <p className="text-xs text-white/60">Мастер</p>
               <p className="text-sm font-semibold">{selectedService.specialist}</p>
             </div>
           </div>
 
+          <TrustBadges />
+
           <button
             onClick={bookService}
-            className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold py-4 rounded-xl hover:shadow-lg hover:shadow-pink-500/50 transition-all"
+            className="w-full text-white font-bold py-4 rounded-xl hover:shadow-lg transition-all"
+            style={{ background: 'linear-gradient(to right, var(--theme-primary), var(--theme-accent))' }}
             data-testid="button-book-now"
           >
             Записаться на процедуру
@@ -294,13 +296,11 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
     );
   }
 
-  // HOME PAGE - Liquid Glass 2025
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6 space-y-6">
           
-          {/* Collections Grid - Liquid Glass Cards */}
           <div className="space-y-4 pt-4">
             {collections.map((collection, idx) => (
               <m.div
@@ -312,28 +312,22 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                 style={{ height: idx === 0 ? '280px' : '180px' }}
                 data-testid={`collection-${collection.id}`}
               >
-                {/* Background Image */}
-                <img
+                <LazyImage
                   src={collection.image}
                   alt={collection.title}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
                 />
                 
-                {/* Gradient Overlay */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${collection.gradient} opacity-70`}></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
                 
-                {/* Liquid Glass Effect */}
                 <div className="absolute inset-0 bg-white/5 backdrop-blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 
-                {/* Glow on Hover */}
                 <div 
                   className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-2xl"
                   style={{ backgroundColor: collection.accentColor }}
                 ></div>
                 
-                {/* Content */}
                 <div className="absolute inset-0 p-6 flex flex-col justify-end">
                   <div className="space-y-2">
                     {idx === 0 && (
@@ -355,11 +349,10 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
             ))}
           </div>
 
-          {/* Popular Services */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-pink-400" />
+                <Sparkles className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
                 <h3 className="text-xl font-bold">Популярное</h3>
               </div>
               <button className="text-sm text-white/60 hover:text-white transition-colors" data-testid="button-view-all-popular">
@@ -376,29 +369,24 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                   className="relative cursor-pointer group"
                   data-testid={`popular-service-${service.id}`}
                 >
-                  {/* Glass Card */}
                   <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10">
-                    <img
+                    <LazyImage
                       src={service.image}
                       alt={service.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      loading="lazy"
                     />
                     
-                    {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     
-                    {/* Badges */}
                     <div className="absolute top-2 left-2 flex gap-2">
                       {service.isNew && (
-                        <div className="px-2 py-1 bg-pink-500/90 text-white text-xs font-bold rounded-full flex items-center gap-1 backdrop-blur-xl">
+                        <div className="px-2 py-1 text-white text-xs font-bold rounded-full flex items-center gap-1 backdrop-blur-xl" style={{ backgroundColor: 'var(--theme-primary)' }}>
                           <Sparkles className="w-3 h-3" />
                           NEW
                         </div>
                       )}
                     </div>
                     
-                    {/* Favorite */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -409,17 +397,17 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
                       aria-label="Добавить в избранное"
                     >
                       <Heart 
-                        className={`w-4 h-4 ${favorites.has(service.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`}
+                        className={`w-4 h-4 ${favorites.has(service.id) ? 'text-white' : 'text-white'}`}
+                        style={favorites.has(service.id) ? { fill: 'var(--theme-primary)', color: 'var(--theme-primary)' } : {}}
                       />
                     </button>
                   </div>
 
-                  {/* Service Info */}
                   <div className="mt-2">
-                    <p className="text-xs text-pink-300 mb-1">{service.category}</p>
+                    <p className="text-xs mb-1" style={{ color: 'var(--theme-primary)' }}>{service.category}</p>
                     <p className="text-sm font-medium text-white/90 truncate">{service.name}</p>
                     <div className="flex items-center justify-between mt-1">
-                      <p className="text-base font-bold text-pink-400">{formatPrice(service.price)}</p>
+                      <p className="text-base font-bold" style={{ color: 'var(--theme-primary)' }}>{formatPrice(service.price)}</p>
                       <p className="text-xs text-white/40">{service.duration}</p>
                     </div>
                   </div>
@@ -434,17 +422,15 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
     );
   }
 
-  // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-xl font-bold">Услуги</h1>
-            <Sparkles className="w-6 h-6 text-pink-400" />
+            <Sparkles className="w-6 h-6" style={{ color: 'var(--theme-primary)' }} />
           </div>
 
-          {/* Search */}
           <div className="relative mb-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
             <input
@@ -452,180 +438,160 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
               placeholder="Поиск услуг..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+              className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2"
+              style={{ '--tw-ring-color': 'var(--theme-primary)' } as any}
               data-testid="input-search"
               aria-label="Поиск услуг"
             />
           </div>
 
-          {/* Hero Banner */}
           <div className="relative h-48 rounded-2xl overflow-hidden mb-6">
-            <img
+            <LazyImage
               src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80"
               alt="Banner"
               className="w-full h-full object-cover"
-              loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
             <div className="absolute bottom-4 left-4">
-              <h2 className="text-3xl font-bold tracking-tight text-pink-300 mb-1">
-                Весенние<br/>Спецпредложения
+              <h2 className="text-3xl font-bold tracking-tight mb-1" style={{ color: 'var(--theme-primary)' }}>
+                Салон красоты
               </h2>
-              <p className="text-sm text-white/80">Скидки до 30%</p>
+              <p className="text-white/80 text-sm">Лучшие мастера города</p>
             </div>
           </div>
 
-          {/* Categories */}
-          <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((cat) => (
+          <div className="flex gap-2 overflow-x-auto pb-4 -mx-6 px-6">
+            {categories.map((category) => (
               <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20 backdrop-blur-xl'
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-all ${
+                  selectedCategory === category
+                    ? 'text-white'
+                    : 'bg-white/10 text-white/70 hover:bg-white/20'
                 }`}
-                data-testid={`button-filter-${cat.toLowerCase()}`}
+                style={selectedCategory === category ? { backgroundColor: 'var(--theme-primary)' } : {}}
+                data-testid={`button-category-${category}`}
               >
-                {cat}
+                {category}
               </button>
             ))}
           </div>
+        </div>
 
-          {/* Services Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            {filteredServices.map((service, idx) => (
-              <m.div
-                key={service.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => openService(service)}
-                className="relative cursor-pointer"
-                data-testid={`service-card-${service.id}`}
-              >
-                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2 bg-white/5 backdrop-blur-xl border border-white/10">
-                  {!loadedImages.has(service.id) && (
-                    <Skeleton className="absolute inset-0 rounded-2xl bg-white/10" />
-                  )}
-                  <img
-                    src={service.image}
-                    alt={service.name}
-                    className={`w-full h-full object-cover transition-opacity duration-300 ${loadedImages.has(service.id) ? 'opacity-100' : 'opacity-0'}`}
-                    loading="lazy"
-                    onLoad={() => handleImageLoad(service.id)}
-                  />
-                  
+        <div className="px-6 grid grid-cols-2 gap-4">
+          {filteredServices.map((service) => (
+            <m.div
+              key={service.id}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => openService(service)}
+              className="relative cursor-pointer group"
+              data-testid={`service-${service.id}`}
+            >
+              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10">
+                <LazyImage
+                  src={service.image}
+                  alt={service.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                
+                <div className="absolute top-2 left-2 flex gap-2">
                   {service.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-pink-500/90 text-white text-xs font-bold rounded-full backdrop-blur-xl">
+                    <div className="px-2 py-1 text-white text-xs font-bold rounded-full flex items-center gap-1 backdrop-blur-xl" style={{ backgroundColor: 'var(--theme-primary)' }}>
+                      <Sparkles className="w-3 h-3" />
                       NEW
                     </div>
                   )}
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(service.id);
-                    }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
-                    data-testid={`button-favorite-${service.id}`}
-                    aria-label="Добавить в избранное"
-                  >
-                    <Heart 
-                      className={`w-4 h-4 ${favorites.has(service.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`}
-                    />
-                  </button>
+                  {service.isPopular && (
+                    <div className="px-2 py-1 bg-purple-500/90 text-white text-xs font-bold rounded-full backdrop-blur-xl">
+                      Популярно
+                    </div>
+                  )}
                 </div>
-
-                <div>
-                  <p className="text-xs text-pink-300 mb-1">{service.category}</p>
-                  <p className="text-sm font-medium text-white/90 truncate mb-1">{service.name}</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-base font-bold text-pink-400">{formatPrice(service.price)}</p>
-                    <p className="text-xs text-white/40">{service.duration}</p>
+                
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(service.id);
+                  }}
+                  className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
+                  data-testid={`button-favorite-catalog-${service.id}`}
+                >
+                  <Heart 
+                    className={`w-4 h-4 ${favorites.has(service.id) ? 'text-white' : 'text-white'}`}
+                    style={favorites.has(service.id) ? { fill: 'var(--theme-primary)', color: 'var(--theme-primary)' } : {}}
+                  />
+                </button>
+                
+                <div className="absolute bottom-3 left-3 right-3">
+                  <p className="text-white text-sm font-medium truncate">{service.name}</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-base font-bold" style={{ color: 'var(--theme-primary)' }}>{formatPrice(service.price)}</p>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs text-white/70">{service.rating}</span>
+                    </div>
                   </div>
                 </div>
-              </m.div>
-            ))}
-          </div>
+              </div>
+            </m.div>
+          ))}
         </div>
       </div>
     );
   }
 
-  // CART (BOOKINGS) PAGE
   if (activeTab === 'cart') {
-    const total = bookings.reduce((sum, booking) => sum + booking.price, 0);
-
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-32 smooth-scroll-page">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Мои записи</h1>
-
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+        <div className="p-6 space-y-6">
+          <h1 className="text-2xl font-bold">Мои записи</h1>
+          
           {bookings.length === 0 ? (
-            <div className="text-center py-20">
-              <Calendar className="w-16 h-16 mx-auto mb-4 text-white/20" />
-              <p className="text-white/60 mb-4">У вас пока нет записей</p>
+            <div className="text-center py-12">
+              <Calendar className="w-16 h-16 text-white/20 mx-auto mb-4" />
+              <p className="text-white/60">Нет активных записей</p>
+              <p className="text-sm text-white/40">Выберите услугу из каталога</p>
             </div>
           ) : (
             <>
-              <div className="space-y-4 mb-24">
+              <div className="space-y-4">
                 {bookings.map((booking) => (
-                  <div key={booking.id} className="flex gap-4 bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
-                    <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
-                      <img
-                        src={booking.image}
-                        alt={booking.serviceName}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
+                  <div key={booking.id} className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                    <div className="flex gap-4">
+                      <LazyImage src={booking.image} alt={booking.serviceName} className="w-20 h-20 rounded-xl object-cover" />
+                      <div className="flex-1">
+                        <h3 className="font-semibold mb-1">{booking.serviceName}</h3>
+                        <p className="text-sm text-white/60">{booking.specialist}</p>
+                        <p className="text-sm text-white/60">{booking.date} • {booking.time}</p>
+                        <p className="font-bold mt-2" style={{ color: 'var(--theme-primary)' }}>{formatPrice(booking.price)}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold mb-1">{booking.serviceName}</h3>
-                      <p className="text-sm text-white/60 mb-1">{booking.specialist}</p>
-                      <p className="text-xs text-white/50 mb-2">{booking.date} • {booking.time}</p>
-                      <p className="font-bold text-pink-400">{formatPrice(booking.price)}</p>
-                    </div>
-                    <button
-                      onClick={() => setBookings(bookings.filter(b => b.id !== booking.id))}
-                      className="p-2 h-fit hover:bg-white/10 rounded-lg transition-colors"
-                      data-testid={`button-cancel-${booking.id}`}
-                      aria-label="Отменить запись"
-                    >
-                      <X className="w-5 h-5 text-white/40" />
-                    </button>
                   </div>
                 ))}
               </div>
 
-              <div className="fixed bottom-24 left-0 right-0 bg-black/60 backdrop-blur-xl border-t border-white/10 p-6">
-                <div className="max-w-md mx-auto">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-lg">Итого:</span>
-                    <span className="text-2xl font-bold text-pink-400">{formatPrice(total)}</span>
-                  </div>
-                  <ConfirmDrawer
-                    trigger={
-                      <button
-                        className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold py-4 rounded-xl hover:shadow-lg hover:shadow-pink-500/50 transition-all"
-                        data-testid="button-checkout"
-                      >
-                        Подтвердить записи
-                      </button>
-                    }
-                    title="Подтвердить записи?"
-                    description={`${bookings.length} услуг на сумму ${formatPrice(total)}`}
-                    confirmText="Подтвердить"
-                    cancelText="Отмена"
-                    variant="default"
-                    onConfirm={handleCheckout}
-                  />
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-white/60">Итого:</span>
+                  <span className="text-2xl font-bold" style={{ color: 'var(--theme-primary)' }}>
+                    {formatPrice(bookings.reduce((sum, b) => sum + b.price, 0))}
+                  </span>
                 </div>
+                
+                <TrustBadges />
+                
+                <button
+                  onClick={handleCheckout}
+                  className="w-full text-white font-bold py-4 rounded-xl"
+                  style={{ background: 'linear-gradient(to right, var(--theme-primary), var(--theme-accent))' }}
+                  data-testid="button-checkout"
+                >
+                  Подтвердить запись
+                </button>
               </div>
-              {showCheckoutSuccess && (
-                <div className="fixed top-20 left-4 right-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4 rounded-2xl text-center font-bold z-50 animate-pulse">
-                  Записи успешно подтверждены!
-                </div>
-              )}
             </>
           )}
         </div>
@@ -633,88 +599,41 @@ export default memo(function Beauty({ activeTab }: BeautyProps) {
     );
   }
 
-  // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24 smooth-scroll-page">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-bold">Профиль</h1>
-          </div>
-
-          <div className="text-center mb-8">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 mx-auto mb-4 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+        <div className="p-6 space-y-6">
+          <div className="text-center">
+            <div className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'linear-gradient(to bottom right, var(--theme-primary), var(--theme-accent))' }}>
               <User className="w-12 h-12 text-white" />
             </div>
-            <h2 className="text-xl font-bold mb-1">Анна Иванова</h2>
-            <p className="text-sm text-white/60">anna.ivanova@example.com</p>
+            <h2 className="text-xl font-bold">Красавица</h2>
+            <p className="text-white/60">Постоянный клиент</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 text-center border border-white/10">
-              <Calendar className="w-6 h-6 mx-auto mb-2 text-pink-400" />
-              <p className="text-2xl font-bold mb-1">{orders.length}</p>
-              <p className="text-xs text-white/60">Заказов</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center">
+              <p className="text-2xl font-bold" style={{ color: 'var(--theme-primary)' }}>{orders.length}</p>
+              <p className="text-sm text-white/60">Визитов</p>
             </div>
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 text-center border border-white/10">
-              <Heart className="w-6 h-6 mx-auto mb-2 text-pink-400" />
-              <p className="text-2xl font-bold mb-1">{favorites.size}</p>
-              <p className="text-xs text-white/60">Избранное</p>
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center">
+              <p className="text-2xl font-bold text-green-400">15%</p>
+              <p className="text-sm text-white/60">Скидка</p>
             </div>
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 text-center border border-white/10">
-              <Gift className="w-6 h-6 mx-auto mb-2 text-pink-400" />
-              <p className="text-2xl font-bold mb-1">350</p>
-              <p className="text-xs text-white/60">Бонусов</p>
-            </div>
-          </div>
-
-          <div className="scroll-fade-in mb-6">
-            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
-            {orders.length === 0 ? (
-              <div className="text-center py-8 text-white/50">
-                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>У вас пока нет заказов</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {orders.map((order) => (
-                  <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-white/70">Заказ #{order.id.toString().slice(-6)}</span>
-                      <span className="text-sm text-white/70">{order.date}</span>
-                    </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-white/80">{order.items.length} услуг</span>
-                      <span className="font-bold text-pink-400">{formatPrice(order.total)}</span>
-                    </div>
-                    <div className="mt-2">
-                      <span className="text-xs px-2 py-1 bg-pink-500/20 text-pink-400 rounded-full">
-                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Выполняется' : 'Завершено'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           <div className="space-y-2">
-            <button className="w-full flex items-center gap-4 bg-white/5 backdrop-blur-xl rounded-2xl p-4 hover:bg-white/10 transition-all border border-white/10" data-testid="button-my-bookings">
-              <Package className="w-5 h-5 text-pink-400" />
-              <span className="flex-1 text-left font-medium">История заказов</span>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
+            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center gap-3 hover:bg-white/10 transition-all">
+              <Gift className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
+              <span>Бонусная программа</span>
             </button>
-
-            <button className="w-full flex items-center gap-4 bg-white/5 backdrop-blur-xl rounded-2xl p-4 hover:bg-white/10 transition-all border border-white/10" data-testid="button-loyalty">
-              <Gift className="w-5 h-5 text-pink-400" />
-              <span className="flex-1 text-left font-medium">Программа лояльности</span>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
+            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center gap-3 hover:bg-white/10 transition-all">
+              <Calendar className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
+              <span>История записей</span>
             </button>
-
-            <button className="w-full flex items-center gap-4 bg-white/5 backdrop-blur-xl rounded-2xl p-4 hover:bg-white/10 transition-all border border-white/10" data-testid="button-contacts">
-              <Phone className="w-5 h-5 text-pink-400" />
-              <span className="flex-1 text-left font-medium">Контакты</span>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
+            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center gap-3 hover:bg-white/10 transition-all">
+              <MapPin className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
+              <span>Адреса салонов</span>
             </button>
           </div>
         </div>

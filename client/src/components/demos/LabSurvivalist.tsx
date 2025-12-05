@@ -12,6 +12,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import img1 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
 import img2 from '@assets/stock_images/futuristic_fashion_m_b5d87157.jpg';
@@ -414,11 +415,10 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
         </div>
 
         <div className="relative h-[60vh] scroll-fade-in">
-          <img
+          <LazyImage
             src={selectedProduct.hoverImage}
             alt={selectedProduct.name}
             className="w-full h-full object-cover"
-            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
         </div>
@@ -510,7 +510,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
   // HOME PAGE
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-black text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <DemoSidebar
           isOpen={sidebar.isOpen}
           onClose={sidebar.close}
@@ -518,8 +518,8 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
           menuItems={sidebarMenuItems}
           title="LAB"
           subtitle="SURVIVALIST"
-          accentColor="#22C55E"
-          bgColor="#0A0A0A"
+          accentColor="var(--theme-primary)"
+          bgColor="var(--theme-background)"
         />
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
@@ -601,7 +601,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
         </div>
 
         <div className="relative mb-6 mx-6 rounded-2xl overflow-hidden border border-white/10 scroll-fade-in" style={{ height: '500px' }}>
-          <img
+          <LazyImage
             src={img1}
             alt="Hero"
             className="absolute inset-0 w-full h-full object-cover"
@@ -649,11 +649,10 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
               data-testid={`card-product-${product.id}`}
             >
               <div className="absolute inset-0">
-                <img
+                <LazyImage
                   src={product.image}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale"
-                  loading="lazy"
                 />
               </div>
 
@@ -706,7 +705,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-black text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold uppercase tracking-wider font-mono">Каталог</h1>
@@ -755,11 +754,10 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
                 data-testid={`card-product-${product.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-3 bg-white/5 border border-white/10">
-                  <img
+                  <LazyImage
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
-                    loading="lazy"
                   />
                   
                   <button

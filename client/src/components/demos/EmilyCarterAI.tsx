@@ -14,6 +14,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 
 interface EmilyCarterAIProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -281,7 +282,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
       >
         <div className="relative">
           <div className="relative h-[55vh]">
-            <img
+            <LazyImage
               src={selectedProduct.image}
               alt={selectedProduct.name}
               className="w-full h-full object-cover"
@@ -492,8 +493,8 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
           menuItems={sidebarMenuItems}
           title="EMILY CARTER"
           subtitle="AI STYLIST"
-          accentColor="#EC4899"
-          bgColor="#0A0A0A"
+          accentColor="var(--theme-primary)"
+          bgColor="var(--theme-background)"
         />
         <div className="demo-nav-safe px-5">
           {/* Header */}
@@ -545,7 +546,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
             transition={{ delay: 0.05 }}
             className="relative rounded-responsive-lg overflow-hidden mb-6 h-responsive-banner"
           >
-            <img
+            <LazyImage
               src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop&q=90"
               alt="Luxury beauty"
               className="w-full h-full object-cover"
@@ -632,7 +633,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                   style={{ aspectRatio: '3/4' }}
                   onClick={() => setSelectedCategory(cat.name)}
                 >
-                  <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                  <LazyImage src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   <div className="absolute bottom-2 left-2 right-2">
                     <p className="text-responsive-sm font-bold" style={{ color: COLORS.textPrimary }}>{cat.name}</p>
@@ -669,7 +670,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                   onClick={() => openProduct(product)}
                 >
                   <div className="relative rounded-2xl overflow-hidden mb-3" style={{ height: '195px' }}>
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    <LazyImage src={product.image} alt={product.name} className="w-full h-full object-cover" />
                     <button
                       onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
                       aria-label={isFavorite(String(product.id)) ? 'Remove from wishlist' : 'Add to wishlist'}
@@ -724,7 +725,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                   onClick={() => openProduct(product)}
                 >
                   <div className="relative rounded-2xl overflow-hidden mb-2" style={{ aspectRatio: '4/5' }}>
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    <LazyImage src={product.image} alt={product.name} className="w-full h-full object-cover" />
                     <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-[9px] font-bold tracking-wider" style={{ background: COLORS.accent1, color: '#0A0A0A' }}>
                       NEW
                     </div>
@@ -786,7 +787,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
               <div 
                 className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0"
               >
-                <img 
+                <LazyImage 
                   src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=200&h=200&fit=crop&q=90" 
                   alt="Routine" 
                   className="w-full h-full object-cover"
@@ -831,7 +832,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                   style={{ background: COLORS.cardBg, border: `1px solid ${COLORS.cardBorder}` }}
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <img src={review.avatar} alt={review.name} className="w-10 h-10 rounded-full object-cover" />
+                    <LazyImage src={review.avatar} alt={review.name} className="w-10 h-10 rounded-full object-cover" />
                     <div>
                       <p className="text-[13px] font-semibold" style={{ color: COLORS.textPrimary }}>{review.name}</p>
                       <div className="flex gap-0.5">
@@ -977,7 +978,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                   className="relative rounded-2xl overflow-hidden mb-3"
                   style={{ aspectRatio: '3/4' }}
                 >
-                  <img
+                  <LazyImage
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover"
@@ -1072,7 +1073,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                     data-testid={`cart-item-${item.id}`}
                   >
                     <div className="w-[80px] h-[100px] rounded-xl overflow-hidden flex-shrink-0">
-                      <img
+                      <LazyImage
                         src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover"
@@ -1175,9 +1176,11 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                 </div>
               </div>
 
+              <TrustBadges />
+
               <button 
                 onClick={() => setIsCheckoutOpen(true)}
-                className="w-full py-4 rounded-full font-bold text-[15px] uppercase min-h-[48px]"
+                className="w-full py-4 rounded-full font-bold text-[15px] uppercase min-h-[48px] mt-4"
                 style={{ 
                   background: COLORS.accent1, 
                   color: '#0A0A0A',

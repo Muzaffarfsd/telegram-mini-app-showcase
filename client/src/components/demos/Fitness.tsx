@@ -17,6 +17,7 @@ import {
   Award
 } from "lucide-react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 
 interface FitnessProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -221,7 +222,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                     <div className="flex gap-2">
                       {workouts.filter(w => collection.workouts.includes(w.id)).slice(0, 3).map(workout => (
                         <div key={workout.id} className="w-12 h-12 rounded-lg overflow-hidden border-2 border-white/30">
-                          <img src={workout.image} alt="" className="w-full h-full object-cover" />
+                          <LazyImage src={workout.image} alt={workout.name} className="w-full h-full object-cover" />
                         </div>
                       ))}
                     </div>
@@ -247,7 +248,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                   data-testid={`card-workout-${workout.id}`}
                 >
                   <div className="relative aspect-[3/4]">
-                    <img src={workout.image} alt={workout.name} className="w-full h-full object-cover" />
+                    <LazyImage src={workout.image} alt={workout.name} className="w-full h-full object-cover" />
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -293,7 +294,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
         <div className="h-full flex flex-col bg-background smooth-scroll-page">
           <div className="relative">
             <div className="aspect-[3/4] relative">
-              <img src={selectedWorkout.image} alt={selectedWorkout.name} className="w-full h-full object-cover" />
+              <LazyImage src={selectedWorkout.image} alt={selectedWorkout.name} className="w-full h-full object-cover" />
               <button
                 onClick={() => setSelectedWorkout(null)}
                 className="absolute top-4 left-4 p-2 bg-black/50 backdrop-blur-xl rounded-full border border-white/20"
@@ -397,7 +398,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
               data-testid={`card-catalog-workout-${workout.id}`}
             >
               <div className="relative aspect-[3/4]">
-                <img src={workout.image} alt={workout.name} className="w-full h-full object-cover" />
+                <LazyImage src={workout.image} alt={workout.name} className="w-full h-full object-cover" />
                 {workout.isNew && (
                   <div className="absolute top-2 left-2 px-2 py-1 bg-green-500/90 backdrop-blur-xl rounded-full border border-green-400/50">
                     <span className="text-xs font-bold text-white">Новинка</span>

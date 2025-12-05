@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { OptimizedImage } from "../OptimizedImage";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 
 interface MedicalProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';

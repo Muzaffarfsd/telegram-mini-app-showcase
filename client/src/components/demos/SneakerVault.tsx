@@ -8,7 +8,7 @@ import { usePersistentCart } from "@/hooks/usePersistentCart";
 import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
 import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
-import { EmptyState } from "@/components/shared/EmptyState";
+import { EmptyState, LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import greenNikeImage from "@assets/загруженное-_4__1761733573240.jpg";
@@ -221,7 +221,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
     { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
     { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
     { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: '#CDFF38' },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: 'var(--theme-primary)' },
     { icon: <Tag className="w-5 h-5" />, label: 'Акции', badge: 'NEW', badgeColor: '#EF4444' },
     { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
     { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
@@ -322,7 +322,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
 
   if (activeTab === 'catalog' && selectedSneaker) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedSneaker(null)}
@@ -348,11 +348,10 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
         </div>
 
         <div className="relative h-[60vh]">
-          <img
+          <LazyImage
             src={selectedSneaker.hoverImage}
             alt={selectedSneaker.name}
             className="w-full h-full object-cover"
-            loading="lazy"
           />
         </div>
 
@@ -379,7 +378,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                   onClick={() => setSelectedSize(size)}
                   className={`w-12 h-12 rounded-full font-semibold transition-all ${
                     selectedSize === size
-                      ? 'bg-[#CDFF38] text-black'
+                      ? 'bg-[var(--theme-primary)] text-black'
                       : 'bg-black/40 text-white hover:bg-black/60 border border-white/20'
                   }`}
                   aria-label={`Размер ${size}`}
@@ -395,7 +394,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
           <ConfirmDrawer
             trigger={
               <button
-                className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all min-h-[48px]"
+                className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all min-h-[48px]"
                 data-testid="button-buy-now"
               >
                 Добавить в корзину
@@ -415,7 +414,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
 
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <DemoSidebar
           isOpen={sidebar.isOpen}
           onClose={sidebar.close}
@@ -423,8 +422,8 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
           menuItems={sidebarMenuItems}
           title="SNEAKER"
           subtitle="VAULT"
-          accentColor="#CDFF38"
-          bgColor="#0A0A0A"
+          accentColor="var(--theme-primary)"
+          bgColor="var(--theme-background)"
         />
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
@@ -463,7 +462,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
 
           <div className="flex items-center gap-4 mb-6 scroll-fade-in">
             <button 
-              className="p-2 bg-[#CDFF38] rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-2 bg-[var(--theme-primary)] rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label="Главная"
               data-testid="button-view-home"
             >
@@ -485,7 +484,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
               >
                 {gender}
                 {selectedGender === gender && (
-                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#CDFF38] rounded-full"></div>
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[var(--theme-primary)] rounded-full"></div>
                 )}
               </button>
             ))}
@@ -535,8 +534,8 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
               <button 
                 className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105 min-h-[48px]"
                 style={{
-                  background: '#CDFF38',
-                  boxShadow: '0 0 30px rgba(205, 255, 56, 0.4)'
+                  background: 'var(--theme-primary)',
+                  boxShadow: '0 0 30px var(--theme-primary-glow, rgba(205, 255, 56, 0.4))'
                 }}
                 data-testid="button-hero-shop-sneakers"
               >
@@ -559,22 +558,28 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
               data-testid={`featured-sneaker-${sneaker.id}`}
             >
               <div className="absolute inset-0">
-                <img
+                <LazyImage
                   src={sneaker.image}
                   alt={sneaker.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
                 />
               </div>
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
 
-              <div className="absolute top-4 left-4">
+              <div className="absolute top-4 left-4 flex flex-col gap-2">
                 <div className="px-3 py-1 bg-black/60 backdrop-blur-xl rounded-full border border-white/20">
                   <span className="text-xs font-semibold text-white">
                     {sneaker.isNew ? 'New' : sneaker.category}
                   </span>
                 </div>
+                {sneaker.inStock < 10 && (
+                  <UrgencyIndicator 
+                    type="stock"
+                    value={sneaker.inStock}
+                    variant="badge"
+                  />
+                )}
               </div>
 
               <button
@@ -606,7 +611,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                       e.stopPropagation();
                       openSneaker(sneaker);
                     }}
-                    className="w-14 h-14 rounded-full bg-[#CDFF38] flex items-center justify-center hover:bg-[#B8E633] transition-all hover:scale-110"
+                    className="w-14 h-14 rounded-full bg-[var(--theme-primary)] flex items-center justify-center hover:bg-[var(--theme-accent)] transition-all hover:scale-110"
                     aria-label={`Добавить ${sneaker.name} в корзину`}
                     data-testid={`button-add-to-cart-${sneaker.id}`}
                   >
@@ -629,7 +634,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
 
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
@@ -658,7 +663,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all min-h-[44px] ${
                   selectedCategory === cat
-                    ? 'bg-[#CDFF38] text-black'
+                    ? 'bg-[var(--theme-primary)] text-black'
                     : 'bg-black/40 text-white/70 hover:bg-black/60 border border-white/20'
                 }`}
                 aria-pressed={selectedCategory === cat}
@@ -679,11 +684,10 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                 data-testid={`sneaker-card-${sneaker.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-black/40 border border-white/10">
-                  <img
+                  <LazyImage
                     src={sneaker.image}
                     alt={sneaker.name}
                     className="w-full h-full object-cover"
-                    loading="lazy"
                   />
                   
                   <button
@@ -701,8 +705,17 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                   </button>
 
                   {sneaker.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-[#CDFF38] text-black text-xs font-bold rounded-full">
+                    <div className="absolute top-2 left-2 px-2 py-1 bg-[var(--theme-primary)] text-black text-xs font-bold rounded-full">
                       NEW
+                    </div>
+                  )}
+                  {sneaker.inStock < 10 && (
+                    <div className="absolute top-2 left-2" style={{ marginTop: sneaker.isNew ? '32px' : '0' }}>
+                      <UrgencyIndicator 
+                        type="stock"
+                        value={sneaker.inStock}
+                        variant="badge"
+                      />
                     </div>
                   )}
                 </div>
@@ -727,7 +740,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
 
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
@@ -747,11 +760,10 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                   className="bg-black/40 backdrop-blur-xl rounded-2xl p-4 flex gap-4 border border-white/10"
                   data-testid={`cart-item-${item.id}`}
                 >
-                  <img
+                  <LazyImage
                     src={item.image}
                     alt={item.name}
                     className="w-20 h-20 rounded-xl object-cover"
-                    loading="lazy"
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1">{item.name}</h3>
@@ -791,14 +803,15 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                 </div>
               ))}
 
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#0A0A0A] border-t border-white/10">
+              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[var(--theme-background)] border-t border-white/10">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
                   <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
                 </div>
+                <TrustBadges variant="compact" className="mb-4" />
                 <button
                   onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all min-h-[48px]"
+                  className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all min-h-[48px]"
                   data-testid="button-checkout"
                 >
                   Оформить заказ
@@ -831,10 +844,10 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
 
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6 bg-black/80 backdrop-blur-xl border-b border-white/10">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#CDFF38] to-[#B8E633] rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-accent)] rounded-full flex items-center justify-center">
               <User className="w-8 h-8 text-black" />
             </div>
             <div>
@@ -874,7 +887,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                     </div>
                     <div className="flex justify-between gap-2 mb-2">
                       <span className="text-white/60">{order.items.length} товаров</span>
-                      <span className="font-bold text-[#CDFF38]">{formatPrice(order.total)}</span>
+                      <span className="font-bold" style={{ color: 'var(--theme-primary)' }}>{formatPrice(order.total)}</span>
                     </div>
                     <div className="mt-2">
                       <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">

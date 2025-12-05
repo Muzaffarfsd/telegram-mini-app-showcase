@@ -15,9 +15,9 @@ import {
   Sparkles,
   Check
 } from "lucide-react";
-import { OptimizedImage } from "../OptimizedImage";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 
 interface CarWashProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -98,7 +98,6 @@ export default function CarWash({ activeTab }: CarWashProps) {
 
   const popularServices = services.filter(service => service.popular);
 
-  // Preload first 6 product images for instant visibility
   useImagePreloader({
     images: services.slice(0, 6).map(item => item.image),
     priority: true
@@ -107,14 +106,12 @@ export default function CarWash({ activeTab }: CarWashProps) {
 
   const renderHomeTab = () => (
     <div className="max-w-md mx-auto px-4 space-y-6">
-      {/* Заголовок */}
       <div className="text-center">
         <h1 className="ios-title font-bold mb-2">Авто Блеск</h1>
-        <p className="ios-subheadline text-secondary-label">Профессиональная автомойка 🚗</p>
+        <p className="ios-subheadline text-secondary-label">Профессиональная автомойка</p>
       </div>
 
-      {/* Быстрое бронирование */}
-      <div className="ios-card p-4 bg-gradient-to-r from-orange-500 to-red-500 text-white">
+      <div className="ios-card p-4 text-white" style={{ background: 'linear-gradient(to right, var(--theme-primary), var(--theme-accent))' }}>
         <div className="flex items-center justify-between">
           <div>
             <h3 className="ios-headline font-semibold">Бронирование онлайн</h3>
@@ -124,7 +121,6 @@ export default function CarWash({ activeTab }: CarWashProps) {
         </div>
       </div>
 
-      {/* Популярные услуги */}
       <div>
         <h2 className="ios-title font-semibold mb-4">Популярные услуги</h2>
         <div className="grid grid-cols-2 gap-3">
@@ -134,11 +130,11 @@ export default function CarWash({ activeTab }: CarWashProps) {
               className="ios-card p-3 cursor-pointer"
               onClick={() => openServiceModal(service)}
             >
-              <OptimizedImage src={service.image} alt={service.name} className="w-full h-32 object-cover rounded-lg mb-2" />
+              <LazyImage src={service.image} alt={service.name} className="w-full h-32 object-cover rounded-lg mb-2" />
               <h4 className="ios-footnote font-semibold line-clamp-2">{service.name}</h4>
               <p className="ios-caption2 text-secondary-label mb-2">{service.duration}</p>
               <div className="flex items-center justify-between">
-                <span className="ios-caption font-bold text-system-orange">${service.price}</span>
+                <span className="ios-caption font-bold" style={{ color: 'var(--theme-primary)' }}>${service.price}</span>
                 <div className="flex items-center space-x-1">
                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                   <span className="ios-caption2">{service.rating}</span>
@@ -149,7 +145,6 @@ export default function CarWash({ activeTab }: CarWashProps) {
         </div>
       </div>
 
-      {/* Быстрые услуги */}
       <div>
         <h2 className="ios-title font-semibold mb-4">Экспресс услуги</h2>
         <div className="space-y-3">
@@ -159,7 +154,7 @@ export default function CarWash({ activeTab }: CarWashProps) {
               className="ios-card p-3 cursor-pointer flex items-center space-x-3"
               onClick={() => openServiceModal(service)}
             >
-              <OptimizedImage src={service.image} alt={service.name} className="w-20 h-20 object-cover rounded-lg" />
+              <LazyImage src={service.image} alt={service.name} className="w-20 h-20 object-cover rounded-lg" />
               <div className="flex-1">
                 <h4 className="ios-body font-semibold">{service.name}</h4>
                 <p className="ios-footnote text-secondary-label">{service.duration} • ${service.price}</p>
@@ -170,20 +165,19 @@ export default function CarWash({ activeTab }: CarWashProps) {
         </div>
       </div>
 
-      {/* Информация о автомойке */}
       <div className="ios-card p-4">
         <h3 className="ios-headline font-semibold mb-3">Наши преимущества</h3>
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-system-orange" />
+            <Clock className="w-4 h-4" style={{ color: 'var(--theme-primary)' }} />
             <span className="ios-body">Работаем без выходных 8:00 - 22:00</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Shield className="w-4 h-4 text-system-orange" />
+            <Shield className="w-4 h-4" style={{ color: 'var(--theme-primary)' }} />
             <span className="ios-body">Гарантия качества на все услуги</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-4 h-4 text-system-orange" />
+            <Sparkles className="w-4 h-4" style={{ color: 'var(--theme-primary)' }} />
             <span className="ios-body">Профессиональная косметика и оборудование</span>
           </div>
         </div>
@@ -196,7 +190,6 @@ export default function CarWash({ activeTab }: CarWashProps) {
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="ios-title font-bold">Каталог услуг</h1>
       
-      {/* Категории */}
       <div className="flex space-x-2 overflow-x-auto pb-2">
         {categories.map((category) => (
           <button
@@ -204,16 +197,16 @@ export default function CarWash({ activeTab }: CarWashProps) {
             onClick={() => setSelectedCategory(category)}
             className={`px-4 py-2 rounded-full whitespace-nowrap ios-footnote font-medium ${
               selectedCategory === category
-                ? 'bg-system-orange text-white'
+                ? 'text-white'
                 : 'bg-quaternary-system-fill text-label'
             }`}
+            style={selectedCategory === category ? { backgroundColor: 'var(--theme-primary)' } : {}}
           >
             {category}
           </button>
         ))}
       </div>
 
-      {/* Список услуг */}
       <div className="space-y-3">
         {filteredServices.map((service) => (
           <div 
@@ -222,7 +215,7 @@ export default function CarWash({ activeTab }: CarWashProps) {
             onClick={() => openServiceModal(service)}
           >
             <div className="flex items-center space-x-3">
-              <OptimizedImage src={service.image} alt={service.name} className="w-20 h-20 object-cover rounded-lg" />
+              <LazyImage src={service.image} alt={service.name} className="w-20 h-20 object-cover rounded-lg" />
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
                   <h4 className="ios-body font-semibold">{service.name}</h4>
@@ -254,12 +247,12 @@ export default function CarWash({ activeTab }: CarWashProps) {
                       <span className="ios-caption2">{service.rating}</span>
                     </div>
                     {service.popular && (
-                      <span className="px-2 py-1 rounded-full ios-caption2 font-semibold bg-system-orange/10 text-system-orange">
+                      <span className="px-2 py-1 rounded-full ios-caption2 font-semibold" style={{ backgroundColor: 'var(--theme-primary)', color: 'white', opacity: 0.9 }}>
                         Популярно
                       </span>
                     )}
                   </div>
-                  <span className="ios-body font-bold text-system-orange">${service.price}</span>
+                  <span className="ios-body font-bold" style={{ color: 'var(--theme-primary)' }}>${service.price}</span>
                 </div>
               </div>
             </div>
@@ -305,7 +298,7 @@ export default function CarWash({ activeTab }: CarWashProps) {
                     <span className="ios-footnote">Длительность: {booking.duration}</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="ios-body font-bold text-system-orange">${booking.price}</span>
+                    <span className="ios-body font-bold" style={{ color: 'var(--theme-primary)' }}>${booking.price}</span>
                   </div>
                 </div>
                 <div className="flex space-x-2 mt-3">
@@ -323,13 +316,14 @@ export default function CarWash({ activeTab }: CarWashProps) {
           <div className="ios-card p-4">
             <h3 className="ios-headline font-semibold mb-2">Итого записей: {bookings.length}</h3>
             <p className="ios-body text-secondary-label">Общая стоимость: ${bookings.reduce((sum, booking) => sum + booking.price, 0)}</p>
+            
+            <TrustBadges />
           </div>
 
-          {/* Адрес автомойки */}
-          <div className="ios-card p-4 bg-system-orange/5 border border-system-orange/20">
+          <div className="ios-card p-4" style={{ backgroundColor: 'var(--theme-primary)', opacity: 0.05, borderColor: 'var(--theme-primary)', borderWidth: 1 }}>
             <div className="flex items-center space-x-2 mb-2">
-              <MapPin className="w-4 h-4 text-system-orange" />
-              <span className="ios-body font-semibold text-system-orange">Как нас найти</span>
+              <MapPin className="w-4 h-4" style={{ color: 'var(--theme-primary)' }} />
+              <span className="ios-body font-semibold" style={{ color: 'var(--theme-primary)' }}>Как нас найти</span>
             </div>
             <p className="ios-footnote text-secondary-label">
               ул. Автомойщиков, 15 (рядом с заправкой Shell)
@@ -349,7 +343,7 @@ export default function CarWash({ activeTab }: CarWashProps) {
       
       <div className="ios-card p-4">
         <div className="flex items-center space-x-3 mb-4">
-          <div className="w-16 h-16 bg-system-orange rounded-full flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--theme-primary)' }}>
             <span className="ios-title font-bold text-white">АБ</span>
           </div>
           <div>
@@ -360,8 +354,8 @@ export default function CarWash({ activeTab }: CarWashProps) {
         
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
-            <p className="ios-title font-bold text-system-orange">31</p>
-            <p className="ios-footnote text-secondary-label">Посещений</p>
+            <p className="ios-title font-bold" style={{ color: 'var(--theme-primary)' }}>24</p>
+            <p className="ios-footnote text-secondary-label">Визитов</p>
           </div>
           <div className="text-center">
             <p className="ios-title font-bold text-system-green">10%</p>
@@ -371,124 +365,126 @@ export default function CarWash({ activeTab }: CarWashProps) {
       </div>
 
       <div className="space-y-3">
-        <h2 className="ios-headline font-semibold">Избранные услуги</h2>
-        {services.filter(service => favorites.includes(service.id)).map((service) => (
-          <div key={service.id} className="ios-card p-3 flex items-center space-x-3">
-            <OptimizedImage src={service.image} alt={service.name} className="w-20 h-20 object-cover rounded-lg" />
-            <div className="flex-1">
-              <h4 className="ios-body font-semibold">{service.name}</h4>
-              <p className="ios-footnote text-secondary-label">${service.price} • {service.duration}</p>
-            </div>
+        <div className="ios-card p-4 flex items-center justify-between cursor-pointer">
+          <div className="flex items-center space-x-3">
+            <Car className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
+            <span className="ios-body">Мои автомобили</span>
+          </div>
+          <ChevronRight className="w-5 h-5 text-tertiary-label" />
+        </div>
+
+        <div className="ios-card p-4 flex items-center justify-between cursor-pointer">
+          <div className="flex items-center space-x-3">
+            <Heart className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
+            <span className="ios-body">Избранные услуги</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="ios-footnote text-secondary-label">{favorites.length}</span>
             <ChevronRight className="w-5 h-5 text-tertiary-label" />
           </div>
-        ))}
-      </div>
-
-      <div className="ios-card p-4">
-        <h3 className="ios-headline font-semibold mb-3">История обслуживания</h3>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="ios-body">Последнее посещение:</span>
-            <span className="ios-body font-medium">14 дек 2024</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="ios-body">Любимая услуга:</span>
-            <span className="ios-body font-medium">Комплексная мойка</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="ios-body">Потрачено всего:</span>
-            <span className="ios-body font-medium text-system-orange">$1,240</span>
-          </div>
         </div>
-      </div>
 
-      <div className="ios-card p-4">
-        <h3 className="ios-headline font-semibold mb-3">Мой автомобиль</h3>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="ios-body">Марка:</span>
-            <span className="ios-body font-medium">BMW X5</span>
+        <div className="ios-card p-4 flex items-center justify-between cursor-pointer">
+          <div className="flex items-center space-x-3">
+            <Clock className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
+            <span className="ios-body">История посещений</span>
           </div>
-          <div className="flex justify-between">
-            <span className="ios-body">Год:</span>
-            <span className="ios-body font-medium">2022</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="ios-body">Цвет:</span>
-            <span className="ios-body font-medium">Черный металлик</span>
-          </div>
+          <ChevronRight className="w-5 h-5 text-tertiary-label" />
         </div>
       </div>
     </div>
   );
 
-  return (
-    <div className="h-full flex flex-col bg-system-background smooth-scroll-page">
-      <div className="flex-1 overflow-y-auto p-4">
-        {activeTab === 'home' && renderHomeTab()}
-        {activeTab === 'catalog' && renderCatalogTab()}
-        {activeTab === 'cart' && renderCartTab()}
-        {activeTab === 'profile' && renderProfileTab()}
-      </div>
+  const renderServiceModal = () => {
+    if (!isModalOpen || !selectedService) return null;
 
-      {/* Модальное окно */}
-      {isModalOpen && selectedService && (
-        <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-          <div className="bg-system-background max-w-md mx-auto w-full rounded-t-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start">
-              <h3 className="ios-title font-bold line-clamp-2">{selectedService.name}</h3>
-              <button onClick={closeServiceModal}>
-                <X className="w-6 h-6 text-secondary-label" />
-              </button>
-            </div>
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center">
+        <div className="bg-white rounded-t-3xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-slide-up">
+          <div className="sticky top-0 bg-white p-4 border-b flex items-center justify-between">
+            <h2 className="ios-headline font-semibold">{selectedService.name}</h2>
+            <button onClick={closeServiceModal} className="p-2">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="p-4 space-y-4">
+            <LazyImage src={selectedService.image} alt={selectedService.name} className="w-full h-48 object-cover rounded-xl" />
             
-            <OptimizedImage src={selectedService.image} alt={selectedService.name} className="w-full h-48 object-cover rounded-xl" />
-            
-            <div className="space-y-3">
-              <p className="ios-body text-secondary-label">{selectedService.description}</p>
-              
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <Clock className="w-4 h-4 text-secondary-label" />
-                  <span className="ios-footnote">{selectedService.duration}</span>
-                </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
                 <div className="flex items-center space-x-1">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="ios-footnote">{selectedService.rating}</span>
+                  <span className="ios-body font-semibold">{selectedService.rating}</span>
                 </div>
-                <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-quaternary-system-fill text-label">
-                  {selectedService.category}
-                </span>
+                <span className="ios-caption2 px-2 py-1 bg-quaternary-system-fill rounded">{selectedService.category}</span>
               </div>
-              
-              <div className="space-y-2">
-                <h4 className="ios-body font-semibold">Что включено:</h4>
-                <div className="space-y-1">
-                  {selectedService.includes.map((item, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <Check className="w-4 h-4 text-system-green" />
-                      <span className="ios-footnote text-secondary-label">{item}</span>
-                    </div>
-                  ))}
+              <span className="ios-title font-bold" style={{ color: 'var(--theme-primary)' }}>${selectedService.price}</span>
+            </div>
+
+            <p className="ios-body text-secondary-label">{selectedService.description}</p>
+
+            <div className="flex items-center space-x-2">
+              <Clock className="w-4 h-4 text-secondary-label" />
+              <span className="ios-body">Длительность: {selectedService.duration}</span>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="ios-body font-semibold">Что входит:</h3>
+              {selectedService.includes.map((item, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Check className="w-4 h-4 text-system-green" />
+                  <span className="ios-footnote">{item}</span>
                 </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="ios-title font-bold text-system-orange">${selectedService.price}</span>
-                {selectedService.popular && (
-                  <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-system-orange/10 text-system-orange">
-                    Популярная услуга
-                  </span>
-                )}
-              </div>
-              
-              <button className="w-full bg-system-orange text-white ios-body font-semibold py-3 rounded-xl">
-                Забронировать услугу
+              ))}
+            </div>
+
+            <TrustBadges />
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => toggleFavorite(selectedService.id)}
+                className={`flex-1 py-3 rounded-xl ios-body font-semibold ${
+                  favorites.includes(selectedService.id)
+                    ? 'bg-red-100 text-red-600'
+                    : 'bg-quaternary-system-fill text-label'
+                }`}
+              >
+                <Heart className={`w-5 h-5 inline mr-2 ${favorites.includes(selectedService.id) ? 'fill-red-500' : ''}`} />
+                {favorites.includes(selectedService.id) ? 'В избранном' : 'В избранное'}
+              </button>
+              <button
+                onClick={() => {
+                  setBookings(prev => [...prev, {
+                    id: Date.now(),
+                    serviceName: selectedService.name,
+                    date: 'Уточняется',
+                    time: 'Согласуем',
+                    duration: selectedService.duration,
+                    price: selectedService.price,
+                    status: 'Подтверждено'
+                  }]);
+                  closeServiceModal();
+                }}
+                className="flex-1 py-3 rounded-xl ios-body font-semibold text-white"
+                style={{ backgroundColor: 'var(--theme-primary)' }}
+              >
+                Забронировать
               </button>
             </div>
           </div>
         </div>
-      )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-system-grouped-background pb-20">
+      {activeTab === 'home' && renderHomeTab()}
+      {activeTab === 'catalog' && renderCatalogTab()}
+      {activeTab === 'cart' && renderCartTab()}
+      {activeTab === 'profile' && renderProfileTab()}
+      {renderServiceModal()}
     </div>
   );
 }

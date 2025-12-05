@@ -14,8 +14,8 @@ import {
   Truck,
   Calendar
 } from "lucide-react";
-import { OptimizedImage } from "../OptimizedImage";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 
 interface FloristProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -149,7 +149,7 @@ export default function Florist({ activeTab }: FloristProps) {
               className="ios-card p-3 cursor-pointer"
               onClick={() => openFlowerModal(flower)}
             >
-              <OptimizedImage src={flower.image} alt={flower.name} className="w-full h-32 object-cover rounded-lg mb-2" />
+              <LazyImage src={flower.image} alt={flower.name} className="w-full h-32 object-cover rounded-lg mb-2" />
               <h4 className="ios-footnote font-semibold line-clamp-2">{flower.name}</h4>
               <p className="ios-caption2 text-secondary-label mb-2">{flower.category}</p>
               <div className="flex items-center justify-between">
@@ -260,7 +260,7 @@ export default function Florist({ activeTab }: FloristProps) {
             onClick={() => openFlowerModal(flower)}
           >
             <div className="flex items-center space-x-3">
-              <OptimizedImage src={flower.image} alt={flower.name} className="w-20 h-20 object-cover rounded-lg" />
+              <LazyImage src={flower.image} alt={flower.name} className="w-20 h-20 object-cover rounded-lg" />
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
                   <h4 className="ios-body font-semibold line-clamp-1">{flower.name}</h4>
@@ -317,7 +317,7 @@ export default function Florist({ activeTab }: FloristProps) {
             {cartItems.map((item) => (
               <div key={item.id} className="ios-card p-4">
                 <div className="flex items-center space-x-3">
-                  <OptimizedImage src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-lg" />
+                  <LazyImage src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-lg" />
                   <div className="flex-1">
                     <h4 className="ios-body font-semibold">{item.name}</h4>
                     <p className="ios-footnote text-secondary-label">${item.price} за букет</p>
@@ -422,7 +422,7 @@ export default function Florist({ activeTab }: FloristProps) {
         <h2 className="ios-headline font-semibold">Избранные букеты</h2>
         {flowers.filter(flower => favorites.includes(flower.id)).map((flower) => (
           <div key={flower.id} className="ios-card p-3 flex items-center space-x-3">
-            <OptimizedImage src={flower.image} alt={flower.name} className="w-20 h-20 object-cover rounded-lg" />
+            <LazyImage src={flower.image} alt={flower.name} className="w-20 h-20 object-cover rounded-lg" />
             <div className="flex-1">
               <h4 className="ios-body font-semibold line-clamp-1">{flower.name}</h4>
               <p className="ios-footnote text-secondary-label">${flower.price} • {flower.category}</p>
@@ -485,7 +485,7 @@ export default function Florist({ activeTab }: FloristProps) {
               </button>
             </div>
             
-            <OptimizedImage src={selectedFlower.image} alt={selectedFlower.name} className="w-full h-48 object-cover rounded-xl" />
+            <LazyImage src={selectedFlower.image} alt={selectedFlower.name} className="w-full h-48 object-cover rounded-xl" />
             
             <div className="space-y-3">
               <p className="ios-body text-secondary-label">{selectedFlower.description}</p>

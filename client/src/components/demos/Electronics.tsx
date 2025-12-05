@@ -42,6 +42,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 interface ElectronicsProps {
@@ -339,7 +340,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
   // PRODUCT PAGE - УЛУЧШЕННАЯ
   if (activeTab === 'catalog' && selectedProduct) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
@@ -364,20 +365,19 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
         </div>
 
         <div className="relative h-[60vh] bg-gradient-to-br from-white/5 to-transparent">
-          <img
+          <LazyImage
             src={selectedProduct.hoverImage}
             alt={selectedProduct.name}
             className="w-full h-full object-contain p-8"
-            loading="lazy"
           />
         </div>
 
         <div className="bg-white/5 backdrop-blur-xl rounded-t-3xl p-6 space-y-6 pb-32">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm text-[#00D4FF] font-semibold">{selectedProduct.brand}</span>
+              <span className="text-sm text-[var(--theme-primary)] font-semibold">{selectedProduct.brand}</span>
               {selectedProduct.isNew && (
-                <span className="px-2 py-1 bg-[#00D4FF] text-black text-xs font-bold rounded-full">
+                <span className="px-2 py-1 bg-[var(--theme-primary)] text-black text-xs font-bold rounded-full">
                   NEW
                 </span>
               )}
@@ -392,7 +392,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
             <div className="flex items-center gap-2 mb-4">
               <div className="flex">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className={`w-4 h-4 ${i < Math.floor(selectedProduct.rating) ? 'fill-[#00D4FF] text-[#00D4FF]' : 'text-gray-600'}`} />
+                  <Star key={i} className={`w-4 h-4 ${i < Math.floor(selectedProduct.rating) ? 'fill-[var(--theme-primary)] text-[var(--theme-primary)]' : 'text-gray-600'}`} />
                 ))}
               </div>
               <span className="text-sm text-white/70">{selectedProduct.rating}</span>
@@ -403,13 +403,13 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
 
           <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-[#00D4FF]" />
+              <Cpu className="w-4 h-4 text-[var(--theme-primary)]" />
               Характеристики
             </h3>
             <div className="space-y-3">
               {selectedProduct.specs.map((spec, idx) => (
                 <div key={idx} className="flex items-start gap-3 text-sm">
-                  <Zap className="w-4 h-4 text-[#00D4FF] mt-0.5 flex-shrink-0" />
+                  <Zap className="w-4 h-4 text-[var(--theme-primary)] mt-0.5 flex-shrink-0" />
                   <span className="text-white/80">{spec}</span>
                 </div>
               ))}
@@ -430,7 +430,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
           <ConfirmDrawer
             trigger={
               <button
-                className="w-full bg-[#00D4FF] text-black font-bold py-4 rounded-full hover:bg-[#00BFEB] transition-all flex items-center justify-center gap-2"
+                className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all flex items-center justify-center gap-2"
                 data-testid="button-buy-now"
               >
                 <ShoppingCart className="w-5 h-5" />
@@ -452,7 +452,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
   // HOME PAGE
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <DemoSidebar
           isOpen={sidebar.isOpen}
           onClose={sidebar.close}
@@ -460,8 +460,8 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
           menuItems={sidebarMenuItems}
           title="TECH"
           subtitle="MART"
-          accentColor="#3B82F6"
-          bgColor="#0A0A0A"
+          accentColor="var(--theme-primary)"
+          bgColor="var(--theme-background)"
         />
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
@@ -480,7 +480,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
 
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <Zap className="w-6 h-6 text-[#00D4FF]" />
+              <Zap className="w-6 h-6 text-[var(--theme-primary)]" />
             </div>
             <h1 className="text-4xl font-black tracking-tight text-white">
               TECH
@@ -532,7 +532,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
         </div>
 
         <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden" style={{ height: '500px' }}>
-          <img
+          <LazyImage
             src="https://images.unsplash.com/photo-1678652197950-37846b632180?w=800&h=1000&fit=crop&q=90"
             alt="Hero"
             className="absolute inset-0 w-full h-full object-cover"
@@ -547,7 +547,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
               transition={{ delay: 0.3 }}
             >
               <div className="flex items-center gap-2 mb-3">
-                <Cpu className="w-7 h-7 text-[#00D4FF]" />
+                <Cpu className="w-7 h-7 text-[var(--theme-primary)]" />
               </div>
               <h2 className="text-5xl font-black tracking-tight leading-tight text-white">
                 НОВИНКИ
@@ -556,11 +556,11 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                 2025
               </h2>
               <p className="text-base text-white/70 mb-6 flex items-center gap-2" style={{ letterSpacing: '0.05em' }}>
-                <Wifi className="w-4 h-4 text-[#00D4FF]" />
+                <Wifi className="w-4 h-4 text-[var(--theme-primary)]" />
                 Передовые технологии
               </p>
               <button 
-                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105 bg-[#00D4FF]"
+                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105 bg-[var(--theme-primary)]"
                 data-testid="button-view-new"
               >
                 Смотреть новинки
@@ -585,11 +585,10 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                 {!loadedImages.has(product.id) && (
                   <Skeleton className="w-full h-full absolute inset-0" />
                 )}
-                <img
+                <LazyImage
                   src={product.image}
                   alt={product.name}
                   className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
-                  loading="lazy"
                   onLoad={() => handleImageLoad(product.id)}
                 />
               </div>
@@ -625,7 +624,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                       {product.name}
                     </h3>
                     <p className="text-sm text-white/70 mb-4 flex items-center gap-1">
-                      <Cpu className="w-4 h-4 text-[#00D4FF]" />
+                      <Cpu className="w-4 h-4 text-[var(--theme-primary)]" />
                       {product.category}
                     </p>
                   </div>
@@ -636,7 +635,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                       openProduct(product);
                     }}
                     aria-label="Добавить в корзину"
-                    className="w-14 h-14 rounded-full bg-[#00D4FF] flex items-center justify-center transition-all hover:scale-110"
+                    className="w-14 h-14 rounded-full bg-[var(--theme-primary)] flex items-center justify-center transition-all hover:scale-110"
                     data-testid={`button-add-to-cart-${product.id}`}
                   >
                     <ShoppingCart className="w-6 h-6 text-black" />
@@ -659,7 +658,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
@@ -680,7 +679,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                   selectedCategory === cat
-                    ? 'bg-[#00D4FF] text-black'
+                    ? 'bg-[var(--theme-primary)] text-black'
                     : 'bg-white/10 text-white/70 hover:bg-white/15'
                 }`}
                 data-testid={`button-filter-${cat.toLowerCase()}`}
@@ -703,11 +702,10 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                   {!loadedImages.has(product.id) && (
                     <Skeleton className="w-full h-full absolute inset-0" />
                   )}
-                  <img
+                  <LazyImage
                     src={product.image}
                     alt={product.name}
                     className={`w-full h-full object-cover transition-opacity ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
-                    loading="lazy"
                     onLoad={() => handleImageLoad(product.id)}
                   />
                   
@@ -726,7 +724,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                   </button>
 
                   {product.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-[#00D4FF] text-black text-xs font-bold rounded-full">
+                    <div className="absolute top-2 left-2 px-2 py-1 bg-[var(--theme-primary)] text-black text-xs font-bold rounded-full">
                       NEW
                     </div>
                   )}
@@ -753,7 +751,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
   // CART PAGE
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
@@ -772,11 +770,10 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                   className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
                   data-testid={`cart-item-${item.id}`}
                 >
-                  <img
+                  <LazyImage
                     src={item.image}
                     alt={item.name}
                     className="w-20 h-20 rounded-xl object-cover"
-                    loading="lazy"
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1">{item.name}</h3>
@@ -814,14 +811,15 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                 </div>
               ))}
 
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#0A0A0A] border-t border-white/10">
+              <TrustBadges />
+              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[var(--theme-background)] border-t border-white/10">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
                   <span className="text-2xl font-bold">{formatPrice(totalAmount)}</span>
                 </div>
                 <button
                   onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full bg-[#00D4FF] text-black font-bold py-4 rounded-full hover:bg-[#00BFEB] transition-all min-h-[48px]"
+                  className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all min-h-[48px]"
                   data-testid="button-checkout"
                 >
                   Оформить заказ
@@ -855,10 +853,10 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
   // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6 bg-white/5 border-b border-white/10">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-[#00D4FF] rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-[var(--theme-primary)] rounded-full flex items-center justify-center">
               <User className="w-8 h-8 text-black" />
             </div>
             <div>
@@ -900,7 +898,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                       <span className="font-bold">{formatPrice(order.total)}</span>
                     </div>
                     <div className="mt-2">
-                      <span className="text-xs px-2 py-1 bg-[#00D4FF]/20 text-[#00D4FF] rounded-full">
+                      <span className="text-xs px-2 py-1 bg-[var(--theme-primary)]/20 text-[var(--theme-primary)] rounded-full">
                         {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
                       </span>
                     </div>

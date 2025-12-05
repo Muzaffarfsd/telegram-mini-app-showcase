@@ -11,6 +11,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 import img1 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
 import img2 from '@assets/stock_images/futuristic_techwear__737df842.jpg';
 import img3 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
@@ -369,16 +370,15 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
         </div>
 
         <div className="relative h-[60vh] scroll-fade-in">
-          <img
+          <LazyImage
             src={selectedProduct.hoverImage}
             alt={selectedProduct.name}
             className="w-full h-full object-cover"
-            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
         </div>
 
-        <div className="bg-[#2D3748] rounded-t-3xl p-6 space-y-6 pb-32 -mt-8 relative z-10 scroll-fade-in-delay-1">
+        <div className="bg-[var(--theme-background)] rounded-t-3xl p-6 space-y-6 pb-32 -mt-8 relative z-10 scroll-fade-in-delay-1">
           <div className="text-center">
             <div className="text-xs font-bold tracking-[0.2em] text-white/60 mb-2">NIKE ACG</div>
             <h2 className="text-3xl font-black mb-3 tracking-tight">{selectedProduct.name}</h2>
@@ -466,10 +466,10 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   // HOME PAGE
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="relative h-screen scroll-fade-in">
           <div className="absolute inset-0">
-            <img
+            <LazyImage
               src={img1}
               alt="ACG Hero"
               className="w-full h-full object-cover"
@@ -545,7 +545,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
             >
               <div className="grid grid-cols-2 h-full">
                 <div className="relative h-[500px]">
-                  <img
+                  <LazyImage
                     src={item.product.image}
                     alt={item.product.name}
                     className="w-full h-full object-cover"
@@ -623,11 +623,10 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                 data-testid={`card-product-${product.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-3 bg-black/20">
-                  <img
+                  <LazyImage
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover"
-                    loading="lazy"
                   />
                   
                   <button
@@ -667,7 +666,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-8 scroll-fade-in">
             <div>
@@ -724,11 +723,10 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                 data-testid={`card-product-${product.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-3 bg-black/20">
-                  <img
+                  <LazyImage
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                    loading="lazy"
                   />
                   
                   <button
@@ -779,7 +777,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   // CART PAGE
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-32 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
           <div className="mb-8 scroll-fade-in">
             <div className="text-xs font-bold tracking-[0.3em] text-white/60 mb-1">NIKE ACG</div>
@@ -801,11 +799,10 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                   className={`bg-black/20 backdrop-blur-xl rounded-2xl p-5 flex gap-4 border border-white/10 ${idx < 2 ? 'scroll-fade-in' : getDelayClass(idx)}`}
                   data-testid={`cart-item-${item.id}`}
                 >
-                  <img
+                  <LazyImage
                     src={item.image}
                     alt={item.name}
                     className="w-24 h-24 rounded-xl object-cover"
-                    loading="lazy"
                   />
                   <div className="flex-1">
                     <p className="text-xs font-bold text-white/50 mb-1 tracking-widest">ACG</p>

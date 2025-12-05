@@ -19,6 +19,7 @@ import {
   Settings
 } from "lucide-react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 
 interface BankingProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -55,7 +56,7 @@ const portfolios = [
     id: 1,
     title: 'Агрессивный рост',
     subtitle: 'Высокая доходность',
-    gradient: 'from-blue-600/30 to-cyan-600/30',
+    gradient: 'from-[var(--theme-primary)]/30 to-[var(--theme-accent)]/30',
     assets: [1, 2, 3],
     returns: '+18.5%'
   },
@@ -117,7 +118,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
   if (activeTab === 'home') {
     return (
       <div className="h-full overflow-y-auto smooth-scroll-page">
-        <div className="relative h-[280px] bg-gradient-to-br from-blue-600/20 via-cyan-500/20 to-indigo-600/20">
+        <div className="relative h-[280px] bg-gradient-to-br from-[var(--theme-primary)]/20 via-[var(--theme-accent)]/20 to-indigo-600/20">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200&h=800&fit=crop&q=90')] bg-cover bg-center opacity-20" />
           <div className="absolute inset-0 backdrop-blur-xl bg-gradient-to-t from-black/60 to-transparent" />
           
@@ -128,16 +129,16 @@ export default memo(function Banking({ activeTab }: BankingProps) {
               className="space-y-2"
             >
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-blue-500/20 backdrop-blur-xl rounded-xl border border-blue-400/30">
-                  <Wallet className="w-6 h-6 text-blue-300" />
+                <div className="p-2 bg-[var(--theme-primary)]/20 backdrop-blur-xl rounded-xl border border-[var(--theme-primary)]/30">
+                  <Wallet className="w-6 h-6" style={{ color: 'var(--theme-primary)' }} />
                 </div>
                 <h1 className="text-3xl font-bold text-white">MoneyHub</h1>
               </div>
               <p className="text-white/80">Умные инвестиции и крипто</p>
               
               <div className="grid grid-cols-2 gap-2 pt-2">
-                <div className="px-3 py-2 bg-blue-500/20 backdrop-blur-xl rounded-xl border border-blue-400/30">
-                  <p className="text-blue-200 text-xs">Баланс</p>
+                <div className="px-3 py-2 bg-[var(--theme-primary)]/20 backdrop-blur-xl rounded-xl border border-[var(--theme-primary)]/30">
+                  <p className="text-xs" style={{ color: 'var(--theme-primary)' }}>Баланс</p>
                   <p className="text-white text-lg font-bold">{balance.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</p>
                 </div>
                 <div className="px-3 py-2 bg-green-500/20 backdrop-blur-xl rounded-xl border border-green-400/30">
@@ -205,7 +206,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Популярное</h2>
-              <Star className="w-5 h-5 fill-blue-500 text-blue-500" />
+              <Star className="w-5 h-5" style={{ fill: 'var(--theme-primary)', color: 'var(--theme-primary)' }} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               {assets.filter(a => a.isPopular).map((asset) => (
@@ -218,7 +219,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
                   data-testid={`card-asset-${asset.id}`}
                 >
                   <div className="relative aspect-[3/4]">
-                    <img src={asset.image} alt={asset.name} className="w-full h-full object-cover" />
+                    <LazyImage src={asset.image} alt={asset.name} className="w-full h-full object-cover" />
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -258,7 +259,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
         <div className="h-full flex flex-col bg-background smooth-scroll-page">
           <div className="relative">
             <div className="aspect-[3/4] relative">
-              <img src={selectedAsset.image} alt={selectedAsset.name} className="w-full h-full object-cover" />
+              <LazyImage src={selectedAsset.image} alt={selectedAsset.name} className="w-full h-full object-cover" />
               <button
                 onClick={() => setSelectedAsset(null)}
                 className="absolute top-4 left-4 p-2 bg-black/50 backdrop-blur-xl rounded-full border border-white/20"
@@ -297,24 +298,26 @@ export default memo(function Banking({ activeTab }: BankingProps) {
                 <p className="text-sm font-bold">{selectedAsset.category}</p>
               </div>
               <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
-                <Shield className="w-5 h-5 mx-auto mb-1 text-blue-600" />
+                <Shield className="w-5 h-5 mx-auto mb-1" style={{ color: 'var(--theme-primary)' }} />
                 <p className="text-xs font-bold">{selectedAsset.risk}</p>
               </div>
               <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
-                <Star className="w-5 h-5 mx-auto mb-1 fill-blue-500 text-blue-500" />
+                <Star className="w-5 h-5 mx-auto mb-1" style={{ fill: 'var(--theme-primary)', color: 'var(--theme-primary)' }} />
                 <p className="text-xs font-bold">{selectedAsset.rating}</p>
               </div>
             </div>
 
-            <div className="p-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-xl rounded-xl border border-blue-400/30">
+            <div className="p-4 bg-gradient-to-br from-[var(--theme-primary)]/10 to-[var(--theme-accent)]/10 backdrop-blur-xl rounded-xl border border-[var(--theme-primary)]/30">
               <div className="flex items-center gap-2 mb-2">
-                <Zap className="w-5 h-5 text-blue-600" />
-                <p className="font-semibold text-blue-900 dark:text-blue-100">Быстрая инвестиция</p>
+                <Zap className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
+                <p className="font-semibold">Быстрая инвестиция</p>
               </div>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="text-sm text-muted-foreground">
                 Начните инвестировать с любой суммы • Комиссия 0%
               </p>
             </div>
+
+            <TrustBadges />
 
             <div className="flex items-center justify-between pt-2">
               <div>
@@ -323,7 +326,8 @@ export default memo(function Banking({ activeTab }: BankingProps) {
               </div>
               <button
                 onClick={() => buyAsset(selectedAsset, selectedAsset.price)}
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-2xl hover-elevate active-elevate-2"
+                className="px-8 py-4 text-white font-semibold rounded-2xl hover-elevate active-elevate-2"
+                style={{ background: 'linear-gradient(to right, var(--theme-primary), var(--theme-accent))' }}
                 data-testid="button-buy"
               >
                 Купить
@@ -345,9 +349,10 @@ export default memo(function Banking({ activeTab }: BankingProps) {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
                   selectedCategory === category
-                    ? 'bg-blue-600 text-white'
+                    ? 'text-white'
                     : 'bg-card/50 backdrop-blur-xl border border-border/50 hover-elevate'
                 }`}
+                style={selectedCategory === category ? { backgroundColor: 'var(--theme-primary)' } : {}}
                 data-testid={`button-category-${category}`}
               >
                 {category}
@@ -369,7 +374,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
               data-testid={`card-catalog-asset-${asset.id}`}
             >
               <div className="relative aspect-[3/4]">
-                <img src={asset.image} alt={asset.name} className="w-full h-full object-cover" />
+                <LazyImage src={asset.image} alt={asset.name} className="w-full h-full object-cover" />
                 {asset.isNew && (
                   <div className="absolute top-2 left-2 px-2 py-1 bg-green-500/90 backdrop-blur-xl rounded-full border border-green-400/50">
                     <span className="text-xs font-bold text-white">Новинка</span>
@@ -412,7 +417,7 @@ export default memo(function Banking({ activeTab }: BankingProps) {
       <div className="h-full overflow-y-auto smooth-scroll-page">
         <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(to bottom right, var(--theme-primary), var(--theme-accent))' }}>
               <User className="w-8 h-8 text-white" />
             </div>
             <div>
@@ -422,9 +427,9 @@ export default memo(function Banking({ activeTab }: BankingProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-blue-500/10 backdrop-blur-xl rounded-xl border border-blue-400/30">
+            <div className="p-4 bg-[var(--theme-primary)]/10 backdrop-blur-xl rounded-xl border border-[var(--theme-primary)]/30">
               <p className="text-sm text-muted-foreground mb-1">Баланс</p>
-              <p className="text-2xl font-bold text-blue-600">{balance.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</p>
+              <p className="text-2xl font-bold" style={{ color: 'var(--theme-primary)' }}>{balance.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</p>
             </div>
             <div className="p-4 bg-green-500/10 backdrop-blur-xl rounded-xl border border-green-400/30">
               <p className="text-sm text-muted-foreground mb-1">Доходность</p>

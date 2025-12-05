@@ -10,6 +10,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 const STORE_KEY = 'fragranceroyale-store';
@@ -354,11 +355,10 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
         </div>
 
         <div className="relative h-[60vh]">
-          <img
+          <LazyImage
             src={selectedPerfume.hoverImage}
             alt={selectedPerfume.name}
             className="w-full h-full object-cover"
-            loading="lazy"
           />
         </div>
 
@@ -407,7 +407,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                   onClick={() => setSelectedVolume(volume)}
                   className={`w-16 h-12 rounded-full font-semibold transition-all text-sm min-h-[44px] ${
                     selectedVolume === volume
-                      ? 'bg-[#C9B037] text-black'
+                      ? 'bg-[var(--theme-primary)] text-black'
                       : 'bg-white/20 text-white hover:bg-white/30'
                   }`}
                   aria-label={`Объем ${volume}`}
@@ -423,7 +423,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           <ConfirmDrawer
             trigger={
               <button
-                className="w-full bg-[#C9B037] text-black font-bold py-4 rounded-full hover:bg-[#B8A033] transition-all min-h-[48px]"
+                className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all min-h-[48px]"
                 data-testid="button-buy-now"
               >
                 Добавить в корзину
@@ -443,7 +443,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <DemoSidebar
           isOpen={sidebar.isOpen}
           onClose={sidebar.close}
@@ -451,8 +451,8 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           menuItems={sidebarMenuItems}
           title="FRAGRANCE"
           subtitle="ROYALE"
-          accentColor="#D4AF37"
-          bgColor="#0A0A0A"
+          accentColor="var(--theme-primary)"
+          bgColor="var(--theme-background)"
         />
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
@@ -536,7 +536,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
         </div>
 
         <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden scroll-fade-in" style={{ height: '500px' }}>
-          <img
+          <LazyImage
             src="https://images.unsplash.com/photo-1588405748880-12d1d2a59d75?w=800&h=1000&fit=crop&q=90"
             alt="Hero"
             className="absolute inset-0 w-full h-full object-cover"
@@ -564,7 +564,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 Эксклюзивные ароматы 2025
               </p>
               <button 
-                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105 bg-[#C9B037] min-h-[48px]"
+                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105 bg-[var(--theme-primary)] min-h-[48px]"
                 data-testid="button-hero-shop-now"
               >
                 Смотреть коллекцию
@@ -586,11 +586,10 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               data-testid={`featured-perfume-${perfume.id}`}
             >
               <div className="absolute inset-0">
-                <img
+                <LazyImage
                   src={perfume.image}
                   alt={perfume.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
                 />
               </div>
 
@@ -658,7 +657,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
@@ -687,7 +686,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all min-h-[44px] ${
                   selectedCategory === cat
-                    ? 'bg-[#C9B037] text-black'
+                    ? 'bg-[var(--theme-primary)] text-black'
                     : 'bg-white/10 text-white/70 hover:bg-white/15'
                 }`}
                 aria-pressed={selectedCategory === cat}
@@ -708,11 +707,10 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 data-testid={`perfume-card-${perfume.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
-                  <img
+                  <LazyImage
                     src={perfume.image}
                     alt={perfume.name}
                     className="w-full h-full object-cover"
-                    loading="lazy"
                   />
                   
                   <button

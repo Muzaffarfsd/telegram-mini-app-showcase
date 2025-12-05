@@ -16,8 +16,8 @@ import {
   Download
 } from "lucide-react";
 import { createProductImageErrorHandler } from "@/utils/imageUtils";
-import { OptimizedImage } from "../OptimizedImage";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 
 interface CoursesProps {
@@ -126,7 +126,7 @@ export default function Courses({ activeTab }: CoursesProps) {
         {/* Hero Learning Section */}
         <div className="px-6 pb-20">
           <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-purple-100 mb-12 relative">
-            <OptimizedImage 
+            <LazyImage 
               src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=500&fit=crop&crop=center" 
               alt="Premium Online Learning"
               className="w-full h-full object-cover"
@@ -189,7 +189,7 @@ export default function Courses({ activeTab }: CoursesProps) {
                 onClick={() => openCourseModal(course)}
               >
                 <div className="aspect-[5/3] rounded-xl overflow-hidden bg-purple-100 mb-6 relative">
-                  <OptimizedImage 
+                  <LazyImage 
                     src={course.image}
                     alt={course.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -271,7 +271,7 @@ export default function Courses({ activeTab }: CoursesProps) {
             onClick={() => openCourseModal(course)}
           >
             <div className="flex items-center space-x-3">
-              <OptimizedImage 
+              <LazyImage 
                 src={course.image} 
                 alt={course.name} 
                 className="w-20 h-20 object-cover rounded-lg"
@@ -337,7 +337,7 @@ export default function Courses({ activeTab }: CoursesProps) {
             {enrolledCourses.map((course) => (
               <div key={course.id} className="ios-card p-4">
                 <div className="flex items-center space-x-3 mb-4">
-                  <OptimizedImage 
+                  <LazyImage 
                     src={course.image} 
                     alt={course.name} 
                     className="w-16 h-16 object-cover rounded-lg"
@@ -427,7 +427,7 @@ export default function Courses({ activeTab }: CoursesProps) {
         <h2 className="ios-headline font-semibold">Избранные курсы</h2>
         {courses.filter(course => favorites.includes(course.id)).map((course) => (
           <div key={course.id} className="ios-card p-3 flex items-center space-x-3">
-            <OptimizedImage 
+            <LazyImage 
               src={course.image} 
               alt={course.name} 
               className="w-20 h-20 object-cover rounded-lg"
@@ -501,7 +501,7 @@ export default function Courses({ activeTab }: CoursesProps) {
               </button>
             </div>
             
-            <OptimizedImage 
+            <LazyImage 
               src={selectedCourse.image} 
               alt={selectedCourse.name} 
               className="w-full h-48 object-cover rounded-xl"
