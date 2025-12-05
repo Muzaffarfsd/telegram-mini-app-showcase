@@ -1,32 +1,22 @@
 import { useState, useEffect, memo } from "react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Flower2, Crown, Droplets, Home, Grid, Tag } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Flower2, Crown, Droplets, Home, Grid, Tag, Plus, Minus } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
+
+const STORE_KEY = 'fragranceroyale-store';
 
 interface FragranceRoyaleProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
   onTabChange?: (tab: string) => void;
-}
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  volume: string;
-  quantity: number;
-  image: string;
-  concentration: string;
-}
-
-interface Order {
-  id: number;
-  items: CartItem[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
 }
 
 interface Perfume {
@@ -201,20 +191,42 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   const [selectedPerfume, setSelectedPerfume] = useState<Perfume | null>(null);
   const [selectedVolume, setSelectedVolume] = useState<string>('');
   const [selectedConcentration, setSelectedConcentration] = useState<string>('');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
   const [selectedGender, setSelectedGender] = useState<string>('All');
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  
+  const { toast } = useToast();
   const sidebar = useDemoSidebar();
+
+  const { 
+    cartItems: cart, 
+    addToCart: addToCartHook, 
+    removeFromCart, 
+    updateQuantity,
+    clearCart, 
+    totalAmount: cartTotal,
+    totalItems: cartCount 
+  } = usePersistentCart({ storageKey: `${STORE_KEY}_cart` });
+  
+  const { 
+    toggleFavorite: toggleFavoriteHook, 
+    isFavorite,
+    favoritesCount 
+  } = usePersistentFavorites({ storageKey: `${STORE_KEY}_favorites` });
+  
+  const { 
+    orders, 
+    createOrder,
+    ordersCount 
+  } = usePersistentOrders({ storageKey: `${STORE_KEY}_orders` });
 
   const sidebarMenuItems = [
     { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
     { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
-    { icon: <Heart className="w-5 h-5" />, label: 'Избранное' },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина' },
-    { icon: <Tag className="w-5 h-5" />, label: 'Акции' },
-    { icon: <User className="w-5 h-5" />, label: 'Профиль' },
+    { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: '#C9B037' },
+    { icon: <Tag className="w-5 h-5" />, label: 'Акции', badge: 'NEW', badgeColor: '#EF4444' },
+    { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
     { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
   ];
 
@@ -239,14 +251,13 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
     return categoryMatch;
   });
 
-  const toggleFavorite = (perfumeId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(perfumeId)) {
-      newFavorites.delete(perfumeId);
-    } else {
-      newFavorites.add(perfumeId);
-    }
-    setFavorites(newFavorites);
+  const handleToggleFavorite = (perfumeId: number) => {
+    toggleFavoriteHook(String(perfumeId));
+    const isNowFavorite = !isFavorite(String(perfumeId));
+    toast({
+      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
+      duration: 1500,
+    });
   };
 
   const openPerfume = (perfume: Perfume) => {
@@ -260,17 +271,21 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   const addToCart = () => {
     if (!selectedPerfume) return;
     
-    const cartItem: CartItem = {
-      id: Date.now(),
+    addToCartHook({
+      id: String(selectedPerfume.id),
       name: selectedPerfume.name,
       price: selectedPerfume.price,
-      volume: selectedVolume,
-      quantity: 1,
       image: selectedPerfume.image,
-      concentration: selectedConcentration
-    };
+      size: selectedVolume,
+      color: selectedConcentration
+    });
     
-    setCart([...cart, cartItem]);
+    toast({
+      title: 'Добавлено в корзину',
+      description: `${selectedPerfume.name} • ${selectedConcentration} • ${selectedVolume}`,
+      duration: 2000,
+    });
+    
     setSelectedPerfume(null);
   };
 
@@ -283,24 +298,32 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
     }).format(price);
   };
 
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-  const handleCheckout = () => {
-    if (cart.length === 0) return;
+  const handleCheckout = (orderId: string) => {
+    const orderItems = cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image,
+      size: item.size,
+      color: item.color
+    }));
     
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cart],
-      total: cartTotal,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
+    createOrder(orderItems, cartTotal, {
+      address: 'Москва',
+      phone: '+7 (999) 888-77-66'
+    });
     
-    setOrders([newOrder, ...orders]);
-    setCart([]);
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Заказ оформлен!',
+      description: `Номер заказа: ${orderId}`,
+      duration: 3000,
+    });
   };
 
-  // PRODUCT PAGE
   if (activeTab === 'catalog' && selectedPerfume) {
     const bgColor = selectedPerfume.concentrationColors[selectedPerfume.concentrations.indexOf(selectedConcentration)] || '#9333EA';
     
@@ -309,7 +332,8 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedPerfume(null)}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            aria-label="Назад"
             data-testid="button-back"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -317,13 +341,14 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleFavorite(selectedPerfume.id);
+              handleToggleFavorite(selectedPerfume.id);
             }}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            aria-label={isFavorite(String(selectedPerfume.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
             data-testid={`button-favorite-${selectedPerfume.id}`}
           >
             <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedPerfume.id) ? 'fill-white text-white' : 'text-white'}`}
+              className={`w-5 h-5 ${isFavorite(String(selectedPerfume.id)) ? 'fill-white text-white' : 'text-white'}`}
             />
           </button>
         </div>
@@ -353,16 +378,18 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
           <div>
             <p className="text-sm mb-3 text-white/80 text-center">Выберите концентрацию:</p>
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-3 flex-wrap">
               {selectedPerfume.concentrations.map((concentration, idx) => (
                 <button
                   key={concentration}
                   onClick={() => setSelectedConcentration(concentration)}
-                  className={`px-4 py-2 rounded-full border-2 transition-all text-sm ${
+                  className={`px-4 py-2 rounded-full border-2 transition-all text-sm min-h-[44px] ${
                     selectedConcentration === concentration
                       ? 'border-white scale-105'
                       : 'border-white/30'
                   }`}
+                  aria-label={concentration}
+                  aria-pressed={selectedConcentration === concentration}
                   data-testid={`button-concentration-${concentration}`}
                 >
                   {concentration}
@@ -373,16 +400,18 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
           <div>
             <p className="text-sm mb-3 text-white/80 text-center">Выберите объем:</p>
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-3 flex-wrap">
               {selectedPerfume.volumes.map((volume) => (
                 <button
                   key={volume}
                   onClick={() => setSelectedVolume(volume)}
-                  className={`w-16 h-12 rounded-full font-semibold transition-all text-sm ${
+                  className={`w-16 h-12 rounded-full font-semibold transition-all text-sm min-h-[44px] ${
                     selectedVolume === volume
-                      ? 'bg-[#CDFF38] text-black'
+                      ? 'bg-[#C9B037] text-black'
                       : 'bg-white/20 text-white hover:bg-white/30'
                   }`}
+                  aria-label={`Объем ${volume}`}
+                  aria-pressed={selectedVolume === volume}
                   data-testid={`button-volume-${volume}`}
                 >
                   {volume}
@@ -394,7 +423,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           <ConfirmDrawer
             trigger={
               <button
-                className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
+                className="w-full bg-[#C9B037] text-black font-bold py-4 rounded-full hover:bg-[#B8A033] transition-all min-h-[48px]"
                 data-testid="button-buy-now"
               >
                 Добавить в корзину
@@ -412,7 +441,6 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
     );
   }
 
-  // HOME PAGE
   if (activeTab === 'home') {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
@@ -428,12 +456,29 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
         />
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <button onClick={sidebar.open} aria-label="Меню" data-testid="button-menu">
+            <button 
+              onClick={sidebar.open} 
+              aria-label="Открыть меню" 
+              className="w-11 h-11 flex items-center justify-center"
+              data-testid="button-menu"
+            >
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-3">
-              <ShoppingBag className="w-6 h-6" data-testid="button-view-cart" />
-              <Heart className="w-6 h-6" data-testid="button-view-favorites" />
+              <button 
+                aria-label="Корзина" 
+                className="w-11 h-11 flex items-center justify-center"
+                data-testid="button-view-cart"
+              >
+                <ShoppingBag className="w-6 h-6" />
+              </button>
+              <button 
+                aria-label="Избранное" 
+                className="w-11 h-11 flex items-center justify-center"
+                data-testid="button-view-favorites"
+              >
+                <Heart className="w-6 h-6" />
+              </button>
             </div>
           </div>
 
@@ -451,7 +496,8 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
           <div className="flex items-center gap-4 mb-6 scroll-fade-in">
             <button 
-              className="p-2 bg-white rounded-full"
+              className="p-2 bg-white rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Главная"
               data-testid="button-view-home"
             >
               <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
@@ -462,11 +508,12 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               <button
                 key={gender}
                 onClick={() => setSelectedGender(gender)}
-                className={`text-sm font-medium transition-colors ${
+                className={`text-sm font-medium transition-colors min-h-[44px] px-2 ${
                   selectedGender === gender
                     ? 'text-white'
                     : 'text-white/40'
                 }`}
+                aria-pressed={selectedGender === gender}
                 data-testid={`button-filter-${gender.toLowerCase()}`}
               >
                 {gender}
@@ -475,12 +522,13 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           </div>
 
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 bg-white/5 rounded-full px-4 py-3 flex items-center gap-2 border border-white/10">
+            <div className="flex-1 bg-white/5 rounded-full px-4 py-3 flex items-center gap-2 border border-white/10 min-h-[48px]">
               <Search className="w-5 h-5 text-white/50" />
               <input
                 type="text"
                 placeholder="Поиск ароматов..."
                 className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
+                aria-label="Поиск ароматов"
                 data-testid="input-search"
               />
             </div>
@@ -516,7 +564,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 Эксклюзивные ароматы 2025
               </p>
               <button 
-                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105 bg-[#C9B037]"
+                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105 bg-[#C9B037] min-h-[48px]"
                 data-testid="button-hero-shop-now"
               >
                 Смотреть коллекцию
@@ -559,13 +607,14 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleFavorite(perfume.id);
+                  handleToggleFavorite(perfume.id);
                 }}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
+                className="absolute top-4 right-4 w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
+                aria-label={isFavorite(String(perfume.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                 data-testid={`button-favorite-${perfume.id}`}
               >
                 <Heart 
-                  className={`w-5 h-5 ${favorites.has(perfume.id) ? 'fill-white text-white' : 'text-white'}`}
+                  className={`w-5 h-5 ${isFavorite(String(perfume.id)) ? 'fill-white text-white' : 'text-white'}`}
                 />
               </button>
 
@@ -587,6 +636,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                       openPerfume(perfume);
                     }}
                     className="w-14 h-14 rounded-full bg-[#C9B037] flex items-center justify-center transition-all hover:scale-110"
+                    aria-label={`Добавить ${perfume.name} в корзину`}
                     data-testid={`button-add-to-cart-${perfume.id}`}
                   >
                     <ShoppingBag className="w-6 h-6 text-black" />
@@ -606,7 +656,6 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
     );
   }
 
-  // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
@@ -614,10 +663,18 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
             <div className="flex items-center gap-3">
-              <button className="p-2" data-testid="button-view-search">
+              <button 
+                className="w-11 h-11 flex items-center justify-center" 
+                aria-label="Поиск"
+                data-testid="button-view-search"
+              >
                 <Search className="w-6 h-6" />
               </button>
-              <button className="p-2" data-testid="button-view-filter">
+              <button 
+                className="w-11 h-11 flex items-center justify-center" 
+                aria-label="Фильтры"
+                data-testid="button-view-filter"
+              >
                 <Filter className="w-6 h-6" />
               </button>
             </div>
@@ -628,11 +685,12 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all min-h-[44px] ${
                   selectedCategory === cat
                     ? 'bg-[#C9B037] text-black'
                     : 'bg-white/10 text-white/70 hover:bg-white/15'
                 }`}
+                aria-pressed={selectedCategory === cat}
                 data-testid={`button-filter-${cat.toLowerCase()}`}
               >
                 {cat}
@@ -660,13 +718,14 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(perfume.id);
+                      handleToggleFavorite(perfume.id);
                     }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
+                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
+                    aria-label={isFavorite(String(perfume.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                     data-testid={`button-favorite-${perfume.id}`}
                   >
                     <Heart 
-                      className={`w-4 h-4 ${favorites.has(perfume.id) ? 'fill-white text-white' : 'text-white'}`}
+                      className={`w-4 h-4 ${isFavorite(String(perfume.id)) ? 'fill-white text-white' : 'text-white'}`}
                     />
                   </button>
 
@@ -695,25 +754,25 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
     );
   }
 
-  // CART PAGE
   if (activeTab === 'cart') {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
           {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <ShoppingBag className="w-20 h-20 text-white/20 mb-4" />
-              <p className="text-white/50 text-center">Ваша корзина пуста</p>
-            </div>
+            <EmptyState
+              type="cart"
+              title="Корзина пуста"
+              description="Добавьте ароматы из каталога, чтобы оформить заказ"
+              actionLabel="Перейти в каталог"
+              onAction={() => onTabChange?.('catalog')}
+            />
           ) : (
             <div className="space-y-4">
               {cart.map((item) => (
                 <div
-                  key={item.id}
+                  key={`${item.id}-${item.size}-${item.color}`}
                   className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
                   data-testid={`cart-item-${item.id}`}
                 >
@@ -726,13 +785,34 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1">{item.name}</h3>
                     <p className="text-sm text-white/60 mb-2">
-                      {item.concentration} • {item.volume}
+                      {item.color} • {item.size}
                     </p>
                     <p className="text-lg font-bold">{formatPrice(item.price)}</p>
+                    
+                    <div className="flex items-center gap-3 mt-2">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                        className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
+                        aria-label="Уменьшить количество"
+                        data-testid={`button-decrease-${item.id}`}
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="text-lg font-semibold min-w-[24px] text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                        className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
+                        aria-label="Увеличить количество"
+                        data-testid={`button-increase-${item.id}`}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   <button
-                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
-                    className="w-8 h-8"
+                    onClick={() => removeFromCart(item.id, item.size, item.color)}
+                    className="w-10 h-10 flex items-center justify-center"
+                    aria-label="Удалить из корзины"
                     data-testid={`button-remove-${item.id}`}
                   >
                     <X className="w-5 h-5" />
@@ -745,31 +825,39 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                   <span className="text-lg font-semibold">Итого:</span>
                   <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
                 </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full bg-[#C9B037] text-black font-bold py-4 rounded-full hover:bg-[#B8A033] transition-all"
-                      data-testid="button-checkout"
-                    >
-                      Оформить заказ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cart.length} товаров на сумму ${formatPrice(cartTotal)}`}
-                  confirmText="Подтвердить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
+                <button
+                  onClick={() => setIsCheckoutOpen(true)}
+                  className="w-full bg-[#C9B037] text-black font-bold py-4 rounded-full hover:bg-[#B8A033] transition-all min-h-[48px]"
+                  data-testid="button-checkout"
+                >
+                  Оформить заказ
+                </button>
               </div>
             </div>
           )}
         </div>
+
+        <CheckoutDrawer
+          isOpen={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          items={cart.map(item => ({
+            id: Number(item.id),
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color,
+            image: item.image
+          }))}
+          total={cartTotal}
+          currency="₽"
+          onOrderComplete={handleCheckout}
+          storeName="FragranceRoyale"
+        />
       </div>
     );
   }
 
-  // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
@@ -787,11 +875,11 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{orders.length}</p>
+              <p className="text-2xl font-bold">{ordersCount}</p>
             </div>
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Избранное</p>
-              <p className="text-2xl font-bold">{favorites.size}</p>
+              <p className="text-2xl font-bold">{favoritesCount}</p>
             </div>
           </div>
         </div>
@@ -799,18 +887,19 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
         <div className="p-4 space-y-4">
           <div className="scroll-fade-in">
             <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
-            {orders.length === 0 ? (
-              <div className="text-center py-8 text-white/50">
-                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>У вас пока нет заказов</p>
-              </div>
+            {ordersCount === 0 ? (
+              <EmptyState
+                type="orders"
+                title="Нет заказов"
+                description="Ваши заказы будут отображаться здесь после оформления"
+              />
             ) : (
               <div className="space-y-3">
                 {orders.map((order) => (
                   <div key={order.id} className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10" data-testid={`order-${order.id}`}>
                     <div className="flex justify-between gap-2 mb-2">
-                      <span className="text-white/80">Заказ #{order.id.toString().slice(-6)}</span>
-                      <span className="text-white/60">{order.date}</span>
+                      <span className="text-white/80">Заказ #{order.id.slice(-6)}</span>
+                      <span className="text-white/60">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
                     </div>
                     <div className="flex justify-between gap-2 mb-2">
                       <span className="text-white/60">{order.items.length} товаров</span>
@@ -818,7 +907,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                     </div>
                     <div className="mt-2">
                       <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
-                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                        {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтвержден' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
                       </span>
                     </div>
                   </div>
@@ -828,7 +917,11 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           </div>
 
           <div className="space-y-2">
-            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
+            <button 
+              className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2 min-h-[56px]" 
+              aria-label="Избранное"
+              data-testid="button-favorites"
+            >
               <div className="flex items-center gap-3">
                 <Heart className="w-5 h-5 text-white/70" />
                 <span className="font-medium">Избранное</span>
@@ -836,7 +929,11 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
             </button>
 
-            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-addresses">
+            <button 
+              className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2 min-h-[56px]" 
+              aria-label="Адреса доставки"
+              data-testid="button-addresses"
+            >
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-white/70" />
                 <span className="font-medium">Адреса доставки</span>
@@ -844,7 +941,11 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
             </button>
 
-            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
+            <button 
+              className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2 min-h-[56px]" 
+              aria-label="Способы оплаты"
+              data-testid="button-payment"
+            >
               <div className="flex items-center gap-3">
                 <CreditCard className="w-5 h-5 text-white/70" />
                 <span className="font-medium">Способы оплаты</span>
@@ -852,7 +953,11 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
             </button>
 
-            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
+            <button 
+              className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2 min-h-[56px]" 
+              aria-label="Настройки"
+              data-testid="button-settings"
+            >
               <div className="flex items-center gap-3">
                 <Settings className="w-5 h-5 text-white/70" />
                 <span className="font-medium">Настройки</span>
@@ -860,12 +965,15 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
             </button>
 
-            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-logout">
+            <button 
+              className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover-elevate active-elevate-2 mt-4 min-h-[56px]" 
+              aria-label="Выйти"
+              data-testid="button-logout"
+            >
               <div className="flex items-center gap-3">
-                <LogOut className="w-5 h-5 text-white/70" />
-                <span className="font-medium">Выход</span>
+                <LogOut className="w-5 h-5 text-red-400" />
+                <span className="font-medium text-red-400">Выйти</span>
               </div>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
             </button>
           </div>
         </div>

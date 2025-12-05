@@ -7,6 +7,14 @@ import { ConfirmDrawer, SelectDrawer } from "../ui/modern-drawer";
 import { HapticButton } from "../ui/haptic-button";
 import { useFilter } from "@/hooks/useFilter";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "../shared/EmptyState";
+import { CheckoutDrawer } from "../shared/CheckoutDrawer";
+
+const STORE_KEY = 'storeblack-store';
 // Helmet images
 import helmetImg1 from '@assets/stock_images/futuristic_motorcycl_4e16eb33.jpg';
 import helmetImg2 from '@assets/stock_images/futuristic_motorcycl_37d2a4c0.jpg';
@@ -277,14 +285,43 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
   const [selectedGender, setSelectedGender] = useState<string>('All');
   const [quantity, setQuantity] = useState(1);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [showOrderSuccess, setShowOrderSuccess] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const { toast } = useToast();
+
+  const {
+    cart,
+    addToCart: addToCartHook,
+    removeFromCart,
+    updateQuantity: updateCartQuantity,
+    clearCart,
+    cartTotal,
+    cartCount
+  } = usePersistentCart({ storageKey: STORE_KEY });
+
+  const {
+    isFavorite,
+    toggleFavorite: toggleFavoriteHook,
+    favoritesCount
+  } = usePersistentFavorites({ storageKey: STORE_KEY });
+
+  const {
+    orders,
+    addOrder,
+    ordersCount
+  } = usePersistentOrders({ storageKey: STORE_KEY });
+
+  const handleToggleFavorite = (productId: number) => {
+    toggleFavoriteHook(String(productId));
+    const isNowFavorite = !isFavorite(String(productId));
+    toast({
+      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
+      duration: 1500,
+    });
+  };
 
   const { filteredItems, searchQuery, handleSearch } = useFilter({
     items: products,
@@ -303,6 +340,9 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
     if (activeTab !== 'home') {
       setSelectedGender('All');
     }
+    if (activeTab !== 'cart') {
+      setIsCheckoutOpen(false);
+    }
   }, [activeTab]);
 
   const filteredProducts = filteredItems.filter(p => {
@@ -316,16 +356,6 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
     return categoryMatch;
   });
 
-  const toggleFavorite = (productId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(productId)) {
-      newFavorites.delete(productId);
-    } else {
-      newFavorites.add(productId);
-    }
-    setFavorites(newFavorites);
-  };
-
   const openProduct = (product: Product) => {
     scrollToTop();
     onTabChange?.('catalog');
@@ -338,34 +368,48 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
   const addToCart = () => {
     if (!selectedProduct) return;
     
-    const cartItem: CartItem = {
-      id: Date.now(),
+    addToCartHook({
+      id: String(selectedProduct.id),
       name: selectedProduct.name,
       price: selectedProduct.price,
-      size: selectedSize,
       quantity: quantity,
       image: selectedProduct.image,
+      size: selectedSize,
       color: selectedColor
-    };
+    });
     
-    setCart([...cart, cartItem]);
+    toast({
+      title: 'Добавлено в корзину',
+      duration: 1500,
+    });
+    
     setSelectedProduct(null);
   };
 
   const handleCheckout = () => {
     if (cart.length === 0) return;
     
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cart],
-      total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
+    addOrder({
+      items: cart.map(item => ({
+        id: parseInt(item.id) || 0,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+        image: item.image
+      })),
+      total: cartTotal
+    });
     
-    setOrders([newOrder, ...orders]);
-    setCart([]);
-    setShowOrderSuccess(true);
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Заказ оформлен!',
+      description: 'Ваш заказ успешно создан',
+      duration: 3000,
+    });
   };
 
   const formatPrice = (price: number) => {
@@ -386,7 +430,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-all"
+            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-all"
             data-testid="button-back"
             aria-label="Назад"
           >
@@ -395,14 +439,14 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleFavorite(selectedProduct.id);
+              handleToggleFavorite(selectedProduct.id);
             }}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-all"
+            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-all"
             data-testid={`button-favorite-${selectedProduct.id}`}
-            aria-label="Избранное"
+            aria-label={isFavorite(String(selectedProduct.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
           >
             <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
+              className={`w-5 h-5 ${isFavorite(String(selectedProduct.id)) ? 'fill-white text-white' : 'text-white'}`}
             />
           </button>
         </div>
@@ -677,14 +721,14 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleFavorite(product.id);
+                  handleToggleFavorite(product.id);
                 }}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all"
+                className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all"
                 data-testid={`button-favorite-${product.id}`}
-                aria-label="Избранное"
+                aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
               >
                 <Heart 
-                  className={`w-5 h-5 ${favorites.has(product.id) ? 'fill-[#FFD700] text-[#FFD700]' : 'text-white'}`}
+                  className={`w-5 h-5 ${isFavorite(String(product.id)) ? 'fill-[#FFD700] text-[#FFD700]' : 'text-white'}`}
                 />
               </button>
 
@@ -785,14 +829,14 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(product.id);
+                      handleToggleFavorite(product.id);
                     }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center border border-white/20"
+                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center border border-white/20"
                     data-testid={`button-favorite-${product.id}`}
-                    aria-label="Избранное"
+                    aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                   >
                     <Heart 
-                      className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-[#FFD700] text-[#FFD700]' : 'text-white'}`}
+                      className={`w-4 h-4 ${isFavorite(String(product.id)) ? 'fill-[#FFD700] text-[#FFD700]' : 'text-white'}`}
                     />
                   </button>
 
@@ -835,8 +879,6 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
 
   // CART PAGE
   if (activeTab === 'cart') {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
     return (
       <div className="min-h-screen bg-black text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
@@ -847,7 +889,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
             </div>
             {cart.length > 0 && (
               <button 
-                onClick={() => setCart([])}
+                onClick={() => clearCart()}
                 className="text-sm text-white/60 hover:text-white transition-colors"
                 data-testid="button-clear-cart"
               >
@@ -857,18 +899,17 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
           </div>
 
           {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 scroll-fade-in-delay-1">
-              <div className="w-32 h-32 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/10">
-                <ShoppingBag className="w-16 h-16 text-white/20" />
-              </div>
-              <p className="text-white/50 text-center text-lg mb-2">Ваша корзина пуста</p>
-              <p className="text-white/30 text-center text-sm">Добавьте товары из каталога</p>
-            </div>
+            <EmptyState
+              type="cart"
+              actionLabel="В каталог"
+              onAction={() => onTabChange?.('catalog')}
+              className="py-20"
+            />
           ) : (
             <div className="space-y-4">
               {cart.map((item, idx) => (
                 <div
-                  key={item.id}
+                  key={`${item.id}-${item.size}-${item.color}`}
                   className={`bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4 border border-white/10 ${idx < 2 ? 'scroll-fade-in' : getDelayClass(idx)}`}
                   data-testid={`cart-item-${item.id}`}
                 >
@@ -883,17 +924,38 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1">{item.name}</h3>
                     <p className="text-sm text-white/60 mb-2">
-                      {item.color} • {item.size} • Кол-во: {item.quantity}
+                      {item.color} • {item.size}
                     </p>
-                    <p className="text-lg font-bold" style={{ color: '#FFD700' }}>
-                      {formatPrice(item.price * item.quantity)}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-lg font-bold" style={{ color: '#FFD700' }}>
+                        {formatPrice(item.price * item.quantity)}
+                      </p>
+                      <div className="flex items-center gap-2 bg-white/10 rounded-full px-2">
+                        <button
+                          onClick={() => updateCartQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                          className="w-10 h-10 flex items-center justify-center"
+                          aria-label="Уменьшить количество"
+                          data-testid={`button-decrease-${item.id}`}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-6 text-center font-semibold">{item.quantity}</span>
+                        <button
+                          onClick={() => updateCartQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                          className="w-10 h-10 flex items-center justify-center"
+                          aria-label="Увеличить количество"
+                          data-testid={`button-increase-${item.id}`}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <button
-                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
-                    className="w-8 h-8 hover:bg-white/10 rounded-lg transition-all"
+                    onClick={() => removeFromCart(item.id, item.size, item.color)}
+                    className="w-10 h-10 hover:bg-white/10 rounded-lg transition-all flex items-center justify-center"
                     data-testid={`button-remove-${item.id}`}
-                    aria-label="Удалить"
+                    aria-label="Удалить из корзины"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -901,51 +963,36 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
               ))}
 
               <div className="fixed bottom-24 left-0 right-0 p-6 bg-black border-t border-white/10">
-                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-white/60">Товары ({cart.length})</span>
-                    <span className="font-semibold">{formatPrice(total)}</span>
-                  </div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-white/60">Доставка</span>
-                    <span className="font-semibold" style={{ color: '#FFD700' }}>Бесплатно</span>
-                  </div>
-                  <div className="h-px bg-white/10 my-3"></div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl font-semibold">Итого:</span>
-                    <span className="text-2xl font-bold" style={{ color: '#FFD700' }}>{formatPrice(total)}</span>
-                  </div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-lg font-semibold">Итого:</span>
+                  <span className="text-2xl font-bold" style={{ color: '#FFD700' }}>{formatPrice(cartTotal)}</span>
                 </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full font-bold py-4 rounded-full transition-all hover:scale-105 shadow-lg shadow-[#FFD700]/30"
-                      style={{ backgroundColor: '#FFD700', color: '#000000' }}
-                      data-testid="button-checkout"
-                    >
-                      Оформить заказ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cart.length} товаров на сумму ${formatPrice(total)}`}
-                  confirmText="Подтвердить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
+                <button
+                  onClick={() => setIsCheckoutOpen(true)}
+                  className="w-full font-bold py-4 rounded-full transition-all hover:scale-105 shadow-lg shadow-[#FFD700]/30 min-h-[48px]"
+                  style={{ backgroundColor: '#FFD700', color: '#000000' }}
+                  data-testid="button-checkout"
+                >
+                  Оформить заказ
+                </button>
               </div>
-
-              <ConfirmDrawer
-                open={showOrderSuccess}
-                onOpenChange={setShowOrderSuccess}
-                trigger={<span />}
-                title="Заказ оформлен!"
-                description="Ваш заказ успешно создан и передан в обработку. Вы можете отслеживать статус в разделе 'Мои заказы'"
-                confirmText="Отлично"
-                cancelText=""
-                variant="default"
-                onConfirm={() => setShowOrderSuccess(false)}
-                icon={<Check className="w-8 h-8 text-emerald-400" />}
+              
+              <CheckoutDrawer
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                items={cart.map(item => ({
+                  id: parseInt(item.id) || 0,
+                  name: item.name,
+                  price: item.price,
+                  quantity: item.quantity,
+                  size: item.size,
+                  color: item.color,
+                  image: item.image
+                }))}
+                total={cartTotal}
+                currency="₽"
+                onOrderComplete={handleCheckout}
+                storeName="Store Black"
               />
             </div>
           )}
@@ -975,12 +1022,12 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
             <div className="p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 scroll-fade-in">
               <Package className="w-5 h-5 mb-2" style={{ color: '#FFD700' }} />
               <p className="text-xs text-white/60 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{orders.length}</p>
+              <p className="text-2xl font-bold">{ordersCount}</p>
             </div>
             <div className="p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 scroll-fade-in">
               <Heart className="w-5 h-5 mb-2" style={{ color: '#FFD700' }} />
               <p className="text-xs text-white/60 mb-1">Избранное</p>
-              <p className="text-2xl font-bold">{favorites.size}</p>
+              <p className="text-2xl font-bold">{favoritesCount}</p>
             </div>
             <div className="p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 scroll-fade-in">
               <Star className="w-5 h-5 mb-2" style={{ color: '#FFD700' }} />
@@ -1002,8 +1049,8 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
               {orders.map((order) => (
                 <div key={order.id} className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10" data-testid={`order-${order.id}`}>
                   <div className="flex justify-between gap-2 mb-2">
-                    <span className="text-sm">Заказ #{order.id.toString().slice(-6)}</span>
-                    <span className="text-white/60 text-sm">{order.date}</span>
+                    <span className="text-sm">Заказ #{order.id.slice(-6)}</span>
+                    <span className="text-white/60 text-sm">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
                   </div>
                   <div className="flex justify-between gap-2 mb-2">
                     <span className="text-white/70">{order.items.length} товаров</span>
@@ -1011,7 +1058,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
                   </div>
                   <div>
                     <span className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full">
-                      {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                      {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
                     </span>
                   </div>
                 </div>
@@ -1041,7 +1088,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
               </div>
               <div className="text-left">
                 <span className="font-medium block">Избранное</span>
-                <span className="text-xs text-white/50">{favorites.size} товаров</span>
+                <span className="text-xs text-white/50">{favoritesCount} товаров</span>
               </div>
             </div>
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />

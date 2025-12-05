@@ -1,10 +1,18 @@
 import { useState, useEffect, memo } from "react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+
+const STORE_KEY = 'rascal-store';
 import fashionImg1 from '@assets/stock_images/futuristic_techwear__e958e42c.jpg';
 import fashionImg2 from '@assets/stock_images/futuristic_techwear__737df842.jpg';
 import fashionImg3 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
@@ -252,13 +260,42 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
   const [selectedGender, setSelectedGender] = useState<string>('All');
-  const [showCheckout, setShowCheckout] = useState<boolean>(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const sidebar = useDemoSidebar();
+  const { toast } = useToast();
+
+  const {
+    cart,
+    addToCart: addToCartHook,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    cartTotal,
+    cartCount
+  } = usePersistentCart({ storageKey: STORE_KEY });
+
+  const {
+    isFavorite,
+    toggleFavorite: toggleFavoriteHook,
+    favoritesCount
+  } = usePersistentFavorites({ storageKey: STORE_KEY });
+
+  const {
+    orders,
+    addOrder,
+    ordersCount
+  } = usePersistentOrders({ storageKey: STORE_KEY });
+
+  const handleToggleFavorite = (productId: number) => {
+    toggleFavoriteHook(String(productId));
+    const isNowFavorite = !isFavorite(String(productId));
+    toast({
+      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
+      duration: 1500,
+    });
+  };
 
   const sidebarMenuItems = [
     { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
@@ -279,7 +316,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
       setSelectedGender('All');
     }
     if (activeTab !== 'cart') {
-      setShowCheckout(false);
+      setIsCheckoutOpen(false);
     }
   }, [activeTab]);
 
@@ -294,16 +331,6 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
     return categoryMatch;
   });
 
-  const toggleFavorite = (productId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(productId)) {
-      newFavorites.delete(productId);
-    } else {
-      newFavorites.add(productId);
-    }
-    setFavorites(newFavorites);
-  };
-
   const openProduct = (product: Product) => {
     scrollToTop();
     onTabChange?.('catalog');
@@ -315,17 +342,21 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
   const addToCart = () => {
     if (!selectedProduct) return;
     
-    const cartItem: CartItem = {
-      id: Date.now(),
+    addToCartHook({
+      id: String(selectedProduct.id),
       name: selectedProduct.name,
       price: selectedProduct.price,
-      size: selectedSize,
       quantity: 1,
       image: selectedProduct.image,
+      size: selectedSize,
       color: selectedColor
-    };
+    });
     
-    setCart([...cart, cartItem]);
+    toast({
+      title: 'Добавлено в корзину',
+      duration: 1500,
+    });
+    
     setSelectedProduct(null);
   };
 
@@ -338,22 +369,30 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
     }).format(price);
   };
 
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
   const handleCheckout = () => {
     if (cart.length === 0) return;
     
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cart],
-      total: cartTotal,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
+    addOrder({
+      items: cart.map(item => ({
+        id: parseInt(item.id) || 0,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+        image: item.image
+      })),
+      total: cartTotal
+    });
     
-    setOrders([newOrder, ...orders]);
-    setCart([]);
-    setShowCheckout(false);
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Заказ оформлен!',
+      description: 'Ваш заказ успешно создан',
+      duration: 3000,
+    });
   };
 
   if (activeTab === 'catalog' && selectedProduct) {
@@ -364,21 +403,23 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
             data-testid="button-back"
+            aria-label="Назад"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleFavorite(selectedProduct.id);
+              handleToggleFavorite(selectedProduct.id);
             }}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
             data-testid={`button-favorite-${selectedProduct.id}`}
+            aria-label={isFavorite(String(selectedProduct.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
           >
             <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
+              className={`w-5 h-5 ${isFavorite(String(selectedProduct.id)) ? 'fill-white text-white' : 'text-white'}`}
             />
           </button>
         </div>
@@ -618,13 +659,14 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleFavorite(product.id);
+                  handleToggleFavorite(product.id);
                 }}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
+                className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
                 data-testid={`button-favorite-${product.id}`}
+                aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
               >
                 <Heart 
-                  className={`w-5 h-5 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                  className={`w-5 h-5 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
                 />
               </button>
 
@@ -718,13 +760,14 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(product.id);
+                      handleToggleFavorite(product.id);
                     }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
+                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
                     data-testid={`button-favorite-${product.id}`}
+                    aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                   >
                     <Heart 
-                      className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                      className={`w-4 h-4 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
                     />
                   </button>
 
@@ -753,162 +796,23 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
   }
 
   if (activeTab === 'cart') {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-    if (showCheckout) {
-      return (
-        <div className="min-h-screen text-white overflow-auto pb-32 smooth-scroll-page" style={{ backgroundColor: '#1a2e2a' }}>
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <button 
-                onClick={() => setShowCheckout(false)}
-                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
-                data-testid="button-back"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <h1 className="text-2xl font-bold">Оформление заказа</h1>
-            </div>
-
-            <div className="space-y-4">
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4">
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <User className="w-5 h-5" style={{ color: '#7FB069' }} />
-                  Контактная информация
-                </h3>
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Имя Фамилия"
-                    className="w-full bg-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/50 outline-none"
-                    data-testid="input-name"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="+7 (999) 123-45-67"
-                    className="w-full bg-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/50 outline-none"
-                    data-testid="input-phone"
-                  />
-                  <input
-                    type="email"
-                    placeholder="email@example.com"
-                    className="w-full bg-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/50 outline-none"
-                    data-testid="input-email"
-                  />
-                </div>
-              </div>
-
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4">
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <MapPin className="w-5 h-5" style={{ color: '#7FB069' }} />
-                  Адрес доставки
-                </h3>
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Город"
-                    className="w-full bg-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/50 outline-none"
-                    data-testid="input-city"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Улица, дом, квартира"
-                    className="w-full bg-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/50 outline-none"
-                    data-testid="input-address"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Индекс"
-                    className="w-full bg-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/50 outline-none"
-                    data-testid="input-zip"
-                  />
-                </div>
-              </div>
-
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4">
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" style={{ color: '#7FB069' }} />
-                  Оплата
-                </h3>
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Номер карты"
-                    className="w-full bg-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/50 outline-none"
-                    data-testid="input-card-number"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                      type="text"
-                      placeholder="ММ/ГГ"
-                      className="w-full bg-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/50 outline-none"
-                      data-testid="input-card-expiry"
-                    />
-                    <input
-                      type="text"
-                      placeholder="CVV"
-                      className="w-full bg-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/50 outline-none"
-                      data-testid="input-card-cvv"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-white/70">Товары ({cart.length})</span>
-                  <span className="font-semibold">{formatPrice(total)}</span>
-                </div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-white/70">Доставка</span>
-                  <span className="font-semibold">Бесплатно</span>
-                </div>
-                <div className="border-t border-white/10 pt-2 mt-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold">Итого:</span>
-                    <span className="text-2xl font-bold">{formatPrice(total)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <ConfirmDrawer
-                trigger={
-                  <button
-                    className="w-full text-black font-bold py-4 rounded-full transition-all hover:opacity-90"
-                    style={{ backgroundColor: '#7FB069' }}
-                    data-testid="button-confirm-order"
-                  >
-                    Подтвердить заказ
-                  </button>
-                }
-                title="Подтвердить заказ?"
-                description={`${cart.length} товаров на сумму ${formatPrice(cartTotal)}`}
-                confirmText="Подтвердить"
-                cancelText="Отмена"
-                variant="default"
-                onConfirm={handleCheckout}
-              />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="min-h-screen text-white overflow-auto pb-32 smooth-scroll-page" style={{ backgroundColor: '#1a2e2a' }}>
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
           {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <ShoppingBag className="w-20 h-20 text-white/20 mb-4" />
-              <p className="text-white/50 text-center">Ваша корзина пуста</p>
-            </div>
+            <EmptyState
+              type="cart"
+              actionLabel="В каталог"
+              onAction={() => onTabChange?.('catalog')}
+              className="py-20"
+            />
           ) : (
             <div className="space-y-4">
               {cart.map((item) => (
                 <div
-                  key={item.id}
+                  key={`${item.id}-${item.size}-${item.color}`}
                   className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
                   data-testid={`cart-item-${item.id}`}
                 >
@@ -923,11 +827,33 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
                     <p className="text-sm text-white/60 mb-2">
                       {item.color} • {item.size}
                     </p>
-                    <p className="text-lg font-bold">{formatPrice(item.price)}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-lg font-bold">{formatPrice(item.price * item.quantity)}</p>
+                      <div className="flex items-center gap-2 bg-white/10 rounded-full px-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                          className="w-10 h-10 flex items-center justify-center"
+                          aria-label="Уменьшить количество"
+                          data-testid={`button-decrease-${item.id}`}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-6 text-center font-semibold">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                          className="w-10 h-10 flex items-center justify-center"
+                          aria-label="Увеличить количество"
+                          data-testid={`button-increase-${item.id}`}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <button
-                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
-                    className="w-8 h-8"
+                    onClick={() => removeFromCart(item.id, item.size, item.color)}
+                    aria-label="Удалить из корзины"
+                    className="w-10 h-10 flex items-center justify-center"
                     data-testid={`button-remove-${item.id}`}
                   >
                     <X className="w-5 h-5" />
@@ -938,17 +864,35 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
               <div className="fixed bottom-24 left-0 right-0 p-6 border-t border-white/10" style={{ backgroundColor: '#1a2e2a' }}>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold">{formatPrice(total)}</span>
+                  <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
                 </div>
                 <button
-                  onClick={() => setShowCheckout(true)}
-                  className="w-full text-black font-bold py-4 rounded-full transition-all hover:opacity-90"
+                  onClick={() => setIsCheckoutOpen(true)}
+                  className="w-full text-black font-bold py-4 rounded-full transition-all hover:opacity-90 min-h-[48px]"
                   style={{ backgroundColor: '#7FB069' }}
                   data-testid="button-checkout"
                 >
                   Оформить заказ
                 </button>
               </div>
+              
+              <CheckoutDrawer
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                items={cart.map(item => ({
+                  id: parseInt(item.id) || 0,
+                  name: item.name,
+                  price: item.price,
+                  quantity: item.quantity,
+                  size: item.size,
+                  color: item.color,
+                  image: item.image
+                }))}
+                total={cartTotal}
+                currency="₽"
+                onOrderComplete={handleCheckout}
+                storeName="NIKE Rascal"
+              />
             </div>
           )}
         </div>
@@ -975,11 +919,11 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{orders.length}</p>
+              <p className="text-2xl font-bold">{ordersCount}</p>
             </div>
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Избранное</p>
-              <p className="text-2xl font-bold">{favorites.size}</p>
+              <p className="text-2xl font-bold">{favoritesCount}</p>
             </div>
           </div>
         </div>
@@ -997,8 +941,8 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
                 {orders.map((order) => (
                   <div key={order.id} className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10" data-testid={`order-${order.id}`}>
                     <div className="flex justify-between gap-2 mb-2">
-                      <span className="text-white/80">Заказ #{order.id.toString().slice(-6)}</span>
-                      <span className="text-white/60">{order.date}</span>
+                      <span className="text-white/80">Заказ #{order.id.slice(-6)}</span>
+                      <span className="text-white/60">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
                     </div>
                     <div className="flex justify-between gap-2 mb-2">
                       <span className="text-white/60">{order.items.length} товаров</span>
@@ -1006,7 +950,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
                     </div>
                     <div className="mt-2">
                       <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
-                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                        {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
                       </span>
                     </div>
                   </div>

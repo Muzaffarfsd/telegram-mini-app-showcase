@@ -1,10 +1,16 @@
 import { useState, useEffect, memo } from "react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Search, Menu, ChevronUp, ChevronDown, Check } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Search, Menu, ChevronUp, ChevronDown, Check, Plus, Minus } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { useFilter } from "@/hooks/useFilter";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import img1 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
 import img2 from '@assets/stock_images/futuristic_techwear__737df842.jpg';
 import img3 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
@@ -16,27 +22,11 @@ import img8 from '@assets/stock_images/futuristic_techwear__95b77175.jpg';
 import img9 from '@assets/stock_images/futuristic_fashion_m_518587e3.jpg';
 import img10 from '@assets/stock_images/futuristic_techwear__a1b10a04.jpg';
 
+const STORE_KEY = 'nikeacg-store';
+
 interface NikeACGProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
   onTabChange?: (tab: 'home' | 'catalog' | 'cart' | 'profile') => void;
-}
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  size: string;
-  quantity: number;
-  image: string;
-  color: string;
-}
-
-interface Order {
-  id: number;
-  items: CartItem[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
 }
 
 interface Product {
@@ -225,12 +215,33 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [showOrderSuccess, setShowOrderSuccess] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
+  const { toast } = useToast();
+
+  const { 
+    cartItems: cart, 
+    addToCart: addToCartHook, 
+    removeFromCart, 
+    updateQuantity,
+    clearCart, 
+    totalAmount: cartTotal,
+    totalItems: cartCount 
+  } = usePersistentCart({ storageKey: `${STORE_KEY}_cart` });
+  
+  const { 
+    toggleFavorite: toggleFavoriteHook, 
+    isFavorite,
+    favoritesCount 
+  } = usePersistentFavorites({ storageKey: `${STORE_KEY}_favorites` });
+  
+  const { 
+    orders, 
+    createOrder,
+    ordersCount 
+  } = usePersistentOrders({ storageKey: `${STORE_KEY}_orders` });
 
   const { filteredItems, searchQuery, handleSearch } = useFilter({
     items: products,
@@ -253,14 +264,13 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
     return categoryMatch;
   });
 
-  const toggleFavorite = (productId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(productId)) {
-      newFavorites.delete(productId);
-    } else {
-      newFavorites.add(productId);
-    }
-    setFavorites(newFavorites);
+  const handleToggleFavorite = (productId: number) => {
+    toggleFavoriteHook(String(productId));
+    const isNowFavorite = !isFavorite(String(productId));
+    toast({
+      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
+      duration: 1500,
+    });
   };
 
   const openProduct = (product: Product) => {
@@ -274,34 +284,49 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   const addToCart = () => {
     if (!selectedProduct) return;
     
-    const cartItem: CartItem = {
-      id: Date.now(),
+    addToCartHook({
+      id: String(selectedProduct.id),
       name: selectedProduct.name,
       price: selectedProduct.price,
-      size: selectedSize,
       quantity: 1,
       image: selectedProduct.image,
+      size: selectedSize,
       color: selectedColor
-    };
+    });
     
-    setCart([...cart, cartItem]);
+    toast({
+      title: 'Добавлено в корзину',
+      description: `${selectedProduct.name} • ${selectedColor} • ${selectedSize}`,
+      duration: 2000,
+    });
+    
     setSelectedProduct(null);
   };
 
-  const handleCheckout = () => {
-    if (cart.length === 0) return;
+  const handleCheckout = (orderId: string) => {
+    const orderItems = cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image,
+      size: item.size,
+      color: item.color
+    }));
     
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cart],
-      total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
+    createOrder(orderItems, cartTotal, {
+      address: 'Москва',
+      phone: '+7 (999) 123-45-67'
+    });
     
-    setOrders([newOrder, ...orders]);
-    setCart([]);
-    setShowOrderSuccess(true);
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Заказ оформлен!',
+      description: `Номер заказа: ${orderId}`,
+      duration: 3000,
+    });
   };
 
   const formatPrice = (price: number) => {
@@ -323,6 +348,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
           <button 
             onClick={() => setSelectedProduct(null)}
             className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-all"
+            aria-label="Назад"
             data-testid="button-back"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -330,13 +356,14 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleFavorite(selectedProduct.id);
+              handleToggleFavorite(selectedProduct.id);
             }}
             className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-all"
+            aria-label={isFavorite(String(selectedProduct.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
             data-testid={`button-favorite-${selectedProduct.id}`}
           >
             <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
+              className={`w-5 h-5 ${isFavorite(String(selectedProduct.id)) ? 'fill-white text-white' : 'text-white'}`}
             />
           </button>
         </div>
@@ -384,6 +411,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                       : 'border-white/30 hover:border-white/50'
                   }`}
                   style={{ backgroundColor: selectedProduct.colorHex[idx] }}
+                  aria-label={`Цвет ${color}`}
                   data-testid={`button-color-${color}`}
                 />
               ))}
@@ -397,11 +425,12 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  className={`px-6 py-3 rounded-full font-bold text-sm transition-all ${
+                  className={`px-6 py-3 rounded-full font-bold text-sm transition-all min-h-[44px] ${
                     selectedSize === size
                       ? 'bg-white text-black shadow-lg'
                       : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
                   }`}
+                  aria-label={`Размер ${size}`}
                   data-testid={`button-size-${size}`}
                 >
                   {size}
@@ -413,7 +442,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
           <ConfirmDrawer
             trigger={
               <button
-                className="w-full bg-white text-black font-black py-5 rounded-full hover:bg-white/90 transition-all text-lg tracking-wider shadow-xl scroll-fade-in-delay-5"
+                className="w-full bg-white text-black font-black py-5 rounded-full hover:bg-white/90 transition-all text-lg tracking-wider shadow-xl scroll-fade-in-delay-5 min-h-[56px]"
                 data-testid={`button-add-to-cart-${selectedProduct.id}`}
               >
                 ДОБАВИТЬ В КОРЗИНУ
@@ -466,7 +495,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                 All Conditions Gear для экстремальных приключений
               </p>
               <button 
-                className="px-10 py-5 bg-white text-black font-black rounded-full text-lg hover:bg-white/90 transition-all shadow-2xl tracking-wider"
+                className="px-10 py-5 bg-white text-black font-black rounded-full text-lg hover:bg-white/90 transition-all shadow-2xl tracking-wider min-h-[56px]"
                 data-testid="button-view-explore"
               >
                 ИССЛЕДОВАТЬ
@@ -549,7 +578,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                       e.stopPropagation();
                       openProduct(item.product);
                     }}
-                    className="px-8 py-4 rounded-full font-black text-sm tracking-widest transition-all hover:scale-105 w-fit"
+                    className="px-8 py-4 rounded-full font-black text-sm tracking-widest transition-all hover:scale-105 w-fit min-h-[48px]"
                     style={{
                       backgroundColor: item.text,
                       color: item.bg
@@ -564,16 +593,17 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleFavorite(item.product.id);
+                  handleToggleFavorite(item.product.id);
                 }}
                 className="absolute top-6 right-6 w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md"
                 style={{ 
                   backgroundColor: item.bg === '#FFFFFF' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' 
                 }}
+                aria-label={isFavorite(String(item.product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                 data-testid={`button-favorite-${item.product.id}`}
               >
                 <Heart 
-                  className={`w-5 h-5 ${favorites.has(item.product.id) ? 'fill-current' : ''}`}
+                  className={`w-5 h-5 ${isFavorite(String(item.product.id)) ? 'fill-current' : ''}`}
                   style={{ color: item.text }}
                 />
               </button>
@@ -603,13 +633,14 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(product.id);
+                      handleToggleFavorite(product.id);
                     }}
-                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center"
+                    className="absolute top-2 right-2 w-11 h-11 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center"
+                    aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                     data-testid={`button-favorite-${product.id}`}
                   >
                     <Heart 
-                      className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                      className={`w-4 h-4 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
                     />
                   </button>
 
@@ -644,10 +675,18 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
               <h1 className="text-3xl font-black tracking-tight">ACG カタログ</h1>
             </div>
             <div className="flex items-center gap-3">
-              <button className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-all" data-testid="button-view-search">
+              <button 
+                className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-all" 
+                aria-label="Поиск"
+                data-testid="button-view-search"
+              >
                 <Search className="w-5 h-5" />
               </button>
-              <button className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-all" data-testid="button-view-filter">
+              <button 
+                className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-all" 
+                aria-label="Фильтр"
+                data-testid="button-view-filter"
+              >
                 <Filter className="w-5 h-5" />
               </button>
             </div>
@@ -658,7 +697,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`w-full py-4 px-6 rounded-full text-left font-bold text-sm transition-all ${
+                className={`w-full py-4 px-6 rounded-full text-left font-bold text-sm transition-all min-h-[52px] ${
                   selectedCategory === cat
                     ? 'bg-white text-black shadow-lg'
                     : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/20'
@@ -695,13 +734,14 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(product.id);
+                      handleToggleFavorite(product.id);
                     }}
-                    className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center hover:bg-black/70 transition-all"
+                    className="absolute top-3 right-3 w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center hover:bg-black/70 transition-all"
+                    aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                     data-testid={`button-favorite-${product.id}`}
                   >
                     <Heart 
-                      className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                      className={`w-4 h-4 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
                     />
                   </button>
 
@@ -738,8 +778,6 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
 
   // CART PAGE
   if (activeTab === 'cart') {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
     return (
       <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
@@ -749,18 +787,17 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
           </div>
 
           {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 scroll-fade-in-delay-1">
-              <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center mb-6">
-                <ShoppingBag className="w-12 h-12 text-white/30" />
-              </div>
-              <p className="text-white/50 text-center font-medium">Ваша корзина пуста</p>
-              <p className="text-white/30 text-sm text-center mt-2">Добавьте товары для оформления заказа</p>
-            </div>
+            <EmptyState
+              type="cart"
+              actionLabel="В каталог"
+              onAction={() => onTabChange?.('catalog')}
+              className="py-20"
+            />
           ) : (
             <div className="space-y-4">
               {cart.map((item, idx) => (
                 <div
-                  key={item.id}
+                  key={`${item.id}-${item.size}-${item.color}`}
                   className={`bg-black/20 backdrop-blur-xl rounded-2xl p-5 flex gap-4 border border-white/10 ${idx < 2 ? 'scroll-fade-in' : getDelayClass(idx)}`}
                   data-testid={`cart-item-${item.id}`}
                 >
@@ -776,11 +813,33 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                     <p className="text-sm text-white/60 mb-3">
                       {item.color} • {item.size}
                     </p>
-                    <p className="text-xl font-black">{formatPrice(item.price)}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xl font-black">{formatPrice(item.price * item.quantity)}</p>
+                      <div className="flex items-center gap-2 bg-white/10 rounded-full px-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                          className="w-10 h-10 flex items-center justify-center"
+                          aria-label="Уменьшить количество"
+                          data-testid={`button-decrease-${item.id}`}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-6 text-center font-semibold">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                          className="w-10 h-10 flex items-center justify-center"
+                          aria-label="Увеличить количество"
+                          data-testid={`button-increase-${item.id}`}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <button
-                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
-                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all"
+                    onClick={() => removeFromCart(item.id, item.size, item.color)}
+                    className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all"
+                    aria-label="Удалить из корзины"
                     data-testid={`button-remove-${item.id}`}
                   >
                     <X className="w-5 h-5" />
@@ -791,37 +850,33 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
               <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#2D3748] border-t border-white/20">
                 <div className="flex items-center justify-between mb-6">
                   <span className="text-lg font-bold tracking-wider">ИТОГО:</span>
-                  <span className="text-3xl font-black">{formatPrice(total)}</span>
+                  <span className="text-3xl font-black">{formatPrice(cartTotal)}</span>
                 </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full bg-white text-black font-black py-5 rounded-full hover:bg-white/90 transition-all text-lg tracking-widest shadow-xl"
-                      data-testid="button-checkout"
-                    >
-                      ОФОРМИТЬ ЗАКАЗ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cart.length} товаров на сумму ${formatPrice(total)}`}
-                  confirmText="Подтвердить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
+                <button
+                  onClick={() => setIsCheckoutOpen(true)}
+                  className="w-full bg-white text-black font-black py-5 rounded-full hover:bg-white/90 transition-all text-lg tracking-widest shadow-xl min-h-[56px]"
+                  data-testid="button-checkout"
+                >
+                  ОФОРМИТЬ ЗАКАЗ
+                </button>
               </div>
 
-              <ConfirmDrawer
-                open={showOrderSuccess}
-                onOpenChange={setShowOrderSuccess}
-                trigger={<span />}
-                title="Заказ оформлен!"
-                description="Ваш заказ успешно создан и передан в обработку. Вы можете отслеживать статус в разделе 'Мои заказы'"
-                confirmText="Отлично"
-                cancelText=""
-                variant="default"
-                onConfirm={() => setShowOrderSuccess(false)}
-                icon={<Check className="w-8 h-8 text-emerald-400" />}
+              <CheckoutDrawer
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                items={cart.map(item => ({
+                  id: parseInt(item.id) || 0,
+                  name: item.name,
+                  price: item.price,
+                  quantity: item.quantity,
+                  size: item.size,
+                  color: item.color,
+                  image: item.image
+                }))}
+                total={cartTotal}
+                currency="₽"
+                onOrderComplete={handleCheckout}
+                storeName="NIKE ACG"
               />
             </div>
           )}
@@ -849,11 +904,11 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 scroll-fade-in">
               <p className="text-xs text-white/60 mb-2 font-bold tracking-widest">ЗАКАЗЫ</p>
-              <p className="text-3xl font-black">{orders.length}</p>
+              <p className="text-3xl font-black">{ordersCount}</p>
             </div>
             <div className="p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 scroll-fade-in">
               <p className="text-xs text-white/60 mb-2 font-bold tracking-widest">ИЗБРАННОЕ</p>
-              <p className="text-3xl font-black">{favorites.size}</p>
+              <p className="text-3xl font-black">{favoritesCount}</p>
             </div>
           </div>
         </div>
@@ -870,8 +925,8 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
               {orders.map((order) => (
                 <div key={order.id} className="bg-white/10 backdrop-blur-xl rounded-2xl p-5 border border-white/20" data-testid={`order-${order.id}`}>
                   <div className="flex justify-between gap-2 mb-2">
-                    <span className="text-sm font-bold">Заказ #{order.id.toString().slice(-6)}</span>
-                    <span className="text-white/60 text-sm">{order.date}</span>
+                    <span className="text-sm font-bold">Заказ #{order.id.slice(-6)}</span>
+                    <span className="text-white/60 text-sm">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
                   </div>
                   <div className="flex justify-between gap-2 mb-3">
                     <span className="text-white/70">{order.items.length} товаров</span>
@@ -879,7 +934,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                   </div>
                   <div>
                     <span className="text-xs px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full font-bold">
-                      {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                      {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
                     </span>
                   </div>
                 </div>
@@ -889,7 +944,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
         </div>
 
         <div className="p-6 space-y-3">
-          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-1" data-testid="button-view-orders">
+          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-1 min-h-[64px]" data-testid="button-view-orders">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                 <Package className="w-5 h-5" />
@@ -899,7 +954,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
           </button>
 
-          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-2" data-testid="button-view-favorites">
+          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-2 min-h-[64px]" data-testid="button-view-favorites">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                 <Heart className="w-5 h-5" />
@@ -909,7 +964,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
           </button>
 
-          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-3" data-testid="button-view-payment">
+          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-3 min-h-[64px]" data-testid="button-view-payment">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                 <CreditCard className="w-5 h-5" />
@@ -919,7 +974,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
           </button>
 
-          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-4" data-testid="button-view-address">
+          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-4 min-h-[64px]" data-testid="button-view-address">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                 <MapPin className="w-5 h-5" />
@@ -929,7 +984,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
           </button>
 
-          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-5" data-testid="button-view-settings">
+          <button className="w-full p-5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-between hover:bg-white/20 transition-all scroll-fade-in-delay-5 min-h-[64px]" data-testid="button-view-settings">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                 <Settings className="w-5 h-5" />
@@ -939,7 +994,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
           </button>
 
-          <button className="w-full p-5 bg-red-500/20 backdrop-blur-xl rounded-2xl border border-red-500/30 flex items-center justify-between hover:bg-red-500/30 transition-all mt-6" data-testid="button-logout">
+          <button className="w-full p-5 bg-red-500/20 backdrop-blur-xl rounded-2xl border border-red-500/30 flex items-center justify-between hover:bg-red-500/30 transition-all mt-6 min-h-[64px]" data-testid="button-logout">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
                 <LogOut className="w-5 h-5 text-red-400" />

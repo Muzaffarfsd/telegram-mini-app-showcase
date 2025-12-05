@@ -14,34 +14,28 @@ import {
   Settings,
   LogOut,
   ChevronLeft,
-  Search
+  Search,
+  Plus,
+  Minus
 } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { useFilter } from "@/hooks/useFilter";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 
 interface TimeEliteProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: string) => void;
 }
 
-interface CartItem {
-  id: number;
-  name: string;
-  brand: string;
-  price: number;
-  image: string;
-  quantity: number;
-}
-
-interface Order {
-  id: number;
-  items: CartItem[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
-}
+const STORE_KEY = 'timeelite-store';
 
 const products = [
   { id: 1, name: 'Rolex Submariner', brand: 'Rolex', price: 1125000, image: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format,compress&fm=webp&q=75&w=400', description: 'Легендарные дайверские часы с водонепроницаемостью 300м', category: 'Rolex', inStock: 3, rating: 4.9, movement: 'Автоматический', waterResistance: '300м', material: 'Сталь 904L', diameter: '40мм' },
@@ -68,14 +62,35 @@ const products = [
 
 const categories = ['Все', 'Rolex', 'Omega', 'Cartier', 'Patek', 'Люкс', 'Спорт'];
 
-export default function TimeElite({ activeTab }: TimeEliteProps) {
+export default function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
   const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Все');
-  const [favorites, setFavorites] = useState<number[]>([1, 4, 11]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
+  const { toast } = useToast();
+
+  const { 
+    cartItems: cart, 
+    addToCart: addToCartHook, 
+    removeFromCart, 
+    updateQuantity,
+    clearCart, 
+    totalAmount: cartTotal 
+  } = usePersistentCart({ storageKey: STORE_KEY });
+
+  const { 
+    toggleFavorite: toggleFavoriteHook, 
+    isFavorite,
+    favoritesCount 
+  } = usePersistentFavorites({ storageKey: STORE_KEY });
+
+  const { 
+    orders, 
+    createOrder,
+    ordersCount 
+  } = usePersistentOrders({ storageKey: STORE_KEY });
 
   const { filteredItems, searchQuery, handleSearch } = useFilter({
     items: products,
@@ -106,42 +121,61 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
     setTimeout(() => setSelectedProduct(null), 300);
   };
 
-  const toggleFavorite = (productId: number) => {
-    setFavorites(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
+  const handleToggleFavorite = (productId: number) => {
+    toggleFavoriteHook(String(productId));
+    const isNowFavorite = !isFavorite(String(productId));
+    toast({
+      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
+      duration: 1500,
+    });
   };
 
   const addToCart = (product: typeof products[0]) => {
-    const cartItem: CartItem = {
-      id: Date.now(),
+    addToCartHook({
+      id: String(product.id),
       name: product.name,
-      brand: product.brand,
       price: product.price,
+      quantity: 1,
       image: product.image,
-      quantity: 1
-    };
-    setCart([...cart, cartItem]);
+      size: 'Standard',
+      color: 'Default'
+    });
+    
+    toast({
+      title: 'Добавлено в корзину',
+      description: product.name,
+      duration: 2000,
+    });
+    
     closeProductModal();
   };
 
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-  const handleCheckout = () => {
+  const handleCheckout = (orderId: string) => {
     if (cart.length === 0) return;
     
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cart],
-      total: cartTotal,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
+    const orderItems = cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image,
+      size: item.size,
+      color: item.color
+    }));
     
-    setOrders([newOrder, ...orders]);
-    setCart([]);
+    createOrder(orderItems, cartTotal, {
+      address: 'Москва',
+      phone: '+7 (999) 123-45-67'
+    });
+    
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Заказ оформлен!',
+      description: `Номер заказа: ${orderId}`,
+      duration: 3000,
+    });
   };
 
   const formatPrice = (price: number) => {
@@ -178,8 +212,9 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="Поиск часов..."
-              className="bg-transparent text-gray-900 placeholder:text-gray-400 outline-none flex-1 text-sm"
+              className="bg-transparent text-gray-900 placeholder:text-gray-400 outline-none flex-1 text-sm min-h-[44px]"
               data-testid="input-search"
+              aria-label="Поиск часов"
             />
           </div>
         </div>
@@ -192,8 +227,9 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
             <p className="text-white/90 mb-4">Эксклюзивные модели от ведущих мануфактур</p>
             <button 
               onClick={() => setSelectedCategory('Rolex')}
-              className="px-6 py-3 bg-white text-amber-700 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
+              className="px-6 py-3 bg-white text-amber-700 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 min-h-[44px]"
               data-testid="button-view-collection"
+              aria-label="Смотреть коллекцию Rolex"
             >
               Смотреть коллекцию
             </button>
@@ -280,16 +316,16 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
                     onLoad={() => handleImageLoad(product.id)}
                   />
                   <button 
-                    className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                    className="absolute top-3 right-3 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(product.id);
+                      handleToggleFavorite(product.id);
                     }}
-                    aria-label="Избранное"
+                    aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                     data-testid={`button-favorite-${product.id}`}
                   >
                     <Heart 
-                      className={`w-5 h-5 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} 
+                      className={`w-5 h-5 ${isFavorite(String(product.id)) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} 
                       strokeWidth={2}
                     />
                   </button>
@@ -325,8 +361,9 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 placeholder="Поиск часов..."
-                className="bg-transparent text-gray-900 placeholder:text-gray-400 outline-none flex-1 text-sm"
+                className="bg-transparent text-gray-900 placeholder:text-gray-400 outline-none flex-1 text-sm min-h-[44px]"
                 data-testid="input-search-catalog"
+                aria-label="Поиск часов в каталоге"
               />
             </div>
           </div>
@@ -335,12 +372,13 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full whitespace-nowrap transition-all duration-300 font-medium text-sm ${
+                className={`px-4 py-2 rounded-full whitespace-nowrap transition-all duration-300 font-medium text-sm min-h-[44px] ${
                   selectedCategory === cat 
                     ? 'bg-gradient-to-r from-yellow-600 to-amber-700 text-white shadow-lg' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
                 data-testid={`button-filter-${cat.toLowerCase()}`}
+                aria-label={`Фильтр по категории ${cat}`}
               >
                 {cat}
               </button>
@@ -375,16 +413,16 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
                   onLoad={() => handleImageLoad(product.id)}
                 />
                 <button 
-                  className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                  className="absolute top-3 right-3 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
                   onClick={(e) => {
                     e.stopPropagation();
-                    toggleFavorite(product.id);
+                    handleToggleFavorite(product.id);
                   }}
-                  aria-label="Избранное"
+                  aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                   data-testid={`button-favorite-${product.id}`}
                 >
                   <Heart 
-                    className={`w-5 h-5 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
+                    className={`w-5 h-5 ${isFavorite(String(product.id)) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
                     strokeWidth={2}
                   />
                 </button>
@@ -408,38 +446,59 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
   );
 
   const renderCartTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
+    <div className="min-h-screen bg-gray-50 font-montserrat pb-32">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="text-2xl font-bold text-gray-900 scroll-fade-in">Корзина</h1>
         
         {cart.length === 0 ? (
-          <div className="text-center py-16">
-            <Watch className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">Корзина пуста</p>
-          </div>
+          <EmptyState
+            type="cart"
+            actionLabel="В каталог"
+            onAction={() => onTabChange?.('catalog')}
+            className="py-20"
+          />
         ) : (
           <>
             <div className="space-y-4">
               {cart.map((item, index) => (
                 <div 
-                  key={item.id} 
+                  key={`${item.id}-${item.size}-${item.color}`}
                   className={`bg-white rounded-2xl p-4 flex gap-4 shadow-sm scroll-fade-in-delay-${Math.min(index + 1, 5)}`}
                   data-testid={`cart-item-${item.id}`}
                 >
-                  <OptimizedImage 
+                  <img 
                     src={item.image}
                     alt={item.name}
                     className="w-20 h-20 rounded-xl object-cover"
+                    loading="lazy"
                   />
                   <div className="flex-1">
-                    <p className="text-xs text-amber-600 font-medium mb-1">{item.brand}</p>
                     <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
-                    <p className="text-lg font-bold text-gray-900">{formatPrice(item.price)}</p>
+                    <p className="text-lg font-bold text-gray-900 mb-2">{formatPrice(item.price * item.quantity)}</p>
+                    <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 w-fit">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                        className="w-10 h-10 flex items-center justify-center"
+                        aria-label="Уменьшить количество"
+                        data-testid={`button-decrease-${item.id}`}
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-6 text-center font-semibold">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                        className="w-10 h-10 flex items-center justify-center"
+                        aria-label="Увеличить количество"
+                        data-testid={`button-increase-${item.id}`}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   <button
-                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
-                    className="w-8 h-8 flex items-center justify-center"
-                    aria-label="Удалить"
+                    onClick={() => removeFromCart(item.id, item.size, item.color)}
+                    className="w-10 h-10 flex items-center justify-center"
+                    aria-label="Удалить из корзины"
                     data-testid={`button-remove-${item.id}`}
                   >
                     <X className="w-5 h-5 text-gray-400" />
@@ -454,24 +513,34 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
                   <span className="text-lg font-semibold text-gray-900">Итого:</span>
                   <span className="text-2xl font-bold text-amber-600">{formatPrice(cartTotal)}</span>
                 </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full py-4 bg-gradient-to-r from-yellow-600 to-amber-700 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300"
-                      data-testid="button-checkout"
-                    >
-                      Оформить заказ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cart.length} товаров на сумму ${formatPrice(cartTotal)}`}
-                  confirmText="Подтвердить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
+                <button
+                  onClick={() => setIsCheckoutOpen(true)}
+                  className="w-full py-4 bg-gradient-to-r from-yellow-600 to-amber-700 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300 min-h-[48px]"
+                  data-testid="button-checkout"
+                  aria-label="Оформить заказ"
+                >
+                  Оформить заказ
+                </button>
               </div>
             </div>
+            
+            <CheckoutDrawer
+              isOpen={isCheckoutOpen}
+              onClose={() => setIsCheckoutOpen(false)}
+              items={cart.map(item => ({
+                id: parseInt(item.id) || 0,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                size: item.size,
+                color: item.color,
+                image: item.image
+              }))}
+              total={cartTotal}
+              currency="₽"
+              onOrderComplete={handleCheckout}
+              storeName="TimeElite"
+            />
           </>
         )}
       </div>
@@ -495,11 +564,11 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 bg-gray-50 rounded-xl">
               <p className="text-sm text-gray-500 mb-1">Заказы</p>
-              <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{ordersCount}</p>
             </div>
             <div className="p-4 bg-gray-50 rounded-xl">
               <p className="text-sm text-gray-500 mb-1">Избранное</p>
-              <p className="text-2xl font-bold text-gray-900">{favorites.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{favoritesCount}</p>
             </div>
           </div>
         </div>
@@ -516,8 +585,8 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
               {orders.map((order) => (
                 <div key={order.id} className="bg-white rounded-2xl p-4" data-testid={`order-${order.id}`}>
                   <div className="flex justify-between mb-2">
-                    <span className="text-gray-900 font-medium">Заказ #{order.id.toString().slice(-6)}</span>
-                    <span className="text-gray-500">{order.date}</span>
+                    <span className="text-gray-900 font-medium">Заказ #{order.id.slice(-6)}</span>
+                    <span className="text-gray-500">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
                   </div>
                   <div className="flex justify-between mb-2">
                     <span className="text-gray-600">{order.items.length} товаров</span>
@@ -525,7 +594,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
                   </div>
                   <div className="mt-2">
                     <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full">
-                      {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                      {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
                     </span>
                   </div>
                 </div>
@@ -535,7 +604,11 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
         </div>
 
         <div className="space-y-2 scroll-fade-in-delay-2">
-          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" aria-label="Избранное" data-testid="button-favorites">
+          <button 
+            className="w-full p-4 bg-white rounded-2xl flex items-center justify-between min-h-[56px]" 
+            aria-label="Избранное" 
+            data-testid="button-favorites"
+          >
             <div className="flex items-center gap-3">
               <Heart className="w-5 h-5 text-gray-400" />
               <span className="font-medium text-gray-900">Избранное</span>
@@ -543,7 +616,11 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
           </button>
 
-          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" aria-label="Способы оплаты" data-testid="button-payment">
+          <button 
+            className="w-full p-4 bg-white rounded-2xl flex items-center justify-between min-h-[56px]" 
+            aria-label="Способы оплаты" 
+            data-testid="button-payment"
+          >
             <div className="flex items-center gap-3">
               <CreditCard className="w-5 h-5 text-gray-400" />
               <span className="font-medium text-gray-900">Способы оплаты</span>
@@ -551,7 +628,11 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
           </button>
 
-          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" aria-label="Адреса доставки" data-testid="button-address">
+          <button 
+            className="w-full p-4 bg-white rounded-2xl flex items-center justify-between min-h-[56px]" 
+            aria-label="Адреса доставки" 
+            data-testid="button-address"
+          >
             <div className="flex items-center gap-3">
               <MapPin className="w-5 h-5 text-gray-400" />
               <span className="font-medium text-gray-900">Адреса доставки</span>
@@ -559,7 +640,11 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
           </button>
 
-          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" aria-label="Настройки" data-testid="button-settings">
+          <button 
+            className="w-full p-4 bg-white rounded-2xl flex items-center justify-between min-h-[56px]" 
+            aria-label="Настройки" 
+            data-testid="button-settings"
+          >
             <div className="flex items-center gap-3">
               <Settings className="w-5 h-5 text-gray-400" />
               <span className="font-medium text-gray-900">Настройки</span>
@@ -567,7 +652,11 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
           </button>
 
-          <button className="w-full p-4 bg-red-50 rounded-2xl flex items-center justify-between mt-4" aria-label="Выйти" data-testid="button-logout">
+          <button 
+            className="w-full p-4 bg-red-50 rounded-2xl flex items-center justify-between mt-4 min-h-[56px]" 
+            aria-label="Выйти" 
+            data-testid="button-logout"
+          >
             <div className="flex items-center gap-3">
               <LogOut className="w-5 h-5 text-red-500" />
               <span className="font-medium text-red-500">Выйти</span>
@@ -661,8 +750,9 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
             <ConfirmDrawer
               trigger={
                 <button 
-                  className="w-full py-4 bg-gradient-to-r from-yellow-600 to-amber-700 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full py-4 bg-gradient-to-r from-yellow-600 to-amber-700 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300 min-h-[48px]"
                   data-testid={`button-add-to-cart-${selectedProduct.id}`}
+                  aria-label={`Добавить ${selectedProduct.name} в корзину`}
                 >
                   Добавить в корзину
                 </button>

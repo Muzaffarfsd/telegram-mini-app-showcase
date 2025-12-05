@@ -1,11 +1,17 @@
 import { useState, useEffect, memo } from "react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Shield, Target, Check, Home, Grid, Tag } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Shield, Target, Check, Home, Grid, Tag, Plus, Minus } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { useFilter } from "@/hooks/useFilter";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import img1 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
 import img2 from '@assets/stock_images/futuristic_fashion_m_b5d87157.jpg';
@@ -13,27 +19,11 @@ import img3 from '@assets/stock_images/futuristic_fashion_m_472b5d38.jpg';
 import img4 from '@assets/stock_images/futuristic_fashion_m_655a9d67.jpg';
 import img5 from '@assets/stock_images/futuristic_fashion_m_4950c20e.jpg';
 
+const STORE_KEY = 'labsurvivalist-store';
+
 interface LabSurvivalistProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
   onTabChange?: (tab: string) => void;
-}
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  size: string;
-  quantity: number;
-  image: string;
-  color: string;
-}
-
-interface Order {
-  id: number;
-  items: CartItem[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
 }
 
 interface Product {
@@ -249,22 +239,43 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
   const [selectedGender, setSelectedGender] = useState<string>('All');
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [showOrderSuccess, setShowOrderSuccess] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  
+  const { toast } = useToast();
   const sidebar = useDemoSidebar();
+
+  const { 
+    cartItems: cart, 
+    addToCart: addToCartHook, 
+    removeFromCart, 
+    updateQuantity,
+    clearCart, 
+    totalAmount: cartTotal,
+    totalItems: cartCount 
+  } = usePersistentCart({ storageKey: `${STORE_KEY}_cart` });
+  
+  const { 
+    toggleFavorite: toggleFavoriteHook, 
+    isFavorite,
+    favoritesCount 
+  } = usePersistentFavorites({ storageKey: `${STORE_KEY}_favorites` });
+  
+  const { 
+    orders, 
+    createOrder,
+    ordersCount 
+  } = usePersistentOrders({ storageKey: `${STORE_KEY}_orders` });
 
   const sidebarMenuItems = [
     { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
     { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
-    { icon: <Heart className="w-5 h-5" />, label: 'Избранное' },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина' },
+    { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: '#22C55E' },
     { icon: <Tag className="w-5 h-5" />, label: 'Акции' },
-    { icon: <User className="w-5 h-5" />, label: 'Профиль' },
+    { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
     { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
   ];
 
@@ -298,14 +309,13 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
     return categoryMatch;
   });
 
-  const toggleFavorite = (productId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(productId)) {
-      newFavorites.delete(productId);
-    } else {
-      newFavorites.add(productId);
-    }
-    setFavorites(newFavorites);
+  const handleToggleFavorite = (productId: number) => {
+    toggleFavoriteHook(String(productId));
+    const isNowFavorite = !isFavorite(String(productId));
+    toast({
+      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
+      duration: 1500,
+    });
   };
 
   const openProduct = (product: Product) => {
@@ -319,34 +329,49 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
   const addToCart = () => {
     if (!selectedProduct) return;
     
-    const cartItem: CartItem = {
-      id: Date.now(),
+    addToCartHook({
+      id: String(selectedProduct.id),
       name: selectedProduct.name,
       price: selectedProduct.price,
-      size: selectedSize,
       quantity: 1,
       image: selectedProduct.image,
+      size: selectedSize,
       color: selectedColor
-    };
+    });
     
-    setCart([...cart, cartItem]);
+    toast({
+      title: 'Добавлено в корзину',
+      description: `${selectedProduct.name} • ${selectedColor} • ${selectedSize}`,
+      duration: 2000,
+    });
+    
     setSelectedProduct(null);
   };
 
-  const handleCheckout = () => {
-    if (cart.length === 0) return;
+  const handleCheckout = (orderId: string) => {
+    const orderItems = cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image,
+      size: item.size,
+      color: item.color
+    }));
     
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cart],
-      total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
+    createOrder(orderItems, cartTotal, {
+      address: 'Москва',
+      phone: '+7 (999) 123-45-67'
+    });
     
-    setOrders([newOrder, ...orders]);
-    setCart([]);
-    setShowOrderSuccess(true);
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Заказ оформлен!',
+      description: `Номер заказа: ${orderId}`,
+      duration: 3000,
+    });
   };
 
   const formatPrice = (price: number) => {
@@ -367,7 +392,8 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
-            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20"
+            className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20"
+            aria-label="Назад"
             data-testid="button-back"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -375,13 +401,14 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleFavorite(selectedProduct.id);
+              handleToggleFavorite(selectedProduct.id);
             }}
-            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20"
+            className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20"
+            aria-label={isFavorite(String(selectedProduct.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
             data-testid={`button-favorite-${selectedProduct.id}`}
           >
             <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
+              className={`w-5 h-5 ${isFavorite(String(selectedProduct.id)) ? 'fill-white text-white' : 'text-white'}`}
             />
           </button>
         </div>
@@ -426,6 +453,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
                       : 'border-white/20 hover:border-white/40'
                   }`}
                   style={{ backgroundColor: selectedProduct.colorHex[idx] }}
+                  aria-label={`Цвет ${color}`}
                   data-testid={`button-color-${color}`}
                 >
                   {selectedColor === color && (
@@ -448,6 +476,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
                       ? 'bg-white text-black border-white'
                       : 'bg-transparent text-white border-white/20 hover:border-white/40'
                   }`}
+                  aria-label={`Размер ${size}`}
                   data-testid={`button-size-${size}`}
                 >
                   {size}
@@ -459,7 +488,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
           <ConfirmDrawer
             trigger={
               <button
-                className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-white/90 transition-all uppercase tracking-wider text-sm flex items-center justify-center gap-2 scroll-fade-in-delay-5"
+                className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-white/90 transition-all uppercase tracking-wider text-sm flex items-center justify-center gap-2 scroll-fade-in-delay-5 min-h-[48px]"
                 data-testid={`button-add-to-cart-${selectedProduct.id}`}
               >
                 <ShoppingBag className="w-5 h-5" />
@@ -494,12 +523,29 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
         />
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <button onClick={sidebar.open} aria-label="Меню" data-testid="button-menu">
+            <button 
+              onClick={sidebar.open} 
+              aria-label="Меню" 
+              className="w-11 h-11 flex items-center justify-center"
+              data-testid="button-menu"
+            >
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-3">
-              <ShoppingBag className="w-6 h-6" data-testid="button-view-cart" />
-              <Heart className="w-6 h-6" data-testid="button-view-favorites" />
+              <button 
+                className="w-11 h-11 flex items-center justify-center"
+                aria-label="Корзина"
+                data-testid="button-view-cart"
+              >
+                <ShoppingBag className="w-6 h-6" />
+              </button>
+              <button 
+                className="w-11 h-11 flex items-center justify-center"
+                aria-label="Избранное"
+                data-testid="button-view-favorites"
+              >
+                <Heart className="w-6 h-6" />
+              </button>
             </div>
           </div>
 
@@ -514,7 +560,8 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
 
           <div className="flex items-center gap-4 mb-6 overflow-x-auto pb-2 scrollbar-hide scroll-fade-in">
             <button 
-              className="p-2 bg-white rounded-lg flex-shrink-0"
+              className="p-2 bg-white rounded-lg flex-shrink-0 w-11 h-11 flex items-center justify-center"
+              aria-label="Главная"
               data-testid="button-view-home"
             >
               <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
@@ -525,7 +572,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
               <button
                 key={gender}
                 onClick={() => setSelectedGender(gender)}
-                className={`text-sm font-mono uppercase tracking-wider transition-colors flex-shrink-0 ${
+                className={`text-sm font-mono uppercase tracking-wider transition-colors flex-shrink-0 min-h-[44px] px-3 ${
                   selectedGender === gender
                     ? 'text-white'
                     : 'text-white/30'
@@ -538,7 +585,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
           </div>
 
           <div className="flex items-center gap-3 mb-6 scroll-fade-in">
-            <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-lg px-4 py-3 flex items-center gap-2 border border-white/10">
+            <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-lg px-4 py-3 flex items-center gap-2 border border-white/10 min-h-[48px]">
               <Search className="w-5 h-5 text-white/40" />
               <input
                 type="text"
@@ -546,6 +593,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="bg-transparent text-white placeholder:text-white/40 outline-none flex-1 text-sm font-mono"
+                aria-label="Поиск"
                 data-testid="input-search"
               />
             </div>
@@ -579,7 +627,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
                 Выживание в стиле 2025
               </p>
               <button 
-                className="px-8 py-4 rounded-lg font-bold text-black transition-all hover:scale-105 bg-white uppercase tracking-wider text-sm"
+                className="px-8 py-4 rounded-lg font-bold text-black transition-all hover:scale-105 bg-white uppercase tracking-wider text-sm min-h-[48px]"
                 data-testid="button-view-collection"
               >
                 Смотреть коллекцию
@@ -612,54 +660,45 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent"></div>
 
               <div className="absolute top-4 left-4">
-                <div className="px-3 py-1 bg-white/10 backdrop-blur-xl rounded-lg border border-white/20">
-                  <span className="text-xs font-mono font-semibold text-white tracking-wider">
-                    {product.isNew ? 'NEW' : product.category.toUpperCase()}
-                  </span>
-                </div>
+                {product.isNew && (
+                  <div className="px-3 py-1 bg-white text-black text-xs font-mono font-bold rounded-lg">
+                    NEW
+                  </div>
+                )}
               </div>
 
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleFavorite(product.id);
+                  handleToggleFavorite(product.id);
                 }}
-                className="absolute top-4 right-4 w-10 h-10 rounded-lg bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20"
+                className="absolute top-4 right-4 w-11 h-11 rounded-lg bg-black/60 backdrop-blur-xl flex items-center justify-center border border-white/20"
+                aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                 data-testid={`button-favorite-${product.id}`}
               >
                 <Heart 
-                  className={`w-5 h-5 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                  className={`w-5 h-5 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
                 />
               </button>
 
               <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="flex items-end justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-black mb-2 leading-tight tracking-tight uppercase">
-                      {product.name}
-                    </h3>
-                    <p className="text-sm text-white/60 mb-4 font-mono">{product.gender}</p>
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openProduct(product);
-                    }}
-                    className="w-14 h-14 rounded-lg bg-white flex items-center justify-center hover:bg-white/90 transition-all hover:scale-110"
-                    data-testid={`button-add-to-cart-${product.id}`}
-                  >
-                    <ShoppingBag className="w-6 h-6 text-black" />
-                  </button>
+                <div className="inline-flex items-center gap-2 px-2 py-1 bg-white/10 backdrop-blur-md rounded-lg mb-3">
+                  <Shield className="w-3 h-3" />
+                  <span className="text-xs font-mono tracking-wider">{product.brand}</span>
                 </div>
-
-                <div className="mt-3">
+                <h3 className="text-2xl font-black mb-2 uppercase tracking-tight">{product.name}</h3>
+                <div className="flex items-center gap-3">
                   <p className="text-xl font-bold">{formatPrice(product.price)}</p>
+                  {product.oldPrice && (
+                    <p className="text-sm text-white/30 line-through">{formatPrice(product.oldPrice)}</p>
+                  )}
                 </div>
               </div>
             </m.div>
           ))}
         </div>
+
+        <div className="h-8"></div>
       </div>
     );
   }
@@ -670,12 +709,20 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
       <div className="min-h-screen bg-black text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <h1 className="text-3xl font-black tracking-tight">КАТАЛОГ</h1>
-            <div className="flex items-center gap-3">
-              <button className="p-2" data-testid="button-view-search">
+            <h1 className="text-2xl font-bold uppercase tracking-wider font-mono">Каталог</h1>
+            <div className="flex items-center gap-2">
+              <button 
+                className="w-11 h-11 flex items-center justify-center" 
+                aria-label="Поиск"
+                data-testid="button-view-search"
+              >
                 <Search className="w-6 h-6" />
               </button>
-              <button className="p-2" data-testid="button-view-filter">
+              <button 
+                className="w-11 h-11 flex items-center justify-center" 
+                aria-label="Фильтр"
+                data-testid="button-view-filter"
+              >
                 <Filter className="w-6 h-6" />
               </button>
             </div>
@@ -686,7 +733,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-lg text-sm font-mono font-semibold whitespace-nowrap transition-all border uppercase tracking-wider ${
+                className={`px-5 py-2.5 rounded-lg text-sm font-mono font-semibold whitespace-nowrap transition-all border uppercase tracking-wider min-h-[44px] ${
                   selectedCategory === cat
                     ? 'bg-white text-black border-white'
                     : 'bg-transparent text-white/60 border-white/20 hover:border-white/40'
@@ -718,13 +765,14 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(product.id);
+                      handleToggleFavorite(product.id);
                     }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-lg bg-black/60 backdrop-blur-xl flex items-center justify-center border border-white/20"
+                    className="absolute top-2 right-2 w-10 h-10 rounded-lg bg-black/60 backdrop-blur-xl flex items-center justify-center border border-white/20"
+                    aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                     data-testid={`button-favorite-${product.id}`}
                   >
                     <Heart 
-                      className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                      className={`w-4 h-4 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
                     />
                   </button>
 
@@ -754,25 +802,23 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
 
   // CART PAGE
   if (activeTab === 'cart') {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
     return (
       <div className="min-h-screen bg-black text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
-          <h1 className="text-3xl font-black mb-6 tracking-tight scroll-fade-in">КОРЗИНА</h1>
+          <h1 className="text-3xl font-black mb-6 tracking-tight scroll-fade-in uppercase">КОРЗИНА</h1>
 
           {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 scroll-fade-in-delay-1">
-              <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mb-4 border border-white/10">
-                <ShoppingBag className="w-10 h-10 text-white/20" />
-              </div>
-              <p className="text-white/40 text-center font-mono">Ваша корзина пуста</p>
-            </div>
+            <EmptyState
+              type="cart"
+              actionLabel="В каталог"
+              onAction={() => onTabChange?.('catalog')}
+              className="py-20"
+            />
           ) : (
             <div className="space-y-4">
               {cart.map((item, idx) => (
                 <div
-                  key={item.id}
+                  key={`${item.id}-${item.size}-${item.color}`}
                   className={`bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4 border border-white/10 ${idx < 2 ? 'scroll-fade-in' : getDelayClass(idx)}`}
                   data-testid={`cart-item-${item.id}`}
                 >
@@ -787,11 +833,33 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
                     <p className="text-sm text-white/50 mb-2 font-mono">
                       {item.color} • {item.size}
                     </p>
-                    <p className="text-lg font-bold">{formatPrice(item.price)}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-lg font-bold">{formatPrice(item.price * item.quantity)}</p>
+                      <div className="flex items-center gap-2 bg-white/10 rounded-full px-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                          className="w-10 h-10 flex items-center justify-center"
+                          aria-label="Уменьшить количество"
+                          data-testid={`button-decrease-${item.id}`}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-6 text-center font-semibold">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                          className="w-10 h-10 flex items-center justify-center"
+                          aria-label="Увеличить количество"
+                          data-testid={`button-increase-${item.id}`}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <button
-                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
-                    className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-red-500/20 transition-colors"
+                    onClick={() => removeFromCart(item.id, item.size, item.color)}
+                    className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-red-500/20 transition-colors"
+                    aria-label="Удалить из корзины"
                     data-testid={`button-remove-${item.id}`}
                   >
                     <X className="w-5 h-5" />
@@ -802,37 +870,33 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
               <div className="fixed bottom-24 left-0 right-0 p-6 bg-black border-t border-white/10">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-mono uppercase tracking-wider">Итого:</span>
-                  <span className="text-3xl font-bold">{formatPrice(total)}</span>
+                  <span className="text-3xl font-bold">{formatPrice(cartTotal)}</span>
                 </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-white/90 transition-all uppercase tracking-wider text-sm"
-                      data-testid="button-checkout"
-                    >
-                      Оформить заказ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cart.length} товаров на сумму ${formatPrice(total)}`}
-                  confirmText="Подтвердить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
+                <button
+                  onClick={() => setIsCheckoutOpen(true)}
+                  className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-white/90 transition-all uppercase tracking-wider text-sm min-h-[48px]"
+                  data-testid="button-checkout"
+                >
+                  Оформить заказ
+                </button>
               </div>
-
-              <ConfirmDrawer
-                open={showOrderSuccess}
-                onOpenChange={setShowOrderSuccess}
-                trigger={<span />}
-                title="Заказ оформлен!"
-                description="Ваш заказ успешно создан и передан в обработку. Вы можете отслеживать статус в разделе 'Мои заказы'"
-                confirmText="Отлично"
-                cancelText=""
-                variant="default"
-                onConfirm={() => setShowOrderSuccess(false)}
-                icon={<Check className="w-8 h-8 text-emerald-400" />}
+              
+              <CheckoutDrawer
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                items={cart.map(item => ({
+                  id: parseInt(item.id) || 0,
+                  name: item.name,
+                  price: item.price,
+                  quantity: item.quantity,
+                  size: item.size,
+                  color: item.color,
+                  image: item.image
+                }))}
+                total={cartTotal}
+                currency="₽"
+                onOrderComplete={handleCheckout}
+                storeName="LAB SURVIVALIST"
               />
             </div>
           )}
@@ -859,11 +923,11 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 scroll-fade-in">
               <p className="text-sm text-white/60 mb-1 font-mono uppercase tracking-wider">Заказы</p>
-              <p className="text-2xl font-bold">{orders.length}</p>
+              <p className="text-2xl font-bold">{ordersCount}</p>
             </div>
             <div className="p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 scroll-fade-in">
               <p className="text-sm text-white/60 mb-1 font-mono uppercase tracking-wider">Избранное</p>
-              <p className="text-2xl font-bold">{favorites.size}</p>
+              <p className="text-2xl font-bold">{favoritesCount}</p>
             </div>
           </div>
         </div>
@@ -880,8 +944,8 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
               {orders.map((order) => (
                 <div key={order.id} className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10" data-testid={`order-${order.id}`}>
                   <div className="flex justify-between gap-2 mb-2">
-                    <span className="text-sm font-mono">Заказ #{order.id.toString().slice(-6)}</span>
-                    <span className="text-white/60 text-sm font-mono">{order.date}</span>
+                    <span className="text-sm font-mono">Заказ #{order.id.slice(-6)}</span>
+                    <span className="text-white/60 text-sm font-mono">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
                   </div>
                   <div className="flex justify-between gap-2 mb-2">
                     <span className="text-white/70 font-mono">{order.items.length} товаров</span>
@@ -889,7 +953,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
                   </div>
                   <div>
                     <span className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full font-mono">
-                      {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                      {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
                     </span>
                   </div>
                 </div>
@@ -899,7 +963,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
         </div>
 
         <div className="p-4 space-y-2">
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all scroll-fade-in-delay-1" data-testid="button-view-orders">
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all scroll-fade-in-delay-1 min-h-[56px]" data-testid="button-view-orders">
             <div className="flex items-center gap-3">
               <Package className="w-5 h-5 text-white/60" />
               <span className="font-mono uppercase tracking-wider text-sm">Мои заказы</span>
@@ -907,7 +971,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
           </button>
 
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all scroll-fade-in-delay-2" data-testid="button-view-favorites">
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all scroll-fade-in-delay-2 min-h-[56px]" data-testid="button-view-favorites">
             <div className="flex items-center gap-3">
               <Heart className="w-5 h-5 text-white/60" />
               <span className="font-mono uppercase tracking-wider text-sm">Избранное</span>
@@ -915,7 +979,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
           </button>
 
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all scroll-fade-in-delay-3" data-testid="button-view-payment">
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all scroll-fade-in-delay-3 min-h-[56px]" data-testid="button-view-payment">
             <div className="flex items-center gap-3">
               <CreditCard className="w-5 h-5 text-white/60" />
               <span className="font-mono uppercase tracking-wider text-sm">Способы оплаты</span>
@@ -923,7 +987,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
           </button>
 
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all scroll-fade-in-delay-4" data-testid="button-view-address">
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all scroll-fade-in-delay-4 min-h-[56px]" data-testid="button-view-address">
             <div className="flex items-center gap-3">
               <MapPin className="w-5 h-5 text-white/60" />
               <span className="font-mono uppercase tracking-wider text-sm">Адреса доставки</span>
@@ -931,7 +995,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
           </button>
 
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all scroll-fade-in-delay-5" data-testid="button-view-settings">
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all scroll-fade-in-delay-5 min-h-[56px]" data-testid="button-view-settings">
             <div className="flex items-center gap-3">
               <Settings className="w-5 h-5 text-white/60" />
               <span className="font-mono uppercase tracking-wider text-sm">Настройки</span>
@@ -939,7 +1003,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
           </button>
 
-          <button className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover:bg-red-500/20 transition-all mt-4" data-testid="button-logout">
+          <button className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover:bg-red-500/20 transition-all mt-4 min-h-[56px]" data-testid="button-logout">
             <div className="flex items-center gap-3">
               <LogOut className="w-5 h-5 text-red-400" />
               <span className="font-mono uppercase tracking-wider text-sm text-red-400">Выйти</span>

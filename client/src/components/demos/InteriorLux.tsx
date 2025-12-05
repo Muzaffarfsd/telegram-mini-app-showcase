@@ -6,14 +6,29 @@ import {
   X, 
   Home,
   Sofa,
-  TrendingUp
+  TrendingUp,
+  Plus,
+  Minus,
+  ShoppingBag,
+  Package,
+  Settings,
+  ChevronRight
 } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
 import { ConfirmDrawer } from "../ui/modern-drawer";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/EmptyState";
+import { CheckoutDrawer } from "@/components/CheckoutDrawer";
+
+const STORE_KEY = 'interiorlux-store';
 
 interface InteriorLuxProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: 'home' | 'catalog' | 'cart' | 'profile') => void;
 }
 
 const products = [
@@ -41,11 +56,34 @@ const products = [
 
 const categories = ['Все', 'Гостиная', 'Спальня', 'Кухня', 'Декор'];
 
-export default function InteriorLux({ activeTab }: InteriorLuxProps) {
+export default function InteriorLux({ activeTab, onTabChange }: InteriorLuxProps) {
   const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Все');
-  const [favorites, setFavorites] = useState<number[]>([1, 4, 11]);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  
+  const { toast } = useToast();
+  
+  const { 
+    cart, 
+    addToCart: addToCartHook, 
+    removeFromCart, 
+    updateQuantity, 
+    clearCart,
+    cartTotal,
+    cartCount
+  } = usePersistentCart(STORE_KEY);
+  
+  const { 
+    isFavorite, 
+    toggleFavorite: toggleFavoriteHook, 
+    favoritesCount 
+  } = usePersistentFavorites(STORE_KEY);
+  
+  const { 
+    addOrder, 
+    ordersCount 
+  } = usePersistentOrders(STORE_KEY);
 
   // Preload first 6 product images for instant visibility
   useImagePreloader({
@@ -68,12 +106,57 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
     setTimeout(() => setSelectedProduct(null), 300);
   };
 
-  const toggleFavorite = (productId: number) => {
-    setFavorites(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
+  const handleToggleFavorite = (productId: number) => {
+    const wasFavorite = isFavorite(String(productId));
+    toggleFavoriteHook(String(productId));
+    toast({
+      title: wasFavorite ? 'Удалено из избранного' : 'Добавлено в избранное',
+      duration: 2000
+    });
+  };
+  
+  const handleAddToCart = (product: typeof products[0]) => {
+    addToCartHook({
+      id: String(product.id),
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.image,
+      size: product.dimensions,
+      color: product.material
+    });
+    toast({
+      title: 'Добавлено в корзину',
+      description: product.name,
+      duration: 2000
+    });
+  };
+  
+  const handleCheckout = () => {
+    const orderItems = cart.map(item => ({
+      id: parseInt(item.id) || 0,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      size: item.size,
+      color: item.color,
+      image: item.image
+    }));
+    
+    addOrder({
+      items: orderItems,
+      total: cartTotal,
+      status: 'processing'
+    });
+    
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Заказ оформлен!',
+      description: 'Спасибо за покупку',
+      duration: 3000
+    });
   };
 
   const filteredProducts = selectedCategory === 'Все' 
@@ -188,15 +271,16 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
                     priority={product.id <= 4}
                   />
                   <button 
-                    className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                    className="absolute top-3 right-3 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-lg"
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(product.id);
+                      handleToggleFavorite(product.id);
                     }}
+                    aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                     data-testid={`button-favorite-${product.id}`}
                   >
                     <Heart 
-                      className={`w-5 h-5 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} 
+                      className={`w-5 h-5 ${isFavorite(String(product.id)) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} 
                       strokeWidth={2}
                     />
                   </button>
@@ -266,15 +350,16 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
                   priority={product.id <= 4}
                 />
                 <button 
-                  className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                  className="absolute top-3 right-3 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-lg"
                   onClick={(e) => {
                     e.stopPropagation();
-                    toggleFavorite(product.id);
+                    handleToggleFavorite(product.id);
                   }}
+                  aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                   data-testid={`favorite-${product.id}`}
                 >
                   <Heart 
-                    className={`w-5 h-5 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
+                    className={`w-5 h-5 ${isFavorite(String(product.id)) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
                     strokeWidth={2}
                   />
                 </button>
@@ -302,10 +387,113 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
     <div className="min-h-screen bg-gray-50 font-montserrat pb-24 smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="text-2xl font-bold text-gray-900">Корзина</h1>
-        <div className="text-center py-16">
-          <Home className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">Корзина пуста</p>
-        </div>
+        
+        {cart.length > 0 ? (
+          <>
+            <div className="space-y-4">
+              {cart.map(item => (
+                <div 
+                  key={`${item.id}-${item.size}-${item.color}`}
+                  className="bg-white rounded-2xl p-4 flex gap-4"
+                  data-testid={`cart-item-${item.id}`}
+                >
+                  <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between gap-2 mb-2">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900 truncate">{item.name}</p>
+                        <p className="text-sm text-gray-500">{item.size}</p>
+                      </div>
+                      <button
+                        onClick={() => removeFromCart(item.id, item.size, item.color)}
+                        aria-label={`Удалить ${item.name} из корзины`}
+                        className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0"
+                      >
+                        <X className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                          aria-label="Уменьшить количество"
+                          className="w-10 h-10 rounded-full flex items-center justify-center"
+                          data-testid={`button-minus-${item.id}`}
+                        >
+                          <Minus className="w-4 h-4 text-gray-600" />
+                        </button>
+                        <span className="font-semibold text-gray-900 min-w-[20px] text-center">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                          aria-label="Увеличить количество"
+                          className="w-10 h-10 rounded-full flex items-center justify-center"
+                          data-testid={`button-plus-${item.id}`}
+                        >
+                          <Plus className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </div>
+                      <span className="font-bold text-emerald-600">
+                        ${(item.price * item.quantity).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="bg-white rounded-2xl p-6 space-y-4">
+              <div className="flex justify-between text-gray-600">
+                <span>Подытог</span>
+                <span>${cartTotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Доставка</span>
+                <span className="text-emerald-600">Бесплатно</span>
+              </div>
+              <div className="border-t pt-4 flex justify-between">
+                <span className="font-bold text-gray-900">Итого</span>
+                <span className="font-bold text-xl text-emerald-600">${cartTotal.toLocaleString()}</span>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => setIsCheckoutOpen(true)}
+              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold text-lg min-h-[48px]"
+              data-testid="button-checkout"
+            >
+              Оформить заказ
+            </button>
+            
+            <CheckoutDrawer
+              isOpen={isCheckoutOpen}
+              onClose={() => setIsCheckoutOpen(false)}
+              items={cart.map(item => ({
+                id: parseInt(item.id) || 0,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                size: item.size,
+                color: item.color,
+                image: item.image
+              }))}
+              total={cartTotal}
+              currency="$"
+              onOrderComplete={handleCheckout}
+              storeName="InteriorLux"
+            />
+          </>
+        ) : (
+          <EmptyState
+            type="cart"
+            actionLabel="Смотреть каталог"
+            onAction={() => onTabChange?.('catalog')}
+            className="py-16"
+          />
+        )}
       </div>
     </div>
   );
@@ -315,8 +503,39 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
     <div className="min-h-screen bg-gray-50 font-montserrat pb-24 smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         <h1 className="text-2xl font-bold text-gray-900">Профиль</h1>
-        <div className="bg-white rounded-2xl p-6">
-          <p className="text-gray-600">Профиль пользователя</p>
+        
+        <div className="bg-white rounded-2xl p-6 text-center space-y-4">
+          <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mx-auto">
+            <Home className="w-10 h-10 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Добро пожаловать</h2>
+            <p className="text-gray-500 text-sm">Войдите для доступа к аккаунту</p>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          {[
+            { icon: Heart, label: 'Избранное', value: `${favoritesCount} товаров` },
+            { icon: Package, label: 'Заказы', value: `${ordersCount} заказов` },
+            { icon: ShoppingBag, label: 'Корзина', value: `${cartCount} товаров` },
+            { icon: Settings, label: 'Настройки', value: '' }
+          ].map((item, idx) => (
+            <button
+              key={idx}
+              className="w-full bg-white rounded-2xl p-4 flex items-center gap-4 min-h-[56px]"
+              data-testid={`button-profile-${item.label.toLowerCase()}`}
+            >
+              <div className="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center">
+                <item.icon className="w-5 h-5 text-emerald-600" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="font-semibold text-gray-900">{item.label}</p>
+                {item.value && <p className="text-sm text-gray-500">{item.value}</p>}
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </button>
+          ))}
         </div>
       </div>
     </div>
@@ -405,7 +624,7 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
             <ConfirmDrawer
               trigger={
                 <button 
-                  className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold text-lg min-h-[48px]"
                   data-testid="button-add-to-cart"
                 >
                   Добавить в корзину
@@ -416,7 +635,10 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
               confirmText="Добавить"
               cancelText="Отмена"
               variant="default"
-              onConfirm={() => setSelectedProduct(null)}
+              onConfirm={() => {
+                handleAddToCart(selectedProduct);
+                closeProductModal();
+              }}
             />
           </div>
         </div>

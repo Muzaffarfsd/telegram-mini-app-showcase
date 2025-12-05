@@ -1,39 +1,28 @@
 import { useState, useEffect, memo } from "react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import greenNikeImage from "@assets/загруженное-_4__1761733573240.jpg";
 import blueNikeImage from "@assets/загруженное-_3__1761733577054.jpg";
 import whiteJordanImage from "@assets/загруженное-_2__1761733579316.jpg";
 import tealJordanImage from "@assets/NIKE-AIR-JORDAN-V2-e-V3-_designer_designergrafico-_design-_nikeair-_airjordan-_socialmedia-_natural-_1761733582395.jpg";
 
-// Video served from public/videos/ to reduce Docker image size
 const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
+
+const STORE_KEY = 'sneakervault-store';
 
 interface SneakerVaultProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
   onTabChange?: (tab: string) => void;
-}
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  size: string;
-  quantity: number;
-  image: string;
-  brand: string;
-}
-
-interface Order {
-  id: number;
-  items: CartItem[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
 }
 
 interface Sneaker {
@@ -199,20 +188,42 @@ const genderFilters = ['All', 'Men', 'Woman', 'Unisex'];
 function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
   const [selectedSneaker, setSelectedSneaker] = useState<Sneaker | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
   const [selectedGender, setSelectedGender] = useState<string>('All');
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  
+  const { toast } = useToast();
   const sidebar = useDemoSidebar();
+
+  const { 
+    cartItems: cart, 
+    addToCart: addToCartHook, 
+    removeFromCart, 
+    updateQuantity,
+    clearCart, 
+    totalAmount: cartTotal,
+    totalItems: cartCount 
+  } = usePersistentCart({ storageKey: `${STORE_KEY}_cart` });
+  
+  const { 
+    toggleFavorite: toggleFavoriteHook, 
+    isFavorite,
+    favoritesCount 
+  } = usePersistentFavorites({ storageKey: `${STORE_KEY}_favorites` });
+  
+  const { 
+    orders, 
+    createOrder,
+    ordersCount 
+  } = usePersistentOrders({ storageKey: `${STORE_KEY}_orders` });
 
   const sidebarMenuItems = [
     { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
     { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
-    { icon: <Heart className="w-5 h-5" />, label: 'Избранное' },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина' },
-    { icon: <Tag className="w-5 h-5" />, label: 'Акции' },
-    { icon: <User className="w-5 h-5" />, label: 'Профиль' },
+    { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: '#CDFF38' },
+    { icon: <Tag className="w-5 h-5" />, label: 'Акции', badge: 'NEW', badgeColor: '#EF4444' },
+    { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
     { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
   ];
 
@@ -221,34 +232,29 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
     if (activeTab !== 'catalog') {
       setSelectedSneaker(null);
     }
-    // Reset gender filter when leaving home page
     if (activeTab !== 'home') {
       setSelectedGender('All');
     }
   }, [activeTab]);
 
-  // Filter sneakers based on current tab
   const filteredSneakers = sneakers.filter(s => {
     const categoryMatch = selectedCategory === 'Все' || s.category === selectedCategory;
     
-    // Apply gender filter only on home page
     if (activeTab === 'home') {
       const genderMatch = selectedGender === 'All' || s.gender === selectedGender;
       return categoryMatch && genderMatch;
     }
     
-    // On catalog page, show all genders
     return categoryMatch;
   });
 
-  const toggleFavorite = (sneakerId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(sneakerId)) {
-      newFavorites.delete(sneakerId);
-    } else {
-      newFavorites.add(sneakerId);
-    }
-    setFavorites(newFavorites);
+  const handleToggleFavorite = (sneakerId: number) => {
+    toggleFavoriteHook(String(sneakerId));
+    const isNowFavorite = !isFavorite(String(sneakerId));
+    toast({
+      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
+      duration: 1500,
+    });
   };
 
   const openSneaker = (sneaker: Sneaker) => {
@@ -261,17 +267,21 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
   const addToCart = () => {
     if (!selectedSneaker) return;
     
-    const cartItem: CartItem = {
-      id: Date.now(),
+    addToCartHook({
+      id: String(selectedSneaker.id),
       name: selectedSneaker.name,
       price: selectedSneaker.price,
-      size: selectedSize,
-      quantity: 1,
       image: selectedSneaker.image,
-      brand: selectedSneaker.brand
-    };
+      size: selectedSize,
+      color: selectedSneaker.colorway
+    });
     
-    setCart([...cart, cartItem]);
+    toast({
+      title: 'Добавлено в корзину',
+      description: `${selectedSneaker.name} • ${selectedSneaker.brand} • Размер ${selectedSize}`,
+      duration: 2000,
+    });
+    
     setSelectedSneaker(null);
   };
 
@@ -284,31 +294,40 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
     }).format(price);
   };
 
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-  const handleCheckout = () => {
-    if (cart.length === 0) return;
+  const handleCheckout = (orderId: string) => {
+    const orderItems = cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image,
+      size: item.size,
+      color: item.color
+    }));
     
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cart],
-      total: cartTotal,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
+    createOrder(orderItems, cartTotal, {
+      address: 'Москва',
+      phone: '+7 (999) 555-77-88'
+    });
     
-    setOrders([newOrder, ...orders]);
-    setCart([]);
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Заказ оформлен!',
+      description: `Номер заказа: ${orderId}`,
+      duration: 3000,
+    });
   };
 
-  // PRODUCT DETAIL PAGE
   if (activeTab === 'catalog' && selectedSneaker) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedSneaker(null)}
-            className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center border border-white/20"
+            className="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center border border-white/20"
+            aria-label="Назад"
             data-testid="button-back"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -316,13 +335,14 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleFavorite(selectedSneaker.id);
+              handleToggleFavorite(selectedSneaker.id);
             }}
-            className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center border border-white/20"
+            className="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center border border-white/20"
+            aria-label={isFavorite(String(selectedSneaker.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
             data-testid={`button-favorite-${selectedSneaker.id}`}
           >
             <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedSneaker.id) ? 'fill-white text-white' : 'text-white'}`}
+              className={`w-5 h-5 ${isFavorite(String(selectedSneaker.id)) ? 'fill-white text-white' : 'text-white'}`}
             />
           </button>
         </div>
@@ -362,6 +382,8 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                       ? 'bg-[#CDFF38] text-black'
                       : 'bg-black/40 text-white hover:bg-black/60 border border-white/20'
                   }`}
+                  aria-label={`Размер ${size}`}
+                  aria-pressed={selectedSize === size}
                   data-testid={`button-size-${size}`}
                 >
                   {size}
@@ -373,7 +395,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
           <ConfirmDrawer
             trigger={
               <button
-                className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
+                className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all min-h-[48px]"
                 data-testid="button-buy-now"
               >
                 Добавить в корзину
@@ -391,7 +413,6 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
     );
   }
 
-  // HOME PAGE - REAL TIME SHOPPING STYLE
   if (activeTab === 'home') {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
@@ -405,19 +426,34 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
           accentColor="#CDFF38"
           bgColor="#0A0A0A"
         />
-        {/* Header */}
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <button onClick={sidebar.open} aria-label="Меню" data-testid="button-menu">
+            <button 
+              onClick={sidebar.open} 
+              aria-label="Открыть меню" 
+              className="w-11 h-11 flex items-center justify-center"
+              data-testid="button-menu"
+            >
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-3">
-              <ShoppingBag className="w-6 h-6" data-testid="button-view-cart" />
-              <Heart className="w-6 h-6" data-testid="button-view-favorites" />
+              <button 
+                aria-label="Корзина" 
+                className="w-11 h-11 flex items-center justify-center"
+                data-testid="button-view-cart"
+              >
+                <ShoppingBag className="w-6 h-6" />
+              </button>
+              <button 
+                aria-label="Избранное" 
+                className="w-11 h-11 flex items-center justify-center"
+                data-testid="button-view-favorites"
+              >
+                <Heart className="w-6 h-6" />
+              </button>
             </div>
           </div>
 
-          {/* Title */}
           <div className="mb-6 scroll-fade-in">
             <h1 className="text-4xl font-black mb-1 tracking-tight">
               SNEAKER<br/>
@@ -425,10 +461,10 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
             </h1>
           </div>
 
-          {/* Gender Filters */}
           <div className="flex items-center gap-4 mb-6 scroll-fade-in">
             <button 
-              className="p-2 bg-[#CDFF38] rounded-full"
+              className="p-2 bg-[#CDFF38] rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Главная"
               data-testid="button-view-home"
             >
               <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
@@ -440,7 +476,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                 key={gender}
                 onClick={() => setSelectedGender(gender)}
                 aria-pressed={selectedGender === gender}
-                className={`text-sm font-medium transition-all relative ${
+                className={`text-sm font-medium transition-all relative min-h-[44px] px-2 ${
                   selectedGender === gender
                     ? 'text-white font-bold'
                     : 'text-white/40'
@@ -455,21 +491,20 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
             ))}
           </div>
 
-          {/* Search Bar */}
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 bg-black/40 backdrop-blur-xl rounded-full px-4 py-3 flex items-center gap-2 border border-white/20">
+            <div className="flex-1 bg-black/40 backdrop-blur-xl rounded-full px-4 py-3 flex items-center gap-2 border border-white/20 min-h-[48px]">
               <Search className="w-5 h-5 text-white/50" />
               <input
                 type="text"
                 placeholder="Поиск кроссовок..."
                 className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
+                aria-label="Поиск кроссовок"
                 data-testid="input-search"
               />
             </div>
           </div>
         </div>
 
-        {/* Video Hero Banner */}
         <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden scroll-fade-in" style={{ height: '500px' }}>
           <video
             autoPlay
@@ -482,10 +517,8 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
             <source src={sneakerVideo} type="video/mp4" />
           </video>
           
-          {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
           
-          {/* Content Overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-8">
             <m.div
               initial={{ opacity: 0, y: 30 }}
@@ -500,7 +533,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                 Эксклюзивные релизы 2025
               </p>
               <button 
-                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105"
+                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105 min-h-[48px]"
                 style={{
                   background: '#CDFF38',
                   boxShadow: '0 0 30px rgba(205, 255, 56, 0.4)'
@@ -513,7 +546,6 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
           </div>
         </div>
 
-        {/* Featured Sneaker Cards */}
         <div className="px-6 space-y-4">
           {filteredSneakers.slice(0, 3).map((sneaker, idx) => (
             <m.div
@@ -526,7 +558,6 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
               style={{ height: idx === 0 ? '400px' : '320px' }}
               data-testid={`featured-sneaker-${sneaker.id}`}
             >
-              {/* Background Image */}
               <div className="absolute inset-0">
                 <img
                   src={sneaker.image}
@@ -536,10 +567,8 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                 />
               </div>
 
-              {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
 
-              {/* Badge */}
               <div className="absolute top-4 left-4">
                 <div className="px-3 py-1 bg-black/60 backdrop-blur-xl rounded-full border border-white/20">
                   <span className="text-xs font-semibold text-white">
@@ -548,21 +577,20 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                 </div>
               </div>
 
-              {/* Favorite */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleFavorite(sneaker.id);
+                  handleToggleFavorite(sneaker.id);
                 }}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/60 backdrop-blur-xl flex items-center justify-center border border-white/20"
+                className="absolute top-4 right-4 w-11 h-11 rounded-full bg-black/60 backdrop-blur-xl flex items-center justify-center border border-white/20"
+                aria-label={isFavorite(String(sneaker.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                 data-testid={`button-favorite-${sneaker.id}`}
               >
                 <Heart 
-                  className={`w-5 h-5 ${favorites.has(sneaker.id) ? 'fill-white text-white' : 'text-white'}`}
+                  className={`w-5 h-5 ${isFavorite(String(sneaker.id)) ? 'fill-white text-white' : 'text-white'}`}
                 />
               </button>
 
-              {/* Content */}
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <div className="flex items-end justify-between">
                   <div className="flex-1">
@@ -573,20 +601,19 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                     <p className="text-sm text-white/80 mb-4">{sneaker.colorway}</p>
                   </div>
 
-                  {/* Buy Button */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       openSneaker(sneaker);
                     }}
                     className="w-14 h-14 rounded-full bg-[#CDFF38] flex items-center justify-center hover:bg-[#B8E633] transition-all hover:scale-110"
+                    aria-label={`Добавить ${sneaker.name} в корзину`}
                     data-testid={`button-add-to-cart-${sneaker.id}`}
                   >
                     <ShoppingBag className="w-6 h-6 text-black" />
                   </button>
                 </div>
 
-                {/* Price */}
                 <div className="mt-3">
                   <p className="text-lg font-bold">{formatPrice(sneaker.price)}</p>
                 </div>
@@ -595,13 +622,11 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
           ))}
         </div>
 
-        {/* Bottom Spacer */}
         <div className="h-8"></div>
       </div>
     );
   }
 
-  // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
@@ -609,26 +634,34 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
             <div className="flex items-center gap-3">
-              <button className="p-2" data-testid="button-view-search">
+              <button 
+                className="w-11 h-11 flex items-center justify-center" 
+                aria-label="Поиск"
+                data-testid="button-view-search"
+              >
                 <Search className="w-6 h-6" />
               </button>
-              <button className="p-2" data-testid="button-view-filter">
+              <button 
+                className="w-11 h-11 flex items-center justify-center" 
+                aria-label="Фильтры"
+                data-testid="button-view-filter"
+              >
                 <Filter className="w-6 h-6" />
               </button>
             </div>
           </div>
 
-          {/* Categories */}
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all min-h-[44px] ${
                   selectedCategory === cat
                     ? 'bg-[#CDFF38] text-black'
                     : 'bg-black/40 text-white/70 hover:bg-black/60 border border-white/20'
                 }`}
+                aria-pressed={selectedCategory === cat}
                 data-testid={`button-filter-${cat.toLowerCase()}`}
               >
                 {cat}
@@ -636,7 +669,6 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
             ))}
           </div>
 
-          {/* Sneakers Grid */}
           <div className="grid grid-cols-2 gap-4">
             {filteredSneakers.map((sneaker, index) => (
               <m.div
@@ -654,21 +686,20 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                     loading="lazy"
                   />
                   
-                  {/* Favorite */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(sneaker.id);
+                      handleToggleFavorite(sneaker.id);
                     }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 backdrop-blur-xl flex items-center justify-center border border-white/20"
+                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-black/60 backdrop-blur-xl flex items-center justify-center border border-white/20"
+                    aria-label={isFavorite(String(sneaker.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
                     data-testid={`button-favorite-${sneaker.id}`}
                   >
                     <Heart 
-                      className={`w-4 h-4 ${favorites.has(sneaker.id) ? 'fill-white text-white' : 'text-white'}`}
+                      className={`w-4 h-4 ${isFavorite(String(sneaker.id)) ? 'fill-white text-white' : 'text-white'}`}
                     />
                   </button>
 
-                  {/* Badge */}
                   {sneaker.isNew && (
                     <div className="absolute top-2 left-2 px-2 py-1 bg-[#CDFF38] text-black text-xs font-bold rounded-full">
                       NEW
@@ -676,7 +707,6 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                   )}
                 </div>
 
-                {/* Sneaker Info */}
                 <div>
                   <p className="text-xs text-white/60 mb-1">{sneaker.brand}</p>
                   <p className="text-sm font-semibold mb-1 truncate">{sneaker.name}</p>
@@ -695,25 +725,25 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
     );
   }
 
-  // CART PAGE
   if (activeTab === 'cart') {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
           {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <ShoppingBag className="w-20 h-20 text-white/20 mb-4" />
-              <p className="text-white/50 text-center">Ваша корзина пуста</p>
-            </div>
+            <EmptyState
+              type="cart"
+              title="Корзина пуста"
+              description="Добавьте кроссовки из каталога, чтобы оформить заказ"
+              actionLabel="Перейти в каталог"
+              onAction={() => onTabChange?.('catalog')}
+            />
           ) : (
             <div className="space-y-4">
               {cart.map((item) => (
                 <div
-                  key={item.id}
+                  key={`${item.id}-${item.size}`}
                   className="bg-black/40 backdrop-blur-xl rounded-2xl p-4 flex gap-4 border border-white/10"
                   data-testid={`cart-item-${item.id}`}
                 >
@@ -724,16 +754,36 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                     loading="lazy"
                   />
                   <div className="flex-1">
-                    <p className="text-xs text-white/60 mb-1">{item.brand}</p>
                     <h3 className="font-semibold mb-1">{item.name}</h3>
                     <p className="text-sm text-white/60 mb-2">
                       Размер: {item.size}
                     </p>
                     <p className="text-lg font-bold">{formatPrice(item.price)}</p>
+                    
+                    <div className="flex items-center gap-3 mt-2">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                        className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
+                        aria-label="Уменьшить количество"
+                        data-testid={`button-decrease-${item.id}`}
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="text-lg font-semibold min-w-[24px] text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                        className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
+                        aria-label="Увеличить количество"
+                        data-testid={`button-increase-${item.id}`}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   <button
-                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
-                    className="w-8 h-8"
+                    onClick={() => removeFromCart(item.id, item.size, item.color)}
+                    className="w-10 h-10 flex items-center justify-center"
+                    aria-label="Удалить из корзины"
                     data-testid={`button-remove-${item.id}`}
                   >
                     <X className="w-5 h-5" />
@@ -746,31 +796,39 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                   <span className="text-lg font-semibold">Итого:</span>
                   <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
                 </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
-                      data-testid="button-checkout"
-                    >
-                      Оформить заказ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cart.length} товаров на сумму ${formatPrice(cartTotal)}`}
-                  confirmText="Подтвердить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
+                <button
+                  onClick={() => setIsCheckoutOpen(true)}
+                  className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all min-h-[48px]"
+                  data-testid="button-checkout"
+                >
+                  Оформить заказ
+                </button>
               </div>
             </div>
           )}
         </div>
+
+        <CheckoutDrawer
+          isOpen={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          items={cart.map(item => ({
+            id: Number(item.id),
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color,
+            image: item.image
+          }))}
+          total={cartTotal}
+          currency="₽"
+          onOrderComplete={handleCheckout}
+          storeName="SneakerVault"
+        />
       </div>
     );
   }
 
-  // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
@@ -788,11 +846,11 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{orders.length}</p>
+              <p className="text-2xl font-bold">{ordersCount}</p>
             </div>
             <div className="p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Избранное</p>
-              <p className="text-2xl font-bold">{favorites.size}</p>
+              <p className="text-2xl font-bold">{favoritesCount}</p>
             </div>
           </div>
         </div>
@@ -800,18 +858,19 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
         <div className="p-4 space-y-4">
           <div className="scroll-fade-in">
             <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
-            {orders.length === 0 ? (
-              <div className="text-center py-8 text-white/50">
-                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>У вас пока нет заказов</p>
-              </div>
+            {ordersCount === 0 ? (
+              <EmptyState
+                type="orders"
+                title="Нет заказов"
+                description="Ваши заказы будут отображаться здесь после оформления"
+              />
             ) : (
               <div className="space-y-3">
                 {orders.map((order) => (
                   <div key={order.id} className="bg-black/40 backdrop-blur-xl rounded-xl p-4 border border-white/10" data-testid={`order-${order.id}`}>
                     <div className="flex justify-between gap-2 mb-2">
-                      <span className="text-white/80">Заказ #{order.id.toString().slice(-6)}</span>
-                      <span className="text-white/60">{order.date}</span>
+                      <span className="text-white/80">Заказ #{order.id.slice(-6)}</span>
+                      <span className="text-white/60">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
                     </div>
                     <div className="flex justify-between gap-2 mb-2">
                       <span className="text-white/60">{order.items.length} товаров</span>
@@ -819,7 +878,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                     </div>
                     <div className="mt-2">
                       <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
-                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                        {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтвержден' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
                       </span>
                     </div>
                   </div>
@@ -829,7 +888,11 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
           </div>
 
           <div className="space-y-2">
-            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
+            <button 
+              className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2 min-h-[56px]" 
+              aria-label="Избранное"
+              data-testid="button-favorites"
+            >
               <div className="flex items-center gap-3">
                 <Heart className="w-5 h-5 text-white/70" />
                 <span className="font-medium">Избранное</span>
@@ -837,7 +900,11 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
               <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
             </button>
 
-            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
+            <button 
+              className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2 min-h-[56px]" 
+              aria-label="Способы оплаты"
+              data-testid="button-payment"
+            >
               <div className="flex items-center gap-3">
                 <CreditCard className="w-5 h-5 text-white/70" />
                 <span className="font-medium">Способы оплаты</span>
@@ -845,7 +912,11 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
               <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
             </button>
 
-            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-address">
+            <button 
+              className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2 min-h-[56px]" 
+              aria-label="Адреса доставки"
+              data-testid="button-address"
+            >
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-white/70" />
                 <span className="font-medium">Адреса доставки</span>
@@ -853,7 +924,11 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
               <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
             </button>
 
-            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
+            <button 
+              className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2 min-h-[56px]" 
+              aria-label="Настройки"
+              data-testid="button-settings"
+            >
               <div className="flex items-center gap-3">
                 <Settings className="w-5 h-5 text-white/70" />
                 <span className="font-medium">Настройки</span>
@@ -861,7 +936,11 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
               <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
             </button>
 
-            <button className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover-elevate active-elevate-2 mt-4" data-testid="button-logout">
+            <button 
+              className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover-elevate active-elevate-2 mt-4 min-h-[56px]" 
+              aria-label="Выйти"
+              data-testid="button-logout"
+            >
               <div className="flex items-center gap-3">
                 <LogOut className="w-5 h-5 text-red-400" />
                 <span className="font-medium text-red-400">Выйти</span>

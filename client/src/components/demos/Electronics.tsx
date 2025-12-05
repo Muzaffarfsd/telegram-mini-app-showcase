@@ -28,12 +28,20 @@ import {
   Home,
   Grid,
   Tag,
-  ShoppingBag
+  ShoppingBag,
+  Plus,
+  Minus
 } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { Skeleton } from "../ui/skeleton";
 import { useFilter } from "@/hooks/useFilter";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 interface ElectronicsProps {
@@ -41,21 +49,7 @@ interface ElectronicsProps {
   onTabChange?: (tab: string) => void;
 }
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
-interface Order {
-  id: number;
-  items: CartItem[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
-}
+const STORE_KEY = 'electronics-store';
 
 interface Product {
   id: number;
@@ -195,14 +189,35 @@ const genderFilters = ['All', 'Popular', 'New', 'Sale'];
 
 export default memo(function Electronics({ activeTab, onTabChange }: ElectronicsProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [selectedFilter, setSelectedFilter] = useState('All');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const sidebar = useDemoSidebar();
+  const { toast } = useToast();
+  
+  // Persistent hooks
+  const { 
+    cart, 
+    addToCart: addToCartHook, 
+    removeFromCart, 
+    updateQuantity, 
+    clearCart, 
+    cartTotal 
+  } = usePersistentCart(STORE_KEY);
+  
+  const { 
+    favorites, 
+    toggleFavorite: toggleFavoriteHook, 
+    isFavorite, 
+    favoritesCount 
+  } = usePersistentFavorites(STORE_KEY);
+  
+  const { 
+    orders, 
+    addOrder, 
+    ordersCount 
+  } = usePersistentOrders(STORE_KEY);
 
   useEffect(() => {
     scrollToTop();
@@ -250,14 +265,12 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
     setLoadedImages(prev => new Set(prev).add(productId));
   };
 
-  const toggleFavorite = (productId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(productId)) {
-      newFavorites.delete(productId);
-    } else {
-      newFavorites.add(productId);
-    }
-    setFavorites(newFavorites);
+  const handleToggleFavorite = (productId: number) => {
+    const wasAdded = toggleFavoriteHook(String(productId));
+    toast({
+      title: wasAdded ? 'Добавлено в избранное' : 'Удалено из избранного',
+      duration: 1500
+    });
   };
 
   const openProduct = (product: Product) => {
@@ -269,15 +282,22 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
   const addToCart = () => {
     if (!selectedProduct) return;
     
-    const cartItem: CartItem = {
-      id: Date.now(),
+    addToCartHook({
+      id: String(selectedProduct.id),
       name: selectedProduct.name,
       price: selectedProduct.price,
       quantity: 1,
-      image: selectedProduct.image
-    };
+      image: selectedProduct.image,
+      size: 'Standard',
+      color: 'Default'
+    });
     
-    setCartItems([...cartItems, cartItem]);
+    toast({
+      title: 'Товар добавлен в корзину',
+      description: selectedProduct.name,
+      duration: 2000
+    });
+    
     setSelectedProduct(null);
   };
 
@@ -291,21 +311,29 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
   };
 
   const handleCheckout = () => {
-    if (cartItems.length === 0) return;
+    if (cart.length === 0) return;
     
-    const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cartItems],
-      total: total,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
+    addOrder(
+      cart.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+        size: item.size,
+        color: item.color
+      })),
+      cartTotal
+    );
     
-    setOrders([newOrder, ...orders]);
-    setCartItems([]);
-    setShowCheckoutSuccess(true);
-    setTimeout(() => setShowCheckoutSuccess(false), 3000);
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Заказ успешно оформлен!',
+      description: `На сумму ${formatPrice(cartTotal)}`,
+      duration: 3000
+    });
   };
 
   // PRODUCT PAGE - УЛУЧШЕННАЯ
@@ -323,13 +351,14 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleFavorite(selectedProduct.id);
+              handleToggleFavorite(selectedProduct.id);
             }}
-            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
+            aria-label={isFavorite(String(selectedProduct.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
+            className="w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
             data-testid={`button-favorite-${selectedProduct.id}`}
           >
             <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
+              className={`w-5 h-5 ${isFavorite(String(selectedProduct.id)) ? 'fill-white text-white' : 'text-white'}`}
             />
           </button>
         </div>
@@ -578,14 +607,14 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleFavorite(product.id);
+                  handleToggleFavorite(product.id);
                 }}
-                aria-label="Избранное"
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
+                aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                className="absolute top-4 right-4 w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
                 data-testid={`button-favorite-${product.id}`}
               >
                 <Heart 
-                  className={`w-5 h-5 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                  className={`w-5 h-5 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
                 />
               </button>
 
@@ -685,14 +714,14 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(product.id);
+                      handleToggleFavorite(product.id);
                     }}
-                    aria-label="Избранное"
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
+                    aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
                     data-testid={`button-favorite-catalog-${product.id}`}
                   >
                     <Heart 
-                      className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                      className={`w-4 h-4 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
                     />
                   </button>
 
@@ -723,23 +752,23 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
 
   // CART PAGE
   if (activeTab === 'cart') {
-    const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
-          {cartItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <ShoppingCart className="w-20 h-20 text-white/20 mb-4" />
-              <p className="text-white/50 text-center">Ваша корзина пуста</p>
-            </div>
+          {cart.length === 0 ? (
+            <EmptyState
+              type="cart"
+              actionLabel="В каталог"
+              onAction={() => onTabChange?.('catalog')}
+              className="py-20"
+            />
           ) : (
             <div className="space-y-4">
-              {cartItems.map((item) => (
+              {cart.map((item) => (
                 <div
-                  key={item.id}
+                  key={`${item.id}-${item.size}-${item.color}`}
                   className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
                   data-testid={`cart-item-${item.id}`}
                 >
@@ -751,12 +780,33 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1">{item.name}</h3>
-                    <p className="text-lg font-bold">{formatPrice(item.price)}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-lg font-bold">{formatPrice(item.price * item.quantity)}</p>
+                      <div className="flex items-center gap-2 bg-white/10 rounded-full px-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                          className="w-8 h-8 flex items-center justify-center"
+                          aria-label="Уменьшить количество"
+                          data-testid={`button-decrease-${item.id}`}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-6 text-center font-semibold">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                          className="w-8 h-8 flex items-center justify-center"
+                          aria-label="Увеличить количество"
+                          data-testid={`button-increase-${item.id}`}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <button
-                    onClick={() => setCartItems(cartItems.filter(i => i.id !== item.id))}
-                    aria-label="Удалить"
-                    className="w-8 h-8"
+                    onClick={() => removeFromCart(item.id, item.size, item.color)}
+                    aria-label="Удалить из корзины"
+                    className="w-10 h-10 flex items-center justify-center"
                     data-testid={`button-remove-${item.id}`}
                   >
                     <X className="w-5 h-5" />
@@ -767,30 +817,34 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
               <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#0A0A0A] border-t border-white/10">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold">{formatPrice(total)}</span>
+                  <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
                 </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full bg-[#00D4FF] text-black font-bold py-4 rounded-full hover:bg-[#00BFEB] transition-all"
-                      data-testid="button-checkout"
-                    >
-                      Оформить заказ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cartItems.length} товаров на сумму ${formatPrice(total)}`}
-                  confirmText="Оформить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
+                <button
+                  onClick={() => setIsCheckoutOpen(true)}
+                  className="w-full bg-[#00D4FF] text-black font-bold py-4 rounded-full hover:bg-[#00BFEB] transition-all min-h-[48px]"
+                  data-testid="button-checkout"
+                >
+                  Оформить заказ
+                </button>
               </div>
-              {showCheckoutSuccess && (
-                <div className="fixed top-20 left-4 right-4 bg-[#00D4FF] text-black p-4 rounded-2xl text-center font-bold z-50 animate-pulse">
-                  Заказ успешно оформлен!
-                </div>
-              )}
+              
+              <CheckoutDrawer
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                items={cart.map(item => ({
+                  id: parseInt(item.id) || 0,
+                  name: item.name,
+                  price: item.price,
+                  quantity: item.quantity,
+                  size: item.size,
+                  color: item.color,
+                  image: item.image
+                }))}
+                total={cartTotal}
+                currency="₽"
+                onOrderComplete={handleCheckout}
+                storeName="TECHHUB"
+              />
             </div>
           )}
         </div>
@@ -816,11 +870,11 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{orders.length}</p>
+              <p className="text-2xl font-bold">{ordersCount}</p>
             </div>
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
               <p className="text-sm text-white/70 mb-1">Избранное</p>
-              <p className="text-2xl font-bold">{favorites.size}</p>
+              <p className="text-2xl font-bold">{favoritesCount}</p>
             </div>
           </div>
         </div>
@@ -838,8 +892,8 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                 {orders.map((order) => (
                   <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-white/70">Заказ #{order.id.toString().slice(-6)}</span>
-                      <span className="text-sm text-white/70">{order.date}</span>
+                      <span className="text-sm text-white/70">Заказ #{order.id.slice(-6)}</span>
+                      <span className="text-sm text-white/70">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
                     </div>
                     <div className="flex justify-between mb-2">
                       <span className="text-white/80">{order.items.length} товаров</span>
@@ -847,7 +901,7 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
                     </div>
                     <div className="mt-2">
                       <span className="text-xs px-2 py-1 bg-[#00D4FF]/20 text-[#00D4FF] rounded-full">
-                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
+                        {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
                       </span>
                     </div>
                   </div>

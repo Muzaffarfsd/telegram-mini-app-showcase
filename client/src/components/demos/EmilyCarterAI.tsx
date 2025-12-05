@@ -8,6 +8,12 @@ import {
 } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 
 interface EmilyCarterAIProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -32,6 +38,8 @@ interface Product {
 interface CartItem extends Product {
   quantity: number;
 }
+
+const STORE_KEY = 'emilycarter-store';
 
 const COLORS = {
   primary: '#0A0A0A',
@@ -153,10 +161,31 @@ const categories = ['All', 'Skincare', 'Makeup', 'Fragrance', 'Haircare'];
 
 function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [favorites, setFavorites] = useState<Set<number>>(new Set([1, 4]));
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const sidebar = useDemoSidebar();
+  const { toast } = useToast();
+
+  const {
+    cartItems: cart,
+    addToCart: addToCartHook,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    totalAmount: cartTotal
+  } = usePersistentCart({ storageKey: STORE_KEY });
+
+  const {
+    toggleFavorite: toggleFavoriteHook,
+    isFavorite,
+    favoritesCount
+  } = usePersistentFavorites({ storageKey: STORE_KEY });
+
+  const {
+    orders,
+    createOrder: addOrder,
+    ordersCount
+  } = usePersistentOrders({ storageKey: STORE_KEY });
 
   const sidebarMenuItems = [
     { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
@@ -172,17 +201,14 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
     scrollToTop();
   }, [activeTab]);
 
-  const toggleFavorite = useCallback((id: number) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(id)) {
-        newFavorites.delete(id);
-      } else {
-        newFavorites.add(id);
-      }
-      return newFavorites;
+  const handleToggleFavorite = useCallback((id: number) => {
+    toggleFavoriteHook(String(id));
+    const isNowFavorite = !isFavorite(String(id));
+    toast({
+      title: isNowFavorite ? 'Added to Wishlist' : 'Removed from Wishlist',
+      duration: 1500
     });
-  }, []);
+  }, [toggleFavoriteHook, isFavorite, toast]);
 
   const openProduct = (product: Product) => {
     scrollToTop();
@@ -191,38 +217,50 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
   };
 
   const addToCart = useCallback((product: Product) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.id === product.id);
-      if (existing) {
-        return prev.map(item => 
-          item.id === product.id 
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...product, quantity: 1 }];
+    addToCartHook({
+      id: String(product.id),
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.image,
+      size: 'Standard',
+      color: product.category
+    });
+    toast({
+      title: 'Added to Bag',
+      description: product.name,
+      duration: 2000
     });
     setSelectedProduct(null);
-  }, []);
+  }, [addToCartHook, toast]);
 
-  const removeFromCart = useCallback((id: number) => {
-    setCart(prev => prev.filter(item => item.id !== id));
-  }, []);
+  const handleCheckout = useCallback(() => {
+    if (cart.length === 0) return;
+    
+    addOrder(
+      cart.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+        size: item.size,
+        color: item.color
+      })),
+      cartTotal
+    );
+    
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Order placed successfully!',
+      description: `Total: $${cartTotal}`,
+      duration: 3000
+    });
+  }, [cart, cartTotal, addOrder, clearCart, toast]);
 
-  const updateQuantity = useCallback((id: number, delta: number) => {
-    setCart(prev => prev.map(item => {
-      if (item.id === id) {
-        const newQty = Math.max(1, Math.min(10, item.quantity + delta));
-        return { ...item, quantity: newQty };
-      }
-      return item;
-    }));
-  }, []);
-
-  const cartTotal = useMemo(() => 
-    cart.reduce((sum, item) => sum + item.price * item.quantity, 0), 
-    [cart]
-  );
+  const formatPrice = (price: number) => `$${price}`;
 
   const filteredProducts = useMemo(() => 
     selectedCategory === 'All' 
@@ -266,7 +304,8 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
               <m.button
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                onClick={() => toggleFavorite(selectedProduct.id)}
+                onClick={() => handleToggleFavorite(selectedProduct.id)}
+                aria-label={isFavorite(String(selectedProduct.id)) ? 'Remove from wishlist' : 'Add to wishlist'}
                 className="w-11 h-11 rounded-full backdrop-blur-xl flex items-center justify-center"
                 style={{ background: 'rgba(10, 10, 10, 0.6)', border: `1px solid ${COLORS.cardBorder}` }}
                 data-testid={`button-favorite-detail-${selectedProduct.id}`}
@@ -274,8 +313,8 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                 <Heart 
                   className="w-5 h-5"
                   style={{ 
-                    color: favorites.has(selectedProduct.id) ? COLORS.accent1 : COLORS.textPrimary,
-                    fill: favorites.has(selectedProduct.id) ? COLORS.accent1 : 'transparent'
+                    color: isFavorite(String(selectedProduct.id)) ? COLORS.accent1 : COLORS.textPrimary,
+                    fill: isFavorite(String(selectedProduct.id)) ? COLORS.accent1 : 'transparent'
                   }}
                 />
               </m.button>
@@ -634,11 +673,12 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                   <div className="relative rounded-2xl overflow-hidden mb-3" style={{ height: '195px' }}>
                     <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                     <button
-                      onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
-                      className="absolute top-3 right-3 w-8 h-8 rounded-full backdrop-blur-xl flex items-center justify-center"
+                      onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
+                      aria-label={isFavorite(String(product.id)) ? 'Remove from wishlist' : 'Add to wishlist'}
+                      className="absolute top-3 right-3 w-10 h-10 rounded-full backdrop-blur-xl flex items-center justify-center"
                       style={{ background: 'rgba(0,0,0,0.4)' }}
                     >
-                      <Heart className="w-4 h-4" style={{ color: favorites.has(product.id) ? COLORS.accent1 : '#fff', fill: favorites.has(product.id) ? COLORS.accent1 : 'transparent' }} />
+                      <Heart className="w-4 h-4" style={{ color: isFavorite(String(product.id)) ? COLORS.accent1 : '#fff', fill: isFavorite(String(product.id)) ? COLORS.accent1 : 'transparent' }} />
                     </button>
                     {product.originalPrice && (
                       <div className="absolute top-3 left-3 px-2 py-1 rounded-full text-[10px] font-bold" style={{ background: '#EF4444', color: '#fff' }}>
@@ -691,11 +731,12 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                       NEW
                     </div>
                     <button
-                      onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
-                      className="absolute top-2 right-2 w-7 h-7 rounded-full backdrop-blur-xl flex items-center justify-center"
+                      onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
+                      aria-label={isFavorite(String(product.id)) ? 'Remove from wishlist' : 'Add to wishlist'}
+                      className="absolute top-2 right-2 w-10 h-10 rounded-full backdrop-blur-xl flex items-center justify-center"
                       style={{ background: 'rgba(0,0,0,0.4)' }}
                     >
-                      <Heart className="w-3.5 h-3.5" style={{ color: favorites.has(product.id) ? COLORS.accent1 : '#fff', fill: favorites.has(product.id) ? COLORS.accent1 : 'transparent' }} />
+                      <Heart className="w-4 h-4" style={{ color: isFavorite(String(product.id)) ? COLORS.accent1 : '#fff', fill: isFavorite(String(product.id)) ? COLORS.accent1 : 'transparent' }} />
                     </button>
                   </div>
                   <p className="text-[12px] font-medium truncate" style={{ color: COLORS.textPrimary }}>{product.name}</p>
@@ -944,15 +985,16 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                     className="w-full h-full object-cover"
                   />
                   <button
-                    onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full backdrop-blur-xl flex items-center justify-center"
+                    onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
+                    aria-label={isFavorite(String(product.id)) ? 'Remove from wishlist' : 'Add to wishlist'}
+                    className="absolute top-3 right-3 w-10 h-10 rounded-full backdrop-blur-xl flex items-center justify-center"
                     style={{ background: 'rgba(0,0,0,0.4)' }}
                   >
                     <Heart 
                       className="w-4 h-4"
                       style={{ 
-                        color: favorites.has(product.id) ? COLORS.accent1 : '#fff',
-                        fill: favorites.has(product.id) ? COLORS.accent1 : 'transparent'
+                        color: isFavorite(String(product.id)) ? COLORS.accent1 : '#fff',
+                        fill: isFavorite(String(product.id)) ? COLORS.accent1 : 'transparent'
                       }}
                     />
                   </button>
@@ -1024,11 +1066,12 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
               <div className="space-y-4 mb-6">
                 {cart.map(item => (
                   <m.div
-                    key={item.id}
+                    key={`${item.id}-${item.size}-${item.color}`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="flex gap-4 p-4 rounded-2xl"
                     style={{ background: COLORS.cardBg, border: `1px solid ${COLORS.cardBorder}` }}
+                    data-testid={`cart-item-${item.id}`}
                   >
                     <div className="w-[80px] h-[100px] rounded-xl overflow-hidden flex-shrink-0">
                       <img
@@ -1050,12 +1093,13 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                             className="text-[12px]"
                             style={{ color: COLORS.textSecondary }}
                           >
-                            {item.category}
+                            {item.color}
                           </p>
                         </div>
                         <button
-                          onClick={() => removeFromCart(item.id)}
-                          className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                          onClick={() => removeFromCart(item.id, item.size, item.color)}
+                          aria-label={`Remove ${item.name} from bag`}
+                          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
                           style={{ background: 'rgba(255,255,255,0.05)' }}
                         >
                           <X className="w-4 h-4" style={{ color: COLORS.textSecondary }} />
@@ -1067,11 +1111,12 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                           style={{ background: 'rgba(255,255,255,0.05)' }}
                         >
                           <button
-                            onClick={() => updateQuantity(item.id, -1)}
-                            className="w-6 h-6 rounded-full flex items-center justify-center"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                            aria-label="Decrease quantity"
+                            className="w-10 h-10 rounded-full flex items-center justify-center"
                             data-testid={`button-minus-${item.id}`}
                           >
-                            <Minus className="w-3 h-3" style={{ color: COLORS.textSecondary }} />
+                            <Minus className="w-4 h-4" style={{ color: COLORS.textSecondary }} />
                           </button>
                           <span 
                             className="text-[13px] font-medium min-w-[20px] text-center"
@@ -1080,11 +1125,12 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="w-6 h-6 rounded-full flex items-center justify-center"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                            aria-label="Increase quantity"
+                            className="w-10 h-10 rounded-full flex items-center justify-center"
                             data-testid={`button-plus-${item.id}`}
                           >
-                            <Plus className="w-3 h-3" style={{ color: COLORS.textSecondary }} />
+                            <Plus className="w-4 h-4" style={{ color: COLORS.textSecondary }} />
                           </button>
                         </div>
                         <span 
@@ -1132,7 +1178,8 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
               </div>
 
               <button 
-                className="w-full py-4 rounded-full font-bold text-[15px] uppercase"
+                onClick={() => setIsCheckoutOpen(true)}
+                className="w-full py-4 rounded-full font-bold text-[15px] uppercase min-h-[48px]"
                 style={{ 
                   background: COLORS.accent1, 
                   color: '#0A0A0A',
@@ -1142,28 +1189,32 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
               >
                 Checkout
               </button>
+              
+              <CheckoutDrawer
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                items={cart.map(item => ({
+                  id: parseInt(item.id) || 0,
+                  name: item.name,
+                  price: item.price,
+                  quantity: item.quantity,
+                  size: item.size,
+                  color: item.color,
+                  image: item.image
+                }))}
+                total={cartTotal}
+                currency="$"
+                onOrderComplete={handleCheckout}
+                storeName="EMILY CARTER"
+              />
             </>
           ) : (
-            <div className="text-center py-20">
-              <div 
-                className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'rgba(255,255,255,0.05)' }}
-              >
-                <ShoppingBag className="w-8 h-8" style={{ color: COLORS.textSecondary }} />
-              </div>
-              <p 
-                className="font-medium text-[16px] mb-2"
-                style={{ color: COLORS.textPrimary }}
-              >
-                Your bag is empty
-              </p>
-              <p 
-                className="text-[13px]"
-                style={{ color: COLORS.textSecondary }}
-              >
-                Start shopping to add items
-              </p>
-            </div>
+            <EmptyState
+              type="cart"
+              actionLabel="Start Shopping"
+              onAction={() => onTabChange?.('catalog')}
+              className="py-20"
+            />
           )}
         </div>
       </div>
@@ -1238,8 +1289,8 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
 
           <div className="space-y-3">
             {[
-              { icon: Heart, label: 'Wishlist', value: `${favorites.size} items` },
-              { icon: Package, label: 'Orders', value: '0 orders' },
+              { icon: Heart, label: 'Wishlist', value: `${favoritesCount} items` },
+              { icon: Package, label: 'Orders', value: `${ordersCount} orders` },
               { icon: Star, label: 'Reviews', value: '0 reviews' },
               { icon: Clock, label: 'Recently Viewed', value: '' }
             ].map((item, idx) => (
