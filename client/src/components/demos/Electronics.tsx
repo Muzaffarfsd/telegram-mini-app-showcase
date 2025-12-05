@@ -260,6 +260,7 @@ export default memo(function Electronics({ activeTab }: ElectronicsProps) {
   };
 
   const openProduct = (product: Product) => {
+    scrollToTop();
     setSelectedProduct(product);
   };
 

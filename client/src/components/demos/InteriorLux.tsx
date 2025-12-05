@@ -58,6 +58,7 @@ export default function InteriorLux({ activeTab }: InteriorLuxProps) {
   }, [activeTab]);
 
   const openProductModal = (product: typeof products[0]) => {
+    scrollToTop();
     setSelectedProduct(product);
     setIsModalOpen(true);
   };

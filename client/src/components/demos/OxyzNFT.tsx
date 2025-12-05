@@ -243,6 +243,11 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
     });
   }, []);
 
+  const openProduct = (product: Product) => {
+    scrollToTop();
+    setSelectedProduct(product);
+  };
+
   const addToCart = useCallback((product: Product, size?: string, color?: string) => {
     const cartItem: CartItem = {
       ...product,
@@ -757,7 +762,7 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 + idx * 0.06 }}
                   whileHover={{ scale: 1.02 }}
-                  onClick={() => setSelectedProduct(product)}
+                  onClick={() => openProduct(product)}
                   className="relative rounded-2xl overflow-hidden cursor-pointer"
                   style={{ 
                     background: COLORS.cardBg,
@@ -870,7 +875,7 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ delay: idx * 0.05, ...springConfig }}
                   layout
-                  onClick={() => setSelectedProduct(product)}
+                  onClick={() => openProduct(product)}
                   onMouseEnter={() => setHoveredProduct(product.id)}
                   onMouseLeave={() => setHoveredProduct(null)}
                   className="relative rounded-2xl overflow-hidden cursor-pointer group"
@@ -1182,7 +1187,7 @@ function OxyzNFT({ activeTab }: OxyzNFTProps) {
                     {recommendations.map(product => (
                       <div 
                         key={product.id}
-                        onClick={() => setSelectedProduct(product)}
+                        onClick={() => openProduct(product)}
                         className="flex-shrink-0 w-[120px] rounded-xl overflow-hidden cursor-pointer"
                         style={{ border: `1px solid ${COLORS.cardBorder}` }}
                         data-testid={`recommendation-${product.id}`}

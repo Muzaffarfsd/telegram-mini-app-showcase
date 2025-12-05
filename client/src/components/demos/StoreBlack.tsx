@@ -326,6 +326,7 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
   };
 
   const openProduct = (product: Product) => {
+    scrollToTop();
     setSelectedProduct(product);
     setSelectedSize(product.sizes[0]);
     setSelectedColor(product.colors[0]);

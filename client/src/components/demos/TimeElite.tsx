@@ -96,6 +96,7 @@ export default function TimeElite({ activeTab }: TimeEliteProps) {
   }, [activeTab]);
 
   const openProductModal = (product: typeof products[0]) => {
+    scrollToTop();
     setSelectedProduct(product);
     setIsModalOpen(true);
   };

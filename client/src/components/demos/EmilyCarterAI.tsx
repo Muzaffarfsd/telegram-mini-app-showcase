@@ -183,6 +183,11 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
     });
   }, []);
 
+  const openProduct = (product: Product) => {
+    scrollToTop();
+    setSelectedProduct(product);
+  };
+
   const addToCart = useCallback((product: Product) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
@@ -622,7 +627,7 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex-shrink-0 w-[155px] cursor-pointer"
-                  onClick={() => setSelectedProduct(product)}
+                  onClick={() => openProduct(product)}
                 >
                   <div className="relative rounded-2xl overflow-hidden mb-3" style={{ height: '195px' }}>
                     <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
@@ -676,7 +681,7 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.25 + idx * 0.05 }}
                   className="cursor-pointer"
-                  onClick={() => setSelectedProduct(product)}
+                  onClick={() => openProduct(product)}
                 >
                   <div className="relative rounded-2xl overflow-hidden mb-2" style={{ aspectRatio: '4/5' }}>
                     <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
@@ -925,7 +930,7 @@ function EmilyCarterAI({ activeTab }: EmilyCarterAIProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + idx * 0.05 }}
                 className="cursor-pointer"
-                onClick={() => setSelectedProduct(product)}
+                onClick={() => openProduct(product)}
               >
                 <div 
                   className="relative rounded-2xl overflow-hidden mb-3"
