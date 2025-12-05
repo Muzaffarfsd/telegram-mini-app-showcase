@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { 
   Coins, CheckCircle, Users, Gift, ArrowRight,
   Heart, MessageCircle, Eye, UserPlus, Youtube, Send,
-  Share2, Bell, Star, ThumbsUp, Bookmark, Play
+  Share2, Bell, Star, Bookmark, Clock, Flame, Loader2
 } from 'lucide-react';
 import { SiTiktok, SiInstagram } from 'react-icons/si';
 import { useTelegram } from '@/hooks/useTelegram';
@@ -15,13 +15,44 @@ interface TasksEarningPageProps {
 
 interface SocialTask {
   id: string;
-  platform: 'youtube' | 'telegram' | 'instagram' | 'tiktok';
+  platform: 'youtube' | 'telegram' | 'instagram' | 'tiktok' | 'daily';
   type: string;
   title: string;
   description: string;
   coins: number;
   url: string;
+  channelUsername?: string;
 }
+
+const dailyTasks: SocialTask[] = [
+  {
+    id: 'daily_visit',
+    platform: 'daily',
+    type: 'visit',
+    title: 'Ежедневный вход',
+    description: 'Заходи каждый день',
+    coins: 10,
+    url: ''
+  },
+  {
+    id: 'daily_view_demos',
+    platform: 'daily',
+    type: 'view',
+    title: 'Посмотреть 3 демо',
+    description: 'Открой 3 демо-приложения',
+    coins: 25,
+    url: ''
+  },
+  {
+    id: 'daily_share',
+    platform: 'daily',
+    type: 'share',
+    title: 'Поделиться приложением',
+    description: 'Отправь ссылку другу',
+    coins: 30,
+    url: ''
+  }
+];
 
 const socialTasks: SocialTask[] = [
   // YouTube Tasks (10 заданий)
@@ -116,7 +147,7 @@ const socialTasks: SocialTask[] = [
     url: 'https://www.youtube.com/@WEB4TG'
   },
   
-  // Telegram Tasks (8 заданий)
+  // Telegram Tasks (8 заданий) - с верификацией подписки
   {
     id: 'telegram_subscribe',
     platform: 'telegram',
@@ -124,7 +155,8 @@ const socialTasks: SocialTask[] = [
     title: 'Подписаться на канал',
     description: 'Подписка на канал WEB4TG',
     coins: 100,
-    url: 'https://t.me/web4_tg'
+    url: 'https://t.me/web4_tg',
+    channelUsername: 'web4_tg'
   },
   {
     id: 'telegram_read_1',
@@ -133,7 +165,8 @@ const socialTasks: SocialTask[] = [
     title: 'Прочитать пост #1',
     description: 'Прочитай последний пост',
     coins: 20,
-    url: 'https://t.me/web4_tg'
+    url: 'https://t.me/web4_tg',
+    channelUsername: 'web4_tg'
   },
   {
     id: 'telegram_read_2',
@@ -142,7 +175,8 @@ const socialTasks: SocialTask[] = [
     title: 'Прочитать пост #2',
     description: 'Прочитай второй пост',
     coins: 20,
-    url: 'https://t.me/web4_tg'
+    url: 'https://t.me/web4_tg',
+    channelUsername: 'web4_tg'
   },
   {
     id: 'telegram_read_3',
@@ -151,7 +185,8 @@ const socialTasks: SocialTask[] = [
     title: 'Прочитать пост #3',
     description: 'Прочитай третий пост',
     coins: 20,
-    url: 'https://t.me/web4_tg'
+    url: 'https://t.me/web4_tg',
+    channelUsername: 'web4_tg'
   },
   {
     id: 'telegram_reaction_1',
@@ -160,7 +195,8 @@ const socialTasks: SocialTask[] = [
     title: 'Реакция на пост #1',
     description: 'Поставь реакцию на пост',
     coins: 30,
-    url: 'https://t.me/web4_tg'
+    url: 'https://t.me/web4_tg',
+    channelUsername: 'web4_tg'
   },
   {
     id: 'telegram_reaction_2',
@@ -169,7 +205,8 @@ const socialTasks: SocialTask[] = [
     title: 'Реакция на пост #2',
     description: 'Поставь ещё одну реакцию',
     coins: 30,
-    url: 'https://t.me/web4_tg'
+    url: 'https://t.me/web4_tg',
+    channelUsername: 'web4_tg'
   },
   {
     id: 'telegram_share',
@@ -178,7 +215,8 @@ const socialTasks: SocialTask[] = [
     title: 'Переслать пост',
     description: 'Перешли пост другу',
     coins: 50,
-    url: 'https://t.me/web4_tg'
+    url: 'https://t.me/web4_tg',
+    channelUsername: 'web4_tg'
   },
   {
     id: 'telegram_comment',
@@ -187,7 +225,8 @@ const socialTasks: SocialTask[] = [
     title: 'Комментарий в канале',
     description: 'Напиши комментарий под постом',
     coins: 40,
-    url: 'https://t.me/web4_tg'
+    url: 'https://t.me/web4_tg',
+    channelUsername: 'web4_tg'
   },
   
   // Instagram Tasks (10 заданий)
@@ -381,6 +420,7 @@ const getPlatformIcon = (platform: string) => {
     case 'telegram': return <Send size={20} />;
     case 'instagram': return <SiInstagram size={20} />;
     case 'tiktok': return <SiTiktok size={20} />;
+    case 'daily': return <Clock size={20} />;
     default: return <Gift size={20} />;
   }
 };
@@ -394,6 +434,7 @@ const getTypeIcon = (type: string) => {
     case 'share': return <Share2 size={16} />;
     case 'bell': return <Bell size={16} />;
     case 'save': return <Bookmark size={16} />;
+    case 'visit': return <Clock size={16} />;
     default: return <Star size={16} />;
   }
 };
@@ -404,52 +445,280 @@ const getPlatformColor = (platform: string) => {
     case 'telegram': return { bg: 'rgba(41, 182, 246, 0.1)', color: '#29B6F6' };
     case 'instagram': return { bg: 'rgba(228, 64, 95, 0.1)', color: '#E4405F' };
     case 'tiktok': return { bg: 'rgba(0, 242, 234, 0.1)', color: '#00F2EA' };
+    case 'daily': return { bg: 'rgba(251, 191, 36, 0.1)', color: '#FBBF24' };
     default: return { bg: 'rgba(139, 92, 246, 0.1)', color: '#A78BFA' };
   }
 };
 
 export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
-  const { hapticFeedback } = useTelegram();
+  const { hapticFeedback, initData, user } = useTelegram();
   const { userStats } = useRewards();
   const { toast } = useToast();
   
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
+  const [pendingTasks, setPendingTasks] = useState<Set<string>>(new Set());
+  const [streak, setStreak] = useState(0);
+  const [timeToReset, setTimeToReset] = useState('');
 
-  const handleTaskClick = useCallback((task: SocialTask) => {
-    if (completedTasks.has(task.id)) return;
+  // Calculate time until daily reset (midnight)
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      
+      const diff = tomorrow.getTime() - now.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      setTimeToReset(`${hours}ч ${minutes}м`);
+    };
+    
+    updateTimer();
+    const interval = setInterval(updateTimer, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Load completed tasks and streak from server on mount
+  useEffect(() => {
+    const loadProgress = async () => {
+      if (initData && user?.id) {
+        try {
+          // Load completed tasks from server
+          const response = await fetch(`/api/user/${user.id}/tasks-progress`, {
+            headers: {
+              'x-telegram-init-data': initData
+            }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.completedTasks) {
+              setCompletedTasks(new Set(data.completedTasks));
+            }
+            if (data.streak) {
+              setStreak(data.streak);
+            }
+          }
+        } catch (error) {
+          console.log('Could not load progress:', error);
+        }
+      }
+    };
+    loadProgress();
+  }, [initData, user?.id]);
+
+  const handleTaskClick = useCallback(async (task: SocialTask) => {
+    if (completedTasks.has(task.id) || pendingTasks.has(task.id)) return;
     
     hapticFeedback.light();
-    window.open(task.url, '_blank');
     
-    setTimeout(() => {
-      if (!completedTasks.has(task.id)) {
-        setCompletedTasks(prev => new Set(prev).add(task.id));
-        hapticFeedback.selection();
+    // Open URL first (except for daily tasks without URL)
+    if (task.url) {
+      window.open(task.url, '_blank');
+    }
+    
+    // Mark as pending
+    setPendingTasks(prev => new Set(prev).add(task.id));
+    
+    // Wait time depends on task type
+    const waitTime = task.platform === 'telegram' && task.type === 'subscribe' ? 3000 : 5000;
+    
+    setTimeout(async () => {
+      // All tasks go through server verification
+      if (initData) {
+        try {
+          const response = await fetch('/api/tasks/complete', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-telegram-init-data': initData
+            },
+            body: JSON.stringify({
+              task_id: task.id,
+              platform: task.platform,
+              task_type: task.type,
+              coins_reward: task.coins,
+              channelUsername: task.channelUsername || null
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            setCompletedTasks(prev => new Set(prev).add(task.id));
+            hapticFeedback.selection();
+            
+            // Different messages for different task types
+            if (task.platform === 'telegram' && task.type === 'subscribe') {
+              toast({
+                title: 'Подписка подтверждена!',
+                description: `+${task.coins} монет`,
+              });
+            } else if (task.platform === 'telegram') {
+              toast({
+                title: 'Задание принято!',
+                description: `+${task.coins} монет (проверка подписки пройдена)`,
+              });
+            } else if (task.platform === 'daily') {
+              toast({
+                title: 'Ежедневное задание!',
+                description: `+${task.coins} монет`,
+              });
+              // Update streak from server response
+              if (data.streak) {
+                setStreak(data.streak);
+              }
+            } else {
+              toast({
+                title: 'Задание выполнено!',
+                description: `+${task.coins} монет`,
+              });
+            }
+          } else {
+            // Error - task not verified
+            if (task.platform === 'telegram') {
+              toast({
+                title: 'Сначала подпишись на канал',
+                description: data.error || 'Подпишись на @web4_tg и попробуй снова',
+                variant: 'destructive'
+              });
+            } else {
+              toast({
+                title: 'Ошибка',
+                description: data.error || 'Попробуй ещё раз',
+                variant: 'destructive'
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Task complete error:', error);
+          // Fallback for when server is unavailable - don't award coins
+          toast({
+            title: 'Ошибка соединения',
+            description: 'Попробуй позже',
+            variant: 'destructive'
+          });
+        }
+      } else {
+        // No Telegram auth - cannot verify, show error
         toast({
-          title: 'Задание выполнено!',
-          description: `+${task.coins} монет`,
+          title: 'Требуется авторизация',
+          description: 'Открой приложение через Telegram',
+          variant: 'destructive'
         });
       }
-    }, 3000);
-  }, [completedTasks, hapticFeedback, toast]);
+      
+      // Always remove from pending
+      setPendingTasks(prev => {
+        const next = new Set(prev);
+        next.delete(task.id);
+        return next;
+      });
+    }, waitTime);
+  }, [completedTasks, pendingTasks, hapticFeedback, toast, initData]);
 
   const totalEarned = Array.from(completedTasks).reduce((sum, taskId) => {
-    const task = socialTasks.find(t => t.id === taskId);
+    const task = [...socialTasks, ...dailyTasks].find(t => t.id === taskId);
     return sum + (task?.coins || 0);
   }, 0);
 
-  const maxCoins = socialTasks.reduce((sum, t) => sum + t.coins, 0);
+  const maxCoins = [...socialTasks, ...dailyTasks].reduce((sum, t) => sum + t.coins, 0);
   
   const platformTasks = {
+    daily: dailyTasks,
     youtube: socialTasks.filter(t => t.platform === 'youtube'),
     telegram: socialTasks.filter(t => t.platform === 'telegram'),
     instagram: socialTasks.filter(t => t.platform === 'instagram'),
     tiktok: socialTasks.filter(t => t.platform === 'tiktok')
   };
 
+  const renderTaskCard = (task: SocialTask) => {
+    const isCompleted = completedTasks.has(task.id);
+    const isPending = pendingTasks.has(task.id);
+    const colors = getPlatformColor(task.platform);
+    
+    return (
+      <div 
+        key={task.id}
+        onClick={() => handleTaskClick(task)}
+        style={{
+          display: 'flex',
+          gap: '16px',
+          padding: '20px',
+          borderRadius: '14px',
+          background: isCompleted 
+            ? 'rgba(16, 185, 129, 0.06)' 
+            : 'rgba(255, 255, 255, 0.02)',
+          border: isCompleted 
+            ? '1px solid rgba(16, 185, 129, 0.2)' 
+            : '1px solid rgba(255, 255, 255, 0.04)',
+          cursor: isCompleted || isPending ? 'default' : 'pointer',
+          opacity: isPending ? 0.7 : 1,
+          transition: 'all 0.2s ease'
+        }}
+        data-testid={`task-${task.id}`}
+      >
+        <div style={{
+          width: '44px',
+          height: '44px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '12px',
+          background: colors.bg,
+          color: colors.color,
+          flexShrink: 0
+        }}>
+          {getPlatformIcon(task.platform)}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <p style={{
+              fontSize: '15px',
+              fontWeight: 600,
+              color: '#FAFAFA'
+            }}>
+              {task.title}
+            </p>
+            <div style={{ color: '#71717A' }}>
+              {getTypeIcon(task.type)}
+            </div>
+          </div>
+          <p style={{
+            fontSize: '13px',
+            color: '#71717A',
+            lineHeight: '1.4'
+          }}>
+            {task.description}
+          </p>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            padding: '4px 10px',
+            borderRadius: '8px',
+            background: 'rgba(139, 92, 246, 0.1)',
+            border: '1px solid rgba(139, 92, 246, 0.2)'
+          }}>
+            <Coins size={14} color="#A78BFA" />
+            <span style={{ fontSize: '13px', fontWeight: 600, color: '#A78BFA' }}>+{task.coins}</span>
+          </div>
+          {isCompleted && (
+            <CheckCircle size={18} color="#10B981" />
+          )}
+          {isPending && (
+            <Loader2 size={18} color="#A78BFA" className="animate-spin" />
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderTaskSection = (platform: 'youtube' | 'telegram' | 'instagram' | 'tiktok', title: string) => {
     const tasks = platformTasks[platform];
-    const colors = getPlatformColor(platform);
     
     return (
       <section className="px-7 py-8">
@@ -467,82 +736,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
         </p>
         
         <div className="space-y-3">
-          {tasks.map((task) => {
-            const isCompleted = completedTasks.has(task.id);
-            return (
-              <div 
-                key={task.id}
-                onClick={() => handleTaskClick(task)}
-                style={{
-                  display: 'flex',
-                  gap: '16px',
-                  padding: '20px',
-                  borderRadius: '14px',
-                  background: isCompleted 
-                    ? 'rgba(16, 185, 129, 0.06)' 
-                    : 'rgba(255, 255, 255, 0.02)',
-                  border: isCompleted 
-                    ? '1px solid rgba(16, 185, 129, 0.2)' 
-                    : '1px solid rgba(255, 255, 255, 0.04)',
-                  cursor: isCompleted ? 'default' : 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                data-testid={`task-${task.id}`}
-              >
-                <div style={{
-                  width: '44px',
-                  height: '44px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '12px',
-                  background: colors.bg,
-                  color: colors.color,
-                  flexShrink: 0
-                }}>
-                  {getPlatformIcon(task.platform)}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <p style={{
-                      fontSize: '15px',
-                      fontWeight: 600,
-                      color: '#FAFAFA'
-                    }}>
-                      {task.title}
-                    </p>
-                    <div style={{ color: '#71717A' }}>
-                      {getTypeIcon(task.type)}
-                    </div>
-                  </div>
-                  <p style={{
-                    fontSize: '13px',
-                    color: '#71717A',
-                    lineHeight: '1.4'
-                  }}>
-                    {task.description}
-                  </p>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '4px 10px',
-                    borderRadius: '8px',
-                    background: 'rgba(139, 92, 246, 0.1)',
-                    border: '1px solid rgba(139, 92, 246, 0.2)'
-                  }}>
-                    <Coins size={14} color="#A78BFA" />
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#A78BFA' }}>+{task.coins}</span>
-                  </div>
-                  {isCompleted && (
-                    <CheckCircle size={18} color="#10B981" />
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          {tasks.map(renderTaskCard)}
         </div>
       </section>
     );
@@ -706,20 +900,23 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                 textAlign: 'center'
               }}
             >
-              <p style={{
-                fontSize: '28px',
-                fontWeight: 700,
-                color: '#FAFAFA',
-                letterSpacing: '-0.03em'
-              }}>
-                {completedTasks.size}/{socialTasks.length}
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <Flame size={24} color="#F59E0B" />
+                <p style={{
+                  fontSize: '28px',
+                  fontWeight: 700,
+                  color: '#FAFAFA',
+                  letterSpacing: '-0.03em'
+                }}>
+                  {streak}
+                </p>
+              </div>
               <p style={{
                 fontSize: '12px',
                 color: '#52525B',
                 marginTop: '4px'
               }}>
-                заданий выполнено
+                дней подряд
               </p>
             </div>
           </div>
@@ -734,7 +931,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
             }}>
               <div style={{
                 height: '100%',
-                width: `${(completedTasks.size / socialTasks.length) * 100}%`,
+                width: `${(completedTasks.size / (socialTasks.length + dailyTasks.length)) * 100}%`,
                 background: 'linear-gradient(90deg, #A78BFA, #8B5CF6)',
                 borderRadius: '4px',
                 transition: 'width 0.3s ease'
@@ -746,7 +943,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               marginTop: '8px',
               textAlign: 'center'
             }}>
-              Максимум {maxCoins} монет за все задания
+              {completedTasks.size} из {socialTasks.length + dailyTasks.length} заданий выполнено
             </p>
           </div>
         </section>
@@ -757,9 +954,44 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
           style={{ height: '1px', background: '#27272A' }}
         />
 
-        {/* TASK SECTIONS */}
+        {/* DAILY TASKS SECTION */}
+        <section className="px-7 py-8">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <p 
+              style={{
+                fontSize: '10px',
+                fontWeight: 600,
+                letterSpacing: '0.12em',
+                color: '#52525B',
+                textTransform: 'uppercase'
+              }}
+            >
+              Ежедневные задания
+            </p>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '8px',
+              background: 'rgba(251, 191, 36, 0.1)',
+              border: '1px solid rgba(251, 191, 36, 0.2)'
+            }}>
+              <Clock size={14} color="#FBBF24" />
+              <span style={{ fontSize: '12px', fontWeight: 500, color: '#FBBF24' }}>
+                Сброс через {timeToReset}
+              </span>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            {dailyTasks.map(renderTaskCard)}
+          </div>
+        </section>
+
+        {/* SOCIAL TASKS SECTIONS */}
+        {renderTaskSection('telegram', `Telegram — ${platformTasks.telegram.length} заданий (с проверкой)`)}
         {renderTaskSection('youtube', `YouTube — ${platformTasks.youtube.length} заданий`)}
-        {renderTaskSection('telegram', `Telegram — ${platformTasks.telegram.length} заданий`)}
         {renderTaskSection('instagram', `Instagram — ${platformTasks.instagram.length} заданий`)}
         {renderTaskSection('tiktok', `TikTok — ${platformTasks.tiktok.length} заданий`)}
 
@@ -769,7 +1001,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
           style={{ height: '1px', background: '#27272A' }}
         />
 
-        {/* EXCHANGE RATES - выгодные для владельца */}
+        {/* EXCHANGE RATES */}
         <section className="px-7 py-8">
           <p 
             style={{

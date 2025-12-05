@@ -1154,6 +1154,335 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ TASKS VERIFICATION API ============
+
+  // Endpoint для проверки подписки на Telegram канал
+  app.post("/api/tasks/verify-telegram-subscription", verifyTelegramUser, async (req: any, res) => {
+    try {
+      if (!TELEGRAM_BOT_TOKEN) {
+        return res.status(503).json({ error: 'Telegram bot not configured' });
+      }
+
+      const { telegramId, channelUsername } = req.body;
+      const userTelegramId = telegramId || req.telegramUser.id;
+
+      if (!userTelegramId) {
+        return res.status(400).json({ error: 'telegramId is required' });
+      }
+
+      if (!channelUsername) {
+        return res.status(400).json({ error: 'channelUsername is required' });
+      }
+
+      // Normalize channel username (add @ if not present)
+      const normalizedChannel = channelUsername.startsWith('@') ? channelUsername : `@${channelUsername}`;
+
+      console.log(`[Tasks] Verifying subscription: user ${userTelegramId} to channel ${normalizedChannel}`);
+
+      // Call Telegram Bot API getChatMember
+      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChatMember`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: normalizedChannel,
+          user_id: userTelegramId
+        })
+      });
+
+      const result = await response.json();
+
+      if (!result.ok) {
+        console.log(`[Tasks] Telegram API error:`, result.description);
+        
+        // If user is not found or not a member
+        if (result.description?.includes('user not found') || result.description?.includes('USER_NOT_PARTICIPANT')) {
+          return res.json({
+            subscribed: false,
+            status: 'not_member',
+            message: 'User is not a member of the channel'
+          });
+        }
+
+        // If bot doesn't have admin rights or channel doesn't exist
+        if (result.description?.includes('chat not found') || result.description?.includes('CHAT_ADMIN_REQUIRED')) {
+          return res.status(400).json({
+            error: 'Cannot verify subscription',
+            message: result.description
+          });
+        }
+
+        return res.status(400).json({
+          error: 'Telegram API error',
+          message: result.description
+        });
+      }
+
+      const memberStatus = result.result?.status;
+      const isSubscribed = ['creator', 'administrator', 'member'].includes(memberStatus);
+
+      console.log(`[Tasks] Subscription check result: user ${userTelegramId}, channel ${normalizedChannel}, status: ${memberStatus}, subscribed: ${isSubscribed}`);
+
+      res.json({
+        subscribed: isSubscribed,
+        status: memberStatus,
+        message: isSubscribed ? 'User is subscribed to the channel' : 'User is not subscribed to the channel'
+      });
+
+    } catch (error) {
+      console.error('[Tasks] Error verifying telegram subscription:', error);
+      res.status(500).json({ error: 'Failed to verify subscription' });
+    }
+  });
+
+  // Endpoint для выполнения задания и начисления монет
+  app.post("/api/tasks/complete", verifyTelegramUser, async (req: any, res) => {
+    try {
+      const telegramId = req.telegramUser.id;
+      const { task_id, platform, coins_reward, channelUsername } = req.body;
+
+      if (!task_id || !platform || coins_reward === undefined) {
+        return res.status(400).json({ error: 'task_id, platform, and coins_reward are required' });
+      }
+
+      console.log(`[Tasks] Completing task: user ${telegramId}, task ${task_id}, platform ${platform}, reward ${coins_reward}`);
+
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Check if task was already completed
+      const [existingProgress] = await db.select().from(tasksProgress)
+        .where(and(
+          eq(tasksProgress.telegramId, telegramId),
+          eq(tasksProgress.taskId, task_id),
+          eq(tasksProgress.completed, true)
+        ));
+
+      if (existingProgress) {
+        // For daily tasks, check if completed today
+        if (platform.toLowerCase() === 'daily') {
+          const completedDate = existingProgress.completedAt?.toISOString().split('T')[0];
+          if (completedDate === today) {
+            console.log(`[Tasks] Daily task ${task_id} already completed today by user ${telegramId}`);
+            return res.status(400).json({ 
+              error: 'Daily task already completed today',
+              message: 'This daily task was already completed today. Try again tomorrow!'
+            });
+          }
+          // If completed on a different day, allow re-completion
+          console.log(`[Tasks] Daily task ${task_id} completed on ${completedDate}, allowing new completion for today`);
+        } else {
+          // For regular tasks, don't allow re-completion
+          console.log(`[Tasks] Task ${task_id} already completed by user ${telegramId}`);
+          return res.status(400).json({ 
+            error: 'Task already completed',
+            message: 'This task has already been completed'
+          });
+        }
+      }
+
+      // For Telegram tasks, verify subscription automatically
+      if (platform.toLowerCase() === 'telegram' && channelUsername) {
+        if (!TELEGRAM_BOT_TOKEN) {
+          return res.status(503).json({ error: 'Telegram bot not configured' });
+        }
+
+        const normalizedChannel = channelUsername.startsWith('@') ? channelUsername : `@${channelUsername}`;
+        
+        console.log(`[Tasks] Auto-verifying subscription for task ${task_id}: user ${telegramId} to channel ${normalizedChannel}`);
+
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChatMember`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: normalizedChannel,
+            user_id: telegramId
+          })
+        });
+
+        const result = await response.json();
+
+        if (!result.ok) {
+          console.log(`[Tasks] Telegram verification failed:`, result.description);
+          return res.status(400).json({
+            error: 'Subscription verification failed',
+            subscribed: false,
+            message: result.description || 'Could not verify subscription'
+          });
+        }
+
+        const memberStatus = result.result?.status;
+        const isSubscribed = ['creator', 'administrator', 'member'].includes(memberStatus);
+
+        if (!isSubscribed) {
+          console.log(`[Tasks] User ${telegramId} is not subscribed to ${normalizedChannel} (status: ${memberStatus})`);
+          return res.status(400).json({
+            error: 'Not subscribed',
+            subscribed: false,
+            status: memberStatus,
+            message: 'Please subscribe to the channel first'
+          });
+        }
+
+        console.log(`[Tasks] Subscription verified: user ${telegramId} is ${memberStatus} of ${normalizedChannel}`);
+      }
+
+      // Save task progress as completed
+      const [taskProgress] = await db.insert(tasksProgress).values({
+        telegramId: telegramId,
+        taskId: task_id,
+        platform: platform,
+        taskType: platform.toLowerCase() === 'telegram' ? 'subscription' : 'social',
+        coinsReward: coins_reward,
+        completed: true,
+        verificationStatus: 'verified',
+        attempts: 1,
+        lastAttemptAt: new Date(),
+        startedAt: new Date(),
+        completedAt: new Date(),
+        verificationData: { platform, channelUsername }
+      }).returning();
+
+      console.log(`[Tasks] Task progress saved: id ${taskProgress.id}`);
+
+      // Update user coins balance
+      let [userBalance] = await db.select().from(userCoinsBalance)
+        .where(eq(userCoinsBalance.telegramId, telegramId));
+
+      if (!userBalance) {
+        // Create balance record if doesn't exist
+        [userBalance] = await db.insert(userCoinsBalance).values({
+          telegramId: telegramId,
+          totalCoins: coins_reward,
+          availableCoins: coins_reward,
+          spentCoins: 0,
+          tasksCompleted: 1,
+          lastActivityDate: new Date().toISOString().split('T')[0]
+        }).returning();
+        
+        console.log(`[Tasks] Created new balance for user ${telegramId}: ${coins_reward} coins`);
+      } else {
+        // Update existing balance
+        [userBalance] = await db.update(userCoinsBalance)
+          .set({
+            totalCoins: (userBalance.totalCoins || 0) + coins_reward,
+            availableCoins: (userBalance.availableCoins || 0) + coins_reward,
+            tasksCompleted: (userBalance.tasksCompleted || 0) + 1,
+            lastActivityDate: new Date().toISOString().split('T')[0],
+            updatedAt: new Date()
+          })
+          .where(eq(userCoinsBalance.telegramId, telegramId))
+          .returning();
+
+        console.log(`[Tasks] Updated balance for user ${telegramId}: +${coins_reward} coins, total: ${userBalance.availableCoins}`);
+      }
+
+      // Handle streak for daily tasks
+      let streakValue = userBalance.currentStreak || 0;
+      const todayForStreak = new Date().toISOString().split('T')[0];
+      
+      if (platform.toLowerCase() === 'daily') {
+        // Get lastActivityDate - handle both Date objects and strings
+        let lastActivityStr: string | null = null;
+        if (userBalance.lastActivityDate) {
+          if (typeof userBalance.lastActivityDate === 'string') {
+            lastActivityStr = userBalance.lastActivityDate;
+          } else if (userBalance.lastActivityDate instanceof Date) {
+            lastActivityStr = userBalance.lastActivityDate.toISOString().split('T')[0];
+          } else {
+            lastActivityStr = String(userBalance.lastActivityDate);
+          }
+        }
+        
+        // Check if last activity was yesterday - continue streak
+        if (lastActivityStr) {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toISOString().split('T')[0];
+          
+          if (lastActivityStr === yesterdayStr) {
+            // Last activity was yesterday - increment streak
+            streakValue += 1;
+            console.log(`[Tasks] Streak incremented: yesterday was ${yesterdayStr}, new streak: ${streakValue}`);
+          } else if (lastActivityStr === todayForStreak) {
+            // Already updated today, keep current streak
+            console.log(`[Tasks] Already completed daily task today, keeping streak: ${streakValue}`);
+          } else {
+            // More than a day gap - reset streak
+            streakValue = 1;
+            console.log(`[Tasks] Streak reset: last activity was ${lastActivityStr}, more than 1 day ago`);
+          }
+        } else {
+          // First daily task ever
+          streakValue = 1;
+          console.log(`[Tasks] First daily task, starting streak: 1`);
+        }
+        
+        // Update streak in database
+        await db.update(userCoinsBalance)
+          .set({ 
+            currentStreak: streakValue,
+            lastActivityDate: todayForStreak
+          })
+          .where(eq(userCoinsBalance.telegramId, telegramId));
+        
+        console.log(`[Tasks] Streak updated for user ${telegramId}: ${streakValue} days`);
+      }
+
+      res.json({
+        success: true,
+        coins_awarded: coins_reward,
+        task_id: task_id,
+        new_balance: userBalance.availableCoins,
+        total_tasks_completed: userBalance.tasksCompleted,
+        streak: streakValue
+      });
+
+    } catch (error) {
+      console.error('[Tasks] Error completing task:', error);
+      res.status(500).json({ error: 'Failed to complete task' });
+    }
+  });
+
+  // Endpoint для получения прогресса заданий пользователя
+  app.get("/api/user/:telegramId/tasks-progress", verifyTelegramUser, async (req: any, res) => {
+    try {
+      const telegramId = parseInt(req.params.telegramId);
+      const authTelegramId = req.telegramUser.id;
+
+      // Security: only allow users to fetch their own progress
+      if (telegramId !== authTelegramId) {
+        return res.status(403).json({ error: 'Not authorized to view this user\'s progress' });
+      }
+
+      // Get completed tasks
+      const completedTasksProgress = await db.select()
+        .from(tasksProgress)
+        .where(and(
+          eq(tasksProgress.telegramId, telegramId),
+          eq(tasksProgress.completed, true)
+        ));
+
+      const completedTaskIds = completedTasksProgress.map(t => t.taskId);
+
+      // Get user balance for streak info
+      const [userBalance] = await db.select()
+        .from(userCoinsBalance)
+        .where(eq(userCoinsBalance.telegramId, telegramId));
+
+      console.log(`[Tasks] Loaded progress for user ${telegramId}: ${completedTaskIds.length} completed tasks, streak: ${userBalance?.currentStreak || 0}`);
+
+      res.json({
+        completedTasks: completedTaskIds,
+        totalCoins: userBalance?.availableCoins || 0,
+        streak: userBalance?.currentStreak || 0,
+        tasksCompleted: userBalance?.tasksCompleted || 0
+      });
+
+    } catch (error) {
+      console.error('[Tasks] Error loading tasks progress:', error);
+      res.status(500).json({ error: 'Failed to load progress' });
+    }
+  });
+
   // ===== REFERRAL PROGRAM API =====
 
   // Генерация уникального реферального кода
