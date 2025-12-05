@@ -251,6 +251,7 @@ function SneakerVault({ activeTab }: SneakerVaultProps) {
   };
 
   const openSneaker = (sneaker: Sneaker) => {
+    scrollToTop();
     setSelectedSneaker(sneaker);
     setSelectedSize(sneaker.sizes[0]);
     // Note: User can manually navigate to catalog tab via bottom navigation

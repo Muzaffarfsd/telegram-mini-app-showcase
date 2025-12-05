@@ -249,6 +249,7 @@ function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
   };
 
   const openPerfume = (perfume: Perfume) => {
+    scrollToTop();
     setSelectedPerfume(perfume);
     setSelectedVolume(perfume.volumes[0]);
     setSelectedConcentration(perfume.concentrations[0]);
