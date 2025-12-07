@@ -12,7 +12,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
@@ -821,7 +821,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   data-testid={`cart-item-${item.id}`}
                 >
                   <LazyImage
-                    src={item.image}
+                    src={item.image || ''}
                     alt={item.name}
                     className="w-20 h-20 rounded-xl object-cover"
                   />
@@ -1017,4 +1017,12 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   return null;
 }
 
-export default memo(PremiumFashionStore);
+function PremiumFashionStoreWithTheme(props: PremiumFashionStoreProps) {
+  return (
+    <DemoThemeProvider themeId="premiumFashion">
+      <PremiumFashionStore {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default memo(PremiumFashionStoreWithTheme);

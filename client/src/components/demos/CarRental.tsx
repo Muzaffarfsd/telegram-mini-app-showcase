@@ -15,7 +15,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { scrollToTop } from "@/hooks/useScrollToTop";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 
 interface CarRentalProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -104,7 +104,7 @@ const vehicles: Vehicle[] = [
 
 const categories = ['Все', 'Седан', 'SUV', 'Электро', 'Гибрид'];
 
-export default function CarRental({ activeTab, onNavigate }: CarRentalProps) {
+function CarRental({ activeTab, onNavigate }: CarRentalProps) {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);

@@ -15,7 +15,7 @@ import {
   User
 } from "lucide-react";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 
 interface BookstoreProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -59,7 +59,7 @@ const initialCartItems: CartItem[] = [
   { id: 1, name: 'Атомные привычки', price: 18, quantity: 1, image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60' },
 ];
 
-export default function Bookstore({ activeTab }: BookstoreProps) {
+function Bookstore({ activeTab }: BookstoreProps) {
   const [selectedBook, setSelectedBook] = useState<typeof books[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);

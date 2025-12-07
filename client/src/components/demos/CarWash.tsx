@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
 import { scrollToTop } from "@/hooks/useScrollToTop";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 
 interface CarWashProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -63,7 +63,7 @@ const initialBookings: Booking[] = [
   { id: 2, serviceName: 'Химчистка салона', date: 'Пятница', time: '14:00', duration: '90 мин', price: 60, status: 'Подтверждено' },
 ];
 
-export default function CarWash({ activeTab }: CarWashProps) {
+function CarWash({ activeTab }: CarWashProps) {
   const [selectedService, setSelectedService] = useState<typeof services[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);

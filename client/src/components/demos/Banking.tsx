@@ -19,7 +19,7 @@ import {
   Settings
 } from "lucide-react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 
 interface BankingProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -78,7 +78,7 @@ const portfolios = [
   },
 ];
 
-export default memo(function Banking({ activeTab }: BankingProps) {
+const Banking = memo(function Banking({ activeTab }: BankingProps) {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [favorites, setFavorites] = useState<Set<number>>(new Set([1, 2]));
