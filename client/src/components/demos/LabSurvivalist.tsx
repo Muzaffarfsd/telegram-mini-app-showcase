@@ -12,7 +12,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import img1 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
 import img2 from '@assets/stock_images/futuristic_fashion_m_b5d87157.jpg';
@@ -1015,4 +1015,12 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
   return null;
 }
 
-export default memo(LabSurvivalist);
+function LabSurvivalistWithTheme(props: LabSurvivalistProps) {
+  return (
+    <DemoThemeProvider themeId="labSurvivalist">
+      <LabSurvivalist {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default memo(LabSurvivalistWithTheme);

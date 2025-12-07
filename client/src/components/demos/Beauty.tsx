@@ -643,3 +643,13 @@ const Beauty = memo(function Beauty({ activeTab }: BeautyProps) {
 
   return null;
 });
+
+function BeautyWithTheme(props: BeautyProps) {
+  return (
+    <DemoThemeProvider themeId="beauty">
+      <Beauty {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default memo(BeautyWithTheme);

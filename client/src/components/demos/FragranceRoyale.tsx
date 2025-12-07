@@ -10,7 +10,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 const STORE_KEY = 'fragranceroyale-store';
@@ -982,4 +982,12 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   return null;
 }
 
-export default memo(FragranceRoyale);
+function FragranceRoyaleWithTheme(props: FragranceRoyaleProps) {
+  return (
+    <DemoThemeProvider themeId="fragranceRoyale">
+      <FragranceRoyale {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default memo(FragranceRoyaleWithTheme);

@@ -20,6 +20,7 @@ import { ConfirmDrawer } from "../ui/modern-drawer";
 import { Skeleton } from "../ui/skeleton";
 import { useFilter } from "@/hooks/useFilter";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { DemoThemeProvider } from "@/components/shared";
 
 interface RestaurantProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -107,7 +108,7 @@ const collections = [
   },
 ];
 
-export default memo(function Restaurant({ activeTab }: RestaurantProps) {
+const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -706,3 +707,13 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
 
   return null;
 });
+
+function RestaurantWithTheme(props: RestaurantProps) {
+  return (
+    <DemoThemeProvider themeId="restaurant">
+      <Restaurant {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default memo(RestaurantWithTheme);

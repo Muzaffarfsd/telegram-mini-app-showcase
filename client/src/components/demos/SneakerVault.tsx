@@ -8,7 +8,7 @@ import { usePersistentCart } from "@/hooks/usePersistentCart";
 import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
 import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
-import { EmptyState, LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { EmptyState, LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import greenNikeImage from "@assets/загруженное-_4__1761733573240.jpg";
@@ -968,4 +968,12 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
   return null;
 }
 
-export default memo(SneakerVault);
+function SneakerVaultWithTheme(props: SneakerVaultProps) {
+  return (
+    <DemoThemeProvider themeId="sneakerVault">
+      <SneakerVault {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default memo(SneakerVaultWithTheme);

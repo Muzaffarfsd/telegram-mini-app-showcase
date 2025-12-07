@@ -13,6 +13,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "../shared/EmptyState";
 import { CheckoutDrawer } from "../shared/CheckoutDrawer";
+import { DemoThemeProvider } from "@/components/shared";
 
 const STORE_KEY = 'storeblack-store';
 // Helmet images
@@ -1154,4 +1155,12 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
   return null;
 }
 
-export default memo(StoreBlack);
+function StoreBlackWithTheme(props: StoreBlackProps) {
+  return (
+    <DemoThemeProvider themeId="storeBlack">
+      <StoreBlack {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default memo(StoreBlackWithTheme);

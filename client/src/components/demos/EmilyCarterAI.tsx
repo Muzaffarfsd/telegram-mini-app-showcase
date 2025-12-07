@@ -14,7 +14,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 
 interface EmilyCarterAIProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -1332,4 +1332,12 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
   return null;
 }
 
-export default memo(EmilyCarterAI);
+function EmilyCarterAIWithTheme(props: EmilyCarterAIProps) {
+  return (
+    <DemoThemeProvider themeId="emilyCarterAI">
+      <EmilyCarterAI {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default memo(EmilyCarterAIWithTheme);

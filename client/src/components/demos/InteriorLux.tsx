@@ -23,7 +23,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 
 const STORE_KEY = 'interiorlux-store';
 
@@ -57,7 +57,7 @@ const products = [
 
 const categories = ['Все', 'Гостиная', 'Спальня', 'Кухня', 'Декор'];
 
-export default function InteriorLux({ activeTab, onTabChange }: InteriorLuxProps) {
+function InteriorLux({ activeTab, onTabChange }: InteriorLuxProps) {
   const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Все');
@@ -659,3 +659,13 @@ export default function InteriorLux({ activeTab, onTabChange }: InteriorLuxProps
     </>
   );
 }
+
+function InteriorLuxWithTheme(props: InteriorLuxProps) {
+  return (
+    <DemoThemeProvider themeId="premiumFashion">
+      <InteriorLux {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default InteriorLuxWithTheme;

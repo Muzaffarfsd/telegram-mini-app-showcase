@@ -11,6 +11,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+import { DemoThemeProvider } from "@/components/shared";
 
 const STORE_KEY = 'rascal-store';
 import fashionImg1 from '@assets/stock_images/futuristic_techwear__e958e42c.jpg';
@@ -1035,4 +1036,12 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
   return null;
 }
 
-export default RascalStore;
+function RascalStoreWithTheme(props: RascalStoreProps) {
+  return (
+    <DemoThemeProvider themeId="rascalStore">
+      <RascalStore {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default memo(RascalStoreWithTheme);

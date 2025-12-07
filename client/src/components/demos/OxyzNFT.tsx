@@ -16,6 +16,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+import { DemoThemeProvider } from "@/components/shared";
 
 interface OxyzNFTProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -1599,4 +1600,12 @@ function OxyzNFT({ activeTab, onTabChange }: OxyzNFTProps) {
   return null;
 }
 
-export default memo(OxyzNFT);
+function OxyzNFTWithTheme(props: OxyzNFTProps) {
+  return (
+    <DemoThemeProvider themeId="oxyzNFT">
+      <OxyzNFT {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default memo(OxyzNFTWithTheme);

@@ -29,6 +29,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+import { DemoThemeProvider } from "@/components/shared";
 
 interface TimeEliteProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -62,7 +63,7 @@ const products = [
 
 const categories = ['Все', 'Rolex', 'Omega', 'Cartier', 'Patek', 'Люкс', 'Спорт'];
 
-export default function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
+function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
   const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Все');
@@ -780,3 +781,13 @@ export default function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
     </>
   );
 }
+
+function TimeEliteWithTheme(props: TimeEliteProps) {
+  return (
+    <DemoThemeProvider themeId="timeElite">
+      <TimeElite {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default TimeEliteWithTheme;

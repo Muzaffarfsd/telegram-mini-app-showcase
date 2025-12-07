@@ -42,7 +42,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 interface ElectronicsProps {
@@ -188,7 +188,7 @@ const products: Product[] = [
 const categories = ['Все', 'Смартфоны', 'Ноутбуки', 'Планшеты', 'Наушники', 'Камеры'];
 const genderFilters = ['All', 'Popular', 'New', 'Sale'];
 
-export default memo(function Electronics({ activeTab, onTabChange }: ElectronicsProps) {
+const Electronics = memo(function Electronics({ activeTab, onTabChange }: ElectronicsProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [selectedFilter, setSelectedFilter] = useState('All');
@@ -964,3 +964,13 @@ export default memo(function Electronics({ activeTab, onTabChange }: Electronics
 
   return null;
 });
+
+function ElectronicsWithTheme(props: ElectronicsProps) {
+  return (
+    <DemoThemeProvider themeId="electronics">
+      <Electronics {...props} />
+    </DemoThemeProvider>
+  );
+}
+
+export default memo(ElectronicsWithTheme);
