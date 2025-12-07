@@ -75,6 +75,9 @@ interface Product {
   image: string;
   hoverImage: string;
   description: string;
+  materials: string[];
+  functionality: string[];
+  technology: string;
   sizes: string[];
   colors: string[];
   colorHex: string[];
