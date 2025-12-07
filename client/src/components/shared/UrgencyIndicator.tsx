@@ -151,8 +151,11 @@ function CountdownTimer({ endTime, message, variant, animated }: CountdownTimerP
 
   if (isExpired) {
     return (
-      <Badge variant="secondary" className="bg-muted text-muted-foreground">
-        Expired
+      <Badge 
+        variant="secondary" 
+        className="bg-white/10 backdrop-blur-md border border-white/20 text-white/60"
+      >
+        Закончилось
       </Badge>
     );
   }
@@ -161,8 +164,8 @@ function CountdownTimer({ endTime, message, variant, animated }: CountdownTimerP
 
   if (variant === 'badge') {
     return (
-      <Badge variant="destructive" className="gap-1">
-        <Clock className="w-3 h-3" />
+      <Badge className="gap-1 bg-white/10 backdrop-blur-md border border-white/20 text-white">
+        <Clock className="w-3 h-3 text-[var(--theme-primary)]" />
         {timeString}
       </Badge>
     );
@@ -171,27 +174,27 @@ function CountdownTimer({ endTime, message, variant, animated }: CountdownTimerP
   if (variant === 'banner') {
     return (
       <motion.div 
-        className="flex items-center justify-center gap-3 p-3 bg-destructive text-destructive-foreground rounded-lg"
+        className="flex items-center justify-center gap-3 p-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-lg"
         animate={animated ? { scale: [1, 1.02, 1] } : undefined}
         transition={{ repeat: Infinity, duration: 2 }}
       >
-        <Flame className="w-5 h-5" />
-        <span className="font-medium">{message || 'Sale ends in'}</span>
+        <Flame className="w-5 h-5 text-[var(--theme-accent)]" />
+        <span className="font-medium">{message || 'До конца акции'}</span>
         <div className="flex items-center gap-1 font-mono font-bold text-lg">
-          <span className="bg-black/20 px-2 py-1 rounded">{String(timeLeft.hours).padStart(2, '0')}</span>
+          <span className="bg-white/10 backdrop-blur-sm px-2 py-1 rounded border border-white/10">{String(timeLeft.hours).padStart(2, '0')}</span>
           <span>:</span>
-          <span className="bg-black/20 px-2 py-1 rounded">{String(timeLeft.minutes).padStart(2, '0')}</span>
+          <span className="bg-white/10 backdrop-blur-sm px-2 py-1 rounded border border-white/10">{String(timeLeft.minutes).padStart(2, '0')}</span>
           <span>:</span>
-          <span className="bg-black/20 px-2 py-1 rounded">{String(timeLeft.seconds).padStart(2, '0')}</span>
+          <span className="bg-white/10 backdrop-blur-sm px-2 py-1 rounded border border-white/10">{String(timeLeft.seconds).padStart(2, '0')}</span>
         </div>
       </motion.div>
     );
   }
 
   return (
-    <div className="flex items-center gap-2 text-destructive">
-      <Clock className="w-4 h-4" />
-      <span className="text-sm font-medium">{message || 'Ends in'}</span>
+    <div className="flex items-center gap-2 text-white/80">
+      <Clock className="w-4 h-4 text-[var(--theme-primary)]" />
+      <span className="text-sm font-medium">{message || 'До конца акции'}</span>
       <span className="font-mono font-bold">{timeString}</span>
     </div>
   );
@@ -211,48 +214,44 @@ function StockIndicator({ remaining, total, message, variant, animated }: StockI
   const isVeryLow = percentage <= 10;
 
   const getStockColor = () => {
-    if (isVeryLow) return 'text-destructive';
-    if (isLow) return 'text-amber-600 dark:text-amber-400';
-    return 'text-muted-foreground';
-  };
-
-  const getProgressColor = () => {
-    if (isVeryLow) return 'bg-destructive';
-    if (isLow) return 'bg-amber-500';
-    return 'bg-primary';
+    if (isVeryLow) return 'text-[var(--theme-accent)]';
+    if (isLow) return 'text-amber-400';
+    return 'text-white/70';
   };
 
   if (variant === 'badge') {
     return (
       <Badge 
-        variant={isVeryLow ? 'destructive' : 'secondary'}
-        className="gap-1"
+        className="gap-1 bg-white/10 backdrop-blur-md border border-white/20 text-white"
       >
-        <Package className="w-3 h-3" />
-        {remaining} left
+        <Package className="w-3 h-3 text-[var(--theme-primary)]" />
+        {remaining} шт.
       </Badge>
     );
   }
 
   if (variant === 'card') {
     return (
-      <div className="p-3 rounded-lg border bg-card">
-        <div className="flex items-center justify-between mb-2">
+      <div className="p-3 rounded-lg bg-white/5 backdrop-blur-md border border-white/10">
+        <div className="flex items-center justify-between gap-2 mb-2">
           <span className={`text-sm font-medium ${getStockColor()}`}>
-            {message || `Only ${remaining} left`}
+            {message || `Осталось ${remaining} шт.`}
           </span>
           {isLow && (
             <motion.div
               animate={animated ? { scale: [1, 1.1, 1] } : undefined}
               transition={{ repeat: Infinity, duration: 1.5 }}
             >
-              <AlertTriangle className="w-4 h-4 text-amber-500" />
+              <AlertTriangle className="w-4 h-4 text-[var(--theme-accent)]" />
             </motion.div>
           )}
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
+        <div className="h-2 bg-white/10 rounded-full overflow-hidden">
           <motion.div
-            className={`h-full ${getProgressColor()}`}
+            className="h-full rounded-full"
+            style={{ 
+              background: 'linear-gradient(90deg, var(--theme-primary), var(--theme-accent))'
+            }}
             initial={{ width: 0 }}
             animate={{ width: `${percentage}%` }}
             transition={{ duration: 0.5 }}
@@ -264,9 +263,9 @@ function StockIndicator({ remaining, total, message, variant, animated }: StockI
 
   return (
     <div className={`flex items-center gap-2 ${getStockColor()}`}>
-      <Package className="w-4 h-4" />
+      <Package className="w-4 h-4 text-[var(--theme-primary)]" />
       <span className="text-sm font-medium">
-        {message || `Only ${remaining} left in stock`}
+        {message || `Осталось ${remaining} шт.`}
       </span>
     </div>
   );
@@ -302,22 +301,22 @@ function ViewerCount({ count, message, variant, animated }: ViewerCountProps) {
 
   if (variant === 'badge') {
     return (
-      <Badge variant="secondary" className="gap-1">
-        <Eye className="w-3 h-3" />
-        {displayCount} viewing
+      <Badge className="gap-1 bg-white/10 backdrop-blur-md border border-white/20 text-white">
+        <Eye className="w-3 h-3 text-[var(--theme-primary)]" />
+        {displayCount} смотрят
       </Badge>
     );
   }
 
   return (
     <motion.div 
-      className="flex items-center gap-2 text-muted-foreground"
+      className="flex items-center gap-2 text-white/70"
       animate={animated ? { opacity: [0.7, 1, 0.7] } : undefined}
       transition={{ repeat: Infinity, duration: 2 }}
     >
-      <Eye className="w-4 h-4" />
+      <Eye className="w-4 h-4 text-[var(--theme-primary)]" />
       <span className="text-sm">
-        {message || `${displayCount} people are viewing this`}
+        {message || `${displayCount} смотрят сейчас`}
       </span>
     </motion.div>
   );
@@ -337,17 +336,17 @@ function PopularityIndicator({ score, message, variant, animated }: PopularityIn
   if (variant === 'badge') {
     if (isHot) {
       return (
-        <Badge className="gap-1 bg-orange-500 hover:bg-orange-600">
-          <Flame className="w-3 h-3" />
-          Hot
+        <Badge className="gap-1 bg-white/15 backdrop-blur-md border border-white/20 text-white">
+          <Flame className="w-3 h-3 text-[var(--theme-accent)]" />
+          Хит
         </Badge>
       );
     }
     if (isTrending) {
       return (
-        <Badge variant="secondary" className="gap-1">
-          <TrendingUp className="w-3 h-3" />
-          Trending
+        <Badge className="gap-1 bg-white/10 backdrop-blur-md border border-white/20 text-white">
+          <TrendingUp className="w-3 h-3 text-[var(--theme-primary)]" />
+          В тренде
         </Badge>
       );
     }
@@ -361,13 +360,13 @@ function PopularityIndicator({ score, message, variant, animated }: PopularityIn
           animate={animated ? { scale: [1, 1.1, 1], rotate: [-5, 5, -5] } : undefined}
           transition={{ repeat: Infinity, duration: 0.5 }}
         >
-          <Flame className="w-5 h-5 text-orange-500" />
+          <Flame className="w-5 h-5 text-[var(--theme-accent)]" />
         </motion.div>
       ) : (
-        <TrendingUp className="w-4 h-4 text-muted-foreground" />
+        <TrendingUp className="w-4 h-4 text-[var(--theme-primary)]" />
       )}
-      <span className={`text-sm font-medium ${isHot ? 'text-orange-500' : ''}`}>
-        {message || (isHot ? 'Hot item!' : isTrending ? 'Trending now' : 'Popular')}
+      <span className={`text-sm font-medium ${isHot ? 'text-[var(--theme-accent)]' : 'text-white/80'}`}>
+        {message || (isHot ? 'Хит продаж!' : isTrending ? 'В тренде' : 'Популярное')}
       </span>
     </div>
   );
@@ -388,9 +387,9 @@ function FlashSaleBadge({ endTime, discount, message, variant, animated }: Flash
         animate={animated ? { scale: [1, 1.05, 1] } : undefined}
         transition={{ repeat: Infinity, duration: 1 }}
       >
-        <Badge className="gap-1 bg-gradient-to-r from-purple-500 to-pink-500">
-          <Zap className="w-3 h-3" />
-          Flash Sale
+        <Badge className="gap-1 bg-white/15 backdrop-blur-md border border-white/25 text-white">
+          <Zap className="w-3 h-3 text-[var(--theme-accent)]" />
+          Быстрая распродажа
         </Badge>
       </motion.div>
     );
@@ -399,15 +398,15 @@ function FlashSaleBadge({ endTime, discount, message, variant, animated }: Flash
   if (variant === 'banner') {
     return (
       <motion.div
-        className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg"
-        animate={animated ? { boxShadow: ['0 0 0 rgba(168, 85, 247, 0)', '0 0 20px rgba(168, 85, 247, 0.5)', '0 0 0 rgba(168, 85, 247, 0)'] } : undefined}
+        className="flex items-center justify-between gap-4 p-4 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-lg"
+        animate={animated ? { boxShadow: ['0 0 0 rgba(255, 255, 255, 0)', '0 0 20px rgba(255, 255, 255, 0.15)', '0 0 0 rgba(255, 255, 255, 0)'] } : undefined}
         transition={{ repeat: Infinity, duration: 2 }}
       >
         <div className="flex items-center gap-3">
-          <Zap className="w-6 h-6" />
+          <Zap className="w-6 h-6 text-[var(--theme-accent)]" />
           <div>
-            <p className="font-bold text-lg">{message || 'Flash Sale!'}</p>
-            <p className="text-sm opacity-90">Up to {discount}% off</p>
+            <p className="font-bold text-lg">{message || 'Быстрая распродажа!'}</p>
+            <p className="text-sm text-white/70">Скидки до {discount}%</p>
           </div>
         </div>
         {endTime && (
@@ -418,9 +417,9 @@ function FlashSaleBadge({ endTime, discount, message, variant, animated }: Flash
   }
 
   return (
-    <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
-      <Zap className="w-4 h-4" />
-      <span className="text-sm font-bold">{message || `Flash Sale: ${discount}% off`}</span>
+    <div className="flex items-center gap-2 text-white/80">
+      <Zap className="w-4 h-4 text-[var(--theme-accent)]" />
+      <span className="text-sm font-bold">{message || `Быстрая распродажа: ${discount}% скидка`}</span>
     </div>
   );
 }
@@ -435,22 +434,22 @@ interface LimitedEditionBadgeProps {
 function LimitedEditionBadge({ remaining, message, variant, animated }: LimitedEditionBadgeProps) {
   if (variant === 'badge') {
     return (
-      <Badge variant="outline" className="gap-1 border-amber-500 text-amber-600 dark:text-amber-400">
-        <Timer className="w-3 h-3" />
-        Limited Edition
+      <Badge className="gap-1 bg-white/10 backdrop-blur-md border border-white/20 text-white">
+        <Timer className="w-3 h-3 text-[var(--theme-primary)]" />
+        Лимитированная серия
       </Badge>
     );
   }
 
   return (
-    <div className="flex items-center gap-2 p-2 rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30">
-      <Timer className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 backdrop-blur-md border border-white/10">
+      <Timer className="w-5 h-5 text-[var(--theme-primary)]" />
       <div>
-        <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
-          Limited Edition
+        <p className="text-sm font-medium text-white/90">
+          Лимитированная серия
         </p>
-        <p className="text-xs text-amber-600 dark:text-amber-400">
-          {message || `Only ${remaining} ever made`}
+        <p className="text-xs text-white/60">
+          {message || `Всего ${remaining} экземпляров`}
         </p>
       </div>
     </div>
@@ -474,25 +473,25 @@ export function SocialProof({
 }: SocialProofProps) {
   return (
     <div 
-      className={`flex flex-wrap gap-4 text-sm text-muted-foreground ${className}`}
+      className={`flex flex-wrap gap-4 text-sm text-white/70 ${className}`}
       data-testid={testId || 'social-proof'}
     >
       {recentPurchases > 0 && (
         <div className="flex items-center gap-1">
-          <Users className="w-4 h-4" />
-          <span>{recentPurchases} bought recently</span>
+          <Users className="w-4 h-4 text-[var(--theme-primary)]" />
+          <span>{recentPurchases} купили недавно</span>
         </div>
       )}
       {recentViews > 0 && (
         <div className="flex items-center gap-1">
-          <Eye className="w-4 h-4" />
-          <span>{recentViews} viewing now</span>
+          <Eye className="w-4 h-4 text-[var(--theme-primary)]" />
+          <span>{recentViews} смотрят сейчас</span>
         </div>
       )}
       {wishlistCount > 0 && (
         <div className="flex items-center gap-1">
-          <Heart className="w-4 h-4" />
-          <span>{wishlistCount} in wishlists</span>
+          <Heart className="w-4 h-4 text-[var(--theme-primary)]" />
+          <span>{wishlistCount} в избранном</span>
         </div>
       )}
     </div>
