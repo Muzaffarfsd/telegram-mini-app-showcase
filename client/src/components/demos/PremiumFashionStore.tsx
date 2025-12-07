@@ -61,6 +61,9 @@ interface Product {
   brand: string;
   isNew?: boolean;
   isTrending?: boolean;
+  composition: string;
+  fit: 'regular' | 'relaxed' | 'slim';
+  sizeChart: Record<string, string>;
 }
 
 const products: Product[] = [
@@ -71,7 +74,7 @@ const products: Product[] = [
     oldPrice: 15900,
     image: blackHoodieImage, 
     hoverImage: blackHoodieImage,
-    description: 'Премиальный черный худи Carbon Collection с минималистичным дизайном', 
+    description: 'Безупречный силуэт. Премиальный японский хлопок 320 г/м². Матовая фурнитура ручной работы.', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Графит'], 
     colorHex: ['#1A1A1A', '#2D2D2D'],
@@ -81,7 +84,10 @@ const products: Product[] = [
     rating: 5.0, 
     brand: 'CARBON',
     isNew: true,
-    isTrending: true
+    isTrending: true,
+    composition: '100% органический хлопок',
+    fit: 'relaxed',
+    sizeChart: { S: 'грудь 104, длина 68', M: 'грудь 110, длина 70', L: 'грудь 116, длина 72', XL: 'грудь 122, длина 74' }
   },
   { 
     id: 2, 
@@ -90,7 +96,7 @@ const products: Product[] = [
     oldPrice: 17900,
     image: colorfulHoodieImage, 
     hoverImage: colorfulHoodieImage,
-    description: 'Яркий разноцветный худи с уникальной комбинацией цветов', 
+    description: 'Арт-коллаборация. Эксклюзивное сочетание редких оттенков. Бархатистый французский флис.', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Мульти', 'Фиолетовый'], 
     colorHex: ['#9B59B6', '#7E57C2'],
@@ -100,7 +106,10 @@ const products: Product[] = [
     rating: 4.9, 
     brand: 'URBAN',
     isNew: true,
-    isTrending: true
+    isTrending: true,
+    composition: '80% хлопок, 20% полиэстер',
+    fit: 'relaxed',
+    sizeChart: { S: 'грудь 106, длина 69', M: 'грудь 112, длина 71', L: 'грудь 118, длина 73', XL: 'грудь 124, длина 75' }
   },
   { 
     id: 3, 
@@ -109,7 +118,7 @@ const products: Product[] = [
     oldPrice: 67000,
     image: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800&h=1200&fit=crop&q=90',
-    description: 'Роскошный пуховик оливкового цвета премиум класса', 
+    description: 'Военная эстетика. Канадский гусиный пух 800 Fill Power. Водоотталкивающая отделка.', 
     sizes: ['XS', 'S', 'M', 'L'], 
     colors: ['Оливковый', 'Черный', 'Бежевый'], 
     colorHex: ['#9CAF88', '#1A1A1A', '#D4A574'],
@@ -119,7 +128,10 @@ const products: Product[] = [
     rating: 5.0, 
     brand: 'PUFF',
     isNew: true,
-    isTrending: true
+    isTrending: true,
+    composition: '100% нейлон, наполнитель: гусиный пух',
+    fit: 'regular',
+    sizeChart: { XS: 'грудь 100, длина 65', S: 'грудь 106, длина 67', M: 'грудь 112, длина 69', L: 'грудь 118, длина 71' }
   },
   { 
     id: 4, 
@@ -128,7 +140,7 @@ const products: Product[] = [
     oldPrice: 35000,
     image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&h=1200&fit=crop&q=90',
-    description: 'Яркий оверсайз пуховик для стильного образа', 
+    description: 'Изысканный оверсайз. Итальянская ткань ручного окрашивания. Скрытые молнии YKK.', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Оранжевый', 'Желтый'], 
     colorHex: ['#F97316', '#EAB308'],
@@ -138,7 +150,10 @@ const products: Product[] = [
     rating: 4.9, 
     brand: 'PUFF',
     isNew: true,
-    isTrending: true
+    isTrending: true,
+    composition: '100% итальянский полиамид',
+    fit: 'relaxed',
+    sizeChart: { S: 'грудь 114, длина 70', M: 'грудь 120, длина 72', L: 'грудь 126, длина 74', XL: 'грудь 132, длина 76' }
   },
   { 
     id: 5, 
@@ -146,7 +161,7 @@ const products: Product[] = [
     price: 35000, 
     image: 'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800&h=1200&fit=crop&q=90',
-    description: 'Элегантный розовый пуховик с капюшоном', 
+    description: 'Французская элегантность. Нежная палитра haute couture. Атласная подкладка.', 
     sizes: ['XS', 'S', 'M', 'L'], 
     colors: ['Розовый', 'Фиолетовый'], 
     colorHex: ['#EC4899', '#A855F7'],
@@ -155,7 +170,10 @@ const products: Product[] = [
     inStock: 10, 
     rating: 5.0, 
     brand: 'PUFF',
-    isTrending: true
+    isTrending: true,
+    composition: '90% утиный пух, 10% перо',
+    fit: 'slim',
+    sizeChart: { XS: 'грудь 92, длина 62', S: 'грудь 98, длина 64', M: 'грудь 104, длина 66', L: 'грудь 110, длина 68' }
   },
   { 
     id: 6, 
@@ -163,7 +181,7 @@ const products: Product[] = [
     price: 43000, 
     image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=1200&fit=crop&q=90',
-    description: 'Зимняя куртка с утеплителем премиум класса', 
+    description: 'Скандинавское мастерство. Экстремальная защита до -30°C. Герметичные швы.', 
     sizes: ['S', 'M', 'L'], 
     colors: ['Синий', 'Черный'], 
     colorHex: ['#3B82F6', '#1A1A1A'],
@@ -171,7 +189,10 @@ const products: Product[] = [
     gender: 'Children',
     inStock: 6, 
     rating: 4.8, 
-    brand: 'PUFF' 
+    brand: 'PUFF',
+    composition: '100% полиэстер, утеплитель Thinsulate',
+    fit: 'regular',
+    sizeChart: { S: 'грудь 86, длина 52', M: 'грудь 92, длина 56', L: 'грудь 98, длина 60' }
   },
   { 
     id: 7, 
@@ -179,7 +200,7 @@ const products: Product[] = [
     price: 31000, 
     image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=1200&fit=crop&q=90',
-    description: 'Классический черный бомбер на любой случай', 
+    description: 'Вневременной силуэт. Японский деним Kurabo 14 oz. Винтажная фурнитура.', 
     sizes: ['XS', 'S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Серый'], 
     colorHex: ['#1A1A1A', '#6B7280'],
@@ -188,7 +209,10 @@ const products: Product[] = [
     inStock: 12, 
     rating: 4.9, 
     brand: 'PUFF',
-    isNew: true
+    isNew: true,
+    composition: '100% японский деним',
+    fit: 'regular',
+    sizeChart: { XS: 'грудь 100, длина 62', S: 'грудь 106, длина 64', M: 'грудь 112, длина 66', L: 'грудь 118, длина 68', XL: 'грудь 124, длина 70' }
   },
   { 
     id: 8, 
@@ -196,7 +220,7 @@ const products: Product[] = [
     price: 57000, 
     image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=1200&fit=crop&q=90',
-    description: 'Элегантный тренч бежевого цвета', 
+    description: 'Британское наследие. Водоотталкивающий габардин Thomas Mason. Роговые пуговицы.', 
     sizes: ['S', 'M', 'L'], 
     colors: ['Бежевый', 'Кэмел'], 
     colorHex: ['#D4A574', '#C19A6B'],
@@ -204,7 +228,10 @@ const products: Product[] = [
     gender: 'Woman',
     inStock: 4, 
     rating: 5.0, 
-    brand: 'PUFF' 
+    brand: 'PUFF',
+    composition: '100% хлопковый габардин',
+    fit: 'slim',
+    sizeChart: { S: 'грудь 96, длина 105', M: 'грудь 102, длина 108', L: 'грудь 108, длина 111' }
   },
 ];
 

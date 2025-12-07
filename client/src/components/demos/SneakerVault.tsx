@@ -42,6 +42,10 @@ interface Sneaker {
   isNew?: boolean;
   isTrending?: boolean;
   colorway: string;
+  technology: string;
+  material: string;
+  releaseYear: number;
+  sizeGuide: string;
 }
 
 const sneakers: Sneaker[] = [
@@ -52,7 +56,7 @@ const sneakers: Sneaker[] = [
     oldPrice: 22900,
     image: greenNikeImage, 
     hoverImage: greenNikeImage,
-    description: 'Свежие Nike Dunk с природной эстетикой ромашек', 
+    description: 'Икона стритвира. Силуэт 1985 года в новом прочтении. Амортизация Nike Air для комфорта весь день.', 
     sizes: ['7', '8', '9', '10', '11', '12'], 
     brand: 'Nike',
     category: 'Лайфстайл', 
@@ -61,7 +65,11 @@ const sneakers: Sneaker[] = [
     rating: 5.0, 
     isNew: true,
     isTrending: true,
-    colorway: 'Green/Beige'
+    colorway: 'Green/Beige',
+    technology: 'Nike Air',
+    material: 'Премиальная замша',
+    releaseYear: 2024,
+    sizeGuide: 'Соответствует размеру'
   },
   { 
     id: 2, 
@@ -70,7 +78,7 @@ const sneakers: Sneaker[] = [
     oldPrice: 21900,
     image: blueNikeImage, 
     hoverImage: blueNikeImage,
-    description: 'Голубые Nike Dunk с небесной палитрой', 
+    description: 'Легенда скейтбординга. Культовый силуэт с историей побед. Технология Zoom Air для невесомого шага.', 
     sizes: ['7', '8', '9', '10', '11', '12'], 
     brand: 'Nike',
     category: 'Лайфстайл', 
@@ -79,7 +87,11 @@ const sneakers: Sneaker[] = [
     rating: 4.9, 
     isNew: true,
     isTrending: true,
-    colorway: 'Sky Blue'
+    colorway: 'Sky Blue',
+    technology: 'Zoom Air',
+    material: 'Натуральная кожа',
+    releaseYear: 2024,
+    sizeGuide: 'Соответствует размеру'
   },
   { 
     id: 3, 
@@ -88,7 +100,7 @@ const sneakers: Sneaker[] = [
     oldPrice: 29900,
     image: whiteJordanImage, 
     hoverImage: whiteJordanImage,
-    description: 'Белые Air Jordan 1 High с мистической атмосферой', 
+    description: 'Культовая классика. Легендарный силуэт 1985 года, изменивший историю спорта. Air-Sole для максимального комфорта.', 
     sizes: ['7', '8', '9', '10', '11', '12'], 
     brand: 'Jordan',
     category: 'Баскетбол', 
@@ -97,7 +109,11 @@ const sneakers: Sneaker[] = [
     rating: 5.0, 
     isNew: true,
     isTrending: true,
-    colorway: 'White/Silver'
+    colorway: 'White/Silver',
+    technology: 'Air-Sole',
+    material: 'Премиальная кожа',
+    releaseYear: 2024,
+    sizeGuide: 'Маломерит на 0.5 размера'
   },
   { 
     id: 4, 
@@ -106,7 +122,7 @@ const sneakers: Sneaker[] = [
     oldPrice: 31900,
     image: tealJordanImage, 
     hoverImage: tealJordanImage,
-    description: 'Бирюзовые Air Jordan 1 с природной энергией', 
+    description: 'Наследие легенды. Модель, созданная для Майкла Джордана. Encapsulated Air для идеальной амортизации.', 
     sizes: ['7', '8', '9', '10', '11', '12'], 
     brand: 'Jordan',
     category: 'Баскетбол', 
@@ -115,7 +131,11 @@ const sneakers: Sneaker[] = [
     rating: 5.0, 
     isNew: true,
     isTrending: true,
-    colorway: 'Teal/Black'
+    colorway: 'Teal/Black',
+    technology: 'Encapsulated Air',
+    material: 'Премиальный нубук',
+    releaseYear: 2024,
+    sizeGuide: 'Маломерит на 0.5 размера'
   },
   { 
     id: 5, 
@@ -123,7 +143,7 @@ const sneakers: Sneaker[] = [
     price: 15900, 
     image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1200&fit=crop&q=90',
-    description: 'Классические Air Max 90 с видимой подушкой Air', 
+    description: 'Революция 1990. Первые кроссовки с видимой воздушной подушкой. Max Air для невесомой походки.', 
     sizes: ['7', '8', '9', '10', '11', '12'], 
     brand: 'Nike',
     category: 'Беговые', 
@@ -131,7 +151,11 @@ const sneakers: Sneaker[] = [
     inStock: 15, 
     rating: 4.8, 
     isTrending: true,
-    colorway: 'White/Red'
+    colorway: 'White/Red',
+    technology: 'Max Air',
+    material: 'Текстиль и синтетика',
+    releaseYear: 2024,
+    sizeGuide: 'Соответствует размеру'
   },
   { 
     id: 6, 
@@ -139,7 +163,7 @@ const sneakers: Sneaker[] = [
     price: 32900, 
     image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&h=1200&fit=crop&q=90',
-    description: 'Инновационные кроссовки с технологией Boost', 
+    description: 'Коллекционный грааль. Легендарная коллаборация Kanye West x Adidas. Boost для бесконечной энергии.', 
     sizes: ['7', '8', '9', '10', '11'], 
     brand: 'Adidas',
     category: 'Лайфстайл', 
@@ -147,7 +171,11 @@ const sneakers: Sneaker[] = [
     inStock: 4, 
     rating: 4.7, 
     isNew: true,
-    colorway: 'Zebra'
+    colorway: 'Zebra',
+    technology: 'Boost',
+    material: 'Primeknit',
+    releaseYear: 2024,
+    sizeGuide: 'Маломерит на 0.5 размера'
   },
   { 
     id: 7, 
@@ -155,14 +183,18 @@ const sneakers: Sneaker[] = [
     price: 13900, 
     image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800&h=1200&fit=crop&q=90',
-    description: 'Самые популярные кроссовки Nike всех времен', 
+    description: 'Бессмертная икона. Самые продаваемые кроссовки в истории с 1982 года. Air-Sole для легкости каждого шага.', 
     sizes: ['7', '8', '9', '10', '11', '12'], 
     brand: 'Nike',
     category: 'Баскетбол', 
     gender: 'Unisex',
     inStock: 20, 
     rating: 4.9, 
-    colorway: 'All White'
+    colorway: 'All White',
+    technology: 'Air-Sole',
+    material: 'Премиальная кожа',
+    releaseYear: 2024,
+    sizeGuide: 'Большемерит на 0.5 размера'
   },
   { 
     id: 8, 
@@ -170,7 +202,7 @@ const sneakers: Sneaker[] = [
     price: 89900, 
     image: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=800&h=1200&fit=crop&q=90',
-    description: 'Эксклюзивная коллаборация с Трэвисом Скоттом', 
+    description: 'Редчайший релиз. Эксклюзивная коллаборация с Трэвисом Скоттом. Обратный Swoosh стал символом эпохи.', 
     sizes: ['8', '9', '10', '11'], 
     brand: 'Jordan',
     category: 'Коллаб', 
@@ -178,7 +210,11 @@ const sneakers: Sneaker[] = [
     inStock: 2, 
     rating: 5.0, 
     isNew: true,
-    colorway: 'Brown/Black'
+    colorway: 'Brown/Black',
+    technology: 'Air-Sole',
+    material: 'Премиальная замша',
+    releaseYear: 2024,
+    sizeGuide: 'Соответствует размеру'
   },
 ];
 

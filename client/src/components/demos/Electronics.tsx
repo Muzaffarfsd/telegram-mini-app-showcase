@@ -65,6 +65,9 @@ interface Product {
   inStock: number;
   rating: number;
   specs: string[];
+  warranty: string;
+  connectivity: string[];
+  boxContents: string[];
   isNew?: boolean;
   isTrending?: boolean;
 }
@@ -77,12 +80,15 @@ const products: Product[] = [
     oldPrice: 129900, 
     image: 'https://images.unsplash.com/photo-1678652197950-37846b632180?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&h=1200&fit=crop&q=90',
-    description: 'Флагманский смартфон Apple с чипом A17 Pro и титановым корпусом', 
+    description: 'Титановое совершенство. Революционный чип A17 Pro открывает эру мобильных игр AAA-класса. Кинематографическая съёмка в кармане.', 
     category: 'Смартфоны', 
     brand: 'Apple', 
     inStock: 15, 
     rating: 4.9, 
-    specs: ['6.7" Super Retina XDR', 'A17 Pro чип', '256GB накопитель', '48MP камера', 'Титановый корпус'], 
+    specs: ['6.7" Super Retina XDR', 'A17 Pro чип', '256GB накопитель', '48MP камера', 'Титановый корпус'],
+    warranty: '2 года официальной гарантии Apple',
+    connectivity: ['5G', 'Wi-Fi 6E', 'Bluetooth 5.3', 'USB-C', 'NFC'],
+    boxContents: ['iPhone 15 Pro Max', 'Кабель USB-C', 'Документация'],
     isNew: true, 
     isTrending: true 
   },
@@ -93,12 +99,15 @@ const products: Product[] = [
     oldPrice: 119900, 
     image: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&h=1200&fit=crop&q=90',
-    description: 'Премиальный Android-смартфон с S Pen и AI-функциями', 
+    description: 'Интеллект в титане. Galaxy AI превращает идеи в реальность одним касанием. Творите без границ с S Pen.', 
     category: 'Смартфоны', 
     brand: 'Samsung', 
     inStock: 12, 
     rating: 4.8, 
-    specs: ['6.8" Dynamic AMOLED', 'Snapdragon 8 Gen 3', '512GB памяти', '200MP камера', 'S Pen в комплекте'], 
+    specs: ['6.8" Dynamic AMOLED', 'Snapdragon 8 Gen 3', '512GB памяти', '200MP камера', 'S Pen в комплекте'],
+    warranty: '2 года официальной гарантии Samsung',
+    connectivity: ['5G', 'Wi-Fi 7', 'Bluetooth 5.3', 'USB-C 3.2', 'UWB'],
+    boxContents: ['Galaxy S24 Ultra', 'S Pen', 'Кабель USB-C', 'Документация'],
     isNew: true, 
     isTrending: true 
   },
@@ -108,12 +117,15 @@ const products: Product[] = [
     price: 249900, 
     image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800&h=1200&fit=crop&q=90',
-    description: 'Мощный ноутбук для профессионалов с чипом M3 Max', 
+    description: 'Сила M3 Max. Рендеринг 8K, нейросети, 3D — всё работает мгновенно. Профессиональная студия весом 2 кг.', 
     category: 'Ноутбуки', 
     brand: 'Apple', 
     inStock: 8, 
     rating: 4.9, 
-    specs: ['16.2" Liquid Retina XDR', 'M3 Max чип', '32GB unified memory', '1TB SSD', '22 часа работы'], 
+    specs: ['16.2" Liquid Retina XDR', 'M3 Max чип', '32GB unified memory', '1TB SSD', '22 часа работы'],
+    warranty: '1 год официальной гарантии Apple',
+    connectivity: ['Thunderbolt 4', 'HDMI 2.1', 'Wi-Fi 6E', 'Bluetooth 5.3', 'MagSafe 3'],
+    boxContents: ['MacBook Pro 16"', 'Адаптер питания 140W', 'Кабель USB-C', 'Документация'],
     isTrending: true 
   },
   { 
@@ -122,12 +134,15 @@ const products: Product[] = [
     price: 129900, 
     image: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&h=1200&fit=crop&q=90',
-    description: 'Компактный и производительный ультрабук для работы', 
+    description: 'OLED-безупречность. Миллиард оттенков на экране без рамок. Ваш офис теперь помещается в сумку.', 
     category: 'Ноутбуки', 
     brand: 'Dell', 
     inStock: 10, 
     rating: 4.7, 
-    specs: ['15.6" OLED 3.5K', 'Intel Core i7-13700H', '16GB DDR5', '512GB NVMe SSD', 'NVIDIA RTX 4050'] 
+    specs: ['15.6" OLED 3.5K', 'Intel Core i7-13700H', '16GB DDR5', '512GB NVMe SSD', 'NVIDIA RTX 4050'],
+    warranty: '2 года официальной гарантии Dell',
+    connectivity: ['Thunderbolt 4', 'USB-C 3.2', 'Wi-Fi 6E', 'Bluetooth 5.3', 'SD-картридер'],
+    boxContents: ['Dell XPS 15', 'Адаптер питания 130W', 'USB-C кабель', 'Документация'] 
   },
   { 
     id: 5, 
@@ -135,12 +150,15 @@ const products: Product[] = [
     price: 109900, 
     image: 'https://images.unsplash.com/photo-1585790050230-5dd28404f120?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&h=1200&fit=crop&q=90',
-    description: 'Профессиональный планшет с M2 чипом и поддержкой Apple Pencil', 
+    description: 'Холст будущего. Рисуйте, проектируйте, монтируйте — M2 справится с любой задачей. Ноутбук? Больше не нужен.', 
     category: 'Планшеты', 
     brand: 'Apple', 
     inStock: 14, 
     rating: 4.8, 
-    specs: ['12.9" Liquid Retina XDR', 'M2 чип', '128GB памяти', 'Apple Pencil (2-го поколения)', 'Face ID'], 
+    specs: ['12.9" Liquid Retina XDR', 'M2 чип', '128GB памяти', 'Apple Pencil (2-го поколения)', 'Face ID'],
+    warranty: '1 год официальной гарантии Apple',
+    connectivity: ['5G', 'Wi-Fi 6E', 'Bluetooth 5.3', 'USB-C Thunderbolt'],
+    boxContents: ['iPad Pro 12.9"', 'Кабель USB-C', 'Адаптер питания 20W', 'Документация'],
     isNew: true 
   },
   { 
@@ -149,12 +167,15 @@ const products: Product[] = [
     price: 35900, 
     image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=1200&fit=crop&q=90',
-    description: 'Беспроводные наушники с лучшим шумоподавлением', 
+    description: 'Тишина по требованию. 8 микрофонов создают кокон абсолютного покоя. Погружайтесь в музыку, забывая о мире.', 
     category: 'Наушники', 
     brand: 'Sony', 
     inStock: 25, 
     rating: 4.8, 
-    specs: ['30 часов работы', 'Bluetooth 5.2', 'HD шумоподавление', '8 микрофонов', 'Быстрая зарядка'], 
+    specs: ['30 часов работы', 'Bluetooth 5.2', 'HD шумоподавление', '8 микрофонов', 'Быстрая зарядка'],
+    warranty: '2 года официальной гарантии Sony',
+    connectivity: ['Bluetooth 5.2', 'LDAC', 'Multipoint', 'NFC', '3.5mm аудио'],
+    boxContents: ['WH-1000XM5', 'Чехол', 'Кабель USB-C', 'Аудиокабель 3.5mm', 'Адаптер для самолёта'],
     isTrending: true 
   },
   { 
@@ -163,12 +184,15 @@ const products: Product[] = [
     price: 24900, 
     image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=1200&fit=crop&q=90',
-    description: 'Беспроводные наушники Apple с адаптивным шумоподавлением', 
+    description: 'Звук адаптируется. H2 чип слышит окружение и настраивает звучание в реальном времени. Музыка следует за вами.', 
     category: 'Наушники', 
     brand: 'Apple', 
     inStock: 30, 
     rating: 4.7, 
-    specs: ['H2 чип', '6 часов работы', 'Пространственный звук', 'Адаптивное шумоподавление', 'MagSafe зарядка'] 
+    specs: ['H2 чип', '6 часов работы', 'Пространственный звук', 'Адаптивное шумоподавление', 'MagSafe зарядка'],
+    warranty: '1 год официальной гарантии Apple',
+    connectivity: ['Bluetooth 5.3', 'Apple H2', 'Spatial Audio', 'MagSafe'],
+    boxContents: ['AirPods Pro', 'MagSafe кейс', '4 пары амбушюр', 'Кабель USB-C', 'Документация'] 
   },
   { 
     id: 8, 
@@ -176,12 +200,15 @@ const products: Product[] = [
     price: 249900, 
     image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=800&h=1200&fit=crop&q=90', 
     hoverImage: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&h=1200&fit=crop&q=90',
-    description: 'Профессиональная беззеркальная камера для фото и видео', 
+    description: 'Глаз художника. 33 мегапикселя ловят свет так, как видит его мастер. Каждый кадр — потенциальный шедевр.', 
     category: 'Камеры', 
     brand: 'Sony', 
     inStock: 6, 
     rating: 4.9, 
-    specs: ['33MP полнокадровая матрица', '4K 60p видео', '5-осевая стабилизация', '693 точки AF', '10fps серийная съёмка'] 
+    specs: ['33MP полнокадровая матрица', '4K 60p видео', '5-осевая стабилизация', '693 точки AF', '10fps серийная съёмка'],
+    warranty: '2 года официальной гарантии Sony',
+    connectivity: ['USB-C 3.2', 'HDMI Type-A', 'Wi-Fi 5', 'Bluetooth 4.2', 'Multi Interface Shoe'],
+    boxContents: ['Alpha A7 IV', 'Аккумулятор NP-FZ100', 'Зарядное устройство', 'Плечевой ремень', 'Документация'] 
   },
 ];
 
