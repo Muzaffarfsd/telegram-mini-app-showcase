@@ -460,7 +460,7 @@ function App() {
               {/* Bottom Navigation - iOS 26 Liquid Glass */}
               {shouldShowBottomNav && (
                 <m.div 
-                  className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+                  className="fixed bottom-6 left-0 right-0 flex justify-center z-50"
                   initial={{ y: 100, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -468,80 +468,36 @@ function App() {
                     isolation: 'isolate',
                   }}
                 >
-                  {/* 3D Depth zone - elements scale up as they approach */}
-                  <div 
-                    className="absolute -top-20 left-0 right-0 h-20 pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.15) 100%)',
-                      maskImage: 'linear-gradient(to bottom, transparent, black)',
-                      WebkitMaskImage: 'linear-gradient(to bottom, transparent, black)',
-                    }}
-                  />
-                  
-                  {/* Shadow layer - depth effect */}
-                  <div 
-                    className="absolute inset-0 rounded-[32px] pointer-events-none"
-                    style={{
-                      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 12px 24px -8px rgba(0, 0, 0, 0.4)',
-                      transform: 'translateY(4px)',
-                    }}
-                  />
-                  
-                  {/* Refraction layer - distorts content behind */}
-                  <div 
-                    className="absolute inset-0 rounded-[32px] pointer-events-none overflow-hidden"
-                    style={{
-                      filter: 'url(#liquid-refraction)',
-                      backdropFilter: 'blur(2px)',
-                      WebkitBackdropFilter: 'blur(2px)',
-                      opacity: 0.6,
-                    }}
-                  />
-                  
-                  {/* Main Liquid Glass Container - with refraction */}
-                  <nav 
-                    className="relative flex items-center gap-1 rounded-[32px] px-3 py-2.5"
-                    style={{
-                      background: 'rgba(30, 30, 35, 0.65)',
-                      backdropFilter: 'blur(40px) saturate(180%) brightness(1.1)',
-                      WebkitBackdropFilter: 'blur(40px) saturate(180%) brightness(1.1)',
-                      border: '1px solid rgba(255, 255, 255, 0.18)',
-                      boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 -1px 1px rgba(0, 0, 0, 0.15)',
-                    }}
-                    role="navigation" 
-                    aria-label="Главное меню"
-                  >
-                    {/* Chromatic aberration simulation - color fringing */}
+                  <div className="relative">
+                    {/* Shadow layer - depth effect */}
                     <div 
-                      className="absolute inset-0 rounded-[32px] pointer-events-none mix-blend-overlay"
+                      className="absolute inset-0 rounded-[28px] pointer-events-none"
                       style={{
-                        background: 'linear-gradient(90deg, rgba(255,100,100,0.03) 0%, transparent 20%, transparent 80%, rgba(100,100,255,0.03) 100%)',
+                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 12px 24px -8px rgba(0, 0, 0, 0.5)',
+                        transform: 'translateY(4px)',
                       }}
                     />
                     
-                    {/* Frosted overlay with refraction shimmer */}
-                    <div 
-                      className="absolute inset-0 rounded-[32px] pointer-events-none"
+                    {/* Main Liquid Glass Container */}
+                    <nav 
+                      className="relative flex items-center gap-1 rounded-[28px] px-3 py-2"
                       style={{
-                        background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.08) 100%)',
+                        background: 'rgba(28, 28, 30, 0.85)',
+                        backdropFilter: 'blur(50px) saturate(200%)',
+                        WebkitBackdropFilter: 'blur(50px) saturate(200%)',
+                        border: '0.5px solid rgba(255, 255, 255, 0.2)',
+                        boxShadow: 'inset 0 0.5px 0 rgba(255, 255, 255, 0.15)',
                       }}
-                    />
-                    
-                    {/* Specular highlight layer - prismatic top reflection */}
-                    <div 
-                      className="absolute inset-0 rounded-[32px] pointer-events-none"
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.05) 60%, rgba(255, 255, 255, 0) 100%)',
-                      }}
-                    />
-                    
-                    {/* Edge light caustics */}
-                    <div 
-                      className="absolute inset-x-4 top-0 h-px pointer-events-none"
-                      style={{
-                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)',
-                      }}
-                    />
+                      role="navigation" 
+                      aria-label="Главное меню"
+                    >
+                      {/* Top highlight - glass edge reflection */}
+                      <div 
+                        className="absolute inset-x-0 top-0 h-[1px] rounded-t-[28px] pointer-events-none"
+                        style={{
+                          background: 'linear-gradient(90deg, transparent 10%, rgba(255, 255, 255, 0.3) 50%, transparent 90%)',
+                        }}
+                      />
                     
                     {/* Главная */}
                     <NavButton
@@ -619,7 +575,8 @@ function App() {
                         }`}
                       />
                     </NavButton>
-                  </nav>
+                    </nav>
+                  </div>
                 </m.div>
               )}
 
