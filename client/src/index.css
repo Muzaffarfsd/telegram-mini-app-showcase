@@ -1114,6 +1114,25 @@ p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
 }
 
 @layer utilities {
+  /* === iOS 26 3D SCROLL DEPTH EFFECT === */
+  /* Elements scale up and rise as they approach the bottom nav */
+  .nav-depth-zone {
+    --nav-depth-progress: 0;
+    will-change: transform;
+    transform: 
+      scale(calc(1 + var(--nav-depth-progress) * 0.08))
+      translateY(calc(var(--nav-depth-progress) * -8px))
+      translateZ(0);
+    transition: transform 0.1s ease-out;
+  }
+  
+  /* Reduced motion - disable 3D effect */
+  @media (prefers-reduced-motion: reduce) {
+    .nav-depth-zone {
+      transform: none !important;
+    }
+  }
+
   /* === DEMO APP SAFE NAVIGATION === */
   /* Класс для верхней навигации в демо-приложениях */
   /* Учитывает safe area + дополнительный padding для fullscreen режима Telegram */

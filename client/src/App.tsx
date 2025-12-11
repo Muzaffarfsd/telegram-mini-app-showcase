@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy, useCallback } from "react";
+import { useState, useEffect, Suspense, lazy, useCallback, useRef } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -325,6 +325,53 @@ function App() {
   // Pages that should show the global sidebar (all except demo apps)
   const shouldShowSidebar = !route.component.includes('demo') && route.component !== 'notFound';
 
+  // 3D scroll depth effect - elements scale as they approach bottom nav
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (!shouldShowBottomNav) return;
+    
+    const handleScroll = () => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+      
+      // Get all elements that should have the 3D effect
+      const depthElements = container.querySelectorAll('[data-depth-zone]');
+      const viewportHeight = window.innerHeight;
+      const navZoneStart = viewportHeight - 180; // Start effect 180px from bottom
+      
+      depthElements.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        const elementBottom = rect.bottom;
+        
+        // Calculate progress (0 = far from nav, 1 = at nav)
+        if (elementBottom > navZoneStart && elementBottom < viewportHeight + 50) {
+          const progress = Math.min(1, (elementBottom - navZoneStart) / (viewportHeight - navZoneStart));
+          (el as HTMLElement).style.setProperty('--nav-depth-progress', progress.toFixed(3));
+        } else {
+          (el as HTMLElement).style.setProperty('--nav-depth-progress', '0');
+        }
+      });
+    };
+    
+    // Use requestAnimationFrame for smooth updates
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    window.addEventListener('scroll', onScroll, { passive: true });
+    handleScroll(); // Initial call
+    
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [shouldShowBottomNav]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <LazyMotionProvider>
@@ -342,7 +389,7 @@ function App() {
                   />
                 )}
                 
-                <div className="pb-36" data-scroll="main">
+                <div ref={scrollContainerRef} className="pb-36" data-scroll="main">
                   {renderRoute()}
                 </div>
               </div>

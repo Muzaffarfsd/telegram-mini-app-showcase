@@ -244,11 +244,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
               whileTap={{ scale: 0.98 }}
-              className="col-span-2 relative rounded-3xl overflow-hidden cursor-pointer group"
+              className="col-span-2 relative rounded-3xl overflow-hidden cursor-pointer group nav-depth-zone"
               onClick={() => handleOpenDemo('clothing-store')}
               onMouseEnter={() => preloadDemo('clothing-store')}
               onTouchStart={() => preloadDemo('clothing-store')}
               data-testid="bento-main"
+              data-depth-zone
               style={{ backgroundColor: '#0A0A0A' }}
             >
               <div className="relative h-[280px] overflow-hidden">
@@ -311,11 +312,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
               whileTap={{ scale: 0.98 }}
-              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[3/4]"
+              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[3/4] nav-depth-zone"
               onClick={() => handleOpenDemo('sneaker-store')}
               onMouseEnter={() => preloadDemo('sneaker-store')}
               onTouchStart={() => preloadDemo('sneaker-store')}
               data-testid="bento-sneaker"
+              data-depth-zone
               style={{ backgroundColor: '#0A0A0A' }}
             >
               <img
@@ -353,11 +355,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.7 }}
               whileTap={{ scale: 0.98 }}
-              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[3/4]"
+              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[3/4] nav-depth-zone"
               onClick={() => handleOpenDemo('luxury-watches')}
               onMouseEnter={() => preloadDemo('luxury-watches')}
               onTouchStart={() => preloadDemo('luxury-watches')}
               data-testid="bento-luxury"
+              data-depth-zone
               style={{ backgroundColor: '#0A0A0A' }}
             >
               <img
@@ -395,11 +398,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.8 }}
               whileTap={{ scale: 0.98 }}
-              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-square"
+              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-square nav-depth-zone"
               onClick={() => handleOpenDemo('restaurant')}
               onMouseEnter={() => preloadDemo('restaurant')}
               onTouchStart={() => preloadDemo('restaurant')}
               data-testid="bento-restaurant"
+              data-depth-zone
               style={{ backgroundColor: '#0A0A0A' }}
             >
               <img
@@ -428,9 +432,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.9 }}
               whileTap={{ scale: 0.98 }}
-              className="rounded-2xl cursor-pointer group aspect-square flex flex-col items-center justify-center"
+              className="rounded-2xl cursor-pointer group aspect-square flex flex-col items-center justify-center nav-depth-zone"
               onClick={() => handleNavigate('projects')}
               data-testid="bento-all"
+              data-depth-zone
               style={{ backgroundColor: '#111111' }}
             >
               <div 
