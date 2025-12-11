@@ -136,88 +136,102 @@ const PaymentSection = memo(() => {
         93% наших клиентов окупают вложения в первый месяц. Платите только за результат.
       </p>
 
-      {/* DESIRE - Payment Stages with Benefits */}
-      <div className="space-y-3 mb-8">
-        {[
-          { 
-            icon: Zap, 
-            title: 'Минимальный риск', 
-            highlight: '35%',
-            desc: 'Начните с небольшой суммы — увидьте результат до полной оплаты'
-          },
-          { 
-            icon: Shield, 
-            title: 'Полный контроль', 
-            highlight: '65%',
-            desc: 'Тестируйте, правьте, одобряйте — платите только за готовый продукт'
-          },
-          { 
-            icon: Rocket, 
-            title: 'Запуск за 14 дней', 
-            highlight: 'Быстро',
-            desc: 'Пока конкуренты планируют — вы уже принимаете заказы'
-          }
-        ].map((item, index) => (
-          <div 
-            key={index}
-            className="scroll-fade-in"
-            style={{
-              display: 'flex',
-              gap: '16px',
-              padding: '20px',
-              borderRadius: '14px',
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid rgba(255, 255, 255, 0.04)'
-            }}
-          >
+      {/* ЭТАП 1: Предоплата */}
+      <div 
+        className="scroll-fade-in"
+        style={{
+          padding: '24px',
+          borderRadius: '16px',
+          background: 'rgba(255, 255, 255, 0.02)',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+          marginBottom: '12px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '44px',
-              height: '44px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'rgba(16, 185, 129, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: '12px',
-              background: 'rgba(139, 92, 246, 0.1)',
-              flexShrink: 0
-            }}>
-              <item.icon size={20} color="#A78BFA" />
-            </div>
-            <div className="flex-1">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <p style={{
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  color: '#FAFAFA'
-                }}>
-                  {item.title}
-                </p>
-                <span style={{
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  color: '#A78BFA',
-                  background: 'rgba(139, 92, 246, 0.1)',
-                  padding: '4px 10px',
-                  borderRadius: '8px'
-                }}>
-                  {item.highlight}
-                </span>
-              </div>
-              <p style={{
-                fontSize: '13px',
-                color: '#71717A',
-                lineHeight: '1.4'
-              }}>
-                {item.desc}
-              </p>
-            </div>
+              fontSize: '14px',
+              fontWeight: 700,
+              color: '#10B981'
+            }}>1</div>
+            <span style={{ fontSize: '16px', fontWeight: 600, color: '#FAFAFA' }}>Предоплата</span>
           </div>
-        ))}
+          <span style={{
+            fontSize: '20px',
+            fontWeight: 700,
+            color: '#10B981'
+          }}>35%</span>
+        </div>
+        <p style={{ fontSize: '14px', color: '#A1A1AA', lineHeight: '1.5', marginBottom: '16px' }}>
+          Оплата перед началом работ. Мы приступаем к разработке вашего приложения.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {['Дизайн интерфейса', 'Структура приложения', 'Первая демо-версия'].map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Check size={14} color="#10B981" />
+              <span style={{ fontSize: '13px', color: '#D4D4D8' }}>{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ЭТАП 2: Оплата после сдачи */}
+      <div 
+        className="scroll-fade-in"
+        style={{
+          padding: '24px',
+          borderRadius: '16px',
+          background: 'rgba(255, 255, 255, 0.02)',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+          marginBottom: '12px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'rgba(139, 92, 246, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '14px',
+              fontWeight: 700,
+              color: '#A78BFA'
+            }}>2</div>
+            <span style={{ fontSize: '16px', fontWeight: 600, color: '#FAFAFA' }}>После сдачи проекта</span>
+          </div>
+          <span style={{
+            fontSize: '20px',
+            fontWeight: 700,
+            color: '#A78BFA'
+          }}>65%</span>
+        </div>
+        <p style={{ fontSize: '14px', color: '#A1A1AA', lineHeight: '1.5', marginBottom: '16px' }}>
+          Оплата после полной готовности и вашего одобрения. Тестируете — потом платите.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {['Готовое приложение', 'Все правки учтены', 'Публикация в Telegram'].map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Check size={14} color="#A78BFA" />
+              <span style={{ fontSize: '13px', color: '#D4D4D8' }}>{item}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Hairline */}
-      <div style={{ height: '1px', background: '#27272A', marginBottom: '24px' }} />
+      <div style={{ height: '1px', background: '#27272A', margin: '24px 0' }} />
 
-      {/* Subscription Label */}
+      {/* ЭТАП 3: Ежемесячная подписка */}
       <p 
         style={{
           fontSize: '10px',
@@ -231,106 +245,79 @@ const PaymentSection = memo(() => {
         После запуска
       </p>
       
-      <h3 
-        style={{
-          fontSize: '20px',
-          fontWeight: 600,
-          color: '#FAFAFA',
-          marginBottom: '8px',
-          letterSpacing: '-0.02em'
-        }}
-      >
-        Забудьте о проблемах
-      </h3>
-      
-      <p style={{ fontSize: '14px', color: '#71717A', marginBottom: '20px', lineHeight: '1.5' }}>
-        Мы берём техническую часть на себя — вы занимаетесь бизнесом
-      </p>
-
-      {/* Features Grid */}
       <div 
+        className="scroll-fade-in"
         style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '12px',
+          padding: '24px',
+          borderRadius: '16px',
+          background: 'rgba(255, 255, 255, 0.02)',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
           marginBottom: '24px'
         }}
       >
-        {[
-          { text: 'Серверы 99.9%', sub: 'uptime' },
-          { text: 'Ответ за 2 часа', sub: 'поддержка' },
-          { text: 'Обновления', sub: 'бесплатно' },
-          { text: 'Бэкапы', sub: 'ежедневно' }
-        ].map((feature, index) => (
-          <div 
-            key={index}
-            style={{
-              padding: '16px',
-              borderRadius: '14px',
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid rgba(255, 255, 255, 0.04)',
-              textAlign: 'center'
-            }}
-          >
-            <p style={{ fontSize: '14px', fontWeight: 600, color: '#FAFAFA', marginBottom: '2px' }}>{feature.text}</p>
-            <p style={{ fontSize: '11px', color: '#52525B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{feature.sub}</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'rgba(90, 200, 250, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '14px',
+              fontWeight: 700,
+              color: '#5AC8FA'
+            }}>3</div>
+            <span style={{ fontSize: '16px', fontWeight: 600, color: '#FAFAFA' }}>Ежемесячная подписка</span>
           </div>
-        ))}
-      </div>
-
-      {/* ACTION - Price Card with CTA */}
-      <div 
-        style={{
-          padding: '28px',
-          borderRadius: '20px',
-          background: 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.06) 100%)',
-          border: '1px solid rgba(139, 92, 246, 0.2)',
+        </div>
+        <p style={{ fontSize: '14px', color: '#A1A1AA', lineHeight: '1.5', marginBottom: '16px' }}>
+          Мы полностью берём на себя техническую часть — серверы, обновления, поддержку.
+        </p>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: '1fr 1fr', 
+          gap: '12px',
+          marginBottom: '20px'
+        }}>
+          {[
+            { text: 'Хостинг', sub: 'серверы 99.9%' },
+            { text: 'Поддержка', sub: 'ответ за 2ч' },
+            { text: 'Обновления', sub: 'бесплатно' },
+            { text: 'Бэкапы', sub: 'ежедневно' }
+          ].map((feature, index) => (
+            <div 
+              key={index}
+              style={{
+                padding: '12px',
+                borderRadius: '10px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                textAlign: 'center'
+              }}
+            >
+              <p style={{ fontSize: '13px', fontWeight: 600, color: '#FAFAFA', marginBottom: '2px' }}>{feature.text}</p>
+              <p style={{ fontSize: '11px', color: '#71717A' }}>{feature.sub}</p>
+            </div>
+          ))}
+        </div>
+        
+        {/* Price */}
+        <div style={{ 
+          padding: '16px', 
+          borderRadius: '12px', 
+          background: 'rgba(90, 200, 250, 0.08)',
+          border: '1px solid rgba(90, 200, 250, 0.15)',
           textAlign: 'center'
-        }}
-      >
-        {/* Urgency Badge */}
-        <div 
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 14px',
-            borderRadius: '100px',
-            background: 'rgba(52, 199, 89, 0.15)',
-            border: '1px solid rgba(52, 199, 89, 0.25)',
-            marginBottom: '20px'
-          }}
-        >
-          <Gift size={14} color="#34C759" />
-          <span style={{ fontSize: '13px', fontWeight: 600, color: '#34C759' }}>Первый месяц — бесплатно</span>
-        </div>
-
-        {/* Price with Value Anchor */}
-        <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontSize: '13px', color: '#71717A', marginBottom: '8px', textDecoration: 'line-through' }}>
-            9,999 ₽/мес
-          </p>
+        }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '4px' }}>
-            <span style={{ fontSize: '44px', fontWeight: 700, color: '#FAFAFA', letterSpacing: '-0.03em' }}>5,999</span>
-            <span style={{ fontSize: '18px', fontWeight: 500, color: '#71717A' }}>₽/мес</span>
+            <span style={{ fontSize: '28px', fontWeight: 700, color: '#FAFAFA' }}>5,999</span>
+            <span style={{ fontSize: '14px', color: '#71717A' }}>₽/мес</span>
           </div>
-          <p style={{ fontSize: '13px', color: '#A78BFA', marginTop: '8px', fontWeight: 500 }}>
-            Экономия 48 000 ₽ в год
-          </p>
-        </div>
-
-        {/* Trust Signals */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', fontSize: '12px', color: '#71717A' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Check size={14} color="#34C759" />
-            <span>Без привязки</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Check size={14} color="#34C759" />
-            <span>Отмена в 1 клик</span>
-          </div>
+          <p style={{ fontSize: '12px', color: '#5AC8FA', marginTop: '4px' }}>Первый месяц бесплатно</p>
         </div>
       </div>
+
     </section>
   );
 });
