@@ -18,7 +18,14 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Design System**: Responsive mobile-first design with desktop layout in Telegram (1200px viewport), Apple-style minimalism with premium aesthetics, full-screen layouts, and an 8px spacing grid.
 - **Structure**: Main App router, `ShowcasePage` (premium Bento grid layout), `DemoAppShell` for universal navigation, and individual Demo Components for business simulations.
 - **ShowcasePage Design (Dec 2024)**: Ultra-premium Apple-style minimalist landing with AIDA headline ("Когда другие обещают — ваши продукты уже [приносят выручку/общаются с клиентами/собирают заявки/масштабируются].") featuring blur animation on word transitions, process timeline (Бриф→Спринт→Запуск→Рост), demo cards with type labels (Retail/Luxury/Services) and metrics, integrations pills (Stripe/ЮKassa/OpenAI/Notion/Airtable/WhatsApp), stats grid (24h TTV/4.9 CSAT/99.9% Uptime), minimal dual CTAs. Color tokens: #000000 background, emerald #10B981 accent. Framer-motion fadeUp/AnimatePresence with blur effects.
-- **Navigation**: Ultra-minimal glassmorphic bottom navigation with Telegram user avatar integration (`UserAvatar` component with photo_url support, initials fallback).
+- **Navigation**: iOS 26 Liquid Glass bottom navigation with:
+  - **Refraction**: SVG feTurbulence + feDisplacementMap filter distorts content behind glass (not just blur)
+  - **Adaptive color**: Icons use `text-white/80` with emerald `drop-shadow` glow when active for visibility
+  - **Spring physics**: `useSpring` with stiffness=400, damping=25, mass=0.8 for natural bounce on press
+  - **Chromatic aberration**: Subtle red/blue color fringing on edges
+  - **Prismatic highlights**: Multi-layer gradient overlays for glass caustics
+  - **Enhanced blur**: `blur(40px) saturate(180%) brightness(1.1)` for transparency
+  - Telegram user avatar integration (`UserAvatar` component with photo_url support, initials fallback)
 - **Telegram Integration**: Home screen shortcut support (`homeScreen.add()` with error handling and toast notifications for unsupported versions).
 - **Technical Implementations**: Custom hooks, `ErrorBoundary`, performance optimizations (`React.memo`, `useMemo`, `useCallback`), `OptimizedImage`, `ModernAnimatedIcons`, and vertical stack card layouts.
 - **Page Transitions**: None (removed for instant navigation - PageTransition, MotionBox, and MotionStagger components return plain div wrappers without animations).

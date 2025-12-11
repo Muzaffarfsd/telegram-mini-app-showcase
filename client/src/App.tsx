@@ -9,6 +9,7 @@ import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
 import { scrollToTop } from "./hooks/useScrollToTop";
+import { m, useSpring } from "framer-motion";
 
 // Eager load providers to prevent blank screen (Suspense fallback={null} + #root:empty CSS loop)
 import { RewardsProvider } from "./contexts/RewardsContext";
@@ -92,6 +93,58 @@ const navigate = (path: string) => {
 
 const goBack = () => {
   window.history.back();
+};
+
+// iOS 26 Spring-animated navigation button with physics
+interface NavButtonProps {
+  onClick: () => void;
+  isActive: boolean;
+  ariaLabel: string;
+  testId: string;
+  children: React.ReactNode;
+}
+
+const NavButton = ({ onClick, isActive, ariaLabel, testId, children }: NavButtonProps) => {
+  const springConfig = { stiffness: 400, damping: 25, mass: 0.8 };
+  const scale = useSpring(1, springConfig);
+  
+  const handlePress = () => {
+    scale.set(0.85);
+  };
+  
+  const handleRelease = () => {
+    scale.set(1);
+    onClick();
+  };
+  
+  const handleHover = () => {
+    scale.set(1.05);
+  };
+  
+  const handleHoverEnd = () => {
+    scale.set(1);
+  };
+  
+  return (
+    <m.button
+      style={{ 
+        scale,
+        background: isActive ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
+        boxShadow: isActive ? 'inset 0 1px 2px rgba(255,255,255,0.1)' : 'none',
+      }}
+      className="relative flex items-center justify-center w-14 h-14 rounded-full"
+      onMouseDown={handlePress}
+      onMouseUp={handleRelease}
+      onMouseLeave={handleHoverEnd}
+      onMouseEnter={handleHover}
+      onTouchStart={handlePress}
+      onTouchEnd={handleRelease}
+      aria-label={ariaLabel}
+      data-testid={testId}
+    >
+      {children}
+    </m.button>
+  );
 };
 
 function App() {
@@ -394,10 +447,23 @@ function App() {
                 </div>
               </div>
             
+              {/* SVG Filter for Liquid Glass Refraction Effect */}
+              <svg className="absolute" style={{ width: 0, height: 0 }}>
+                <defs>
+                  <filter id="liquid-refraction" x="-20%" y="-20%" width="140%" height="140%">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" seed="1" result="noise" />
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+                  </filter>
+                </defs>
+              </svg>
+
               {/* Bottom Navigation - iOS 26 Liquid Glass */}
               {shouldShowBottomNav && (
-                <div 
+                <m.div 
                   className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+                  initial={{ y: 100, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   style={{ 
                     isolation: 'isolate',
                   }}
@@ -421,151 +487,128 @@ function App() {
                     }}
                   />
                   
-                  {/* Main Liquid Glass Container - more frosted */}
+                  {/* Refraction layer - distorts content behind */}
+                  <div 
+                    className="absolute inset-0 rounded-[32px] pointer-events-none overflow-hidden"
+                    style={{
+                      filter: 'url(#liquid-refraction)',
+                      backdropFilter: 'blur(2px)',
+                      WebkitBackdropFilter: 'blur(2px)',
+                      opacity: 0.6,
+                    }}
+                  />
+                  
+                  {/* Main Liquid Glass Container - with refraction */}
                   <nav 
                     className="relative flex items-center gap-1 rounded-[32px] px-3 py-2.5"
                     style={{
-                      background: 'rgba(30, 30, 35, 0.75)',
-                      backdropFilter: 'blur(24px) saturate(150%)',
-                      WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 0 -1px 1px rgba(0, 0, 0, 0.2)',
+                      background: 'rgba(30, 30, 35, 0.65)',
+                      backdropFilter: 'blur(40px) saturate(180%) brightness(1.1)',
+                      WebkitBackdropFilter: 'blur(40px) saturate(180%) brightness(1.1)',
+                      border: '1px solid rgba(255, 255, 255, 0.18)',
+                      boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 -1px 1px rgba(0, 0, 0, 0.15)',
                     }}
                     role="navigation" 
                     aria-label="Главное меню"
                   >
-                    {/* Frosted overlay */}
+                    {/* Chromatic aberration simulation - color fringing */}
                     <div 
-                      className="absolute inset-0 rounded-[32px] pointer-events-none"
+                      className="absolute inset-0 rounded-[32px] pointer-events-none mix-blend-overlay"
                       style={{
-                        background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)',
+                        background: 'linear-gradient(90deg, rgba(255,100,100,0.03) 0%, transparent 20%, transparent 80%, rgba(100,100,255,0.03) 100%)',
                       }}
                     />
                     
-                    {/* Specular highlight layer - top reflection */}
+                    {/* Frosted overlay with refraction shimmer */}
                     <div 
                       className="absolute inset-0 rounded-[32px] pointer-events-none"
                       style={{
-                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 40%)',
+                        background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.08) 100%)',
                       }}
                     />
                     
-                    {/* Bottom edge subtle highlight */}
+                    {/* Specular highlight layer - prismatic top reflection */}
                     <div 
-                      className="absolute inset-x-6 bottom-0 h-px pointer-events-none"
+                      className="absolute inset-0 rounded-[32px] pointer-events-none"
                       style={{
-                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
+                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.05) 60%, rgba(255, 255, 255, 0) 100%)',
+                      }}
+                    />
+                    
+                    {/* Edge light caustics */}
+                    <div 
+                      className="absolute inset-x-4 top-0 h-px pointer-events-none"
+                      style={{
+                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)',
                       }}
                     />
                     
                     {/* Главная */}
-                    <button
+                    <NavButton
                       onClick={() => {navigate('/'); hapticFeedback.light();}}
-                      className={`relative flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 active:scale-90 ${
-                        route.component === 'showcase' ? '' : ''
-                      }`}
-                      style={{
-                        background: route.component === 'showcase' 
-                          ? 'rgba(16, 185, 129, 0.2)' 
-                          : 'transparent',
-                        boxShadow: route.component === 'showcase'
-                          ? 'inset 0 1px 2px rgba(255,255,255,0.1)'
-                          : 'none',
-                      }}
-                      aria-label="Главная страница"
-                      data-testid="nav-showcase"
+                      isActive={route.component === 'showcase'}
+                      ariaLabel="Главная страница"
+                      testId="nav-showcase"
                     >
                       <Home
                         className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'showcase' ? 'text-emerald-400' : 'text-white/70'
+                          route.component === 'showcase' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
                         }`}
                         strokeWidth={route.component === 'showcase' ? 2.5 : 1.75}
                       />
-                    </button>
+                    </NavButton>
                     
                     {/* ИИ Агент */}
-                    <button
+                    <NavButton
                       onClick={() => {navigate('/ai-process'); hapticFeedback.light();}}
-                      className="relative flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 active:scale-90"
-                      style={{
-                        background: route.component === 'aiProcess' || route.component === 'aiAgent'
-                          ? 'rgba(16, 185, 129, 0.2)' 
-                          : 'transparent',
-                        boxShadow: route.component === 'aiProcess' || route.component === 'aiAgent'
-                          ? 'inset 0 1px 2px rgba(255,255,255,0.1)'
-                          : 'none',
-                      }}
-                      aria-label="ИИ агенты для бизнеса"
-                      data-testid="nav-ai"
+                      isActive={route.component === 'aiProcess' || route.component === 'aiAgent'}
+                      ariaLabel="ИИ агенты для бизнеса"
+                      testId="nav-ai"
                     >
                       <Bot
                         className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'aiProcess' || route.component === 'aiAgent' ? 'text-emerald-400' : 'text-white/70'
+                          route.component === 'aiProcess' || route.component === 'aiAgent' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
                         }`}
                         strokeWidth={route.component === 'aiProcess' || route.component === 'aiAgent' ? 2.5 : 1.75}
                       />
-                    </button>
+                    </NavButton>
                     
                     {/* Витрина */}
-                    <button
+                    <NavButton
                       onClick={() => {navigate('/projects'); hapticFeedback.light();}}
-                      className="relative flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 active:scale-90"
-                      style={{
-                        background: route.component === 'projects'
-                          ? 'rgba(16, 185, 129, 0.2)' 
-                          : 'transparent',
-                        boxShadow: route.component === 'projects'
-                          ? 'inset 0 1px 2px rgba(255,255,255,0.1)'
-                          : 'none',
-                      }}
-                      aria-label="Витрина проектов"
-                      data-testid="nav-projects"
+                      isActive={route.component === 'projects'}
+                      ariaLabel="Витрина проектов"
+                      testId="nav-projects"
                     >
                       <Briefcase
                         className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'projects' ? 'text-emerald-400' : 'text-white/70'
+                          route.component === 'projects' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
                         }`}
                         strokeWidth={route.component === 'projects' ? 2.5 : 1.75}
                       />
-                    </button>
+                    </NavButton>
                     
                     {/* Заказать */}
-                    <button
+                    <NavButton
                       onClick={() => {navigate('/constructor'); hapticFeedback.light();}}
-                      className="relative flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 active:scale-90"
-                      style={{
-                        background: route.component === 'constructor'
-                          ? 'rgba(16, 185, 129, 0.2)' 
-                          : 'transparent',
-                        boxShadow: route.component === 'constructor'
-                          ? 'inset 0 1px 2px rgba(255,255,255,0.1)'
-                          : 'none',
-                      }}
-                      aria-label="Заказать проект"
-                      data-testid="nav-constructor"
+                      isActive={route.component === 'constructor'}
+                      ariaLabel="Заказать проект"
+                      testId="nav-constructor"
                     >
                       <ShoppingCart
                         className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'constructor' ? 'text-emerald-400' : 'text-white/70'
+                          route.component === 'constructor' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
                         }`}
                         strokeWidth={route.component === 'constructor' ? 2.5 : 1.75}
                       />
-                    </button>
+                    </NavButton>
                     
                     {/* Профиль */}
-                    <button
+                    <NavButton
                       onClick={() => {navigate('/profile'); hapticFeedback.light();}}
-                      className="relative flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 active:scale-90"
-                      style={{
-                        background: ['profile', 'referral', 'rewards', 'earning'].includes(route.component)
-                          ? 'rgba(16, 185, 129, 0.2)' 
-                          : 'transparent',
-                        boxShadow: ['profile', 'referral', 'rewards', 'earning'].includes(route.component)
-                          ? 'inset 0 1px 2px rgba(255,255,255,0.1)'
-                          : 'none',
-                      }}
-                      aria-label="Профиль пользователя"
-                      data-testid="nav-profile"
+                      isActive={['profile', 'referral', 'rewards', 'earning'].includes(route.component)}
+                      ariaLabel="Профиль пользователя"
+                      testId="nav-profile"
                     >
                       <UserAvatar
                         photoUrl={user?.photo_url}
@@ -575,9 +618,9 @@ function App() {
                           ['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 'ring-2 ring-emerald-400/40' : 'opacity-80'
                         }`}
                       />
-                    </button>
+                    </NavButton>
                   </nav>
-                </div>
+                </m.div>
               )}
 
           
