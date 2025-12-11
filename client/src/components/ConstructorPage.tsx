@@ -37,7 +37,8 @@ import {
   DollarSign,
   TrendingUp,
   CheckCircle,
-  Gift
+  Gift,
+  Shield
 } from "lucide-react";
 
 interface ConstructorPageProps {
@@ -295,171 +296,361 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
     <div className="min-h-screen bg-black text-white pb-32 smooth-scroll-page" style={{ paddingTop: '140px' }}>
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
-        {/* Payment Model Section */}
-        <section className="scroll-fade-in">
-          <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-7 overflow-hidden">
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-system-blue/5 via-transparent to-system-purple/5 pointer-events-none"/>
+        {/* iOS 26 Liquid Glass Payment Section */}
+        <section className="scroll-fade-in ios26-payment-section">
+          <style>{`
+            .ios26-payment-section {
+              contain: layout style;
+            }
             
+            .ios26-liquid-card {
+              position: relative;
+              background: rgba(255, 255, 255, 0.06);
+              backdrop-filter: blur(40px) saturate(180%);
+              -webkit-backdrop-filter: blur(40px) saturate(180%);
+              border-radius: 28px;
+              border: 1px solid rgba(255, 255, 255, 0.12);
+              overflow: hidden;
+              transform: translate3d(0, 0, 0);
+            }
+            
+            .ios26-liquid-card::before {
+              content: '';
+              position: absolute;
+              inset: 0;
+              background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(139,92,246,0.03) 100%);
+              pointer-events: none;
+            }
+            
+            .ios26-liquid-card::after {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              height: 1px;
+              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.3) 80%, transparent);
+            }
+            
+            .ios26-stage-card {
+              position: relative;
+              background: rgba(255, 255, 255, 0.04);
+              backdrop-filter: blur(20px);
+              -webkit-backdrop-filter: blur(20px);
+              border-radius: 20px;
+              border: 1px solid rgba(255, 255, 255, 0.08);
+              padding: 20px;
+              transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+              transform: translate3d(0, 0, 0);
+              overflow: hidden;
+            }
+            
+            .ios26-stage-card::before {
+              content: '';
+              position: absolute;
+              inset: 0;
+              background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+              opacity: 0;
+              transition: opacity 0.3s ease;
+            }
+            
+            .ios26-stage-card:hover::before {
+              opacity: 1;
+            }
+            
+            .ios26-stage-card:hover {
+              border-color: rgba(139, 92, 246, 0.3);
+              transform: translate3d(0, -2px, 0);
+              box-shadow: 0 8px 32px rgba(139, 92, 246, 0.15);
+            }
+            
+            .ios26-stage-card:active {
+              transform: translate3d(0, 0, 0) scale(0.98);
+            }
+            
+            .ios26-icon-container {
+              position: relative;
+              width: 52px;
+              height: 52px;
+              border-radius: 16px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              flex-shrink: 0;
+            }
+            
+            .ios26-icon-glow {
+              position: absolute;
+              inset: -4px;
+              border-radius: 20px;
+              filter: blur(12px);
+              opacity: 0.6;
+              animation: ios26-breathe 3s ease-in-out infinite;
+            }
+            
+            @keyframes ios26-breathe {
+              0%, 100% { opacity: 0.4; transform: scale(1); }
+              50% { opacity: 0.7; transform: scale(1.05); }
+            }
+            
+            .ios26-icon-inner {
+              position: relative;
+              width: 100%;
+              height: 100%;
+              border-radius: 16px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border: 1px solid rgba(255, 255, 255, 0.15);
+            }
+            
+            .ios26-stage-number {
+              width: 28px;
+              height: 28px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 12px;
+              font-weight: 700;
+              border: 1px solid;
+              backdrop-filter: blur(8px);
+              -webkit-backdrop-filter: blur(8px);
+            }
+            
+            .ios26-connector {
+              position: absolute;
+              left: 44px;
+              top: 72px;
+              width: 2px;
+              height: calc(100% - 72px + 12px);
+              background: linear-gradient(180deg, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0.1) 100%);
+              border-radius: 1px;
+            }
+            
+            .ios26-feature-pill {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              padding: 12px 16px;
+              background: rgba(255, 255, 255, 0.04);
+              backdrop-filter: blur(12px);
+              -webkit-backdrop-filter: blur(12px);
+              border-radius: 14px;
+              border: 1px solid rgba(255, 255, 255, 0.06);
+              transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+            
+            .ios26-feature-pill:hover {
+              background: rgba(139, 92, 246, 0.08);
+              border-color: rgba(139, 92, 246, 0.2);
+              transform: translate3d(0, -1px, 0);
+            }
+            
+            .ios26-price-card {
+              position: relative;
+              background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(167, 139, 250, 0.06) 100%);
+              backdrop-filter: blur(24px);
+              -webkit-backdrop-filter: blur(24px);
+              border-radius: 24px;
+              border: 1px solid rgba(139, 92, 246, 0.25);
+              padding: 28px;
+              text-align: center;
+              overflow: hidden;
+            }
+            
+            .ios26-price-card::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              height: 1px;
+              background: linear-gradient(90deg, transparent, rgba(167, 139, 250, 0.5) 30%, rgba(196, 181, 253, 0.8) 50%, rgba(167, 139, 250, 0.5) 70%, transparent);
+            }
+            
+            .ios26-price-card::after {
+              content: '';
+              position: absolute;
+              inset: 0;
+              background: radial-gradient(ellipse at 50% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+              pointer-events: none;
+            }
+            
+            .ios26-badge {
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              padding: 8px 16px;
+              background: rgba(52, 199, 89, 0.15);
+              backdrop-filter: blur(8px);
+              -webkit-backdrop-filter: blur(8px);
+              border-radius: 100px;
+              border: 1px solid rgba(52, 199, 89, 0.3);
+            }
+            
+            .ios26-divider {
+              height: 1px;
+              background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.1) 80%, transparent);
+              margin: 24px 0;
+            }
+          `}</style>
+          
+          <div className="ios26-liquid-card p-7">
             <div className="relative z-10">
               {/* Header */}
-              <div className="text-center mb-6 scroll-fade-in-delay-1">
-                <h3 className="ios-title2 mb-2 text-white font-bold">Прозрачная оплата</h3>
-                <p className="ios-subheadline text-white/70 max-w-xs mx-auto">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/10 border border-violet-400/20 mb-4">
+                  <Shield className="w-7 h-7 text-violet-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Прозрачная оплата</h3>
+                <p className="text-base text-white/60 max-w-xs mx-auto leading-relaxed">
                   Платите поэтапно — минимальный риск, максимальный контроль
                 </p>
               </div>
 
               {/* Payment Stages */}
-              <div className="space-y-3 mb-6">
-                {/* Stage 1 - 35% Prepayment */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-system-green/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
-                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-green/40 transition-all">
-                    <div className="flex items-start space-x-4">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-system-green/30 rounded-xl blur-md"/>
-                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-green/30 to-system-green/10 rounded-xl flex items-center justify-center border border-system-green/30">
-                          <Zap className="w-6 h-6 text-system-green" />
-                        </div>
+              <div className="relative space-y-4 mb-8">
+                {/* Connector Line */}
+                <div className="ios26-connector" />
+                
+                {/* Stage 1 */}
+                <div className="ios26-stage-card">
+                  <div className="flex items-start gap-4">
+                    <div className="ios26-icon-container">
+                      <div className="ios26-icon-glow bg-emerald-500/40" />
+                      <div className="ios26-icon-inner bg-gradient-to-br from-emerald-500/25 to-emerald-600/10">
+                        <Zap className="w-6 h-6 text-emerald-400" />
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <div className="ios-headline font-bold text-white mb-0.5">35% предоплата</div>
-                            <div className="ios-caption1 text-system-green font-semibold">Запуск разработки</div>
-                          </div>
-                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
-                            <span className="ios-caption2 font-bold text-system-green">1</span>
-                          </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <div className="text-lg font-semibold text-white">35% предоплата</div>
+                          <div className="text-sm font-medium text-emerald-400">Запуск разработки</div>
                         </div>
-                        <p className="ios-footnote text-white/70 leading-relaxed">
-                          Мы начинаем создавать ваше приложение сразу после внесения предоплаты
-                        </p>
+                        <div className="ios26-stage-number bg-emerald-500/15 text-emerald-400 border-emerald-500/30">1</div>
                       </div>
+                      <p className="text-sm text-white/55 leading-relaxed">
+                        Мы начинаем создавать ваше приложение сразу после внесения предоплаты
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Stage 2 - 65% After Delivery */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-system-blue/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
-                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-blue/40 transition-all">
-                    <div className="flex items-start space-x-4">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-system-blue/30 rounded-xl blur-md"/>
-                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-blue/30 to-system-blue/10 rounded-xl flex items-center justify-center border border-system-blue/30">
-                          <CheckCircle className="w-6 h-6 text-system-blue" />
-                        </div>
+                {/* Stage 2 */}
+                <div className="ios26-stage-card">
+                  <div className="flex items-start gap-4">
+                    <div className="ios26-icon-container">
+                      <div className="ios26-icon-glow bg-violet-500/40" />
+                      <div className="ios26-icon-inner bg-gradient-to-br from-violet-500/25 to-violet-600/10">
+                        <CheckCircle className="w-6 h-6 text-violet-400" />
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <div className="ios-headline font-bold text-white mb-0.5">65% при получении</div>
-                            <div className="ios-caption1 text-system-blue font-semibold">Готовое приложение</div>
-                          </div>
-                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
-                            <span className="ios-caption2 font-bold text-system-green">2</span>
-                          </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <div className="text-lg font-semibold text-white">65% при получении</div>
+                          <div className="text-sm font-medium text-violet-400">Готовое приложение</div>
                         </div>
-                        <p className="ios-footnote text-white/70 leading-relaxed">
-                          Оплачиваете остаток только после тестирования и принятия работы
-                        </p>
+                        <div className="ios26-stage-number bg-violet-500/15 text-violet-400 border-violet-500/30">2</div>
                       </div>
+                      <p className="text-sm text-white/55 leading-relaxed">
+                        Оплачиваете остаток только после тестирования и принятия работы
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Stage 3 - Monthly Subscription */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-system-green/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"/>
-                  <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:border-system-green/40 transition-all">
-                    <div className="flex items-start space-x-4">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-system-green/30 rounded-xl blur-md"/>
-                        <div className="relative w-12 h-12 bg-gradient-to-br from-system-green/30 to-system-green/10 rounded-xl flex items-center justify-center border border-system-green/30">
-                          <TrendingUp className="w-6 h-6 text-system-green" />
-                        </div>
+                {/* Stage 3 */}
+                <div className="ios26-stage-card">
+                  <div className="flex items-start gap-4">
+                    <div className="ios26-icon-container">
+                      <div className="ios26-icon-glow bg-cyan-500/40" />
+                      <div className="ios26-icon-inner bg-gradient-to-br from-cyan-500/25 to-cyan-600/10">
+                        <TrendingUp className="w-6 h-6 text-cyan-400" />
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <div className="ios-headline font-bold text-white mb-0.5">Поддержка и развитие</div>
-                            <div className="ios-caption1 text-system-green font-semibold">Ежемесячная подписка</div>
-                          </div>
-                          <div className="w-8 h-8 rounded-full bg-system-green/20 flex items-center justify-center border border-system-green/30">
-                            <span className="ios-caption2 font-bold text-system-green">3</span>
-                          </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <div className="text-lg font-semibold text-white">Поддержка и развитие</div>
+                          <div className="text-sm font-medium text-cyan-400">Ежемесячная подписка</div>
                         </div>
-                        <p className="ios-footnote text-white/70 leading-relaxed">
-                          Стабильная работа, обновления и поддержка вашего бизнеса 24/7
-                        </p>
+                        <div className="ios26-stage-number bg-cyan-500/15 text-cyan-400 border-cyan-500/30">3</div>
                       </div>
+                      <p className="text-sm text-white/55 leading-relaxed">
+                        Стабильная работа, обновления и поддержка вашего бизнеса 24/7
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Monthly Subscription Details */}
-              <div className="relative mt-6 pt-6 border-t border-white/10">
+              {/* Divider */}
+              <div className="ios26-divider" />
+
+              {/* Subscription Details */}
+              <div className="mb-6">
                 <div className="text-center mb-5">
-                  <div className="inline-flex items-center justify-center px-3 py-1 bg-system-green/10 border border-system-green/30 rounded-full mb-3">
-                    <Rocket className="w-3.5 h-3.5 text-system-green mr-2" />
-                    <span className="ios-caption1 text-system-green font-semibold">Что входит в подписку</span>
+                  <div className="ios26-badge">
+                    <Rocket className="w-4 h-4 text-emerald-400" />
+                    <span className="text-sm font-semibold text-emerald-400">Что входит в подписку</span>
                   </div>
                 </div>
                 
-                {/* What's included - Grid Layout */}
-                <div className="grid grid-cols-2 gap-3 mb-5">
-                  <div className="flex items-start space-x-2.5">
-                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-system-green" />
+                {/* Features Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="ios26-feature-pill">
+                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
                     </div>
-                    <span className="ios-caption1 text-white/90 leading-tight">Хостинг и сервера</span>
+                    <span className="text-sm text-white/80">Хостинг и сервера</span>
                   </div>
-                  <div className="flex items-start space-x-2.5">
-                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-system-green" />
+                  <div className="ios26-feature-pill">
+                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
                     </div>
-                    <span className="ios-caption1 text-white/90 leading-tight">Поддержка 24/7</span>
+                    <span className="text-sm text-white/80">Поддержка 24/7</span>
                   </div>
-                  <div className="flex items-start space-x-2.5">
-                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-system-green" />
+                  <div className="ios26-feature-pill">
+                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
                     </div>
-                    <span className="ios-caption1 text-white/90 leading-tight">Обновления</span>
+                    <span className="text-sm text-white/80">Обновления</span>
                   </div>
-                  <div className="flex items-start space-x-2.5">
-                    <div className="w-5 h-5 rounded-full bg-system-green/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-system-green" />
+                  <div className="ios26-feature-pill">
+                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
                     </div>
-                    <span className="ios-caption1 text-white/90 leading-tight">Резервные копии</span>
+                    <span className="text-sm text-white/80">Резервные копии</span>
                   </div>
                 </div>
+              </div>
 
-                {/* Price Card */}
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-system-blue/20 via-system-purple/20 to-system-green/20 rounded-2xl blur-xl"/>
-                  <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border border-white/30 p-6 text-center">
-                    {/* Free Month Badge */}
-                    <div className="inline-flex items-center justify-center px-4 py-1.5 bg-system-green/20 border border-system-green/40 rounded-full mb-4">
-                      <Gift className="w-3.5 h-3.5 text-system-green mr-2" />
-                      <span className="ios-caption1 text-system-green font-bold">Первый месяц в подарок</span>
+              {/* Price Card */}
+              <div className="ios26-price-card">
+                <div className="relative z-10">
+                  {/* Free Month Badge */}
+                  <div className="ios26-badge mb-5">
+                    <Gift className="w-4 h-4 text-emerald-400" />
+                    <span className="text-sm font-bold text-emerald-400">Первый месяц в подарок</span>
+                  </div>
+                  
+                  {/* Price */}
+                  <div className="mb-4">
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-4xl font-bold bg-gradient-to-r from-violet-300 via-purple-300 to-violet-400 bg-clip-text text-transparent">5,999</span>
+                      <span className="text-xl font-medium text-violet-300">₽</span>
                     </div>
-                    
-                    {/* Price */}
-                    <div className="mb-3">
-                      <div className="flex items-baseline justify-center space-x-1">
-                        <span className="ios-title1 font-bold text-system-green">5,999</span>
-                        <span className="ios-body text-system-green">₽</span>
-                      </div>
-                      <div className="ios-footnote text-white/60 mt-1">в месяц со второго месяца</div>
-                    </div>
+                    <div className="text-sm text-white/50 mt-2">в месяц со второго месяца</div>
+                  </div>
 
-                    {/* Value proposition */}
-                    <div className="ios-caption2 text-white/50">
-                      Всё включено • Без скрытых платежей
-                    </div>
+                  {/* Value proposition */}
+                  <div className="flex items-center justify-center gap-3 text-xs text-white/40">
+                    <span>Всё включено</span>
+                    <span className="w-1 h-1 rounded-full bg-white/20" />
+                    <span>Без скрытых платежей</span>
                   </div>
                 </div>
               </div>
