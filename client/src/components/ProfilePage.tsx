@@ -648,6 +648,75 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         .ios26-profile .ios26-switch.active .ios26-switch-thumb {
           transform: translateX(20px);
         }
+        .ios26-profile .ios26-btn-glow {
+          position: relative;
+          background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 14px;
+          padding: 16px 24px;
+          font-size: 16px;
+          font-weight: 500;
+          color: white;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          overflow: hidden;
+          box-shadow: 
+            0 0 20px rgba(255,255,255,0.08),
+            0 0 40px rgba(255,255,255,0.04),
+            inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .ios26-profile .ios26-btn-glow::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,0.15),
+            transparent
+          );
+          transition: left 0.5s ease;
+        }
+        .ios26-profile .ios26-btn-glow:hover {
+          transform: translateY(-2px);
+          box-shadow: 
+            0 0 30px rgba(255,255,255,0.12),
+            0 0 60px rgba(255,255,255,0.06),
+            0 8px 32px rgba(0,0,0,0.3),
+            inset 0 1px 0 rgba(255,255,255,0.2);
+          border-color: rgba(255,255,255,0.25);
+        }
+        .ios26-profile .ios26-btn-glow:hover::before {
+          left: 100%;
+        }
+        .ios26-profile .ios26-btn-glow:active {
+          transform: translateY(0) scale(0.98);
+        }
+        @keyframes ios26-pulse-glow {
+          0%, 100% {
+            box-shadow: 
+              0 0 20px rgba(255,255,255,0.08),
+              0 0 40px rgba(255,255,255,0.04),
+              inset 0 1px 0 rgba(255,255,255,0.15);
+          }
+          50% {
+            box-shadow: 
+              0 0 25px rgba(255,255,255,0.12),
+              0 0 50px rgba(255,255,255,0.06),
+              inset 0 1px 0 rgba(255,255,255,0.2);
+          }
+        }
+        .ios26-profile .ios26-btn-glow {
+          animation: ios26-pulse-glow 3s ease-in-out infinite;
+        }
       `}</style>
       <div className="max-w-md mx-auto px-4 pt-4 pb-6 space-y-6">
         
@@ -678,7 +747,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                   У вас пока нет проектов. Создайте свое первое Telegram приложение и начните зарабатывать уже сегодня!
                 </p>
                 <button 
-                  className="ios26-btn-primary w-full mb-3"
+                  className="ios26-btn-glow w-full mb-3"
                   onClick={handleNavigateConstructor}
                 >
                   Создать приложение
