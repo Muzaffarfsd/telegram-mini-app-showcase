@@ -347,7 +347,6 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             .ios26-stage-card:hover {
               background: rgba(255, 255, 255, 0.04);
               border-color: rgba(255, 255, 255, 0.12);
-              transform: translate3d(0, -2px, 0);
             }
             
             .ios26-stage-card:active {
@@ -394,8 +393,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             }
             
             .ios26-feature-pill:hover {
-              background: rgba(255, 255, 255, 0.04);
-              border-color: rgba(255, 255, 255, 0.08);
+              background: rgba(255, 255, 255, 0.03);
             }
             
             .ios26-price-card {

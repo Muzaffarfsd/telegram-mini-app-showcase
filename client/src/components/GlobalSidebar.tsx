@@ -642,7 +642,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .menu-item:hover {
           background: rgba(255, 255, 255, 0.05);
           border-color: rgba(255, 255, 255, 0.06);
-          transform: translate3d(4px, 0, 0);
         }
         
         .menu-item:active {
@@ -712,7 +711,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         
         .menu-item:hover .menu-icon-wrap {
-          transform: scale(1.05);
           background: rgba(255, 255, 255, 0.08);
         }
         
