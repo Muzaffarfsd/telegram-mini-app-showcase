@@ -84,11 +84,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 backgroundClip: 'text'
               }}
             >
-              От идеи до
+              ИИ агент
               <br />
-              запуска за
+              для вашего
               <br />
-              24 часа
+              приложения
             </h1>
             
             {/* Subtitle */}
@@ -102,9 +102,9 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 letterSpacing: '-0.015em'
               }}
             >
-              Разработка Telegram Mini App
+              Подключите умного помощника
               <br />
-              с интеграцией ИИ агента
+              к вашему Telegram Mini App
             </p>
 
             {/* CTA Button */}
