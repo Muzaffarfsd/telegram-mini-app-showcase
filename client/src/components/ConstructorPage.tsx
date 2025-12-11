@@ -46,12 +46,12 @@ interface ConstructorPageProps {
   onNavigate: (section: string, data?: any) => void;
 }
 
-// Animated headlines for payment section
+// Animated headlines for payment section - AIDA style
 const paymentHeadlines = [
-  { text: "рост продаж", color: "#10B981" },
-  { text: "новых клиентов", color: "#A78BFA" },
-  { text: "автоматизацию", color: "#FF9F0A" },
-  { text: "преимущество", color: "#5AC8FA" }
+  { text: "без рисков", color: "#10B981" },
+  { text: "с гарантией", color: "#A78BFA" },
+  { text: "поэтапно", color: "#FF9F0A" },
+  { text: "прозрачно", color: "#5AC8FA" }
 ];
 
 // Payment Section Component with Framer Motion animation
@@ -79,7 +79,7 @@ const PaymentSection = memo(() => {
           marginBottom: '16px'
         }}
       >
-        Условия работы
+        Оплата приложения
       </p>
       
       {/* ATTENTION - Main Heading with Rotating Text */}
@@ -95,7 +95,7 @@ const PaymentSection = memo(() => {
           marginBottom: '4px'
         }}
       >
-        Вы получите
+        Платите
       </h2>
       
       {/* Rotating Text - Same style as ShowcasePage */}
@@ -133,7 +133,7 @@ const PaymentSection = memo(() => {
           maxWidth: '320px'
         }}
       >
-        93% наших клиентов окупают вложения в первый месяц. Платите только за результат.
+        Никаких скрытых платежей. Вы точно знаете, за что платите на каждом этапе.
       </p>
 
       {/* ЭТАП 1: Предоплата */}
