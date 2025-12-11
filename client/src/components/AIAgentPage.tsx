@@ -74,7 +74,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
                   textTransform: 'uppercase'
                 }}
               >
-                Новая эра
+                Для Telegram
               </span>
             </div>
           </div>
@@ -118,9 +118,9 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               letterSpacing: '-0.035em',
             }}
           >
-            Работает.
+            Подключите к вашему
             <br />
-            Пока вы спите.
+            Telegram-приложению
           </p>
           
           {/* Value prop */}
