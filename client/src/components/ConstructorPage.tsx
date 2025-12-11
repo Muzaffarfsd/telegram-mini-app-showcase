@@ -450,8 +450,8 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             <div className="relative z-10">
               {/* Header */}
               <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-4" style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
-                  <Shield className="w-6 h-6" style={{ color: '#A78BFA' }} />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-4" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                  <Shield className="w-6 h-6" style={{ color: '#10B981' }} />
                 </div>
                 <h3 className="text-[22px] font-semibold text-white mb-2 tracking-[-0.02em]">Прозрачная оплата</h3>
                 <p className="text-[15px] text-white/45 max-w-[280px] mx-auto leading-relaxed">
@@ -463,18 +463,18 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               <div className="space-y-3 mb-8">
                 
                 {/* Stage 1 */}
-                <div className="ios26-stage-card" style={{ border: '1px solid rgba(139, 92, 246, 0.15)' }}>
+                <div className="ios26-stage-card" style={{ border: '1px solid rgba(16, 185, 129, 0.15)' }}>
                   <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 flex items-center justify-center rounded-xl flex-shrink-0" style={{ background: 'rgba(139, 92, 246, 0.1)' }}>
-                      <Zap className="w-5 h-5" style={{ color: '#A78BFA' }} />
+                    <div className="w-11 h-11 flex items-center justify-center rounded-xl flex-shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                      <Zap className="w-5 h-5" style={{ color: '#10B981' }} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1.5">
                         <div>
                           <div className="text-[16px] font-medium text-white/90">35% предоплата</div>
-                          <div className="text-[13px]" style={{ color: '#A78BFA' }}>Запуск разработки</div>
+                          <div className="text-[13px]" style={{ color: '#34D399' }}>Запуск разработки</div>
                         </div>
-                        <div className="ios26-stage-number" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#A78BFA' }}>1</div>
+                        <div className="ios26-stage-number" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>1</div>
                       </div>
                       <p className="text-[13px] text-white/35 leading-relaxed">
                         Мы начинаем создавать ваше приложение сразу после внесения предоплаты
@@ -484,18 +484,18 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 </div>
 
                 {/* Stage 2 */}
-                <div className="ios26-stage-card" style={{ border: '1px solid rgba(139, 92, 246, 0.15)' }}>
+                <div className="ios26-stage-card" style={{ border: '1px solid rgba(16, 185, 129, 0.15)' }}>
                   <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 flex items-center justify-center rounded-xl flex-shrink-0" style={{ background: 'rgba(139, 92, 246, 0.1)' }}>
-                      <CheckCircle className="w-5 h-5" style={{ color: '#A78BFA' }} />
+                    <div className="w-11 h-11 flex items-center justify-center rounded-xl flex-shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                      <CheckCircle className="w-5 h-5" style={{ color: '#10B981' }} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1.5">
                         <div>
                           <div className="text-[16px] font-medium text-white/90">65% при получении</div>
-                          <div className="text-[13px]" style={{ color: '#A78BFA' }}>Готовое приложение</div>
+                          <div className="text-[13px]" style={{ color: '#34D399' }}>Готовое приложение</div>
                         </div>
-                        <div className="ios26-stage-number" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#A78BFA' }}>2</div>
+                        <div className="ios26-stage-number" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>2</div>
                       </div>
                       <p className="text-[13px] text-white/35 leading-relaxed">
                         Оплачиваете остаток только после тестирования и принятия работы
@@ -505,18 +505,18 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 </div>
 
                 {/* Stage 3 */}
-                <div className="ios26-stage-card" style={{ border: '1px solid rgba(139, 92, 246, 0.15)' }}>
+                <div className="ios26-stage-card" style={{ border: '1px solid rgba(16, 185, 129, 0.15)' }}>
                   <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 flex items-center justify-center rounded-xl flex-shrink-0" style={{ background: 'rgba(139, 92, 246, 0.1)' }}>
-                      <TrendingUp className="w-5 h-5" style={{ color: '#A78BFA' }} />
+                    <div className="w-11 h-11 flex items-center justify-center rounded-xl flex-shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                      <TrendingUp className="w-5 h-5" style={{ color: '#10B981' }} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1.5">
                         <div>
                           <div className="text-[16px] font-medium text-white/90">Поддержка и развитие</div>
-                          <div className="text-[13px]" style={{ color: '#A78BFA' }}>Ежемесячная подписка</div>
+                          <div className="text-[13px]" style={{ color: '#34D399' }}>Ежемесячная подписка</div>
                         </div>
-                        <div className="ios26-stage-number" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#A78BFA' }}>3</div>
+                        <div className="ios26-stage-number" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>3</div>
                       </div>
                       <p className="text-[13px] text-white/35 leading-relaxed">
                         Стабильная работа, обновления и поддержка вашего бизнеса 24/7
@@ -532,35 +532,35 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               {/* Subscription Details */}
               <div className="mb-6">
                 <div className="text-center mb-5">
-                  <div className="ios26-badge" style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
-                    <Rocket className="w-4 h-4" style={{ color: '#A78BFA' }} />
-                    <span className="text-[13px] font-medium" style={{ color: '#A78BFA' }}>Что входит в подписку</span>
+                  <div className="ios26-badge" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                    <Rocket className="w-4 h-4" style={{ color: '#10B981' }} />
+                    <span className="text-[13px] font-medium" style={{ color: '#34D399' }}>Что входит в подписку</span>
                   </div>
                 </div>
                 
                 {/* Features Grid */}
                 <div className="grid grid-cols-2 gap-2.5">
-                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(139, 92, 246, 0.12)' }}>
-                    <div className="ios26-check-icon" style={{ background: 'rgba(139, 92, 246, 0.15)' }}>
-                      <Check className="w-3 h-3" style={{ color: '#A78BFA' }} />
+                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(16, 185, 129, 0.12)' }}>
+                    <div className="ios26-check-icon" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+                      <Check className="w-3 h-3" style={{ color: '#10B981' }} />
                     </div>
                     <span className="text-[13px] text-white/70">Хостинг и сервера</span>
                   </div>
-                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(139, 92, 246, 0.12)' }}>
-                    <div className="ios26-check-icon" style={{ background: 'rgba(139, 92, 246, 0.15)' }}>
-                      <Check className="w-3 h-3" style={{ color: '#A78BFA' }} />
+                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(16, 185, 129, 0.12)' }}>
+                    <div className="ios26-check-icon" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+                      <Check className="w-3 h-3" style={{ color: '#10B981' }} />
                     </div>
                     <span className="text-[13px] text-white/70">Поддержка 24/7</span>
                   </div>
-                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(139, 92, 246, 0.12)' }}>
-                    <div className="ios26-check-icon" style={{ background: 'rgba(139, 92, 246, 0.15)' }}>
-                      <Check className="w-3 h-3" style={{ color: '#A78BFA' }} />
+                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(16, 185, 129, 0.12)' }}>
+                    <div className="ios26-check-icon" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+                      <Check className="w-3 h-3" style={{ color: '#10B981' }} />
                     </div>
                     <span className="text-[13px] text-white/70">Обновления</span>
                   </div>
-                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(139, 92, 246, 0.12)' }}>
-                    <div className="ios26-check-icon" style={{ background: 'rgba(139, 92, 246, 0.15)' }}>
-                      <Check className="w-3 h-3" style={{ color: '#A78BFA' }} />
+                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(16, 185, 129, 0.12)' }}>
+                    <div className="ios26-check-icon" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+                      <Check className="w-3 h-3" style={{ color: '#10B981' }} />
                     </div>
                     <span className="text-[13px] text-white/70">Резервные копии</span>
                   </div>
@@ -568,12 +568,12 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               </div>
 
               {/* Price Card */}
-              <div className="ios26-price-card" style={{ border: '1px solid rgba(139, 92, 246, 0.15)' }}>
+              <div className="ios26-price-card" style={{ border: '1px solid rgba(16, 185, 129, 0.15)' }}>
                 <div className="relative z-10">
                   {/* Free Month Badge */}
-                  <div className="ios26-badge mb-5" style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
-                    <Gift className="w-4 h-4" style={{ color: '#A78BFA' }} />
-                    <span className="text-[13px] font-medium" style={{ color: '#A78BFA' }}>Первый месяц в подарок</span>
+                  <div className="ios26-badge mb-5" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                    <Gift className="w-4 h-4" style={{ color: '#10B981' }} />
+                    <span className="text-[13px] font-medium" style={{ color: '#34D399' }}>Первый месяц в подарок</span>
                   </div>
                   
                   {/* Price */}
