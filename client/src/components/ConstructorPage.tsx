@@ -296,234 +296,234 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
     <div className="min-h-screen bg-black text-white pb-32 smooth-scroll-page" style={{ paddingTop: '140px' }}>
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
-        {/* iOS 26 Premium Monochrome Payment Section */}
-        <section className="scroll-fade-in ios26-payment-section">
-          <style>{`
-            .ios26-payment-section {
-              contain: layout style;
-            }
-            
-            .ios26-liquid-card {
-              position: relative;
-              background: rgba(255, 255, 255, 0.03);
-              backdrop-filter: blur(40px) saturate(150%);
-              -webkit-backdrop-filter: blur(40px) saturate(150%);
-              border-radius: 28px;
-              overflow: hidden;
-            }
-            
-            .ios26-stage-card {
-              position: relative;
-              background: rgba(255, 255, 255, 0.02);
-              backdrop-filter: blur(16px);
-              -webkit-backdrop-filter: blur(16px);
-              border-radius: 20px;
-              padding: 20px;
-            }
-            
-            .ios26-stage-number {
-              width: 26px;
-              height: 26px;
-              border-radius: 50%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 11px;
-              font-weight: 600;
-            }
-            
-            .ios26-feature-pill {
-              display: flex;
-              align-items: center;
-              gap: 10px;
-              padding: 12px 14px;
-              background: rgba(255, 255, 255, 0.02);
-              border-radius: 12px;
-            }
-            
-            .ios26-price-card {
-              position: relative;
-              background: rgba(255, 255, 255, 0.03);
-              backdrop-filter: blur(20px);
-              -webkit-backdrop-filter: blur(20px);
-              border-radius: 22px;
-              padding: 28px;
-              text-align: center;
-              overflow: hidden;
-            }
-            
-            .ios26-badge {
-              display: inline-flex;
-              align-items: center;
-              gap: 8px;
-              padding: 8px 14px;
-              border-radius: 100px;
-            }
-            
-            .ios26-divider {
-              height: 1px;
-              background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06) 20%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.06) 80%, transparent);
-              margin: 24px 0;
-            }
-            
-            .ios26-check-icon {
-              width: 18px;
-              height: 18px;
-              border-radius: 50%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              flex-shrink: 0;
-            }
-          `}</style>
+        {/* Payment Section - About Page Style */}
+        <section className="px-3">
+          {/* Section Label */}
+          <p 
+            className="scroll-fade-in"
+            style={{
+              fontSize: '10px',
+              fontWeight: 600,
+              letterSpacing: '0.12em',
+              color: '#52525B',
+              textTransform: 'uppercase',
+              marginBottom: '16px'
+            }}
+          >
+            Оплата
+          </p>
           
-          <div className="ios26-liquid-card p-7">
-            <div className="relative z-10">
-              {/* Header */}
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-4" style={{ background: 'rgba(0, 122, 255, 0.1)' }}>
-                  <Shield className="w-6 h-6" style={{ color: '#007AFF' }} />
-                </div>
-                <h3 className="text-[22px] font-semibold text-white mb-2 tracking-[-0.02em]">Инвестируйте с уверенностью</h3>
-                <p className="text-[15px] text-white/45 max-w-[280px] mx-auto leading-relaxed">
-                  Оплата по результату — вы видите прогресс до каждого платежа
-                </p>
-              </div>
+          {/* Main Heading */}
+          <h2 
+            className="scroll-fade-in-delay-1"
+            style={{
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              fontSize: '28px',
+              fontWeight: 600,
+              letterSpacing: '-0.025em',
+              lineHeight: '1.2',
+              color: '#FAFAFA',
+              marginBottom: '12px'
+            }}
+          >
+            Инвестируйте
+            <br />
+            <span style={{ color: '#A78BFA' }}>с уверенностью</span>
+          </h2>
+          
+          <p 
+            className="scroll-fade-in-delay-2"
+            style={{
+              fontSize: '15px',
+              fontWeight: 400,
+              letterSpacing: '-0.01em',
+              lineHeight: '1.6',
+              color: '#71717A',
+              marginBottom: '32px',
+              maxWidth: '300px'
+            }}
+          >
+            Оплата по результату — вы видите прогресс до каждого платежа
+          </p>
 
-              {/* Payment Stages */}
-              <div className="space-y-3 mb-8">
-                
-                {/* Stage 1 */}
-                <div className="ios26-stage-card" style={{ border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                  <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 flex items-center justify-center rounded-xl flex-shrink-0" style={{ background: 'rgba(0, 122, 255, 0.1)' }}>
-                      <Zap className="w-5 h-5" style={{ color: '#007AFF' }} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div>
-                          <div className="text-[16px] font-medium text-white/90">Старт проекта</div>
-                          <div className="text-[13px]" style={{ color: '#5AC8FA' }}>Всего 35% для начала</div>
-                        </div>
-                        <div className="ios26-stage-number" style={{ background: 'rgba(0, 122, 255, 0.1)', color: '#007AFF' }}>1</div>
-                      </div>
-                      <p className="text-[13px] text-white/35 leading-relaxed">
-                        Команда приступает к работе в тот же день. Минимальный вход — максимальная скорость
-                      </p>
-                    </div>
-                  </div>
+          {/* Payment Stages */}
+          <div className="space-y-3 mb-8">
+            {[
+              { 
+                icon: Zap, 
+                title: 'Старт проекта', 
+                subtitle: 'Всего 35% для начала',
+                desc: 'Команда приступает к работе в тот же день'
+              },
+              { 
+                icon: CheckCircle, 
+                title: 'Проверьте и примите', 
+                subtitle: '65% после одобрения',
+                desc: 'Платите только когда довольны результатом'
+              },
+              { 
+                icon: TrendingUp, 
+                title: 'Рост без забот', 
+                subtitle: 'Мы берём всё на себя',
+                desc: 'Хостинг, обновления, безопасность — включено'
+              }
+            ].map((item, index) => (
+              <div 
+                key={index}
+                className="scroll-fade-in"
+                style={{
+                  display: 'flex',
+                  gap: '16px',
+                  padding: '20px',
+                  borderRadius: '14px',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid rgba(255, 255, 255, 0.04)'
+                }}
+              >
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '12px',
+                  background: 'rgba(139, 92, 246, 0.1)',
+                  flexShrink: 0
+                }}>
+                  <item.icon size={20} color="#A78BFA" />
                 </div>
-
-                {/* Stage 2 */}
-                <div className="ios26-stage-card" style={{ border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                  <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 flex items-center justify-center rounded-xl flex-shrink-0" style={{ background: 'rgba(0, 122, 255, 0.1)' }}>
-                      <CheckCircle className="w-5 h-5" style={{ color: '#007AFF' }} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div>
-                          <div className="text-[16px] font-medium text-white/90">Проверьте и примите</div>
-                          <div className="text-[13px]" style={{ color: '#5AC8FA' }}>65% после одобрения</div>
-                        </div>
-                        <div className="ios26-stage-number" style={{ background: 'rgba(0, 122, 255, 0.1)', color: '#007AFF' }}>2</div>
-                      </div>
-                      <p className="text-[13px] text-white/35 leading-relaxed">
-                        Полный контроль в ваших руках — платите только когда довольны результатом
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stage 3 */}
-                <div className="ios26-stage-card" style={{ border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                  <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 flex items-center justify-center rounded-xl flex-shrink-0" style={{ background: 'rgba(0, 122, 255, 0.1)' }}>
-                      <TrendingUp className="w-5 h-5" style={{ color: '#007AFF' }} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div>
-                          <div className="text-[16px] font-medium text-white/90">Рост без забот</div>
-                          <div className="text-[13px]" style={{ color: '#5AC8FA' }}>Забудьте о технических проблемах</div>
-                        </div>
-                        <div className="ios26-stage-number" style={{ background: 'rgba(0, 122, 255, 0.1)', color: '#007AFF' }}>3</div>
-                      </div>
-                      <p className="text-[13px] text-white/35 leading-relaxed">
-                        Мы берём на себя всё: хостинг, обновления, безопасность. Вы — фокус на бизнесе
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="ios26-divider" />
-
-              {/* Subscription Details */}
-              <div className="mb-6">
-                <div className="text-center mb-5">
-                  <div className="ios26-badge" style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                    <Rocket className="w-4 h-4" style={{ color: '#007AFF' }} />
-                    <span className="text-[13px] font-medium text-white/60">Полный пакет заботы</span>
-                  </div>
-                </div>
-                
-                {/* Features Grid */}
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                    <div className="ios26-check-icon" style={{ background: 'rgba(0, 122, 255, 0.12)' }}>
-                      <Check className="w-3 h-3" style={{ color: '#007AFF' }} />
-                    </div>
-                    <span className="text-[13px] text-white/70">Быстрый хостинг</span>
-                  </div>
-                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                    <div className="ios26-check-icon" style={{ background: 'rgba(0, 122, 255, 0.12)' }}>
-                      <Check className="w-3 h-3" style={{ color: '#007AFF' }} />
-                    </div>
-                    <span className="text-[13px] text-white/70">Личный менеджер</span>
-                  </div>
-                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                    <div className="ios26-check-icon" style={{ background: 'rgba(0, 122, 255, 0.12)' }}>
-                      <Check className="w-3 h-3" style={{ color: '#007AFF' }} />
-                    </div>
-                    <span className="text-[13px] text-white/70">Новые функции</span>
-                  </div>
-                  <div className="ios26-feature-pill" style={{ border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                    <div className="ios26-check-icon" style={{ background: 'rgba(0, 122, 255, 0.12)' }}>
-                      <Check className="w-3 h-3" style={{ color: '#007AFF' }} />
-                    </div>
-                    <span className="text-[13px] text-white/70">Защита данных</span>
-                  </div>
+                <div>
+                  <p style={{
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    color: '#FAFAFA',
+                    marginBottom: '2px'
+                  }}>
+                    {item.title}
+                  </p>
+                  <p style={{
+                    fontSize: '13px',
+                    color: '#A78BFA',
+                    marginBottom: '4px'
+                  }}>
+                    {item.subtitle}
+                  </p>
+                  <p style={{
+                    fontSize: '13px',
+                    color: '#71717A',
+                    lineHeight: '1.4'
+                  }}>
+                    {item.desc}
+                  </p>
                 </div>
               </div>
+            ))}
+          </div>
 
-              {/* Price Card */}
-              <div className="ios26-price-card" style={{ border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div className="relative z-10">
-                  {/* Free Month Badge */}
-                  <div className="ios26-badge mb-5" style={{ background: 'rgba(52, 199, 89, 0.1)', border: '1px solid rgba(52, 199, 89, 0.2)' }}>
-                    <Gift className="w-4 h-4" style={{ color: '#34C759' }} />
-                    <span className="text-[13px] font-medium" style={{ color: '#34C759' }}>30 дней бесплатно</span>
-                  </div>
-                  
-                  {/* Price */}
-                  <div className="mb-4">
-                    <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-[38px] font-semibold text-white tracking-[-0.02em]">5,999</span>
-                      <span className="text-[18px] font-medium text-white/50">₽/мес</span>
-                    </div>
-                    <div className="text-[13px] text-white/40 mt-2">Оплата со второго месяца</div>
-                  </div>
+          {/* Hairline */}
+          <div style={{ height: '1px', background: '#27272A', marginBottom: '24px' }} />
 
-                  {/* Value proposition */}
-                  <div className="flex items-center justify-center gap-3 text-[12px] text-white/35">
-                    <span>Отмена в любой момент</span>
-                    <span className="w-1 h-1 rounded-full bg-white/20" />
-                    <span>Без привязки</span>
-                  </div>
+          {/* Subscription Label */}
+          <p 
+            style={{
+              fontSize: '10px',
+              fontWeight: 600,
+              letterSpacing: '0.12em',
+              color: '#52525B',
+              textTransform: 'uppercase',
+              marginBottom: '16px'
+            }}
+          >
+            Подписка
+          </p>
+
+          {/* Features Grid */}
+          <div 
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '12px',
+              marginBottom: '24px'
+            }}
+          >
+            {[
+              'Быстрый хостинг',
+              'Личный менеджер',
+              'Новые функции',
+              'Защита данных'
+            ].map((feature, index) => (
+              <div 
+                key={index}
+                style={{
+                  padding: '16px',
+                  borderRadius: '14px',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid rgba(255, 255, 255, 0.04)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+              >
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  background: 'rgba(139, 92, 246, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Check size={12} color="#A78BFA" />
                 </div>
+                <span style={{ fontSize: '13px', color: '#E4E4E7' }}>{feature}</span>
               </div>
+            ))}
+          </div>
+
+          {/* Price Card */}
+          <div 
+            style={{
+              padding: '28px',
+              borderRadius: '20px',
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.04) 100%)',
+              border: '1px solid rgba(139, 92, 246, 0.15)',
+              textAlign: 'center'
+            }}
+          >
+            {/* Free Badge */}
+            <div 
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                borderRadius: '100px',
+                background: 'rgba(52, 199, 89, 0.1)',
+                border: '1px solid rgba(52, 199, 89, 0.2)',
+                marginBottom: '20px'
+              }}
+            >
+              <Gift size={14} color="#34C759" />
+              <span style={{ fontSize: '13px', fontWeight: 500, color: '#34C759' }}>30 дней бесплатно</span>
+            </div>
+
+            {/* Price */}
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '42px', fontWeight: 700, color: '#FAFAFA', letterSpacing: '-0.03em' }}>5,999</span>
+                <span style={{ fontSize: '18px', fontWeight: 500, color: '#71717A' }}>₽/мес</span>
+              </div>
+              <p style={{ fontSize: '13px', color: '#52525B', marginTop: '8px' }}>
+                Оплата со второго месяца
+              </p>
+            </div>
+
+            {/* Value Props */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', fontSize: '12px', color: '#71717A' }}>
+              <span>Отмена в любой момент</span>
+              <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#3F3F46' }} />
+              <span>Без привязки</span>
             </div>
           </div>
         </section>
