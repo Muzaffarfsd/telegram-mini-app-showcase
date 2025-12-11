@@ -384,9 +384,9 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-4" style={{ background: 'rgba(0, 122, 255, 0.1)' }}>
                   <Shield className="w-6 h-6" style={{ color: '#007AFF' }} />
                 </div>
-                <h3 className="text-[22px] font-semibold text-white mb-2 tracking-[-0.02em]">Прозрачная оплата</h3>
+                <h3 className="text-[22px] font-semibold text-white mb-2 tracking-[-0.02em]">Инвестируйте с уверенностью</h3>
                 <p className="text-[15px] text-white/45 max-w-[280px] mx-auto leading-relaxed">
-                  Платите поэтапно — минимальный риск, максимальный контроль
+                  Оплата по результату — вы видите прогресс до каждого платежа
                 </p>
               </div>
 
@@ -402,13 +402,13 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1.5">
                         <div>
-                          <div className="text-[16px] font-medium text-white/90">35% предоплата</div>
-                          <div className="text-[13px] text-white/50">Запуск разработки</div>
+                          <div className="text-[16px] font-medium text-white/90">Старт проекта</div>
+                          <div className="text-[13px]" style={{ color: '#5AC8FA' }}>Всего 35% для начала</div>
                         </div>
                         <div className="ios26-stage-number" style={{ background: 'rgba(0, 122, 255, 0.1)', color: '#007AFF' }}>1</div>
                       </div>
                       <p className="text-[13px] text-white/35 leading-relaxed">
-                        Мы начинаем создавать ваше приложение сразу после внесения предоплаты
+                        Команда приступает к работе в тот же день. Минимальный вход — максимальная скорость
                       </p>
                     </div>
                   </div>
@@ -423,13 +423,13 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1.5">
                         <div>
-                          <div className="text-[16px] font-medium text-white/90">65% при получении</div>
-                          <div className="text-[13px] text-white/50">Готовое приложение</div>
+                          <div className="text-[16px] font-medium text-white/90">Проверьте и примите</div>
+                          <div className="text-[13px]" style={{ color: '#5AC8FA' }}>65% после одобрения</div>
                         </div>
                         <div className="ios26-stage-number" style={{ background: 'rgba(0, 122, 255, 0.1)', color: '#007AFF' }}>2</div>
                       </div>
                       <p className="text-[13px] text-white/35 leading-relaxed">
-                        Оплачиваете остаток только после тестирования и принятия работы
+                        Полный контроль в ваших руках — платите только когда довольны результатом
                       </p>
                     </div>
                   </div>
@@ -444,13 +444,13 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1.5">
                         <div>
-                          <div className="text-[16px] font-medium text-white/90">Поддержка и развитие</div>
-                          <div className="text-[13px] text-white/50">Ежемесячная подписка</div>
+                          <div className="text-[16px] font-medium text-white/90">Рост без забот</div>
+                          <div className="text-[13px]" style={{ color: '#5AC8FA' }}>Забудьте о технических проблемах</div>
                         </div>
                         <div className="ios26-stage-number" style={{ background: 'rgba(0, 122, 255, 0.1)', color: '#007AFF' }}>3</div>
                       </div>
                       <p className="text-[13px] text-white/35 leading-relaxed">
-                        Стабильная работа, обновления и поддержка вашего бизнеса 24/7
+                        Мы берём на себя всё: хостинг, обновления, безопасность. Вы — фокус на бизнесе
                       </p>
                     </div>
                   </div>
@@ -465,7 +465,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 <div className="text-center mb-5">
                   <div className="ios26-badge" style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                     <Rocket className="w-4 h-4" style={{ color: '#007AFF' }} />
-                    <span className="text-[13px] font-medium text-white/60">Что входит в подписку</span>
+                    <span className="text-[13px] font-medium text-white/60">Полный пакет заботы</span>
                   </div>
                 </div>
                 
@@ -475,25 +475,25 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                     <div className="ios26-check-icon" style={{ background: 'rgba(0, 122, 255, 0.12)' }}>
                       <Check className="w-3 h-3" style={{ color: '#007AFF' }} />
                     </div>
-                    <span className="text-[13px] text-white/70">Хостинг и сервера</span>
+                    <span className="text-[13px] text-white/70">Быстрый хостинг</span>
                   </div>
                   <div className="ios26-feature-pill" style={{ border: '1px solid rgba(255, 255, 255, 0.06)' }}>
                     <div className="ios26-check-icon" style={{ background: 'rgba(0, 122, 255, 0.12)' }}>
                       <Check className="w-3 h-3" style={{ color: '#007AFF' }} />
                     </div>
-                    <span className="text-[13px] text-white/70">Поддержка 24/7</span>
+                    <span className="text-[13px] text-white/70">Личный менеджер</span>
                   </div>
                   <div className="ios26-feature-pill" style={{ border: '1px solid rgba(255, 255, 255, 0.06)' }}>
                     <div className="ios26-check-icon" style={{ background: 'rgba(0, 122, 255, 0.12)' }}>
                       <Check className="w-3 h-3" style={{ color: '#007AFF' }} />
                     </div>
-                    <span className="text-[13px] text-white/70">Обновления</span>
+                    <span className="text-[13px] text-white/70">Новые функции</span>
                   </div>
                   <div className="ios26-feature-pill" style={{ border: '1px solid rgba(255, 255, 255, 0.06)' }}>
                     <div className="ios26-check-icon" style={{ background: 'rgba(0, 122, 255, 0.12)' }}>
                       <Check className="w-3 h-3" style={{ color: '#007AFF' }} />
                     </div>
-                    <span className="text-[13px] text-white/70">Резервные копии</span>
+                    <span className="text-[13px] text-white/70">Защита данных</span>
                   </div>
                 </div>
               </div>
@@ -502,25 +502,25 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               <div className="ios26-price-card" style={{ border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <div className="relative z-10">
                   {/* Free Month Badge */}
-                  <div className="ios26-badge mb-5" style={{ background: 'rgba(0, 122, 255, 0.1)', border: '1px solid rgba(0, 122, 255, 0.2)' }}>
-                    <Gift className="w-4 h-4" style={{ color: '#007AFF' }} />
-                    <span className="text-[13px] font-medium" style={{ color: '#5AC8FA' }}>Первый месяц в подарок</span>
+                  <div className="ios26-badge mb-5" style={{ background: 'rgba(52, 199, 89, 0.1)', border: '1px solid rgba(52, 199, 89, 0.2)' }}>
+                    <Gift className="w-4 h-4" style={{ color: '#34C759' }} />
+                    <span className="text-[13px] font-medium" style={{ color: '#34C759' }}>30 дней бесплатно</span>
                   </div>
                   
                   {/* Price */}
                   <div className="mb-4">
                     <div className="flex items-baseline justify-center gap-1">
                       <span className="text-[38px] font-semibold text-white tracking-[-0.02em]">5,999</span>
-                      <span className="text-[18px] font-medium text-white/50">₽</span>
+                      <span className="text-[18px] font-medium text-white/50">₽/мес</span>
                     </div>
-                    <div className="text-[13px] text-white/35 mt-2">в месяц со второго месяца</div>
+                    <div className="text-[13px] text-white/40 mt-2">Оплата со второго месяца</div>
                   </div>
 
                   {/* Value proposition */}
-                  <div className="flex items-center justify-center gap-3 text-[12px] text-white/30">
-                    <span>Всё включено</span>
-                    <span className="w-1 h-1 rounded-full bg-white/15" />
-                    <span>Без скрытых платежей</span>
+                  <div className="flex items-center justify-center gap-3 text-[12px] text-white/35">
+                    <span>Отмена в любой момент</span>
+                    <span className="w-1 h-1 rounded-full bg-white/20" />
+                    <span>Без привязки</span>
                   </div>
                 </div>
               </div>
