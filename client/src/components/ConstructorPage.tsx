@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, memo, useEffect, useRef } from "react";
+import { m, AnimatePresence } from "framer-motion";
 import { trackProjectCreation, trackFeatureAdded } from "@/hooks/useGamification";
 import { 
   Wrench,
@@ -44,6 +45,296 @@ import {
 interface ConstructorPageProps {
   onNavigate: (section: string, data?: any) => void;
 }
+
+// Animated headlines for payment section
+const paymentHeadlines = [
+  { text: "рост продаж", color: "#10B981" },
+  { text: "новых клиентов", color: "#A78BFA" },
+  { text: "автоматизацию", color: "#FF9F0A" },
+  { text: "преимущество", color: "#5AC8FA" }
+];
+
+// Payment Section Component with Framer Motion animation
+const PaymentSection = memo(() => {
+  const [headlineIndex, setHeadlineIndex] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeadlineIndex((prev) => (prev + 1) % paymentHeadlines.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  return (
+    <section className="px-3">
+      {/* Section Label */}
+      <p 
+        className="scroll-fade-in"
+        style={{
+          fontSize: '10px',
+          fontWeight: 600,
+          letterSpacing: '0.12em',
+          color: '#52525B',
+          textTransform: 'uppercase',
+          marginBottom: '16px'
+        }}
+      >
+        Условия работы
+      </p>
+      
+      {/* ATTENTION - Main Heading with Rotating Text */}
+      <h2 
+        className="scroll-fade-in-delay-1"
+        style={{
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+          fontSize: '32px',
+          fontWeight: 600,
+          letterSpacing: '-0.035em',
+          lineHeight: '1.02',
+          color: '#FAFAFA',
+          marginBottom: '4px'
+        }}
+      >
+        Вы получите
+      </h2>
+      
+      {/* Rotating Text - Same style as ShowcasePage */}
+      <div className="scroll-fade-in-delay-1" style={{ height: '42px', overflow: 'hidden', marginBottom: '20px' }}>
+        <AnimatePresence mode="wait">
+          <m.span
+            key={headlineIndex}
+            initial={{ y: 50, opacity: 0, filter: 'blur(8px)' }}
+            animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+            exit={{ y: -50, opacity: 0, filter: 'blur(8px)' }}
+            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+            className="block"
+            style={{ 
+              fontSize: '32px', 
+              fontWeight: 600, 
+              color: paymentHeadlines[headlineIndex].color,
+              letterSpacing: '-0.035em'
+            }}
+          >
+            {paymentHeadlines[headlineIndex].text}
+          </m.span>
+        </AnimatePresence>
+      </div>
+      
+      {/* INTEREST - Compelling Description */}
+      <p 
+        className="scroll-fade-in-delay-2"
+        style={{
+          fontSize: '15px',
+          fontWeight: 400,
+          letterSpacing: '-0.01em',
+          lineHeight: '1.6',
+          color: '#71717A',
+          marginBottom: '32px',
+          maxWidth: '320px'
+        }}
+      >
+        93% наших клиентов окупают вложения в первый месяц. Платите только за результат.
+      </p>
+
+      {/* DESIRE - Payment Stages with Benefits */}
+      <div className="space-y-3 mb-8">
+        {[
+          { 
+            icon: Zap, 
+            title: 'Минимальный риск', 
+            highlight: '35%',
+            desc: 'Начните с небольшой суммы — увидьте результат до полной оплаты'
+          },
+          { 
+            icon: Shield, 
+            title: 'Полный контроль', 
+            highlight: '65%',
+            desc: 'Тестируйте, правьте, одобряйте — платите только за готовый продукт'
+          },
+          { 
+            icon: Rocket, 
+            title: 'Запуск за 14 дней', 
+            highlight: 'Быстро',
+            desc: 'Пока конкуренты планируют — вы уже принимаете заказы'
+          }
+        ].map((item, index) => (
+          <div 
+            key={index}
+            className="scroll-fade-in"
+            style={{
+              display: 'flex',
+              gap: '16px',
+              padding: '20px',
+              borderRadius: '14px',
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid rgba(255, 255, 255, 0.04)'
+            }}
+          >
+            <div style={{
+              width: '44px',
+              height: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '12px',
+              background: 'rgba(139, 92, 246, 0.1)',
+              flexShrink: 0
+            }}>
+              <item.icon size={20} color="#A78BFA" />
+            </div>
+            <div className="flex-1">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <p style={{
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  color: '#FAFAFA'
+                }}>
+                  {item.title}
+                </p>
+                <span style={{
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#A78BFA',
+                  background: 'rgba(139, 92, 246, 0.1)',
+                  padding: '4px 10px',
+                  borderRadius: '8px'
+                }}>
+                  {item.highlight}
+                </span>
+              </div>
+              <p style={{
+                fontSize: '13px',
+                color: '#71717A',
+                lineHeight: '1.4'
+              }}>
+                {item.desc}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Hairline */}
+      <div style={{ height: '1px', background: '#27272A', marginBottom: '24px' }} />
+
+      {/* Subscription Label */}
+      <p 
+        style={{
+          fontSize: '10px',
+          fontWeight: 600,
+          letterSpacing: '0.12em',
+          color: '#52525B',
+          textTransform: 'uppercase',
+          marginBottom: '12px'
+        }}
+      >
+        После запуска
+      </p>
+      
+      <h3 
+        style={{
+          fontSize: '20px',
+          fontWeight: 600,
+          color: '#FAFAFA',
+          marginBottom: '8px',
+          letterSpacing: '-0.02em'
+        }}
+      >
+        Забудьте о проблемах
+      </h3>
+      
+      <p style={{ fontSize: '14px', color: '#71717A', marginBottom: '20px', lineHeight: '1.5' }}>
+        Мы берём техническую часть на себя — вы занимаетесь бизнесом
+      </p>
+
+      {/* Features Grid */}
+      <div 
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '12px',
+          marginBottom: '24px'
+        }}
+      >
+        {[
+          { text: 'Серверы 99.9%', sub: 'uptime' },
+          { text: 'Ответ за 2 часа', sub: 'поддержка' },
+          { text: 'Обновления', sub: 'бесплатно' },
+          { text: 'Бэкапы', sub: 'ежедневно' }
+        ].map((feature, index) => (
+          <div 
+            key={index}
+            style={{
+              padding: '16px',
+              borderRadius: '14px',
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid rgba(255, 255, 255, 0.04)',
+              textAlign: 'center'
+            }}
+          >
+            <p style={{ fontSize: '14px', fontWeight: 600, color: '#FAFAFA', marginBottom: '2px' }}>{feature.text}</p>
+            <p style={{ fontSize: '11px', color: '#52525B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{feature.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ACTION - Price Card with CTA */}
+      <div 
+        style={{
+          padding: '28px',
+          borderRadius: '20px',
+          background: 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.06) 100%)',
+          border: '1px solid rgba(139, 92, 246, 0.2)',
+          textAlign: 'center'
+        }}
+      >
+        {/* Urgency Badge */}
+        <div 
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 14px',
+            borderRadius: '100px',
+            background: 'rgba(52, 199, 89, 0.15)',
+            border: '1px solid rgba(52, 199, 89, 0.25)',
+            marginBottom: '20px'
+          }}
+        >
+          <Gift size={14} color="#34C759" />
+          <span style={{ fontSize: '13px', fontWeight: 600, color: '#34C759' }}>Первый месяц — бесплатно</span>
+        </div>
+
+        {/* Price with Value Anchor */}
+        <div style={{ marginBottom: '20px' }}>
+          <p style={{ fontSize: '13px', color: '#71717A', marginBottom: '8px', textDecoration: 'line-through' }}>
+            9,999 ₽/мес
+          </p>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '4px' }}>
+            <span style={{ fontSize: '44px', fontWeight: 700, color: '#FAFAFA', letterSpacing: '-0.03em' }}>5,999</span>
+            <span style={{ fontSize: '18px', fontWeight: 500, color: '#71717A' }}>₽/мес</span>
+          </div>
+          <p style={{ fontSize: '13px', color: '#A78BFA', marginTop: '8px', fontWeight: 500 }}>
+            Экономия 48 000 ₽ в год
+          </p>
+        </div>
+
+        {/* Trust Signals */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', fontSize: '12px', color: '#71717A' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Check size={14} color="#34C759" />
+            <span>Без привязки</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Check size={14} color="#34C759" />
+            <span>Отмена в 1 клик</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+});
+PaymentSection.displayName = 'PaymentSection';
 
 interface SelectedFeature {
   id: string;
@@ -296,237 +587,8 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
     <div className="min-h-screen bg-black text-white pb-32 smooth-scroll-page" style={{ paddingTop: '140px' }}>
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
-        {/* Payment Section - About Page Style */}
-        <section className="px-3">
-          {/* Section Label */}
-          <p 
-            className="scroll-fade-in"
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: '#52525B',
-              textTransform: 'uppercase',
-              marginBottom: '16px'
-            }}
-          >
-            Оплата
-          </p>
-          
-          {/* Main Heading */}
-          <h2 
-            className="scroll-fade-in-delay-1"
-            style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: '28px',
-              fontWeight: 600,
-              letterSpacing: '-0.025em',
-              lineHeight: '1.2',
-              color: '#FAFAFA',
-              marginBottom: '12px'
-            }}
-          >
-            Инвестируйте
-            <br />
-            <span style={{ color: '#A78BFA' }}>с уверенностью</span>
-          </h2>
-          
-          <p 
-            className="scroll-fade-in-delay-2"
-            style={{
-              fontSize: '15px',
-              fontWeight: 400,
-              letterSpacing: '-0.01em',
-              lineHeight: '1.6',
-              color: '#71717A',
-              marginBottom: '32px',
-              maxWidth: '300px'
-            }}
-          >
-            Оплата по результату — вы видите прогресс до каждого платежа
-          </p>
-
-          {/* Payment Stages */}
-          <div className="space-y-3 mb-8">
-            {[
-              { 
-                icon: Zap, 
-                title: 'Старт проекта', 
-                subtitle: 'Всего 35% для начала',
-                desc: 'Команда приступает к работе в тот же день'
-              },
-              { 
-                icon: CheckCircle, 
-                title: 'Проверьте и примите', 
-                subtitle: '65% после одобрения',
-                desc: 'Платите только когда довольны результатом'
-              },
-              { 
-                icon: TrendingUp, 
-                title: 'Рост без забот', 
-                subtitle: 'Мы берём всё на себя',
-                desc: 'Хостинг, обновления, безопасность — включено'
-              }
-            ].map((item, index) => (
-              <div 
-                key={index}
-                className="scroll-fade-in"
-                style={{
-                  display: 'flex',
-                  gap: '16px',
-                  padding: '20px',
-                  borderRadius: '14px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.04)'
-                }}
-              >
-                <div style={{
-                  width: '44px',
-                  height: '44px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '12px',
-                  background: 'rgba(139, 92, 246, 0.1)',
-                  flexShrink: 0
-                }}>
-                  <item.icon size={20} color="#A78BFA" />
-                </div>
-                <div>
-                  <p style={{
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    color: '#FAFAFA',
-                    marginBottom: '2px'
-                  }}>
-                    {item.title}
-                  </p>
-                  <p style={{
-                    fontSize: '13px',
-                    color: '#A78BFA',
-                    marginBottom: '4px'
-                  }}>
-                    {item.subtitle}
-                  </p>
-                  <p style={{
-                    fontSize: '13px',
-                    color: '#71717A',
-                    lineHeight: '1.4'
-                  }}>
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Hairline */}
-          <div style={{ height: '1px', background: '#27272A', marginBottom: '24px' }} />
-
-          {/* Subscription Label */}
-          <p 
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: '#52525B',
-              textTransform: 'uppercase',
-              marginBottom: '16px'
-            }}
-          >
-            Подписка
-          </p>
-
-          {/* Features Grid */}
-          <div 
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '12px',
-              marginBottom: '24px'
-            }}
-          >
-            {[
-              'Быстрый хостинг',
-              'Личный менеджер',
-              'Новые функции',
-              'Защита данных'
-            ].map((feature, index) => (
-              <div 
-                key={index}
-                style={{
-                  padding: '16px',
-                  borderRadius: '14px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.04)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
-                }}
-              >
-                <div style={{
-                  width: '20px',
-                  height: '20px',
-                  borderRadius: '50%',
-                  background: 'rgba(139, 92, 246, 0.15)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <Check size={12} color="#A78BFA" />
-                </div>
-                <span style={{ fontSize: '13px', color: '#E4E4E7' }}>{feature}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Price Card */}
-          <div 
-            style={{
-              padding: '28px',
-              borderRadius: '20px',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.04) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.15)',
-              textAlign: 'center'
-            }}
-          >
-            {/* Free Badge */}
-            <div 
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 14px',
-                borderRadius: '100px',
-                background: 'rgba(52, 199, 89, 0.1)',
-                border: '1px solid rgba(52, 199, 89, 0.2)',
-                marginBottom: '20px'
-              }}
-            >
-              <Gift size={14} color="#34C759" />
-              <span style={{ fontSize: '13px', fontWeight: 500, color: '#34C759' }}>30 дней бесплатно</span>
-            </div>
-
-            {/* Price */}
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '42px', fontWeight: 700, color: '#FAFAFA', letterSpacing: '-0.03em' }}>5,999</span>
-                <span style={{ fontSize: '18px', fontWeight: 500, color: '#71717A' }}>₽/мес</span>
-              </div>
-              <p style={{ fontSize: '13px', color: '#52525B', marginTop: '8px' }}>
-                Оплата со второго месяца
-              </p>
-            </div>
-
-            {/* Value Props */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', fontSize: '12px', color: '#71717A' }}>
-              <span>Отмена в любой момент</span>
-              <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#3F3F46' }} />
-              <span>Без привязки</span>
-            </div>
-          </div>
-        </section>
+        {/* Payment Section - AIDA Style with Animated Text */}
+        <PaymentSection />
 
         {/* Progress Steps */}
         <section className="scroll-fade-in-delay-2">
