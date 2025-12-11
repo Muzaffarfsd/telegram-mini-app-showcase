@@ -1615,7 +1615,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       </div>
 
       <div className="top-bar">
-        <div className="max-w-md mx-auto px-5 pt-16 pb-4 flex items-center justify-between gap-4">
+        <div className="max-w-md mx-auto px-5 pt-20 pb-4 flex items-center justify-between gap-4">
           <AnimatedHamburgerIcon 
             ref={triggerButtonRef}
             isOpen={sidebarOpen} 
