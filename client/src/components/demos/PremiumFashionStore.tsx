@@ -74,7 +74,7 @@ const products: Product[] = [
     oldPrice: 15900,
     image: blackHoodieImage, 
     hoverImage: blackHoodieImage,
-    description: 'Японский хлопок. Идеальная посадка. Создано для совершенства.', 
+    description: 'Культовое худи из премиального японского хлопка 320 г/м². Бархатистая мягкость enzyme wash, матовая латунная фурнитура ручной работы, двойные усиленные швы — безупречная посадка на годы.', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Графит'], 
     colorHex: ['#1A1A1A', '#2D2D2D'],
@@ -386,207 +386,389 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     });
   };
 
-  // PRODUCT PAGE - Apple Minimalist Design 2025
+  // PRODUCT PAGE - Luxury Couture Theater 2025
   if (activeTab === 'catalog' && selectedProduct) {
+    const isLimited = selectedProduct.inStock < 10;
+    const discountPercent = selectedProduct.oldPrice 
+      ? Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100) 
+      : 0;
     
     return (
-      <div className="min-h-screen bg-[#000000] text-white overflow-auto smooth-scroll-page">
-        {/* Floating Navigation - Minimal */}
+      <div className="min-h-screen bg-gradient-to-b from-[#0C0C0C] via-[#111111] to-[#0A0A0A] text-white overflow-auto smooth-scroll-page">
+        {/* Ambient Light Effect */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <m.div 
+            animate={{ 
+              opacity: [0.3, 0.5, 0.3],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-1/2 -left-1/2 w-full h-full"
+            style={{ 
+              background: 'radial-gradient(ellipse at center, rgba(139, 92, 246, 0.15) 0%, transparent 60%)',
+            }}
+          />
+          <m.div 
+            animate={{ 
+              opacity: [0.2, 0.4, 0.2],
+            }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute -bottom-1/4 -right-1/4 w-3/4 h-3/4"
+            style={{ 
+              background: 'radial-gradient(ellipse at center, rgba(236, 72, 153, 0.1) 0%, transparent 50%)',
+            }}
+          />
+        </div>
+
+        {/* Navigation */}
         <m.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
           className="fixed top-0 left-0 right-0 z-50 demo-nav-safe"
         >
-          <div className="flex items-center justify-between px-6">
+          <div className="flex items-center justify-between px-5">
             <m.button 
-              whileTap={{ scale: 0.92 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setSelectedProduct(null)}
-              className="w-10 h-10 rounded-full bg-white/[0.08] backdrop-blur-xl flex items-center justify-center"
+              className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
               data-testid="button-back"
             >
-              <ChevronLeft className="w-5 h-5 text-white/80" />
+              <ChevronLeft className="w-5 h-5" />
             </m.button>
-            <m.button
-              whileTap={{ scale: 0.92 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleFavorite(selectedProduct.id);
-              }}
-              className="w-10 h-10 rounded-full bg-white/[0.08] backdrop-blur-xl flex items-center justify-center"
-              aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-              data-testid={`button-favorite-${selectedProduct.id}`}
-            >
-              <Heart 
-                className={`w-5 h-5 transition-all duration-300 ${isFavorite(selectedProduct.id) ? 'fill-white text-white' : 'text-white/60'}`}
-              />
-            </m.button>
+            <div className="flex items-center gap-3">
+              <m.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleFavorite(selectedProduct.id);
+                }}
+                className={`w-12 h-12 rounded-2xl backdrop-blur-2xl border flex items-center justify-center transition-all ${
+                  isFavorite(selectedProduct.id) 
+                    ? 'bg-pink-500/20 border-pink-500/30' 
+                    : 'bg-white/5 border-white/10 hover:bg-white/10'
+                }`}
+                aria-label="Избранное"
+                data-testid={`button-favorite-${selectedProduct.id}`}
+              >
+                <Heart className={`w-5 h-5 transition-all ${isFavorite(selectedProduct.id) ? 'fill-pink-400 text-pink-400' : 'text-white/70'}`} />
+              </m.button>
+            </div>
           </div>
         </m.div>
 
-        {/* Hero Product Image - Full Focus */}
-        <m.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full aspect-[3/4] max-h-[65vh]"
-        >
-          <LazyImage
-            src={selectedProduct.hoverImage}
-            alt={selectedProduct.name}
-            className="w-full h-full object-cover"
-          />
-          {/* Subtle bottom fade */}
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent" />
-          
-          {/* Badge - Only if new */}
-          {selectedProduct.isNew && (
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="absolute top-24 left-6"
-            >
-              <span className="text-[11px] font-medium tracking-[0.15em] text-white/70 uppercase">New</span>
-            </m.div>
-          )}
-        </m.div>
-
-        {/* Content - Clean & Minimal */}
-        <div className="px-6 pt-8 pb-40">
-          {/* Product Name */}
-          <m.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-[32px] font-semibold tracking-tight leading-[1.1] mb-3"
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}
-          >
-            {selectedProduct.name}
-          </m.h1>
-          
-          {/* Tagline - Apple Style */}
-          <m.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-[17px] text-white/50 leading-relaxed mb-8"
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}
-          >
-            {selectedProduct.description}
-          </m.p>
-
-          {/* Price Block */}
+        {/* Hero Image with Parallax */}
+        <div className="relative">
           <m.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="flex items-baseline gap-3 mb-10"
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="relative aspect-[4/5] overflow-hidden"
           >
-            <span className="text-[28px] font-semibold tracking-tight">{formatPrice(selectedProduct.price)}</span>
-            {selectedProduct.oldPrice && (
-              <span className="text-[17px] text-white/30 line-through">{formatPrice(selectedProduct.oldPrice)}</span>
+            <LazyImage
+              src={selectedProduct.hoverImage}
+              alt={selectedProduct.name}
+              className="w-full h-full object-cover"
+            />
+            {/* Cinematic Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0C0C0C] via-transparent to-[#0C0C0C]/40" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0C0C0C]/30 via-transparent to-[#0C0C0C]/30" />
+          </m.div>
+
+          {/* Floating Badges */}
+          <div className="absolute top-24 left-5 flex flex-col gap-2">
+            {selectedProduct.isNew && (
+              <m.div
+                initial={{ opacity: 0, x: -30, scale: 0.8 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{ delay: 0.4, type: "spring" }}
+                className="px-4 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-xl shadow-lg shadow-violet-500/25"
+              >
+                <span className="text-[11px] font-bold tracking-[0.2em] uppercase">NEW ARRIVAL</span>
+              </m.div>
             )}
-          </m.div>
+            {isLimited && (
+              <m.div
+                initial={{ opacity: 0, x: -30, scale: 0.8 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{ delay: 0.5, type: "spring" }}
+                className="px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl"
+              >
+                <span className="text-[11px] font-semibold tracking-[0.15em] uppercase">Only {selectedProduct.inStock} left</span>
+              </m.div>
+            )}
+            {discountPercent > 0 && (
+              <m.div
+                initial={{ opacity: 0, x: -30, scale: 0.8 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{ delay: 0.6, type: "spring" }}
+                className="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-xl"
+              >
+                <span className="text-[11px] font-bold tracking-wider text-emerald-400">-{discountPercent}% OFF</span>
+              </m.div>
+            )}
+          </div>
 
-          {/* Color Selection - Minimal Dots */}
-          <m.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mb-8"
+          {/* Brand Watermark */}
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="absolute bottom-8 right-5"
           >
-            <div className="flex items-center gap-4 mb-4">
-              <span className="text-[15px] text-white/40">Цвет —</span>
-              <span className="text-[15px] text-white/80">{selectedColor}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              {selectedProduct.colors.map((color, idx) => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-8 h-8 rounded-full transition-all duration-200 ${
-                    selectedColor === color
-                      ? 'ring-[1.5px] ring-white ring-offset-[3px] ring-offset-black'
-                      : 'ring-[0.5px] ring-white/20'
-                  }`}
-                  style={{ backgroundColor: selectedProduct.colorHex[idx] }}
-                  data-testid={`button-color-${color}`}
-                />
-              ))}
-            </div>
-          </m.div>
-
-          {/* Size Selection - Clean Pills */}
-          <m.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="mb-10"
-          >
-            <div className="flex items-center gap-4 mb-4">
-              <span className="text-[15px] text-white/40">Размер</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {selectedProduct.sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`min-w-[52px] py-3 px-4 rounded-full text-[15px] font-medium transition-all duration-200 ${
-                    selectedSize === size
-                      ? 'bg-white text-black'
-                      : 'bg-white/[0.06] text-white/60 hover:bg-white/[0.1]'
-                  }`}
-                  data-testid={`button-size-${size}`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </m.div>
-
-          {/* Details - Collapsed */}
-          <m.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="border-t border-white/[0.08] pt-6"
-          >
-            <div className="flex items-center justify-between py-3">
-              <span className="text-[15px] text-white/50">Состав</span>
-              <span className="text-[15px] text-white/80">{selectedProduct.composition}</span>
-            </div>
-            <div className="flex items-center justify-between py-3 border-t border-white/[0.06]">
-              <span className="text-[15px] text-white/50">Доставка</span>
-              <span className="text-[15px] text-white/80">Бесплатно</span>
-            </div>
+            <span className="text-[10px] font-medium tracking-[0.3em] text-white/30 uppercase">{selectedProduct.brand}</span>
           </m.div>
         </div>
 
-        {/* Fixed Bottom CTA - Apple Style */}
-        <m.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-          className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/95 to-transparent pt-10"
-        >
-          <ConfirmDrawer
-            trigger={
-              <button
-                className="w-full bg-[#0071E3] text-white font-medium py-[18px] rounded-[14px] text-[17px] transition-all duration-200 hover:bg-[#0077ED] active:scale-[0.98]"
-                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}
-                data-testid="button-buy-now"
+        {/* Content Card */}
+        <div className="relative -mt-16 mx-4 mb-40">
+          <m.div
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="bg-gradient-to-b from-[#1A1A1E]/95 to-[#141417]/95 backdrop-blur-3xl border border-white/[0.08] rounded-[28px] overflow-hidden shadow-2xl shadow-black/50"
+          >
+            {/* Header */}
+            <div className="p-7 pb-5">
+              {/* Category Tag */}
+              <m.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mb-4"
               >
-                Добавить в Bag
-              </button>
-            }
-            title="Добавить в корзину?"
-            description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
-            confirmText="Добавить"
-            cancelText="Отмена"
-            variant="default"
-            onConfirm={addToCart}
-          />
+                <span className="text-[11px] font-medium tracking-[0.2em] text-violet-400/80 uppercase">{selectedProduct.category}</span>
+              </m.div>
+
+              {/* Title */}
+              <m.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55 }}
+                className="text-[28px] font-bold leading-[1.15] tracking-tight mb-4"
+                style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+              >
+                {selectedProduct.name}
+              </m.h1>
+
+              {/* Rating & Reviews */}
+              <m.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="flex items-center gap-3 mb-5"
+              >
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`w-4 h-4 ${i < Math.floor(selectedProduct.rating) ? 'fill-amber-400 text-amber-400' : 'text-white/20'}`} />
+                  ))}
+                </div>
+                <span className="text-[13px] text-white/50">{selectedProduct.rating}</span>
+                <span className="w-1 h-1 rounded-full bg-white/20" />
+                <span className="text-[13px] text-white/40">127 отзывов</span>
+              </m.div>
+
+              {/* Price Block */}
+              <m.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.65 }}
+                className="flex items-baseline gap-4"
+              >
+                <span className="text-[36px] font-bold tracking-tight">{formatPrice(selectedProduct.price)}</span>
+                {selectedProduct.oldPrice && (
+                  <span className="text-[18px] text-white/30 line-through">{formatPrice(selectedProduct.oldPrice)}</span>
+                )}
+              </m.div>
+            </div>
+
+            {/* Divider with Glow */}
+            <div className="relative h-px mx-7">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+            </div>
+
+            {/* Description */}
+            <m.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="p-7 py-5"
+            >
+              <p className="text-[15px] leading-[1.7] text-white/60">{selectedProduct.description}</p>
+            </m.div>
+
+            {/* Features Grid */}
+            <m.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.75 }}
+              className="px-7 pb-5 grid grid-cols-3 gap-3"
+            >
+              <div className="bg-white/[0.03] rounded-2xl p-4 text-center">
+                <Package className="w-5 h-5 mx-auto mb-2 text-violet-400" />
+                <span className="text-[11px] text-white/40 block">Состав</span>
+                <span className="text-[12px] text-white/80 font-medium">Premium</span>
+              </div>
+              <div className="bg-white/[0.03] rounded-2xl p-4 text-center">
+                <Sparkles className="w-5 h-5 mx-auto mb-2 text-fuchsia-400" />
+                <span className="text-[11px] text-white/40 block">Крой</span>
+                <span className="text-[12px] text-white/80 font-medium capitalize">
+                  {selectedProduct.fit === 'relaxed' ? 'Oversize' : selectedProduct.fit === 'slim' ? 'Slim' : 'Regular'}
+                </span>
+              </div>
+              <div className="bg-white/[0.03] rounded-2xl p-4 text-center">
+                <TrendingUp className="w-5 h-5 mx-auto mb-2 text-emerald-400" />
+                <span className="text-[11px] text-white/40 block">В тренде</span>
+                <span className="text-[12px] text-white/80 font-medium">#1</span>
+              </div>
+            </m.div>
+
+            {/* Divider */}
+            <div className="h-px bg-white/[0.06] mx-7" />
+
+            {/* Color Selection */}
+            <m.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+              className="p-7 py-5"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[13px] font-medium text-white/50">Цвет</span>
+                <span className="text-[13px] text-white/80">{selectedColor}</span>
+              </div>
+              <div className="flex items-center gap-4">
+                {selectedProduct.colors.map((color, idx) => (
+                  <m.button
+                    key={color}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setSelectedColor(color)}
+                    className={`relative w-14 h-14 rounded-2xl transition-all duration-300 ${
+                      selectedColor === color
+                        ? 'ring-2 ring-violet-500 ring-offset-4 ring-offset-[#1A1A1E] shadow-lg shadow-violet-500/20'
+                        : 'ring-1 ring-white/10 hover:ring-white/30'
+                    }`}
+                    style={{ backgroundColor: selectedProduct.colorHex[idx] }}
+                    data-testid={`button-color-${color}`}
+                  >
+                    <AnimatePresence>
+                      {selectedColor === color && (
+                        <m.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                          className="absolute inset-0 flex items-center justify-center"
+                        >
+                          <div className="w-2.5 h-2.5 bg-white rounded-full shadow-lg" />
+                        </m.div>
+                      )}
+                    </AnimatePresence>
+                  </m.button>
+                ))}
+              </div>
+            </m.div>
+
+            {/* Divider */}
+            <div className="h-px bg-white/[0.06] mx-7" />
+
+            {/* Size Selection */}
+            <m.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.85 }}
+              className="p-7 py-5"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[13px] font-medium text-white/50">Размер</span>
+                <button className="text-[13px] text-violet-400 hover:text-violet-300 transition-colors">Таблица размеров</button>
+              </div>
+              <div className="flex items-center gap-3">
+                {selectedProduct.sizes.map((size) => (
+                  <m.button
+                    key={size}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setSelectedSize(size)}
+                    className={`flex-1 py-4 rounded-2xl font-semibold text-[15px] transition-all duration-300 ${
+                      selectedSize === size
+                        ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25'
+                        : 'bg-white/[0.05] text-white/60 hover:bg-white/[0.1] border border-white/[0.06]'
+                    }`}
+                    data-testid={`button-size-${size}`}
+                  >
+                    {size}
+                  </m.button>
+                ))}
+              </div>
+              {/* Size Hint */}
+              {selectedProduct.sizeChart && selectedSize && (
+                <m.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-4 text-[12px] text-white/40 text-center"
+                >
+                  {selectedProduct.sizeChart[selectedSize]}
+                </m.p>
+              )}
+            </m.div>
+
+            {/* Trust Section */}
+            <m.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9 }}
+              className="px-7 pb-7 pt-2"
+            >
+              <div className="flex items-center justify-around py-4 bg-white/[0.02] rounded-2xl border border-white/[0.04]">
+                <div className="flex items-center gap-2">
+                  <Package className="w-4 h-4 text-emerald-400" />
+                  <span className="text-[11px] text-white/50">Free Shipping</span>
+                </div>
+                <div className="w-px h-4 bg-white/10" />
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-400" />
+                  <span className="text-[11px] text-white/50">Express 24h</span>
+                </div>
+                <div className="w-px h-4 bg-white/10" />
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-violet-400" />
+                  <span className="text-[11px] text-white/50">Secure Pay</span>
+                </div>
+              </div>
+            </m.div>
+          </m.div>
+        </div>
+
+        {/* Fixed Bottom CTA */}
+        <m.div
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, type: "spring" }}
+          className="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-[#0C0C0C] via-[#0C0C0C]/98 to-transparent pt-12"
+        >
+          <div className="flex items-center gap-3">
+            <ConfirmDrawer
+              trigger={
+                <m.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500 text-white font-bold py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-violet-500/30"
+                  data-testid="button-buy-now"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  <span className="text-[16px]">Добавить в корзину</span>
+                </m.button>
+              }
+              title="Добавить в корзину?"
+              description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
+              confirmText="Добавить"
+              cancelText="Отмена"
+              variant="default"
+              onConfirm={addToCart}
+            />
+          </div>
           <div className="h-[env(safe-area-inset-bottom)]" />
         </m.div>
       </div>
