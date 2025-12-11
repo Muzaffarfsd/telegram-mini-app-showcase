@@ -355,35 +355,43 @@ function App() {
                     isolation: 'isolate',
                   }}
                 >
+                  {/* 3D Depth zone - elements scale up as they approach */}
+                  <div 
+                    className="absolute -top-20 left-0 right-0 h-20 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.15) 100%)',
+                      maskImage: 'linear-gradient(to bottom, transparent, black)',
+                      WebkitMaskImage: 'linear-gradient(to bottom, transparent, black)',
+                    }}
+                  />
+                  
                   {/* Shadow layer - depth effect */}
                   <div 
                     className="absolute inset-0 rounded-[32px] pointer-events-none"
                     style={{
-                      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 12px 24px -8px rgba(0, 0, 0, 0.3)',
+                      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 12px 24px -8px rgba(0, 0, 0, 0.4)',
                       transform: 'translateY(4px)',
                     }}
                   />
                   
-                  {/* Main Liquid Glass Container */}
+                  {/* Main Liquid Glass Container - more frosted */}
                   <nav 
                     className="relative flex items-center gap-1 rounded-[32px] px-3 py-2.5"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.12)',
-                      backdropFilter: 'blur(40px) saturate(180%)',
-                      WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                      border: '1px solid rgba(255, 255, 255, 0.25)',
-                      boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.3), inset 0 -1px 1px rgba(0, 0, 0, 0.05)',
+                      background: 'rgba(30, 30, 35, 0.75)',
+                      backdropFilter: 'blur(24px) saturate(150%)',
+                      WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 0 -1px 1px rgba(0, 0, 0, 0.2)',
                     }}
                     role="navigation" 
                     aria-label="Главное меню"
                   >
-                    {/* Inner depth tint layer */}
+                    {/* Frosted overlay */}
                     <div 
                       className="absolute inset-0 rounded-[32px] pointer-events-none"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        boxShadow: 'inset 0 2px 16px rgba(255, 255, 255, 0.15)',
-                        opacity: 0.6,
+                        background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)',
                       }}
                     />
                     
@@ -391,16 +399,15 @@ function App() {
                     <div 
                       className="absolute inset-0 rounded-[32px] pointer-events-none"
                       style={{
-                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 50%)',
-                        filter: 'blur(0.5px)',
+                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 40%)',
                       }}
                     />
                     
-                    {/* Bottom edge highlight */}
+                    {/* Bottom edge subtle highlight */}
                     <div 
-                      className="absolute inset-x-4 bottom-0 h-px pointer-events-none"
+                      className="absolute inset-x-6 bottom-0 h-px pointer-events-none"
                       style={{
-                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
                       }}
                     />
                     
