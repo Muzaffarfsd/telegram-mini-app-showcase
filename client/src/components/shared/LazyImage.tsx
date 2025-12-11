@@ -156,9 +156,9 @@ export const LazyImage = memo(function LazyImage({
           onError={handleError}
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
-          fetchpriority={priority ? 'high' : 'auto'}
+          fetchPriority={priority ? 'high' : 'auto'}
           className={cn(
-            'w-full h-full object-cover',
+            'absolute inset-0 w-full h-full object-cover',
             'transition-opacity duration-500',
             isLoaded ? 'opacity-100' : 'opacity-0'
           )}

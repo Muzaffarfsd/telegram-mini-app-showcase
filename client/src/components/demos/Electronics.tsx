@@ -395,7 +395,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           <LazyImage
             src={selectedProduct.hoverImage}
             alt={selectedProduct.name}
-            className="w-full h-full object-contain p-8"
+            className="w-full h-full p-8"
+            priority
           />
         </div>
 
@@ -562,7 +563,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           <LazyImage
             src="https://images.unsplash.com/photo-1678652197950-37846b632180?w=800&h=1000&fit=crop&q=90"
             alt="Hero"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="w-full h-full"
+            priority
           />
           
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
@@ -609,14 +611,12 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               data-testid={`featured-product-${product.id}`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent">
-                {!loadedImages.has(product.id) && (
-                  <Skeleton className="w-full h-full absolute inset-0" />
-                )}
                 <LazyImage
                   src={product.image}
                   alt={product.name}
-                  className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
-                  onLoad={() => handleImageLoad(product.id)}
+                  className="w-full h-full transition-transform duration-700 group-hover:scale-110"
+                  onLoadComplete={() => handleImageLoad(product.id)}
+                  priority={idx < 2}
                 />
               </div>
 
@@ -726,14 +726,11 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 data-testid={`product-card-${product.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
-                  {!loadedImages.has(product.id) && (
-                    <Skeleton className="w-full h-full absolute inset-0" />
-                  )}
                   <LazyImage
                     src={product.image}
                     alt={product.name}
-                    className={`w-full h-full object-cover transition-opacity ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
-                    onLoad={() => handleImageLoad(product.id)}
+                    className="w-full h-full"
+                    onLoadComplete={() => handleImageLoad(product.id)}
                   />
                   
                   <button

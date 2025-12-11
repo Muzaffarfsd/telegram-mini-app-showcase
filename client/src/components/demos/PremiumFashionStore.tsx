@@ -690,6 +690,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   onLoadComplete={() => handleImageLoad(product.id)}
+                  priority={idx < 2}
                 />
               </div>
 

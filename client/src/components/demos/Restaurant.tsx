@@ -20,7 +20,7 @@ import { ConfirmDrawer } from "../ui/modern-drawer";
 import { Skeleton } from "../ui/skeleton";
 import { useFilter } from "@/hooks/useFilter";
 import { scrollToTop } from "@/hooks/useScrollToTop";
-import { DemoThemeProvider } from "@/components/shared";
+import { DemoThemeProvider, LazyImage } from "@/components/shared";
 
 interface RestaurantProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -760,15 +760,11 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
                 data-testid={`dish-card-${dish.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2 bg-white/5 backdrop-blur-xl border border-white/10">
-                  {!loadedImages.has(dish.id) && (
-                    <Skeleton className="absolute inset-0 rounded-2xl bg-white/10" />
-                  )}
-                  <img
+                  <LazyImage
                     src={dish.image}
                     alt={dish.name}
-                    className={`w-full h-full object-cover transition-opacity duration-300 ${loadedImages.has(dish.id) ? 'opacity-100' : 'opacity-0'}`}
-                    loading="lazy"
-                    onLoad={() => handleImageLoad(dish.id)}
+                    className="w-full h-full"
+                    onLoadComplete={() => handleImageLoad(dish.id)}
                   />
                   
                   {dish.isNew && (
