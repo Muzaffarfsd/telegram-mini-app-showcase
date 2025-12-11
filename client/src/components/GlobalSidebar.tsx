@@ -19,16 +19,45 @@ interface AnimatedHamburgerIconProps {
 
 const AnimatedHamburgerIcon = forwardRef<HTMLButtonElement, AnimatedHamburgerIconProps>(
   ({ isOpen, onClick }, ref) => {
+    const [isHovered, setIsHovered] = useState(false);
+    const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+    
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const id = Date.now();
+      setRipples(prev => [...prev, { id, x, y }]);
+      setTimeout(() => {
+        setRipples(prev => prev.filter(r => r.id !== id));
+      }, 600);
+      onClick();
+    };
+    
     return (
       <button
         ref={ref}
-        onClick={onClick}
-        className="hamburger-btn"
+        onClick={handleClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={`hamburger-btn ${isOpen ? 'open' : ''} ${isHovered ? 'hovered' : ''}`}
         aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
         aria-expanded={isOpen}
         data-testid="button-hamburger"
       >
-        <div className="hamburger-icon">
+        <div className="hamburger-glow" />
+        <div className="hamburger-shine" />
+        <div className="hamburger-border-glow" />
+        
+        {ripples.map(ripple => (
+          <span
+            key={ripple.id}
+            className="hamburger-ripple"
+            style={{ left: ripple.x, top: ripple.y }}
+          />
+        ))}
+        
+        <div className={`hamburger-icon ${isOpen ? 'open' : ''}`}>
           <span className={`hamburger-line line-1 ${isOpen ? 'open' : ''}`} />
           <span className={`hamburger-line line-2 ${isOpen ? 'open' : ''}`} />
           <span className={`hamburger-line line-3 ${isOpen ? 'open' : ''}`} />
@@ -308,132 +337,254 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   return (
     <>
       <style>{`
-        /* iOS 26 Liquid Glass Hamburger Button */
+        /* ═══════════════════════════════════════════════════════════════
+           iOS 26 LIQUID GLASS HAMBURGER - PROFESSIONAL EDITION
+           ═══════════════════════════════════════════════════════════════ */
+        
+        /* Hamburger Button - Main Container */
         .hamburger-btn {
-          width: 48px;
-          height: 48px;
+          width: 52px;
+          height: 52px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 16px;
-          background: rgba(255, 255, 255, 0.12);
-          backdrop-filter: blur(20px) saturate(180%);
-          -webkit-backdrop-filter: blur(20px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          box-shadow: 
-            0 4px 24px rgba(0, 0, 0, 0.15),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1),
-            inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+          border-radius: 18px;
+          background: rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(24px) saturate(200%);
+          -webkit-backdrop-filter: blur(24px) saturate(200%);
+          border: 1.5px solid rgba(255, 255, 255, 0.12);
           cursor: pointer;
           transition: 
-            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-            background 0.2s ease,
-            box-shadow 0.2s ease;
+            transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+            background 0.3s ease,
+            border-color 0.3s ease;
           will-change: transform;
           -webkit-tap-highlight-color: transparent;
           position: relative;
           overflow: hidden;
+          isolation: isolate;
         }
         
-        .hamburger-btn::before {
-          content: '';
+        /* Ambient Glow Effect */
+        .hamburger-glow {
+          position: absolute;
+          inset: -50%;
+          background: radial-gradient(
+            circle at 50% 50%,
+            rgba(139, 92, 246, 0.15) 0%,
+            transparent 50%
+          );
+          opacity: 0;
+          transition: opacity 0.5s ease;
+          pointer-events: none;
+          z-index: 0;
+        }
+        
+        .hamburger-btn.hovered .hamburger-glow,
+        .hamburger-btn.open .hamburger-glow {
+          opacity: 1;
+          animation: pulse-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-glow {
+          0%, 100% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        /* Glass Shine Effect */
+        .hamburger-shine {
           position: absolute;
           inset: 0;
-          border-radius: 16px;
+          border-radius: 18px;
           background: linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.15) 0%,
-            rgba(255, 255, 255, 0.05) 50%,
-            rgba(255, 255, 255, 0) 100%
+            rgba(255, 255, 255, 0.25) 0%,
+            rgba(255, 255, 255, 0.08) 25%,
+            transparent 50%,
+            rgba(255, 255, 255, 0.02) 75%,
+            rgba(255, 255, 255, 0.08) 100%
           );
           pointer-events: none;
+          z-index: 1;
         }
         
-        .hamburger-btn:hover {
-          background: rgba(255, 255, 255, 0.18);
-          box-shadow: 
-            0 6px 32px rgba(0, 0, 0, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15),
-            inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+        /* Animated Border Glow */
+        .hamburger-border-glow {
+          position: absolute;
+          inset: -2px;
+          border-radius: 20px;
+          background: conic-gradient(
+            from 0deg,
+            transparent 0deg,
+            rgba(139, 92, 246, 0.5) 60deg,
+            rgba(167, 139, 250, 0.8) 120deg,
+            transparent 180deg,
+            rgba(139, 92, 246, 0.5) 240deg,
+            rgba(167, 139, 250, 0.6) 300deg,
+            transparent 360deg
+          );
+          opacity: 0;
+          transition: opacity 0.4s ease;
+          pointer-events: none;
+          z-index: -1;
+          filter: blur(3px);
         }
         
+        .hamburger-btn.open .hamburger-border-glow {
+          opacity: 1;
+          animation: rotate-border 3s linear infinite;
+        }
+        
+        @keyframes rotate-border {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        /* Ripple Effect */
+        .hamburger-ripple {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          background: rgba(255, 255, 255, 0.4);
+          border-radius: 50%;
+          transform: translate(-50%, -50%) scale(0);
+          animation: ripple-expand 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          pointer-events: none;
+          z-index: 2;
+        }
+        
+        @keyframes ripple-expand {
+          0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+          100% { transform: translate(-50%, -50%) scale(10); opacity: 0; }
+        }
+        
+        /* Hover State */
+        .hamburger-btn.hovered {
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(255, 255, 255, 0.2);
+          transform: scale(1.02);
+        }
+        
+        /* Open State */
+        .hamburger-btn.open {
+          background: rgba(139, 92, 246, 0.15);
+          border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        /* Active/Press State */
         .hamburger-btn:active {
-          transform: scale(0.92);
-          background: rgba(255, 255, 255, 0.22);
+          transform: scale(0.9) !important;
+          transition: transform 0.1s ease;
         }
         
-        /* iOS 26 Style Hamburger Lines */
+        /* Hamburger Icon Container */
         .hamburger-icon {
-          width: 20px;
+          width: 22px;
           height: 16px;
           position: relative;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           align-items: center;
+          z-index: 3;
+          transition: transform 0.3s ease;
         }
         
+        .hamburger-icon.open {
+          transform: rotate(0deg);
+        }
+        
+        /* Hamburger Lines */
         .hamburger-line {
           display: block;
           height: 2.5px;
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 2px;
+          background: linear-gradient(90deg, 
+            rgba(255, 255, 255, 0.9) 0%, 
+            rgba(255, 255, 255, 1) 50%, 
+            rgba(255, 255, 255, 0.9) 100%
+          );
+          border-radius: 3px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
           transition: 
-            transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-            opacity 0.25s ease,
-            width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+            opacity 0.3s ease,
+            width 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+            background 0.3s ease;
           transform-origin: center;
           will-change: transform, opacity, width;
         }
         
         .hamburger-line.line-1 {
           width: 100%;
+          transition-delay: 0s, 0s, 0.1s, 0s;
         }
         
         .hamburger-line.line-2 {
-          width: 75%;
+          width: 70%;
           align-self: flex-end;
+          transition-delay: 0.05s, 0.05s, 0.05s, 0s;
         }
         
         .hamburger-line.line-3 {
           width: 100%;
+          transition-delay: 0.1s, 0.1s, 0s, 0s;
         }
         
+        /* Hover animation for lines */
+        .hamburger-btn.hovered .hamburger-line.line-2 {
+          width: 100%;
+        }
+        
+        /* Open State - X Transform */
         .hamburger-line.line-1.open {
           transform: translateY(6.75px) rotate(45deg);
           width: 100%;
+          background: linear-gradient(90deg, #A78BFA 0%, #C4B5FD 50%, #A78BFA 100%);
+          box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+          transition-delay: 0.1s, 0s, 0s, 0s;
         }
         
         .hamburger-line.line-2.open {
           opacity: 0;
-          transform: scaleX(0);
           width: 0;
+          transform: scaleX(0) translateX(10px);
+          transition-delay: 0s, 0s, 0s, 0s;
         }
         
         .hamburger-line.line-3.open {
           transform: translateY(-6.75px) rotate(-45deg);
           width: 100%;
+          background: linear-gradient(90deg, #A78BFA 0%, #C4B5FD 50%, #A78BFA 100%);
+          box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+          transition-delay: 0.1s, 0s, 0s, 0s;
         }
         
-        /* iOS 26 Liquid Glass Sidebar Overlay */
+        /* ═══════════════════════════════════════════════════════════════
+           SIDEBAR OVERLAY - LIQUID GLASS
+           ═══════════════════════════════════════════════════════════════ */
+        
         .sidebar-overlay {
           position: fixed;
           inset: 0;
           z-index: 100;
-          background: rgba(0, 0, 0, 0.4);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(12px) saturate(120%);
+          -webkit-backdrop-filter: blur(12px) saturate(120%);
           opacity: 0;
           pointer-events: none;
-          transition: opacity 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+          transition: opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1);
           will-change: opacity;
         }
+        
         .sidebar-overlay.open {
           opacity: 1;
           pointer-events: auto;
         }
         
-        /* iOS 26 Liquid Glass Sidebar Panel */
+        /* ═══════════════════════════════════════════════════════════════
+           SIDEBAR PANEL - LIQUID GLASS
+           ═══════════════════════════════════════════════════════════════ */
+        
         .sidebar-panel {
           position: fixed;
           top: 0;
@@ -441,207 +592,401 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           height: 100%;
           z-index: 101;
           width: min(320px, calc(100vw - 48px));
-          background: rgba(28, 28, 30, 0.85);
-          backdrop-filter: blur(40px) saturate(180%);
-          -webkit-backdrop-filter: blur(40px) saturate(180%);
-          border-right: 1px solid rgba(255, 255, 255, 0.1);
+          background: 
+            linear-gradient(180deg, 
+              rgba(32, 32, 36, 0.95) 0%, 
+              rgba(24, 24, 28, 0.98) 50%,
+              rgba(20, 20, 24, 0.99) 100%
+            );
+          backdrop-filter: blur(60px) saturate(200%);
+          -webkit-backdrop-filter: blur(60px) saturate(200%);
+          border-right: 1px solid rgba(255, 255, 255, 0.08);
           box-shadow: 
-            20px 0 60px rgba(0, 0, 0, 0.3),
-            inset -1px 0 0 rgba(255, 255, 255, 0.05);
+            30px 0 80px rgba(0, 0, 0, 0.5),
+            inset -1px 0 0 rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
           display: flex;
           flex-direction: column;
           overflow-y: auto;
           overflow-x: hidden;
           transform: translateX(-100%);
-          transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+          transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
           will-change: transform;
           -webkit-overflow-scrolling: touch;
         }
+        
         .sidebar-panel.open {
           transform: translateX(0);
         }
         
+        /* Animated Top Gradient Line */
         .sidebar-gradient-line {
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
-          height: 1px;
+          height: 2px;
           background: linear-gradient(90deg, 
             transparent 0%, 
-            rgba(255, 255, 255, 0.3) 20%,
-            rgba(255, 255, 255, 0.5) 50%,
-            rgba(255, 255, 255, 0.3) 80%,
+            rgba(139, 92, 246, 0.3) 10%,
+            rgba(167, 139, 250, 0.6) 30%,
+            rgba(196, 181, 253, 0.8) 50%,
+            rgba(167, 139, 250, 0.6) 70%,
+            rgba(139, 92, 246, 0.3) 90%,
             transparent 100%
           );
           opacity: 0;
-          transition: opacity 0.5s ease 0.2s;
-        }
-        .sidebar-panel.open .sidebar-gradient-line {
-          opacity: 1;
+          transform: scaleX(0);
+          transition: 
+            opacity 0.5s ease 0.2s,
+            transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s;
         }
         
-        /* iOS 26 Style Menu Items */
+        .sidebar-panel.open .sidebar-gradient-line {
+          opacity: 1;
+          transform: scaleX(1);
+          animation: gradient-flow 3s ease-in-out infinite 0.7s;
+        }
+        
+        @keyframes gradient-flow {
+          0%, 100% { 
+            background-position: 0% 50%;
+            filter: brightness(1);
+          }
+          50% { 
+            background-position: 100% 50%;
+            filter: brightness(1.2);
+          }
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           MENU ITEMS - PROFESSIONAL ANIMATIONS
+           ═══════════════════════════════════════════════════════════════ */
+        
         .menu-item {
           display: flex;
           align-items: center;
           gap: 14px;
           padding: 14px 16px;
-          border-radius: 14px;
+          border-radius: 16px;
           background: transparent;
           border: 1px solid transparent;
           cursor: pointer;
           transition: 
-            background 0.2s ease,
-            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-            border-color 0.2s ease;
+            all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
           position: relative;
           width: 100%;
           text-align: left;
           -webkit-tap-highlight-color: transparent;
-        }
-        .menu-item:hover {
-          background: rgba(255, 255, 255, 0.06);
-        }
-        .menu-item:active {
-          transform: scale(0.97);
-          background: rgba(255, 255, 255, 0.1);
-        }
-        .menu-item.active {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.1);
+          overflow: hidden;
         }
         
+        /* Hover gradient background */
+        .menu-item::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 16px;
+          background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.08) 0%,
+            rgba(255, 255, 255, 0.02) 100%
+          );
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+        }
+        
+        .menu-item:hover::before {
+          opacity: 1;
+        }
+        
+        .menu-item:hover {
+          border-color: rgba(255, 255, 255, 0.06);
+          transform: translateX(4px);
+        }
+        
+        .menu-item:active {
+          transform: scale(0.97) translateX(2px);
+        }
+        
+        .menu-item.active {
+          background: linear-gradient(
+            135deg,
+            rgba(139, 92, 246, 0.12) 0%,
+            rgba(167, 139, 250, 0.06) 100%
+          );
+          border-color: rgba(139, 92, 246, 0.2);
+        }
+        
+        /* Active Indicator Glow */
         .menu-item-glow {
           position: absolute;
           left: 0;
           top: 50%;
           transform: translateY(-50%);
           width: 3px;
-          height: 24px;
-          border-radius: 0 4px 4px 0;
-          background: linear-gradient(180deg, #A78BFA 0%, #8B5CF6 100%);
-          box-shadow: 0 0 16px rgba(139, 92, 246, 0.6);
+          height: 28px;
+          border-radius: 0 6px 6px 0;
+          background: linear-gradient(180deg, 
+            #C4B5FD 0%, 
+            #A78BFA 30%, 
+            #8B5CF6 70%, 
+            #7C3AED 100%
+          );
+          box-shadow: 
+            0 0 20px rgba(139, 92, 246, 0.8),
+            0 0 40px rgba(139, 92, 246, 0.4);
+          animation: glow-pulse 2s ease-in-out infinite;
         }
         
-        /* iOS 26 Style Icon Container */
+        @keyframes glow-pulse {
+          0%, 100% { 
+            box-shadow: 
+              0 0 20px rgba(139, 92, 246, 0.8),
+              0 0 40px rgba(139, 92, 246, 0.4);
+          }
+          50% { 
+            box-shadow: 
+              0 0 30px rgba(139, 92, 246, 1),
+              0 0 60px rgba(139, 92, 246, 0.6);
+          }
+        }
+        
+        /* Icon Container */
         .menu-icon-wrap {
-          width: 40px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 12px;
-          background: rgba(255, 255, 255, 0.06);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-          flex-shrink: 0;
-        }
-        .menu-item.active .menu-icon-wrap {
-          background: rgba(139, 92, 246, 0.2);
-          border-color: rgba(139, 92, 246, 0.3);
-          box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-        }
-        
-        /* iOS 26 Style Social Links */
-        .social-link {
-          width: 48px;
-          height: 48px;
+          width: 44px;
+          height: 44px;
           display: flex;
           align-items: center;
           justify-content: center;
           border-radius: 14px;
-          background: rgba(255, 255, 255, 0.06);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          cursor: pointer;
-          transition: 
-            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-            background 0.2s ease,
-            box-shadow 0.2s ease;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .social-link:hover {
-          background: rgba(255, 255, 255, 0.1);
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-        }
-        .social-link:active {
-          transform: scale(0.92);
-          background: rgba(255, 255, 255, 0.12);
+          background: rgba(255, 255, 255, 0.04);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+          flex-shrink: 0;
+          position: relative;
+          overflow: hidden;
         }
         
-        /* iOS 26 Style Boost Button */
+        .menu-icon-wrap::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(
+            circle at 30% 30%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          );
+          pointer-events: none;
+        }
+        
+        .menu-item:hover .menu-icon-wrap {
+          transform: scale(1.05);
+          background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .menu-item.active .menu-icon-wrap {
+          background: linear-gradient(
+            135deg,
+            rgba(139, 92, 246, 0.25) 0%,
+            rgba(167, 139, 250, 0.15) 100%
+          );
+          border-color: rgba(139, 92, 246, 0.35);
+          box-shadow: 
+            0 4px 20px rgba(139, 92, 246, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           SOCIAL LINKS - PROFESSIONAL
+           ═══════════════════════════════════════════════════════════════ */
+        
+        .social-link {
+          width: 52px;
+          height: 52px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 16px;
+          background: rgba(255, 255, 255, 0.04);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          cursor: pointer;
+          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+          -webkit-tap-highlight-color: transparent;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .social-link::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(
+            circle at 30% 30%,
+            rgba(255, 255, 255, 0.08) 0%,
+            transparent 50%
+          );
+          pointer-events: none;
+        }
+        
+        .social-link:hover {
+          transform: translateY(-3px) scale(1.05);
+          background: rgba(255, 255, 255, 0.08);
+          box-shadow: 
+            0 8px 25px rgba(0, 0, 0, 0.25),
+            0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .social-link:active {
+          transform: scale(0.92);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           BOOST BUTTON - PREMIUM
+           ═══════════════════════════════════════════════════════════════ */
+        
         .boost-btn {
           position: relative;
           width: 100%;
-          padding: 16px 20px;
-          border-radius: 14px;
-          background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 50%, #A78BFA 100%);
+          padding: 18px 24px;
+          border-radius: 16px;
+          background: linear-gradient(
+            135deg, 
+            #7C3AED 0%, 
+            #8B5CF6 35%, 
+            #A78BFA 65%, 
+            #8B5CF6 100%
+          );
+          background-size: 200% 200%;
           border: none;
           cursor: pointer;
           transition: 
-            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-            box-shadow 0.2s ease;
+            transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+            box-shadow 0.35s ease;
           -webkit-tap-highlight-color: transparent;
           box-shadow: 
-            0 4px 20px rgba(139, 92, 246, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            0 6px 30px rgba(139, 92, 246, 0.5),
+            0 2px 10px rgba(139, 92, 246, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.25),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.1);
           overflow: hidden;
+          animation: gradient-shift 4s ease infinite;
         }
+        
+        @keyframes gradient-shift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        
         .boost-btn::before {
           content: '';
           position: absolute;
           inset: 0;
           background: linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.2) 0%,
-            rgba(255, 255, 255, 0) 50%
+            rgba(255, 255, 255, 0.3) 0%,
+            rgba(255, 255, 255, 0.1) 30%,
+            transparent 60%
           );
           pointer-events: none;
         }
+        
+        .boost-btn::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: linear-gradient(
+            45deg,
+            transparent 40%,
+            rgba(255, 255, 255, 0.15) 50%,
+            transparent 60%
+          );
+          animation: shine-sweep 3s ease-in-out infinite;
+          pointer-events: none;
+        }
+        
+        @keyframes shine-sweep {
+          0% { transform: translateX(-100%) rotate(45deg); }
+          100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        .boost-btn:hover {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 
+            0 10px 40px rgba(139, 92, 246, 0.6),
+            0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+        
         .boost-btn:active {
           transform: scale(0.97);
         }
         
-        /* iOS 26 Style Close Button */
+        /* ═══════════════════════════════════════════════════════════════
+           CLOSE BUTTON - PROFESSIONAL
+           ═══════════════════════════════════════════════════════════════ */
+        
         .close-btn {
-          width: 40px;
-          height: 40px;
+          width: 44px;
+          height: 44px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 12px;
-          background: rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           cursor: pointer;
-          transition: 
-            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-            background 0.2s ease;
+          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
           flex-shrink: 0;
           -webkit-tap-highlight-color: transparent;
-        }
-        .close-btn:hover {
-          background: rgba(255, 255, 255, 0.12);
-        }
-        .close-btn:active {
-          transform: scale(0.88);
-          background: rgba(255, 255, 255, 0.15);
+          position: relative;
+          overflow: hidden;
         }
         
-        /* iOS 26 Style Progress Bar */
+        .close-btn::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(
+            circle at 30% 30%,
+            rgba(255, 255, 255, 0.08) 0%,
+            transparent 50%
+          );
+          pointer-events: none;
+        }
+        
+        .close-btn:hover {
+          background: rgba(255, 255, 255, 0.1);
+          transform: rotate(90deg) scale(1.05);
+        }
+        
+        .close-btn:active {
+          transform: rotate(90deg) scale(0.9);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           PROGRESS BAR - ANIMATED
+           ═══════════════════════════════════════════════════════════════ */
+        
         .progress-bar {
           position: relative;
           width: 100%;
           height: 6px;
           border-radius: 6px;
-          background: rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.06);
           overflow: hidden;
+          box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
         }
+        
         .progress-fill {
           position: absolute;
           left: 0;
@@ -649,18 +994,32 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           height: 100%;
           width: 5%;
           border-radius: 6px;
-          background: linear-gradient(90deg, #8B5CF6 0%, #A78BFA 50%, #C4B5FD 100%);
-          box-shadow: 0 0 16px rgba(139, 92, 246, 0.6);
-          transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+          background: linear-gradient(
+            90deg, 
+            #7C3AED 0%, 
+            #8B5CF6 30%, 
+            #A78BFA 60%, 
+            #C4B5FD 100%
+          );
+          box-shadow: 
+            0 0 20px rgba(139, 92, 246, 0.7),
+            0 0 40px rgba(139, 92, 246, 0.4);
+          transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+        
         .progress-shimmer {
           position: absolute;
           left: 0;
           top: 0;
           height: 100%;
           width: 100%;
-          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
-          animation: shimmer 2.5s infinite ease-in-out;
+          background: linear-gradient(
+            90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.2) 50%, 
+            transparent 100%
+          );
+          animation: shimmer 2s ease-in-out infinite;
         }
         
         @keyframes shimmer {
@@ -668,17 +1027,38 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           100% { transform: translateX(100%); }
         }
         
+        /* ═══════════════════════════════════════════════════════════════
+           TOP BAR - GLASS HEADER
+           ═══════════════════════════════════════════════════════════════ */
+        
         .top-bar {
           position: fixed;
           top: 0;
           left: 0;
           right: 0;
           z-index: 90;
-          background: rgba(10, 10, 12, 0.85);
-          backdrop-filter: blur(20px) saturate(180%);
-          -webkit-backdrop-filter: blur(20px) saturate(180%);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          background: linear-gradient(
+            180deg,
+            rgba(12, 12, 14, 0.95) 0%,
+            rgba(12, 12, 14, 0.85) 100%
+          );
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
           padding-top: max(env(safe-area-inset-top, 0px), 12px);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           BREATHING ANIMATION FOR IDLE STATE
+           ═══════════════════════════════════════════════════════════════ */
+        
+        @keyframes subtle-breathe {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.02); }
+        }
+        
+        .hamburger-btn:not(.open):not(.hovered):not(:active) {
+          animation: subtle-breathe 4s ease-in-out infinite;
         }
       `}</style>
 
