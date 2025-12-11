@@ -13,13 +13,6 @@ interface DemoAppShellProps {
 
 type TabType = 'home' | 'catalog' | 'cart' | 'profile';
 
-const navItems: { id: TabType; icon: any; label: string }[] = [
-  { id: 'home', icon: Home, label: 'Главная' },
-  { id: 'catalog', icon: Grid3X3, label: 'Каталог' },
-  { id: 'cart', icon: ShoppingCart, label: 'Корзина' },
-  { id: 'profile', icon: User, label: 'Профиль' },
-];
-
 const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShellProps) {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const { hapticFeedback } = useTelegram();
@@ -126,49 +119,12 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
 
   // All apps use dark theme by default for premium look
   const isDarkTheme = true;
-  
-  // Theme colors for each app
-  const getThemeColors = () => {
-    if (demoId.includes('clothing-store')) {
-      return {
-        accentColor: '#C5E1A5',
-        glowColor: 'rgba(197, 225, 165, 0.6)',
-      };
-    } else if (demoId.includes('electronics')) {
-      return {
-        accentColor: '#00D4FF',
-        glowColor: 'rgba(0, 212, 255, 0.6)',
-      };
-    } else if (demoId.includes('beauty')) {
-      return {
-        accentColor: '#EC4899',
-        glowColor: 'rgba(236, 72, 153, 0.6)',
-      };
-    } else if (demoId.includes('restaurant')) {
-      return {
-        accentColor: '#D97706',
-        glowColor: 'rgba(217, 119, 6, 0.6)',
-      };
-    }
-    return {
-      accentColor: '#10B981',
-      glowColor: 'rgba(16, 185, 129, 0.6)',
-    };
-  };
-  
-  const theme = getThemeColors();
-  
-  // Get background gradient based on app - all dark by default
-  const getBackgroundGradient = () => {
-    // All demos use pure black background for consistent dark premium look
-    return 'bg-[#0A0A0A]';
-  };
 
   return (
     <>
       <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-gray-100'}`}>
         {/* Mobile Container - Max width for desktop view */}
-        <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
+        <div className={`w-full max-w-md mx-auto ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
           
           {/* Demo Content Area - Telegram safe area bottom with GPU optimization */}
           <div 
@@ -196,108 +152,152 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
         </div>
       </div>
 
-      {/* Liquid Glass Bottom Navigation */}
-      <nav 
-        className="tg-nav-glass flex items-center justify-center gap-3"
-        role="navigation" 
-        aria-label="Навигация демо"
+      {/* Premium Glass Bottom Navigation - Main Page Style */}
+      <div 
+        className="fixed bottom-6 left-0 right-0 flex justify-center z-50"
+        style={{ isolation: 'isolate' }}
       >
-        {/* Главная */}
-        <button
-          onClick={() => handleTabSwitch('home')}
-          className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/10"
-          aria-label="Главная"
-          aria-current={activeTab === 'home' ? 'page' : undefined}
-          data-testid="nav-home"
-        >
-          <Home
-            className={`transition-all duration-300 ${activeTab === 'home' ? 'w-6 h-6 text-white' : 'w-5 h-5 text-white/60'}`}
-            strokeWidth={2}
+        <div className="relative">
+          {/* Subtle outer glow */}
+          <div 
+            className="absolute -inset-2 rounded-[36px] pointer-events-none"
+            style={{
+              boxShadow: '0 0 40px 5px rgba(16, 185, 129, 0.08)',
+            }}
           />
-          {activeTab === 'home' && (
+          
+          {/* Deep shadow */}
+          <div 
+            className="absolute inset-0 rounded-[28px] pointer-events-none"
+            style={{
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+              transform: 'translateY(4px)',
+            }}
+          />
+          
+          {/* Main Glass Container */}
+          <nav 
+            className="relative flex items-center gap-1 rounded-[28px] px-3 py-2"
+            style={{
+              background: 'rgba(35, 35, 40, 0.6)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+            }}
+            role="navigation" 
+            aria-label="Навигация демо"
+          >
+            {/* Top highlight line */}
             <div 
-              className="absolute inset-0 rounded-full"
+              className="absolute inset-x-4 top-0 h-[1px] pointer-events-none"
               style={{
-                background: `radial-gradient(circle, ${theme.glowColor} 0%, transparent 70%)`,
-                filter: 'blur(8px)',
-                zIndex: -1,
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)',
               }}
             />
-          )}
-        </button>
-        
-        {/* Каталог */}
-        <button
-          onClick={() => handleTabSwitch('catalog')}
-          className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/10"
-          aria-label="Каталог"
-          aria-current={activeTab === 'catalog' ? 'page' : undefined}
-          data-testid="nav-catalog"
-        >
-          <Grid3X3
-            className={`transition-all duration-300 ${activeTab === 'catalog' ? 'w-6 h-6 text-white' : 'w-5 h-5 text-white/60'}`}
-            strokeWidth={2}
-          />
-          {activeTab === 'catalog' && (
-            <div 
-              className="absolute inset-0 rounded-full"
-              style={{
-                background: `radial-gradient(circle, ${theme.glowColor} 0%, transparent 70%)`,
-                filter: 'blur(8px)',
-                zIndex: -1,
-              }}
-            />
-          )}
-        </button>
-        
-        {/* Корзина */}
-        <button
-          onClick={() => handleTabSwitch('cart')}
-          className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/10"
-          aria-label="Корзина"
-          aria-current={activeTab === 'cart' ? 'page' : undefined}
-          data-testid="nav-cart"
-        >
-          <ShoppingCart
-            className={`transition-all duration-300 ${activeTab === 'cart' ? 'w-6 h-6 text-white' : 'w-5 h-5 text-white/60'}`}
-            strokeWidth={2}
-          />
-          {activeTab === 'cart' && (
-            <div 
-              className="absolute inset-0 rounded-full"
-              style={{
-                background: `radial-gradient(circle, ${theme.glowColor} 0%, transparent 70%)`,
-                filter: 'blur(8px)',
-                zIndex: -1,
-              }}
-            />
-          )}
-        </button>
-        
-        {/* Профиль */}
-        <button
-          onClick={() => handleTabSwitch('profile')}
-          className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:bg-white/10"
-          aria-label="Профиль"
-          aria-current={activeTab === 'profile' ? 'page' : undefined}
-          data-testid="nav-profile"
-        >
-          <User
-            className={`transition-all duration-300 ${activeTab === 'profile' ? 'w-6 h-6 text-white' : 'w-5 h-5 text-white/60'}`}
-            strokeWidth={2}
-          />
-          {activeTab === 'profile' && (
-            <div 
-              className="absolute inset-0 rounded-full"
-              style={{
-                background: `radial-gradient(circle, ${theme.glowColor} 0%, transparent 70%)`,
-                filter: 'blur(8px)',
-                zIndex: -1,
-              }}
-            />
-          )}
-        </button>
-      </nav>
+          
+            {/* Главная */}
+            <button
+              onClick={() => handleTabSwitch('home')}
+              className="relative flex items-center justify-center w-12 h-12 rounded-full"
+              aria-label="Главная"
+              aria-current={activeTab === 'home' ? 'page' : undefined}
+              data-testid="nav-home"
+            >
+              {activeTab === 'home' && (
+                <div 
+                  className="absolute inset-0 rounded-full pointer-events-none"
+                  style={{
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
+                  }}
+                />
+              )}
+              <Home
+                className={`transition-all duration-200 ${
+                  activeTab === 'home' ? 'w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'w-6 h-6 text-white/80'
+                }`}
+                strokeWidth={activeTab === 'home' ? 2.5 : 1.75}
+              />
+            </button>
+            
+            {/* Каталог */}
+            <button
+              onClick={() => handleTabSwitch('catalog')}
+              className="relative flex items-center justify-center w-12 h-12 rounded-full"
+              aria-label="Каталог"
+              aria-current={activeTab === 'catalog' ? 'page' : undefined}
+              data-testid="nav-catalog"
+            >
+              {activeTab === 'catalog' && (
+                <div 
+                  className="absolute inset-0 rounded-full pointer-events-none"
+                  style={{
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
+                  }}
+                />
+              )}
+              <Grid3X3
+                className={`transition-all duration-200 ${
+                  activeTab === 'catalog' ? 'w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'w-6 h-6 text-white/80'
+                }`}
+                strokeWidth={activeTab === 'catalog' ? 2.5 : 1.75}
+              />
+            </button>
+            
+            {/* Корзина */}
+            <button
+              onClick={() => handleTabSwitch('cart')}
+              className="relative flex items-center justify-center w-12 h-12 rounded-full"
+              aria-label="Корзина"
+              aria-current={activeTab === 'cart' ? 'page' : undefined}
+              data-testid="nav-cart"
+            >
+              {activeTab === 'cart' && (
+                <div 
+                  className="absolute inset-0 rounded-full pointer-events-none"
+                  style={{
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
+                  }}
+                />
+              )}
+              <ShoppingCart
+                className={`transition-all duration-200 ${
+                  activeTab === 'cart' ? 'w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'w-6 h-6 text-white/80'
+                }`}
+                strokeWidth={activeTab === 'cart' ? 2.5 : 1.75}
+              />
+            </button>
+            
+            {/* Профиль */}
+            <button
+              onClick={() => handleTabSwitch('profile')}
+              className="relative flex items-center justify-center w-12 h-12 rounded-full"
+              aria-label="Профиль"
+              aria-current={activeTab === 'profile' ? 'page' : undefined}
+              data-testid="nav-profile"
+            >
+              {activeTab === 'profile' && (
+                <div 
+                  className="absolute inset-0 rounded-full pointer-events-none"
+                  style={{
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
+                  }}
+                />
+              )}
+              <User
+                className={`transition-all duration-200 ${
+                  activeTab === 'profile' ? 'w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'w-6 h-6 text-white/80'
+                }`}
+                strokeWidth={activeTab === 'profile' ? 2.5 : 1.75}
+              />
+            </button>
+          </nav>
+        </div>
+      </div>
     </>
   );
 });
