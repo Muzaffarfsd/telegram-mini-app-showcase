@@ -305,15 +305,19 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             
             .ios26-liquid-card {
               position: relative;
-              background: rgba(16, 185, 129, 0.03);
+              background: rgba(255, 255, 255, 0.03);
+              backdrop-filter: blur(40px) saturate(150%);
+              -webkit-backdrop-filter: blur(40px) saturate(150%);
               border-radius: 28px;
-              border: 1px solid rgba(16, 185, 129, 0.12);
+              border: 1px solid rgba(16, 185, 129, 0.15);
               overflow: hidden;
             }
             
             .ios26-stage-card {
               position: relative;
-              background: rgba(16, 185, 129, 0.02);
+              background: rgba(255, 255, 255, 0.02);
+              backdrop-filter: blur(16px);
+              -webkit-backdrop-filter: blur(16px);
               border-radius: 20px;
               padding: 20px;
             }
@@ -334,13 +338,15 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               align-items: center;
               gap: 10px;
               padding: 12px 14px;
-              background: rgba(16, 185, 129, 0.02);
+              background: rgba(255, 255, 255, 0.02);
               border-radius: 12px;
             }
             
             .ios26-price-card {
               position: relative;
-              background: rgba(16, 185, 129, 0.03);
+              background: rgba(255, 255, 255, 0.03);
+              backdrop-filter: blur(20px);
+              -webkit-backdrop-filter: blur(20px);
               border-radius: 22px;
               padding: 28px;
               text-align: center;
@@ -357,7 +363,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             
             .ios26-divider {
               height: 1px;
-              background: rgba(16, 185, 129, 0.15);
+              background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.2) 20%, rgba(16, 185, 129, 0.3) 50%, rgba(16, 185, 129, 0.2) 80%, transparent);
               margin: 24px 0;
             }
             
