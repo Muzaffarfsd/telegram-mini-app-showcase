@@ -386,112 +386,301 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     });
   };
 
-  // PRODUCT PAGE
+  // PRODUCT PAGE - Premium Apple-Style Design 2025
   if (activeTab === 'catalog' && selectedProduct) {
-    const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#1A1A1A';
+    const currentColorIdx = selectedProduct.colors.indexOf(selectedColor);
+    const currentColorHex = selectedProduct.colorHex[currentColorIdx] || '#1A1A1A';
+    const isLimited = selectedProduct.inStock < 10;
+    const discountPercent = selectedProduct.oldPrice 
+      ? Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100) 
+      : 0;
     
     return (
-      <div className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page" style={{ backgroundColor: bgColor }}>
-        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
-          <button 
-            onClick={() => setSelectedProduct(null)}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
-            data-testid="button-back"
+      <div className="min-h-screen bg-[#0A0A0B] text-white overflow-auto smooth-scroll-page">
+        {/* Floating Navigation */}
+        <m.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed top-0 left-0 right-0 z-50 demo-nav-safe"
+        >
+          <div className="flex items-center justify-between px-5">
+            <m.button 
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setSelectedProduct(null)}
+              className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-2xl border border-white/10 flex items-center justify-center"
+              data-testid="button-back"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </m.button>
+            <m.button
+              whileTap={{ scale: 0.9 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleFavorite(selectedProduct.id);
+              }}
+              className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-2xl border border-white/10 flex items-center justify-center"
+              aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+              data-testid={`button-favorite-${selectedProduct.id}`}
+            >
+              <Heart 
+                className={`w-5 h-5 transition-all ${isFavorite(selectedProduct.id) ? 'fill-[#10B981] text-[#10B981]' : 'text-white/70'}`}
+              />
+            </m.button>
+          </div>
+        </m.div>
+
+        {/* Hero Image Section */}
+        <div className="relative">
+          {/* Ambient Glow Effect */}
+          <div 
+            className="absolute inset-0 opacity-30 blur-3xl"
+            style={{ background: `radial-gradient(ellipse at center, ${currentColorHex} 0%, transparent 70%)` }}
+          />
+          
+          {/* Main Product Image */}
+          <m.div 
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="relative aspect-[4/5] max-h-[60vh]"
           >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleFavorite(selectedProduct.id);
-            }}
-            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
-            aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-            data-testid={`button-favorite-${selectedProduct.id}`}
-          >
-            <Heart 
-              className={`w-5 h-5 ${isFavorite(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
+            <LazyImage
+              src={selectedProduct.hoverImage}
+              alt={selectedProduct.name}
+              className="w-full h-full object-cover"
             />
-          </button>
-        </div>
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0B]/60 via-transparent to-[#0A0A0B]" />
+          </m.div>
 
-        <div className="relative h-[60vh]">
-          <LazyImage
-            src={selectedProduct.hoverImage}
-            alt={selectedProduct.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        <div className="bg-white/10 backdrop-blur-xl rounded-t-3xl p-6 space-y-6 pb-32">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">{selectedProduct.name}</h2>
-            <div className="flex items-center justify-center gap-3">
-              <p className="text-3xl font-bold">{formatPrice(selectedProduct.price)}</p>
-              {selectedProduct.oldPrice && (
-                <p className="text-xl text-white/50 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
-              )}
-            </div>
-          </div>
-
-          <p className="text-sm text-white/80 text-center">{selectedProduct.description}</p>
-
-          <div>
-            <p className="text-sm mb-3 text-white/80 text-center">Выберите цвет:</p>
-            <div className="flex items-center justify-center gap-3">
-              {selectedProduct.colors.map((color, idx) => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-10 h-10 rounded-full border-2 transition-all ${
-                    selectedColor === color
-                      ? 'border-white scale-110'
-                      : 'border-white/30'
-                  }`}
-                  style={{ backgroundColor: selectedProduct.colorHex[idx] }}
-                  data-testid={`button-color-${color}`}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-sm mb-3 text-white/80 text-center">Выберите размер:</p>
-            <div className="flex items-center justify-center gap-3">
-              {selectedProduct.sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`w-12 h-12 rounded-full font-semibold transition-all ${
-                    selectedSize === size
-                      ? 'bg-[var(--theme-primary)] text-black'
-                      : 'bg-white/20 text-white hover:bg-white/30'
-                  }`}
-                  data-testid={`button-size-${size}`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <ConfirmDrawer
-            trigger={
-              <button
-                className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all"
-                data-testid="button-buy-now"
+          {/* Floating Badges */}
+          <div className="absolute top-20 left-5 flex flex-col gap-2">
+            {selectedProduct.isNew && (
+              <m.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="px-3 py-1.5 bg-[#10B981] rounded-full"
               >
-                Добавить в корзину
-              </button>
-            }
-            title="Добавить в корзину?"
-            description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
-            confirmText="Добавить"
-            cancelText="Отмена"
-            variant="default"
-            onConfirm={addToCart}
-          />
+                <span className="text-[11px] font-semibold tracking-wider text-black uppercase">NEW</span>
+              </m.div>
+            )}
+            {isLimited && (
+              <m.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="px-3 py-1.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full"
+              >
+                <span className="text-[11px] font-medium tracking-wider text-white/90 uppercase">LIMITED</span>
+              </m.div>
+            )}
+          </div>
         </div>
+
+        {/* Content Section - Premium Card */}
+        <div className="relative -mt-8 mx-4 mb-32">
+          <m.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-[#141416]/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl overflow-hidden"
+          >
+            {/* Title & Price Block */}
+            <div className="p-6 pb-0">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div className="flex-1">
+                  <p className="text-[11px] font-medium tracking-[0.2em] text-white/40 uppercase mb-2">
+                    {selectedProduct.brand}
+                  </p>
+                  <h1 className="text-[26px] font-semibold leading-tight tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' }}>
+                    {selectedProduct.name}
+                  </h1>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center gap-2">
+                    {discountPercent > 0 && (
+                      <span className="text-[12px] font-semibold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-md">
+                        -{discountPercent}%
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[28px] font-bold tracking-tight mt-1">{formatPrice(selectedProduct.price)}</p>
+                  {selectedProduct.oldPrice && (
+                    <p className="text-[15px] text-white/40 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Rating */}
+              <div className="flex items-center gap-2 mb-5">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(selectedProduct.rating) ? 'fill-[#FBBF24] text-[#FBBF24]' : 'text-white/20'}`} />
+                  ))}
+                </div>
+                <span className="text-[13px] text-white/50">{selectedProduct.rating}</span>
+                <span className="text-[13px] text-white/30">•</span>
+                <span className="text-[13px] text-white/50">{selectedProduct.inStock} в наличии</span>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mx-6" />
+
+            {/* Description Section */}
+            <div className="p-6">
+              <p className="text-[15px] leading-[1.6] text-white/70" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' }}>
+                {selectedProduct.description}
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mx-6" />
+
+            {/* Specifications Grid */}
+            <div className="p-6 grid grid-cols-2 gap-4">
+              <div className="bg-white/[0.03] rounded-2xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Package className="w-4 h-4 text-white/40" />
+                  <span className="text-[11px] font-medium tracking-wider text-white/40 uppercase">Состав</span>
+                </div>
+                <p className="text-[14px] text-white/80">{selectedProduct.composition}</p>
+              </div>
+              <div className="bg-white/[0.03] rounded-2xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Settings className="w-4 h-4 text-white/40" />
+                  <span className="text-[11px] font-medium tracking-wider text-white/40 uppercase">Крой</span>
+                </div>
+                <p className="text-[14px] text-white/80 capitalize">
+                  {selectedProduct.fit === 'relaxed' ? 'Свободный' : selectedProduct.fit === 'slim' ? 'Приталенный' : 'Классический'}
+                </p>
+              </div>
+            </div>
+
+            {/* Size Chart Preview */}
+            {selectedProduct.sizeChart && selectedSize && (
+              <m.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="mx-6 mb-4 p-3 bg-[#10B981]/10 border border-[#10B981]/20 rounded-xl"
+              >
+                <p className="text-[12px] text-[#10B981]">
+                  Размер {selectedSize}: {selectedProduct.sizeChart[selectedSize]}
+                </p>
+              </m.div>
+            )}
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mx-6" />
+
+            {/* Color Selection */}
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[13px] font-medium text-white/60">Цвет</span>
+                <span className="text-[13px] text-white/40">{selectedColor}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                {selectedProduct.colors.map((color, idx) => (
+                  <m.button
+                    key={color}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setSelectedColor(color)}
+                    className={`relative w-12 h-12 rounded-xl transition-all duration-300 ${
+                      selectedColor === color
+                        ? 'ring-2 ring-[#10B981] ring-offset-2 ring-offset-[#141416]'
+                        : 'ring-1 ring-white/10'
+                    }`}
+                    style={{ backgroundColor: selectedProduct.colorHex[idx] }}
+                    data-testid={`button-color-${color}`}
+                  >
+                    {selectedColor === color && (
+                      <m.div
+                        layoutId="colorCheck"
+                        className="absolute inset-0 flex items-center justify-center"
+                      >
+                        <div className="w-2 h-2 bg-white rounded-full" />
+                      </m.div>
+                    )}
+                  </m.button>
+                ))}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mx-6" />
+
+            {/* Size Selection */}
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[13px] font-medium text-white/60">Размер</span>
+                <button className="text-[13px] text-[#10B981]">Таблица размеров</button>
+              </div>
+              <div className="flex items-center gap-2">
+                {selectedProduct.sizes.map((size) => (
+                  <m.button
+                    key={size}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setSelectedSize(size)}
+                    className={`flex-1 py-3.5 rounded-xl font-medium text-[15px] transition-all duration-300 ${
+                      selectedSize === size
+                        ? 'bg-white text-black'
+                        : 'bg-white/[0.06] text-white/70 hover:bg-white/10'
+                    }`}
+                    data-testid={`button-size-${size}`}
+                  >
+                    {size}
+                  </m.button>
+                ))}
+              </div>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="px-6 pb-6">
+              <div className="flex items-center justify-between gap-2 py-4 border-t border-b border-white/[0.06]">
+                <div className="flex items-center gap-2">
+                  <Package className="w-4 h-4 text-[#10B981]" />
+                  <span className="text-[12px] text-white/60">Бесплатная доставка</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-[#10B981]" />
+                  <span className="text-[12px] text-white/60">Оплата при получении</span>
+                </div>
+              </div>
+            </div>
+          </m.div>
+        </div>
+
+        {/* Fixed Bottom CTA */}
+        <m.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B]/95 to-transparent pt-8"
+        >
+          <div className="flex items-center gap-3 max-w-lg mx-auto">
+            <ConfirmDrawer
+              trigger={
+                <m.button
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 bg-white text-black font-semibold py-4 rounded-2xl flex items-center justify-center gap-2"
+                  data-testid="button-buy-now"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  <span>Добавить — {formatPrice(selectedProduct.price)}</span>
+                </m.button>
+              }
+              title="Добавить в корзину?"
+              description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
+              confirmText="Добавить"
+              cancelText="Отмена"
+              variant="default"
+              onConfirm={addToCart}
+            />
+          </div>
+          {/* Safe area spacer */}
+          <div className="h-[env(safe-area-inset-bottom)]" />
+        </m.div>
       </div>
     );
   }
