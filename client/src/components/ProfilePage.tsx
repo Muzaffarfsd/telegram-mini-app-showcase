@@ -137,30 +137,30 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
 });
 UserCard.displayName = 'UserCard';
 
-// Memoized Stats Card Component
+// Memoized Stats Card Component - iOS 26 Style
 const StatsCard = memo(({ stats }: { stats: { total: number, completed: number, inProgress: number } }) => (
-  <div className="liquid-glass-card rounded-2xl p-4">
+  <div className="ios26-stats-card">
     <div className="grid grid-cols-3 gap-4">
       <div className="text-center">
         <div className="w-12 h-12 bg-system-blue/10 rounded-full flex items-center justify-center mx-auto mb-2">
           <Package className="w-6 h-6 text-system-blue" />
         </div>
-        <div className="ios-title3 font-bold text-system-blue">{stats.total}</div>
-        <div className="ios-caption2 text-white/70">Проектов</div>
+        <div className="text-2xl font-semibold text-system-blue">{stats.total}</div>
+        <div className="text-xs text-white/50 mt-1">Проектов</div>
       </div>
       <div className="text-center">
         <div className="w-12 h-12 bg-system-green/10 rounded-full flex items-center justify-center mx-auto mb-2">
           <CheckCircle className="w-6 h-6 text-system-green" />
         </div>
-        <div className="ios-title3 font-bold text-system-green">{stats.completed}</div>
-        <div className="ios-caption2 text-white/70">Завершено</div>
+        <div className="text-2xl font-semibold text-system-green">{stats.completed}</div>
+        <div className="text-xs text-white/50 mt-1">Завершено</div>
       </div>
       <div className="text-center">
         <div className="w-12 h-12 bg-system-orange/10 rounded-full flex items-center justify-center mx-auto mb-2">
           <Clock className="w-6 h-6 text-system-orange" />
         </div>
-        <div className="ios-title3 font-bold text-system-orange">{stats.inProgress}</div>
-        <div className="ios-caption2 text-white/70">В работе</div>
+        <div className="text-2xl font-semibold text-system-orange">{stats.inProgress}</div>
+        <div className="text-xs text-white/50 mt-1">В работе</div>
       </div>
     </div>
   </div>
@@ -484,7 +484,171 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
   const toggleNotifications = useCallback(() => setNotificationsEnabled(prev => !prev), []);
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24 smooth-scroll-page" style={{ paddingTop: '140px' }}>
+    <div className="min-h-screen bg-black text-white pb-24 smooth-scroll-page ios26-profile" style={{ paddingTop: '140px' }}>
+      <style>{`
+        .ios26-profile .ios26-card {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(40px) saturate(150%);
+          -webkit-backdrop-filter: blur(40px) saturate(150%);
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          overflow: hidden;
+        }
+        .ios26-profile .ios26-card::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12) 30%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.12) 70%, transparent);
+          pointer-events: none;
+        }
+        .ios26-profile .ios26-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          flex-shrink: 0;
+        }
+        .ios26-profile .ios26-item {
+          padding: 16px;
+          transition: background 0.2s ease;
+        }
+        .ios26-profile .ios26-item:hover {
+          background: rgba(255, 255, 255, 0.02);
+        }
+        .ios26-profile .ios26-item:active {
+          background: rgba(255, 255, 255, 0.04);
+        }
+        .ios26-profile .ios26-divider {
+          height: 1px;
+          background: rgba(255, 255, 255, 0.04);
+          margin: 0 16px;
+        }
+        .ios26-profile .ios26-header {
+          font-size: 13px;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.4);
+          padding: 0 4px;
+          margin-bottom: 8px;
+          letter-spacing: -0.01em;
+        }
+        .ios26-profile .ios26-title {
+          font-size: 15px;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.85);
+        }
+        .ios26-profile .ios26-subtitle {
+          font-size: 13px;
+          color: rgba(255, 255, 255, 0.4);
+          margin-top: 1px;
+        }
+        .ios26-profile .ios26-stats-card {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(40px);
+          -webkit-backdrop-filter: blur(40px);
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          padding: 20px;
+        }
+        .ios26-profile .ios26-stat-icon {
+          width: 44px;
+          height: 44px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.04);
+          margin: 0 auto 10px;
+        }
+        .ios26-profile .ios26-stat-value {
+          font-size: 24px;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.9);
+          letter-spacing: -0.02em;
+        }
+        .ios26-profile .ios26-stat-label {
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.4);
+          margin-top: 2px;
+        }
+        .ios26-profile .ios26-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          background: rgba(255, 255, 255, 0.04);
+          border-radius: 100px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.6);
+        }
+        .ios26-profile .ios26-input {
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 12px;
+          padding: 12px 16px;
+          font-size: 15px;
+          color: white;
+          transition: border-color 0.2s ease;
+        }
+        .ios26-profile .ios26-input:focus {
+          border-color: rgba(255, 255, 255, 0.15);
+          outline: none;
+        }
+        .ios26-profile .ios26-input::placeholder {
+          color: rgba(255, 255, 255, 0.25);
+        }
+        .ios26-profile .ios26-btn-primary {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 14px 20px;
+          font-size: 15px;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.9);
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+        .ios26-profile .ios26-btn-primary:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+        .ios26-profile .ios26-btn-primary:active {
+          transform: scale(0.98);
+        }
+        .ios26-profile .ios26-switch {
+          width: 51px;
+          height: 31px;
+          border-radius: 16px;
+          background: rgba(255, 255, 255, 0.1);
+          position: relative;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+        .ios26-profile .ios26-switch.active {
+          background: rgba(255, 255, 255, 0.25);
+        }
+        .ios26-profile .ios26-switch-thumb {
+          width: 27px;
+          height: 27px;
+          border-radius: 50%;
+          background: white;
+          position: absolute;
+          top: 2px;
+          left: 2px;
+          transition: transform 0.2s ease;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .ios26-profile .ios26-switch.active .ios26-switch-thumb {
+          transform: translateX(20px);
+        }
+      `}</style>
       <div className="max-w-md mx-auto px-4 pt-4 pb-6 space-y-6">
         
         {/* User Profile Card */}
@@ -494,33 +658,34 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
         {/* Statistics */}
         <section className="scroll-fade-in-delay-1">
-          <div className="space-y-3">
-            <div className="ios-list-header text-white/70 font-medium px-2">Статистика активности</div>
+          <div className="space-y-2">
+            <div className="ios26-header">Статистика активности</div>
             
             {isLoadingProjects ? (
-              <div className="liquid-glass-card rounded-2xl p-6 text-center">
-                <div className="w-8 h-8 border-2 border-system-blue/30 border-t-system-blue rounded-full animate-spin mx-auto mb-3"></div>
-                <div className="ios-footnote text-white/70">Загружаем ваши проекты...</div>
+              <div className="ios26-card relative p-6 text-center">
+                <div className="w-8 h-8 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-3"></div>
+                <div className="text-[13px] text-white/40">Загружаем ваши проекты...</div>
               </div>
             ) : userProjects.length > 0 ? (
               <StatsCard stats={stats} />
             ) : (
-              <div className="liquid-glass-card rounded-2xl p-6 text-center">
-                <div className="w-16 h-16 bg-system-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Package className="w-8 h-8 text-system-blue" />
+              <div className="ios26-card relative p-6 text-center">
+                <div className="ios26-stat-icon mx-auto mb-4" style={{ width: '56px', height: '56px' }}>
+                  <Package className="w-7 h-7 text-white/50" />
                 </div>
-                <h3 className="ios-body font-bold mb-2 text-white">Пора создать первое приложение!</h3>
-                <p className="ios-footnote text-white/70 mb-4 leading-relaxed">
+                <h3 className="text-[15px] font-medium mb-2 text-white/85">Пора создать первое приложение!</h3>
+                <p className="text-[13px] text-white/40 mb-5 leading-relaxed">
                   У вас пока нет проектов. Создайте свое первое Telegram приложение и начните зарабатывать уже сегодня!
                 </p>
                 <button 
-                  className="ios-button-filled w-full mb-3"
+                  className="ios26-btn-primary w-full mb-3"
                   onClick={handleNavigateConstructor}
                 >
                   Создать приложение
                 </button>
                 <button 
-                  className="ios-button-plain w-full"
+                  className="ios26-btn-primary w-full"
+                  style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.08)' }}
                   onClick={handleNavigatePricing}
                 >
                   Выбрать шаблон
@@ -532,53 +697,53 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
         {/* Telegram Integration */}
         <section className="scroll-fade-in-delay-2">
-          <div className="space-y-3">
-            <div className="ios-list-header text-white/70 font-medium px-2">Интеграция с Telegram</div>
+          <div className="space-y-2">
+            <div className="ios26-header">Интеграция с Telegram</div>
             
-            <div className="liquid-glass-card rounded-2xl overflow-hidden">
-            <div className="p-4 border-b border-white/10">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
-                  <Send className="w-5 h-5 text-system-blue" />
-                </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Язык интерфейса</div>
-                  <div className="ios-footnote text-white/70">{languageDisplay}</div>
+            <div className="ios26-card relative">
+              <div className="ios26-item">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
+                    <Send className="w-5 h-5 text-system-blue" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Язык интерфейса</div>
+                    <div className="ios26-subtitle">{languageDisplay}</div>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-system-green/20 rounded-xl flex items-center justify-center">
-                  <Smartphone className="w-5 h-5 text-system-green" />
+              <div className="ios26-divider" />
+              <div className="ios26-item">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-system-green/20 rounded-xl flex items-center justify-center">
+                    <Smartphone className="w-5 h-5 text-system-green" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Статус подключения</div>
+                    <div className="ios26-subtitle">{profileData.joinedAt}</div>
+                  </div>
+                  {isAvailable && <CheckCircle className="w-5 h-5 text-system-green" />}
                 </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Статус подключения</div>
-                  <div className="ios-footnote text-white/70">{profileData.joinedAt}</div>
-                </div>
-                {isAvailable && <CheckCircle className="w-5 h-5 text-system-green" />}
               </div>
-            </div>
             </div>
           </div>
         </section>
 
         {/* Referral System Section */}
         <section className="scroll-fade-in-delay-3">
-          <div className="space-y-3">
-            <div className="ios-list-header text-white/70 font-medium px-2">Пригласить друзей</div>
+          <div className="space-y-2">
+            <div className="ios26-header">Пригласить друзей</div>
             
-            <div className="liquid-glass-card rounded-2xl overflow-hidden">
+            <div className="ios26-card relative">
               {/* My Referral Code */}
-              <div className="p-4 border-b border-white/10">
+              <div className="ios26-item">
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
                     <Gift className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios-body text-white font-semibold">Ваш реферальный код</div>
-                    <div className="ios-footnote text-white/70">Поделитесь с друзьями</div>
+                    <div className="ios26-title">Ваш реферальный код</div>
+                    <div className="ios26-subtitle">Поделитесь с друзьями</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -594,9 +759,10 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                   </button>
                 </div>
               </div>
+              <div className="ios26-divider" />
 
               {/* Invite Friend Button */}
-              <div className="p-4 border-b border-white/10">
+              <div className="ios26-item">
                 <button 
                   onClick={handleInviteFriend}
                   className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
@@ -606,16 +772,17 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                   Пригласить друга
                 </button>
               </div>
+              <div className="ios26-divider" />
 
               {/* Enter Friend's Code */}
-              <div className="p-4 border-b border-white/10">
+              <div className="ios26-item">
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
                     <Users className="w-5 h-5 text-blue-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios-body text-white font-semibold">Код друга</div>
-                    <div className="ios-footnote text-white/70">Введите реферальный код</div>
+                    <div className="ios26-title">Код друга</div>
+                    <div className="ios26-subtitle">Введите реферальный код</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -637,9 +804,10 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                   </button>
                 </div>
               </div>
+              <div className="ios26-divider" />
 
               {/* Share App Button */}
-              <div className="p-4">
+              <div className="ios26-item">
                 <button 
                   onClick={handleShareApp}
                   className="w-full bg-white/10 hover:bg-white/15 text-white font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors border border-white/10"
@@ -655,44 +823,46 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
         {/* Bonuses & Rewards Section */}
         <section className="scroll-fade-in-delay-3">
-          <div className="space-y-3">
-            <div className="ios-list-header text-white/70 font-medium px-2">Бонусы и награды</div>
+          <div className="space-y-2">
+            <div className="ios26-header">Бонусы и награды</div>
             
-            <div className="liquid-glass-card rounded-2xl overflow-hidden">
-              <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleNavigateReferral}>
+            <div className="ios26-card relative">
+              <div className="ios26-item cursor-pointer" onClick={handleNavigateReferral}>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
                     <Users className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios-body text-white font-semibold">Реферальная программа</div>
-                    <div className="ios-footnote text-white/70">Приглашайте друзей и зарабатывайте</div>
+                    <div className="ios26-title">Реферальная программа</div>
+                    <div className="ios26-subtitle">Приглашайте друзей и зарабатывайте</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
               </div>
+              <div className="ios26-divider" />
 
-              <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleNavigateRewards}>
+              <div className="ios26-item cursor-pointer" onClick={handleNavigateRewards}>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
                     <Gift className="w-5 h-5 text-amber-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios-body text-white font-semibold">Цифровые награды</div>
-                    <div className="ios-footnote text-white/70">Достижения, уровни и бонусы</div>
+                    <div className="ios26-title">Цифровые награды</div>
+                    <div className="ios26-subtitle">Достижения, уровни и бонусы</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
               </div>
+              <div className="ios26-divider" />
 
-              <div className="p-4 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleNavigateEarning}>
+              <div className="ios26-item cursor-pointer" onClick={handleNavigateEarning}>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
                     <Coins className="w-5 h-5 text-yellow-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios-body text-white font-semibold">Заработок монет</div>
-                    <div className="ios-footnote text-white/70">Выполняйте задания и зарабатывайте</div>
+                    <div className="ios26-title">Заработок монет</div>
+                    <div className="ios26-subtitle">Выполняйте задания и зарабатывайте</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
@@ -711,201 +881,210 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
         {/* Smart Features */}
         <section className="scroll-fade-in-delay-4">
-          <div className="space-y-3">
-            <div className="ios-list-header text-white/70 font-medium px-2">Умные функции</div>
+          <div className="space-y-2">
+            <div className="ios26-header">Умные функции</div>
             
-            <div className="liquid-glass-card rounded-2xl overflow-hidden">
-            <div className="p-4 border-b border-white/10">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-system-green/20 rounded-xl flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-system-green" />
-                </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Автосохранение</div>
-                  <div className="ios-footnote text-white/70">Проекты сохраняются каждые 30 секунд</div>
-                </div>
-                <div 
-                  className={`ios-switch ${autoSave ? 'ios-switch-active' : ''} cursor-pointer`}
-                  onClick={toggleAutoSave}
-                >
-                  <div className="ios-switch-thumb"></div>
+            <div className="ios26-card relative">
+              <div className="ios26-item">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-system-green/20 rounded-xl flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-system-green" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Автосохранение</div>
+                    <div className="ios26-subtitle">Проекты сохраняются каждые 30 секунд</div>
+                  </div>
+                  <div 
+                    className={`ios-switch ${autoSave ? 'ios-switch-active' : ''} cursor-pointer`}
+                    onClick={toggleAutoSave}
+                  >
+                    <div className="ios-switch-thumb"></div>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="p-4 border-b border-white/10">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-system-blue" />
-                </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Резервные копии</div>
-                  <div className="ios-footnote text-white/70">Автоматическое резервирование в облако</div>
-                </div>
-                <div 
-                  className={`ios-switch ${backupEnabled ? 'ios-switch-active' : ''} cursor-pointer`}
-                  onClick={toggleBackup}
-                >
-                  <div className="ios-switch-thumb"></div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="p-4 border-b border-white/10">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-system-purple/20 rounded-xl flex items-center justify-center">
-                  <Bell className="w-5 h-5 text-system-purple" />
-                </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Уведомления о статусе</div>
-                  <div className="ios-footnote text-white/70">Получать обновления о ходе разработки</div>
-                </div>
-                <div 
-                  className={`ios-switch ${notificationsEnabled ? 'ios-switch-active' : ''} cursor-pointer`}
-                  onClick={toggleNotifications}
-                >
-                  <div className="ios-switch-thumb"></div>
+              <div className="ios26-divider" />
+              
+              <div className="ios26-item">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-system-blue" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Резервные копии</div>
+                    <div className="ios26-subtitle">Автоматическое резервирование в облако</div>
+                  </div>
+                  <div 
+                    className={`ios-switch ${backupEnabled ? 'ios-switch-active' : ''} cursor-pointer`}
+                    onClick={toggleBackup}
+                  >
+                    <div className="ios-switch-thumb"></div>
+                  </div>
                 </div>
               </div>
-            </div>
+              <div className="ios26-divider" />
+              
+              <div className="ios26-item">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-system-purple/20 rounded-xl flex items-center justify-center">
+                    <Bell className="w-5 h-5 text-system-purple" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Уведомления о статусе</div>
+                    <div className="ios26-subtitle">Получать обновления о ходе разработки</div>
+                  </div>
+                  <div 
+                    className={`ios-switch ${notificationsEnabled ? 'ios-switch-active' : ''} cursor-pointer`}
+                    onClick={toggleNotifications}
+                  >
+                    <div className="ios-switch-thumb"></div>
+                  </div>
+                </div>
+              </div>
+              <div className="ios26-divider" />
 
-            <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-system-orange/20 rounded-xl flex items-center justify-center">
-                  <Settings className="w-5 h-5 text-system-orange" />
+              <div className="ios26-item cursor-pointer">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-system-orange/20 rounded-xl flex items-center justify-center">
+                    <Settings className="w-5 h-5 text-system-orange" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Тема оформления</div>
+                    <div className="ios26-subtitle">Темная тема (автоматически)</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Тема оформления</div>
-                  <div className="ios-footnote text-white/70">Темная тема (автоматически)</div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-white/40" />
               </div>
-            </div>
+              <div className="ios26-divider" />
 
-            <div 
-              className="p-4 cursor-pointer hover:bg-white/5 transition-colors"
-              onClick={() => {
-                if (homeScreen) {
-                  try {
-                    homeScreen.add();
-                    toast({
-                      title: "Добавление на главный экран",
-                      description: "Следуйте инструкциям браузера для добавления ярлыка приложения",
-                    });
-                  } catch (error) {
+              <div 
+                className="ios26-item cursor-pointer"
+                onClick={() => {
+                  if (homeScreen) {
+                    try {
+                      homeScreen.add();
+                      toast({
+                        title: "Добавление на главный экран",
+                        description: "Следуйте инструкциям браузера для добавления ярлыка приложения",
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Функция недоступна",
+                        description: "Ваша версия Telegram не поддерживает эту функцию",
+                        variant: "destructive",
+                      });
+                    }
+                  } else {
                     toast({
                       title: "Функция недоступна",
-                      description: "Ваша версия Telegram не поддерживает эту функцию",
+                      description: "Ваш браузер не поддерживает добавление на главный экран",
                       variant: "destructive",
                     });
                   }
-                } else {
-                  toast({
-                    title: "Функция недоступна",
-                    description: "Ваш браузер не поддерживает добавление на главный экран",
-                    variant: "destructive",
-                  });
-                }
-              }}
-            >
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
-                  <Smartphone className="w-5 h-5 text-emerald-500" />
+                }}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                    <Smartphone className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Добавить на главный экран</div>
+                    <div className="ios26-subtitle">Быстрый доступ к приложению</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Добавить на главный экран</div>
-                  <div className="ios-footnote text-white/70">Быстрый доступ к приложению</div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-white/40" />
               </div>
-            </div>
             </div>
           </div>
         </section>
 
         {/* Support */}
         <section>
-          <div className="space-y-3">
-            <div className="ios-list-header text-white/70 font-medium px-2">Поддержка</div>
+          <div className="space-y-2">
+            <div className="ios26-header">Поддержка</div>
             
-            <div className="liquid-glass-card rounded-2xl overflow-hidden">
-            <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleTelegramClick}>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 text-system-blue" />
+            <div className="ios26-card relative">
+              <div className="ios26-item cursor-pointer" onClick={handleTelegramClick}>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
+                    <MessageCircle className="w-5 h-5 text-system-blue" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Связаться с нами</div>
+                    <div className="ios26-subtitle">Техподдержка 24/7</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Связаться с нами</div>
-                  <div className="ios-footnote text-white/70">Техподдержка 24/7</div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-white/40" />
               </div>
-            </div>
-            
-            <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleTelegramClick}>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
-                  <Send className="w-5 h-5 text-system-blue" />
+              <div className="ios26-divider" />
+              
+              <div className="ios26-item cursor-pointer" onClick={handleTelegramClick}>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
+                    <Send className="w-5 h-5 text-system-blue" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Telegram</div>
+                    <div className="ios26-subtitle">@web4tgs</div>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-white/40" />
                 </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Telegram</div>
-                  <div className="ios-footnote text-white/70">@web4tgs</div>
-                </div>
-                <ExternalLink className="w-4 h-4 text-white/40" />
               </div>
-            </div>
-            
-            <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleInstagramClick}>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                  <Instagram className="w-5 h-5 text-white/90" />
+              <div className="ios26-divider" />
+              
+              <div className="ios26-item cursor-pointer" onClick={handleInstagramClick}>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <Instagram className="w-5 h-5 text-white/90" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Instagram</div>
+                    <div className="ios26-subtitle">@web4tg</div>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-white/40" />
                 </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Instagram</div>
-                  <div className="ios-footnote text-white/70">@web4tg</div>
-                </div>
-                <ExternalLink className="w-4 h-4 text-white/40" />
               </div>
-            </div>
-            
-            <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleTikTokClick}>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/20">
-                  <Music className="w-5 h-5 text-white/90" />
+              <div className="ios26-divider" />
+              
+              <div className="ios26-item cursor-pointer" onClick={handleTikTokClick}>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/20">
+                    <Music className="w-5 h-5 text-white/90" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">TikTok</div>
+                    <div className="ios26-subtitle">@web4tg</div>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-white/40" />
                 </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">TikTok</div>
-                  <div className="ios-footnote text-white/70">@web4tg</div>
-                </div>
-                <ExternalLink className="w-4 h-4 text-white/40" />
               </div>
-            </div>
-            
-            <div className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleNavigateHelp}>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-system-green/20 rounded-xl flex items-center justify-center">
-                  <HelpCircle className="w-5 h-5 text-system-green" />
+              <div className="ios26-divider" />
+              
+              <div className="ios26-item cursor-pointer" onClick={handleNavigateHelp}>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-system-green/20 rounded-xl flex items-center justify-center">
+                    <HelpCircle className="w-5 h-5 text-system-green" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Справка</div>
+                    <div className="ios26-subtitle">FAQ и инструкции</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Справка</div>
-                  <div className="ios-footnote text-white/70">FAQ и инструкции</div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-white/40" />
               </div>
-            </div>
-            
-            <div className="p-4 cursor-pointer hover:bg-white/5 transition-colors" onClick={handleNavigateReview}>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-system-orange/20 rounded-xl flex items-center justify-center">
-                  <Star className="w-5 h-5 text-system-orange" />
+              <div className="ios26-divider" />
+              
+              <div className="ios26-item cursor-pointer" onClick={handleNavigateReview}>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-system-orange/20 rounded-xl flex items-center justify-center">
+                    <Star className="w-5 h-5 text-system-orange" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="ios26-title">Оставить отзыв</div>
+                    <div className="ios26-subtitle">Оцените наш сервис</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
-                <div className="flex-1">
-                  <div className="ios-body text-white font-semibold">Оставить отзыв</div>
-                  <div className="ios-footnote text-white/70">Оцените наш сервис</div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-white/40" />
               </div>
-            </div>
             </div>
           </div>
         </section>
