@@ -14,14 +14,15 @@ import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { DemoThemeProvider } from "@/components/shared";
 
 const STORE_KEY = 'rascal-store';
-import fashionImg1 from '@assets/stock_images/futuristic_techwear__e958e42c.jpg';
-import fashionImg2 from '@assets/stock_images/futuristic_techwear__737df842.jpg';
-import fashionImg3 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
-import fashionImg4 from '@assets/stock_images/futuristic_techwear__a22f6015.jpg';
-import fashionImg5 from '@assets/stock_images/futuristic_techwear__046f6538.jpg';
-import fashionImg6 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
-import fashionImg7 from '@assets/stock_images/futuristic_fashion_m_518587e3.jpg';
-import fashionImg8 from '@assets/stock_images/futuristic_techwear__95b77175.jpg';
+
+const fashionImg1 = 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&h=1200&fit=crop&q=90';
+const fashionImg2 = 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=1200&fit=crop&q=90';
+const fashionImg3 = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1200&fit=crop&q=90';
+const fashionImg4 = 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800&h=1200&fit=crop&q=90';
+const fashionImg5 = 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=800&h=1200&fit=crop&q=90';
+const fashionImg6 = 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&h=1200&fit=crop&q=90';
+const fashionImg7 = 'https://images.unsplash.com/photo-1509942774463-acf339cf87d5?w=800&h=1200&fit=crop&q=90';
+const fashionImg8 = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&h=1200&fit=crop&q=90';
 
 interface RascalStoreProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';

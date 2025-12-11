@@ -12,16 +12,17 @@ import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
-import img1 from '@assets/stock_images/futuristic_fashion_m_4203db1e.jpg';
-import img2 from '@assets/stock_images/futuristic_techwear__737df842.jpg';
-import img3 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
-import img4 from '@assets/stock_images/futuristic_techwear__046f6538.jpg';
-import img5 from '@assets/stock_images/futuristic_fashion_m_472b5d38.jpg';
-import img6 from '@assets/stock_images/futuristic_techwear__832ae961.jpg';
-import img7 from '@assets/stock_images/futuristic_fashion_m_4950c20e.jpg';
-import img8 from '@assets/stock_images/futuristic_techwear__95b77175.jpg';
-import img9 from '@assets/stock_images/futuristic_fashion_m_518587e3.jpg';
-import img10 from '@assets/stock_images/futuristic_techwear__a1b10a04.jpg';
+
+const img1 = 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=800&h=1200&fit=crop&q=90';
+const img2 = 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800&h=1200&fit=crop&q=90';
+const img3 = 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=1200&fit=crop&q=90';
+const img4 = 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&h=1200&fit=crop&q=90';
+const img5 = 'https://images.unsplash.com/photo-1434493789847-2a75b0dd0c82?w=800&h=1200&fit=crop&q=90';
+const img6 = 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&h=1200&fit=crop&q=90';
+const img7 = 'https://images.unsplash.com/photo-1520013236909-d2d3c0de0879?w=800&h=1200&fit=crop&q=90';
+const img8 = 'https://images.unsplash.com/photo-1598440567091-1f737a3b5a8a?w=800&h=1200&fit=crop&q=90';
+const img9 = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1200&fit=crop&q=90';
+const img10 = 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800&h=1200&fit=crop&q=90';
 
 const STORE_KEY = 'nikeacg-store';
 

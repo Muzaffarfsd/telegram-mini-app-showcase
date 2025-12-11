@@ -16,33 +16,25 @@ import { CheckoutDrawer } from "../shared/CheckoutDrawer";
 import { DemoThemeProvider } from "@/components/shared";
 
 const STORE_KEY = 'storeblack-store';
-// Helmet images
-import helmetImg1 from '@assets/stock_images/futuristic_motorcycl_4e16eb33.jpg';
-import helmetImg2 from '@assets/stock_images/futuristic_motorcycl_37d2a4c0.jpg';
-// Watch images
-import watchImg1 from '@assets/stock_images/smart_watch_black_pr_82d34457.jpg';
-import watchImg2 from '@assets/stock_images/smart_watch_black_pr_9d517dfd.jpg';
-// Carabiner images
-import carabinerImg1 from '@assets/stock_images/black_carbon_carabin_e6ec5904.jpg';
-import carabinerImg2 from '@assets/stock_images/black_carbon_carabin_564cdb4b.jpg';
-// Jacket images
-import jacketImg1 from '@assets/stock_images/black_urban_tech_jac_a96116f5.jpg';
-import jacketImg2 from '@assets/stock_images/black_urban_tech_jac_db5781c2.jpg';
-// Pants images
-import pantsImg1 from '@assets/stock_images/black_cargo_pants_te_bc6fefb4.jpg';
-import pantsImg2 from '@assets/stock_images/black_cargo_pants_te_1bf4e873.jpg';
-// Gloves images
-import glovesImg1 from '@assets/stock_images/black_tactical_glove_965b310c.jpg';
-import glovesImg2 from '@assets/stock_images/black_tactical_glove_18ec3d8b.jpg';
-// Boots images
-import bootsImg1 from '@assets/stock_images/black_tactical_boots_8ba948bd.jpg';
-import bootsImg2 from '@assets/stock_images/black_tactical_boots_fe0be5c1.jpg';
-// Backpack images
-import backpackImg1 from '@assets/stock_images/black_backpack_tech__ec98b9d5.jpg';
-import backpackImg2 from '@assets/stock_images/black_backpack_tech__e021311c.jpg';
-// Sunglasses images
-import sunglassesImg1 from '@assets/stock_images/black_sunglasses_pre_3ef9a455.jpg';
-import sunglassesImg2 from '@assets/stock_images/black_sunglasses_pre_9e5b9b98.jpg';
+
+const helmetImg1 = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1200&fit=crop&q=90';
+const helmetImg2 = 'https://images.unsplash.com/photo-1544892463-e285fcf6d06d?w=800&h=1200&fit=crop&q=90';
+const watchImg1 = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=1200&fit=crop&q=90';
+const watchImg2 = 'https://images.unsplash.com/photo-1434493789847-2a75b0dd0c82?w=800&h=1200&fit=crop&q=90';
+const carabinerImg1 = 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800&h=1200&fit=crop&q=90';
+const carabinerImg2 = 'https://images.unsplash.com/photo-1522163723043-478ef89a5f47?w=800&h=1200&fit=crop&q=90';
+const jacketImg1 = 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&h=1200&fit=crop&q=90';
+const jacketImg2 = 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=1200&fit=crop&q=90';
+const pantsImg1 = 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800&h=1200&fit=crop&q=90';
+const pantsImg2 = 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&h=1200&fit=crop&q=90';
+const glovesImg1 = 'https://images.unsplash.com/photo-1520013236909-d2d3c0de0879?w=800&h=1200&fit=crop&q=90';
+const glovesImg2 = 'https://images.unsplash.com/photo-1598440567091-1f737a3b5a8a?w=800&h=1200&fit=crop&q=90';
+const bootsImg1 = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1200&fit=crop&q=90';
+const bootsImg2 = 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800&h=1200&fit=crop&q=90';
+const backpackImg1 = 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=1200&fit=crop&q=90';
+const backpackImg2 = 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=800&h=1200&fit=crop&q=90';
+const sunglassesImg1 = 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&h=1200&fit=crop&q=90';
+const sunglassesImg2 = 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&h=1200&fit=crop&q=90';
 
 interface StoreBlackProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';

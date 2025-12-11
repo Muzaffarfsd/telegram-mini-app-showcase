@@ -14,13 +14,21 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
-import img1 from '@assets/stock_images/futuristic_fashion_m_331bf630.jpg';
-import img2 from '@assets/stock_images/futuristic_fashion_m_b5d87157.jpg';
-import img3 from '@assets/stock_images/futuristic_fashion_m_472b5d38.jpg';
-import img4 from '@assets/stock_images/futuristic_fashion_m_655a9d67.jpg';
-import img5 from '@assets/stock_images/futuristic_fashion_m_4950c20e.jpg';
 
 const STORE_KEY = 'labsurvivalist-store';
+
+const PRODUCT_IMAGES = {
+  fieldVest: 'https://images.unsplash.com/photo-1622519407650-3df9883f76a5?w=800&h=1200&fit=crop&q=90',
+  tacticalJacket: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=800&h=1200&fit=crop&q=90',
+  cargoPants: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&h=1200&fit=crop&q=90',
+  combatBoots: 'https://images.unsplash.com/photo-1542840843-3349799cded6?w=800&h=1200&fit=crop&q=90',
+  utilityBackpack: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=1200&fit=crop&q=90',
+  techGloves: 'https://images.unsplash.com/photo-1585488763765-33cd7b9b8c26?w=800&h=1200&fit=crop&q=90',
+  tacticalBelt: 'https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=800&h=1200&fit=crop&q=90',
+  survivalJacket: 'https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=800&h=1200&fit=crop&q=90',
+  reinforcedPants: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=800&h=1200&fit=crop&q=90',
+  baseLayerSet: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800&h=1200&fit=crop&q=90',
+};
 
 interface LabSurvivalistProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -57,8 +65,8 @@ const products: Product[] = [
     name: 'Field Vest', 
     price: 24900, 
     oldPrice: 32000,
-    image: img1, 
-    hoverImage: img1,
+    image: PRODUCT_IMAGES.fieldVest, 
+    hoverImage: PRODUCT_IMAGES.fieldVest,
     description: 'Тактический разгрузочный жилет военного класса с 12 независимыми карманами и системой быстрого сброса Cobra Buckle. Изготовлен из баллистического нейлона 500D с антиабразивным покрытием DuPont Teflon для максимальной износостойкости. Модульная платформа MOLLE позволяет крепить дополнительное снаряжение весом до 15 кг. Используется тактическими группами в зонах повышенного риска.',
     materials: ['Баллистический нейлон 500D', 'DuPont Teflon покрытие', 'Cobra Buckle фурнитура', 'YKK молнии'],
     features: ['MOLLE платформа', '12 независимых карманов', 'Система быстрого сброса', 'Регулируемые лямки'],
@@ -80,8 +88,8 @@ const products: Product[] = [
     name: 'Tactical Jacket', 
     price: 45900, 
     oldPrice: 58000,
-    image: img2, 
-    hoverImage: img2,
+    image: PRODUCT_IMAGES.tacticalJacket, 
+    hoverImage: PRODUCT_IMAGES.tacticalJacket,
     description: 'Премиальная тактическая куртка для экстремальных условий с трехслойной мембраной eVent DValpine и усиленными швами Cordura 1000D. Выдерживает температурный диапазон от -35°C до +45°C благодаря съемной системе утепления Primaloft Gold. Интегрированный капюшон с баллистической защитой и скрытые карманы для оперативного снаряжения. Стандарт экипировки спецподразделений в арктических и пустынных миссиях.',
     materials: ['Cordura 1000D', 'Мембрана eVent DValpine', 'Primaloft Gold утеплитель', 'YKK Aquaguard молнии'],
     features: ['MOLLE система', 'Скрытые карманы для снаряжения', 'Вентиляция подмышек', 'Съемный капюшон с защитой'],
@@ -103,8 +111,8 @@ const products: Product[] = [
     name: 'Cargo Pants', 
     price: 18500, 
     oldPrice: 25000,
-    image: img3, 
-    hoverImage: img3,
+    image: PRODUCT_IMAGES.cargoPants, 
+    hoverImage: PRODUCT_IMAGES.cargoPants,
     description: 'Тактические брюки карго с усиленными зонами коленей из материала Schoeller Keprotec и эргономичным кроем для максимальной подвижности. Ткань Ripstop 330 GSM с водоотталкивающей пропиткой DWR обеспечивает защиту в любых погодных условиях. 8 функциональных карманов включая скрытые отсеки для документов и ножа. Применяются оперативниками и инструкторами по выживанию.',
     materials: ['Ripstop 330 GSM', 'Schoeller Keprotec вставки', 'DWR пропитка', 'Prym фурнитура'],
     features: ['8 функциональных карманов', 'Усиленные колени', 'Скрытые отсеки', 'Эргономичный крой'],
@@ -126,8 +134,8 @@ const products: Product[] = [
     name: 'Combat Boots', 
     price: 32000, 
     oldPrice: 42000,
-    image: img4, 
-    hoverImage: img4,
+    image: PRODUCT_IMAGES.combatBoots, 
+    hoverImage: PRODUCT_IMAGES.combatBoots,
     description: 'Тактические ботинки специального назначения с композитным носком и подошвой Vibram Megagrip для экстремального сцепления на любых поверхностях. Мембрана Gore-Tex Extended Comfort обеспечивает полную водонепроницаемость при сохранении воздухопроницаемости. Анатомическая стелька Ortholite с антибактериальной пропиткой и усиленная защита голеностопа. Сертифицированы для применения в спецоперациях NATO.',
     materials: ['Кожа 2.2 мм full-grain', 'Gore-Tex Extended Comfort', 'Vibram Megagrip подошва', 'Композитный носок'],
     features: ['Композитная защита носка', 'Антипрокольная стелька', 'Быстрая шнуровка', 'Защита голеностопа'],
@@ -148,8 +156,8 @@ const products: Product[] = [
     name: 'Utility Backpack', 
     price: 15900, 
     oldPrice: 21000,
-    image: img5, 
-    hoverImage: img5,
+    image: PRODUCT_IMAGES.utilityBackpack, 
+    hoverImage: PRODUCT_IMAGES.utilityBackpack,
     description: 'Штурмовой рюкзак объемом 45 литров с полной MOLLE-совместимостью и интегрированной системой гидратации на 3 литра. Каркас из алюминиевого сплава 7075-T6 распределяет нагрузку до 25 кг на поясной ремень. Материал Cordura 1100D с полиуретановым покрытием обеспечивает абсолютную водонепроницаемость. Стандартное снаряжение горных егерей и поисково-спасательных групп.',
     materials: ['Cordura 1100D', 'Алюминий 7075-T6 каркас', 'Полиуретановое покрытие', 'Duraflex фурнитура'],
     features: ['MOLLE система 360°', 'Гидратор 3л', 'Каркасная система', 'Быстрый доступ к снаряжению'],
@@ -170,8 +178,8 @@ const products: Product[] = [
     id: 6, 
     name: 'Tech Gloves', 
     price: 8900, 
-    image: img1, 
-    hoverImage: img1,
+    image: PRODUCT_IMAGES.techGloves, 
+    hoverImage: PRODUCT_IMAGES.techGloves,
     description: 'Тактические перчатки операторского класса с сенсорными кончиками пальцев из серебряного волокна для работы с электроникой при любой температуре. Ладонная часть из козьей кожи Pittards с кевларовым армированием обеспечивает защиту от порезов уровня А3. Интегрированные карбоновые протекторы костяшек и технология регулировки влажности Outlast. Применяются снайперами и операторами беспилотников.',
     materials: ['Козья кожа Pittards', 'Кевларовое армирование', 'Карбоновые протекторы', 'Серебряное волокно'],
     features: ['Сенсорные пальцы', 'Защита костяшек', 'Терморегуляция Outlast', 'Усиленная ладонь'],
@@ -191,8 +199,8 @@ const products: Product[] = [
     id: 7, 
     name: 'Tactical Belt', 
     price: 6900, 
-    image: img2, 
-    hoverImage: img2,
+    image: PRODUCT_IMAGES.tacticalBelt, 
+    hoverImage: PRODUCT_IMAGES.tacticalBelt,
     description: 'Двухслойный тактический ремень с внутренним Velcro-креплением и быстросъемной пряжкой AustriAlpin Cobra для мгновенного сброса снаряжения. Жесткий полимерный сердечник обеспечивает стабильную платформу для кобуры и подсумков весом до 8 кг. Нейлоновая стропа MIL-SPEC с усиленными краями не деформируется при длительных нагрузках. Выбор инструкторов по стрелковой подготовке.',
     materials: ['Нейлон MIL-SPEC 1.75"', 'AustriAlpin Cobra пряжка', 'Полимерный сердечник', 'Velcro 3M'],
     features: ['Быстрый сброс', 'Velcro крепление', 'Жесткая платформа', 'Совместимость с кобурами'],
@@ -212,8 +220,8 @@ const products: Product[] = [
     name: 'Survival Jacket', 
     price: 52000, 
     oldPrice: 65000,
-    image: img3, 
-    hoverImage: img3,
+    image: PRODUCT_IMAGES.survivalJacket, 
+    hoverImage: PRODUCT_IMAGES.survivalJacket,
     description: 'Экспедиционная куртка для автономного выживания с интегрированными светоотражающими элементами 3M Scotchlite и аварийным свистком. Четырехслойная конструкция с мембраной Gore-Tex Pro и утеплителем Climashield Apex выдерживает температуры до -50°C. Встроенный аварийный капюшон-бивуак и 14 специализированных карманов для выживания. Официальная экипировка арктических экспедиций и горноспасательных служб.',
     materials: ['Gore-Tex Pro мембрана', 'Climashield Apex утеплитель', '3M Scotchlite отражатели', 'Cordura 500D'],
     features: ['Капюшон-бивуак', '14 карманов выживания', 'Аварийный свисток', 'Отражающие элементы'],
@@ -233,8 +241,8 @@ const products: Product[] = [
     id: 9, 
     name: 'Reinforced Pants', 
     price: 22000, 
-    image: img4, 
-    hoverImage: img4,
+    image: PRODUCT_IMAGES.reinforcedPants, 
+    hoverImage: PRODUCT_IMAGES.reinforcedPants,
     description: 'Боевые брюки с интегрированными D3O протекторами коленей и бедер для максимальной защиты при падениях и ударах. Ткань Schoeller Dryskin с четырехсторонним стрейчем обеспечивает неограниченную подвижность при выполнении тактических маневров. Усиленная зона сидения из Cordura 1000D и вентиляционные панели в паховой области. Стандарт экипировки мотоциклетных спецподразделений и тактических инструкторов.',
     materials: ['Schoeller Dryskin', 'D3O протекторы', 'Cordura 1000D усиление', 'YKK молнии'],
     features: ['D3O защита коленей', 'Усиленная зона сидения', 'Вентиляция', '4-сторонний стрейч'],
@@ -253,8 +261,8 @@ const products: Product[] = [
     id: 10, 
     name: 'Base Layer Set', 
     price: 12500, 
-    image: img5, 
-    hoverImage: img5,
+    image: PRODUCT_IMAGES.baseLayerSet, 
+    hoverImage: PRODUCT_IMAGES.baseLayerSet,
     description: 'Комплект термобелья первого слоя из мериносовой шерсти 18.5 микрон с технологией Polartec Power Dry для агрессивного отвода влаги. Бесшовная конструкция Flatlock устраняет натирания при многодневном ношении в полевых условиях. Антибактериальная обработка Polygiene сохраняет свежесть до 7 дней автономной эксплуатации. Базовый слой для арктических экспедиций и высокогорного альпинизма.',
     materials: ['Меринос 18.5 микрон', 'Polartec Power Dry', 'Flatlock швы', 'Polygiene обработка'],
     features: ['Бесшовная конструкция', 'Антибактериальная защита', 'Терморегуляция', 'Быстрое высыхание'],
@@ -646,7 +654,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
 
         <div className="relative mb-6 mx-6 rounded-2xl overflow-hidden border border-white/10 scroll-fade-in" style={{ height: '500px' }}>
           <LazyImage
-            src={img1}
+            src={PRODUCT_IMAGES.fieldVest}
             alt="Hero"
             className="absolute inset-0 w-full h-full object-cover"
           />

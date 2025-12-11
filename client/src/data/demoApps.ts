@@ -354,52 +354,79 @@ export const demoApps: DemoApp[] = [
     badgeColor: 'bg-gradient-to-r from-gray-800 to-black'
   },
   
-  // Premium Design Collection - New Apps
+  // Premium Lifestyle Collection
   {
-    id: 'oxyz-nft',
-    title: 'OXYZ',
-    description: 'Футуристическая NFT платформа с красными акцентами',
-    category: 'NFT & Крипто',
-    image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&h=300&fit=crop&q=80',
+    id: 'florist',
+    title: 'FloralArt',
+    description: 'Премиальный салон цветов и букетов',
+    category: 'Электронная коммерция',
+    image: 'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=400&h=300&fit=crop&q=80',
     creator: 'WEB4TG',
-    likes: '45.2k',
-    badge: 'NFT',
-    badgeColor: 'bg-red-600',
+    likes: '14.2k',
+    badge: 'Премиум',
+    badgeColor: 'bg-pink-500',
     home: {
       hero: {
-        title: 'OXYZ NFT',
-        subtitle: 'The Future of Digital Art',
-        image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&h=600&fit=crop&q=90',
-        bgClass: 'bg-black'
+        title: 'FloralArt',
+        subtitle: 'Эксклюзивные букеты на любой повод',
+        image: 'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=800&h=600&fit=crop&q=90',
+        bgClass: 'bg-gradient-to-r from-pink-500 to-rose-600'
       },
       services: [
-        { id: 'catalog', title: 'Explore', priceText: 'NFT Collection', iconName: 'grid' },
-        { id: 'cart', title: 'Wallet', priceText: 'Your Assets', iconName: 'wallet' },
-        { id: 'profile', title: 'Settings', priceText: 'Account', iconName: 'settings' }
+        { id: 'catalog', title: 'Каталог', priceText: 'Все букеты', iconName: 'flower' },
+        { id: 'favorites', title: 'Избранное', priceText: 'Сохраненные', iconName: 'heart' },
+        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
       ]
     }
   },
   {
-    id: 'emily-carter-ai',
-    title: 'Emily Carter AI',
-    description: 'AI-ассистент с минималистичным современным дизайном',
-    category: 'AI & Технологии',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop&q=80',
+    id: 'tea-house',
+    title: 'TeaElite',
+    description: 'Бутик премиального чая',
+    category: 'Электронная коммерция',
+    image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop&q=80',
     creator: 'WEB4TG',
-    likes: '67.8k',
-    badge: 'AI',
-    badgeColor: 'bg-emerald-600',
+    likes: '10.8k',
+    badge: 'Эксклюзив',
+    badgeColor: 'bg-amber-600',
     home: {
       hero: {
-        title: 'Emily Carter',
-        subtitle: 'Your AI Assistant',
-        image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop&q=90',
-        bgClass: 'bg-white'
+        title: 'TeaElite',
+        subtitle: 'Редкие сорта со всего мира',
+        image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=800&h=600&fit=crop&q=90',
+        bgClass: 'bg-gradient-to-r from-amber-600 to-yellow-700'
       },
       services: [
-        { id: 'catalog', title: 'Chat', priceText: 'Start talking', iconName: 'message-square' },
-        { id: 'cart', title: 'History', priceText: 'Past chats', iconName: 'clock' },
-        { id: 'profile', title: 'Profile', priceText: 'Settings', iconName: 'user' }
+        { id: 'catalog', title: 'Каталог', priceText: 'Все чаи', iconName: 'coffee' },
+        { id: 'favorites', title: 'Избранное', priceText: 'Сохраненные', iconName: 'heart' },
+        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
+      ]
+    }
+  },
+  {
+    id: 'interior-lux',
+    title: 'InteriorLux',
+    description: 'Люксовая мебель и декор',
+    category: 'Электронная коммерция',
+    image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=400&h=300&fit=crop&q=80',
+    creator: 'WEB4TG',
+    likes: '16.5k',
+    badge: 'Люкс',
+    badgeColor: 'bg-stone-600',
+    home: {
+      hero: {
+        title: 'InteriorLux',
+        subtitle: 'Дизайнерская мебель премиум-класса',
+        image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&h=600&fit=crop&q=90',
+        bgClass: 'bg-gradient-to-r from-stone-600 to-neutral-700'
+      },
+      services: [
+        { id: 'catalog', title: 'Каталог', priceText: 'Вся мебель', iconName: 'sofa' },
+        { id: 'favorites', title: 'Избранное', priceText: 'Сохраненные', iconName: 'heart' },
+        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
+        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
       ]
     }
   },
