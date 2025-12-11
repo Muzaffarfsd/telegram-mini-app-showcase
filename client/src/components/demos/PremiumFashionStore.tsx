@@ -74,7 +74,7 @@ const products: Product[] = [
     oldPrice: 15900,
     image: blackHoodieImage, 
     hoverImage: blackHoodieImage,
-    description: 'Культовое худи из премиального японского хлопка 320 г/м². Бархатистая мягкость enzyme wash, матовая латунная фурнитура ручной работы, двойные усиленные швы — безупречная посадка на годы.', 
+    description: 'Культовое худи свободного кроя из премиального японского хлопка плотностью 320 г/м², выращенного на органических плантациях префектуры Окаяма. Каждое изделие проходит специальную обработку enzyme wash для достижения бархатистой мягкости без потери структуры ткани. Матовая фурнитура ручной работы из состаренной латуни создает утонченный контраст с глубоким черным оттенком. Двойные усиленные швы и рибана премиум-класса гарантируют безупречную посадку даже после многократных стирок.', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Графит'], 
     colorHex: ['#1A1A1A', '#2D2D2D'],
@@ -386,253 +386,99 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     });
   };
 
-  // PRODUCT PAGE - Editorial Luxury Minimal 2025
-  // Inspired by SSENSE, Mr Porter, The Row
+  // PRODUCT PAGE
   if (activeTab === 'catalog' && selectedProduct) {
+    const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#1A1A1A';
     
     return (
-      <div className="min-h-screen bg-[#0F1011] text-white overflow-auto smooth-scroll-page">
-        {/* Navigation - Refined */}
-        <m.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="fixed top-0 left-0 right-0 z-50 demo-nav-safe"
-        >
-          <div className="flex items-center justify-between px-6">
-            <button 
-              onClick={() => setSelectedProduct(null)}
-              className="w-11 h-11 flex items-center justify-center border border-[#2A2B2D] rounded-full transition-colors hover:border-[#C4A87C]/40 hover:bg-[#C4A87C]/5"
-              data-testid="button-back"
-            >
-              <ChevronLeft className="w-[18px] h-[18px] text-white/70" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleFavorite(selectedProduct.id);
-              }}
-              className={`w-11 h-11 flex items-center justify-center border rounded-full transition-all duration-300 ${
-                isFavorite(selectedProduct.id) 
-                  ? 'border-[#C4A87C]/50 bg-[#C4A87C]/10' 
-                  : 'border-[#2A2B2D] hover:border-[#C4A87C]/40 hover:bg-[#C4A87C]/5'
-              }`}
-              aria-label="Избранное"
-              data-testid={`button-favorite-${selectedProduct.id}`}
-            >
-              <Heart className={`w-[18px] h-[18px] transition-all duration-300 ${isFavorite(selectedProduct.id) ? 'fill-[#C4A87C] text-[#C4A87C]' : 'text-white/50'}`} />
-            </button>
-          </div>
-        </m.div>
+      <div className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page" style={{ backgroundColor: bgColor }}>
+        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
+          <button 
+            onClick={() => setSelectedProduct(null)}
+            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            data-testid="button-back"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleFavorite(selectedProduct.id);
+            }}
+            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+            data-testid={`button-favorite-${selectedProduct.id}`}
+          >
+            <Heart 
+              className={`w-5 h-5 ${isFavorite(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
+            />
+          </button>
+        </div>
 
-        {/* Hero Image - Editorial */}
-        <m.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative aspect-[4/5]"
-        >
+        <div className="relative h-[60vh]">
           <LazyImage
             src={selectedProduct.hoverImage}
             alt={selectedProduct.name}
             className="w-full h-full object-cover"
           />
-          {/* Editorial Vignette */}
-          <div 
-            className="absolute inset-0 pointer-events-none"
-            style={{ 
-              background: 'linear-gradient(180deg, rgba(15,16,17,0) 55%, rgba(15,16,17,0.72) 100%)' 
-            }}
-          />
-        </m.div>
+        </div>
 
-        {/* Content - Editorial Stack */}
-        <div className="relative px-6 pt-10 pb-44">
-          {/* Kicker */}
-          <m.span 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="block text-[11px] uppercase tracking-[0.15em] text-[#C4A87C] mb-4"
-            style={{ lineHeight: '120%' }}
-          >
-            {selectedProduct.brand}
-          </m.span>
-
-          {/* Title - Cormorant Garamond */}
-          <m.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[38px] leading-[1.05] tracking-[-0.02em] mb-6"
-            style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontWeight: 600 }}
-          >
-            {selectedProduct.name}
-          </m.h1>
-
-          {/* Price */}
-          <m.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="flex items-baseline gap-4 mb-10"
-          >
-            <span className="text-[28px] tracking-[-0.01em]" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
-              {formatPrice(selectedProduct.price)}
-            </span>
-            {selectedProduct.oldPrice && (
-              <span className="text-[16px] text-white/30 line-through">{formatPrice(selectedProduct.oldPrice)}</span>
-            )}
-          </m.div>
-
-          {/* Hairline */}
-          <div className="h-px bg-[#1F2022] mb-8" />
-
-          {/* Description */}
-          <m.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[15px] leading-[1.6] text-white/55 mb-10"
-            style={{ fontFamily: 'Inter, sans-serif' }}
-          >
-            {selectedProduct.description}
-          </m.p>
-
-          {/* Atelier Timeline */}
-          <m.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-10"
-          >
-            <div className="flex items-start gap-5">
-              {/* Vertical Line */}
-              <div className="flex flex-col items-center pt-1">
-                <div className="w-2 h-2 rounded-full bg-[#C4A87C]" />
-                <div className="w-px h-12 bg-[#222326]" />
-                <div className="w-1.5 h-1.5 rounded-full bg-[#6B8FA7]" />
-                <div className="w-px h-12 bg-[#222326]" />
-                <div className="w-1.5 h-1.5 rounded-full bg-[#6B8FA7]" />
-              </div>
-              {/* Steps */}
-              <div className="flex-1 space-y-6">
-                <div>
-                  <span className="text-[11px] uppercase tracking-[0.12em] text-[#C4A87C]">Материал</span>
-                  <p className="text-[14px] text-white/70 mt-1">{selectedProduct.composition}</p>
-                </div>
-                <div>
-                  <span className="text-[11px] uppercase tracking-[0.12em] text-[#6B8FA7]">Крой</span>
-                  <p className="text-[14px] text-white/70 mt-1">
-                    {selectedProduct.fit === 'relaxed' ? 'Свободный силуэт' : selectedProduct.fit === 'slim' ? 'Приталенный' : 'Классический'}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-[11px] uppercase tracking-[0.12em] text-[#6B8FA7]">Уход</span>
-                  <p className="text-[14px] text-white/70 mt-1">Деликатная стирка 30°</p>
-                </div>
-              </div>
+        <div className="bg-white/10 backdrop-blur-xl rounded-t-3xl p-6 space-y-6 pb-32">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">{selectedProduct.name}</h2>
+            <div className="flex items-center justify-center gap-3">
+              <p className="text-3xl font-bold">{formatPrice(selectedProduct.price)}</p>
+              {selectedProduct.oldPrice && (
+                <p className="text-xl text-white/50 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
+              )}
             </div>
-          </m.div>
+          </div>
 
-          {/* Hairline */}
-          <div className="h-px bg-[#1F2022] mb-8" />
+          <p className="text-sm text-white/80 text-center">{selectedProduct.description}</p>
 
-          {/* Color Selection */}
-          <m.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-8"
-          >
-            <div className="flex items-center justify-between mb-5">
-              <span className="text-[12px] uppercase tracking-[0.1em] text-white/40">Цвет</span>
-              <span className="text-[13px] text-white/70">{selectedColor}</span>
-            </div>
-            <div className="flex items-center gap-4">
+          <div>
+            <p className="text-sm mb-3 text-white/80 text-center">Выберите цвет:</p>
+            <div className="flex items-center justify-center gap-3">
               {selectedProduct.colors.map((color, idx) => (
                 <button
                   key={color}
                   onClick={() => setSelectedColor(color)}
-                  className={`w-12 h-12 rounded-lg transition-all duration-200 ${
+                  className={`w-10 h-10 rounded-full border-2 transition-all ${
                     selectedColor === color
-                      ? 'ring-1 ring-[#C4A87C] ring-offset-2 ring-offset-[#0F1011]'
-                      : 'ring-1 ring-[#2A2B2D] hover:ring-[#C4A87C]/40'
+                      ? 'border-white scale-110'
+                      : 'border-white/30'
                   }`}
                   style={{ backgroundColor: selectedProduct.colorHex[idx] }}
                   data-testid={`button-color-${color}`}
                 />
               ))}
             </div>
-          </m.div>
+          </div>
 
-          {/* Size Selection */}
-          <m.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-10"
-          >
-            <div className="flex items-center justify-between mb-5">
-              <span className="text-[12px] uppercase tracking-[0.1em] text-white/40">Размер</span>
-              <button className="text-[12px] text-[#C4A87C] hover:text-[#C4A87C]/80 transition-colors">
-                Таблица размеров
-              </button>
-            </div>
-            <div className="flex items-center gap-3">
+          <div>
+            <p className="text-sm mb-3 text-white/80 text-center">Выберите размер:</p>
+            <div className="flex items-center justify-center gap-3">
               {selectedProduct.sizes.map((size) => (
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  className={`flex-1 py-4 rounded-lg text-[14px] font-medium transition-all duration-200 ${
+                  className={`w-12 h-12 rounded-full font-semibold transition-all ${
                     selectedSize === size
-                      ? 'bg-[#C4A87C] text-[#0F1011]'
-                      : 'border border-[#2A2B2D] text-white/60 hover:border-[#C4A87C]/40 hover:text-white/80'
+                      ? 'bg-[var(--theme-primary)] text-black'
+                      : 'bg-white/20 text-white hover:bg-white/30'
                   }`}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
                   data-testid={`button-size-${size}`}
                 >
                   {size}
                 </button>
               ))}
             </div>
-            {selectedProduct.sizeChart && selectedSize && (
-              <p className="mt-4 text-[12px] text-white/35 text-center">
-                {selectedProduct.sizeChart[selectedSize]}
-              </p>
-            )}
-          </m.div>
+          </div>
 
-          {/* Delivery Info */}
-          <m.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.45 }}
-            className="space-y-0"
-          >
-            <div className="flex items-center justify-between py-4 border-t border-[#1F2022]">
-              <span className="text-[13px] text-white/50">Доставка</span>
-              <span className="text-[13px] text-white/70">Бесплатно от 10 000 ₽</span>
-            </div>
-            <div className="flex items-center justify-between py-4 border-t border-[#1F2022]">
-              <span className="text-[13px] text-white/50">Возврат</span>
-              <span className="text-[13px] text-white/70">14 дней</span>
-            </div>
-          </m.div>
-        </div>
-
-        {/* Fixed Bottom CTA - Ghost to Fill */}
-        <m.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#0F1011] via-[#0F1011]/95 to-transparent pt-16"
-        >
           <ConfirmDrawer
             trigger={
               <button
-                className="w-full py-[18px] bg-[#C4A87C] text-[#0F1011] text-[15px] font-medium rounded-lg transition-all duration-200 hover:bg-[#D4B88C] active:scale-[0.98]"
-                style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '0.02em' }}
+                className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all"
                 data-testid="button-buy-now"
               >
                 Добавить в корзину
@@ -645,8 +491,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             variant="default"
             onConfirm={addToCart}
           />
-          <div className="h-[env(safe-area-inset-bottom)]" />
-        </m.div>
+        </div>
       </div>
     );
   }
