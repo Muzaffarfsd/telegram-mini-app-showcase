@@ -95,7 +95,7 @@ const goBack = () => {
   window.history.back();
 };
 
-// Beyond iOS 26 - Liquid Crystal navigation button with advanced physics
+// Premium Glass navigation button with spring physics
 interface NavButtonProps {
   onClick: () => void;
   isActive: boolean;
@@ -105,89 +105,52 @@ interface NavButtonProps {
 }
 
 const NavButton = ({ onClick, isActive, ariaLabel, testId, children }: NavButtonProps) => {
-  const springConfig = { stiffness: 500, damping: 28, mass: 0.6 };
+  const springConfig = { stiffness: 400, damping: 25, mass: 0.8 };
   const scale = useSpring(1, springConfig);
-  const [isPressed, setIsPressed] = useState(false);
   
   const handlePress = () => {
-    scale.set(0.82);
-    setIsPressed(true);
+    scale.set(0.88);
   };
   
   const handleRelease = () => {
-    scale.set(1.08); // Overshoot for bounce
-    setTimeout(() => scale.set(1), 100);
-    setIsPressed(false);
+    scale.set(1);
     onClick();
   };
   
   const handleHover = () => {
-    if (!isPressed) scale.set(1.08);
+    scale.set(1.05);
   };
   
   const handleHoverEnd = () => {
-    if (!isPressed) scale.set(1);
+    scale.set(1);
   };
   
   return (
     <m.button
       style={{ scale }}
-      className="relative flex items-center justify-center w-14 h-14 rounded-full overflow-visible"
+      className="relative flex items-center justify-center w-12 h-12 rounded-full"
       onMouseDown={handlePress}
       onMouseUp={handleRelease}
-      onMouseLeave={() => { handleHoverEnd(); setIsPressed(false); }}
+      onMouseLeave={handleHoverEnd}
       onMouseEnter={handleHover}
       onTouchStart={handlePress}
       onTouchEnd={handleRelease}
       aria-label={ariaLabel}
       data-testid={testId}
     >
-      {/* Active state glow ring */}
+      {/* Active background */}
       {isActive && (
-        <m.div 
+        <div 
           className="absolute inset-0 rounded-full pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
           style={{
-            background: 'radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%)',
-            boxShadow: '0 0 20px 5px rgba(16, 185, 129, 0.2), inset 0 0 10px rgba(16, 185, 129, 0.1)',
+            background: 'rgba(16, 185, 129, 0.15)',
+            boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
           }}
         />
       )}
       
-      {/* Chromatic aberration on press */}
-      {isPressed && (
-        <>
-          <div 
-            className="absolute inset-0 flex items-center justify-center rounded-full pointer-events-none"
-            style={{ transform: 'translateX(-1px)', opacity: 0.5, filter: 'hue-rotate(-30deg)' }}
-          >
-            {children}
-          </div>
-          <div 
-            className="absolute inset-0 flex items-center justify-center rounded-full pointer-events-none"
-            style={{ transform: 'translateX(1px)', opacity: 0.5, filter: 'hue-rotate(30deg)' }}
-          >
-            {children}
-          </div>
-        </>
-      )}
-      
-      {/* Glass inner surface */}
-      <div 
-        className="absolute inset-1 rounded-full pointer-events-none transition-all duration-200"
-        style={{
-          background: isActive 
-            ? 'linear-gradient(180deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%)'
-            : 'transparent',
-          border: isActive ? '0.5px solid rgba(16, 185, 129, 0.3)' : 'none',
-        }}
-      />
-      
-      {/* Content */}
-      <div className="relative z-10">
-        {children}
-      </div>
+      {/* Icon */}
+      {children}
     </m.button>
   );
 };
@@ -502,7 +465,7 @@ function App() {
                 </defs>
               </svg>
 
-              {/* Bottom Navigation - Beyond iOS 26 Liquid Crystal */}
+              {/* Bottom Navigation - Premium Glass */}
               {shouldShowBottomNav && (
                 <m.div 
                   className="fixed bottom-6 left-0 right-0 flex justify-center z-50"
@@ -511,72 +474,42 @@ function App() {
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   style={{ isolation: 'isolate' }}
                 >
-                  <div className="relative group">
-                    {/* Outer glow - pulsing aura */}
-                    <m.div 
-                      className="absolute -inset-3 rounded-[40px] pointer-events-none opacity-60"
-                      animate={{ 
-                        boxShadow: [
-                          '0 0 30px 5px rgba(16, 185, 129, 0.15), 0 0 60px 10px rgba(139, 92, 246, 0.1)',
-                          '0 0 40px 8px rgba(16, 185, 129, 0.2), 0 0 80px 15px rgba(139, 92, 246, 0.15)',
-                          '0 0 30px 5px rgba(16, 185, 129, 0.15), 0 0 60px 10px rgba(139, 92, 246, 0.1)',
-                        ]
-                      }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    
-                    {/* Deep shadow layer */}
+                  <div className="relative">
+                    {/* Subtle outer glow */}
                     <div 
-                      className="absolute inset-0 rounded-[32px] pointer-events-none"
+                      className="absolute -inset-2 rounded-[36px] pointer-events-none"
                       style={{
-                        boxShadow: '0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 15px 30px -10px rgba(0, 0, 0, 0.6)',
-                        transform: 'translateY(6px) scale(0.98)',
+                        boxShadow: '0 0 40px 5px rgba(16, 185, 129, 0.08)',
                       }}
                     />
                     
-                    {/* Prismatic caustics layer 1 - rainbow edge */}
+                    {/* Deep shadow */}
                     <div 
-                      className="absolute -inset-[1px] rounded-[33px] pointer-events-none opacity-50"
+                      className="absolute inset-0 rounded-[28px] pointer-events-none"
                       style={{
-                        background: 'linear-gradient(135deg, rgba(255,0,100,0.3) 0%, rgba(255,150,0,0.2) 20%, rgba(255,255,0,0.2) 35%, rgba(0,255,150,0.3) 50%, rgba(0,150,255,0.3) 70%, rgba(150,0,255,0.3) 85%, rgba(255,0,150,0.2) 100%)',
-                        filter: 'blur(1px)',
+                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+                        transform: 'translateY(4px)',
                       }}
                     />
                     
-                    {/* Main Liquid Crystal Container */}
+                    {/* Main Glass Container */}
                     <nav 
-                      className="relative flex items-center gap-1 rounded-[32px] px-4 py-2.5 overflow-visible"
+                      className="relative flex items-center gap-1 rounded-[28px] px-3 py-2"
                       style={{
-                        background: 'linear-gradient(180deg, rgba(60, 60, 70, 0.35) 0%, rgba(30, 30, 35, 0.5) 100%)',
-                        backdropFilter: 'blur(50px) saturate(200%) brightness(1.1)',
-                        WebkitBackdropFilter: 'blur(50px) saturate(200%) brightness(1.1)',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                        boxShadow: 'inset 0 2px 4px rgba(255, 255, 255, 0.1), inset 0 -1px 2px rgba(0, 0, 0, 0.2)',
+                        background: 'rgba(35, 35, 40, 0.6)',
+                        backdropFilter: 'blur(40px) saturate(180%)',
+                        WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                       }}
                       role="navigation" 
                       aria-label="Главное меню"
                     >
-                      {/* Top prismatic highlight */}
+                      {/* Top highlight line */}
                       <div 
-                        className="absolute inset-x-2 top-0 h-[2px] rounded-full pointer-events-none"
+                        className="absolute inset-x-4 top-0 h-[1px] pointer-events-none"
                         style={{
-                          background: 'linear-gradient(90deg, transparent 0%, rgba(255,200,200,0.4) 20%, rgba(255,255,255,0.6) 50%, rgba(200,200,255,0.4) 80%, transparent 100%)',
-                        }}
-                      />
-                      
-                      {/* Inner light refraction */}
-                      <div 
-                        className="absolute inset-0 rounded-[32px] pointer-events-none opacity-30"
-                        style={{
-                          background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,255,255,0.3) 0%, transparent 60%)',
-                        }}
-                      />
-                      
-                      {/* Bottom edge caustic */}
-                      <div 
-                        className="absolute inset-x-4 bottom-0 h-[1px] pointer-events-none"
-                        style={{
-                          background: 'linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.3) 30%, rgba(139,92,246,0.3) 70%, transparent 100%)',
+                          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)',
                         }}
                       />
                     
