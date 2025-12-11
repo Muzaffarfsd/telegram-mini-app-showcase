@@ -305,65 +305,17 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             
             .ios26-liquid-card {
               position: relative;
-              background: rgba(255, 255, 255, 0.03);
-              backdrop-filter: blur(40px) saturate(150%);
-              -webkit-backdrop-filter: blur(40px) saturate(150%);
+              background: rgba(16, 185, 129, 0.03);
               border-radius: 28px;
-              border: 1px solid rgba(255, 255, 255, 0.08);
+              border: 1px solid rgba(16, 185, 129, 0.12);
               overflow: hidden;
-              transform: translate3d(0, 0, 0);
-            }
-            
-            .ios26-liquid-card::before {
-              content: '';
-              position: absolute;
-              inset: 0;
-              background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 40%);
-              pointer-events: none;
-            }
-            
-            .ios26-liquid-card::after {
-              content: '';
-              position: absolute;
-              top: 0;
-              left: 0;
-              right: 0;
-              height: 1px;
-              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15) 30%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.15) 70%, transparent);
             }
             
             .ios26-stage-card {
               position: relative;
-              background: rgba(255, 255, 255, 0.02);
-              backdrop-filter: blur(16px);
-              -webkit-backdrop-filter: blur(16px);
+              background: rgba(16, 185, 129, 0.02);
               border-radius: 20px;
-              border: 1px solid rgba(255, 255, 255, 0.06);
               padding: 20px;
-              transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-              transform: translate3d(0, 0, 0);
-            }
-            
-            .ios26-stage-card:hover {
-              background: rgba(255, 255, 255, 0.04);
-              border-color: rgba(255, 255, 255, 0.12);
-            }
-            
-            .ios26-stage-card:active {
-              transform: translate3d(0, 0, 0) scale(0.98);
-            }
-            
-            .ios26-icon-container {
-              position: relative;
-              width: 48px;
-              height: 48px;
-              border-radius: 14px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              flex-shrink: 0;
-              background: rgba(255, 255, 255, 0.04);
-              border: 1px solid rgba(255, 255, 255, 0.08);
             }
             
             .ios26-stage-number {
@@ -375,47 +327,24 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               justify-content: center;
               font-size: 11px;
               font-weight: 600;
-              background: rgba(255, 255, 255, 0.06);
-              border: 1px solid rgba(255, 255, 255, 0.1);
-              color: rgba(255, 255, 255, 0.5);
             }
-            
             
             .ios26-feature-pill {
               display: flex;
               align-items: center;
               gap: 10px;
               padding: 12px 14px;
-              background: rgba(255, 255, 255, 0.02);
+              background: rgba(16, 185, 129, 0.02);
               border-radius: 12px;
-              border: 1px solid rgba(255, 255, 255, 0.04);
-              transition: all 0.25s ease;
-            }
-            
-            .ios26-feature-pill:hover {
-              background: rgba(255, 255, 255, 0.03);
             }
             
             .ios26-price-card {
               position: relative;
-              background: rgba(255, 255, 255, 0.03);
-              backdrop-filter: blur(20px);
-              -webkit-backdrop-filter: blur(20px);
+              background: rgba(16, 185, 129, 0.03);
               border-radius: 22px;
-              border: 1px solid rgba(255, 255, 255, 0.08);
               padding: 28px;
               text-align: center;
               overflow: hidden;
-            }
-            
-            .ios26-price-card::before {
-              content: '';
-              position: absolute;
-              top: 0;
-              left: 0;
-              right: 0;
-              height: 1px;
-              background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12) 30%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.12) 70%, transparent);
             }
             
             .ios26-badge {
@@ -423,14 +352,12 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               align-items: center;
               gap: 8px;
               padding: 8px 14px;
-              background: rgba(255, 255, 255, 0.04);
               border-radius: 100px;
-              border: 1px solid rgba(255, 255, 255, 0.08);
             }
             
             .ios26-divider {
               height: 1px;
-              background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06) 20%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.06) 80%, transparent);
+              background: rgba(16, 185, 129, 0.15);
               margin: 24px 0;
             }
             
@@ -441,7 +368,6 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               display: flex;
               align-items: center;
               justify-content: center;
-              background: rgba(255, 255, 255, 0.06);
               flex-shrink: 0;
             }
           `}</style>
