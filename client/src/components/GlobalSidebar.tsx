@@ -308,66 +308,124 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   return (
     <>
       <style>{`
+        /* iOS 26 Liquid Glass Hamburger Button */
         .hamburger-btn {
-          width: 44px;
-          height: 44px;
+          width: 48px;
+          height: 48px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 12px;
-          background: rgba(255,255,255,0.08);
-          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 16px;
+          background: rgba(255, 255, 255, 0.12);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          box-shadow: 
+            0 4px 24px rgba(0, 0, 0, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.05);
           cursor: pointer;
-          transition: transform 0.15s ease-out, background 0.15s ease-out;
+          transition: 
+            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            background 0.2s ease,
+            box-shadow 0.2s ease;
           will-change: transform;
           -webkit-tap-highlight-color: transparent;
-        }
-        .hamburger-btn:active {
-          transform: scale(0.92);
-          background: rgba(255,255,255,0.15);
+          position: relative;
+          overflow: hidden;
         }
         
+        .hamburger-btn::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 16px;
+          background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.05) 50%,
+            rgba(255, 255, 255, 0) 100%
+          );
+          pointer-events: none;
+        }
+        
+        .hamburger-btn:hover {
+          background: rgba(255, 255, 255, 0.18);
+          box-shadow: 
+            0 6px 32px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        .hamburger-btn:active {
+          transform: scale(0.92);
+          background: rgba(255, 255, 255, 0.22);
+        }
+        
+        /* iOS 26 Style Hamburger Lines */
         .hamburger-icon {
-          width: 18px;
-          height: 14px;
+          width: 20px;
+          height: 16px;
           position: relative;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
+          align-items: center;
         }
         
         .hamburger-line {
           display: block;
-          width: 100%;
-          height: 2px;
-          background: #FAFAFA;
+          height: 2.5px;
+          background: rgba(255, 255, 255, 0.95);
           border-radius: 2px;
-          transition: transform 0.2s ease-out, opacity 0.15s ease-out;
+          transition: 
+            transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+            opacity 0.25s ease,
+            width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
           transform-origin: center;
-          will-change: transform;
+          will-change: transform, opacity, width;
+        }
+        
+        .hamburger-line.line-1 {
+          width: 100%;
+        }
+        
+        .hamburger-line.line-2 {
+          width: 75%;
+          align-self: flex-end;
+        }
+        
+        .hamburger-line.line-3 {
+          width: 100%;
         }
         
         .hamburger-line.line-1.open {
-          transform: translateY(6px) rotate(45deg);
+          transform: translateY(6.75px) rotate(45deg);
+          width: 100%;
         }
         
         .hamburger-line.line-2.open {
           opacity: 0;
           transform: scaleX(0);
+          width: 0;
         }
         
         .hamburger-line.line-3.open {
-          transform: translateY(-6px) rotate(-45deg);
+          transform: translateY(-6.75px) rotate(-45deg);
+          width: 100%;
         }
         
+        /* iOS 26 Liquid Glass Sidebar Overlay */
         .sidebar-overlay {
           position: fixed;
           inset: 0;
           z-index: 100;
-          background: rgba(0,0,0,0.85);
+          background: rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
           opacity: 0;
           pointer-events: none;
-          transition: opacity 0.2s ease-out;
+          transition: opacity 0.35s cubic-bezier(0.32, 0.72, 0, 1);
           will-change: opacity;
         }
         .sidebar-overlay.open {
@@ -375,6 +433,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           pointer-events: auto;
         }
         
+        /* iOS 26 Liquid Glass Sidebar Panel */
         .sidebar-panel {
           position: fixed;
           top: 0;
@@ -382,14 +441,19 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           height: 100%;
           z-index: 101;
           width: min(320px, calc(100vw - 48px));
-          background: #0C0C0E;
-          border-right: 1px solid rgba(255,255,255,0.08);
+          background: rgba(28, 28, 30, 0.85);
+          backdrop-filter: blur(40px) saturate(180%);
+          -webkit-backdrop-filter: blur(40px) saturate(180%);
+          border-right: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 
+            20px 0 60px rgba(0, 0, 0, 0.3),
+            inset -1px 0 0 rgba(255, 255, 255, 0.05);
           display: flex;
           flex-direction: column;
           overflow-y: auto;
           overflow-x: hidden;
           transform: translateX(-100%);
-          transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+          transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
           will-change: transform;
           -webkit-overflow-scrolling: touch;
         }
@@ -402,8 +466,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           top: 0;
           left: 0;
           right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.6) 50%, transparent 100%);
+          height: 1px;
+          background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.3) 20%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0.3) 80%,
+            transparent 100%
+          );
           opacity: 0;
           transition: opacity 0.5s ease 0.2s;
         }
@@ -411,6 +481,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           opacity: 1;
         }
         
+        /* iOS 26 Style Menu Items */
         .menu-item {
           display: flex;
           align-items: center;
@@ -420,19 +491,25 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           background: transparent;
           border: 1px solid transparent;
           cursor: pointer;
-          transition: background 0.12s ease-out, transform 0.12s ease-out;
+          transition: 
+            background 0.2s ease,
+            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            border-color 0.2s ease;
           position: relative;
           width: 100%;
           text-align: left;
           -webkit-tap-highlight-color: transparent;
         }
+        .menu-item:hover {
+          background: rgba(255, 255, 255, 0.06);
+        }
         .menu-item:active {
-          transform: scale(0.98);
-          background: rgba(139, 92, 246, 0.2);
+          transform: scale(0.97);
+          background: rgba(255, 255, 255, 0.1);
         }
         .menu-item.active {
-          background: rgba(255,255,255,0.06);
-          border-color: rgba(255,255,255,0.08);
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.1);
         }
         
         .menu-item-glow {
@@ -444,9 +521,10 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           height: 24px;
           border-radius: 0 4px 4px 0;
           background: linear-gradient(180deg, #A78BFA 0%, #8B5CF6 100%);
-          box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+          box-shadow: 0 0 16px rgba(139, 92, 246, 0.6);
         }
         
+        /* iOS 26 Style Icon Container */
         .menu-icon-wrap {
           width: 40px;
           height: 40px;
@@ -454,16 +532,20 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           align-items: center;
           justify-content: center;
           border-radius: 12px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid transparent;
-          transition: all 0.25s ease;
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
           flex-shrink: 0;
         }
         .menu-item.active .menu-icon-wrap {
-          background: rgba(139, 92, 246, 0.15);
-          border-color: rgba(139, 92, 246, 0.2);
+          background: rgba(139, 92, 246, 0.2);
+          border-color: rgba(139, 92, 246, 0.3);
+          box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
         }
         
+        /* iOS 26 Style Social Links */
         .social-link {
           width: 48px;
           height: 48px;
@@ -471,32 +553,60 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           align-items: center;
           justify-content: center;
           border-radius: 14px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           cursor: pointer;
-          transition: transform 0.12s ease-out, background 0.12s ease-out;
+          transition: 
+            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            background 0.2s ease,
+            box-shadow 0.2s ease;
           -webkit-tap-highlight-color: transparent;
         }
+        .social-link:hover {
+          background: rgba(255, 255, 255, 0.1);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
         .social-link:active {
-          transform: scale(0.95);
-          background: rgba(255,255,255,0.08);
+          transform: scale(0.92);
+          background: rgba(255, 255, 255, 0.12);
         }
         
+        /* iOS 26 Style Boost Button */
         .boost-btn {
           position: relative;
           width: 100%;
-          padding: 14px 20px;
-          border-radius: 12px;
-          background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%);
+          padding: 16px 20px;
+          border-radius: 14px;
+          background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 50%, #A78BFA 100%);
           border: none;
           cursor: pointer;
-          transition: transform 0.12s ease-out;
+          transition: 
+            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            box-shadow 0.2s ease;
           -webkit-tap-highlight-color: transparent;
+          box-shadow: 
+            0 4px 20px rgba(139, 92, 246, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          overflow: hidden;
+        }
+        .boost-btn::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.2) 0%,
+            rgba(255, 255, 255, 0) 50%
+          );
+          pointer-events: none;
         }
         .boost-btn:active {
-          transform: scale(0.98);
+          transform: scale(0.97);
         }
         
+        /* iOS 26 Style Close Button */
         .close-btn {
           width: 40px;
           height: 40px;
@@ -504,23 +614,32 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           align-items: center;
           justify-content: center;
           border-radius: 12px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           cursor: pointer;
-          transition: transform 0.12s ease-out;
+          transition: 
+            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            background 0.2s ease;
           flex-shrink: 0;
           -webkit-tap-highlight-color: transparent;
         }
+        .close-btn:hover {
+          background: rgba(255, 255, 255, 0.12);
+        }
         .close-btn:active {
-          transform: scale(0.92);
+          transform: scale(0.88);
+          background: rgba(255, 255, 255, 0.15);
         }
         
+        /* iOS 26 Style Progress Bar */
         .progress-bar {
           position: relative;
           width: 100%;
           height: 6px;
-          border-radius: 4px;
-          background: rgba(255,255,255,0.06);
+          border-radius: 6px;
+          background: rgba(255, 255, 255, 0.08);
           overflow: hidden;
         }
         .progress-fill {
@@ -529,10 +648,10 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           top: 0;
           height: 100%;
           width: 5%;
-          border-radius: 4px;
+          border-radius: 6px;
           background: linear-gradient(90deg, #8B5CF6 0%, #A78BFA 50%, #C4B5FD 100%);
-          box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
-          transition: width 0.5s ease;
+          box-shadow: 0 0 16px rgba(139, 92, 246, 0.6);
+          transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .progress-shimmer {
           position: absolute;
@@ -540,8 +659,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           top: 0;
           height: 100%;
           width: 100%;
-          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
-          animation: shimmer 2s infinite;
+          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+          animation: shimmer 2.5s infinite ease-in-out;
         }
         
         @keyframes shimmer {
@@ -555,8 +674,10 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           left: 0;
           right: 0;
           z-index: 90;
-          background: rgba(10,10,10,0.95);
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          background: rgba(10, 10, 12, 0.85);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           padding-top: max(env(safe-area-inset-top, 0px), 12px);
         }
       `}</style>
