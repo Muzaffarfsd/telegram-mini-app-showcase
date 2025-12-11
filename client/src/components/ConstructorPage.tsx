@@ -296,7 +296,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
     <div className="min-h-screen bg-black text-white pb-32 smooth-scroll-page" style={{ paddingTop: '140px' }}>
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
-        {/* iOS 26 Liquid Glass Payment Section */}
+        {/* iOS 26 Premium Monochrome Payment Section */}
         <section className="scroll-fade-in ios26-payment-section">
           <style>{`
             .ios26-payment-section {
@@ -305,11 +305,11 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             
             .ios26-liquid-card {
               position: relative;
-              background: rgba(255, 255, 255, 0.06);
-              backdrop-filter: blur(40px) saturate(180%);
-              -webkit-backdrop-filter: blur(40px) saturate(180%);
+              background: rgba(255, 255, 255, 0.03);
+              backdrop-filter: blur(40px) saturate(150%);
+              -webkit-backdrop-filter: blur(40px) saturate(150%);
               border-radius: 28px;
-              border: 1px solid rgba(255, 255, 255, 0.12);
+              border: 1px solid rgba(255, 255, 255, 0.08);
               overflow: hidden;
               transform: translate3d(0, 0, 0);
             }
@@ -318,7 +318,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               content: '';
               position: absolute;
               inset: 0;
-              background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(139,92,246,0.03) 100%);
+              background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 40%);
               pointer-events: none;
             }
             
@@ -329,39 +329,25 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               left: 0;
               right: 0;
               height: 1px;
-              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.3) 80%, transparent);
+              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15) 30%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.15) 70%, transparent);
             }
             
             .ios26-stage-card {
               position: relative;
-              background: rgba(255, 255, 255, 0.04);
-              backdrop-filter: blur(20px);
-              -webkit-backdrop-filter: blur(20px);
+              background: rgba(255, 255, 255, 0.02);
+              backdrop-filter: blur(16px);
+              -webkit-backdrop-filter: blur(16px);
               border-radius: 20px;
-              border: 1px solid rgba(255, 255, 255, 0.08);
+              border: 1px solid rgba(255, 255, 255, 0.06);
               padding: 20px;
-              transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+              transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
               transform: translate3d(0, 0, 0);
-              overflow: hidden;
-            }
-            
-            .ios26-stage-card::before {
-              content: '';
-              position: absolute;
-              inset: 0;
-              background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
-              opacity: 0;
-              transition: opacity 0.3s ease;
-            }
-            
-            .ios26-stage-card:hover::before {
-              opacity: 1;
             }
             
             .ios26-stage-card:hover {
-              border-color: rgba(139, 92, 246, 0.3);
+              background: rgba(255, 255, 255, 0.04);
+              border-color: rgba(255, 255, 255, 0.12);
               transform: translate3d(0, -2px, 0);
-              box-shadow: 0 8px 32px rgba(139, 92, 246, 0.15);
             }
             
             .ios26-stage-card:active {
@@ -370,90 +356,63 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             
             .ios26-icon-container {
               position: relative;
-              width: 52px;
-              height: 52px;
-              border-radius: 16px;
+              width: 48px;
+              height: 48px;
+              border-radius: 14px;
               display: flex;
               align-items: center;
               justify-content: center;
               flex-shrink: 0;
-            }
-            
-            .ios26-icon-glow {
-              position: absolute;
-              inset: -4px;
-              border-radius: 20px;
-              filter: blur(12px);
-              opacity: 0.6;
-              animation: ios26-breathe 3s ease-in-out infinite;
-            }
-            
-            @keyframes ios26-breathe {
-              0%, 100% { opacity: 0.4; transform: scale(1); }
-              50% { opacity: 0.7; transform: scale(1.05); }
-            }
-            
-            .ios26-icon-inner {
-              position: relative;
-              width: 100%;
-              height: 100%;
-              border-radius: 16px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border: 1px solid rgba(255, 255, 255, 0.15);
+              background: rgba(255, 255, 255, 0.04);
+              border: 1px solid rgba(255, 255, 255, 0.08);
             }
             
             .ios26-stage-number {
-              width: 28px;
-              height: 28px;
+              width: 26px;
+              height: 26px;
               border-radius: 50%;
               display: flex;
               align-items: center;
               justify-content: center;
-              font-size: 12px;
-              font-weight: 700;
-              border: 1px solid;
-              backdrop-filter: blur(8px);
-              -webkit-backdrop-filter: blur(8px);
+              font-size: 11px;
+              font-weight: 600;
+              background: rgba(255, 255, 255, 0.06);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              color: rgba(255, 255, 255, 0.5);
             }
             
             .ios26-connector {
               position: absolute;
-              left: 44px;
-              top: 72px;
-              width: 2px;
-              height: calc(100% - 72px + 12px);
-              background: linear-gradient(180deg, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0.1) 100%);
-              border-radius: 1px;
+              left: 42px;
+              top: 68px;
+              width: 1px;
+              height: calc(100% - 68px + 8px);
+              background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
             }
             
             .ios26-feature-pill {
               display: flex;
               align-items: center;
               gap: 10px;
-              padding: 12px 16px;
-              background: rgba(255, 255, 255, 0.04);
-              backdrop-filter: blur(12px);
-              -webkit-backdrop-filter: blur(12px);
-              border-radius: 14px;
-              border: 1px solid rgba(255, 255, 255, 0.06);
-              transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+              padding: 12px 14px;
+              background: rgba(255, 255, 255, 0.02);
+              border-radius: 12px;
+              border: 1px solid rgba(255, 255, 255, 0.04);
+              transition: all 0.25s ease;
             }
             
             .ios26-feature-pill:hover {
-              background: rgba(139, 92, 246, 0.08);
-              border-color: rgba(139, 92, 246, 0.2);
-              transform: translate3d(0, -1px, 0);
+              background: rgba(255, 255, 255, 0.04);
+              border-color: rgba(255, 255, 255, 0.08);
             }
             
             .ios26-price-card {
               position: relative;
-              background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(167, 139, 250, 0.06) 100%);
-              backdrop-filter: blur(24px);
-              -webkit-backdrop-filter: blur(24px);
-              border-radius: 24px;
-              border: 1px solid rgba(139, 92, 246, 0.25);
+              background: rgba(255, 255, 255, 0.03);
+              backdrop-filter: blur(20px);
+              -webkit-backdrop-filter: blur(20px);
+              border-radius: 22px;
+              border: 1px solid rgba(255, 255, 255, 0.08);
               padding: 28px;
               text-align: center;
               overflow: hidden;
@@ -466,33 +425,34 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               left: 0;
               right: 0;
               height: 1px;
-              background: linear-gradient(90deg, transparent, rgba(167, 139, 250, 0.5) 30%, rgba(196, 181, 253, 0.8) 50%, rgba(167, 139, 250, 0.5) 70%, transparent);
-            }
-            
-            .ios26-price-card::after {
-              content: '';
-              position: absolute;
-              inset: 0;
-              background: radial-gradient(ellipse at 50% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
-              pointer-events: none;
+              background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12) 30%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.12) 70%, transparent);
             }
             
             .ios26-badge {
               display: inline-flex;
               align-items: center;
               gap: 8px;
-              padding: 8px 16px;
-              background: rgba(52, 199, 89, 0.15);
-              backdrop-filter: blur(8px);
-              -webkit-backdrop-filter: blur(8px);
+              padding: 8px 14px;
+              background: rgba(255, 255, 255, 0.04);
               border-radius: 100px;
-              border: 1px solid rgba(52, 199, 89, 0.3);
+              border: 1px solid rgba(255, 255, 255, 0.08);
             }
             
             .ios26-divider {
               height: 1px;
-              background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.1) 80%, transparent);
+              background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06) 20%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.06) 80%, transparent);
               margin: 24px 0;
+            }
+            
+            .ios26-check-icon {
+              width: 18px;
+              height: 18px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: rgba(255, 255, 255, 0.06);
+              flex-shrink: 0;
             }
           `}</style>
           
@@ -500,17 +460,17 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             <div className="relative z-10">
               {/* Header */}
               <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/10 border border-violet-400/20 mb-4">
-                  <Shield className="w-7 h-7 text-violet-400" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/[0.08] mb-4">
+                  <Shield className="w-6 h-6 text-white/70" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Прозрачная оплата</h3>
-                <p className="text-base text-white/60 max-w-xs mx-auto leading-relaxed">
+                <h3 className="text-[22px] font-semibold text-white mb-2 tracking-[-0.02em]">Прозрачная оплата</h3>
+                <p className="text-[15px] text-white/45 max-w-[280px] mx-auto leading-relaxed">
                   Платите поэтапно — минимальный риск, максимальный контроль
                 </p>
               </div>
 
               {/* Payment Stages */}
-              <div className="relative space-y-4 mb-8">
+              <div className="relative space-y-3 mb-8">
                 {/* Connector Line */}
                 <div className="ios26-connector" />
                 
@@ -518,20 +478,17 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 <div className="ios26-stage-card">
                   <div className="flex items-start gap-4">
                     <div className="ios26-icon-container">
-                      <div className="ios26-icon-glow bg-emerald-500/40" />
-                      <div className="ios26-icon-inner bg-gradient-to-br from-emerald-500/25 to-emerald-600/10">
-                        <Zap className="w-6 h-6 text-emerald-400" />
-                      </div>
+                      <Zap className="w-5 h-5 text-white/60" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-between mb-1.5">
                         <div>
-                          <div className="text-lg font-semibold text-white">35% предоплата</div>
-                          <div className="text-sm font-medium text-emerald-400">Запуск разработки</div>
+                          <div className="text-[16px] font-medium text-white/90">35% предоплата</div>
+                          <div className="text-[13px] text-white/40">Запуск разработки</div>
                         </div>
-                        <div className="ios26-stage-number bg-emerald-500/15 text-emerald-400 border-emerald-500/30">1</div>
+                        <div className="ios26-stage-number">1</div>
                       </div>
-                      <p className="text-sm text-white/55 leading-relaxed">
+                      <p className="text-[13px] text-white/35 leading-relaxed">
                         Мы начинаем создавать ваше приложение сразу после внесения предоплаты
                       </p>
                     </div>
@@ -542,20 +499,17 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 <div className="ios26-stage-card">
                   <div className="flex items-start gap-4">
                     <div className="ios26-icon-container">
-                      <div className="ios26-icon-glow bg-violet-500/40" />
-                      <div className="ios26-icon-inner bg-gradient-to-br from-violet-500/25 to-violet-600/10">
-                        <CheckCircle className="w-6 h-6 text-violet-400" />
-                      </div>
+                      <CheckCircle className="w-5 h-5 text-white/60" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-between mb-1.5">
                         <div>
-                          <div className="text-lg font-semibold text-white">65% при получении</div>
-                          <div className="text-sm font-medium text-violet-400">Готовое приложение</div>
+                          <div className="text-[16px] font-medium text-white/90">65% при получении</div>
+                          <div className="text-[13px] text-white/40">Готовое приложение</div>
                         </div>
-                        <div className="ios26-stage-number bg-violet-500/15 text-violet-400 border-violet-500/30">2</div>
+                        <div className="ios26-stage-number">2</div>
                       </div>
-                      <p className="text-sm text-white/55 leading-relaxed">
+                      <p className="text-[13px] text-white/35 leading-relaxed">
                         Оплачиваете остаток только после тестирования и принятия работы
                       </p>
                     </div>
@@ -566,20 +520,17 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 <div className="ios26-stage-card">
                   <div className="flex items-start gap-4">
                     <div className="ios26-icon-container">
-                      <div className="ios26-icon-glow bg-cyan-500/40" />
-                      <div className="ios26-icon-inner bg-gradient-to-br from-cyan-500/25 to-cyan-600/10">
-                        <TrendingUp className="w-6 h-6 text-cyan-400" />
-                      </div>
+                      <TrendingUp className="w-5 h-5 text-white/60" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-between mb-1.5">
                         <div>
-                          <div className="text-lg font-semibold text-white">Поддержка и развитие</div>
-                          <div className="text-sm font-medium text-cyan-400">Ежемесячная подписка</div>
+                          <div className="text-[16px] font-medium text-white/90">Поддержка и развитие</div>
+                          <div className="text-[13px] text-white/40">Ежемесячная подписка</div>
                         </div>
-                        <div className="ios26-stage-number bg-cyan-500/15 text-cyan-400 border-cyan-500/30">3</div>
+                        <div className="ios26-stage-number">3</div>
                       </div>
-                      <p className="text-sm text-white/55 leading-relaxed">
+                      <p className="text-[13px] text-white/35 leading-relaxed">
                         Стабильная работа, обновления и поддержка вашего бизнеса 24/7
                       </p>
                     </div>
@@ -594,36 +545,36 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               <div className="mb-6">
                 <div className="text-center mb-5">
                   <div className="ios26-badge">
-                    <Rocket className="w-4 h-4 text-emerald-400" />
-                    <span className="text-sm font-semibold text-emerald-400">Что входит в подписку</span>
+                    <Rocket className="w-4 h-4 text-white/50" />
+                    <span className="text-[13px] font-medium text-white/60">Что входит в подписку</span>
                   </div>
                 </div>
                 
                 {/* Features Grid */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <div className="ios26-feature-pill">
-                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <div className="ios26-check-icon">
+                      <Check className="w-3 h-3 text-white/50" />
                     </div>
-                    <span className="text-sm text-white/80">Хостинг и сервера</span>
+                    <span className="text-[13px] text-white/60">Хостинг и сервера</span>
                   </div>
                   <div className="ios26-feature-pill">
-                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <div className="ios26-check-icon">
+                      <Check className="w-3 h-3 text-white/50" />
                     </div>
-                    <span className="text-sm text-white/80">Поддержка 24/7</span>
+                    <span className="text-[13px] text-white/60">Поддержка 24/7</span>
                   </div>
                   <div className="ios26-feature-pill">
-                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <div className="ios26-check-icon">
+                      <Check className="w-3 h-3 text-white/50" />
                     </div>
-                    <span className="text-sm text-white/80">Обновления</span>
+                    <span className="text-[13px] text-white/60">Обновления</span>
                   </div>
                   <div className="ios26-feature-pill">
-                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <div className="ios26-check-icon">
+                      <Check className="w-3 h-3 text-white/50" />
                     </div>
-                    <span className="text-sm text-white/80">Резервные копии</span>
+                    <span className="text-[13px] text-white/60">Резервные копии</span>
                   </div>
                 </div>
               </div>
@@ -633,23 +584,23 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 <div className="relative z-10">
                   {/* Free Month Badge */}
                   <div className="ios26-badge mb-5">
-                    <Gift className="w-4 h-4 text-emerald-400" />
-                    <span className="text-sm font-bold text-emerald-400">Первый месяц в подарок</span>
+                    <Gift className="w-4 h-4 text-white/50" />
+                    <span className="text-[13px] font-medium text-white/70">Первый месяц в подарок</span>
                   </div>
                   
                   {/* Price */}
                   <div className="mb-4">
                     <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-4xl font-bold bg-gradient-to-r from-violet-300 via-purple-300 to-violet-400 bg-clip-text text-transparent">5,999</span>
-                      <span className="text-xl font-medium text-violet-300">₽</span>
+                      <span className="text-[38px] font-semibold text-white tracking-[-0.02em]">5,999</span>
+                      <span className="text-[18px] font-medium text-white/50">₽</span>
                     </div>
-                    <div className="text-sm text-white/50 mt-2">в месяц со второго месяца</div>
+                    <div className="text-[13px] text-white/35 mt-2">в месяц со второго месяца</div>
                   </div>
 
                   {/* Value proposition */}
-                  <div className="flex items-center justify-center gap-3 text-xs text-white/40">
+                  <div className="flex items-center justify-center gap-3 text-[12px] text-white/30">
                     <span>Всё включено</span>
-                    <span className="w-1 h-1 rounded-full bg-white/20" />
+                    <span className="w-1 h-1 rounded-full bg-white/15" />
                     <span>Без скрытых платежей</span>
                   </div>
                 </div>
