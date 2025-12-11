@@ -152,7 +152,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
         </div>
       </div>
 
-      {/* Premium Glass Bottom Navigation - Main Page Style */}
+      {/* Bottom Navigation - Premium Glass (exact copy from main page) */}
       <div 
         className="fixed bottom-6 left-0 right-0 flex justify-center z-50"
         style={{ isolation: 'isolate' }}
@@ -201,7 +201,6 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               onClick={() => handleTabSwitch('home')}
               className="relative flex items-center justify-center w-12 h-12 rounded-full"
               aria-label="Главная"
-              aria-current={activeTab === 'home' ? 'page' : undefined}
               data-testid="nav-home"
             >
               {activeTab === 'home' && (
@@ -214,8 +213,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                 />
               )}
               <Home
-                className={`transition-all duration-200 ${
-                  activeTab === 'home' ? 'w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'w-6 h-6 text-white/80'
+                className={`w-6 h-6 transition-all duration-200 ${
+                  activeTab === 'home' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
                 }`}
                 strokeWidth={activeTab === 'home' ? 2.5 : 1.75}
               />
@@ -226,7 +225,6 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               onClick={() => handleTabSwitch('catalog')}
               className="relative flex items-center justify-center w-12 h-12 rounded-full"
               aria-label="Каталог"
-              aria-current={activeTab === 'catalog' ? 'page' : undefined}
               data-testid="nav-catalog"
             >
               {activeTab === 'catalog' && (
@@ -239,8 +237,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                 />
               )}
               <Grid3X3
-                className={`transition-all duration-200 ${
-                  activeTab === 'catalog' ? 'w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'w-6 h-6 text-white/80'
+                className={`w-6 h-6 transition-all duration-200 ${
+                  activeTab === 'catalog' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
                 }`}
                 strokeWidth={activeTab === 'catalog' ? 2.5 : 1.75}
               />
@@ -251,7 +249,6 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               onClick={() => handleTabSwitch('cart')}
               className="relative flex items-center justify-center w-12 h-12 rounded-full"
               aria-label="Корзина"
-              aria-current={activeTab === 'cart' ? 'page' : undefined}
               data-testid="nav-cart"
             >
               {activeTab === 'cart' && (
@@ -264,8 +261,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                 />
               )}
               <ShoppingCart
-                className={`transition-all duration-200 ${
-                  activeTab === 'cart' ? 'w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'w-6 h-6 text-white/80'
+                className={`w-6 h-6 transition-all duration-200 ${
+                  activeTab === 'cart' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
                 }`}
                 strokeWidth={activeTab === 'cart' ? 2.5 : 1.75}
               />
@@ -276,7 +273,6 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               onClick={() => handleTabSwitch('profile')}
               className="relative flex items-center justify-center w-12 h-12 rounded-full"
               aria-label="Профиль"
-              aria-current={activeTab === 'profile' ? 'page' : undefined}
               data-testid="nav-profile"
             >
               {activeTab === 'profile' && (
@@ -289,8 +285,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                 />
               )}
               <User
-                className={`transition-all duration-200 ${
-                  activeTab === 'profile' ? 'w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'w-6 h-6 text-white/80'
+                className={`w-6 h-6 transition-all duration-200 ${
+                  activeTab === 'profile' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
                 }`}
                 strokeWidth={activeTab === 'profile' ? 2.5 : 1.75}
               />
