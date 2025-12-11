@@ -391,7 +391,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#1A1A1A';
     
     return (
-      <div className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white overflow-auto smooth-scroll-page" style={{ backgroundColor: bgColor }}>
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
@@ -423,74 +423,119 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           />
         </div>
 
-        <div className="bg-white/10 backdrop-blur-xl rounded-t-3xl p-6 space-y-6 pb-32">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">{selectedProduct.name}</h2>
-            <div className="flex items-center justify-center gap-3">
-              <p className="text-3xl font-bold">{formatPrice(selectedProduct.price)}</p>
-              {selectedProduct.oldPrice && (
-                <p className="text-xl text-white/50 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
-              )}
+        {/* Scrollable content area with extra padding for glass panel */}
+        <div className="relative pb-56">
+          {/* Main content card */}
+          <div className="bg-white/10 backdrop-blur-xl rounded-t-3xl p-6 space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-2">{selectedProduct.name}</h2>
+              <div className="flex items-center justify-center gap-3">
+                <p className="text-3xl font-bold">{formatPrice(selectedProduct.price)}</p>
+                {selectedProduct.oldPrice && (
+                  <p className="text-xl text-white/50 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
+                )}
+              </div>
+            </div>
+
+            <p className="text-sm text-white/80 text-center">{selectedProduct.description}</p>
+
+            <div>
+              <p className="text-sm mb-3 text-white/80 text-center">Выберите цвет:</p>
+              <div className="flex items-center justify-center gap-3">
+                {selectedProduct.colors.map((color, idx) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-10 h-10 rounded-full border-2 transition-all ${
+                      selectedColor === color
+                        ? 'border-white scale-110'
+                        : 'border-white/30'
+                    }`}
+                    style={{ backgroundColor: selectedProduct.colorHex[idx] }}
+                    data-testid={`button-color-${color}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm mb-3 text-white/80 text-center">Выберите размер:</p>
+              <div className="flex items-center justify-center gap-3">
+                {selectedProduct.sizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`w-12 h-12 rounded-full font-semibold transition-all ${
+                      selectedSize === size
+                        ? 'bg-[var(--theme-primary)] text-black'
+                        : 'bg-white/20 text-white hover:bg-white/30'
+                    }`}
+                    data-testid={`button-size-${size}`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
+        </div>
 
-          <p className="text-sm text-white/80 text-center">{selectedProduct.description}</p>
-
-          <div>
-            <p className="text-sm mb-3 text-white/80 text-center">Выберите цвет:</p>
-            <div className="flex items-center justify-center gap-3">
-              {selectedProduct.colors.map((color, idx) => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-10 h-10 rounded-full border-2 transition-all ${
-                    selectedColor === color
-                      ? 'border-white scale-110'
-                      : 'border-white/30'
-                  }`}
-                  style={{ backgroundColor: selectedProduct.colorHex[idx] }}
-                  data-testid={`button-color-${color}`}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-sm mb-3 text-white/80 text-center">Выберите размер:</p>
-            <div className="flex items-center justify-center gap-3">
-              {selectedProduct.sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`w-12 h-12 rounded-full font-semibold transition-all ${
-                    selectedSize === size
-                      ? 'bg-[var(--theme-primary)] text-black'
-                      : 'bg-white/20 text-white hover:bg-white/30'
-                  }`}
-                  data-testid={`button-size-${size}`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <ConfirmDrawer
-            trigger={
-              <button
-                className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all"
-                data-testid="button-buy-now"
-              >
-                Добавить в корзину
-              </button>
-            }
-            title="Добавить в корзину?"
-            description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
-            confirmText="Добавить"
-            cancelText="Отмена"
-            variant="default"
-            onConfirm={addToCart}
+        {/* Fixed Glass Bottom Panel with 3D effect */}
+        <div 
+          className="fixed bottom-0 left-0 right-0 z-50"
+          style={{ perspective: '1000px' }}
+        >
+          {/* 3D Shadow layer - creates depth illusion */}
+          <div 
+            className="absolute -top-8 left-0 right-0 h-16 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
+              transform: 'rotateX(45deg)',
+              transformOrigin: 'bottom center',
+            }}
           />
+          
+          {/* Glass panel */}
+          <div 
+            className="relative rounded-t-3xl border-t border-white/20 p-6 pb-8"
+            style={{
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              boxShadow: '0 -10px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+            }}
+          >
+            {/* Subtle inner glow */}
+            <div 
+              className="absolute inset-0 rounded-t-3xl pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.1) 0%, transparent 60%)',
+              }}
+            />
+            
+            <ConfirmDrawer
+              trigger={
+                <button
+                  className="relative w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all shadow-lg"
+                  style={{
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.3), 0 0 40px rgba(var(--theme-primary-rgb, 255,255,255), 0.15)',
+                  }}
+                  data-testid="button-buy-now"
+                >
+                  Добавить в корзину
+                </button>
+              }
+              title="Добавить в корзину?"
+              description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
+              confirmText="Добавить"
+              cancelText="Отмена"
+              variant="default"
+              onConfirm={addToCart}
+            />
+            
+            {/* Safe area padding */}
+            <div className="h-[env(safe-area-inset-bottom)]" />
+          </div>
         </div>
       </div>
     );
