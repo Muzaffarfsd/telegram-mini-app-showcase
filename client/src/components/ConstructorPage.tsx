@@ -381,14 +381,6 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               color: rgba(255, 255, 255, 0.5);
             }
             
-            .ios26-connector {
-              position: absolute;
-              left: 42px;
-              top: 68px;
-              width: 1px;
-              height: calc(100% - 68px + 8px);
-              background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
-            }
             
             .ios26-feature-pill {
               display: flex;
@@ -470,9 +462,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               </div>
 
               {/* Payment Stages */}
-              <div className="relative space-y-3 mb-8">
-                {/* Connector Line */}
-                <div className="ios26-connector" />
+              <div className="space-y-3 mb-8">
                 
                 {/* Stage 1 */}
                 <div className="ios26-stage-card">
