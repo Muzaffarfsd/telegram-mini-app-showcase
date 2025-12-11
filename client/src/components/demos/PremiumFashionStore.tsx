@@ -74,7 +74,7 @@ const products: Product[] = [
     oldPrice: 15900,
     image: blackHoodieImage, 
     hoverImage: blackHoodieImage,
-    description: 'Культовое худи свободного кроя из премиального японского хлопка плотностью 320 г/м², выращенного на органических плантациях префектуры Окаяма. Каждое изделие проходит специальную обработку enzyme wash для достижения бархатистой мягкости без потери структуры ткани. Матовая фурнитура ручной работы из состаренной латуни создает утонченный контраст с глубоким черным оттенком. Двойные усиленные швы и рибана премиум-класса гарантируют безупречную посадку даже после многократных стирок.', 
+    description: 'Японский хлопок. Идеальная посадка. Создано для совершенства.', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Графит'], 
     colorHex: ['#1A1A1A', '#2D2D2D'],
@@ -386,299 +386,207 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     });
   };
 
-  // PRODUCT PAGE - Premium Apple-Style Design 2025
+  // PRODUCT PAGE - Apple Minimalist Design 2025
   if (activeTab === 'catalog' && selectedProduct) {
-    const currentColorIdx = selectedProduct.colors.indexOf(selectedColor);
-    const currentColorHex = selectedProduct.colorHex[currentColorIdx] || '#1A1A1A';
-    const isLimited = selectedProduct.inStock < 10;
-    const discountPercent = selectedProduct.oldPrice 
-      ? Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100) 
-      : 0;
     
     return (
-      <div className="min-h-screen bg-[#0A0A0B] text-white overflow-auto smooth-scroll-page">
-        {/* Floating Navigation */}
+      <div className="min-h-screen bg-[#000000] text-white overflow-auto smooth-scroll-page">
+        {/* Floating Navigation - Minimal */}
         <m.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
           className="fixed top-0 left-0 right-0 z-50 demo-nav-safe"
         >
-          <div className="flex items-center justify-between px-5">
+          <div className="flex items-center justify-between px-6">
             <m.button 
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.92 }}
               onClick={() => setSelectedProduct(null)}
-              className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-2xl border border-white/10 flex items-center justify-center"
+              className="w-10 h-10 rounded-full bg-white/[0.08] backdrop-blur-xl flex items-center justify-center"
               data-testid="button-back"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-5 h-5 text-white/80" />
             </m.button>
             <m.button
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.92 }}
               onClick={(e) => {
                 e.stopPropagation();
                 handleToggleFavorite(selectedProduct.id);
               }}
-              className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-2xl border border-white/10 flex items-center justify-center"
+              className="w-10 h-10 rounded-full bg-white/[0.08] backdrop-blur-xl flex items-center justify-center"
               aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
               data-testid={`button-favorite-${selectedProduct.id}`}
             >
               <Heart 
-                className={`w-5 h-5 transition-all ${isFavorite(selectedProduct.id) ? 'fill-[#10B981] text-[#10B981]' : 'text-white/70'}`}
+                className={`w-5 h-5 transition-all duration-300 ${isFavorite(selectedProduct.id) ? 'fill-white text-white' : 'text-white/60'}`}
               />
             </m.button>
           </div>
         </m.div>
 
-        {/* Hero Image Section */}
-        <div className="relative">
-          {/* Ambient Glow Effect */}
-          <div 
-            className="absolute inset-0 opacity-30 blur-3xl"
-            style={{ background: `radial-gradient(ellipse at center, ${currentColorHex} 0%, transparent 70%)` }}
-          />
-          
-          {/* Main Product Image */}
-          <m.div 
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="relative aspect-[4/5] max-h-[60vh]"
-          >
-            <LazyImage
-              src={selectedProduct.hoverImage}
-              alt={selectedProduct.name}
-              className="w-full h-full object-cover"
-            />
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0B]/60 via-transparent to-[#0A0A0B]" />
-          </m.div>
-
-          {/* Floating Badges */}
-          <div className="absolute top-20 left-5 flex flex-col gap-2">
-            {selectedProduct.isNew && (
-              <m.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="px-3 py-1.5 bg-[#10B981] rounded-full"
-              >
-                <span className="text-[11px] font-semibold tracking-wider text-black uppercase">NEW</span>
-              </m.div>
-            )}
-            {isLimited && (
-              <m.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="px-3 py-1.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full"
-              >
-                <span className="text-[11px] font-medium tracking-wider text-white/90 uppercase">LIMITED</span>
-              </m.div>
-            )}
-          </div>
-        </div>
-
-        {/* Content Section - Premium Card */}
-        <div className="relative -mt-8 mx-4 mb-32">
-          <m.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-[#141416]/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl overflow-hidden"
-          >
-            {/* Title & Price Block */}
-            <div className="p-6 pb-0">
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div className="flex-1">
-                  <p className="text-[11px] font-medium tracking-[0.2em] text-white/40 uppercase mb-2">
-                    {selectedProduct.brand}
-                  </p>
-                  <h1 className="text-[26px] font-semibold leading-tight tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' }}>
-                    {selectedProduct.name}
-                  </h1>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-2">
-                    {discountPercent > 0 && (
-                      <span className="text-[12px] font-semibold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-md">
-                        -{discountPercent}%
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[28px] font-bold tracking-tight mt-1">{formatPrice(selectedProduct.price)}</p>
-                  {selectedProduct.oldPrice && (
-                    <p className="text-[15px] text-white/40 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Rating */}
-              <div className="flex items-center gap-2 mb-5">
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(selectedProduct.rating) ? 'fill-[#FBBF24] text-[#FBBF24]' : 'text-white/20'}`} />
-                  ))}
-                </div>
-                <span className="text-[13px] text-white/50">{selectedProduct.rating}</span>
-                <span className="text-[13px] text-white/30">•</span>
-                <span className="text-[13px] text-white/50">{selectedProduct.inStock} в наличии</span>
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mx-6" />
-
-            {/* Description Section */}
-            <div className="p-6">
-              <p className="text-[15px] leading-[1.6] text-white/70" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' }}>
-                {selectedProduct.description}
-              </p>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mx-6" />
-
-            {/* Specifications Grid */}
-            <div className="p-6 grid grid-cols-2 gap-4">
-              <div className="bg-white/[0.03] rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Package className="w-4 h-4 text-white/40" />
-                  <span className="text-[11px] font-medium tracking-wider text-white/40 uppercase">Состав</span>
-                </div>
-                <p className="text-[14px] text-white/80">{selectedProduct.composition}</p>
-              </div>
-              <div className="bg-white/[0.03] rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Settings className="w-4 h-4 text-white/40" />
-                  <span className="text-[11px] font-medium tracking-wider text-white/40 uppercase">Крой</span>
-                </div>
-                <p className="text-[14px] text-white/80 capitalize">
-                  {selectedProduct.fit === 'relaxed' ? 'Свободный' : selectedProduct.fit === 'slim' ? 'Приталенный' : 'Классический'}
-                </p>
-              </div>
-            </div>
-
-            {/* Size Chart Preview */}
-            {selectedProduct.sizeChart && selectedSize && (
-              <m.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mx-6 mb-4 p-3 bg-[#10B981]/10 border border-[#10B981]/20 rounded-xl"
-              >
-                <p className="text-[12px] text-[#10B981]">
-                  Размер {selectedSize}: {selectedProduct.sizeChart[selectedSize]}
-                </p>
-              </m.div>
-            )}
-
-            {/* Divider */}
-            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mx-6" />
-
-            {/* Color Selection */}
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-[13px] font-medium text-white/60">Цвет</span>
-                <span className="text-[13px] text-white/40">{selectedColor}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                {selectedProduct.colors.map((color, idx) => (
-                  <m.button
-                    key={color}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setSelectedColor(color)}
-                    className={`relative w-12 h-12 rounded-xl transition-all duration-300 ${
-                      selectedColor === color
-                        ? 'ring-2 ring-[#10B981] ring-offset-2 ring-offset-[#141416]'
-                        : 'ring-1 ring-white/10'
-                    }`}
-                    style={{ backgroundColor: selectedProduct.colorHex[idx] }}
-                    data-testid={`button-color-${color}`}
-                  >
-                    {selectedColor === color && (
-                      <m.div
-                        layoutId="colorCheck"
-                        className="absolute inset-0 flex items-center justify-center"
-                      >
-                        <div className="w-2 h-2 bg-white rounded-full" />
-                      </m.div>
-                    )}
-                  </m.button>
-                ))}
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mx-6" />
-
-            {/* Size Selection */}
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-[13px] font-medium text-white/60">Размер</span>
-                <button className="text-[13px] text-[#10B981]">Таблица размеров</button>
-              </div>
-              <div className="flex items-center gap-2">
-                {selectedProduct.sizes.map((size) => (
-                  <m.button
-                    key={size}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setSelectedSize(size)}
-                    className={`flex-1 py-3.5 rounded-xl font-medium text-[15px] transition-all duration-300 ${
-                      selectedSize === size
-                        ? 'bg-white text-black'
-                        : 'bg-white/[0.06] text-white/70 hover:bg-white/10'
-                    }`}
-                    data-testid={`button-size-${size}`}
-                  >
-                    {size}
-                  </m.button>
-                ))}
-              </div>
-            </div>
-
-            {/* Trust Badges */}
-            <div className="px-6 pb-6">
-              <div className="flex items-center justify-between gap-2 py-4 border-t border-b border-white/[0.06]">
-                <div className="flex items-center gap-2">
-                  <Package className="w-4 h-4 text-[#10B981]" />
-                  <span className="text-[12px] text-white/60">Бесплатная доставка</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-[#10B981]" />
-                  <span className="text-[12px] text-white/60">Оплата при получении</span>
-                </div>
-              </div>
-            </div>
-          </m.div>
-        </div>
-
-        {/* Fixed Bottom CTA */}
-        <m.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B]/95 to-transparent pt-8"
+        {/* Hero Product Image - Full Focus */}
+        <m.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="relative w-full aspect-[3/4] max-h-[65vh]"
         >
-          <div className="flex items-center gap-3 max-w-lg mx-auto">
-            <ConfirmDrawer
-              trigger={
-                <m.button
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 bg-white text-black font-semibold py-4 rounded-2xl flex items-center justify-center gap-2"
-                  data-testid="button-buy-now"
+          <LazyImage
+            src={selectedProduct.hoverImage}
+            alt={selectedProduct.name}
+            className="w-full h-full object-cover"
+          />
+          {/* Subtle bottom fade */}
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent" />
+          
+          {/* Badge - Only if new */}
+          {selectedProduct.isNew && (
+            <m.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="absolute top-24 left-6"
+            >
+              <span className="text-[11px] font-medium tracking-[0.15em] text-white/70 uppercase">New</span>
+            </m.div>
+          )}
+        </m.div>
+
+        {/* Content - Clean & Minimal */}
+        <div className="px-6 pt-8 pb-40">
+          {/* Product Name */}
+          <m.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-[32px] font-semibold tracking-tight leading-[1.1] mb-3"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}
+          >
+            {selectedProduct.name}
+          </m.h1>
+          
+          {/* Tagline - Apple Style */}
+          <m.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-[17px] text-white/50 leading-relaxed mb-8"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}
+          >
+            {selectedProduct.description}
+          </m.p>
+
+          {/* Price Block */}
+          <m.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="flex items-baseline gap-3 mb-10"
+          >
+            <span className="text-[28px] font-semibold tracking-tight">{formatPrice(selectedProduct.price)}</span>
+            {selectedProduct.oldPrice && (
+              <span className="text-[17px] text-white/30 line-through">{formatPrice(selectedProduct.oldPrice)}</span>
+            )}
+          </m.div>
+
+          {/* Color Selection - Minimal Dots */}
+          <m.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mb-8"
+          >
+            <div className="flex items-center gap-4 mb-4">
+              <span className="text-[15px] text-white/40">Цвет —</span>
+              <span className="text-[15px] text-white/80">{selectedColor}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {selectedProduct.colors.map((color, idx) => (
+                <button
+                  key={color}
+                  onClick={() => setSelectedColor(color)}
+                  className={`w-8 h-8 rounded-full transition-all duration-200 ${
+                    selectedColor === color
+                      ? 'ring-[1.5px] ring-white ring-offset-[3px] ring-offset-black'
+                      : 'ring-[0.5px] ring-white/20'
+                  }`}
+                  style={{ backgroundColor: selectedProduct.colorHex[idx] }}
+                  data-testid={`button-color-${color}`}
+                />
+              ))}
+            </div>
+          </m.div>
+
+          {/* Size Selection - Clean Pills */}
+          <m.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mb-10"
+          >
+            <div className="flex items-center gap-4 mb-4">
+              <span className="text-[15px] text-white/40">Размер</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {selectedProduct.sizes.map((size) => (
+                <button
+                  key={size}
+                  onClick={() => setSelectedSize(size)}
+                  className={`min-w-[52px] py-3 px-4 rounded-full text-[15px] font-medium transition-all duration-200 ${
+                    selectedSize === size
+                      ? 'bg-white text-black'
+                      : 'bg-white/[0.06] text-white/60 hover:bg-white/[0.1]'
+                  }`}
+                  data-testid={`button-size-${size}`}
                 >
-                  <ShoppingBag className="w-5 h-5" />
-                  <span>Добавить — {formatPrice(selectedProduct.price)}</span>
-                </m.button>
-              }
-              title="Добавить в корзину?"
-              description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
-              confirmText="Добавить"
-              cancelText="Отмена"
-              variant="default"
-              onConfirm={addToCart}
-            />
-          </div>
-          {/* Safe area spacer */}
+                  {size}
+                </button>
+              ))}
+            </div>
+          </m.div>
+
+          {/* Details - Collapsed */}
+          <m.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="border-t border-white/[0.08] pt-6"
+          >
+            <div className="flex items-center justify-between py-3">
+              <span className="text-[15px] text-white/50">Состав</span>
+              <span className="text-[15px] text-white/80">{selectedProduct.composition}</span>
+            </div>
+            <div className="flex items-center justify-between py-3 border-t border-white/[0.06]">
+              <span className="text-[15px] text-white/50">Доставка</span>
+              <span className="text-[15px] text-white/80">Бесплатно</span>
+            </div>
+          </m.div>
+        </div>
+
+        {/* Fixed Bottom CTA - Apple Style */}
+        <m.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
+          className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/95 to-transparent pt-10"
+        >
+          <ConfirmDrawer
+            trigger={
+              <button
+                className="w-full bg-[#0071E3] text-white font-medium py-[18px] rounded-[14px] text-[17px] transition-all duration-200 hover:bg-[#0077ED] active:scale-[0.98]"
+                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}
+                data-testid="button-buy-now"
+              >
+                Добавить в Bag
+              </button>
+            }
+            title="Добавить в корзину?"
+            description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
+            confirmText="Добавить"
+            cancelText="Отмена"
+            variant="default"
+            onConfirm={addToCart}
+          />
           <div className="h-[env(safe-area-inset-bottom)]" />
         </m.div>
       </div>
