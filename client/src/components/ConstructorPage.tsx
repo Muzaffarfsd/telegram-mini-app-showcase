@@ -309,7 +309,6 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               backdrop-filter: blur(40px) saturate(150%);
               -webkit-backdrop-filter: blur(40px) saturate(150%);
               border-radius: 28px;
-              border: 1px solid rgba(16, 185, 129, 0.15);
               overflow: hidden;
             }
             
