@@ -19,7 +19,7 @@ import {
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { useFilter } from "@/hooks/useFilter";
 import { scrollToTop } from "@/hooks/useScrollToTop";
-import { DemoThemeProvider, LazyImage } from "@/components/shared";
+import { DemoThemeProvider } from "@/components/shared";
 
 interface RestaurantProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -714,11 +714,11 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
           transition={{ duration: 0.6 }}
           className="relative h-[55vh] overflow-hidden"
         >
-          <LazyImage
+          <img
             src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=800&fit=crop&q=95"
             alt="DeluxeDine"
-            className="w-full h-full"
-            priority
+            className="w-full h-full object-cover"
+            loading="eager"
           />
           <div 
             className="absolute inset-0"
@@ -816,10 +816,11 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
                       border: `1px solid ${luxuryColors.glassBorder}`
                     }}
                   >
-                    <LazyImage
+                    <img
                       src={dish.image}
                       alt={dish.name}
-                      className="w-full h-full transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      loading="lazy"
                     />
                     <div 
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -898,10 +899,11 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
                 }}
                 data-testid={`collection-${collection.id}`}
               >
-                <LazyImage
+                <img
                   src={collection.image}
                   alt={collection.title}
-                  className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-110"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
                 />
                 <div 
                   className="absolute inset-0"
@@ -1025,10 +1027,11 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
                     border: `1px solid ${luxuryColors.glassBorder}`
                   }}
                 >
-                  <LazyImage
+                  <img
                     src={dish.image}
                     alt={dish.name}
-                    className="w-full h-full"
+                    className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                   <div 
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
