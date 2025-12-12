@@ -490,7 +490,7 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
             src={selectedDish.image}
             alt={selectedDish.name}
             className="w-full h-full object-cover"
-            loading="lazy"
+            style={{ minHeight: '300px' }}
           />
           <div 
             className="absolute inset-0"
@@ -718,7 +718,8 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
             src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=800&fit=crop&q=95"
             alt="DeluxeDine"
             className="w-full h-full object-cover"
-            loading="eager"
+            style={{ backgroundColor: '#333' }}
+            onError={(e) => console.log('Hero image failed to load', e)}
           />
           <div 
             className="absolute inset-0"
@@ -820,7 +821,6 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
                       src={dish.image}
                       alt={dish.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      loading="lazy"
                     />
                     <div 
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -903,7 +903,6 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
                   src={collection.image}
                   alt={collection.title}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
                 />
                 <div 
                   className="absolute inset-0"
@@ -1031,7 +1030,6 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
                     src={dish.image}
                     alt={dish.name}
                     className="w-full h-full object-cover"
-                    loading="lazy"
                   />
                   <div 
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
