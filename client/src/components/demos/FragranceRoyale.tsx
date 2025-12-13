@@ -18,6 +18,7 @@ import chanelNo5Image from "@assets/chanel_no5.jpg";
 import lelaboSantal33Image from "@assets/lelabo_santal33.jpg";
 import baccaratRouge540Image from "@assets/baccarat_rouge_540.jpg";
 import tomfordOudWoodImage from "@assets/tomford_oud_wood.jpg";
+import diorSauvageImage from "@assets/dior_sauvage.jpg";
 
 const STORE_KEY = 'fragranceroyale-store';
 
@@ -195,8 +196,8 @@ const perfumes: Perfume[] = [
     id: 7, 
     name: 'Sauvage', 
     price: 14500, 
-    image: 'https://images.unsplash.com/photo-1565375473883-12c4e0b8dc8c?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1592417817038-d13bb0b0143d?w=800&h=1200&fit=crop&q=90',
+    image: diorSauvageImage, 
+    hoverImage: diorSauvageImage,
     description: 'Аромат первобытной свободы, вдохновлённый бескрайними пустынными ландшафтами под звёздным небом. Искристый калабрийский бергамот и жгучий сычуаньский перец создают мгновенное притяжение. Сердце из лаванды и герани добавляет благородную свежесть средиземноморских полей. Революционная молекула амброксан в базе формирует невероятно стойкий и притягательный шлейф современного мужчины.',
     topNotes: 'Калабрийский бергамот, перец',
     heartNotes: 'Сычуаньский перец, лаванда, герань',
