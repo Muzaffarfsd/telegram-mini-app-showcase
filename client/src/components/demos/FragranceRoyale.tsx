@@ -15,6 +15,7 @@ import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import tomFordBlackOrchidImage from "@assets/tom_ford_black_orchid.jpg";
 import creedAventusImage from "@assets/creed_aventus.jpg";
 import chanelNo5Image from "@assets/chanel_no5.jpg";
+import lelaboSantal33Image from "@assets/lelabo_santal33.jpg";
 
 const STORE_KEY = 'fragranceroyale-store';
 
@@ -126,8 +127,8 @@ const perfumes: Perfume[] = [
     name: 'Santal 33', 
     price: 38500, 
     oldPrice: 45000,
-    image: 'https://images.unsplash.com/photo-1563170351-be82bc888aa4?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=800&h=1200&fit=crop&q=90',
+    image: lelaboSantal33Image, 
+    hoverImage: lelaboSantal33Image,
     description: 'Культовый аромат нью-йоркской нишевой парфюмерии, ставший символом современного минимализма и городского шика. Австралийский сандал высочайшего качества сплетается с дымными аккордами кедра и обожжённого папируса. Нотки кожи и амбры создают ощущение вечера у потухшего костра на берегу океана. Изящная композиция, которую мгновенно узнают ценители по всему миру.',
     topNotes: 'Кардамон, ирис, фиалка',
     heartNotes: 'Австралийский сандал, папирус, кедр',
