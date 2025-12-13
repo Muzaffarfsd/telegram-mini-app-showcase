@@ -23,6 +23,7 @@ import pinkClassicImage from "@assets/pink_classic.jpg";
 import blueWinterImage from "@assets/blue_winter.jpg";
 import blackBomberImage from "@assets/black_bomber.jpg";
 import beigeTrenchImage from "@assets/beige_trench.jpg";
+import carbonHoodieImage from "@assets/carbon_hoodie.jpg";
 
 // Video served from public/videos/ to reduce Docker image size  
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -79,8 +80,8 @@ const products: Product[] = [
     name: 'Carbon Collection Hoodie', 
     price: 12900, 
     oldPrice: 15900,
-    image: blackHoodieImage, 
-    hoverImage: blackHoodieImage,
+    image: carbonHoodieImage, 
+    hoverImage: carbonHoodieImage,
     description: 'Культовое худи свободного кроя из премиального японского хлопка плотностью 320 г/м², выращенного на органических плантациях префектуры Окаяма. Каждое изделие проходит специальную обработку enzyme wash для достижения бархатистой мягкости без потери структуры ткани. Матовая фурнитура ручной работы из состаренной латуни создает утонченный контраст с глубоким черным оттенком. Двойные усиленные швы и рибана премиум-класса гарантируют безупречную посадку даже после многократных стирок.', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Графит'], 
