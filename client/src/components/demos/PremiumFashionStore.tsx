@@ -21,6 +21,7 @@ import colorblockHoodieNew from "@assets/colorblock_hoodie_new.jpg";
 import orangeOversizedImage from "@assets/orange_oversized.jpg";
 import pinkClassicImage from "@assets/pink_classic.jpg";
 import blueWinterImage from "@assets/blue_winter.jpg";
+import blackBomberImage from "@assets/black_bomber.jpg";
 
 // Video served from public/videos/ to reduce Docker image size  
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -203,8 +204,8 @@ const products: Product[] = [
     id: 7, 
     name: 'Black Bomber', 
     price: 31000, 
-    image: 'https://images.unsplash.com/photo-1520975954732-35dd22299614?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1557418669-df9a18f0d18d?w=800&h=1200&fit=crop&q=90',
+    image: blackBomberImage, 
+    hoverImage: blackBomberImage,
     description: 'Классический бомбер вневременного силуэта из легендарного японского денима Kurabo плотностью 14 унций, сотканного на челночных станках 1950-х годов в Окаяме. Каждый метр ткани производится со скоростью всего 3 метра в час, что придает полотну уникальную текстуру selvedge edge с характерной красной кромкой. Винтажная латунная фурнитура с патинированной отделкой и оригинальные клепки создают аутентичный образ в духе американской классики 1960-х. Подкладка из стеганого хлопка с традиционным ромбовидным узором обеспечивает комфорт в межсезонье.', 
     sizes: ['XS', 'S', 'M', 'L', 'XL'], 
     colors: ['Черный', 'Серый'], 
