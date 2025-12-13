@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
+import tomFordBlackOrchidImage from "@assets/tom_ford_black_orchid.jpg";
 
 const STORE_KEY = 'fragranceroyale-store';
 
@@ -51,8 +52,8 @@ const perfumes: Perfume[] = [
     name: 'Black Orchid', 
     price: 29500, 
     oldPrice: 35000,
-    image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59d75?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=1200&fit=crop&q=90',
+    image: tomFordBlackOrchidImage, 
+    hoverImage: tomFordBlackOrchidImage,
     description: 'Загадочная и провокационная композиция, ставшая культовым ароматом современной парфюмерии. Редкая чёрная орхидея из тропических лесов Амазонии переплетается с терпким трюфелем и чёрной смородиной в дерзком открытии. Сердце раскрывается бархатистыми лепестками жасмина и иланг-иланга на фоне чувственного пачули. Шлейф из тёмного шоколада, ванили и сандала создает незабываемое впечатление роскоши и тайны.',
     topNotes: 'Чёрная смородина, трюфель, бергамот',
     heartNotes: 'Чёрная орхидея, жасмин, иланг-иланг',
