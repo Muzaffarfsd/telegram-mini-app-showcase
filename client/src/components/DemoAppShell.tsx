@@ -124,6 +124,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
 
   return (
     <>
+      {/* Fixed background layer - covers entire viewport including bottom edge */}
+      <div className={`fixed inset-0 ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-[#FDF8F5]'} -z-10`} />
+      
       <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-[#FDF8F5]'}`}>
         {/* Mobile Container - Max width for desktop view */}
         <div className={`w-full max-w-md mx-auto ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-[#FDF8F5]'} min-h-screen flex flex-col relative shadow-2xl`}>
@@ -181,11 +184,11 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
           <nav 
             className="relative flex items-center justify-center gap-1 rounded-[28px] px-3 py-2"
             style={{
-              background: 'rgba(35, 35, 40, 0.6)',
+              background: isDarkTheme ? 'rgba(35, 35, 40, 0.6)' : 'rgba(255, 255, 255, 0.85)',
               backdropFilter: 'blur(40px) saturate(180%)',
               WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+              border: isDarkTheme ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(244, 114, 182, 0.3)',
+              boxShadow: isDarkTheme ? 'inset 0 1px 0 rgba(255, 255, 255, 0.1)' : '0 4px 20px rgba(0, 0, 0, 0.1)',
             }}
             role="navigation" 
             aria-label="Навигация демо"
@@ -216,7 +219,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               )}
               <Home
                 className={`w-6 h-6 transition-all duration-200 ${
-                  activeTab === 'home' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
+                  activeTab === 'home' 
+                    ? (isDarkTheme ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-pink-500 drop-shadow-[0_0_8px_rgba(244,114,182,0.5)]')
+                    : (isDarkTheme ? 'text-white/80' : 'text-gray-500')
                 }`}
                 strokeWidth={activeTab === 'home' ? 2.5 : 1.75}
               />
@@ -240,7 +245,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               )}
               <Grid3X3
                 className={`w-6 h-6 transition-all duration-200 ${
-                  activeTab === 'catalog' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
+                  activeTab === 'catalog' 
+                    ? (isDarkTheme ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-pink-500 drop-shadow-[0_0_8px_rgba(244,114,182,0.5)]')
+                    : (isDarkTheme ? 'text-white/80' : 'text-gray-500')
                 }`}
                 strokeWidth={activeTab === 'catalog' ? 2.5 : 1.75}
               />
@@ -264,7 +271,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               )}
               <ShoppingCart
                 className={`w-6 h-6 transition-all duration-200 ${
-                  activeTab === 'cart' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
+                  activeTab === 'cart' 
+                    ? (isDarkTheme ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-pink-500 drop-shadow-[0_0_8px_rgba(244,114,182,0.5)]')
+                    : (isDarkTheme ? 'text-white/80' : 'text-gray-500')
                 }`}
                 strokeWidth={activeTab === 'cart' ? 2.5 : 1.75}
               />
@@ -288,7 +297,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               )}
               <User
                 className={`w-6 h-6 transition-all duration-200 ${
-                  activeTab === 'profile' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
+                  activeTab === 'profile' 
+                    ? (isDarkTheme ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-pink-500 drop-shadow-[0_0_8px_rgba(244,114,182,0.5)]')
+                    : (isDarkTheme ? 'text-white/80' : 'text-gray-500')
                 }`}
                 strokeWidth={activeTab === 'profile' ? 2.5 : 1.75}
               />
