@@ -14,6 +14,7 @@ import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/c
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import tomFordBlackOrchidImage from "@assets/tom_ford_black_orchid.jpg";
 import creedAventusImage from "@assets/creed_aventus.jpg";
+import chanelNo5Image from "@assets/chanel_no5.jpg";
 
 const STORE_KEY = 'fragranceroyale-store';
 
@@ -101,8 +102,8 @@ const perfumes: Perfume[] = [
     name: 'No. 5', 
     price: 18500, 
     oldPrice: 24000,
-    image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&h=1200&fit=crop&q=90',
+    image: chanelNo5Image, 
+    hoverImage: chanelNo5Image,
     description: 'Легендарный аромат, созданный Эрнестом Бо в 1921 году и ставший символом вечной женственности и элегантности. Букет из 80 ингредиентов открывается искристыми нотами альдегидов, нероли и бергамота, переходя в роскошное сердце из майской розы и жасмина из Грасса. База из сандала, ветивера и ванили создает шлейф, который помнят десятилетиями. Культовый флакон с минималистичным дизайном стал иконой парфюмерного искусства XX века.',
     topNotes: 'Альдегиды, нероли, иланг-иланг, лимон',
     heartNotes: 'Майская роза, жасмин, ландыш, ирис',
