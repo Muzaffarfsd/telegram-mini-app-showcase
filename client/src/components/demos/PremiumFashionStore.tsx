@@ -18,6 +18,7 @@ import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_176173272227
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
 import olivePufferImage from "@assets/olive_puffer.jpg";
 import colorblockHoodieNew from "@assets/colorblock_hoodie_new.jpg";
+import orangeOversizedImage from "@assets/orange_oversized.jpg";
 
 // Video served from public/videos/ to reduce Docker image size  
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -140,8 +141,8 @@ const products: Product[] = [
     name: 'Orange Oversized', 
     price: 25500, 
     oldPrice: 35000,
-    image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&h=1200&fit=crop&q=90',
+    image: orangeOversizedImage, 
+    hoverImage: orangeOversizedImage,
     description: 'Эффектная оверсайз-куртка яркого оранжевого оттенка из эксклюзивного итальянского полиамида, окрашенного вручную мастерами красильни Tintoria di Quaregna с полуторавековой историей. Инновационная технология термосварных швов создает абсолютно герметичную конструкцию без единого видимого стежка. Скрытые молнии YKK Excella с позолоченными зубцами и магнитные клапаны карманов обеспечивают элегантный минималистичный силуэт. Легкий утеплитель Primaloft Gold обеспечивает тепло при весе всего 380 граммов.', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Оранжевый', 'Желтый'], 
