@@ -177,7 +177,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
           
           {/* Main Glass Container */}
           <nav 
-            className="relative flex items-center gap-1 rounded-[28px] px-3 py-2"
+            className="relative flex items-center justify-center gap-1 rounded-[28px] px-3 py-2"
             style={{
               background: 'rgba(35, 35, 40, 0.6)',
               backdropFilter: 'blur(40px) saturate(180%)',
