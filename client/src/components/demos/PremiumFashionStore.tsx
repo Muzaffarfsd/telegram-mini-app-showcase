@@ -17,6 +17,7 @@ import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
 import olivePufferImage from "@assets/olive_puffer.jpg";
+import colorblockHoodieNew from "@assets/colorblock_hoodie_new.jpg";
 
 // Video served from public/videos/ to reduce Docker image size  
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -95,8 +96,8 @@ const products: Product[] = [
     name: 'Colorblock Hoodie', 
     price: 13900, 
     oldPrice: 17900,
-    image: colorfulHoodieImage, 
-    hoverImage: colorfulHoodieImage,
+    image: colorblockHoodieNew, 
+    hoverImage: colorblockHoodieNew,
     description: 'Лимитированное худи из эксклюзивной арт-коллаборации с парижским уличным художником, сочетающее смелые цветовые блоки в единую гармоничную композицию. Основа выполнена из бархатистого французского флиса плотностью 400 г/м² с добавлением органического хлопка из долины Луары. Уникальная технология окрашивания garment dye обеспечивает глубину цвета и благородное старение ткани со временем. Каждый экземпляр пронумерован и сопровождается сертификатом подлинности с подписью дизайнера.', 
     sizes: ['S', 'M', 'L', 'XL'], 
     colors: ['Мульти', 'Фиолетовый'], 
