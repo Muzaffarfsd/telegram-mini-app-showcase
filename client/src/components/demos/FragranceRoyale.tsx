@@ -16,6 +16,7 @@ import tomFordBlackOrchidImage from "@assets/tom_ford_black_orchid.jpg";
 import creedAventusImage from "@assets/creed_aventus.jpg";
 import chanelNo5Image from "@assets/chanel_no5.jpg";
 import lelaboSantal33Image from "@assets/lelabo_santal33.jpg";
+import baccaratRouge540Image from "@assets/baccarat_rouge_540.jpg";
 
 const STORE_KEY = 'fragranceroyale-store';
 
@@ -150,8 +151,8 @@ const perfumes: Perfume[] = [
     id: 5, 
     name: 'Baccarat Rouge 540', 
     price: 34000, 
-    image: 'https://images.unsplash.com/photo-1528821128474-27f963b062bf?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1595425970377-9ab5d25e8f97?w=800&h=1200&fit=crop&q=90',
+    image: baccaratRouge540Image, 
+    hoverImage: baccaratRouge540Image,
     description: 'Парфюмерная алхимия, рождённая в сотрудничестве с легендарной хрустальной мануфактурой Baccarat. Драгоценный шафран и египетский жасмин открывают композицию сияющими гранями, подобно преломлённому свету в хрустале. Амбровое дерево и кедр создают обволакивающее тепло, переходящее в чувственную базу из амбры и кашмерана. Аромат-украшение, оставляющий за собой шлейф восхищённых взглядов.',
     topNotes: 'Шафран, жасмин',
     heartNotes: 'Амбровое дерево, кедр',
