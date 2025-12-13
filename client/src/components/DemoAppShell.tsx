@@ -117,14 +117,16 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     
   };
 
-  // All apps use dark theme by default for premium look
-  const isDarkTheme = true;
+  // Demos that need light theme
+  const lightThemeDemos = ['florist'];
+  const baseAppType = getBaseAppType(demoId);
+  const isDarkTheme = !lightThemeDemos.includes(baseAppType);
 
   return (
     <>
-      <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-gray-100'}`}>
+      <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-[#FDF8F5]'}`}>
         {/* Mobile Container - Max width for desktop view */}
-        <div className={`w-full max-w-md mx-auto ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
+        <div className={`w-full max-w-md mx-auto ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-[#FDF8F5]'} min-h-screen flex flex-col relative shadow-2xl`}>
           
           {/* Demo Content Area - Telegram safe area bottom with GPU optimization */}
           <div 
