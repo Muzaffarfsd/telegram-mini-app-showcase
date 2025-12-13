@@ -22,6 +22,7 @@ import orangeOversizedImage from "@assets/orange_oversized.jpg";
 import pinkClassicImage from "@assets/pink_classic.jpg";
 import blueWinterImage from "@assets/blue_winter.jpg";
 import blackBomberImage from "@assets/black_bomber.jpg";
+import beigeTrenchImage from "@assets/beige_trench.jpg";
 
 // Video served from public/videos/ to reduce Docker image size  
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -224,8 +225,8 @@ const products: Product[] = [
     id: 8, 
     name: 'Beige Trench', 
     price: 57000, 
-    image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1608234808654-2a8875faa7fd?w=800&h=1200&fit=crop&q=90',
+    image: beigeTrenchImage, 
+    hoverImage: beigeTrenchImage,
     description: 'Элегантный тренчкот в традициях британского портновского искусства из водоотталкивающего габардина Thomas Mason, который производится на одноименной мануфактуре в Ланкашире с 1796 года. Плотное плетение cotton gabardine с показателем водонепроницаемости 10000 мм надежно защищает от английской непогоды без дополнительной мембраны. Натуральные роговые пуговицы индивидуально подобраны по оттенку и вручную отполированы мастерами из Коринальдо, Италия. Классический двубортный крой с погонами и поясом D-образными кольцами отдает дань уважения оригинальным офицерским пальто Первой мировой войны.', 
     sizes: ['S', 'M', 'L'], 
     colors: ['Бежевый', 'Кэмел'], 
