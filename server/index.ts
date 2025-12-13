@@ -1,9 +1,17 @@
 import express, { type Request, Response, NextFunction } from "express";
 import compression from "compression";
+import path from "path";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+
+// Serve attached_assets folder for uploaded videos/images
+app.use('/attached_assets', express.static(path.resolve(import.meta.dirname, '..', 'attached_assets'), {
+  maxAge: '1d',
+  etag: true,
+  lastModified: true
+}));
 
 // Brotli/Gzip compression for all responses
 app.use(compression({
