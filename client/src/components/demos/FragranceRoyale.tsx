@@ -581,9 +581,12 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
         </div>
 
         <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden scroll-fade-in" style={{ height: '500px' }}>
-          <LazyImage
-            src="https://images.unsplash.com/photo-1588405748880-12d1d2a59d75?w=800&h=1000&fit=crop&q=90"
-            alt="Hero"
+          <video
+            src="/videos/luxury_fragrance.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
             className="absolute inset-0 w-full h-full object-cover"
           />
           
