@@ -45,6 +45,8 @@ import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
+const techStoreVideo = "/videos/techstore_2025.mp4";
+
 interface ElectronicsProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
   onTabChange?: (tab: string) => void;
@@ -560,11 +562,13 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
         </div>
 
         <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden" style={{ height: '500px' }}>
-          <LazyImage
-            src="https://images.unsplash.com/photo-1678652197950-37846b632180?w=800&h=1000&fit=crop&q=90"
-            alt="Hero"
-            className="w-full h-full"
-            priority
+          <video
+            src={techStoreVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
           />
           
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
