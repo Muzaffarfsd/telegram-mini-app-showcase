@@ -51,6 +51,7 @@ import dellXps15Image from "@assets/dell_xps_15.jpg";
 import ipadPro12Image from "@assets/ipad_pro_12.jpg";
 import sonyWh1000xm5Image from "@assets/sony_wh1000xm5.jpg";
 import airpodsPro2Image from "@assets/airpods_pro_2.jpg";
+import sonyAlphaA7ivImage from "@assets/sony_alpha_a7iv.jpg";
 
 const techStoreVideo = "/videos/techstore_2025.mp4";
 
@@ -207,8 +208,8 @@ const products: Product[] = [
     id: 8, 
     name: 'Sony Alpha A7 IV', 
     price: 249900, 
-    image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&h=1200&fit=crop&q=90',
+    image: sonyAlphaA7ivImage, 
+    hoverImage: sonyAlphaA7ivImage,
     description: 'Полнокадровая беззеркальная камера с матрицей 33 мегапикселя и процессором BIONZ XR для безупречной детализации и динамического диапазона в любых условиях съёмки. Гибридная система автофокуса с 759 точками фазовой детекции мгновенно отслеживает глаза людей, животных и птиц с невероятной точностью даже при движении. Запись видео 4K 60fps с 10-битной глубиной цвета 4:2:2 и профилями S-Log3/S-Cinetone открывает возможности для профессиональной кинематографической цветокоррекции. Пятиосевая оптическая стабилизация IBIS компенсирует до 5.5 ступеней экспозиции, позволяя снимать резкие кадры с рук даже в условиях слабого освещения.', 
     category: 'Камеры', 
     brand: 'Sony', 
