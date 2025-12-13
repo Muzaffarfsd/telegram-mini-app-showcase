@@ -17,6 +17,7 @@ import whiteJordanImage from "@assets/загруженное-_2__1761733579316.j
 import tealJordanImage from "@assets/NIKE-AIR-JORDAN-V2-e-V3-_designer_designergrafico-_design-_nikeair-_airjordan-_socialmedia-_natural-_1761733582395.jpg";
 import airForce1LowImage from "@assets/air_force_1_low.jpg";
 import travisScottJordanImage from "@assets/travis_scott_jordan.jpg";
+import yeezyBoost350V2Image from "@assets/yeezy_boost_350_v2.jpg";
 
 const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
 
@@ -163,8 +164,8 @@ const sneakers: Sneaker[] = [
     id: 6, 
     name: 'Yeezy Boost 350 V2', 
     price: 32900, 
-    image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1597045566677-8cf032ed6634?w=800&h=1200&fit=crop&q=90',
+    image: yeezyBoost350V2Image, 
+    hoverImage: yeezyBoost350V2Image,
     description: 'Коллекционный грааль современного стритвира — легендарная модель Yeezy Boost 350 V2, созданная в коллаборации Kanye West и Adidas. Верх из инновационного материала Primeknit обеспечивает идеальную посадку и воздухопроницаемость, адаптируясь к форме стопы. Культовая расцветка Zebra с контрастными полосами стала символом эксклюзивности и статуса в мире кроссовок. Подошва Boost возвращает энергию при каждом шаге, обеспечивая непревзойденный комфорт весь день.', 
     sizes: ['7', '8', '9', '10', '11'], 
     brand: 'Adidas',
