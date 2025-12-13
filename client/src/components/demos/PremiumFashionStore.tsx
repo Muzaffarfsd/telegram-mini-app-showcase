@@ -19,6 +19,7 @@ import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_176173273
 import olivePufferImage from "@assets/olive_puffer.jpg";
 import colorblockHoodieNew from "@assets/colorblock_hoodie_new.jpg";
 import orangeOversizedImage from "@assets/orange_oversized.jpg";
+import pinkClassicImage from "@assets/pink_classic.jpg";
 
 // Video served from public/videos/ to reduce Docker image size  
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -162,8 +163,8 @@ const products: Product[] = [
     id: 5, 
     name: 'Pink Classic', 
     price: 35000, 
-    image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=800&h=1200&fit=crop&q=90',
+    image: pinkClassicImage, 
+    hoverImage: pinkClassicImage,
     description: 'Изысканная куртка в нежной розовой палитре, вдохновленная коллекциями haute couture парижских домов моды и созданная для современных ценительниц утонченного стиля. Наполнитель из отборного французского утиного пуха 90/10 с показателем упругости 750 Fill Power обеспечивает исключительное тепло при минимальном объеме. Роскошная подкладка из натурального шелка-сатина с фирменным жаккардовым узором создает ощущение невесомости при надевании. Приталенный силуэт с регулируемой кулиской подчеркивает женственность, а перламутровые кнопки Riri добавляют нотку парижского шика.', 
     sizes: ['XS', 'S', 'M', 'L'], 
     colors: ['Розовый', 'Фиолетовый'], 
