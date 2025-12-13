@@ -142,7 +142,7 @@ const flowers: FlowerProduct[] = [
     id: 5, 
     name: 'Букет невесты', 
     price: 8500, 
-    image: 'https://images.unsplash.com/photo-1594736797933-d0d4bce9b91a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    image: '/attached_assets/Pure_Elegance_Lily_Bouquet_—_20_Lily_Wedding_Bouquets__Stunni_1765617878127.jfif', 
     description: 'Изысканная свадебная композиция из белоснежных роз David Austin с атласными лепестками и нежнейшей эустомы оттенка шампанского. Лёгкие веточки гипсофилы создают воздушное облако, словно фата невесты. Аромат сочетает ноты розы, фрезии и свежей зелени — запах счастья и начала новой жизни.', 
     category: 'Свадебные', 
     occasion: ['Свадьба', 'Венчание', 'Помолвка'], 
