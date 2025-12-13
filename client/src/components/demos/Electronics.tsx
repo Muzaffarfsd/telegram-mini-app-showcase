@@ -48,6 +48,7 @@ import iphone15ProMaxImage from "@assets/iphone_15_pro_max.jpg";
 import samsungS24UltraImage from "@assets/samsung_s24_ultra.jpg";
 import macbookPro16Image from "@assets/macbook_pro_16.jpg";
 import dellXps15Image from "@assets/dell_xps_15.jpg";
+import ipadPro12Image from "@assets/ipad_pro_12.jpg";
 
 const techStoreVideo = "/videos/techstore_2025.mp4";
 
@@ -154,8 +155,8 @@ const products: Product[] = [
     id: 5, 
     name: 'iPad Pro 12.9"', 
     price: 109900, 
-    image: 'https://images.unsplash.com/photo-1585790050230-5dd28404f120?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&h=1200&fit=crop&q=90',
+    image: ipadPro12Image, 
+    hoverImage: ipadPro12Image,
     description: 'Профессиональный планшет с чипом M2, превосходящим по мощности большинство ноутбуков и открывающим безграничные возможности для творчества. Дисплей Liquid Retina XDR 12.9 дюйма с mini-LED подсветкой обеспечивает яркость 1600 нит HDR и контрастность 1000000:1 для профессиональной работы с цветом и HDR-контентом. Поддержка Apple Pencil 2-го поколения с минимальной задержкой и распознаванием наклона превращает планшет в идеальный цифровой холст для художников и дизайнеров. Thunderbolt-порт USB-C позволяет подключать внешние мониторы 6K, профессиональные аудиоинтерфейсы и скоростные накопители со скоростью до 40 Гбит/с.', 
     category: 'Планшеты', 
     brand: 'Apple', 
