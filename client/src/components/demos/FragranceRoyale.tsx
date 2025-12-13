@@ -19,6 +19,7 @@ import lelaboSantal33Image from "@assets/lelabo_santal33.jpg";
 import baccaratRouge540Image from "@assets/baccarat_rouge_540.jpg";
 import tomfordOudWoodImage from "@assets/tomford_oud_wood.jpg";
 import diorSauvageImage from "@assets/dior_sauvage.jpg";
+import chanelCocoMademoiselleImage from "@assets/chanel_coco_mademoiselle.jpg";
 
 const STORE_KEY = 'fragranceroyale-store';
 
@@ -218,8 +219,8 @@ const perfumes: Perfume[] = [
     id: 8, 
     name: 'Coco Mademoiselle', 
     price: 16500, 
-    image: 'https://images.unsplash.com/photo-1619994122354-102eeb8c9cb8?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1561053720-76cd73ff22c3?w=800&h=1200&fit=crop&q=90',
+    image: chanelCocoMademoiselleImage, 
+    hoverImage: chanelCocoMademoiselleImage,
     description: 'Дерзкий и непредсказуемый аромат для современной женщины, сочетающей элегантность с бунтарским духом. Искрящийся сицилийский апельсин и бергамот переплетаются с сочным личи в игривом открытии. Сердце из турецкой розы и жасмина создает романтичную чувственность с лёгким флиртом. База из пачули, ветивера и белого мускуса оставляет незабываемый шлейф уверенности и соблазна.',
     topNotes: 'Сицилийский апельсин, бергамот, грейпфрут',
     heartNotes: 'Турецкая роза, жасмин, личи',
