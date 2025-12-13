@@ -49,6 +49,7 @@ import samsungS24UltraImage from "@assets/samsung_s24_ultra.jpg";
 import macbookPro16Image from "@assets/macbook_pro_16.jpg";
 import dellXps15Image from "@assets/dell_xps_15.jpg";
 import ipadPro12Image from "@assets/ipad_pro_12.jpg";
+import sonyWh1000xm5Image from "@assets/sony_wh1000xm5.jpg";
 
 const techStoreVideo = "/videos/techstore_2025.mp4";
 
@@ -172,8 +173,8 @@ const products: Product[] = [
     id: 6, 
     name: 'Sony WH-1000XM5', 
     price: 35900, 
-    image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=1200&fit=crop&q=90',
+    image: sonyWh1000xm5Image, 
+    hoverImage: sonyWh1000xm5Image,
     description: 'Беспроводные наушники с активным шумоподавлением нового поколения на базе двух процессоров и восьми микрофонов для создания идеального кокона тишины. Кастомные 30-миллиметровые драйверы с диафрагмой из углеродного волокна воспроизводят частоты от 4Hz до 40kHz с кристальной чистотой и глубокими басами. Амбушюры из сверхмягкой синтетической кожи с эффектом памяти обеспечивают исключительный комфорт при многочасовых сессиях прослушивания без усталости. До 30 часов автономной работы с включенным ANC, а 3 минуты быстрой зарядки дают 3 часа воспроизведения для экстренных ситуаций.', 
     category: 'Наушники', 
     brand: 'Sony', 
