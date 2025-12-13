@@ -10,7 +10,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 const flowerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
@@ -536,10 +536,10 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
   };
 
   if (activeTab === 'catalog' && selectedProduct) {
-    const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#1A1A1A';
+    const bgGradient = 'linear-gradient(180deg, #2D1B2E 0%, #1A1A1A 100%)';
     
     return (
-      <div className="min-h-screen text-white overflow-auto smooth-scroll-page" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white overflow-auto smooth-scroll-page" style={{ background: bgGradient }}>
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
@@ -709,7 +709,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
 
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[#FDF8F5] text-[#1A1A1A] overflow-auto pb-24 smooth-scroll-page">
         <DemoSidebar
           isOpen={sidebar.isOpen}
           onClose={sidebar.close}
@@ -717,8 +717,8 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
           menuItems={sidebarMenuItems}
           title="BLOOM"
           subtitle="STUDIO"
-          accentColor="var(--theme-primary)"
-          bgColor="var(--theme-background)"
+          accentColor="#F472B6"
+          bgColor="#FDF8F5"
         />
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
@@ -727,24 +727,24 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
               aria-label="Меню" 
               data-testid="button-view-menu"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-6 h-6 text-[#1A1A1A]" />
             </button>
             <div className="flex items-center gap-3">
               <button aria-label="Корзина" data-testid="button-view-cart">
-                <ShoppingBag className="w-6 h-6" />
+                <ShoppingBag className="w-6 h-6 text-[#1A1A1A]" />
               </button>
               <button aria-label="Избранное" data-testid="button-view-favorites">
-                <Heart className="w-6 h-6" />
+                <Heart className="w-6 h-6 text-[#1A1A1A]" />
               </button>
             </div>
           </div>
 
           <div className="mb-6">
-            <h1 className="text-4xl font-black mb-1 tracking-tight">
+            <h1 className="text-4xl font-black mb-1 tracking-tight text-[#1A1A1A]">
               BLOOM<br/>
               STUDIO
             </h1>
-            <p className="text-white/60 text-sm">Премиальная флористика</p>
+            <p className="text-[#6B7280] text-sm">Премиальная флористика</p>
           </div>
 
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
@@ -754,8 +754,8 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                   selectedCategory === cat
-                    ? 'bg-[var(--theme-primary)] text-black'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                    ? 'bg-[#F472B6] text-white'
+                    : 'bg-white text-[#6B7280] shadow-sm hover:bg-gray-50'
                 }`}
                 data-testid={`button-filter-${cat.toLowerCase()}`}
               >
@@ -765,14 +765,14 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
           </div>
 
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-full px-4 py-3 flex items-center gap-2">
-              <Search className="w-5 h-5 text-white/50" />
+            <div className="flex-1 bg-white shadow-sm border border-[#E5E7EB] rounded-full px-4 py-3 flex items-center gap-2">
+              <Search className="w-5 h-5 text-[#6B7280]" />
               <input
                 type="text"
                 placeholder="Поиск букетов..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
+                className="bg-transparent text-[#1A1A1A] placeholder:text-[#9CA3AF] outline-none flex-1 text-sm"
                 data-testid="input-search"
               />
             </div>
@@ -911,16 +911,16 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
 
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[#FDF8F5] text-[#1A1A1A] overflow-auto pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <h1 className="text-2xl font-bold">Каталог букетов</h1>
+            <h1 className="text-2xl font-bold text-[#1A1A1A]">Каталог букетов</h1>
             <div className="flex items-center gap-3">
               <button className="p-2" aria-label="Поиск" data-testid="button-view-search">
-                <Search className="w-6 h-6" />
+                <Search className="w-6 h-6 text-[#1A1A1A]" />
               </button>
               <button className="p-2" aria-label="Фильтр" data-testid="button-view-filter">
-                <Filter className="w-6 h-6" />
+                <Filter className="w-6 h-6 text-[#1A1A1A]" />
               </button>
             </div>
           </div>
@@ -932,8 +932,8 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                   selectedCategory === cat
-                    ? 'bg-[var(--theme-primary)] text-black'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                    ? 'bg-[#F472B6] text-white'
+                    : 'bg-white text-[#6B7280] shadow-sm hover:bg-gray-50'
                 }`}
                 data-testid={`button-filter-${cat.toLowerCase()}`}
               >
@@ -951,7 +951,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                 className={`relative cursor-pointer scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
                 data-testid={`product-card-${product.id}`}
               >
-                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
+                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white shadow-sm">
                   <LazyImage
                     src={product.image}
                     alt={product.name}
@@ -965,27 +965,27 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                       handleToggleFavorite(product.id);
                     }}
                     aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
+                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-xl flex items-center justify-center shadow-sm"
                     data-testid={`button-favorite-catalog-${product.id}`}
                   >
                     <Heart 
-                      className={`w-4 h-4 ${isFavorite(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                      className={`w-4 h-4 ${isFavorite(product.id) ? 'fill-[#F472B6] text-[#F472B6]' : 'text-[#6B7280]'}`}
                     />
                   </button>
 
                   {product.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-[var(--theme-primary)] text-black text-xs font-bold rounded-full">
+                    <div className="absolute top-2 left-2 px-2 py-1 bg-[#F472B6] text-white text-xs font-bold rounded-full">
                       NEW
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold mb-1 truncate">{product.name}</p>
+                  <p className="text-sm font-semibold mb-1 truncate text-[#1A1A1A]">{product.name}</p>
                   <div className="flex items-center justify-between">
-                    <p className="text-base font-bold">{formatPrice(product.price)}</p>
+                    <p className="text-base font-bold text-[#1A1A1A]">{formatPrice(product.price)}</p>
                     {product.oldPrice && (
-                      <p className="text-xs text-white/40 line-through">{formatPrice(product.oldPrice)}</p>
+                      <p className="text-xs text-[#9CA3AF] line-through">{formatPrice(product.oldPrice)}</p>
                     )}
                   </div>
                   {product.inStock < 10 && (
@@ -1007,9 +1007,9 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
 
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-32 smooth-scroll-page">
+      <div className="min-h-screen bg-[#FDF8F5] text-[#1A1A1A] overflow-auto pb-32 smooth-scroll-page">
         <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Корзина</h1>
+          <h1 className="text-2xl font-bold mb-6 text-[#1A1A1A]">Корзина</h1>
 
           {cart.length === 0 ? (
             <EmptyState
@@ -1023,7 +1023,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
               {cart.map((item) => (
                 <div
                   key={`${item.id}-${item.size}-${item.color}`}
-                  className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
+                  className="bg-white shadow-sm rounded-2xl p-4 flex gap-4"
                   data-testid={`cart-item-${item.id}`}
                 >
                   <LazyImage
@@ -1032,25 +1032,25 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                     className="w-20 h-20 rounded-xl object-cover"
                   />
                   <div className="flex-1">
-                    <h3 className="font-semibold mb-1">{item.name}</h3>
-                    <p className="text-sm text-white/60 mb-2">
+                    <h3 className="font-semibold mb-1 text-[#1A1A1A]">{item.name}</h3>
+                    <p className="text-sm text-[#6B7280] mb-2">
                       {item.color} • {item.size}
                     </p>
                     <div className="flex items-center justify-between">
-                      <p className="text-lg font-bold">{formatPrice(item.price * item.quantity)}</p>
-                      <div className="flex items-center gap-2 bg-white/10 rounded-full px-2">
+                      <p className="text-lg font-bold text-[#1A1A1A]">{formatPrice(item.price * item.quantity)}</p>
+                      <div className="flex items-center gap-2 bg-[#F3F4F6] rounded-full px-2">
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center"
+                          className="w-8 h-8 flex items-center justify-center text-[#1A1A1A]"
                           aria-label="Уменьшить количество"
                           data-testid={`button-decrease-${item.id}`}
                         >
                           <Minus className="w-4 h-4" />
                         </button>
-                        <span className="w-6 text-center font-semibold">{item.quantity}</span>
+                        <span className="w-6 text-center font-semibold text-[#1A1A1A]">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center"
+                          className="w-8 h-8 flex items-center justify-center text-[#1A1A1A]"
                           aria-label="Увеличить количество"
                           data-testid={`button-increase-${item.id}`}
                         >
@@ -1062,7 +1062,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                   <button
                     onClick={() => removeFromCart(item.id, item.size, item.color)}
                     aria-label="Удалить из корзины"
-                    className="w-10 h-10 flex items-center justify-center"
+                    className="w-10 h-10 flex items-center justify-center text-[#6B7280]"
                     data-testid={`button-remove-${item.id}`}
                   >
                     <X className="w-5 h-5" />
@@ -1070,15 +1070,15 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                 </div>
               ))}
 
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[var(--theme-background)] border-t border-white/10">
+              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#FDF8F5] border-t border-[#E5E7EB]">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
+                  <span className="text-lg font-semibold text-[#1A1A1A]">Итого:</span>
+                  <span className="text-2xl font-bold text-[#1A1A1A]">{formatPrice(cartTotal)}</span>
                 </div>
                 <TrustBadges variant="compact" className="mb-4" />
                 <button
                   onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all min-h-[48px]"
+                  className="w-full bg-[#F472B6] text-white font-bold py-4 rounded-full hover:bg-[#EC4899] transition-all min-h-[48px]"
                   data-testid="button-checkout"
                 >
                   Оформить заказ
@@ -1111,52 +1111,52 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
 
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
-        <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
+      <div className="min-h-screen bg-[#FDF8F5] text-[#1A1A1A] overflow-auto pb-24 smooth-scroll-page">
+        <div className="p-6 bg-white shadow-sm border-b border-[#E5E7EB]">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-accent)] rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-black" />
+            <div className="w-16 h-16 bg-gradient-to-br from-[#F472B6] to-[#EC4899] rounded-full flex items-center justify-center">
+              <User className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">Анна Цветкова</h2>
-              <p className="text-sm text-muted-foreground">+7 (999) 123-45-67</p>
+              <h2 className="text-xl font-bold text-[#1A1A1A]">Анна Цветкова</h2>
+              <p className="text-sm text-[#6B7280]">+7 (999) 123-45-67</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{ordersCount}</p>
+            <div className="p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB]">
+              <p className="text-sm text-[#6B7280] mb-1">Заказы</p>
+              <p className="text-2xl font-bold text-[#1A1A1A]">{ordersCount}</p>
             </div>
-            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Избранное</p>
-              <p className="text-2xl font-bold">{favoritesCount}</p>
+            <div className="p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB]">
+              <p className="text-sm text-[#6B7280] mb-1">Избранное</p>
+              <p className="text-2xl font-bold text-[#1A1A1A]">{favoritesCount}</p>
             </div>
           </div>
         </div>
 
         <div className="p-4 space-y-4">
           <div className="scroll-fade-in">
-            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
+            <h3 className="text-lg font-bold mb-4 text-[#1A1A1A]">Мои заказы</h3>
             {orders.length === 0 ? (
-              <div className="text-center py-8 text-white/50">
+              <div className="text-center py-8 text-[#9CA3AF]">
                 <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
                 <p>У вас пока нет заказов</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {orders.map((order) => (
-                  <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
+                  <div key={order.id} className="bg-white shadow-sm rounded-xl p-4 border border-[#E5E7EB]" data-testid={`order-${order.id}`}>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-white/70">Заказ #{order.id.slice(-6)}</span>
-                      <span className="text-sm text-white/70">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
+                      <span className="text-sm text-[#6B7280]">Заказ #{order.id.slice(-6)}</span>
+                      <span className="text-sm text-[#6B7280]">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
                     </div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-white/80">{order.items.length} букетов</span>
-                      <span className="font-bold">{formatPrice(order.total)}</span>
+                      <span className="text-[#4B5563]">{order.items.length} букетов</span>
+                      <span className="font-bold text-[#1A1A1A]">{formatPrice(order.total)}</span>
                     </div>
                     <div className="mt-2">
-                      <span className="text-xs px-2 py-1 bg-[var(--theme-primary)]/20 text-[var(--theme-primary)] rounded-full">
+                      <span className="text-xs px-2 py-1 bg-[#FDF2F8] text-[#F472B6] rounded-full">
                         {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Доставляется' : 'Доставлен'}
                       </span>
                     </div>
@@ -1167,50 +1167,50 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
           </div>
 
           <div className="space-y-2">
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-orders">
+          <button className="w-full p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB] flex items-center justify-between hover:bg-gray-50 transition-colors" data-testid="button-orders">
             <div className="flex items-center gap-3">
-              <Package className="w-5 h-5 text-white/70" />
-              <span className="font-medium">История заказов</span>
+              <Package className="w-5 h-5 text-[#6B7280]" />
+              <span className="font-medium text-[#1A1A1A]">История заказов</span>
             </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+            <ChevronLeft className="w-5 h-5 rotate-180 text-[#9CA3AF]" />
           </button>
 
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
+          <button className="w-full p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB] flex items-center justify-between hover:bg-gray-50 transition-colors" data-testid="button-favorites">
             <div className="flex items-center gap-3">
-              <Heart className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Избранное</span>
+              <Heart className="w-5 h-5 text-[#6B7280]" />
+              <span className="font-medium text-[#1A1A1A]">Избранное</span>
             </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+            <ChevronLeft className="w-5 h-5 rotate-180 text-[#9CA3AF]" />
           </button>
 
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-delivery">
+          <button className="w-full p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB] flex items-center justify-between hover:bg-gray-50 transition-colors" data-testid="button-delivery">
             <div className="flex items-center gap-3">
-              <Truck className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Адреса доставки</span>
+              <Truck className="w-5 h-5 text-[#6B7280]" />
+              <span className="font-medium text-[#1A1A1A]">Адреса доставки</span>
             </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+            <ChevronLeft className="w-5 h-5 rotate-180 text-[#9CA3AF]" />
           </button>
 
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
+          <button className="w-full p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB] flex items-center justify-between hover:bg-gray-50 transition-colors" data-testid="button-payment">
             <div className="flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Способы оплаты</span>
+              <CreditCard className="w-5 h-5 text-[#6B7280]" />
+              <span className="font-medium text-[#1A1A1A]">Способы оплаты</span>
             </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+            <ChevronLeft className="w-5 h-5 rotate-180 text-[#9CA3AF]" />
           </button>
 
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
+          <button className="w-full p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB] flex items-center justify-between hover:bg-gray-50 transition-colors" data-testid="button-settings">
             <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Настройки</span>
+              <Settings className="w-5 h-5 text-[#6B7280]" />
+              <span className="font-medium text-[#1A1A1A]">Настройки</span>
             </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+            <ChevronLeft className="w-5 h-5 rotate-180 text-[#9CA3AF]" />
           </button>
 
-          <button className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover-elevate active-elevate-2 mt-4" data-testid="button-logout">
+          <button className="w-full p-4 bg-red-50 rounded-xl border border-red-200 flex items-center justify-between hover:bg-red-100 transition-colors mt-4" data-testid="button-logout">
             <div className="flex items-center gap-3">
-              <LogOut className="w-5 h-5 text-red-400" />
-              <span className="font-medium text-red-400">Выйти</span>
+              <LogOut className="w-5 h-5 text-red-500" />
+              <span className="font-medium text-red-500">Выйти</span>
             </div>
           </button>
           </div>
@@ -1224,9 +1224,14 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
 
 function FloristWithTheme(props: FloristProps) {
   return (
-    <DemoThemeProvider themeId="premiumFashion">
+    <div style={{
+      '--theme-primary': '#F472B6',
+      '--theme-accent': '#EC4899',
+      '--theme-background': '#FDF8F5',
+      '--theme-primary-glow': 'rgba(244, 114, 182, 0.4)'
+    } as React.CSSProperties}>
       <Florist {...props} />
-    </DemoThemeProvider>
+    </div>
   );
 }
 
