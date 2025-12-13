@@ -47,6 +47,7 @@ import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import iphone15ProMaxImage from "@assets/iphone_15_pro_max.jpg";
 import samsungS24UltraImage from "@assets/samsung_s24_ultra.jpg";
 import macbookPro16Image from "@assets/macbook_pro_16.jpg";
+import dellXps15Image from "@assets/dell_xps_15.jpg";
 
 const techStoreVideo = "/videos/techstore_2025.mp4";
 
@@ -137,8 +138,8 @@ const products: Product[] = [
     id: 4, 
     name: 'Dell XPS 15', 
     price: 129900, 
-    image: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&h=1200&fit=crop&q=90',
+    image: dellXps15Image, 
+    hoverImage: dellXps15Image,
     description: 'Ультрабук премиум-класса с OLED-дисплеем 3.5K, отображающим миллиард оттенков с бесконечной контрастностью и абсолютно чёрным цветом. Процессор Intel Core i7-13700H 13-го поколения с 14 ядрами обеспечивает молниеносную многозадачность и профессиональную производительность. Дискретная графика NVIDIA GeForce RTX 4050 справляется с видеомонтажом 4K, 3D-моделированием и современными играми в высоком разрешении. Цельноалюминиевый корпус с безрамочным дизайном InfinityEdge весит всего 1.86 кг, превращая полноценную рабочую станцию в мобильный офис.', 
     category: 'Ноутбуки', 
     brand: 'Dell', 
