@@ -13,6 +13,7 @@ import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import tomFordBlackOrchidImage from "@assets/tom_ford_black_orchid.jpg";
+import creedAventusImage from "@assets/creed_aventus.jpg";
 
 const STORE_KEY = 'fragranceroyale-store';
 
@@ -76,8 +77,8 @@ const perfumes: Perfume[] = [
     name: 'Aventus', 
     price: 44500, 
     oldPrice: 52000,
-    image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=800&h=1200&fit=crop&q=90',
+    image: creedAventusImage, 
+    hoverImage: creedAventusImage,
     description: 'Легендарный аромат успеха, вдохновлённый историческими победителями — от Наполеона до современных бизнес-лидеров. Взрывное открытие из дымного ананаса, калабрийского бергамота и спелого яблока создает ощущение триумфа и уверенности. Сердце из берёзового дёгтя, пачули и марокканского жасмина добавляет благородную глубину. Мощная база из дубового мха, мускуса и амбры формирует шлейф, который безошибочно узнают в любой точке мира.',
     topNotes: 'Ананас, бергамот, чёрная смородина, яблоко',
     heartNotes: 'Берёзовый дёготь, пачули, жасмин, роза',
