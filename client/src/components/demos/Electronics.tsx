@@ -45,6 +45,7 @@ import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import iphone15ProMaxImage from "@assets/iphone_15_pro_max.jpg";
+import samsungS24UltraImage from "@assets/samsung_s24_ultra.jpg";
 
 const techStoreVideo = "/videos/techstore_2025.mp4";
 
@@ -100,8 +101,8 @@ const products: Product[] = [
     name: 'Samsung Galaxy S24 Ultra', 
     price: 99900, 
     oldPrice: 119900, 
-    image: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&h=1200&fit=crop&q=90',
+    image: samsungS24UltraImage, 
+    hoverImage: samsungS24UltraImage,
     description: 'Премиальный смартфон с интегрированным Galaxy AI, который мгновенно переводит разговоры в реальном времени и генерирует профессиональный контент по запросу. Дисплей Dynamic AMOLED 2X диагональю 6.8 дюйма с разрешением QHD+ и яркостью 2600 нит идеален для работы даже под прямыми солнечными лучами. Титановая рамка Grade 5 обеспечивает премиальную эстетику и исключительную долговечность при интенсивном ежедневном использовании. Камера 200MP с 100-кратным Space Zoom и продвинутой OIS снимает детализированные фото даже в условиях экстремально слабого освещения.', 
     category: 'Смартфоны', 
     brand: 'Samsung', 
