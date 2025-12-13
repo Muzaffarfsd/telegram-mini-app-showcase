@@ -44,6 +44,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
+import iphone15ProMaxImage from "@assets/iphone_15_pro_max.jpg";
 
 const techStoreVideo = "/videos/techstore_2025.mp4";
 
@@ -80,8 +81,8 @@ const products: Product[] = [
     name: 'iPhone 15 Pro Max', 
     price: 109900, 
     oldPrice: 129900, 
-    image: 'https://images.unsplash.com/photo-1678652197950-37846b632180?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&h=1200&fit=crop&q=90',
+    image: iphone15ProMaxImage, 
+    hoverImage: iphone15ProMaxImage,
     description: 'Флагманский смартфон с революционным процессором A17 Pro, открывающим эру мобильных игр AAA-класса с консольной графикой и рейтрейсингом. Дисплей Super Retina XDR 6.7 дюйма с технологией ProMotion обеспечивает плавность 120Hz и невероятную цветопередачу HDR с пиковой яркостью 2000 нит. Титановый корпус aerospace-класса на 19% легче стали при максимальной прочности, защищён керамическим покрытием Ceramic Shield. Профессиональная камера 48MP с сенсором нового поколения снимает в ProRAW и ProRes для кинематографического качества контента.', 
     category: 'Смартфоны', 
     brand: 'Apple', 
