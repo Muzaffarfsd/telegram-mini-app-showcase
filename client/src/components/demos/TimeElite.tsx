@@ -12,7 +12,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 interface TimeEliteProps {
@@ -603,8 +603,7 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
     const bgColor = selectedProduct.colorHex || '#1A1A1A';
     
     return (
-      <DemoThemeProvider theme={{ primary: '#D4AF37', background: '#0A0A0A', accent: '#C4A030' }}>
-        <div className="min-h-screen text-white overflow-auto smooth-scroll-page" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white overflow-auto smooth-scroll-page" style={{ backgroundColor: bgColor }}>
           <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between p-4">
             <button 
               onClick={() => setSelectedProduct(null)}
@@ -777,13 +776,11 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
             </div>
           </div>
         </div>
-      </DemoThemeProvider>
     );
   }
 
   if (activeTab === 'home') {
     return (
-      <DemoThemeProvider theme={{ primary: '#D4AF37', background: '#0A0A0A', accent: '#C4A030' }}>
         <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
           <DemoSidebar
             isOpen={sidebar.isOpen}
@@ -1045,13 +1042,11 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
 
           <div className="h-8"></div>
         </div>
-      </DemoThemeProvider>
     );
   }
 
   if (activeTab === 'catalog') {
     return (
-      <DemoThemeProvider theme={{ primary: '#D4AF37', background: '#0A0A0A', accent: '#C4A030' }}>
         <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6 scroll-fade-in">
@@ -1149,13 +1144,11 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
             </div>
           </div>
         </div>
-      </DemoThemeProvider>
     );
   }
 
   if (activeTab === 'cart') {
     return (
-      <DemoThemeProvider theme={{ primary: '#D4AF37', background: '#0A0A0A', accent: '#C4A030' }}>
         <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32 smooth-scroll-page">
           <div className="p-6">
             <h1 className="text-2xl font-bold mb-6">Корзина</h1>
@@ -1255,13 +1248,11 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
             )}
           </div>
         </div>
-      </DemoThemeProvider>
     );
   }
 
   if (activeTab === 'profile') {
     return (
-      <DemoThemeProvider theme={{ primary: '#D4AF37', background: '#0A0A0A', accent: '#C4A030' }}>
         <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
           <div className="p-6 bg-white/5 backdrop-blur-xl border-b border-white/10">
             <div className="flex items-center gap-4 mb-6">
@@ -1379,7 +1370,6 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
             </div>
           </div>
         </div>
-      </DemoThemeProvider>
     );
   }
 
