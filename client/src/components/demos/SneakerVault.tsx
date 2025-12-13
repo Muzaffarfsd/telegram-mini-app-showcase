@@ -18,6 +18,7 @@ import tealJordanImage from "@assets/NIKE-AIR-JORDAN-V2-e-V3-_designer_designerg
 import airForce1LowImage from "@assets/air_force_1_low.jpg";
 import travisScottJordanImage from "@assets/travis_scott_jordan.jpg";
 import yeezyBoost350V2Image from "@assets/yeezy_boost_350_v2.jpg";
+import nikeAirMax90Image from "@assets/nike_air_max_90.jpg";
 
 const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
 
@@ -144,8 +145,8 @@ const sneakers: Sneaker[] = [
     id: 5, 
     name: 'Air Max 90 Essential', 
     price: 15900, 
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=1200&fit=crop&q=90',
+    image: nikeAirMax90Image, 
+    hoverImage: nikeAirMax90Image,
     description: 'Революционные кроссовки Nike Air Max 90, ставшие первыми в истории с видимой воздушной подушкой Max Air в пятке. Классический дизайн 1990 года от Тинкера Хэтфилда в культовой расцветке White/Red, определившей эстетику целого десятилетия. Комбинированный верх из текстиля и синтетических материалов обеспечивает легкость и воздухопроницаемость. Технология Max Air дарит невесомую походку и непревзойденный комфорт при длительной носке.', 
     sizes: ['7', '8', '9', '10', '11', '12'], 
     brand: 'Nike',
