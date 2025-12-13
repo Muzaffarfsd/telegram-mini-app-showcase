@@ -20,6 +20,7 @@ import olivePufferImage from "@assets/olive_puffer.jpg";
 import colorblockHoodieNew from "@assets/colorblock_hoodie_new.jpg";
 import orangeOversizedImage from "@assets/orange_oversized.jpg";
 import pinkClassicImage from "@assets/pink_classic.jpg";
+import blueWinterImage from "@assets/blue_winter.jpg";
 
 // Video served from public/videos/ to reduce Docker image size  
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -183,8 +184,8 @@ const products: Product[] = [
     id: 6, 
     name: 'Blue Winter', 
     price: 43000, 
-    image: 'https://images.unsplash.com/photo-1515847049296-a281d6401047?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=800&h=1200&fit=crop&q=90',
+    image: blueWinterImage, 
+    hoverImage: blueWinterImage,
     description: 'Детская куртка экспедиционного класса, разработанная в сотрудничестве со скандинавскими исследователями Арктики и адаптированная для активных игр в самые суровые морозы до -30°C. Инновационный утеплитель 3M Thinsulate Featherless сохраняет тепло даже во влажном состоянии, обеспечивая надежную защиту во время зимних приключений. Все швы проклеены специальной термолентой для полной герметичности, а светоотражающие элементы 3M Scotchlite гарантируют видимость ребенка в темное время суток. Съемный капюшон с мягкой флисовой подкладкой и эластичные манжеты с отверстиями для большого пальца не дадут холоду проникнуть внутрь.', 
     sizes: ['S', 'M', 'L'], 
     colors: ['Синий', 'Черный'], 
