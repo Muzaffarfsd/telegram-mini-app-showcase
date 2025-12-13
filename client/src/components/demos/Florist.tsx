@@ -869,7 +869,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <div className="flex items-end justify-between">
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-2 leading-tight">
+                    <h3 className="text-2xl font-bold mb-2 leading-tight text-white">
                       {product.name}
                     </h3>
                     <p className="text-sm text-white/80 mb-4">{product.freshness} свежести</p>
@@ -889,7 +889,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                 </div>
 
                 <div className="mt-3">
-                  <p className="text-lg font-bold">{formatPrice(product.price)}</p>
+                  <p className="text-lg font-bold text-white">{formatPrice(product.price)}</p>
                   {product.inStock < 10 && (
                     <UrgencyIndicator 
                       type="stock"
