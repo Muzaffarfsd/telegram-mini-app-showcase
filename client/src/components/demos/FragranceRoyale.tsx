@@ -17,6 +17,7 @@ import creedAventusImage from "@assets/creed_aventus.jpg";
 import chanelNo5Image from "@assets/chanel_no5.jpg";
 import lelaboSantal33Image from "@assets/lelabo_santal33.jpg";
 import baccaratRouge540Image from "@assets/baccarat_rouge_540.jpg";
+import tomfordOudWoodImage from "@assets/tomford_oud_wood.jpg";
 
 const STORE_KEY = 'fragranceroyale-store';
 
@@ -173,8 +174,8 @@ const perfumes: Perfume[] = [
     id: 6, 
     name: 'Oud Wood', 
     price: 43000, 
-    image: 'https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1615634282785-30dd924e9ca0?w=800&h=1200&fit=crop&q=90',
+    image: tomfordOudWoodImage, 
+    hoverImage: tomfordOudWoodImage,
     description: 'Роскошная древесно-восточная композиция, воплощающая магию редкого уда из камбоджийских лесов. Экзотические специи кардамона и сычуаньского перца переплетаются с благородным сандалом и бразильским палисандром. Дымные аккорды ветивера и тонки создают глубокую чувственную базу с янтарным сиянием. Аромат силы и утончённости для истинных ценителей нишевой парфюмерии и редких ингредиентов.',
     topNotes: 'Палисандр, кардамон, сычуаньский перец',
     heartNotes: 'Агаровый уд, сандал',
