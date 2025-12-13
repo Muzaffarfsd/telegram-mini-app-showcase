@@ -50,6 +50,7 @@ import macbookPro16Image from "@assets/macbook_pro_16.jpg";
 import dellXps15Image from "@assets/dell_xps_15.jpg";
 import ipadPro12Image from "@assets/ipad_pro_12.jpg";
 import sonyWh1000xm5Image from "@assets/sony_wh1000xm5.jpg";
+import airpodsPro2Image from "@assets/airpods_pro_2.jpg";
 
 const techStoreVideo = "/videos/techstore_2025.mp4";
 
@@ -190,8 +191,8 @@ const products: Product[] = [
     id: 7, 
     name: 'AirPods Pro 2', 
     price: 24900, 
-    image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=1200&fit=crop&q=90',
+    image: airpodsPro2Image, 
+    hoverImage: airpodsPro2Image,
     description: 'Компактные TWS-наушники с чипом H2, обеспечивающим адаптивное шумоподавление, которое в реальном времени анализирует и подстраивается под окружающую звуковую среду. Пространственное аудио с динамическим отслеживанием движений головы создаёт эффект полного погружения в звук кинотеатра Dolby Atmos прямо в ваших ушах. Кастомный низкочастотный драйвер и высокодинамичный усилитель воспроизводят глубокие насыщенные басы и кристально чистые высокие частоты без искажений. До 6 часов активного прослушивания на одном заряде, а компактный MagSafe-кейс увеличивает автономность до 30 часов с функцией точного поиска через Find My.', 
     category: 'Наушники', 
     brand: 'Apple', 
