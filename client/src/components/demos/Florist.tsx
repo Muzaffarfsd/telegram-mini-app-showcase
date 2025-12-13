@@ -1,43 +1,47 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
+import { m, AnimatePresence } from "framer-motion";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus, Flower2, Leaf, Clock, Truck } from "lucide-react";
+import { ConfirmDrawer } from "../ui/modern-drawer";
+import { useFilter } from "@/hooks/useFilter";
 import { scrollToTop } from "@/hooks/useScrollToTop";
-import { 
-  Flower, 
-  Heart, 
-  Star, 
-  MapPin, 
-  Clock,
-  Plus,
-  Minus,
-  X,
-  ChevronRight,
-  Gift,
-  Truck,
-  Calendar
-} from "lucide-react";
-import { useImagePreloader } from "../../hooks/useImagePreloader";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { usePersistentCart } from "@/hooks/usePersistentCart";
+import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
+import { usePersistentOrders } from "@/hooks/usePersistentOrders";
+import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
+import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
+
+const flowerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
 
 interface FloristProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
+  onTabChange?: (tab: string) => void;
 }
 
 interface CartItem {
   id: number;
   name: string;
   price: number;
+  size: string;
   quantity: number;
   image: string;
+  color: string;
 }
 
 interface FlowerProduct {
   id: number;
   name: string;
   price: number;
+  oldPrice?: number;
   image: string;
   description: string;
   category: string;
   occasion: string[];
-  size: string;
+  sizes: string[];
+  colors: string[];
+  colorHex: string[];
   freshness: string;
   rating: number;
   inStock: number;
@@ -45,103 +49,126 @@ interface FlowerProduct {
   vaseLife: string;
   careInstructions: string;
   flowerOrigin: string;
+  isNew?: boolean;
+  isTrending?: boolean;
 }
 
 const flowers: FlowerProduct[] = [
   { 
     id: 1, 
     name: 'Букет из красных роз', 
-    price: 45, 
-    image: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Роскошная симфония из 15 эквадорских роз сорта Freedom с бархатными лепестками глубокого рубинового оттенка. Каждый бутон отобран вручную на плантациях высокогорья Эквадора, где чистейший горный воздух наполняет цветы особой силой. Аромат сочетает ноты спелой малины, утренней росы и легкий шлейф сандалового дерева. Идеальное признание в любви, которое заставит сердце биться быстрее.', 
+    price: 4500, 
+    oldPrice: 5500,
+    image: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Роскошная симфония из 15 эквадорских роз сорта Freedom с бархатными лепестками глубокого рубинового оттенка. Каждый бутон отобран вручную на плантациях высокогорья Эквадора, где чистейший горный воздух наполняет цветы особой силой. Аромат сочетает ноты спелой малины, утренней росы и легкий шлейф сандалового дерева.', 
     category: 'Розы', 
     occasion: ['Признание в любви', 'Юбилей', 'Предложение руки и сердца'], 
-    size: 'Средний', 
+    sizes: ['Маленький', 'Средний', 'Большой'],
+    colors: ['Красный', 'Бордо'],
+    colorHex: ['#DC2626', '#7C2D12'],
     freshness: '7 дней', 
     rating: 4.9, 
     inStock: 12,
     seasonality: 'Круглый год',
     vaseLife: '10-14 дней при правильном уходе',
     careInstructions: 'Подрезать стебли под углом 45°, менять воду каждые 2 дня, добавлять специальную подкормку',
-    flowerOrigin: 'Высокогорные плантации Эквадора, 2800м над уровнем моря'
+    flowerOrigin: 'Высокогорные плантации Эквадора, 2800м над уровнем моря',
+    isNew: true,
+    isTrending: true
   },
   { 
     id: 2, 
     name: 'Белые пионы', 
-    price: 38, 
-    image: 'https://images.unsplash.com/photo-1463320726281-696a485928c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Облако нежнейших белоснежных пионов сорта Duchess de Nemours с роскошными многослойными лепестками цвета первого снега. Их пьянящий аромат наполняет пространство нотами жасмина, свежести и едва уловимой сладости мёда. Каждый бутон раскрывается словно балерина на сцене, обнажая шелковистую текстуру лепестков. Воплощение чистоты и невинности для самых трепетных моментов жизни.', 
+    price: 3800, 
+    oldPrice: 4800,
+    image: 'https://images.unsplash.com/photo-1463320726281-696a485928c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Облако нежнейших белоснежных пионов сорта Duchess de Nemours с роскошными многослойными лепестками цвета первого снега. Их пьянящий аромат наполняет пространство нотами жасмина, свежести и едва уловимой сладости мёда. Каждый бутон раскрывается словно балерина на сцене, обнажая шелковистую текстуру лепестков.', 
     category: 'Пионы', 
     occasion: ['Свадьба', 'Помолвка', 'Рождение ребёнка'], 
-    size: 'Большой', 
+    sizes: ['Маленький', 'Средний', 'Большой'],
+    colors: ['Белый', 'Кремовый'],
+    colorHex: ['#FAFAFA', '#FEF3C7'],
     freshness: '5 дней', 
     rating: 4.8, 
     inStock: 8,
     seasonality: 'Май — Июль',
     vaseLife: '5-7 дней при прохладной температуре',
     careInstructions: 'Держать вдали от прямых солнечных лучей, менять воду ежедневно, подрезать стебли каждые 2 дня',
-    flowerOrigin: 'Частные сады Голландии, провинция Северный Брабант'
+    flowerOrigin: 'Частные сады Голландии, провинция Северный Брабант',
+    isNew: true,
+    isTrending: true
   },
   { 
     id: 3, 
     name: 'Микс из тюльпанов', 
-    price: 32, 
-    image: 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Радужная палитра голландских тюльпанов премиум класса — настоящий праздник весны в каждом лепестке. Бархатистые бутоны в оттенках розового заката, солнечного золота и небесной лазури сплетаются в единую гармонию цвета. Нежный, едва уловимый аромат свежести напоминает о первых тёплых днях и пробуждении природы. Этот букет — обещание счастья и новых начинаний.', 
+    price: 3200, 
+    image: 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Радужная палитра голландских тюльпанов премиум класса — настоящий праздник весны в каждом лепестке. Бархатистые бутоны в оттенках розового заката, солнечного золота и небесной лазури сплетаются в единую гармонию цвета. Нежный, едва уловимый аромат свежести напоминает о первых тёплых днях и пробуждении природы.', 
     category: 'Тюльпаны', 
     occasion: ['8 Марта', 'Весенний праздник', 'Поздравление'], 
-    size: 'Средний', 
+    sizes: ['Маленький', 'Средний', 'Большой'],
+    colors: ['Микс', 'Розовый', 'Жёлтый'],
+    colorHex: ['#EC4899', '#F472B6', '#FACC15'],
     freshness: '4 дня', 
     rating: 4.7, 
     inStock: 15,
     seasonality: 'Февраль — Май',
     vaseLife: '5-7 дней в прохладном месте',
     careInstructions: 'Использовать холодную воду, добавить каплю лимонного сока, держать вдали от фруктов',
-    flowerOrigin: 'Королевские поля Голландии, регион Лиссе'
+    flowerOrigin: 'Королевские поля Голландии, регион Лиссе',
+    isTrending: true
   },
   { 
     id: 4, 
     name: 'Орхидея в горшке', 
-    price: 55, 
-    image: 'https://images.unsplash.com/photo-1583624719088-e7ee3b0ad466?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Величественная орхидея фаленопсис с каскадом изысканных цветков, напоминающих крылья экзотических бабочек. Её восковые лепестки с перламутровым отливом хранят тайны тропических лесов Юго-Восточной Азии. Тонкий аромат ванили и орхидеи создаёт атмосферу роскоши и утончённости. Живой символ элегантности, который будет радовать своим цветением месяцами.', 
+    price: 5500, 
+    image: 'https://images.unsplash.com/photo-1583624719088-e7ee3b0ad466?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Величественная орхидея фаленопсис с каскадом изысканных цветков, напоминающих крылья экзотических бабочек. Её восковые лепестки с перламутровым отливом хранят тайны тропических лесов Юго-Восточной Азии. Тонкий аромат ванили и орхидеи создаёт атмосферу роскоши и утончённости.', 
     category: 'Горшечные', 
     occasion: ['Подарок на новоселье', 'День рождения', 'Благодарность'], 
-    size: 'Маленький', 
+    sizes: ['Маленький', 'Средний'],
+    colors: ['Белый', 'Фиолетовый', 'Розовый'],
+    colorHex: ['#FAFAFA', '#A855F7', '#F9A8D4'],
     freshness: '30 дней', 
     rating: 4.8, 
     inStock: 6,
     seasonality: 'Круглый год',
     vaseLife: 'До 3 месяцев цветения при правильном уходе',
     careInstructions: 'Поливать раз в неделю методом погружения, опрыскивать листья, избегать прямых солнечных лучей',
-    flowerOrigin: 'Тепличные хозяйства Тайваня, остров орхидей'
+    flowerOrigin: 'Тепличные хозяйства Тайваня, остров орхидей',
+    isNew: true
   },
   { 
     id: 5, 
     name: 'Букет невесты', 
-    price: 85, 
-    image: 'https://images.unsplash.com/photo-1594736797933-d0d4bce9b91a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Изысканная свадебная композиция из белоснежных роз David Austin с атласными лепестками и нежнейшей эустомы оттенка шампанского. Лёгкие веточки гипсофилы создают воздушное облако, словно фата невесты. Аромат сочетает ноты розы, фрезии и свежей зелени — запах счастья и начала новой жизни. Каждый букет создаётся вручную и хранит тепло рук мастера-флориста.', 
+    price: 8500, 
+    image: 'https://images.unsplash.com/photo-1594736797933-d0d4bce9b91a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Изысканная свадебная композиция из белоснежных роз David Austin с атласными лепестками и нежнейшей эустомы оттенка шампанского. Лёгкие веточки гипсофилы создают воздушное облако, словно фата невесты. Аромат сочетает ноты розы, фрезии и свежей зелени — запах счастья и начала новой жизни.', 
     category: 'Свадебные', 
     occasion: ['Свадьба', 'Венчание', 'Помолвка'], 
-    size: 'Большой', 
+    sizes: ['Стандарт', 'Премиум'],
+    colors: ['Белый', 'Шампань'],
+    colorHex: ['#FFFFFF', '#FEF3C7'],
     freshness: '8 дней', 
     rating: 4.9, 
     inStock: 4,
     seasonality: 'Круглый год',
     vaseLife: '8-12 дней с флористическим питанием',
     careInstructions: 'Беречь от жары, обновлять срез каждый день, держать в специальном растворе',
-    flowerOrigin: 'Английские розарии Девона и голландские теплицы'
+    flowerOrigin: 'Английские розарии Девона и голландские теплицы',
+    isTrending: true
   },
   { 
     id: 6, 
     name: 'Хризантемы осенние', 
-    price: 28, 
-    image: 'https://images.unsplash.com/photo-1571043733612-39d1e4d57447?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Пышные кустовые хризантемы в палитре золотой осени — от медового янтаря до глубокого бордо, словно листья в октябрьском парке. Каждый цветок с сотнями миниатюрных лепестков создаёт объёмную текстуру невероятной красоты. Терпкий травянистый аромат с нотами полыни и мёда напоминает о тёплых осенних вечерах. Символ долголетия и мудрости, приносящий уют в любой дом.', 
+    price: 2800, 
+    image: 'https://images.unsplash.com/photo-1571043733612-39d1e4d57447?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Пышные кустовые хризантемы в палитре золотой осени — от медового янтаря до глубокого бордо, словно листья в октябрьском парке. Каждый цветок с сотнями миниатюрных лепестков создаёт объёмную текстуру невероятной красоты. Терпкий травянистый аромат с нотами полыни и мёда напоминает о тёплых осенних вечерах.', 
     category: 'Хризантемы', 
     occasion: ['День учителя', 'Осенний праздник', 'Благодарность'], 
-    size: 'Средний', 
+    sizes: ['Маленький', 'Средний', 'Большой'],
+    colors: ['Жёлтый', 'Оранжевый', 'Бордо'],
+    colorHex: ['#FACC15', '#F97316', '#9F1239'],
     freshness: '10 дней', 
     rating: 4.5, 
     inStock: 20,
@@ -153,12 +180,14 @@ const flowers: FlowerProduct[] = [
   { 
     id: 7, 
     name: 'Лилии белые', 
-    price: 42, 
-    image: 'https://images.unsplash.com/photo-1574159103905-55b657e045cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Царственные восточные лилии сорта Касабланка с крупными бутонами цвета слоновой кости и изящно загнутыми лепестками. Их головокружительный аромат — густой, сладковатый, с нотами гардении и жасмина — наполняет всё пространство магией. Бархатистая текстура лепестков с мельчайшими капельками нектара притягивает взгляд. Воплощение чистоты и духовной красоты для самых значимых моментов.', 
+    price: 4200, 
+    image: 'https://images.unsplash.com/photo-1574159103905-55b657e045cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Царственные восточные лилии сорта Касабланка с крупными бутонами цвета слоновой кости и изящно загнутыми лепестками. Их головокружительный аромат — густой, сладковатый, с нотами гардении и жасмина — наполняет всё пространство магией. Бархатистая текстура лепестков с мельчайшими капельками нектара притягивает взгляд.', 
     category: 'Лилии', 
     occasion: ['Траурная церемония', 'Память', 'Духовный праздник'], 
-    size: 'Большой', 
+    sizes: ['Маленький', 'Средний', 'Большой'],
+    colors: ['Белый', 'Кремовый'],
+    colorHex: ['#FAFAFA', '#FFFBEB'],
     freshness: '6 дней', 
     rating: 4.6, 
     inStock: 10,
@@ -170,12 +199,14 @@ const flowers: FlowerProduct[] = [
   { 
     id: 8, 
     name: 'Полевые цветы', 
-    price: 25, 
-    image: 'https://images.unsplash.com/photo-1586136867486-b9da8c85c8c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Романтичная россыпь полевых цветов — ромашки с золотыми сердцевинками, нежные васильки цвета летнего неба и пушистые колоски злаков. Этот букет хранит дыхание июльского луга, согретого солнцем и овеянного тёплым ветром. Свежий травянистый аромат с медовыми нотами переносит в беззаботное детство. Символ искренности и простого человеческого счастья.', 
+    price: 2500, 
+    image: 'https://images.unsplash.com/photo-1586136867486-b9da8c85c8c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Романтичная россыпь полевых цветов — ромашки с золотыми сердцевинками, нежные васильки цвета летнего неба и пушистые колоски злаков. Этот букет хранит дыхание июльского луга, согретого солнцем и овеянного тёплым ветром. Свежий травянистый аромат с медовыми нотами переносит в беззаботное детство.', 
     category: 'Полевые', 
     occasion: ['Романтическое свидание', 'Признание', 'Просто так'], 
-    size: 'Маленький', 
+    sizes: ['Маленький', 'Средний'],
+    colors: ['Микс', 'Синий'],
+    colorHex: ['#86EFAC', '#3B82F6'],
     freshness: '3 дня', 
     rating: 4.4, 
     inStock: 25,
@@ -187,29 +218,35 @@ const flowers: FlowerProduct[] = [
   { 
     id: 9, 
     name: 'Гортензия синяя', 
-    price: 48, 
-    image: 'https://images.unsplash.com/photo-1463320898994-e8e8ac0e3534?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Волшебные соцветия гортензии в оттенках индиго и небесной лазури — словно кусочек летнего неба, заключённый в лепестки. Каждая шапка состоит из сотен миниатюрных цветков, создающих невероятный объём и воздушность. Лёгкий, едва уловимый аромат свежести и чистоты. Этот букет — воплощение мечтательности и утончённого вкуса, идеальный для ценителей особенной красоты.', 
+    price: 4800, 
+    oldPrice: 5800,
+    image: 'https://images.unsplash.com/photo-1463320898994-e8e8ac0e3534?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Волшебные соцветия гортензии в оттенках индиго и небесной лазури — словно кусочек летнего неба, заключённый в лепестки. Каждая шапка состоит из сотен миниатюрных цветков, создающих невероятный объём и воздушность. Лёгкий, едва уловимый аромат свежести и чистоты.', 
     category: 'Гортензии', 
     occasion: ['День рождения', 'Подарок маме', 'Выражение восхищения'], 
-    size: 'Большой', 
+    sizes: ['Маленький', 'Средний', 'Большой'],
+    colors: ['Синий', 'Голубой', 'Фиолетовый'],
+    colorHex: ['#3B82F6', '#60A5FA', '#8B5CF6'],
     freshness: '8 дней', 
     rating: 4.7, 
     inStock: 7,
     seasonality: 'Июнь — Октябрь',
     vaseLife: '7-10 дней при обильном поливе',
     careInstructions: 'Погружать соцветия в воду на 30 минут ежедневно, использовать много воды, прохладное место',
-    flowerOrigin: 'Садовые питомники Бретани, Франция'
+    flowerOrigin: 'Садовые питомники Бретани, Франция',
+    isNew: true
   },
   { 
     id: 10, 
     name: 'Подсолнухи', 
-    price: 35, 
-    image: 'https://images.unsplash.com/photo-1597848212624-e6bf2c8b4d8a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Солнечные гиганты с бархатистыми лепестками цвета спелого мёда и выразительными тёмными сердцевинами, усыпанными семенами. Каждый цветок — маленькое солнце, несущее тепло и радость в самый пасмурный день. Лёгкий ореховый аромат с нотами подсолнечного масла и летнего поля. Символ оптимизма, верности и безграничной энергии жизни.', 
+    price: 3500, 
+    image: 'https://images.unsplash.com/photo-1597848212624-e6bf2c8b4d8a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Солнечные гиганты с бархатистыми лепестками цвета спелого мёда и выразительными тёмными сердцевинами, усыпанными семенами. Каждый цветок — маленькое солнце, несущее тепло и радость в самый пасмурный день. Лёгкий ореховый аромат с нотами подсолнечного масла и летнего поля.', 
     category: 'Подсолнухи', 
     occasion: ['Поднять настроение', 'Выздоровление', 'Новоселье'], 
-    size: 'Большой', 
+    sizes: ['Маленький', 'Средний', 'Большой'],
+    colors: ['Жёлтый', 'Оранжевый'],
+    colorHex: ['#FACC15', '#FB923C'],
     freshness: '5 дней', 
     rating: 4.6, 
     inStock: 18,
@@ -221,29 +258,36 @@ const flowers: FlowerProduct[] = [
   { 
     id: 11, 
     name: 'Композиция в коробке', 
-    price: 65, 
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Роскошная флористическая композиция в бархатистой шляпной коробке — розы оттенка пудры, ароматный эвкалипт с серебристыми листьями и изящные веточки брунии. Каждый элемент подобран с ювелирной точностью и уложен на флористическую губку для максимальной свежести. Сложный аромат сочетает цветочные ноты с ментоловой прохладой эвкалипта. Готовый интерьерный шедевр, не требующий вазы.', 
+    price: 6500, 
+    oldPrice: 7500,
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Роскошная флористическая композиция в бархатистой шляпной коробке — розы оттенка пудры, ароматный эвкалипт с серебристыми листьями и изящные веточки брунии. Каждый элемент подобран с ювелирной точностью и уложен на флористическую губку для максимальной свежести.', 
     category: 'Композиции', 
     occasion: ['VIP подарок', 'Юбилей компании', 'Благодарность партнёру'], 
-    size: 'Средний', 
+    sizes: ['Средний', 'Большой'],
+    colors: ['Пудра', 'Розовый'],
+    colorHex: ['#FECDD3', '#F9A8D4'],
     freshness: '7 дней', 
     rating: 4.8, 
     inStock: 9,
     seasonality: 'Круглый год',
     vaseLife: '7-10 дней без пересадки',
     careInstructions: 'Поливать губку каждые 2 дня, не допускать пересыхания, беречь от солнца',
-    flowerOrigin: 'Авторская работа флористов салона, премиум материалы из Голландии'
+    flowerOrigin: 'Авторская работа флористов салона, премиум материалы из Голландии',
+    isNew: true,
+    isTrending: true
   },
   { 
     id: 12, 
     name: 'Эустома разноцветная', 
-    price: 40, 
-    image: 'https://images.unsplash.com/photo-1492552264149-86a37d023ceb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Нежнейшая эустома в переливах пастельных оттенков — от сливочного крема до лавандового тумана и персикового рассвета. Её многослойные лепестки с атласной текстурой напоминают юбку балерины в грациозном па-де-де. Едва уловимый сладковатый аромат с нотами розы и яблоневого цвета. Воплощение женственности и нежности для самых трепетных признаний.', 
+    price: 4000, 
+    image: 'https://images.unsplash.com/photo-1492552264149-86a37d023ceb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Нежнейшая эустома в переливах пастельных оттенков — от сливочного крема до лавандового тумана и персикового рассвета. Её многослойные лепестки с атласной текстурой напоминают юбку балерины в грациозном па-де-де.', 
     category: 'Эустома', 
     occasion: ['Признание в чувствах', 'День матери', 'Нежный сюрприз'], 
-    size: 'Средний', 
+    sizes: ['Маленький', 'Средний', 'Большой'],
+    colors: ['Лавандовый', 'Персиковый', 'Кремовый'],
+    colorHex: ['#C4B5FD', '#FDBA74', '#FEF3C7'],
     freshness: '6 дней', 
     rating: 4.5, 
     inStock: 14,
@@ -255,12 +299,14 @@ const flowers: FlowerProduct[] = [
   { 
     id: 13, 
     name: 'Каллы элегантные', 
-    price: 52, 
-    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2ac1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Изысканные каллы с безупречными линиями воронковидных цветков — воплощение архитектурной красоты в мире флоры. Их гладкие, словно отполированные, белоснежные покрывала с кремовым початком внутри напоминают скульптуры ар-деко. Тонкий аромат с нотами ванили и свежей зелени. Символ роскоши и безупречного стиля для самых требовательных ценителей.', 
+    price: 5200, 
+    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2ac1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Изысканные каллы с безупречными линиями воронковидных цветков — воплощение архитектурной красоты в мире флоры. Их гладкие, словно отполированные, белоснежные покрывала с кремовым початком внутри напоминают скульптуры ар-деко.', 
     category: 'Каллы', 
     occasion: ['Торжественное событие', 'Свадьба', 'Открытие выставки'], 
-    size: 'Большой', 
+    sizes: ['Маленький', 'Средний', 'Большой'],
+    colors: ['Белый', 'Кремовый'],
+    colorHex: ['#FAFAFA', '#FEF9C3'],
     freshness: '7 дней', 
     rating: 4.7, 
     inStock: 6,
@@ -272,12 +318,14 @@ const flowers: FlowerProduct[] = [
   { 
     id: 14, 
     name: 'Герберы яркие', 
-    price: 30, 
-    image: 'https://images.unsplash.com/photo-1516205651411-aef33a44f7c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Радостный фейерверк гербер в самых сочных оттенках лета — алом, как спелая вишня, оранжевом, как апельсиновая роща, и жёлтом, как полуденное солнце. Их идеально круглые лепестки с бархатистой текстурой и контрастные тёмные сердцевины создают графичный эффект. Лёгкий свежий аромат с травянистыми нотами. Заряд позитива и витаминов для души в одном букете.', 
+    price: 3000, 
+    image: 'https://images.unsplash.com/photo-1516205651411-aef33a44f7c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Радостный фейерверк гербер в самых сочных оттенках лета — алом, как спелая вишня, оранжевом, как апельсиновая роща, и жёлтом, как полуденное солнце. Их идеально круглые лепестки с бархатистой текстурой и контрастные тёмные сердцевины создают графичный эффект.', 
     category: 'Герберы', 
     occasion: ['День рождения', 'Выздоровление', 'Просто порадовать'], 
-    size: 'Средний', 
+    sizes: ['Маленький', 'Средний', 'Большой'],
+    colors: ['Красный', 'Оранжевый', 'Жёлтый'],
+    colorHex: ['#EF4444', '#F97316', '#FACC15'],
     freshness: '5 дней', 
     rating: 4.4, 
     inStock: 22,
@@ -289,12 +337,14 @@ const flowers: FlowerProduct[] = [
   { 
     id: 15, 
     name: 'Фрезии ароматные', 
-    price: 36, 
-    image: 'https://images.unsplash.com/photo-1511713847398-1b5e9c03035e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400', 
-    description: 'Изящные фрезии с каскадом миниатюрных воронковидных цветков, источающих один из самых чарующих ароматов в цветочном мире. Их нежные лепестки в оттенках от чистого белого до розового зефира и солнечного жёлтого. Сладкий, медово-цитрусовый аромат с нотами жасмина пленяет с первого вдоха. Символ безусловного доверия и изысканного вкуса.', 
+    price: 3600, 
+    image: 'https://images.unsplash.com/photo-1511713847398-1b5e9c03035e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000', 
+    description: 'Изящные фрезии с каскадом миниатюрных воронковидных цветков, источающих один из самых чарующих ароматов в цветочном мире. Их нежные лепестки в оттенках от чистого белого до розового зефира и солнечного жёлтого.', 
     category: 'Фрезии', 
     occasion: ['Романтический вечер', '8 Марта', 'Признание в любви'], 
-    size: 'Маленький', 
+    sizes: ['Маленький', 'Средний'],
+    colors: ['Белый', 'Розовый', 'Жёлтый'],
+    colorHex: ['#FAFAFA', '#FBCFE8', '#FDE047'],
     freshness: '4 дня', 
     rating: 4.6, 
     inStock: 16,
@@ -306,566 +356,878 @@ const flowers: FlowerProduct[] = [
   { 
     id: 16, 
     name: 'Антуриум красный', 
-    price: 58, 
+    price: 5800, 
     image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=1200&fit=crop&q=90', 
-    description: 'Экзотический антуриум с глянцевыми сердцевидными покрывалами насыщенного алого цвета и изящными кремовыми початками. Его восковые листья отражают свет, создавая эффект лакированной поверхности. Тонкий тропический аромат переносит в оранжереи далёких островов. Символ страсти, смелости и экзотической роскоши для тех, кто ценит нестандартную красоту.', 
+    description: 'Экзотический антуриум с глянцевыми сердцевидными покрывалами насыщенного алого цвета и изящными кремовыми початками. Его восковые листья отражают свет, создавая эффект лакированной поверхности.', 
     category: 'Экзотические', 
     occasion: ['VIP подарок', 'Корпоративное событие', 'Юбилей'], 
-    size: 'Средний', 
+    sizes: ['Маленький', 'Средний'],
+    colors: ['Красный', 'Бордо'],
+    colorHex: ['#DC2626', '#991B1B'],
     freshness: '10 дней', 
     rating: 4.8, 
     inStock: 5,
     seasonality: 'Круглый год',
     vaseLife: '2-3 недели при правильном уходе',
     careInstructions: 'Опрыскивать покрывала, использовать тёплую воду, беречь от сквозняков',
-    flowerOrigin: 'Тропические плантации Колумбии и Коста-Рики'
+    flowerOrigin: 'Тропические плантации Колумбии и Коста-Рики',
+    isNew: true
   },
   { 
     id: 17, 
     name: 'Букет "Весенний бриз"', 
-    price: 44, 
+    price: 4400, 
     image: 'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=800&h=1200&fit=crop&q=90', 
-    description: 'Свежая симфония весны — золотистые нарциссы с трубчатыми коронками, разноцветные тюльпаны и ароматная веточка вербы с пушистыми почками. Каждый цветок несёт дыхание пробуждающейся природы и обещание тёплых дней. Сладковатый аромат нарциссов смешивается с нежностью тюльпанов. Идеальный подарок для тех, кто скучает по весне или хочет подарить надежду.', 
-    category: 'Сезонные', 
-    occasion: ['Пасха', '8 Марта', 'Встреча весны'], 
-    size: 'Большой', 
+    description: 'Нежная весенняя композиция из пастельных ранункулюсов, душистого горошка и веточек эвкалипта. Букет создаёт атмосферу пробуждения природы и первых тёплых дней. Идеальный подарок для тех, кто скучает по весне.', 
+    category: 'Композиции', 
+    occasion: ['Весенний праздник', 'День матери', 'Поздравление'], 
+    sizes: ['Маленький', 'Средний', 'Большой'],
+    colors: ['Пастельный микс', 'Розовый'],
+    colorHex: ['#FDF2F8', '#FBCFE8'],
     freshness: '5 дней', 
-    rating: 4.5, 
-    inStock: 11,
-    seasonality: 'Март — Апрель',
-    vaseLife: '5-7 дней в прохладном месте',
-    careInstructions: 'Держать отдельно от других цветов первые сутки, подрезать стебли, прохладная вода',
-    flowerOrigin: 'Весенние поля Нидерландов и Крыма'
-  },
-  { 
-    id: 18, 
-    name: 'Протея экзотическая', 
-    price: 72, 
-    image: 'https://images.unsplash.com/photo-1508610048659-a06b669e3321?w=800&h=1200&fit=crop&q=90', 
-    description: 'Величественная королевская протея — национальный цветок Южной Африки с впечатляющим соцветием, напоминающим экзотическую корону. Её чешуйчатые прицветники в оттенках пыльной розы и серебра создают невероятную текстуру и объём. Сухой, травянистый аромат с нотами мёда и полыни. Коллекционная редкость для истинных ценителей ботанических сокровищ.', 
-    category: 'Экзотические', 
-    occasion: ['Подарок коллекционеру', 'Уникальный сюрприз', 'Дизайнерский подарок'], 
-    size: 'Маленький', 
-    freshness: '14 дней', 
-    rating: 4.9, 
-    inStock: 3,
-    seasonality: 'Круглый год',
-    vaseLife: 'До 3 недель, затем можно засушить',
-    careInstructions: 'Небольшое количество воды, можно засушить для вечного хранения',
-    flowerOrigin: 'Заповедники Западного Кейпа, Южная Африка'
-  },
-  { 
-    id: 19, 
-    name: 'Сухоцветы винтаж', 
-    price: 38, 
-    image: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=800&h=1200&fit=crop&q=90', 
-    description: 'Утончённая композиция из сухоцветов в нежной палитре пыльной розы, слоновой кости и античного золота. Воздушный лагурус, изящная лаванда и вечные гелихризумы сплетаются в гармонию вечной красоты. Тонкий аромат лаванды и сухой травы создаёт атмосферу прованского лета. Идеальный подарок для ценителей винтажной эстетики, не требующий ухода.', 
-    category: 'Сухоцветы', 
-    occasion: ['Декор интерьера', 'Подарок минималисту', 'Вечная память'], 
-    size: 'Средний', 
-    freshness: '365 дней', 
-    rating: 4.3, 
-    inStock: 13,
-    seasonality: 'Круглый год',
-    vaseLife: 'Вечно, при бережном хранении',
-    careInstructions: 'Беречь от влаги и прямых солнечных лучей, периодически сдувать пыль',
-    flowerOrigin: 'Прованс, Франция и поля Тосканы, Италия'
-  },
-  { 
-    id: 20, 
-    name: 'Букет "Радужный"', 
-    price: 50, 
-    image: 'https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=800&h=1200&fit=crop&q=90', 
-    description: 'Феерия цвета в одном букете — роскошное собрание самых ярких цветов со всего мира: алые розы, оранжевые герберы, жёлтые хризантемы, изумрудная зелень и фиолетовые ирисы. Каждый цветок — отдельная нота в симфонии радости и празднования жизни. Сложный букет ароматов, от сладкого до свежего. Универсальный подарок для любого торжества и просто для поднятия настроения.', 
-    category: 'Микс', 
-    occasion: ['День рождения', 'Поздравление', 'Праздник'], 
-    size: 'Большой', 
-    freshness: '6 дней', 
     rating: 4.7, 
-    inStock: 8,
-    seasonality: 'Круглый год',
-    vaseLife: '7-10 дней при ежедневном уходе',
-    careInstructions: 'Подрезать стебли под углом, менять воду ежедневно, удалять увядшие цветы',
-    flowerOrigin: 'Сборная коллекция из Голландии, Эквадора и Кении'
+    inStock: 11,
+    seasonality: 'Март — Май',
+    vaseLife: '5-8 дней при правильном уходе',
+    careInstructions: 'Подрезать стебли, использовать прохладную воду, держать вдали от фруктов',
+    flowerOrigin: 'Итальянские и голландские теплицы',
+    isTrending: true
   }
 ];
 
-const categories = ['Все', 'Розы', 'Тюльпаны', 'Пионы', 'Лилии', 'Свадебные', 'Горшечные', 'Экзотические', 'Сухоцветы', 'Композиции'];
+const categories = ['Все', 'Розы', 'Пионы', 'Тюльпаны', 'Гортензии', 'Композиции', 'Экзотические'];
 
-const occasions = ['Все', 'Романтика', 'Свадьба', 'Подарок', 'VIP подарок', 'Весна', 'Радость', 'Торжество', 'Декор'];
+function Florist({ activeTab, onTabChange }: FloristProps) {
+  const [selectedProduct, setSelectedProduct] = useState<FlowerProduct | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('Все');
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  
+  const { toast } = useToast();
+  const sidebar = useDemoSidebar();
+  
+  const { 
+    cartItems: cart, 
+    addToCart: addToCartPersistent, 
+    removeFromCart, 
+    updateQuantity,
+    clearCart, 
+    totalAmount: cartTotal,
+    totalItems: cartCount 
+  } = usePersistentCart({ storageKey: 'florist_cart' });
+  
+  const { 
+    favorites, 
+    toggleFavorite, 
+    isFavorite,
+    favoritesCount 
+  } = usePersistentFavorites({ storageKey: 'florist_favorites' });
+  
+  const { 
+    orders, 
+    createOrder,
+    ordersCount 
+  } = usePersistentOrders({ storageKey: 'florist_orders' });
+  
+  const sidebarMenuItems = [
+    { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
+    { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
+    { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: 'var(--theme-primary)' },
+    { icon: <Tag className="w-5 h-5" />, label: 'Акции', badge: 'NEW', badgeColor: '#EF4444' },
+    { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
+    { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
+  ];
 
-const initialCartItems: CartItem[] = [
-  { id: 1, name: 'Букет из красных роз', price: 45, quantity: 1, image: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60' },
-  { id: 11, name: 'Композиция в коробке', price: 65, quantity: 1, image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60' },
-];
-
-export default function Florist({ activeTab }: FloristProps) {
-  const [selectedFlower, setSelectedFlower] = useState<typeof flowers[0] | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
-  const [selectedCategory, setSelectedCategory] = useState('Все');
-  const [selectedOccasion, setSelectedOccasion] = useState('Все');
-  const [favorites, setFavorites] = useState<number[]>([1, 5, 11, 18]);
+  const { filteredItems, searchQuery, handleSearch } = useFilter({
+    items: flowers,
+    searchFields: ['name', 'description', 'category'] as (keyof FlowerProduct)[],
+  });
 
   useEffect(() => {
     scrollToTop();
+    if (activeTab !== 'catalog') {
+      setSelectedProduct(null);
+    }
   }, [activeTab]);
 
-  const openFlowerModal = (flower: typeof flowers[0]) => {
-    setSelectedFlower(flower);
-    setIsModalOpen(true);
+  const filteredProducts = filteredItems.filter(p => {
+    const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
+    return categoryMatch;
+  });
+
+  const handleImageLoad = (productId: number) => {
+    setLoadedImages(prev => new Set(prev).add(productId));
   };
 
-  const closeFlowerModal = () => {
-    setIsModalOpen(false);
-    setSelectedFlower(null);
+  const handleToggleFavorite = (productId: number) => {
+    toggleFavorite(productId);
+    const isNowFavorite = !isFavorite(productId);
+    toast({
+      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
+      duration: 1500,
+    });
   };
 
-  const updateQuantity = (itemId: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === itemId ? { ...item, quantity: newQuantity } : item
-      )
-    );
+  const openProduct = (product: FlowerProduct) => {
+    scrollToTop();
+    onTabChange?.('catalog');
+    setSelectedProduct(product);
+    setSelectedSize(product.sizes[0]);
+    setSelectedColor(product.colors[0]);
   };
 
-  const removeFromCart = (itemId: number) => {
-    setCartItems(prev => prev.filter(item => item.id !== itemId));
-  };
-
-  const toggleFavorite = (flowerId: number) => {
-    setFavorites(prev => 
-      prev.includes(flowerId) 
-        ? prev.filter(id => id !== flowerId)
-        : [...prev, flowerId]
-    );
-  };
-
-  const filteredFlowers = flowers.filter(flower => {
-    const matchesCategory = selectedCategory === 'Все' || flower.category === selectedCategory;
-    const matchesOccasion = selectedOccasion === 'Все' || flower.occasion.some(occ => occ.includes(selectedOccasion) || selectedOccasion.includes(occ.split(' ')[0]));
+  const addToCart = () => {
+    if (!selectedProduct) return;
     
-    return matchesCategory && matchesOccasion;
-  });
+    addToCartPersistent({
+      id: String(selectedProduct.id),
+      name: selectedProduct.name,
+      price: selectedProduct.price,
+      size: selectedSize,
+      image: selectedProduct.image,
+      color: selectedColor
+    });
+    
+    toast({
+      title: 'Добавлено в корзину',
+      description: `${selectedProduct.name} • ${selectedColor} • ${selectedSize}`,
+      duration: 2000,
+    });
+    
+    setSelectedProduct(null);
+  };
 
-  const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  };
 
-  // Preload first 6 product images for instant visibility
-  useImagePreloader({
-    images: flowers.slice(0, 6).map(item => item.image),
-    priority: true
-  });
+  const handleCheckout = (orderId: string) => {
+    const orderItems = cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image,
+      size: item.size,
+      color: item.color
+    }));
+    
+    createOrder(orderItems, cartTotal, {
+      address: 'Москва',
+      phone: '+7 (999) 123-45-67'
+    });
+    
+    clearCart();
+    setIsCheckoutOpen(false);
+    
+    toast({
+      title: 'Заказ оформлен!',
+      description: `Номер заказа: ${orderId}`,
+      duration: 3000,
+    });
+  };
 
-
-  const renderHomeTab = () => (
-    <div className="max-w-md mx-auto px-4 space-y-6">
-      {/* Заголовок */}
-      <div className="text-center">
-        <h1 className="ios-title font-bold mb-2">Цветочный Рай</h1>
-        <p className="ios-subheadline text-secondary-label">Свежие цветы каждый день 🌸</p>
-      </div>
-
-      {/* Быстрая доставка */}
-      <div className="ios-card p-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="ios-headline font-semibold">Доставка за 2 часа</h3>
-            <p className="ios-body">Свежие цветы прямо к вашей двери</p>
-          </div>
-          <Truck className="w-8 h-8" />
-        </div>
-      </div>
-
-      {/* Популярные категории */}
-      <div>
-        <h2 className="ios-title font-semibold mb-4">Популярные букеты</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {flowers.slice(0, 4).map((flower) => (
-            <div 
-              key={flower.id} 
-              className="ios-card p-3 cursor-pointer"
-              onClick={() => openFlowerModal(flower)}
-            >
-              <LazyImage src={flower.image} alt={flower.name} className="w-full h-32 object-cover rounded-lg mb-2" />
-              <h4 className="ios-footnote font-semibold line-clamp-2">{flower.name}</h4>
-              <p className="ios-caption2 text-secondary-label mb-2">{flower.category}</p>
-              <div className="flex items-center justify-between">
-                <span className="ios-caption font-bold text-system-green">${flower.price}</span>
-                <div className="flex items-center space-x-1">
-                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                  <span className="ios-caption2">{flower.rating}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Случаи для букетов */}
-      <div>
-        <h2 className="ios-title font-semibold mb-4">Букеты по случаю</h2>
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { name: 'Романтика', icon: '💕', color: 'bg-pink-500' },
-            { name: 'Свадьба', icon: '💒', color: 'bg-purple-500' },
-            { name: 'VIP подарок', icon: '👑', color: 'bg-yellow-500' },
-            { name: 'Радость', icon: '🌈', color: 'bg-orange-500' },
-            { name: 'Торжество', icon: '🎉', color: 'bg-blue-500' },
-            { name: 'Декор', icon: '🏠', color: 'bg-green-500' }
-          ].map((occasion) => (
-            <div 
-              key={occasion.name} 
-              className="ios-card p-3 text-center cursor-pointer"
-              onClick={() => setSelectedOccasion(occasion.name)}
-            >
-              <div className={`w-10 h-10 ${occasion.color} rounded-full flex items-center justify-center mx-auto mb-2`}>
-                <span className="text-lg">{occasion.icon}</span>
-              </div>
-              <span className="ios-caption2 font-medium">{occasion.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Информация о магазине */}
-      <div className="ios-card p-4">
-        <h3 className="ios-headline font-semibold mb-3">Почему выбирают нас</h3>
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Flower className="w-4 h-4 text-system-green" />
-            <span className="ios-body">Свежие цветы каждое утро</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-system-green" />
-            <span className="ios-body">Доставка 24/7 по городу</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Gift className="w-4 h-4 text-system-green" />
-            <span className="ios-body">Красивая упаковка в подарок</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderCatalogTab = () => (
-    <div className="bg-white min-h-screen">
-      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-        <h1 className="ios-title font-bold">Каталог цветов</h1>
-      
-      {/* Фильтры */}
-      <div className="space-y-3">
-        <div className="flex space-x-2 overflow-x-auto pb-2">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-full whitespace-nowrap ios-footnote font-medium ${
-                selectedCategory === category
-                  ? 'bg-system-green text-white'
-                  : 'bg-quaternary-system-fill text-label'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-        
-        <div className="flex space-x-2 overflow-x-auto pb-2">
-          {occasions.map((occasion) => (
-            <button
-              key={occasion}
-              onClick={() => setSelectedOccasion(occasion)}
-              className={`px-3 py-1 rounded-full whitespace-nowrap ios-caption2 font-medium ${
-                selectedOccasion === occasion
-                  ? 'bg-system-emerald text-white'
-                  : 'bg-fill text-secondary-label'
-              }`}
-            >
-              {occasion}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Список букетов */}
-      <div className="space-y-3">
-        {filteredFlowers.map((flower) => (
-          <div 
-            key={flower.id} 
-            className="ios-card p-4 cursor-pointer"
-            onClick={() => openFlowerModal(flower)}
+  if (activeTab === 'catalog' && selectedProduct) {
+    const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#1A1A1A';
+    
+    return (
+      <div className="min-h-screen text-white overflow-auto smooth-scroll-page" style={{ backgroundColor: bgColor }}>
+        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
+          <button 
+            onClick={() => setSelectedProduct(null)}
+            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            data-testid="button-back"
           >
-            <div className="flex items-center space-x-3">
-              <LazyImage src={flower.image} alt={flower.name} className="w-20 h-20 object-cover rounded-lg" />
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <h4 className="ios-body font-semibold line-clamp-1">{flower.name}</h4>
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleFavorite(selectedProduct.id);
+            }}
+            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+            data-testid={`button-favorite-${selectedProduct.id}`}
+          >
+            <Heart 
+              className={`w-5 h-5 ${isFavorite(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
+            />
+          </button>
+        </div>
+
+        <div className="relative h-[60vh]">
+          <LazyImage
+            src={selectedProduct.image}
+            alt={selectedProduct.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        <div className="relative pb-56">
+          <div className="bg-white/10 backdrop-blur-xl rounded-t-3xl p-6 space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-2">{selectedProduct.name}</h2>
+              <div className="flex items-center justify-center gap-3">
+                <p className="text-3xl font-bold">{formatPrice(selectedProduct.price)}</p>
+                {selectedProduct.oldPrice && (
+                  <p className="text-xl text-white/50 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
+                )}
+              </div>
+            </div>
+
+            <p className="text-sm text-white/80 text-center">{selectedProduct.description}</p>
+
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="bg-white/10 rounded-xl p-3">
+                <div className="flex items-center gap-2 text-white/60 mb-1">
+                  <Clock className="w-4 h-4" />
+                  <span>Свежесть в вазе</span>
+                </div>
+                <p className="font-medium">{selectedProduct.vaseLife}</p>
+              </div>
+              <div className="bg-white/10 rounded-xl p-3">
+                <div className="flex items-center gap-2 text-white/60 mb-1">
+                  <MapPin className="w-4 h-4" />
+                  <span>Происхождение</span>
+                </div>
+                <p className="font-medium text-xs">{selectedProduct.flowerOrigin.split(',')[0]}</p>
+              </div>
+            </div>
+
+            <div className="bg-white/10 rounded-xl p-3">
+              <div className="flex items-center gap-2 text-white/60 mb-2">
+                <Leaf className="w-4 h-4" />
+                <span className="text-sm">Уход за букетом</span>
+              </div>
+              <p className="text-sm">{selectedProduct.careInstructions}</p>
+            </div>
+
+            <div>
+              <p className="text-sm mb-3 text-white/80 text-center">Выберите цвет:</p>
+              <div className="flex items-center justify-center gap-3">
+                {selectedProduct.colors.map((color, idx) => (
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(flower.id);
-                    }}
-                    className="p-1"
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-10 h-10 rounded-full border-2 transition-all ${
+                      selectedColor === color
+                        ? 'border-white scale-110'
+                        : 'border-white/30'
+                    }`}
+                    style={{ backgroundColor: selectedProduct.colorHex[idx] }}
+                    data-testid={`button-color-${color}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm mb-3 text-white/80 text-center">Выберите размер:</p>
+              <div className="flex items-center justify-center gap-3 flex-wrap">
+                {selectedProduct.sizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`px-4 py-2 rounded-full font-semibold transition-all text-sm ${
+                      selectedSize === size
+                        ? 'bg-[var(--theme-primary)] text-black'
+                        : 'bg-white/20 text-white hover:bg-white/30'
+                    }`}
+                    data-testid={`button-size-${size}`}
                   >
-                    <Heart 
-                      className={`w-4 h-4 ${
-                        favorites.includes(flower.id) 
-                          ? 'fill-red-500 text-red-500' 
-                          : 'text-secondary-label'
-                      }`} 
-                    />
+                    {size}
                   </button>
-                </div>
-                <p className="ios-footnote text-secondary-label mb-2 line-clamp-2">{flower.description}</p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <span className="ios-caption2 px-2 py-1 bg-quaternary-system-fill rounded">{flower.category}</span>
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span className="ios-caption2">{flower.rating}</span>
-                    </div>
-                    <span className="ios-caption2 text-secondary-label">{flower.freshness}</span>
-                  </div>
-                  <span className="ios-body font-bold text-system-green">${flower.price}</span>
-                </div>
+                ))}
               </div>
             </div>
           </div>
-        ))}
+        </div>
+
+        <div 
+          className="fixed bottom-0 left-0 right-0 z-50"
+          style={{ perspective: '1000px' }}
+        >
+          <div 
+            className="absolute -top-8 left-0 right-0 h-16 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
+              transform: 'rotateX(45deg)',
+              transformOrigin: 'bottom center',
+            }}
+          />
+          
+          <div 
+            className="relative rounded-t-3xl border-t border-white/20 p-6 pb-8"
+            style={{
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              boxShadow: '0 -10px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+            }}
+          >
+            <div 
+              className="absolute inset-0 rounded-t-3xl pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.1) 0%, transparent 60%)',
+              }}
+            />
+            
+            <ConfirmDrawer
+              trigger={
+                <button
+                  className="relative w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all shadow-lg"
+                  style={{
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.3), 0 0 40px rgba(var(--theme-primary-rgb, 255,255,255), 0.15)',
+                  }}
+                  data-testid="button-buy-now"
+                >
+                  Добавить в корзину
+                </button>
+              }
+              title="Добавить в корзину?"
+              description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
+              confirmText="Добавить"
+              cancelText="Отмена"
+              variant="default"
+              onConfirm={addToCart}
+            />
+            
+            <div className="h-[env(safe-area-inset-bottom)]" />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 
-  const renderCartTab = () => (
-    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
-      <h1 className="ios-title font-bold">Корзина</h1>
-      
-      {cartItems.length === 0 ? (
-        <div className="text-center py-12">
-          <Flower className="w-16 h-16 text-quaternary-label mx-auto mb-4" />
-          <p className="ios-body text-secondary-label">Корзина пуста</p>
-          <p className="ios-footnote text-tertiary-label">Добавьте букеты из каталога</p>
-        </div>
-      ) : (
-        <>
-          <div className="space-y-3">
-            {cartItems.map((item) => (
-              <div key={item.id} className="ios-card p-4">
-                <div className="flex items-center space-x-3">
-                  <LazyImage src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-lg" />
-                  <div className="flex-1">
-                    <h4 className="ios-body font-semibold">{item.name}</h4>
-                    <p className="ios-footnote text-secondary-label">${item.price} за букет</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="w-8 h-8 rounded-full bg-quaternary-system-fill flex items-center justify-center"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="ios-body font-semibold w-8 text-center">{item.quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="w-8 h-8 rounded-full bg-system-green text-white flex items-center justify-center"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="text-right">
-                    <p className="ios-body font-bold">${(item.price * item.quantity).toFixed(2)}</p>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="ios-footnote text-system-red"
-                    >
-                      Удалить
-                    </button>
-                  </div>
-                </div>
-              </div>
+  if (activeTab === 'home') {
+    return (
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+        <DemoSidebar
+          isOpen={sidebar.isOpen}
+          onClose={sidebar.close}
+          onOpen={sidebar.open}
+          menuItems={sidebarMenuItems}
+          title="BLOOM"
+          subtitle="STUDIO"
+          accentColor="var(--theme-primary)"
+          bgColor="var(--theme-background)"
+        />
+        <div className="p-6 pb-4">
+          <div className="flex items-center justify-between mb-6 scroll-fade-in">
+            <button 
+              onClick={sidebar.open}
+              aria-label="Меню" 
+              data-testid="button-view-menu"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="flex items-center gap-3">
+              <button aria-label="Корзина" data-testid="button-view-cart">
+                <ShoppingBag className="w-6 h-6" />
+              </button>
+              <button aria-label="Избранное" data-testid="button-view-favorites">
+                <Heart className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <h1 className="text-4xl font-black mb-1 tracking-tight">
+              BLOOM<br/>
+              STUDIO
+            </h1>
+            <p className="text-white/60 text-sm">Премиальная флористика</p>
+          </div>
+
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+            {categories.slice(0, 5).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                  selectedCategory === cat
+                    ? 'bg-[var(--theme-primary)] text-black'
+                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                }`}
+                data-testid={`button-filter-${cat.toLowerCase()}`}
+              >
+                {cat}
+              </button>
             ))}
           </div>
 
-          {/* Время доставки */}
-          <div className="ios-card p-4 bg-system-green/5 border border-system-green/20">
-            <div className="flex items-center space-x-2 mb-2">
-              <Clock className="w-4 h-4 text-system-green" />
-              <span className="ios-body font-semibold text-system-green">Быстрая доставка</span>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-full px-4 py-3 flex items-center gap-2">
+              <Search className="w-5 h-5 text-white/50" />
+              <input
+                type="text"
+                placeholder="Поиск букетов..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
+                data-testid="input-search"
+              />
             </div>
-            <p className="ios-footnote text-secondary-label">
-              Заказ будет доставлен в течение 2 часов
-            </p>
-          </div>
-
-          <div className="ios-card p-4 space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="ios-body">Подытог:</span>
-              <span className="ios-body font-semibold">${cartTotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="ios-body">Доставка:</span>
-              <span className="ios-body font-semibold">$8.00</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="ios-body">Упаковка:</span>
-              <span className="ios-body font-semibold text-system-green">Бесплатно</span>
-            </div>
-            <hr className="border-separator" />
-            <div className="flex justify-between items-center">
-              <span className="ios-headline font-bold">Итого:</span>
-              <span className="ios-headline font-bold text-system-green">${(cartTotal + 8).toFixed(2)}</span>
-            </div>
-            
-            <button className="w-full bg-system-green text-white ios-body font-semibold py-3 rounded-xl flex items-center justify-center space-x-2">
-              <Calendar className="w-5 h-5" />
-              <span>Выбрать время доставки</span>
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  );
-
-  const renderProfileTab = () => (
-    <div className="max-w-md mx-auto px-4 py-6 space-y-4">
-      <h1 className="ios-title font-bold">Профиль флориста</h1>
-      
-      <div className="ios-card p-4">
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-16 h-16 bg-system-green rounded-full flex items-center justify-center">
-            <span className="ios-title font-bold text-white">ЦР</span>
-          </div>
-          <div>
-            <h3 className="ios-headline font-semibold">Цветочный VIP</h3>
-            <p className="ios-body text-secondary-label">Постоянный покупатель</p>
           </div>
         </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div className="text-center">
-            <p className="ios-title font-bold text-system-green">47</p>
-            <p className="ios-footnote text-secondary-label">Заказов</p>
+
+        <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden" style={{ height: '500px' }}>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            data-testid="video-hero-banner"
+          >
+            <source src={flowerVideo} type="video/mp4" />
+          </video>
+          
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          
+          <div className="absolute bottom-0 left-0 right-0 p-8">
+            <m.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <h2 className="text-5xl font-black mb-3 tracking-tight leading-tight">
+                ВЕСЕННЯЯ<br/>
+                КОЛЛЕКЦИЯ
+              </h2>
+              <p className="text-lg text-white/80 mb-6" style={{ letterSpacing: '0.1em' }}>
+                Свежие цветы каждый день
+              </p>
+              <button 
+                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105"
+                style={{
+                  background: 'var(--theme-primary)',
+                  boxShadow: '0 0 30px var(--theme-primary-glow, rgba(205, 255, 56, 0.4))'
+                }}
+                data-testid="button-view-collection"
+              >
+                Смотреть букеты
+              </button>
+            </m.div>
           </div>
-          <div className="text-center">
-            <p className="ios-title font-bold text-system-purple">12%</p>
-            <p className="ios-footnote text-secondary-label">Скидка</p>
+        </div>
+
+        <div className="px-6 space-y-4">
+          {filteredProducts.slice(0, 3).map((product, idx) => (
+            <m.div
+              key={product.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              onClick={() => openProduct(product)}
+              className="relative cursor-pointer group rounded-3xl overflow-hidden"
+              style={{ height: idx === 0 ? '400px' : '320px' }}
+              data-testid={`featured-product-${product.id}`}
+            >
+              <div className="absolute inset-0">
+                <LazyImage
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  onLoadComplete={() => handleImageLoad(product.id)}
+                  priority={idx < 2}
+                />
+              </div>
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+
+              <div className="absolute top-4 left-4">
+                <div className="px-3 py-1 bg-white/20 backdrop-blur-xl rounded-full">
+                  <span className="text-xs font-semibold text-white">
+                    {product.isNew ? 'Новинка' : product.category}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleFavorite(product.id);
+                }}
+                aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
+                data-testid={`button-favorite-${product.id}`}
+              >
+                <Heart 
+                  className={`w-5 h-5 ${isFavorite(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                />
+              </button>
+
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <div className="flex items-end justify-between">
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold mb-2 leading-tight">
+                      {product.name}
+                    </h3>
+                    <p className="text-sm text-white/80 mb-4">{product.freshness} свежести</p>
+                  </div>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openProduct(product);
+                    }}
+                    aria-label="Добавить в корзину"
+                    className="w-14 h-14 rounded-full bg-[var(--theme-primary)] flex items-center justify-center hover:bg-[var(--theme-accent)] transition-all hover:scale-110"
+                    data-testid={`button-add-to-cart-${product.id}`}
+                  >
+                    <ShoppingBag className="w-6 h-6 text-black" />
+                  </button>
+                </div>
+
+                <div className="mt-3">
+                  <p className="text-lg font-bold">{formatPrice(product.price)}</p>
+                  {product.inStock < 10 && (
+                    <UrgencyIndicator 
+                      type="stock"
+                      value={product.inStock}
+                      variant="badge"
+                      className="mt-2"
+                    />
+                  )}
+                </div>
+              </div>
+            </m.div>
+          ))}
+        </div>
+
+        <div className="h-8"></div>
+      </div>
+    );
+  }
+
+  if (activeTab === 'catalog') {
+    return (
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6 scroll-fade-in">
+            <h1 className="text-2xl font-bold">Каталог букетов</h1>
+            <div className="flex items-center gap-3">
+              <button className="p-2" aria-label="Поиск" data-testid="button-view-search">
+                <Search className="w-6 h-6" />
+              </button>
+              <button className="p-2" aria-label="Фильтр" data-testid="button-view-filter">
+                <Filter className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
+                  selectedCategory === cat
+                    ? 'bg-[var(--theme-primary)] text-black'
+                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                }`}
+                data-testid={`button-filter-${cat.toLowerCase()}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            {filteredProducts.map((product, idx) => (
+              <m.div
+                key={product.id}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => openProduct(product)}
+                className={`relative cursor-pointer scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
+                data-testid={`product-card-${product.id}`}
+              >
+                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
+                  <LazyImage
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    onLoadComplete={() => handleImageLoad(product.id)}
+                  />
+                  
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleFavorite(product.id);
+                    }}
+                    aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
+                    data-testid={`button-favorite-catalog-${product.id}`}
+                  >
+                    <Heart 
+                      className={`w-4 h-4 ${isFavorite(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                    />
+                  </button>
+
+                  {product.isNew && (
+                    <div className="absolute top-2 left-2 px-2 py-1 bg-[var(--theme-primary)] text-black text-xs font-bold rounded-full">
+                      NEW
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold mb-1 truncate">{product.name}</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-base font-bold">{formatPrice(product.price)}</p>
+                    {product.oldPrice && (
+                      <p className="text-xs text-white/40 line-through">{formatPrice(product.oldPrice)}</p>
+                    )}
+                  </div>
+                  {product.inStock < 10 && (
+                    <UrgencyIndicator 
+                      type="stock"
+                      value={product.inStock}
+                      variant="badge"
+                      className="mt-1"
+                    />
+                  )}
+                </div>
+              </m.div>
+            ))}
           </div>
         </div>
       </div>
+    );
+  }
 
-      <div className="space-y-3">
-        <h2 className="ios-headline font-semibold">Избранные букеты</h2>
-        {flowers.filter(flower => favorites.includes(flower.id)).map((flower) => (
-          <div key={flower.id} className="ios-card p-3 flex items-center space-x-3">
-            <LazyImage src={flower.image} alt={flower.name} className="w-20 h-20 object-cover rounded-lg" />
-            <div className="flex-1">
-              <h4 className="ios-body font-semibold line-clamp-1">{flower.name}</h4>
-              <p className="ios-footnote text-secondary-label">${flower.price} • {flower.category}</p>
+  if (activeTab === 'cart') {
+    return (
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-32 smooth-scroll-page">
+        <div className="p-6">
+          <h1 className="text-2xl font-bold mb-6">Корзина</h1>
+
+          {cart.length === 0 ? (
+            <EmptyState
+              type="cart"
+              actionLabel="В каталог"
+              onAction={() => onTabChange?.('catalog')}
+              className="py-20"
+            />
+          ) : (
+            <div className="space-y-4">
+              {cart.map((item) => (
+                <div
+                  key={`${item.id}-${item.size}-${item.color}`}
+                  className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
+                  data-testid={`cart-item-${item.id}`}
+                >
+                  <LazyImage
+                    src={item.image || ''}
+                    alt={item.name}
+                    className="w-20 h-20 rounded-xl object-cover"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-semibold mb-1">{item.name}</h3>
+                    <p className="text-sm text-white/60 mb-2">
+                      {item.color} • {item.size}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-lg font-bold">{formatPrice(item.price * item.quantity)}</p>
+                      <div className="flex items-center gap-2 bg-white/10 rounded-full px-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                          className="w-8 h-8 flex items-center justify-center"
+                          aria-label="Уменьшить количество"
+                          data-testid={`button-decrease-${item.id}`}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-6 text-center font-semibold">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                          className="w-8 h-8 flex items-center justify-center"
+                          aria-label="Увеличить количество"
+                          data-testid={`button-increase-${item.id}`}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => removeFromCart(item.id, item.size, item.color)}
+                    aria-label="Удалить из корзины"
+                    className="w-10 h-10 flex items-center justify-center"
+                    data-testid={`button-remove-${item.id}`}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              ))}
+
+              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[var(--theme-background)] border-t border-white/10">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-lg font-semibold">Итого:</span>
+                  <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
+                </div>
+                <TrustBadges variant="compact" className="mb-4" />
+                <button
+                  onClick={() => setIsCheckoutOpen(true)}
+                  className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all min-h-[48px]"
+                  data-testid="button-checkout"
+                >
+                  Оформить заказ
+                </button>
+              </div>
+              
+              <CheckoutDrawer
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                items={cart.map(item => ({
+                  id: parseInt(item.id) || 0,
+                  name: item.name,
+                  price: item.price,
+                  quantity: item.quantity,
+                  size: item.size,
+                  color: item.color,
+                  image: item.image
+                }))}
+                total={cartTotal}
+                currency="₽"
+                onOrderComplete={handleCheckout}
+                storeName="BLOOM STUDIO"
+              />
             </div>
-            <ChevronRight className="w-5 h-5 text-tertiary-label" />
-          </div>
-        ))}
+          )}
+        </div>
       </div>
+    );
+  }
 
-      <div className="ios-card p-4">
-        <h3 className="ios-headline font-semibold mb-3">История заказов</h3>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="ios-body">Последний заказ:</span>
-            <span className="ios-body font-medium">16 дек 2024</span>
+  if (activeTab === 'profile') {
+    return (
+      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+        <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-accent)] rounded-full flex items-center justify-center">
+              <User className="w-8 h-8 text-black" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">Анна Цветкова</h2>
+              <p className="text-sm text-muted-foreground">+7 (999) 123-45-67</p>
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span className="ios-body">Любимые цветы:</span>
-            <span className="ios-body font-medium">Розы</span>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
+              <p className="text-sm text-white/70 mb-1">Заказы</p>
+              <p className="text-2xl font-bold">{ordersCount}</p>
+            </div>
+            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
+              <p className="text-sm text-white/70 mb-1">Избранное</p>
+              <p className="text-2xl font-bold">{favoritesCount}</p>
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span className="ios-body">Потрачено всего:</span>
-            <span className="ios-body font-medium text-system-green">$2,340</span>
+        </div>
+
+        <div className="p-4 space-y-4">
+          <div className="scroll-fade-in">
+            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
+            {orders.length === 0 ? (
+              <div className="text-center py-8 text-white/50">
+                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>У вас пока нет заказов</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm text-white/70">Заказ #{order.id.slice(-6)}</span>
+                      <span className="text-sm text-white/70">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
+                    </div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-white/80">{order.items.length} букетов</span>
+                      <span className="font-bold">{formatPrice(order.total)}</span>
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-xs px-2 py-1 bg-[var(--theme-primary)]/20 text-[var(--theme-primary)] rounded-full">
+                        {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Доставляется' : 'Доставлен'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-orders">
+            <div className="flex items-center gap-3">
+              <Package className="w-5 h-5 text-white/70" />
+              <span className="font-medium">История заказов</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+          </button>
+
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
+            <div className="flex items-center gap-3">
+              <Heart className="w-5 h-5 text-white/70" />
+              <span className="font-medium">Избранное</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+          </button>
+
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-delivery">
+            <div className="flex items-center gap-3">
+              <Truck className="w-5 h-5 text-white/70" />
+              <span className="font-medium">Адреса доставки</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+          </button>
+
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
+            <div className="flex items-center gap-3">
+              <CreditCard className="w-5 h-5 text-white/70" />
+              <span className="font-medium">Способы оплаты</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+          </button>
+
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
+            <div className="flex items-center gap-3">
+              <Settings className="w-5 h-5 text-white/70" />
+              <span className="font-medium">Настройки</span>
+            </div>
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
+          </button>
+
+          <button className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover-elevate active-elevate-2 mt-4" data-testid="button-logout">
+            <div className="flex items-center gap-3">
+              <LogOut className="w-5 h-5 text-red-400" />
+              <span className="font-medium text-red-400">Выйти</span>
+            </div>
+          </button>
           </div>
         </div>
       </div>
+    );
+  }
 
-      <div className="ios-card p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
-        <div className="flex items-center space-x-2 mb-2">
-          <Gift className="w-5 h-5 text-system-green" />
-          <span className="ios-body font-semibold text-system-green">Программа лояльности</span>
-        </div>
-        <p className="ios-footnote text-secondary-label mb-2">
-          До следующей скидки осталось всего 3 заказа
-        </p>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div className="bg-system-green h-2 rounded-full" style={{ width: '70%' }}></div>
-        </div>
-      </div>
-    </div>
-  );
+  return null;
+}
 
+function FloristWithTheme(props: FloristProps) {
   return (
-    <div className="h-full flex flex-col bg-system-background smooth-scroll-page">
-      <div className="flex-1 overflow-y-auto p-4">
-        {activeTab === 'home' && renderHomeTab()}
-        {activeTab === 'catalog' && renderCatalogTab()}
-        {activeTab === 'cart' && renderCartTab()}
-        {activeTab === 'profile' && renderProfileTab()}
-      </div>
-
-      {/* Модальное окно */}
-      {isModalOpen && selectedFlower && (
-        <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-          <div className="bg-system-background max-w-md mx-auto w-full rounded-t-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start">
-              <h3 className="ios-title font-bold line-clamp-2">{selectedFlower.name}</h3>
-              <button onClick={closeFlowerModal}>
-                <X className="w-6 h-6 text-secondary-label" />
-              </button>
-            </div>
-            
-            <LazyImage src={selectedFlower.image} alt={selectedFlower.name} className="w-full h-48 object-cover rounded-xl" />
-            
-            <div className="space-y-3">
-              <p className="ios-body text-secondary-label">{selectedFlower.description}</p>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="ios-card p-3">
-                  <p className="ios-caption2 text-secondary-label">Размер</p>
-                  <p className="ios-body font-semibold">{selectedFlower.size}</p>
-                </div>
-                <div className="ios-card p-3">
-                  <p className="ios-caption2 text-secondary-label">Свежесть</p>
-                  <p className="ios-body font-semibold">{selectedFlower.freshness}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-quaternary-system-fill text-label">
-                  {selectedFlower.category}
-                </span>
-                <span className="px-3 py-1 rounded-full ios-caption2 font-semibold bg-system-green/10 text-system-green">
-                  {selectedFlower.occasion}
-                </span>
-                <div className="flex items-center space-x-1">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="ios-footnote">{selectedFlower.rating}</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="ios-title font-bold text-system-green">${selectedFlower.price}</span>
-                <span className="ios-footnote text-secondary-label">
-                  В наличии: {selectedFlower.inStock} букетов
-                </span>
-              </div>
-              
-              <button className="w-full bg-system-green text-white ios-body font-semibold py-3 rounded-xl">
-                В корзину
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    <DemoThemeProvider themeId="premiumFashion">
+      <Florist {...props} />
+    </DemoThemeProvider>
   );
 }
+
+export default memo(FloristWithTheme);
