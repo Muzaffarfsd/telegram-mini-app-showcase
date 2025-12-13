@@ -13,7 +13,7 @@ import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
-const flowerVideo = "/attached_assets/5d2ab0bb92c8c7530a889b407ef3d457_1765617309085.mp4";
+const flowerVideo = "/attached_assets/5d2ab0bb92c8c7530a889b407ef3d457_1765617456150.mp4";
 
 interface FloristProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -799,7 +799,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h2 className="text-5xl font-black mb-3 tracking-tight leading-tight">
+              <h2 className="text-5xl font-black mb-3 tracking-tight leading-tight text-white">
                 ВЕСЕННЯЯ<br/>
                 КОЛЛЕКЦИЯ
               </h2>
