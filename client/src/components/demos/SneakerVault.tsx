@@ -16,6 +16,7 @@ import blueNikeImage from "@assets/загруженное-_3__1761733577054.jpg"
 import whiteJordanImage from "@assets/загруженное-_2__1761733579316.jpg";
 import tealJordanImage from "@assets/NIKE-AIR-JORDAN-V2-e-V3-_designer_designergrafico-_design-_nikeair-_airjordan-_socialmedia-_natural-_1761733582395.jpg";
 import airForce1LowImage from "@assets/air_force_1_low.jpg";
+import travisScottJordanImage from "@assets/travis_scott_jordan.jpg";
 
 const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
 
@@ -201,8 +202,8 @@ const sneakers: Sneaker[] = [
     id: 8, 
     name: 'Travis Scott x Jordan', 
     price: 89900, 
-    image: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=800&h=1200&fit=crop&q=90',
+    image: travisScottJordanImage, 
+    hoverImage: travisScottJordanImage,
     description: 'Редчайший и самый желанный релиз десятилетия — эксклюзивная коллаборация Travis Scott x Air Jordan 1 с культовым обратным Swoosh. Верх из премиальной замши в расцветке Brown/Black с уникальными деталями, созданными лично Трэвисом Скоттом. Скрытый карман на щиколотке и особая шнуровка делают каждую пару произведением искусства для истинных коллекционеров. Технология Air-Sole обеспечивает комфорт легенды, а лимитированный тираж гарантирует эксклюзивность и инвестиционную ценность.', 
     sizes: ['8', '9', '10', '11'], 
     brand: 'Jordan',
