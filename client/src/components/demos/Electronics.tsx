@@ -46,6 +46,7 @@ import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/c
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import iphone15ProMaxImage from "@assets/iphone_15_pro_max.jpg";
 import samsungS24UltraImage from "@assets/samsung_s24_ultra.jpg";
+import macbookPro16Image from "@assets/macbook_pro_16.jpg";
 
 const techStoreVideo = "/videos/techstore_2025.mp4";
 
@@ -119,8 +120,8 @@ const products: Product[] = [
     id: 3, 
     name: 'MacBook Pro 16"', 
     price: 249900, 
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800&h=1200&fit=crop&q=90',
+    image: macbookPro16Image, 
+    hoverImage: macbookPro16Image,
     description: 'Профессиональный ноутбук с чипом M3 Max, обеспечивающим производительность настольной рабочей станции в ультрапортативном корпусе весом 2.14 кг. Дисплей Liquid Retina XDR 16.2 дюйма с технологией ProMotion и яркостью 1600 нит HDR передаёт миллиард оттенков для профессиональной цветокоррекции. Унифицированная память 32GB и сверхбыстрый SSD 1TB позволяют работать с проектами 8K, нейросетями и 3D-рендерингом абсолютно без задержек. До 22 часов автономной работы — полный рабочий день без подзарядки даже при самых интенсивных вычислительных нагрузках.', 
     category: 'Ноутбуки', 
     brand: 'Apple', 
