@@ -15,6 +15,7 @@ import greenNikeImage from "@assets/загруженное-_4__1761733573240.jpg
 import blueNikeImage from "@assets/загруженное-_3__1761733577054.jpg";
 import whiteJordanImage from "@assets/загруженное-_2__1761733579316.jpg";
 import tealJordanImage from "@assets/NIKE-AIR-JORDAN-V2-e-V3-_designer_designergrafico-_design-_nikeair-_airjordan-_socialmedia-_natural-_1761733582395.jpg";
+import airForce1LowImage from "@assets/air_force_1_low.jpg";
 
 const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
 
@@ -181,8 +182,8 @@ const sneakers: Sneaker[] = [
     id: 7, 
     name: 'Air Force 1 Low', 
     price: 13900, 
-    image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&h=1200&fit=crop&q=90',
+    image: airForce1LowImage, 
+    hoverImage: airForce1LowImage,
     description: 'Бессмертная икона Nike Air Force 1, ставшая самыми продаваемыми кроссовками в истории с момента дебюта в 1982 году. Верх из премиальной кожи в классической расцветке All White обеспечивает чистый минималистичный стиль для любого образа. Революционная технология Air-Sole дарит легкость каждому шагу и непревзойденную амортизацию на весь день. Культовый силуэт, который определил стиль хип-хоп культуры и продолжает вдохновлять новые поколения.', 
     sizes: ['7', '8', '9', '10', '11', '12'], 
     brand: 'Nike',
