@@ -16,6 +16,7 @@ import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/c
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
+import olivePufferImage from "@assets/olive_puffer.jpg";
 
 // Video served from public/videos/ to reduce Docker image size  
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
@@ -116,8 +117,8 @@ const products: Product[] = [
     name: 'Olive Puffer', 
     price: 52900, 
     oldPrice: 67000,
-    image: 'https://images.unsplash.com/photo-1544923246-77307dd628b7?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1548883354-94bcfe321cbb?w=800&h=1200&fit=crop&q=90',
+    image: olivePufferImage, 
+    hoverImage: olivePufferImage,
     description: 'Премиальный пуховик в милитари-эстетике с наполнителем из отборного канадского гусиного пуха 800 Fill Power, собранного на сертифицированных фермах провинции Альберта. Внешняя ткань из японского рипстоп-нейлона Toray с водоотталкивающей пропиткой C6 DWR обеспечивает защиту от осадков без потери воздухопроницаемости. Анатомический крой разработан совместно с альпинистами для максимальной свободы движений при экстремальных температурах до -30°C. Фирменные застежки YKK Aquaguard и внутренние карманы с флисовой подкладкой для защиты электроники.', 
     sizes: ['XS', 'S', 'M', 'L'], 
     colors: ['Оливковый', 'Черный', 'Бежевый'], 
