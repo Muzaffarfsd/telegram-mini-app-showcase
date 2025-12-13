@@ -723,56 +723,34 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
             </div>
           </div>
 
-          <div 
-            className="fixed bottom-0 left-0 right-0 z-50"
-            style={{ perspective: '1000px' }}
-          >
-            <div 
-              className="absolute -top-8 left-0 right-0 h-16 pointer-events-none"
-              style={{
-                background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
-                transform: 'rotateX(45deg)',
-                transformOrigin: 'bottom center',
-              }}
-            />
-            
-            <div 
-              className="relative rounded-t-3xl border-t border-[#D4AF37]/30 p-6 pb-8"
-              style={{
-                background: 'linear-gradient(180deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.08) 100%)',
-                backdropFilter: 'blur(40px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                boxShadow: '0 -10px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(212,175,55,0.2)',
-              }}
-            >
+          <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4">
+            <div className="max-w-md mx-auto">
               <div 
-                className="absolute inset-0 rounded-t-3xl pointer-events-none"
+                className="rounded-2xl border border-[#D4AF37]/30 p-4"
                 style={{
-                  background: 'radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.1) 0%, transparent 60%)',
+                  background: 'linear-gradient(180deg, rgba(212,175,55,0.15) 0%, rgba(10,10,10,0.95) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
                 }}
-              />
-              
-              <ConfirmDrawer
-                trigger={
-                  <button
-                    className="relative w-full bg-gradient-to-r from-[#D4AF37] to-[#C4A030] text-black font-bold py-4 rounded-full hover:opacity-90 transition-all shadow-lg"
-                    style={{
-                      boxShadow: '0 4px 20px rgba(212,175,55,0.4)',
-                    }}
-                    data-testid="button-buy-now"
-                  >
-                    Добавить в корзину
-                  </button>
-                }
-                title="Добавить в корзину?"
-                description={`${selectedProduct.name} • ${selectedProduct.material}${selectedProduct.strapTypes?.length ? ` • ${selectedStrap}` : ''}`}
-                confirmText="Добавить"
-                cancelText="Отмена"
-                variant="default"
-                onConfirm={addToCart}
-              />
-              
-              <div className="h-[env(safe-area-inset-bottom)]" />
+              >
+                <ConfirmDrawer
+                  trigger={
+                    <button
+                      className="w-full bg-gradient-to-r from-[#D4AF37] to-[#C4A030] text-black font-bold py-4 rounded-full hover:opacity-90 transition-all"
+                      style={{ boxShadow: '0 4px 20px rgba(212,175,55,0.4)' }}
+                      data-testid="button-buy-now"
+                    >
+                      Добавить в корзину
+                    </button>
+                  }
+                  title="Добавить в корзину?"
+                  description={`${selectedProduct.name} • ${selectedProduct.material}${selectedProduct.strapTypes?.length ? ` • ${selectedStrap}` : ''}`}
+                  confirmText="Добавить"
+                  cancelText="Отмена"
+                  variant="default"
+                  onConfirm={addToCart}
+                />
+              </div>
             </div>
           </div>
         </div>
