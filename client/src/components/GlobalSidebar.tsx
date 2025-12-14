@@ -576,9 +576,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           height: 100%;
           z-index: 101;
           width: min(320px, calc(100vw - 48px));
-          background: rgba(20, 20, 24, 0.98);
+          background: rgba(0, 0, 0, 0.05);
+          backdrop-filter: blur(60px) saturate(200%) brightness(0.98);
+          -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(0.98);
           border-right: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: 20px 0 60px rgba(0, 0, 0, 0.4);
+          box-shadow: 20px 0 60px rgba(0, 0, 0, 0.2);
           display: flex;
           flex-direction: column;
           overflow-y: auto;
