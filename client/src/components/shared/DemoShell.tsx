@@ -144,8 +144,6 @@ export const DemoShell = memo(function DemoShell({
     }
   }, []);
 
-  const transition = PageTransitions[pageTransition];
-
   return (
     <DemoThemeProvider themeId={themeId}>
       <LazyMotion features={domAnimation}>
@@ -170,36 +168,21 @@ export const DemoShell = memo(function DemoShell({
           )}
 
           {header && (
-            <motion.header
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.3 }}
-              className="sticky top-0 z-40"
-            >
+            <header className="sticky top-0 z-40">
               {header}
-            </motion.header>
+            </header>
           )}
 
           <Suspense fallback={loadingFallback || <DefaultLoadingFallback />}>
-            <motion.main
-              initial={transition.initial}
-              animate={transition.animate}
-              exit={transition.exit}
-              transition={transition.transition}
-              className="relative"
-            >
+            <main className="relative">
               {children}
-            </motion.main>
+            </main>
           </Suspense>
 
           {footer && (
-            <motion.footer
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.3 }}
-            >
+            <footer>
               {footer}
-            </motion.footer>
+            </footer>
           )}
 
           {showScrollTop && (

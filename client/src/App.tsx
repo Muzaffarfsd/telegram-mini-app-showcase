@@ -88,22 +88,10 @@ const parseHash = (): Route => {
   };
 };
 
-// Navigate with View Transitions API for smooth page transitions (Chrome 111+)
-const navigateWithTransition = (path: string) => {
-  // Feature detection for View Transitions API with proper type narrowing
-  const doc = document as Document & { startViewTransition?: (callback: () => void) => void };
-  
-  if ('startViewTransition' in document && typeof doc.startViewTransition === 'function') {
-    doc.startViewTransition(() => {
-      window.location.hash = path;
-    });
-  } else {
-    // Fallback for browsers without View Transitions support
-    window.location.hash = path;
-  }
+// Simple instant navigation without animations
+const navigate = (path: string) => {
+  window.location.hash = path;
 };
-
-const navigate = navigateWithTransition;
 
 const goBack = () => {
   window.history.back();
