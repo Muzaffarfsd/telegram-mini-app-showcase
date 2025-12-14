@@ -58,12 +58,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
-    }
-  }, []);
-  
+    
   const handleOpenDemo = useCallback((demoId: string) => {
     haptic.light();
     onOpenDemo(demoId);
@@ -256,12 +251,15 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <video
                   ref={videoRef}
                   src="/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4"
-                  autoPlay
                   loop
                   muted
                   playsInline
+                  preload="none"
+                  poster={nikeDestinyImage}
                   className="absolute inset-0 w-full h-full object-cover"
                   style={{ filter: 'brightness(0.6)' }}
+                  onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
+                  onTouchStart={(e) => e.currentTarget.play().catch(() => {})}
                 />
                 <div 
                   className="absolute inset-0"
