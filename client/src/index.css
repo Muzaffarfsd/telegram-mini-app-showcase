@@ -18,28 +18,37 @@
    VIEW TRANSITIONS API (Chrome 111+)
    Smooth page transitions with native API
    ======================================== */
+
+/* Hide white background during transitions */
+::view-transition {
+  background-color: #000000;
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.15s;
-  animation-timing-function: cubic-bezier(0.32, 0, 0.67, 1);
+  animation-duration: 0.12s;
+  animation-timing-function: ease-out;
+  /* Keep old and new views on top of black background */
+  mix-blend-mode: normal;
 }
 
 ::view-transition-old(root) {
-  animation-name: fade-and-scale-out;
+  animation-name: vt-fade-out;
 }
 
 ::view-transition-new(root) {
-  animation-name: fade-and-scale-in;
+  animation-name: vt-fade-in;
 }
 
-@keyframes fade-and-scale-out {
-  from { opacity: 1; transform: scale(1); }
-  to { opacity: 0; transform: scale(0.98); }
+/* Simple crossfade without scale to avoid white flash */
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
-@keyframes fade-and-scale-in {
-  from { opacity: 0; transform: scale(1.02); }
-  to { opacity: 1; transform: scale(1); }
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Reduced motion fallback */
