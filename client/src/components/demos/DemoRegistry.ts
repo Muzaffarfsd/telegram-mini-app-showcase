@@ -65,10 +65,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./Florist')),
     preload: () => import('./Florist')
   },
-  'tea-house': {
-    component: lazy(() => import('./TeaHouse')),
-    preload: () => import('./TeaHouse')
-  },
   'sneaker-vault': {
     component: lazy(() => import('./SneakerVault')),
     preload: () => import('./SneakerVault')
@@ -81,27 +77,15 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./TimeElite')),
     preload: () => import('./TimeElite')
   },
-  'interior-lux': {
-    component: lazy(() => import('./InteriorLux')),
-    preload: () => import('./InteriorLux')
-  },
   
   // Aliases for compatibility with demoApps.ts IDs
   'luxury-watches': {
     component: lazy(() => import('./TimeElite')),
     preload: () => import('./TimeElite')
   },
-  'home-decor': {
-    component: lazy(() => import('./InteriorLux')),
-    preload: () => import('./InteriorLux')
-  },
   'sneaker-store': {
     component: lazy(() => import('./SneakerVault')),
     preload: () => import('./SneakerVault')
-  },
-  'premium-tea': {
-    component: lazy(() => import('./TeaHouse')),
-    preload: () => import('./TeaHouse')
   },
   'luxury-perfume': {
     component: lazy(() => import('./FragranceRoyale')),
