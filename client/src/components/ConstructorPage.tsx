@@ -463,10 +463,61 @@ const availableFeatures = [
   { id: 'queue-management', name: 'Очереди', price: 45000, category: 'Бронирование', icon: Clock, included: false },
   { id: 'calendar-sync', name: 'Календарь', price: 30000, category: 'Бронирование', icon: Calendar, included: false },
   
-  { id: 'progress-tracking', name: 'Прогресс', price: 45000, category: 'Управление', icon: BarChart, included: false }
+  { id: 'progress-tracking', name: 'Прогресс', price: 45000, category: 'Управление', icon: BarChart, included: false },
+  
+  // AI и автоматизация
+  { id: 'ai-chatbot', name: 'AI Чат-бот', price: 95000, category: 'AI и автоматизация', icon: MessageSquare, included: false },
+  { id: 'ai-recommendations', name: 'AI Рекомендации', price: 85000, category: 'AI и автоматизация', icon: Sparkles, included: false },
+  { id: 'auto-responses', name: 'Автоответы', price: 45000, category: 'AI и автоматизация', icon: Zap, included: false },
+  { id: 'smart-search', name: 'Умный поиск', price: 55000, category: 'AI и автоматизация', icon: Zap, included: false },
+  { id: 'voice-assistant', name: 'Голосовой ассистент', price: 120000, category: 'AI и автоматизация', icon: Smartphone, included: false },
+  
+  // Интеграции
+  { id: 'telegram-bot', name: 'Telegram бот', price: 65000, category: 'Интеграции', icon: MessageSquare, included: false },
+  { id: 'whatsapp-integration', name: 'WhatsApp', price: 75000, category: 'Интеграции', icon: MessageSquare, included: false },
+  { id: 'google-maps', name: 'Google Maps', price: 35000, category: 'Интеграции', icon: Globe, included: false },
+  { id: 'sms-notifications', name: 'SMS уведомления', price: 40000, category: 'Интеграции', icon: Bell, included: false },
+  { id: 'email-marketing', name: 'Email маркетинг', price: 55000, category: 'Интеграции', icon: Bell, included: false },
+  { id: '1c-integration', name: '1С интеграция', price: 150000, category: 'Интеграции', icon: Settings, included: false },
+  { id: 'api-access', name: 'API доступ', price: 80000, category: 'Интеграции', icon: Settings, included: false }
 ];
 
-const categories = ['Основные', 'Платежи', 'Доставка', 'Коммуникации', 'Маркетинг', 'Управление', 'Бронирование'];
+const categories = ['Основные', 'Платежи', 'Доставка', 'Коммуникации', 'Маркетинг', 'Управление', 'Бронирование', 'AI и автоматизация', 'Интеграции'];
+
+// Subscription plans
+const subscriptionPlans = [
+  {
+    id: 'minimal',
+    name: 'Минимальный',
+    price: 9900,
+    description: 'Хостинг + мелкие правки',
+    features: ['Хостинг 99.9%', 'Мелкие правки', 'Email поддержка', 'Ежемесячные бэкапы'],
+    color: '#71717A',
+    bgColor: 'rgba(113, 113, 122, 0.08)',
+    borderColor: 'rgba(113, 113, 122, 0.15)'
+  },
+  {
+    id: 'standard',
+    name: 'Стандартный',
+    price: 14900,
+    description: 'Поддержка + обновления',
+    features: ['Всё из Минимального', 'Приоритетная поддержка', 'Бесплатные обновления', 'Еженедельные бэкапы', 'Ответ за 2 часа'],
+    color: '#5AC8FA',
+    bgColor: 'rgba(90, 200, 250, 0.08)',
+    borderColor: 'rgba(90, 200, 250, 0.2)',
+    popular: true
+  },
+  {
+    id: 'premium',
+    name: 'Премиум',
+    price: 24900,
+    description: 'Приоритет + консультации',
+    features: ['Всё из Стандартного', 'Персональный менеджер', 'Бизнес-консультации', 'Ежедневные бэкапы', 'Приоритетные доработки', 'Аналитические отчёты'],
+    color: '#A78BFA',
+    bgColor: 'linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(139, 92, 246, 0.08) 100%)',
+    borderColor: 'rgba(167, 139, 250, 0.2)'
+  }
+];
 
 // Memoized Template Card Component
 const TemplateCard = memo(({ template, onSelect }: any) => {
@@ -511,6 +562,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
   const [activeCategory, setActiveCategory] = useState('Основные');
   const [projectName, setProjectName] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedSubscription, setSelectedSubscription] = useState<typeof subscriptionPlans[0]>(subscriptionPlans[1]); // Default to Standard
 
   // Memoized select template handler
   const selectTemplate = useCallback((template: typeof appTemplates[0]) => {
@@ -591,11 +643,15 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
       selectedFeatures,
       selectedTemplate: selectedTemplate.name,
       totalAmount: totalPrice,
-      estimatedDevelopmentTime: selectedTemplate.developmentTime
+      estimatedDevelopmentTime: selectedTemplate.developmentTime,
+      subscription: {
+        plan: selectedSubscription.name,
+        monthlyPrice: selectedSubscription.price
+      }
     };
     
     onNavigate('checkout', orderData);
-  }, [selectedTemplate, projectName, selectedFeatures, totalPrice, onNavigate]);
+  }, [selectedTemplate, projectName, selectedFeatures, totalPrice, selectedSubscription, onNavigate]);
 
   // Memoized step navigation
   const goToStep = useCallback((step: number) => setCurrentStep(step), []);
@@ -819,6 +875,97 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               })}
             </div>
 
+            {/* Subscription Plan Selection */}
+            <div className="space-y-4">
+              <div className="ios-list-header text-white/70">Выберите тариф подписки</div>
+              <p className="ios-footnote text-white/50 -mt-2 mb-3">
+                Ежемесячная подписка за хостинг и поддержку после запуска
+              </p>
+              
+              <div className="space-y-3">
+                {subscriptionPlans.map((plan) => {
+                  const isSelected = selectedSubscription.id === plan.id;
+                  return (
+                    <div
+                      key={plan.id}
+                      className="cursor-pointer transition-all duration-200"
+                      onClick={() => setSelectedSubscription(plan)}
+                      data-testid={`subscription-${plan.id}`}
+                      style={{
+                        padding: '16px',
+                        borderRadius: '16px',
+                        background: plan.bgColor,
+                        border: `2px solid ${isSelected ? plan.color : plan.borderColor}`,
+                        position: 'relative',
+                        transform: isSelected ? 'scale(1.02)' : 'scale(1)'
+                      }}
+                    >
+                      {plan.popular && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '-8px',
+                          right: '12px',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          background: plan.color,
+                          fontSize: '9px',
+                          fontWeight: 700,
+                          color: '#000',
+                          letterSpacing: '0.05em'
+                        }}>ПОПУЛЯРНЫЙ</div>
+                      )}
+                      
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                          <div style={{
+                            width: '22px',
+                            height: '22px',
+                            borderRadius: '50%',
+                            border: `2px solid ${isSelected ? plan.color : '#52525B'}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginTop: '2px',
+                            background: isSelected ? plan.color : 'transparent'
+                          }}>
+                            {isSelected && <Check size={12} color="#000" />}
+                          </div>
+                          <div>
+                            <p style={{ fontSize: '15px', fontWeight: 600, color: '#FAFAFA' }}>{plan.name}</p>
+                            <p style={{ fontSize: '12px', color: plan.color, marginTop: '2px' }}>{plan.description}</p>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
+                              {plan.features.slice(0, 3).map((feature, idx) => (
+                                <span key={idx} style={{
+                                  fontSize: '10px',
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  background: 'rgba(255,255,255,0.05)',
+                                  color: '#A1A1AA'
+                                }}>{feature}</span>
+                              ))}
+                              {plan.features.length > 3 && (
+                                <span style={{
+                                  fontSize: '10px',
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  background: 'rgba(255,255,255,0.05)',
+                                  color: '#71717A'
+                                }}>+{plan.features.length - 3}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right', minWidth: '80px' }}>
+                          <span style={{ fontSize: '20px', fontWeight: 700, color: '#FAFAFA' }}>{plan.price.toLocaleString()}</span>
+                          <span style={{ fontSize: '11px', color: '#71717A' }}> ₽/мес</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Navigation Buttons */}
             <div className="flex space-x-3">
               <button
@@ -872,12 +1019,34 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                   </div>
                 )}
                 
-                <div className="border-t border-white/20 pt-2">
+                <div className="border-t border-white/20 pt-2 mt-2">
                   <div className="flex justify-between items-center">
-                    <span className="ios-headline font-bold text-white">Итого</span>
+                    <span className="ios-headline font-bold text-white">Итого разработка</span>
                     <span className="ios-title3 font-bold text-system-blue">{totalPrice.toLocaleString()} ₽</span>
                   </div>
                 </div>
+              </div>
+              
+              {/* Subscription Plan Summary */}
+              <div 
+                className="border-t border-white/20 pt-4"
+                style={{
+                  padding: '16px',
+                  borderRadius: '12px',
+                  background: selectedSubscription.bgColor,
+                  border: `1px solid ${selectedSubscription.borderColor}`
+                }}
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-2">
+                    <Crown size={16} style={{ color: selectedSubscription.color }} />
+                    <span className="ios-body font-semibold text-white">Тариф: {selectedSubscription.name}</span>
+                  </div>
+                  <span style={{ color: selectedSubscription.color, fontWeight: 700 }}>
+                    {selectedSubscription.price.toLocaleString()} ₽/мес
+                  </span>
+                </div>
+                <p className="ios-footnote text-white/50">{selectedSubscription.description}</p>
               </div>
               
               <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 bg-system-green/10 border-system-green/20 p-4">
@@ -907,9 +1076,12 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 Изменить функции
               </button>
               
-              <div className="text-center">
+              <div className="text-center space-y-1">
                 <p className="ios-footnote text-white/70">
-                  Предоплата 30% • Остальное по готовности этапов
+                  Предоплата 35% • Остальное после сдачи проекта
+                </p>
+                <p className="ios-footnote text-white/50">
+                  + {selectedSubscription.name} подписка {selectedSubscription.price.toLocaleString()} ₽/мес после запуска
                 </p>
               </div>
             </div>
@@ -924,9 +1096,15 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-3 bg-black/90 backdrop-blur-xl border-white/20">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="ios-footnote text-white/70">Текущая стоимость</div>
+                  <div className="ios-footnote text-white/70">Разработка</div>
                   <div className="ios-headline font-bold text-system-blue">
                     {totalPrice.toLocaleString()} ₽
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="ios-footnote text-white/70">Подписка</div>
+                  <div className="ios-headline font-bold" style={{ color: selectedSubscription.color }}>
+                    {selectedSubscription.price.toLocaleString()} ₽/мес
                   </div>
                 </div>
                 <div className="text-right">
