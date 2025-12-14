@@ -552,13 +552,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           position: fixed;
           inset: 0;
           z-index: 100;
-          background: rgba(0, 0, 0, 0.5);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
+          background: rgba(0, 0, 0, 0.6);
           opacity: 0;
           pointer-events: none;
-          transition: opacity 0.35s ease;
+          transition: opacity 0.2s ease;
           transform: translate3d(0, 0, 0);
+          will-change: opacity;
         }
         
         .sidebar-overlay.open {
@@ -577,19 +576,19 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           height: 100%;
           z-index: 101;
           width: min(320px, calc(100vw - 48px));
-          background: linear-gradient(180deg, rgba(32,32,36,0.95) 0%, rgba(24,24,28,0.98) 50%, rgba(20,20,24,0.99) 100%);
-          backdrop-filter: blur(40px) saturate(180%);
-          -webkit-backdrop-filter: blur(40px) saturate(180%);
+          background: rgba(20, 20, 24, 0.98);
           border-right: 1px solid rgba(255, 255, 255, 0.08);
           box-shadow: 20px 0 60px rgba(0, 0, 0, 0.4);
           display: flex;
           flex-direction: column;
           overflow-y: auto;
           overflow-x: hidden;
+          overscroll-behavior: contain;
           transform: translate3d(-100%, 0, 0);
-          transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+          transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
           -webkit-overflow-scrolling: touch;
-          contain: layout style;
+          contain: strict;
+          will-change: transform;
         }
         
         .sidebar-panel.open {
@@ -688,10 +687,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           align-items: center;
           justify-content: center;
           border-radius: 14px;
-          background: rgba(255, 255, 255, 0.04);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
+          background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.06);
+          contain: layout style;
           transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
           flex-shrink: 0;
           position: relative;
