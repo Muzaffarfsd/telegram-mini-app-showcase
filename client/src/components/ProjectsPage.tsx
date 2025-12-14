@@ -52,14 +52,14 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               color: '#FAFAFA'
             }}
           >
-            Элитные решения
+            Премиальные приложения
             <br />
             <span style={{ color: '#A78BFA' }}>
-              для амбициозного бизнеса.
+              для Telegram.
             </span>
             <br />
             <span style={{ color: '#FFFFFF' }}>
-              Telegram Mini App премиум-класса.
+              Бизнес-решения нового уровня.
             </span>
           </h1>
           
