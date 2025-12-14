@@ -256,7 +256,6 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   muted
                   playsInline
                   preload="auto"
-                  poster={nikeDestinyImage}
                   className="absolute inset-0 w-full h-full object-cover"
                   style={{ filter: 'brightness(0.6)' }}
                 />
