@@ -337,7 +337,7 @@ const appTemplates = [
     icon: ShoppingCart,
     description: 'Продажа товаров онлайн',
     features: ['catalog', 'cart', 'auth', 'payments'],
-    estimatedPrice: 45000,
+    estimatedPrice: 150000,
     developmentTime: '7-10 дней',
     popular: true
   },
@@ -347,7 +347,7 @@ const appTemplates = [
     icon: Coffee,
     description: 'Меню и заказы еды',
     features: ['catalog', 'cart', 'auth', 'booking-system'],
-    estimatedPrice: 55000,
+    estimatedPrice: 180000,
     developmentTime: '10-12 дней',
     popular: false
   },
@@ -357,7 +357,7 @@ const appTemplates = [
     icon: Dumbbell,
     description: 'Тренировки и абонементы',
     features: ['booking-system', 'auth', 'subscriptions', 'progress-tracking'],
-    estimatedPrice: 65000,
+    estimatedPrice: 200000,
     developmentTime: '12-15 дней',
     popular: false
   },
@@ -367,45 +367,45 @@ const appTemplates = [
     icon: Settings,
     description: 'Бронирование услуг',
     features: ['catalog', 'booking-system', 'auth', 'payments'],
-    estimatedPrice: 50000,
+    estimatedPrice: 170000,
     developmentTime: '8-12 дней',
     popular: false
   }
 ];
 
 const availableFeatures = [
-  { id: 'catalog', name: 'Каталог', price: 8000, category: 'Основные', icon: Package, included: true },
-  { id: 'cart', name: 'Корзина', price: 6000, category: 'Основные', icon: ShoppingCart, included: true },
-  { id: 'auth', name: 'Авторизация', price: 4000, category: 'Основные', icon: User, included: true },
-  { id: 'search', name: 'Поиск', price: 7000, category: 'Основные', icon: Zap, included: false },
-  { id: 'favorites', name: 'Избранное', price: 4000, category: 'Основные', icon: Star, included: false },
-  { id: 'reviews', name: 'Отзывы', price: 8000, category: 'Основные', icon: Star, included: false },
+  { id: 'catalog', name: 'Каталог', price: 25000, category: 'Основные', icon: Package, included: true },
+  { id: 'cart', name: 'Корзина', price: 20000, category: 'Основные', icon: ShoppingCart, included: true },
+  { id: 'auth', name: 'Авторизация', price: 15000, category: 'Основные', icon: User, included: true },
+  { id: 'search', name: 'Поиск', price: 20000, category: 'Основные', icon: Zap, included: false },
+  { id: 'favorites', name: 'Избранное', price: 12000, category: 'Основные', icon: Star, included: false },
+  { id: 'reviews', name: 'Отзывы', price: 25000, category: 'Основные', icon: Star, included: false },
   
-  { id: 'payments', name: 'Платежи', price: 15000, category: 'Платежи', icon: CreditCard, included: false },
-  { id: 'subscriptions', name: 'Подписки', price: 18000, category: 'Платежи', icon: CreditCard, included: false },
-  { id: 'installments', name: 'Рассрочка', price: 12000, category: 'Платежи', icon: CreditCard, included: false },
+  { id: 'payments', name: 'Платежи', price: 45000, category: 'Платежи', icon: CreditCard, included: false },
+  { id: 'subscriptions', name: 'Подписки', price: 55000, category: 'Платежи', icon: CreditCard, included: false },
+  { id: 'installments', name: 'Рассрочка', price: 35000, category: 'Платежи', icon: CreditCard, included: false },
   
-  { id: 'delivery-basic', name: 'Доставка', price: 10000, category: 'Доставка', icon: Truck, included: false },
-  { id: 'pickup-points', name: 'Самовывоз', price: 12000, category: 'Доставка', icon: Package, included: false },
-  { id: 'express-delivery', name: 'Экспресс', price: 8000, category: 'Доставка', icon: Truck, included: false },
+  { id: 'delivery-basic', name: 'Доставка', price: 30000, category: 'Доставка', icon: Truck, included: false },
+  { id: 'pickup-points', name: 'Самовывоз', price: 35000, category: 'Доставка', icon: Package, included: false },
+  { id: 'express-delivery', name: 'Экспресс', price: 25000, category: 'Доставка', icon: Truck, included: false },
   
-  { id: 'push-notifications', name: 'Уведомления', price: 8000, category: 'Коммуникации', icon: Bell, included: false },
-  { id: 'chat-support', name: 'Чат поддержки', price: 15000, category: 'Коммуникации', icon: MessageSquare, included: false },
-  { id: 'video-calls', name: 'Видеозвонки', price: 20000, category: 'Коммуникации', icon: Smartphone, included: false },
+  { id: 'push-notifications', name: 'Уведомления', price: 25000, category: 'Коммуникации', icon: Bell, included: false },
+  { id: 'chat-support', name: 'Чат поддержки', price: 45000, category: 'Коммуникации', icon: MessageSquare, included: false },
+  { id: 'video-calls', name: 'Видеозвонки', price: 60000, category: 'Коммуникации', icon: Smartphone, included: false },
   
-  { id: 'loyalty-program', name: 'Бонусы', price: 22000, category: 'Маркетинг', icon: Crown, included: false },
-  { id: 'promo-codes', name: 'Промокоды', price: 10000, category: 'Маркетинг', icon: Crown, included: false },
-  { id: 'referral-system', name: 'Рефералы', price: 18000, category: 'Маркетинг', icon: Users, included: false },
+  { id: 'loyalty-program', name: 'Бонусы', price: 65000, category: 'Маркетинг', icon: Crown, included: false },
+  { id: 'promo-codes', name: 'Промокоды', price: 30000, category: 'Маркетинг', icon: Crown, included: false },
+  { id: 'referral-system', name: 'Рефералы', price: 55000, category: 'Маркетинг', icon: Users, included: false },
   
-  { id: 'basic-analytics', name: 'Аналитика', price: 15000, category: 'Управление', icon: BarChart, included: false },
-  { id: 'admin-panel', name: 'Админ панель', price: 25000, category: 'Управление', icon: Settings, included: false },
-  { id: 'crm-system', name: 'CRM', price: 40000, category: 'Управление', icon: Users, included: false },
+  { id: 'basic-analytics', name: 'Аналитика', price: 45000, category: 'Управление', icon: BarChart, included: false },
+  { id: 'admin-panel', name: 'Админ панель', price: 75000, category: 'Управление', icon: Settings, included: false },
+  { id: 'crm-system', name: 'CRM', price: 120000, category: 'Управление', icon: Users, included: false },
   
-  { id: 'booking-system', name: 'Бронирование', price: 18000, category: 'Бронирование', icon: Calendar, included: false },
-  { id: 'queue-management', name: 'Очереди', price: 15000, category: 'Бронирование', icon: Clock, included: false },
-  { id: 'calendar-sync', name: 'Календарь', price: 10000, category: 'Бронирование', icon: Calendar, included: false },
+  { id: 'booking-system', name: 'Бронирование', price: 55000, category: 'Бронирование', icon: Calendar, included: false },
+  { id: 'queue-management', name: 'Очереди', price: 45000, category: 'Бронирование', icon: Clock, included: false },
+  { id: 'calendar-sync', name: 'Календарь', price: 30000, category: 'Бронирование', icon: Calendar, included: false },
   
-  { id: 'progress-tracking', name: 'Прогресс', price: 15000, category: 'Управление', icon: BarChart, included: false }
+  { id: 'progress-tracking', name: 'Прогресс', price: 45000, category: 'Управление', icon: BarChart, included: false }
 ];
 
 const categories = ['Основные', 'Платежи', 'Доставка', 'Коммуникации', 'Маркетинг', 'Управление', 'Бронирование'];
