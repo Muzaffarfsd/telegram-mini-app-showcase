@@ -245,9 +245,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               transition={{ duration: 0.5, delay: 0.5 }}
               whileTap={{ scale: 0.98 }}
               className="col-span-2 relative rounded-3xl overflow-hidden cursor-pointer group nav-depth-zone"
-              onClick={() => handleOpenDemo('clothing-store')}
-              onMouseEnter={() => preloadDemo('clothing-store')}
-              onTouchStart={() => preloadDemo('clothing-store')}
+              onClick={() => handleOpenDemo('luxury-watches')}
+              onMouseEnter={() => preloadDemo('luxury-watches')}
+              onTouchStart={() => preloadDemo('luxury-watches')}
               data-testid="bento-main"
               data-depth-zone
               style={{ backgroundColor: '#0A0A0A' }}
@@ -281,10 +281,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   <div className="flex items-end justify-between">
                     <div>
                       <h3 className="text-[22px] font-semibold mb-1" style={{ color: '#FFFFFF' }}>
-                        Fashion Store
+                        Watch Store
                       </h3>
                       <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                        Каталог, корзина, оплата онлайн
+                        Премиум часы, каталог, оплата
                       </p>
                     </div>
                     <div className="text-right">
@@ -298,8 +298,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     whileTap={{ scale: 0.97 }}
                     className="mt-4 w-full py-3 rounded-xl text-[14px] font-medium"
                     style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#FFFFFF' }}
-                    onClick={(e) => { e.stopPropagation(); handleOpenDemo('clothing-store'); }}
-                    data-testid="btn-open-fashion"
+                    onClick={(e) => { e.stopPropagation(); handleOpenDemo('luxury-watches'); }}
+                    data-testid="btn-open-watches"
                   >
                     Открыть
                   </m.button>

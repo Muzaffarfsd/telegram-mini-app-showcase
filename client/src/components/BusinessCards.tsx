@@ -8,10 +8,10 @@ interface BusinessCardsProps {
 
 const businessApps = [
   {
-    id: "clothing-store",
-    title: "ÉLÉGANCE Fashion Store",
-    subtitle: "Премиум Haute Couture 2025",
-    description: "Роскошный интернет-магазин одежды",
+    id: "luxury-watches",
+    title: "CHRONOS Watch Store",
+    subtitle: "Премиум часы 2025",
+    description: "Роскошный магазин часов",
     categories: ["PREMIUM", "NEW", "LUXURY"],
     icon: Smartphone,
     stats: "2,453+ запущено",
@@ -41,13 +41,13 @@ export default function BusinessCards({ onOpenDemo }: BusinessCardsProps) {
       {/* Main Large Card */}
       <Card3D 
         className="col-span-2"
-        onClick={() => onOpenDemo('clothing-store')}
+        onClick={() => onOpenDemo('luxury-watches')}
         intensity={10}
       >
       <div 
         className="relative bg-black rounded-3xl p-6 overflow-hidden cursor-pointer group transition-all duration-300"
-        onMouseEnter={() => preloadDemo('clothing-store')}
-        onTouchStart={() => preloadDemo('clothing-store')}
+        onMouseEnter={() => preloadDemo('luxury-watches')}
+        onTouchStart={() => preloadDemo('luxury-watches')}
         style={{
           backgroundImage: `
             radial-gradient(circle at 20% 20%, rgba(77, 208, 225, 0.05) 0%, transparent 50%),
