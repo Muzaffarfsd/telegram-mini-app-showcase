@@ -742,9 +742,9 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                 <div className="ios26-stat-icon mx-auto mb-4" style={{ width: '56px', height: '56px' }}>
                   <Package className="w-7 h-7 text-white/50" />
                 </div>
-                <h3 className="text-[15px] font-medium mb-2 text-white/85">Пора создать первое приложение!</h3>
-                <p className="text-[13px] text-white/40 mb-5 leading-relaxed">
-                  У вас пока нет проектов. Создайте свое первое Telegram приложение и начните зарабатывать уже сегодня!
+                <h3 className="text-[17px] font-semibold mb-2 text-white/90">Ваши конкуренты уже в Telegram</h3>
+                <p className="text-[13px] text-white/50 mb-5 leading-relaxed">
+                  Пока вы думаете — они забирают ваших клиентов. Запустите своё приложение за 7 дней и получайте заявки 24/7.
                 </p>
                 <button 
                   className="ios26-btn-glow w-full mb-3"
