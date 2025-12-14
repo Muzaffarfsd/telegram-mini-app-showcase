@@ -18,37 +18,6 @@ interface LazyImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'plac
   'data-testid'?: string;
 }
 
-const CATEGORY_FALLBACKS: Record<string, string> = {
-  florist: 'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=800&q=80',
-  flowers: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&q=80',
-  roses: 'https://images.unsplash.com/photo-1518882605630-8eb6c57f0d1c?w=800&q=80',
-  default: 'https://images.unsplash.com/photo-1487070183336-b8eb9220e21a?w=800&q=80'
-};
-
-function encodeLocalPath(url: string): string {
-  if (!url) return url;
-  return url;
-}
-
-function optimizeUnsplashUrl(url: string, quality: number): string {
-  if (!url || !url.includes('images.unsplash.com')) {
-    return url;
-  }
-  
-  try {
-    const urlObj = new URL(url);
-    urlObj.searchParams.set('auto', 'format,compress');
-    urlObj.searchParams.set('fm', 'webp');
-    urlObj.searchParams.set('q', String(quality));
-    if (!urlObj.searchParams.has('w')) {
-      urlObj.searchParams.set('w', '800');
-    }
-    return urlObj.toString();
-  } catch {
-    return url;
-  }
-}
-
 const BlurPlaceholder = memo(function BlurPlaceholder({ 
   isLoading 
 }: { 
@@ -92,35 +61,20 @@ export const LazyImage = memo(function LazyImage({
   className,
   placeholder = 'blur',
   aspectRatio,
-  quality = 80,
   priority = false,
   onLoadComplete,
-  fallbackSrc,
-  category = 'default',
   'data-testid': dataTestId = 'lazy-image',
   ...props
 }: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(priority);
   const [hasError, setHasError] = useState(false);
-  const [useFallback, setUseFallback] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
-
-  const encodedSrc = encodeLocalPath(src);
-  const optimizedSrc = optimizeUnsplashUrl(encodedSrc, quality);
-  
-  const getFallbackUrl = useCallback(() => {
-    if (fallbackSrc) return fallbackSrc;
-    return CATEGORY_FALLBACKS[category] || CATEGORY_FALLBACKS.default;
-  }, [fallbackSrc, category]);
-
-  const currentSrc = useFallback ? getFallbackUrl() : optimizedSrc;
 
   useEffect(() => {
     setIsLoaded(false);
     setHasError(false);
-    setUseFallback(false);
   }, [src]);
 
   useEffect(() => {
@@ -154,14 +108,9 @@ export const LazyImage = memo(function LazyImage({
   }, [onLoadComplete]);
 
   const handleError = useCallback(() => {
-    if (!useFallback) {
-      setUseFallback(true);
-      setIsLoaded(false);
-    } else {
-      setHasError(true);
-      setIsLoaded(true);
-    }
-  }, [useFallback]);
+    setHasError(true);
+    setIsLoaded(true);
+  }, []);
 
   const PlaceholderComponent = placeholder === 'skeleton' ? SkeletonPlaceholder : BlurPlaceholder;
 
@@ -181,7 +130,7 @@ export const LazyImage = memo(function LazyImage({
       {isInView && !hasError && (
         <img
           {...props}
-          src={currentSrc}
+          src={src}
           alt={alt}
           onLoad={handleLoad}
           onError={handleError}
