@@ -259,10 +259,11 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       {/* Fixed UI via Portal - bypasses all transform/contain ancestors */}
       {createPortal(
         <>
-          {/* Fixed Home Button */}
+          {/* Fixed Home Button - right side, above bottom nav */}
           <div 
-            className="fixed right-5 z-[9999] pointer-events-none"
+            className="fixed z-[9999] pointer-events-none"
             style={{
+              right: '20px',
               bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
             }}
           >
