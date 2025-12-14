@@ -196,27 +196,29 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           style={{ height: '1px', background: '#27272A' }}
         />
 
-        {/* Scroll Hint */}
-        <div className="flex flex-col items-center py-8">
+        {/* Scroll Indicator - Centered on screen */}
+        <div 
+          className="flex flex-col items-center justify-center"
+          style={{ 
+            minHeight: 'calc(100vh - 600px)',
+            marginTop: '-20px'
+          }}
+        >
           <p style={{
-            fontSize: '13px',
-            fontWeight: 500,
+            fontSize: '12px',
+            fontWeight: 400,
             color: '#A78BFA',
-            letterSpacing: '0.02em',
-            marginBottom: '12px'
+            letterSpacing: '0.08em',
+            marginBottom: '16px',
+            opacity: 0.8
           }}>
             Протестируйте приложения
           </p>
-          <svg 
-            width="20" 
-            height="32" 
-            viewBox="0 0 20 32" 
-            fill="none" 
-            style={{ opacity: 0.6 }}
-          >
-            <rect x="1" y="1" width="18" height="30" rx="9" stroke="#A78BFA" strokeWidth="1.5"/>
-            <circle cx="10" cy="10" r="3" fill="#A78BFA" className="animate-bounce"/>
-          </svg>
+          
+          {/* Mouse scroll indicator */}
+          <div className="scroll-mouse">
+            <div className="scroll-wheel" />
+          </div>
         </div>
 
         {/* ═══════════════════════════════════════════════════════
@@ -548,6 +550,39 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
         .scroll-fade-in-delay-2 { animation-delay: 0.18s; }
         .scroll-fade-in-delay-3 { animation-delay: 0.26s; }
         .scroll-fade-in-delay-4 { animation-delay: 0.34s; }
+
+        /* Mouse scroll indicator */
+        .scroll-mouse {
+          width: 24px;
+          height: 38px;
+          border: 1.5px solid #A78BFA;
+          border-radius: 12px;
+          position: relative;
+          opacity: 0.7;
+        }
+
+        .scroll-wheel {
+          width: 3px;
+          height: 8px;
+          background: #A78BFA;
+          border-radius: 2px;
+          position: absolute;
+          top: 8px;
+          left: 50%;
+          transform: translateX(-50%);
+          animation: scrollWheel 1.8s ease-in-out infinite;
+        }
+
+        @keyframes scrollWheel {
+          0% {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+          }
+          100% {
+            opacity: 0;
+            transform: translateX(-50%) translateY(14px);
+          }
+        }
       `}</style>
     </div>
   );
