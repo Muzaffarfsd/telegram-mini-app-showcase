@@ -27,17 +27,6 @@ const CATEGORY_FALLBACKS: Record<string, string> = {
 
 function encodeLocalPath(url: string): string {
   if (!url) return url;
-  
-  if (url.startsWith('/attached_assets/')) {
-    const filename = url.substring('/attached_assets/'.length);
-    const encodedPath = '/attached_assets/' + encodeURIComponent(filename);
-    
-    if (typeof window !== 'undefined' && window.location.origin) {
-      return window.location.origin + encodedPath;
-    }
-    return encodedPath;
-  }
-  
   return url;
 }
 
