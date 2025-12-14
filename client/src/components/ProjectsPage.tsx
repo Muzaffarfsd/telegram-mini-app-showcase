@@ -63,7 +63,17 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             </span>
           </h1>
           
-                    
+          {/* Scroll hint */}
+          <div 
+            className="scroll-fade-in-delay-2 flex items-center gap-3"
+            style={{ marginTop: '28px' }}
+          >
+            <div className="scroll-icon" />
+            <span style={{ fontSize: '15px', color: '#A78BFA', fontWeight: 500 }}>
+              Смотреть примеры
+            </span>
+          </div>
+          
           {/* Competitive FOMO Statement */}
           <div 
             className="scroll-fade-in-delay-3"
@@ -511,6 +521,32 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
         .scroll-fade-in-delay-3 { animation-delay: 0.26s; }
         .scroll-fade-in-delay-4 { animation-delay: 0.34s; }
 
+        /* Scroll icon */
+        .scroll-icon {
+          width: 20px;
+          height: 32px;
+          border: 2px solid #A78BFA;
+          border-radius: 10px;
+          position: relative;
+        }
+
+        .scroll-icon::before {
+          content: '';
+          width: 4px;
+          height: 6px;
+          background: #A78BFA;
+          border-radius: 2px;
+          position: absolute;
+          top: 6px;
+          left: 50%;
+          transform: translateX(-50%);
+          animation: scrollPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollPulse {
+          0%, 20% { opacity: 1; transform: translateX(-50%) translateY(0); }
+          80%, 100% { opacity: 0; transform: translateX(-50%) translateY(14px); }
+        }
       `}</style>
     </div>
   );
