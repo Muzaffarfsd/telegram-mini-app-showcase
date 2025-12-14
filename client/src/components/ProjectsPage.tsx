@@ -175,7 +175,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 3 слота
               </p>
               <p style={{
-                fontSize: '12px',
+                fontSize: '14px',
                 color: '#71717A',
                 marginTop: '4px'
               }}>
