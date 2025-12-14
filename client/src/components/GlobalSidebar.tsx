@@ -582,8 +582,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           box-shadow: 20px 0 60px rgba(0, 0, 0, 0.2);
           display: flex;
           flex-direction: column;
-          overflow-y: auto;
-          overflow-x: hidden;
+          overflow-y: scroll;
+          overflow-x: visible;
           overscroll-behavior: contain;
           transform: translate3d(-100%, 0, 0);
           transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
@@ -1015,9 +1015,10 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
         <div style={{ 
           padding: '60px 24px 28px 24px',
-          borderBottom: '1px solid rgba(255,255,255,0.05)'
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          overflow: 'visible'
         }}>
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3" style={{ overflow: 'visible' }}>
             <div className="flex items-center gap-4 min-w-0 flex-1">
               <div style={{ position: 'relative', flexShrink: 0 }}>
                 <UserAvatar
