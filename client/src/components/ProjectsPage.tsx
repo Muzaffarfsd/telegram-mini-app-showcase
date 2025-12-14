@@ -63,7 +63,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             </span>
           </h1>
           
-          {/* Subtext */}
+          {/* Subtext - AIDA */}
           <p 
             className="scroll-fade-in-delay-2"
             style={{
@@ -76,7 +76,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               maxWidth: '320px'
             }}
           >
-            Telegram Mini App отвечает мгновенно, консультирует и закрывает сделки — пока вы занимаетесь чем угодно. 50+ бизнесов уже продают на автомате.
+            Ниже — готовые приложения для разных ниш. Откройте любое и попробуйте как клиент.
           </p>
           
           {/* Scroll hint */}
@@ -86,7 +86,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           >
             <div className="scroll-icon" />
             <span style={{ fontSize: '15px', color: '#A78BFA', fontWeight: 500, letterSpacing: '-0.01em' }}>
-              Протестируйте приложения
+              Попробуйте демо
             </span>
           </div>
           
