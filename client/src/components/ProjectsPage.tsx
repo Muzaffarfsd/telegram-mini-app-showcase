@@ -196,27 +196,27 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           style={{ height: '1px', background: '#27272A' }}
         />
 
-        {/* Call to Action - Scroll Down */}
-        <div 
-          className="px-7 pt-8 pb-4 text-center scroll-fade-in-delay-4"
-        >
+        {/* Scroll Hint */}
+        <div className="flex flex-col items-center py-8">
           <p style={{
-            fontSize: '16px',
-            fontWeight: 700,
+            fontSize: '13px',
+            fontWeight: 500,
             color: '#A78BFA',
-            lineHeight: '1.5',
-            letterSpacing: '-0.01em'
+            letterSpacing: '0.02em',
+            marginBottom: '12px'
           }}>
-            Протестируйте приложения ниже
+            Протестируйте приложения
           </p>
-          <div 
-            className="mt-3 animate-bounce"
-            style={{ color: '#A78BFA' }}
+          <svg 
+            width="20" 
+            height="32" 
+            viewBox="0 0 20 32" 
+            fill="none" 
+            style={{ opacity: 0.6 }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto">
-              <path d="M12 5v14M5 12l7 7 7-7"/>
-            </svg>
-          </div>
+            <rect x="1" y="1" width="18" height="30" rx="9" stroke="#A78BFA" strokeWidth="1.5"/>
+            <circle cx="10" cy="10" r="3" fill="#A78BFA" className="animate-bounce"/>
+          </svg>
         </div>
 
         {/* ═══════════════════════════════════════════════════════
