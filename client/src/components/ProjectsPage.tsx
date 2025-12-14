@@ -142,7 +142,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               }}>
                 Ваш бренд.
                 <br />
-                Ваш стиль.
+                <span style={{ color: '#A78BFA' }}>Ваш стиль.</span>
                 <br />
                 Ваши правила.
               </p>
@@ -164,7 +164,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 textTransform: 'uppercase',
                 marginBottom: '12px'
               }}>
-                Декабрь
+                Осталось
               </p>
               <p style={{
                 fontSize: '28px',
@@ -172,14 +172,14 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 color: '#FAFAFA',
                 letterSpacing: '-0.03em'
               }}>
-                3
+                3 слота
               </p>
               <p style={{
                 fontSize: '12px',
                 color: '#71717A',
                 marginTop: '4px'
               }}>
-                слота осталось
+                на декабрь
               </p>
             </div>
           </div>
