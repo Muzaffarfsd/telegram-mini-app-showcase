@@ -257,7 +257,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
 
       {/* Fixed Home Button */}
       <div 
-        className="fixed right-5 z-50 pointer-events-none"
+        className="fixed right-5 z-[100] pointer-events-none"
         style={{
           bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
         }}
@@ -269,7 +269,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
 
       {/* Bottom Navigation - Premium Glass (exact copy from main page) */}
       <div 
-        className="fixed bottom-6 left-0 right-0 flex justify-center z-50"
+        className="fixed bottom-6 left-0 right-0 flex justify-center z-[100]"
         style={{ isolation: 'isolate' }}
       >
         <div className="relative">
