@@ -196,6 +196,29 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           style={{ height: '1px', background: '#27272A' }}
         />
 
+        {/* Call to Action - Scroll Down */}
+        <div 
+          className="px-7 pt-8 pb-4 text-center scroll-fade-in-delay-4"
+        >
+          <p style={{
+            fontSize: '16px',
+            fontWeight: 700,
+            color: '#A78BFA',
+            lineHeight: '1.5',
+            letterSpacing: '-0.01em'
+          }}>
+            Протестируйте приложения ниже
+          </p>
+          <div 
+            className="mt-3 animate-bounce"
+            style={{ color: '#A78BFA' }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto">
+              <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+          </div>
+        </div>
+
         {/* ═══════════════════════════════════════════════════════
             TIER 2: CURATED SHOWCASE INTRO
         ═══════════════════════════════════════════════════════ */}
