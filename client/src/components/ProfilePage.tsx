@@ -750,7 +750,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                   className="ios26-btn-glow w-full mb-3"
                   onClick={handleNavigateConstructor}
                 >
-                  Создать приложение
+                  Заказать разработку
                 </button>
                 <button 
                   className="ios26-btn-primary w-full"
