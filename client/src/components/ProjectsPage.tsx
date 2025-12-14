@@ -97,7 +97,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               color: '#E4E4E7',
               lineHeight: '1.6'
             }}>
-              Через 14 дней у вас будет
+              Через 7 дней у вас будет
               <br />
               <span style={{ 
                 color: '#A78BFA',
