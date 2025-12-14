@@ -36,6 +36,7 @@ const PremiumTasksEarningPage = lazy(() => import("./components/PremiumTasksEarn
 
 // Global components
 import GlobalSidebar from "./components/GlobalSidebar";
+import { PageTransition } from "./components/PageTransition";
 
 // Simple hash router types
 interface Route {
@@ -441,7 +442,9 @@ function App() {
                 )}
                 
                 <div ref={scrollContainerRef} className="pb-36" data-scroll="main">
-                  {renderRoute()}
+                  <PageTransition routeKey={`${route.component}-${route.params?.id || ''}`} variant="fade">
+                    {renderRoute()}
+                  </PageTransition>
                 </div>
               </div>
             
