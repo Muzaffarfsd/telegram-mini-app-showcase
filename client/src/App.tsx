@@ -477,9 +477,9 @@ function App() {
                     <nav 
                       className="relative flex items-center gap-1 rounded-[28px] px-3 py-2"
                       style={{
-                        background: 'rgba(30, 30, 35, 0.05)',
-                        backdropFilter: 'blur(40px) saturate(180%) brightness(1.02)',
-                        WebkitBackdropFilter: 'blur(40px) saturate(180%) brightness(1.02)',
+                        background: 'rgba(20, 20, 25, 0.35)',
+                        backdropFilter: 'blur(40px) saturate(180%) brightness(0.95)',
+                        WebkitBackdropFilter: 'blur(40px) saturate(180%) brightness(0.95)',
                         border: '1px solid rgba(255, 255, 255, 0.12)',
                         boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.12), inset 0 -1px 1px rgba(0, 0, 0, 0.15)',
                       }}
