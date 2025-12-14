@@ -3,7 +3,12 @@
 @import '@fontsource/inter/latin-400.css';
 @import '@fontsource/inter/latin-600.css';
 @import '@fontsource/inter/latin-700.css';
-/* Secondary fonts loaded only when needed via font-display: swap */
+/* Apple Quality Standards */
+@import './styles/apple.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Disable text selection globally */
 *, *::before, *::after {
@@ -13,13 +18,6 @@
   user-select: none;
   -webkit-touch-callout: none;
 }
-
-/* Apple Quality Standards */
-@import './styles/apple.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 /* === BEST APP 2025 PERFORMANCE OPTIMIZATIONS === */
 
