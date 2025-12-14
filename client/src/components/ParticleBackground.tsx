@@ -7,12 +7,13 @@ interface ParticleBackgroundProps {
 }
 
 export function ParticleBackground({ 
-  particleCount = 100, // Reduced from 500 for mobile performance
+  particleCount = 80,
   speed = 0.0005, 
   className = '' 
 }: ParticleBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationIdRef = useRef<number>();
+  const lastFrameTimeRef = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -21,20 +22,29 @@ export function ParticleBackground({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Check for reduced motion preference
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-      return; // Don't animate if user prefers reduced motion
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    
+    if (prefersReducedMotion.matches) {
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return;
     }
 
-    // Set canvas size
+    const handleReducedMotionChange = (e: MediaQueryListEvent) => {
+      if (e.matches && animationIdRef.current) {
+        cancelAnimationFrame(animationIdRef.current);
+        animationIdRef.current = undefined;
+      }
+    };
+    
+    prefersReducedMotion.addEventListener('change', handleReducedMotionChange);
+
     const setCanvasSize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
     setCanvasSize();
 
-    // Particle class
     class Particle {
       x: number;
       y: number;
@@ -53,8 +63,7 @@ export function ParticleBackground({
         this.vy = (Math.random() - 0.5) * 0.5;
         this.vz = Math.random() * 0.5 + 0.1;
         
-        // Emerald gradient colors
-        const hue = 150 + Math.random() * 30; // 150-180 (emerald to cyan)
+        const hue = 150 + Math.random() * 30;
         this.color = `hsl(${hue}, 70%, ${50 + Math.random() * 20}%)`;
         this.size = Math.random() * 2 + 0.5;
       }
@@ -64,7 +73,6 @@ export function ParticleBackground({
         this.y += this.vy;
         this.z -= this.vz;
 
-        // Wrap around
         if (this.z < 1) {
           this.z = 1000;
           this.x = (Math.random() - 0.5) * canvas.width;
@@ -86,12 +94,10 @@ export function ParticleBackground({
         ctx.fillStyle = this.color;
         ctx.globalAlpha = opacity * 0.8;
         
-        // Draw particle
         ctx.beginPath();
         ctx.arc(x2d, y2d, size, 0, Math.PI * 2);
         ctx.fill();
         
-        // Add glow effect for nearby particles
         if (this.z < 300) {
           ctx.globalAlpha = opacity * 0.3;
           ctx.beginPath();
@@ -101,13 +107,11 @@ export function ParticleBackground({
       }
     }
 
-    // Create particles
     const particles: Particle[] = [];
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle());
     }
 
-    // Animation loop
     let mouseX = 0;
     let mouseY = 0;
     let targetMouseX = 0;
@@ -120,20 +124,27 @@ export function ParticleBackground({
 
     window.addEventListener('mousemove', handleMouseMove);
 
-    const animate = () => {
-      // Smooth mouse follow
+    const targetFrameTime = 1000 / 30;
+
+    const animate = (currentTime: number) => {
+      const deltaTime = currentTime - lastFrameTimeRef.current;
+      
+      if (deltaTime < targetFrameTime) {
+        animationIdRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      
+      lastFrameTimeRef.current = currentTime - (deltaTime % targetFrameTime);
+
       mouseX += (targetMouseX - mouseX) * 0.05;
       mouseY += (targetMouseY - mouseY) * 0.05;
 
-      // Clear canvas with fade effect
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Translate based on mouse
       ctx.save();
       ctx.translate(mouseX, mouseY);
 
-      // Update and draw particles
       particles.forEach(particle => {
         particle.update();
         particle.draw(ctx);
@@ -141,24 +152,21 @@ export function ParticleBackground({
 
       ctx.restore();
 
-      // Connection lines between nearby particles (optimized)
-      // Limit to max 3 connections per particle to reduce O(n²) complexity
       ctx.globalAlpha = 0.1;
-      const maxConnections = 3;
-      const connectionDistance = 100; // Reduced from 150
+      const maxConnections = 2;
+      const connectionDistance = 80;
       const connectionDistanceSq = connectionDistance * connectionDistance;
 
-      particles.forEach((p1, i) => {
+      for (let i = 0; i < particles.length; i++) {
         let connectionCount = 0;
+        const p1 = particles[i];
         
-        // Check only nearby particles, early break after max connections
         for (let j = i + 1; j < particles.length && connectionCount < maxConnections; j++) {
           const p2 = particles[j];
           const dx = p1.x - p2.x;
           const dy = p1.y - p2.y;
           const dz = p1.z - p2.z;
           
-          // Use squared distance to avoid expensive sqrt
           const distanceSq = dx * dx + dy * dy + dz * dz;
 
           if (distanceSq < connectionDistanceSq) {
@@ -179,21 +187,22 @@ export function ParticleBackground({
             connectionCount++;
           }
         }
-      });
+      }
 
       animationIdRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    animationIdRef.current = requestAnimationFrame(animate);
 
-    // Resize handler
     window.addEventListener('resize', setCanvasSize);
 
     return () => {
       window.removeEventListener('resize', setCanvasSize);
       window.removeEventListener('mousemove', handleMouseMove);
+      prefersReducedMotion.removeEventListener('change', handleReducedMotionChange);
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
+        animationIdRef.current = undefined;
       }
     };
   }, [particleCount, speed]);

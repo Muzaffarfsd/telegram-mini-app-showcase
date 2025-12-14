@@ -106,10 +106,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <AnimatePresence mode="wait">
                   <m.span
                     key={headlineIndex}
-                    initial={{ y: 60, opacity: 0, filter: 'blur(8px)' }}
-                    animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
-                    exit={{ y: -60, opacity: 0, filter: 'blur(8px)' }}
-                    transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -20, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
                     className="block text-[44px] leading-[1.02] font-semibold"
                     style={{ color: '#10B981', letterSpacing: '-0.035em' }}
                   >

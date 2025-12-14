@@ -105,11 +105,11 @@ interface NavButtonProps {
 }
 
 const NavButton = ({ onClick, isActive, ariaLabel, testId, children }: NavButtonProps) => {
-  const springConfig = { stiffness: 400, damping: 25, mass: 0.8 };
+  const springConfig = { stiffness: 180, damping: 20, mass: 0.5 };
   const scale = useSpring(1, springConfig);
   
   const handlePress = () => {
-    scale.set(0.88);
+    scale.set(0.92);
   };
   
   const handleRelease = () => {
@@ -118,7 +118,7 @@ const NavButton = ({ onClick, isActive, ariaLabel, testId, children }: NavButton
   };
   
   const handleHover = () => {
-    scale.set(1.05);
+    scale.set(1.03);
   };
   
   const handleHoverEnd = () => {
