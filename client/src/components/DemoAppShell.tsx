@@ -1,4 +1,5 @@
 import { useState, Suspense, memo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Home, Grid3X3, ShoppingCart, User } from "lucide-react";
 import { demoApps } from "../data/demoApps";
 import { useTelegram } from "../hooks/useTelegram";
@@ -255,160 +256,166 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
           </div>
       </div>
 
-      {/* Fixed Home Button */}
-      <div 
-        className="fixed right-5 z-[100] pointer-events-none"
-        style={{
-          bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
-        }}
-      >
-        <div className="pointer-events-auto">
-          <LiquidHomeButton onNavigateHome={handleNavigateHome} />
-        </div>
-      </div>
-
-      {/* Bottom Navigation - Premium Glass (exact copy from main page) */}
-      <div 
-        className="fixed bottom-6 left-0 right-0 flex justify-center z-[100]"
-        style={{ isolation: 'isolate' }}
-      >
-        <div className="relative">
-          {/* Subtle outer glow */}
+      {/* Fixed UI via Portal - bypasses all transform/contain ancestors */}
+      {createPortal(
+        <>
+          {/* Fixed Home Button */}
           <div 
-            className="absolute -inset-2 rounded-[36px] pointer-events-none"
+            className="fixed right-5 z-[9999] pointer-events-none"
             style={{
-              boxShadow: '0 0 40px 5px rgba(16, 185, 129, 0.08)',
+              bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
             }}
-          />
-          
-          {/* Deep shadow */}
-          <div 
-            className="absolute inset-0 rounded-[28px] pointer-events-none"
-            style={{
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
-              transform: 'translateY(4px)',
-            }}
-          />
-          
-          {/* Main Glass Container */}
-          <nav 
-            className="relative flex items-center justify-center gap-1 rounded-[28px] px-3 py-2"
-            style={{
-              background: theme.navBackground,
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-              border: `1px solid ${theme.navBorder}`,
-              boxShadow: theme.navShadow,
-            }}
-            role="navigation" 
-            aria-label="Навигация демо"
           >
-            {/* Top highlight line */}
-            <div 
-              className="absolute inset-x-4 top-0 h-[1px] pointer-events-none"
-              style={{
-                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)',
-              }}
-            />
-          
-            {/* Главная */}
-            <button
-              onClick={() => handleTabSwitch('home')}
-              className="relative flex items-center justify-center w-12 h-12 rounded-full"
-              aria-label="Главная"
-              data-testid="nav-home"
-            >
-              {activeTab === 'home' && (
+            <div className="pointer-events-auto">
+              <LiquidHomeButton onNavigateHome={handleNavigateHome} />
+            </div>
+          </div>
+
+          {/* Bottom Navigation - Premium Glass (via Portal for true fixed positioning) */}
+          <div 
+            className="fixed bottom-6 left-0 right-0 flex justify-center z-[9999]"
+            style={{ isolation: 'isolate' }}
+          >
+            <div className="relative">
+              {/* Subtle outer glow */}
+              <div 
+                className="absolute -inset-2 rounded-[36px] pointer-events-none"
+                style={{
+                  boxShadow: '0 0 40px 5px rgba(16, 185, 129, 0.08)',
+                }}
+              />
+              
+              {/* Deep shadow */}
+              <div 
+                className="absolute inset-0 rounded-[28px] pointer-events-none"
+                style={{
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+                  transform: 'translateY(4px)',
+                }}
+              />
+              
+              {/* Main Glass Container */}
+              <nav 
+                className="relative flex items-center justify-center gap-1 rounded-[28px] px-3 py-2"
+                style={{
+                  background: theme.navBackground,
+                  backdropFilter: 'blur(40px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                  border: `1px solid ${theme.navBorder}`,
+                  boxShadow: theme.navShadow,
+                }}
+                role="navigation" 
+                aria-label="Навигация демо"
+              >
+                {/* Top highlight line */}
                 <div 
-                  className="absolute inset-0 rounded-full pointer-events-none"
+                  className="absolute inset-x-4 top-0 h-[1px] pointer-events-none"
                   style={{
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
+                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)',
                   }}
                 />
-              )}
-              <Home
-                className={`w-6 h-6 transition-all duration-200 ${
-                  activeTab === 'home' ? theme.activeColor : theme.inactiveColor
-                }`}
-                strokeWidth={activeTab === 'home' ? 2.5 : 1.75}
-              />
-            </button>
-            
-            {/* Каталог */}
-            <button
-              onClick={() => handleTabSwitch('catalog')}
-              className="relative flex items-center justify-center w-12 h-12 rounded-full"
-              aria-label="Каталог"
-              data-testid="nav-catalog"
-            >
-              {activeTab === 'catalog' && (
-                <div 
-                  className="absolute inset-0 rounded-full pointer-events-none"
-                  style={{
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
-                  }}
-                />
-              )}
-              <Grid3X3
-                className={`w-6 h-6 transition-all duration-200 ${
-                  activeTab === 'catalog' ? theme.activeColor : theme.inactiveColor
-                }`}
-                strokeWidth={activeTab === 'catalog' ? 2.5 : 1.75}
-              />
-            </button>
-            
-            {/* Корзина */}
-            <button
-              onClick={() => handleTabSwitch('cart')}
-              className="relative flex items-center justify-center w-12 h-12 rounded-full"
-              aria-label="Корзина"
-              data-testid="nav-cart"
-            >
-              {activeTab === 'cart' && (
-                <div 
-                  className="absolute inset-0 rounded-full pointer-events-none"
-                  style={{
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
-                  }}
-                />
-              )}
-              <ShoppingCart
-                className={`w-6 h-6 transition-all duration-200 ${
-                  activeTab === 'cart' ? theme.activeColor : theme.inactiveColor
-                }`}
-                strokeWidth={activeTab === 'cart' ? 2.5 : 1.75}
-              />
-            </button>
-            
-            {/* Профиль */}
-            <button
-              onClick={() => handleTabSwitch('profile')}
-              className="relative flex items-center justify-center w-12 h-12 rounded-full"
-              aria-label="Профиль"
-              data-testid="nav-profile"
-            >
-              {activeTab === 'profile' && (
-                <div 
-                  className="absolute inset-0 rounded-full pointer-events-none"
-                  style={{
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
-                  }}
-                />
-              )}
-              <User
-                className={`w-6 h-6 transition-all duration-200 ${
-                  activeTab === 'profile' ? theme.activeColor : theme.inactiveColor
-                }`}
-                strokeWidth={activeTab === 'profile' ? 2.5 : 1.75}
-              />
-            </button>
-          </nav>
-        </div>
-      </div>
+              
+                {/* Главная */}
+                <button
+                  onClick={() => handleTabSwitch('home')}
+                  className="relative flex items-center justify-center w-12 h-12 rounded-full"
+                  aria-label="Главная"
+                  data-testid="nav-home"
+                >
+                  {activeTab === 'home' && (
+                    <div 
+                      className="absolute inset-0 rounded-full pointer-events-none"
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.15)',
+                        boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
+                      }}
+                    />
+                  )}
+                  <Home
+                    className={`w-6 h-6 transition-all duration-200 ${
+                      activeTab === 'home' ? theme.activeColor : theme.inactiveColor
+                    }`}
+                    strokeWidth={activeTab === 'home' ? 2.5 : 1.75}
+                  />
+                </button>
+                
+                {/* Каталог */}
+                <button
+                  onClick={() => handleTabSwitch('catalog')}
+                  className="relative flex items-center justify-center w-12 h-12 rounded-full"
+                  aria-label="Каталог"
+                  data-testid="nav-catalog"
+                >
+                  {activeTab === 'catalog' && (
+                    <div 
+                      className="absolute inset-0 rounded-full pointer-events-none"
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.15)',
+                        boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
+                      }}
+                    />
+                  )}
+                  <Grid3X3
+                    className={`w-6 h-6 transition-all duration-200 ${
+                      activeTab === 'catalog' ? theme.activeColor : theme.inactiveColor
+                    }`}
+                    strokeWidth={activeTab === 'catalog' ? 2.5 : 1.75}
+                  />
+                </button>
+                
+                {/* Корзина */}
+                <button
+                  onClick={() => handleTabSwitch('cart')}
+                  className="relative flex items-center justify-center w-12 h-12 rounded-full"
+                  aria-label="Корзина"
+                  data-testid="nav-cart"
+                >
+                  {activeTab === 'cart' && (
+                    <div 
+                      className="absolute inset-0 rounded-full pointer-events-none"
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.15)',
+                        boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
+                      }}
+                    />
+                  )}
+                  <ShoppingCart
+                    className={`w-6 h-6 transition-all duration-200 ${
+                      activeTab === 'cart' ? theme.activeColor : theme.inactiveColor
+                    }`}
+                    strokeWidth={activeTab === 'cart' ? 2.5 : 1.75}
+                  />
+                </button>
+                
+                {/* Профиль */}
+                <button
+                  onClick={() => handleTabSwitch('profile')}
+                  className="relative flex items-center justify-center w-12 h-12 rounded-full"
+                  aria-label="Профиль"
+                  data-testid="nav-profile"
+                >
+                  {activeTab === 'profile' && (
+                    <div 
+                      className="absolute inset-0 rounded-full pointer-events-none"
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.15)',
+                        boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
+                      }}
+                    />
+                  )}
+                  <User
+                    className={`w-6 h-6 transition-all duration-200 ${
+                      activeTab === 'profile' ? theme.activeColor : theme.inactiveColor
+                    }`}
+                    strokeWidth={activeTab === 'profile' ? 2.5 : 1.75}
+                  />
+                </button>
+              </nav>
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
     </>
   );
 });
