@@ -5,6 +5,15 @@
 @import '@fontsource/inter/latin-700.css';
 /* Secondary fonts loaded only when needed via font-display: swap */
 
+/* Disable text selection globally */
+*, *::before, *::after {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
 /* Apple Quality Standards */
 @import './styles/apple.css';
 
