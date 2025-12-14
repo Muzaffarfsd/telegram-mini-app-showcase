@@ -1533,11 +1533,13 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
       <div className="top-bar">
         <div className="max-w-md mx-auto px-5 pt-16 pb-4 flex items-center justify-between gap-4">
-          <AnimatedHamburgerIcon 
-            ref={triggerButtonRef}
-            isOpen={false} 
-            onClick={() => sidebarOpen ? closeSidebar() : openSidebar()} 
-          />
+          <div style={{ marginTop: '8px' }}>
+            <AnimatedHamburgerIcon 
+              ref={triggerButtonRef}
+              isOpen={false} 
+              onClick={() => sidebarOpen ? closeSidebar() : openSidebar()} 
+            />
+          </div>
           
           <p style={{
             fontSize: '13px',
