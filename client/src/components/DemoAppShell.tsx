@@ -252,19 +252,18 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
             {renderDemoContent()}
           </div>
 
-          {/* Sticky Home Button */}
-          <div 
-            className="sticky right-5 z-50 pointer-events-none"
-            style={{
-              bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
-              marginLeft: 'auto',
-              width: 'fit-content'
-            }}
-          >
-            <div className="pointer-events-auto">
-              <LiquidHomeButton onNavigateHome={handleNavigateHome} />
-            </div>
           </div>
+      </div>
+
+      {/* Fixed Home Button */}
+      <div 
+        className="fixed right-5 z-50 pointer-events-none"
+        style={{
+          bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
+        }}
+      >
+        <div className="pointer-events-auto">
+          <LiquidHomeButton onNavigateHome={handleNavigateHome} />
         </div>
       </div>
 
