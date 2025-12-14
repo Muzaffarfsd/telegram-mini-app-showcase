@@ -1099,17 +1099,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 </div>
               </div>
             </div>
-            <button
+            <AnimatedHamburgerIcon
               ref={firstFocusableRef}
+              isOpen={true}
               onClick={closeSidebar}
-              className="close-btn"
-              aria-label="Закрыть меню"
               data-testid="button-close-sidebar"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M4 4L14 14M14 4L4 14" stroke="#A1A1AA" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            </button>
+            />
           </div>
           
           <div style={{ marginTop: '24px' }}>
