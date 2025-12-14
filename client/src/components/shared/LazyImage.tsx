@@ -30,7 +30,12 @@ function encodeLocalPath(url: string): string {
   
   if (url.startsWith('/attached_assets/')) {
     const filename = url.substring('/attached_assets/'.length);
-    return '/attached_assets/' + encodeURIComponent(filename);
+    const encodedPath = '/attached_assets/' + encodeURIComponent(filename);
+    
+    if (typeof window !== 'undefined' && window.location.origin) {
+      return window.location.origin + encodedPath;
+    }
+    return encodedPath;
   }
   
   return url;
@@ -193,7 +198,6 @@ export const LazyImage = memo(function LazyImage({
           onError={handleError}
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
-          crossOrigin="anonymous"
           className={cn(
             'absolute inset-0 w-full h-full object-cover',
             'transition-opacity duration-500',
