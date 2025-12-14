@@ -446,6 +446,18 @@ function App() {
                 </defs>
               </svg>
 
+              {/* 3D Depth Effect - Content fades into depth under nav */}
+              {shouldShowBottomNav && (
+                <div 
+                  className="fixed bottom-0 left-0 right-0 h-32 pointer-events-none z-40"
+                  style={{
+                    background: 'linear-gradient(to top, rgba(15, 15, 17, 0.95) 0%, rgba(15, 15, 17, 0.7) 30%, rgba(15, 15, 17, 0) 100%)',
+                    maskImage: 'linear-gradient(to top, black 0%, black 50%, transparent 100%)',
+                    WebkitMaskImage: 'linear-gradient(to top, black 0%, black 50%, transparent 100%)',
+                  }}
+                />
+              )}
+
               {/* Bottom Navigation - Premium Glass */}
               {shouldShowBottomNav && (
                 <m.div 
