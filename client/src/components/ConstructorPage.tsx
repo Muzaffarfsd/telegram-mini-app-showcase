@@ -466,20 +466,20 @@ const availableFeatures = [
   { id: 'progress-tracking', name: 'Прогресс', price: 45000, category: 'Управление', icon: BarChart, included: false },
   
   // AI и автоматизация
-  { id: 'ai-chatbot', name: 'AI Чат-бот', price: 95000, category: 'AI и автоматизация', icon: MessageSquare, included: false },
-  { id: 'ai-recommendations', name: 'AI Рекомендации', price: 85000, category: 'AI и автоматизация', icon: Sparkles, included: false },
-  { id: 'auto-responses', name: 'Автоответы', price: 45000, category: 'AI и автоматизация', icon: Zap, included: false },
-  { id: 'smart-search', name: 'Умный поиск', price: 55000, category: 'AI и автоматизация', icon: Zap, included: false },
-  { id: 'voice-assistant', name: 'Голосовой ассистент', price: 120000, category: 'AI и автоматизация', icon: Smartphone, included: false },
+  { id: 'ai-chatbot', name: 'AI Чат-бот', price: 49000, category: 'AI и автоматизация', icon: MessageSquare, included: false },
+  { id: 'ai-recommendations', name: 'AI Рекомендации', price: 55000, category: 'AI и автоматизация', icon: Sparkles, included: false },
+  { id: 'auto-responses', name: 'Автоответы', price: 25000, category: 'AI и автоматизация', icon: Zap, included: false },
+  { id: 'smart-search', name: 'Умный поиск', price: 35000, category: 'AI и автоматизация', icon: Zap, included: false },
+  { id: 'voice-assistant', name: 'Голосовой ассистент', price: 75000, category: 'AI и автоматизация', icon: Smartphone, included: false },
   
   // Интеграции
-  { id: 'telegram-bot', name: 'Telegram бот', price: 65000, category: 'Интеграции', icon: MessageSquare, included: false },
-  { id: 'whatsapp-integration', name: 'WhatsApp', price: 75000, category: 'Интеграции', icon: MessageSquare, included: false },
-  { id: 'google-maps', name: 'Google Maps', price: 35000, category: 'Интеграции', icon: Globe, included: false },
-  { id: 'sms-notifications', name: 'SMS уведомления', price: 40000, category: 'Интеграции', icon: Bell, included: false },
-  { id: 'email-marketing', name: 'Email маркетинг', price: 55000, category: 'Интеграции', icon: Bell, included: false },
-  { id: '1c-integration', name: '1С интеграция', price: 150000, category: 'Интеграции', icon: Settings, included: false },
-  { id: 'api-access', name: 'API доступ', price: 80000, category: 'Интеграции', icon: Settings, included: false }
+  { id: 'telegram-bot', name: 'Telegram бот', price: 35000, category: 'Интеграции', icon: MessageSquare, included: false },
+  { id: 'whatsapp-integration', name: 'WhatsApp', price: 45000, category: 'Интеграции', icon: MessageSquare, included: false },
+  { id: 'google-maps', name: 'Google Maps', price: 20000, category: 'Интеграции', icon: Globe, included: false },
+  { id: 'sms-notifications', name: 'SMS уведомления', price: 25000, category: 'Интеграции', icon: Bell, included: false },
+  { id: 'email-marketing', name: 'Email маркетинг', price: 30000, category: 'Интеграции', icon: Bell, included: false },
+  { id: '1c-integration', name: '1С интеграция', price: 85000, category: 'Интеграции', icon: Settings, included: false },
+  { id: 'api-access', name: 'API доступ', price: 55000, category: 'Интеграции', icon: Settings, included: false }
 ];
 
 const categories = ['Основные', 'Платежи', 'Доставка', 'Коммуникации', 'Маркетинг', 'Управление', 'Бронирование', 'AI и автоматизация', 'Интеграции'];
@@ -876,93 +876,61 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             </div>
 
             {/* Subscription Plan Selection */}
-            <div className="space-y-4">
-              <div className="ios-list-header text-white/70">Выберите тариф подписки</div>
-              <p className="ios-footnote text-white/50 -mt-2 mb-3">
-                Ежемесячная подписка за хостинг и поддержку после запуска
-              </p>
+            <div className="space-y-3">
+              <div className="ios-list-header text-white/70">Тариф подписки</div>
               
-              <div className="space-y-3">
+              <div className="ios-list">
                 {subscriptionPlans.map((plan) => {
                   const isSelected = selectedSubscription.id === plan.id;
                   return (
                     <div
                       key={plan.id}
-                      className="cursor-pointer transition-all duration-200"
+                      className={`ios-list-item cursor-pointer ${isSelected ? 'bg-white/5' : ''}`}
                       onClick={() => setSelectedSubscription(plan)}
                       data-testid={`subscription-${plan.id}`}
-                      style={{
-                        padding: '16px',
-                        borderRadius: '16px',
-                        background: plan.bgColor,
-                        border: `2px solid ${isSelected ? plan.color : plan.borderColor}`,
-                        position: 'relative',
-                        transform: isSelected ? 'scale(1.02)' : 'scale(1)'
-                      }}
                     >
-                      {plan.popular && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '-8px',
-                          right: '12px',
-                          padding: '2px 8px',
-                          borderRadius: '6px',
-                          background: plan.color,
-                          fontSize: '9px',
-                          fontWeight: 700,
-                          color: '#000',
-                          letterSpacing: '0.05em'
-                        }}>ПОПУЛЯРНЫЙ</div>
-                      )}
-                      
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                          <div style={{
-                            width: '22px',
-                            height: '22px',
-                            borderRadius: '50%',
-                            border: `2px solid ${isSelected ? plan.color : '#52525B'}`,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginTop: '2px',
-                            background: isSelected ? plan.color : 'transparent'
-                          }}>
-                            {isSelected && <Check size={12} color="#000" />}
-                          </div>
-                          <div>
-                            <p style={{ fontSize: '15px', fontWeight: 600, color: '#FAFAFA' }}>{plan.name}</p>
-                            <p style={{ fontSize: '12px', color: plan.color, marginTop: '2px' }}>{plan.description}</p>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
-                              {plan.features.slice(0, 3).map((feature, idx) => (
-                                <span key={idx} style={{
-                                  fontSize: '10px',
-                                  padding: '2px 6px',
-                                  borderRadius: '4px',
-                                  background: 'rgba(255,255,255,0.05)',
-                                  color: '#A1A1AA'
-                                }}>{feature}</span>
-                              ))}
-                              {plan.features.length > 3 && (
-                                <span style={{
-                                  fontSize: '10px',
-                                  padding: '2px 6px',
-                                  borderRadius: '4px',
-                                  background: 'rgba(255,255,255,0.05)',
-                                  color: '#71717A'
-                                }}>+{plan.features.length - 3}</span>
-                              )}
-                            </div>
-                          </div>
+                      <div className="flex items-center space-x-3">
+                        {/* Radio indicator */}
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? 'border-system-blue bg-system-blue' : 'border-white/30'
+                        }`}>
+                          {isSelected && <Check className="w-3 h-3 text-white" />}
                         </div>
-                        <div style={{ textAlign: 'right', minWidth: '80px' }}>
-                          <span style={{ fontSize: '20px', fontWeight: 700, color: '#FAFAFA' }}>{plan.price.toLocaleString()}</span>
-                          <span style={{ fontSize: '11px', color: '#71717A' }}> ₽/мес</span>
+                        
+                        {/* Plan info */}
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="ios-headline font-semibold text-white">{plan.name}</span>
+                            {plan.popular && (
+                              <span className="px-2 py-0.5 bg-system-blue/15 rounded-full">
+                                <span className="ios-caption2 text-system-blue font-medium">Популярный</span>
+                              </span>
+                            )}
+                          </div>
+                          <div className="ios-footnote text-white/50">{plan.description}</div>
+                        </div>
+                        
+                        {/* Price */}
+                        <div className="text-right">
+                          <span className="ios-body font-bold text-white">{plan.price.toLocaleString()}</span>
+                          <span className="ios-footnote text-white/50"> ₽/мес</span>
                         </div>
                       </div>
                     </div>
                   );
                 })}
+              </div>
+              
+              {/* Selected plan features */}
+              <div className="liquid-glass-card rounded-xl p-3 mt-2">
+                <div className="flex flex-wrap gap-2">
+                  {selectedSubscription.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-center space-x-1">
+                      <Check className="w-3 h-3 text-system-blue" />
+                      <span className="ios-caption1 text-white/70">{feature}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -1028,25 +996,13 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               </div>
               
               {/* Subscription Plan Summary */}
-              <div 
-                className="border-t border-white/20 pt-4"
-                style={{
-                  padding: '16px',
-                  borderRadius: '12px',
-                  background: selectedSubscription.bgColor,
-                  border: `1px solid ${selectedSubscription.borderColor}`
-                }}
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center gap-2">
-                    <Crown size={16} style={{ color: selectedSubscription.color }} />
-                    <span className="ios-body font-semibold text-white">Тариф: {selectedSubscription.name}</span>
-                  </div>
-                  <span style={{ color: selectedSubscription.color, fontWeight: 700 }}>
+              <div className="border-t border-white/20 pt-4 mt-2">
+                <div className="flex justify-between items-center">
+                  <span className="ios-body text-white/70">Подписка ({selectedSubscription.name})</span>
+                  <span className="ios-body font-semibold text-white">
                     {selectedSubscription.price.toLocaleString()} ₽/мес
                   </span>
                 </div>
-                <p className="ios-footnote text-white/50">{selectedSubscription.description}</p>
               </div>
               
               <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 bg-system-green/10 border-system-green/20 p-4">
