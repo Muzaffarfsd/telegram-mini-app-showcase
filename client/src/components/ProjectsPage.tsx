@@ -63,20 +63,22 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             </span>
           </h1>
           
-          {/* Subtext - AIDA */}
+          {/* Subtext - AIDA с интригой */}
           <p 
             className="scroll-fade-in-delay-2"
             style={{
               fontSize: '15px',
               fontWeight: 400,
               letterSpacing: '-0.01em',
-              lineHeight: '1.6',
-              color: '#71717A',
+              lineHeight: '1.7',
+              color: '#A1A1AA',
               marginTop: '20px',
-              maxWidth: '320px'
+              maxWidth: '340px'
             }}
           >
-            Ниже — готовые приложения для разных ниш. Откройте любое и попробуйте как клиент.
+            Ваши конкуренты уже используют такие приложения. 
+            <span style={{ color: '#E4E4E7', fontWeight: 500 }}> Посмотрите сами</span> — 
+            каждое можно открыть и протестировать прямо сейчас.
           </p>
           
           {/* Scroll hint */}
@@ -86,7 +88,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           >
             <div className="scroll-icon" />
             <span style={{ fontSize: '15px', color: '#A78BFA', fontWeight: 500, letterSpacing: '-0.01em' }}>
-              Попробуйте демо
+              Смотреть примеры
             </span>
           </div>
           
