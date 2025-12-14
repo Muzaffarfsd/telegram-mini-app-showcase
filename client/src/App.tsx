@@ -87,9 +87,22 @@ const parseHash = (): Route => {
   };
 };
 
-const navigate = (path: string) => {
-  window.location.hash = path;
+// Navigate with View Transitions API for smooth page transitions (Chrome 111+)
+const navigateWithTransition = (path: string) => {
+  // Feature detection for View Transitions API with proper type narrowing
+  const doc = document as Document & { startViewTransition?: (callback: () => void) => void };
+  
+  if ('startViewTransition' in document && typeof doc.startViewTransition === 'function') {
+    doc.startViewTransition(() => {
+      window.location.hash = path;
+    });
+  } else {
+    // Fallback for browsers without View Transitions support
+    window.location.hash = path;
+  }
 };
+
+const navigate = navigateWithTransition;
 
 const goBack = () => {
   window.history.back();
@@ -105,36 +118,13 @@ interface NavButtonProps {
 }
 
 const NavButton = ({ onClick, isActive, ariaLabel, testId, children }: NavButtonProps) => {
-  const springConfig = { stiffness: 180, damping: 20, mass: 0.5 };
-  const scale = useSpring(1, springConfig);
-  
-  const handlePress = () => {
-    scale.set(0.92);
-  };
-  
-  const handleRelease = () => {
-    scale.set(1);
-    onClick();
-  };
-  
-  const handleHover = () => {
-    scale.set(1.03);
-  };
-  
-  const handleHoverEnd = () => {
-    scale.set(1);
-  };
+  // INP Optimization: Use CSS transitions for instant visual feedback instead of spring physics
+  // This ensures immediate visual response on touch/click without waiting for JS animation frames
   
   return (
-    <m.button
-      style={{ scale }}
-      className="relative flex items-center justify-center w-12 h-12 rounded-full"
-      onMouseDown={handlePress}
-      onMouseUp={handleRelease}
-      onMouseLeave={handleHoverEnd}
-      onMouseEnter={handleHover}
-      onTouchStart={handlePress}
-      onTouchEnd={handleRelease}
+    <button
+      className="nav-button-instant relative flex items-center justify-center w-12 h-12 rounded-full gpu-layer"
+      onClick={onClick}
       aria-label={ariaLabel}
       data-testid={testId}
     >
@@ -151,7 +141,7 @@ const NavButton = ({ onClick, isActive, ariaLabel, testId, children }: NavButton
       
       {/* Icon */}
       {children}
-    </m.button>
+    </button>
   );
 };
 

@@ -12,6 +12,95 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === BEST APP 2025 PERFORMANCE OPTIMIZATIONS === */
+
+/* ========================================
+   VIEW TRANSITIONS API (Chrome 111+)
+   Smooth page transitions with native API
+   ======================================== */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.15s;
+  animation-timing-function: cubic-bezier(0.32, 0, 0.67, 1);
+}
+
+::view-transition-old(root) {
+  animation-name: fade-and-scale-out;
+}
+
+::view-transition-new(root) {
+  animation-name: fade-and-scale-in;
+}
+
+@keyframes fade-and-scale-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.98); }
+}
+
+@keyframes fade-and-scale-in {
+  from { opacity: 0; transform: scale(1.02); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Reduced motion fallback */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* ========================================
+   CSS PAINT CONTAINMENT
+   Optimize layout/paint performance
+   ======================================== */
+
+/* Paint containment for cards and list items */
+.contain-paint {
+  contain: layout style paint;
+}
+
+/* Strict containment for off-screen items */
+.contain-strict {
+  contain: strict;
+  contain-intrinsic-size: auto 300px;
+}
+
+/* GPU layer promotion for animated elements */
+.gpu-layer {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ========================================
+   INP (INTERACTION TO NEXT PAINT) OPTIMIZATION
+   Instant visual feedback for all interactions
+   ======================================== */
+
+/* Instant touch feedback - GPU-accelerated transforms only */
+button, a, [role="button"], .interactive {
+  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+}
+
+button:active, a:active, [role="button"]:active, .interactive:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+/* NavButton instant response - no spring physics delay */
+.nav-button-instant {
+  transition: transform 0.08s ease-out, opacity 0.08s ease-out;
+}
+
+.nav-button-instant:hover {
+  transform: scale(1.03);
+}
+
+.nav-button-instant:active {
+  transform: scale(0.92);
+  opacity: 0.9;
+}
+
 /* === PERFORMANCE OPTIMIZATIONS FOR TELEGRAM === */
 
 /* CRITICAL: Telegram Mini App scroll hierarchy 
