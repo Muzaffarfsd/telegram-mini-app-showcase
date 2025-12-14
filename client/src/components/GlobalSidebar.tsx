@@ -374,7 +374,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           position: relative;
           overflow: visible;
           isolation: isolate;
-          contain: layout style paint;
           transform: translate3d(0, 0, 0);
           backface-visibility: hidden;
         }
@@ -415,14 +414,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         /* Animated Border Glow */
         .hamburger-border-glow {
           position: absolute;
-          inset: -2px;
-          border-radius: 20px;
-          background: conic-gradient(from 0deg, transparent 0deg, rgba(139,92,246,0.5) 60deg, rgba(167,139,250,0.8) 120deg, transparent 180deg, rgba(139,92,246,0.5) 240deg, rgba(167,139,250,0.6) 300deg, transparent 360deg);
+          inset: -6px;
+          border-radius: 24px;
+          background: conic-gradient(from 0deg, transparent 0deg, rgba(139,92,246,0.6) 60deg, rgba(167,139,250,0.9) 120deg, transparent 180deg, rgba(139,92,246,0.6) 240deg, rgba(167,139,250,0.7) 300deg, transparent 360deg);
           opacity: 0;
           transition: opacity 0.3s ease;
           pointer-events: none;
-          z-index: -1;
-          filter: blur(3px);
+          z-index: 0;
+          filter: blur(6px);
           transform: translate3d(0, 0, 0);
         }
         
