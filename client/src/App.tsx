@@ -477,11 +477,11 @@ function App() {
                     <nav 
                       className="relative flex items-center gap-1 rounded-[28px] px-3 py-2"
                       style={{
-                        background: 'rgba(35, 35, 40, 0.6)',
-                        backdropFilter: 'blur(40px) saturate(180%)',
-                        WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                        background: 'rgba(255, 255, 255, 0.08)',
+                        backdropFilter: 'blur(50px) saturate(200%) brightness(1.05)',
+                        WebkitBackdropFilter: 'blur(50px) saturate(200%) brightness(1.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 0 -1px 1px rgba(0, 0, 0, 0.1)',
                       }}
                       role="navigation" 
                       aria-label="Главное меню"
