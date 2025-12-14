@@ -564,10 +564,11 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
         </div>
 
         <div className="relative h-[60vh]">
-          <LazyImage category="florist"
+          <img
             src={selectedProduct.image}
             alt={selectedProduct.name}
             className="w-full h-full object-cover"
+            loading="eager"
           />
         </div>
 
@@ -833,12 +834,11 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
               data-testid={`featured-product-${product.id}`}
             >
               <div className="absolute inset-0">
-                <LazyImage category="florist"
+                <img
                   src={product.image}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  onLoadComplete={() => handleImageLoad(product.id)}
-                  priority={idx < 2}
+                  loading="eager"
                 />
               </div>
 
@@ -952,11 +952,11 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                 data-testid={`product-card-${product.id}`}
               >
                 <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white shadow-sm">
-                  <LazyImage category="florist"
+                  <img
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover"
-                    onLoadComplete={() => handleImageLoad(product.id)}
+                    loading="lazy"
                   />
                   
                   <button
@@ -1026,10 +1026,11 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                   className="bg-white shadow-sm rounded-2xl p-4 flex gap-4"
                   data-testid={`cart-item-${item.id}`}
                 >
-                  <LazyImage category="florist"
+                  <img
                     src={item.image || ''}
                     alt={item.name}
                     className="w-20 h-20 rounded-xl object-cover"
+                    loading="lazy"
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1 text-[#1A1A1A]">{item.name}</h3>
