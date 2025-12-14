@@ -526,3 +526,5 @@ function Bookstore({ activeTab }: BookstoreProps) {
     </div>
   );
 }
+
+export default Bookstore;

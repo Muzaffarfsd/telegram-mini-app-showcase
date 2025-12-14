@@ -469,3 +469,5 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
 
   return null;
 });
+
+export default Banking;

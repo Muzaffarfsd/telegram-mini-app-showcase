@@ -68,47 +68,31 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunks - strict splitting to prevent initialization errors
+          // Vendor chunks - conservative splitting to avoid hydration issues
           if (id.includes('node_modules')) {
-            // ✅ CRITICAL: All React-dependent libraries MUST be in vendor chunk
-            // This includes: react, react-dom, zustand, @uppy/react, swiper, cmdk, etc.
-            if (
-              id.includes('react') || 
-              id.includes('scheduler') ||
-              id.includes('zustand') ||
-              id.includes('@uppy/react') ||
-              id.includes('swiper') ||
-              id.includes('cmdk') ||
-              id.includes('@hookform') ||
-              id.includes('react-hook-form') ||
-              id.includes('wouter') ||
-              id.includes('next-themes')
-            ) {
-              return 'vendor';
+            // ✅ LAZY-LOADED ONLY: These are explicitly lazy loaded and safe to separate
+            
+            // Stripe - only used in CheckoutPage (lazy loaded)
+            if (id.includes('stripe') || id.includes('@stripe')) {
+              return 'stripe-vendor';
             }
             
-            // ✅ Radix UI - depends on React, separate chunk
-            if (id.includes('@radix-ui')) {
-              return 'ui-vendor';
+            // Uppy - file upload, only used in specific pages (lazy loaded)
+            if (id.includes('@uppy') || id.includes('uppy')) {
+              return 'uppy-vendor';
             }
             
-            // ✅ Framer Motion - heavy animation lib
+            // Charts - recharts, only in profile/stats pages (lazy loaded)
+            if (id.includes('recharts') || id.includes('d3-')) {
+              return 'charts-vendor';
+            }
+            
+            // Framer Motion - loaded via LazyMotionProvider
             if (id.includes('framer-motion')) {
               return 'animation-vendor';
             }
             
-            // ✅ TanStack - React Query ecosystem
-            if (id.includes('@tanstack')) {
-              return 'tanstack-vendor';
-            }
-            
-            // ✅ Icons - pure components
-            if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) {
-              return 'icons-vendor';
-            }
-            
-            // ✅ Pure utilities ONLY - NO React dependencies!
-            // Safe: date-fns, zod, clsx, nanoid, class-variance-authority
+            // ✅ Pure utilities - no React dependencies, safe to separate
             if (
               id.includes('date-fns') ||
               id.includes('zod') ||
@@ -120,7 +104,14 @@ export default defineConfig({
               return 'utils-vendor';
             }
             
-            // ✅ Everything else goes to vendor (safe default)
+            // ✅ Icons - pure components, large but lazy loadable
+            if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) {
+              return 'icons-vendor';
+            }
+            
+            // ✅ ALL React-dependent libs stay together to prevent hydration issues
+            // This includes: react, react-dom, radix-ui, tanstack, zustand, wouter, 
+            // swiper, cmdk, hookform, etc.
             return 'vendor';
           }
           
@@ -132,14 +123,30 @@ export default defineConfig({
             return 'projects';
           }
           if (id.includes('/src/components/demos/')) {
-            // Group demos by category
-            if (id.includes('Clothing') || id.includes('Electronics') || id.includes('Gadget')) {
+            // Group demos by category - more granular splitting
+            if (id.includes('Clothing') || id.includes('Electronics') || id.includes('Fashion') || id.includes('Gadget')) {
               return 'demos-ecommerce';
             }
-            if (id.includes('Beauty') || id.includes('Restaurant') || id.includes('Hotel')) {
+            if (id.includes('Beauty') || id.includes('Restaurant') || id.includes('Hotel') || id.includes('Medical') || id.includes('Fitness')) {
               return 'demos-services';
             }
-            return 'demos-other';
+            if (id.includes('Rascal') || id.includes('StoreBlack') || id.includes('LabSurvivalist') || id.includes('NikeACG')) {
+              return 'demos-fashion';
+            }
+            if (id.includes('Tea') || id.includes('Florist') || id.includes('Fragrance') || id.includes('Interior')) {
+              return 'demos-lifestyle';
+            }
+            if (id.includes('Banking') || id.includes('Taxi') || id.includes('CarRental') || id.includes('CarWash')) {
+              return 'demos-transport';
+            }
+            if (id.includes('NFT') || id.includes('Emily') || id.includes('Sneaker') || id.includes('Time') || id.includes('Watch')) {
+              return 'demos-premium';
+            }
+            if (id.includes('Courses') || id.includes('Book')) {
+              return 'demos-education';
+            }
+            // Catch-all for remaining demos
+            return 'demos-misc';
           }
         },
         

@@ -488,3 +488,5 @@ function CarWash({ activeTab }: CarWashProps) {
     </div>
   );
 }
+
+export default CarWash;

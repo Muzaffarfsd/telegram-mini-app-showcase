@@ -515,3 +515,5 @@ function CarRental({ activeTab, onNavigate }: CarRentalProps) {
       return renderHomeTab();
   }
 }
+
+export default CarRental;
