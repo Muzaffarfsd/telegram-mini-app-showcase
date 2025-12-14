@@ -372,7 +372,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                       border-color 0.2s ease;
           -webkit-tap-highlight-color: transparent;
           position: relative;
-          overflow: hidden;
+          overflow: visible;
           isolation: isolate;
           contain: layout style paint;
           transform: translate3d(0, 0, 0);
