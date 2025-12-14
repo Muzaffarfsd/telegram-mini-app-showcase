@@ -961,13 +961,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           left: 0;
           right: 0;
           z-index: 90;
-          background: linear-gradient(
-            180deg,
-            rgba(12, 12, 14, 0.95) 0%,
-            rgba(12, 12, 14, 0.85) 100%
-          );
-          backdrop-filter: blur(24px) saturate(180%);
-          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          background: rgba(0, 0, 0, 0.05);
+          backdrop-filter: blur(60px) saturate(200%) brightness(0.98);
+          -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(0.98);
           border-bottom: 1px solid rgba(255, 255, 255, 0.06);
           padding-top: max(env(safe-area-inset-top, 0px), 12px);
         }
