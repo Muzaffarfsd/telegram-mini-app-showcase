@@ -179,7 +179,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 color: '#71717A',
                 marginTop: '4px'
               }}>
-                на декабрь
+                на Декабрь
               </p>
             </div>
           </div>
