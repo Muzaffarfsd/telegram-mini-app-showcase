@@ -79,6 +79,17 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             Telegram Mini App отвечает мгновенно, консультирует и закрывает сделки — пока вы занимаетесь чем угодно. 50+ бизнесов уже продают на автомате.
           </p>
           
+          {/* Scroll hint */}
+          <div 
+            className="scroll-fade-in-delay-2 flex items-center gap-2"
+            style={{ marginTop: '24px' }}
+          >
+            <div className="scroll-mouse-mini" />
+            <span style={{ fontSize: '13px', color: '#A78BFA', fontWeight: 500 }}>
+              Протестируйте приложения
+            </span>
+          </div>
+          
           {/* Competitive FOMO Statement */}
           <div 
             className="scroll-fade-in-delay-3"
@@ -195,31 +206,6 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           className="mx-7"
           style={{ height: '1px', background: '#27272A' }}
         />
-
-        {/* Scroll Indicator - Centered on screen */}
-        <div 
-          className="flex flex-col items-center justify-center"
-          style={{ 
-            minHeight: 'calc(100vh - 600px)',
-            marginTop: '-20px'
-          }}
-        >
-          <p style={{
-            fontSize: '12px',
-            fontWeight: 400,
-            color: '#A78BFA',
-            letterSpacing: '0.08em',
-            marginBottom: '16px',
-            opacity: 0.8
-          }}>
-            Протестируйте приложения
-          </p>
-          
-          {/* Mouse scroll indicator */}
-          <div className="scroll-mouse">
-            <div className="scroll-wheel" />
-          </div>
-        </div>
 
         {/* ═══════════════════════════════════════════════════════
             TIER 2: CURATED SHOWCASE INTRO
@@ -551,37 +537,31 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
         .scroll-fade-in-delay-3 { animation-delay: 0.26s; }
         .scroll-fade-in-delay-4 { animation-delay: 0.34s; }
 
-        /* Mouse scroll indicator */
-        .scroll-mouse {
-          width: 24px;
-          height: 38px;
+        /* Mini mouse scroll indicator */
+        .scroll-mouse-mini {
+          width: 16px;
+          height: 24px;
           border: 1.5px solid #A78BFA;
-          border-radius: 12px;
+          border-radius: 8px;
           position: relative;
-          opacity: 0.7;
         }
 
-        .scroll-wheel {
-          width: 3px;
-          height: 8px;
+        .scroll-mouse-mini::before {
+          content: '';
+          width: 2px;
+          height: 5px;
           background: #A78BFA;
-          border-radius: 2px;
+          border-radius: 1px;
           position: absolute;
-          top: 8px;
+          top: 5px;
           left: 50%;
           transform: translateX(-50%);
-          animation: scrollWheel 1.8s ease-in-out infinite;
+          animation: scrollWheelMini 1.5s ease-in-out infinite;
         }
 
-        @keyframes scrollWheel {
-          0% {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-          }
-          100% {
-            opacity: 0;
-            transform: translateX(-50%) translateY(14px);
-          }
+        @keyframes scrollWheelMini {
+          0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+          100% { opacity: 0; transform: translateX(-50%) translateY(8px); }
         }
       `}</style>
     </div>
