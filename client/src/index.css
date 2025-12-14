@@ -147,8 +147,8 @@ body {
   -webkit-touch-callout: none;
 }
 
-/* Allow text selection only where needed */
-p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea {
+/* Allow text selection only for input fields */
+input, textarea {
   -webkit-touch-callout: default;
   -webkit-user-select: text;
   user-select: text;
