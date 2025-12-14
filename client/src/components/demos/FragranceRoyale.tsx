@@ -382,7 +382,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
     const bgColor = selectedPerfume.concentrationColors[selectedPerfume.concentrations.indexOf(selectedConcentration)] || '#9333EA';
     
     return (
-      <div className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ backgroundColor: bgColor }}>
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedPerfume(null)}
@@ -496,7 +496,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <DemoSidebar
           isOpen={sidebar.isOpen}
           onClose={sidebar.close}
@@ -713,7 +713,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
@@ -810,7 +810,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32 smooth-scroll-page">
+      <div className="min-h-screen bg-[#0A0A0A] text-white pb-32 smooth-scroll-page">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
@@ -914,7 +914,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[#0A0A0A] text-white pb-24 smooth-scroll-page">
         <div className="p-6 bg-white/5 border-b border-white/10">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-[#C9B037] rounded-full flex items-center justify-center">

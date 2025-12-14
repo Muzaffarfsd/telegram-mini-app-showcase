@@ -276,7 +276,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
   if (activeTab === 'catalog' && selectedProduct) {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -482,7 +482,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
 
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -916,7 +916,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
   if (activeTab === 'catalog') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -1048,7 +1048,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
   if (activeTab === 'cart') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -1228,7 +1228,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
   if (activeTab === 'profile') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >

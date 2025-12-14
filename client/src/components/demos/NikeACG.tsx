@@ -389,7 +389,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
     const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#2D3748';
     
     return (
-      <div className="min-h-screen text-white overflow-auto smooth-scroll-page" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white smooth-scroll-page" style={{ backgroundColor: bgColor }}>
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
@@ -511,7 +511,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   // HOME PAGE
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="relative h-screen scroll-fade-in">
           <div className="absolute inset-0">
             <LazyImage
@@ -711,7 +711,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-8 scroll-fade-in">
             <div>
@@ -822,7 +822,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   // CART PAGE
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-32 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-32 smooth-scroll-page">
         <div className="p-6">
           <div className="mb-8 scroll-fade-in">
             <div className="text-xs font-bold tracking-[0.3em] text-white/60 mb-1">NIKE ACG</div>
@@ -930,7 +930,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[#2D3748] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[#2D3748] text-white pb-24 smooth-scroll-page">
         <div className="p-6 bg-black/20 backdrop-blur-xl border-b border-white/10 scroll-fade-in">
           <div className="flex items-center gap-5 mb-8">
             <div className="w-20 h-20 bg-gradient-to-br from-white to-gray-300 rounded-full flex items-center justify-center">

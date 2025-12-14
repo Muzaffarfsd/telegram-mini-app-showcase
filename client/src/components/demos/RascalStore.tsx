@@ -445,7 +445,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
     const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#1a2e2a';
     
     return (
-      <div className="min-h-screen text-white overflow-auto smooth-scroll-page" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white smooth-scroll-page" style={{ backgroundColor: bgColor }}>
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
@@ -559,7 +559,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
 
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page" style={{ backgroundColor: '#1a2e2a' }}>
+      <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ backgroundColor: '#1a2e2a' }}>
         <DemoSidebar
           isOpen={sidebar.isOpen}
           onClose={sidebar.close}
@@ -754,7 +754,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
 
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page" style={{ backgroundColor: '#1a2e2a' }}>
+      <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ backgroundColor: '#1a2e2a' }}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
@@ -843,7 +843,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
 
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen text-white overflow-auto pb-32 smooth-scroll-page" style={{ backgroundColor: '#1a2e2a' }}>
+      <div className="min-h-screen text-white pb-32 smooth-scroll-page" style={{ backgroundColor: '#1a2e2a' }}>
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
@@ -948,7 +948,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
 
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page" style={{ backgroundColor: '#1a2e2a' }}>
+      <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ backgroundColor: '#1a2e2a' }}>
         <div className="p-6 bg-white/5 backdrop-blur-xl border-b border-white/10">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{

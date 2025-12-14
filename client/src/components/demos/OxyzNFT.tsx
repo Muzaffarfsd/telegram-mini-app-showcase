@@ -342,7 +342,7 @@ function OxyzNFT({ activeTab, onTabChange }: OxyzNFTProps) {
   if (activeTab === 'catalog' && selectedProduct) {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -550,7 +550,7 @@ function OxyzNFT({ activeTab, onTabChange }: OxyzNFTProps) {
   if (activeTab === 'home') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -855,7 +855,7 @@ function OxyzNFT({ activeTab, onTabChange }: OxyzNFTProps) {
   if (activeTab === 'catalog') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -1046,7 +1046,7 @@ function OxyzNFT({ activeTab, onTabChange }: OxyzNFTProps) {
     
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >
@@ -1358,7 +1358,7 @@ function OxyzNFT({ activeTab, onTabChange }: OxyzNFTProps) {
 
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
        
         style={{ background: COLORS.primaryGradient }}
       >

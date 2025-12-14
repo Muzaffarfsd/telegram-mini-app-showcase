@@ -422,7 +422,7 @@ const Beauty = memo(function Beauty({ activeTab }: BeautyProps) {
 
   if (activeTab === 'catalog' && selectedService) {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedService(null)}
@@ -519,7 +519,7 @@ const Beauty = memo(function Beauty({ activeTab }: BeautyProps) {
 
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="p-6 space-y-6">
           
           <div className="space-y-4 pt-4">
@@ -645,7 +645,7 @@ const Beauty = memo(function Beauty({ activeTab }: BeautyProps) {
 
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-xl font-bold">Услуги</h1>
@@ -766,7 +766,7 @@ const Beauty = memo(function Beauty({ activeTab }: BeautyProps) {
 
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="p-6 space-y-6">
           <h1 className="text-2xl font-bold">Мои записи</h1>
           
@@ -822,7 +822,7 @@ const Beauty = memo(function Beauty({ activeTab }: BeautyProps) {
 
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="p-6 space-y-6">
           <div className="text-center">
             <div className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'linear-gradient(to bottom right, var(--theme-primary), var(--theme-accent))' }}>

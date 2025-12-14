@@ -436,7 +436,7 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
   if (selectedDish) {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
         style={{ background: luxuryColors.bg }}
       >
         <div className="absolute top-0 left-0 right-0 z-20 demo-nav-safe flex items-center justify-between">
@@ -705,7 +705,7 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
   if (activeTab === 'home') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
         style={{ background: luxuryColors.bg }}
       >
         <m.div 
@@ -935,7 +935,7 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
   if (activeTab === 'catalog') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
         style={{ background: luxuryColors.bg }}
       >
         <div className="p-6 pb-4">
@@ -1113,7 +1113,7 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
 
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-32 smooth-scroll-page"
+        className="min-h-screen text-white pb-32 smooth-scroll-page"
         style={{ background: luxuryColors.bg }}
       >
         <div className="p-6">
@@ -1252,7 +1252,7 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
   if (activeTab === 'profile') {
     return (
       <div 
-        className="min-h-screen text-white overflow-auto pb-24 smooth-scroll-page"
+        className="min-h-screen text-white pb-24 smooth-scroll-page"
         style={{ background: luxuryColors.bg }}
       >
         <div className="p-6">

@@ -362,7 +362,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
 
   if (activeTab === 'catalog' && selectedSneaker) {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedSneaker(null)}
@@ -454,7 +454,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
 
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <DemoSidebar
           isOpen={sidebar.isOpen}
           onClose={sidebar.close}
@@ -674,7 +674,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
 
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold">Каталог</h1>
@@ -780,7 +780,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
 
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-32 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-32 smooth-scroll-page">
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-6">Корзина</h1>
 
@@ -884,7 +884,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
 
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="p-6 bg-black/80 backdrop-blur-xl border-b border-white/10">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-accent)] rounded-full flex items-center justify-center">

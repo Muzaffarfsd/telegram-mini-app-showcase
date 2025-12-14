@@ -441,7 +441,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
     const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#000000';
     
     return (
-      <div className="min-h-screen text-white overflow-auto smooth-scroll-page" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white smooth-scroll-page" style={{ backgroundColor: bgColor }}>
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
@@ -562,7 +562,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
   // HOME PAGE
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <DemoSidebar
           isOpen={sidebar.isOpen}
           onClose={sidebar.close}
@@ -757,7 +757,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
   // CATALOG PAGE
   if (activeTab === 'catalog') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
             <h1 className="text-2xl font-bold uppercase tracking-wider font-mono">Каталог</h1>
@@ -853,7 +853,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
   // CART PAGE
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-black text-white overflow-auto pb-32 smooth-scroll-page">
+      <div className="min-h-screen bg-black text-white pb-32 smooth-scroll-page">
         <div className="p-6">
           <h1 className="text-3xl font-black mb-6 tracking-tight scroll-fade-in uppercase">КОРЗИНА</h1>
 
@@ -958,7 +958,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
   // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-black text-white overflow-auto pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-black text-white pb-24 smooth-scroll-page">
         <div className="p-6 bg-gradient-to-b from-white/5 to-transparent backdrop-blur-xl border-b border-white/10 scroll-fade-in">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-white to-gray-400 rounded-2xl flex items-center justify-center">
