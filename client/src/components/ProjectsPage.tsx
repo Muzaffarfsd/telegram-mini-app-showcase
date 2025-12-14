@@ -63,35 +63,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             </span>
           </h1>
           
-          {/* Subtext - AIDA с интригой */}
-          <p 
-            className="scroll-fade-in-delay-2"
-            style={{
-              fontSize: '15px',
-              fontWeight: 400,
-              letterSpacing: '-0.01em',
-              lineHeight: '1.7',
-              color: '#A1A1AA',
-              marginTop: '20px',
-              maxWidth: '340px'
-            }}
-          >
-            Ваши конкуренты уже используют такие приложения. 
-            <span style={{ color: '#E4E4E7', fontWeight: 500 }}> Посмотрите сами</span> — 
-            каждое можно открыть и протестировать прямо сейчас.
-          </p>
-          
-          {/* Scroll hint */}
-          <div 
-            className="scroll-fade-in-delay-2 flex items-center gap-3"
-            style={{ marginTop: '28px' }}
-          >
-            <div className="scroll-icon" />
-            <span style={{ fontSize: '15px', color: '#A78BFA', fontWeight: 500, letterSpacing: '-0.01em' }}>
-              Смотреть примеры
-            </span>
-          </div>
-          
+                    
           {/* Competitive FOMO Statement */}
           <div 
             className="scroll-fade-in-delay-3"
@@ -539,39 +511,6 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
         .scroll-fade-in-delay-3 { animation-delay: 0.26s; }
         .scroll-fade-in-delay-4 { animation-delay: 0.34s; }
 
-        /* Professional scroll icon */
-        .scroll-icon {
-          width: 20px;
-          height: 32px;
-          border: 2px solid #A78BFA;
-          border-radius: 10px;
-          position: relative;
-          opacity: 0.9;
-        }
-
-        .scroll-icon::before {
-          content: '';
-          width: 4px;
-          height: 6px;
-          background: #A78BFA;
-          border-radius: 2px;
-          position: absolute;
-          top: 6px;
-          left: 50%;
-          transform: translateX(-50%);
-          animation: scrollPulse 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-        }
-
-        @keyframes scrollPulse {
-          0%, 20% { 
-            opacity: 1; 
-            transform: translateX(-50%) translateY(0); 
-          }
-          80%, 100% { 
-            opacity: 0; 
-            transform: translateX(-50%) translateY(14px); 
-          }
-        }
       `}</style>
     </div>
   );
