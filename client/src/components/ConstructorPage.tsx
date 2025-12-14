@@ -302,19 +302,77 @@ const PaymentSection = memo(() => {
           ))}
         </div>
         
-        {/* Price */}
-        <div style={{ 
-          padding: '16px', 
-          borderRadius: '12px', 
-          background: 'rgba(90, 200, 250, 0.08)',
-          border: '1px solid rgba(90, 200, 250, 0.15)',
-          textAlign: 'center'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '4px' }}>
-            <span style={{ fontSize: '28px', fontWeight: 700, color: '#FAFAFA' }}>5,999</span>
-            <span style={{ fontSize: '14px', color: '#71717A' }}>₽/мес</span>
+        {/* Pricing Tiers */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Минимальный */}
+          <div style={{ 
+            padding: '16px', 
+            borderRadius: '12px', 
+            background: 'rgba(113, 113, 122, 0.08)',
+            border: '1px solid rgba(113, 113, 122, 0.15)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: '#FAFAFA' }}>Минимальный</p>
+                <p style={{ fontSize: '11px', color: '#71717A', marginTop: '2px' }}>Хостинг + мелкие правки</p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '22px', fontWeight: 700, color: '#FAFAFA' }}>9 900</span>
+                <span style={{ fontSize: '12px', color: '#71717A' }}> ₽/мес</span>
+              </div>
+            </div>
           </div>
-          <p style={{ fontSize: '12px', color: '#5AC8FA', marginTop: '4px' }}>Первый месяц бесплатно</p>
+          
+          {/* Стандартный */}
+          <div style={{ 
+            padding: '16px', 
+            borderRadius: '12px', 
+            background: 'rgba(90, 200, 250, 0.08)',
+            border: '1px solid rgba(90, 200, 250, 0.2)',
+            position: 'relative'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '-8px',
+              right: '12px',
+              padding: '2px 8px',
+              borderRadius: '6px',
+              background: '#5AC8FA',
+              fontSize: '9px',
+              fontWeight: 700,
+              color: '#000',
+              letterSpacing: '0.05em'
+            }}>ПОПУЛЯРНЫЙ</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: '#FAFAFA' }}>Стандартный</p>
+                <p style={{ fontSize: '11px', color: '#5AC8FA', marginTop: '2px' }}>Поддержка + обновления</p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '22px', fontWeight: 700, color: '#FAFAFA' }}>14 900</span>
+                <span style={{ fontSize: '12px', color: '#71717A' }}> ₽/мес</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Премиум */}
+          <div style={{ 
+            padding: '16px', 
+            borderRadius: '12px', 
+            background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(139, 92, 246, 0.08) 100%)',
+            border: '1px solid rgba(167, 139, 250, 0.2)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: '#FAFAFA' }}>Премиум</p>
+                <p style={{ fontSize: '11px', color: '#A78BFA', marginTop: '2px' }}>Приоритет + консультации</p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '22px', fontWeight: 700, color: '#FAFAFA' }}>24 900</span>
+                <span style={{ fontSize: '12px', color: '#71717A' }}> ₽/мес</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
