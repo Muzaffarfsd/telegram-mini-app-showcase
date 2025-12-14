@@ -81,11 +81,11 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           
           {/* Scroll hint */}
           <div 
-            className="scroll-fade-in-delay-2 flex items-center gap-2"
-            style={{ marginTop: '24px' }}
+            className="scroll-fade-in-delay-2 flex items-center gap-3"
+            style={{ marginTop: '28px' }}
           >
-            <div className="scroll-mouse-mini" />
-            <span style={{ fontSize: '13px', color: '#A78BFA', fontWeight: 500 }}>
+            <div className="scroll-icon" />
+            <span style={{ fontSize: '15px', color: '#A78BFA', fontWeight: 500, letterSpacing: '-0.01em' }}>
               Протестируйте приложения
             </span>
           </div>
@@ -537,31 +537,38 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
         .scroll-fade-in-delay-3 { animation-delay: 0.26s; }
         .scroll-fade-in-delay-4 { animation-delay: 0.34s; }
 
-        /* Mini mouse scroll indicator */
-        .scroll-mouse-mini {
-          width: 16px;
-          height: 24px;
-          border: 1.5px solid #A78BFA;
-          border-radius: 8px;
+        /* Professional scroll icon */
+        .scroll-icon {
+          width: 20px;
+          height: 32px;
+          border: 2px solid #A78BFA;
+          border-radius: 10px;
           position: relative;
+          opacity: 0.9;
         }
 
-        .scroll-mouse-mini::before {
+        .scroll-icon::before {
           content: '';
-          width: 2px;
-          height: 5px;
+          width: 4px;
+          height: 6px;
           background: #A78BFA;
-          border-radius: 1px;
+          border-radius: 2px;
           position: absolute;
-          top: 5px;
+          top: 6px;
           left: 50%;
           transform: translateX(-50%);
-          animation: scrollWheelMini 1.5s ease-in-out infinite;
+          animation: scrollPulse 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
         }
 
-        @keyframes scrollWheelMini {
-          0% { opacity: 1; transform: translateX(-50%) translateY(0); }
-          100% { opacity: 0; transform: translateX(-50%) translateY(8px); }
+        @keyframes scrollPulse {
+          0%, 20% { 
+            opacity: 1; 
+            transform: translateX(-50%) translateY(0); 
+          }
+          80%, 100% { 
+            opacity: 0; 
+            transform: translateX(-50%) translateY(14px); 
+          }
         }
       `}</style>
     </div>
