@@ -3,6 +3,7 @@ import { useCallback, memo, useState, useEffect, useRef } from "react";
 import { m, AnimatePresence, useSpring, useTransform, useInView } from 'framer-motion';
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
+import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
 import { preloadDemo } from './demos/DemoRegistry';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
@@ -49,7 +50,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   useTelegram();
   const haptic = useHaptic();
   const [headlineIndex, setHeadlineIndex] = useState(0);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const { videoRef } = useVideoLazyLoad({ threshold: 0.25 });
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -251,11 +252,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <video
                   ref={videoRef}
                   src="/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4"
-                  autoPlay
                   loop
                   muted
                   playsInline
-                  preload="auto"
+                  preload="none"
                   className="absolute inset-0 w-full h-full object-cover"
                   style={{ filter: 'brightness(0.6)' }}
                 />
