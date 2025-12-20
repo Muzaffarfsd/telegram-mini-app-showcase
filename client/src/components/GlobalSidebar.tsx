@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, forwardRef, memo, useMemo } from "react";
-import { Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight, Bell } from "lucide-react";
+import { Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight, Bell, BarChart3 } from "lucide-react";
 import { SiInstagram, SiTelegram } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
 
@@ -141,6 +141,13 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       section: 'notifications', 
       routes: ['notifications'],
       description: 'Тест Telegram Bot API'
+    },
+    { 
+      icon: BarChart3, 
+      label: 'Аналитика', 
+      section: 'analytics', 
+      routes: ['analytics'],
+      description: 'Бизнес-метрики'
     },
   ];
 

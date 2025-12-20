@@ -8,6 +8,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { logRequest, logInfo, logError } from "./logger";
 import { errorHandler } from "./errorHandler";
+import { setupSwagger } from "./swagger";
 
 // Initialize Sentry for error tracking
 if (process.env.SENTRY_DSN) {
@@ -72,12 +73,31 @@ app.use('/api/coins', strictLimiter);
 
 logInfo('Server starting', { env: process.env.NODE_ENV });
 
-// Serve attached_assets folder for uploaded videos/images
-app.use('/attached_assets', express.static(path.resolve(import.meta.dirname, '..', 'attached_assets'), {
-  maxAge: '1d',
+// CDN-like caching for static assets in production
+const staticCacheOptions = {
+  maxAge: process.env.NODE_ENV === 'production' ? '1y' : '1d', // 1 year in production
   etag: true,
-  lastModified: true
-}));
+  lastModified: true,
+  immutable: process.env.NODE_ENV === 'production', // Immutable for hashed assets
+  setHeaders: (res: Response, filePath: string) => {
+    // Set CDN-friendly headers
+    if (process.env.NODE_ENV === 'production') {
+      // Immutable caching for hashed assets (JS, CSS with content hashes)
+      if (filePath.match(/\.[a-f0-9]{8,}\.(js|css|woff2?|ttf|eot)$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+      // Standard long cache for images
+      else if (filePath.match(/\.(png|jpg|jpeg|gif|svg|webp|ico)$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=604800'); // 7 days
+      }
+      // Add Vary header for CDN compatibility
+      res.setHeader('Vary', 'Accept-Encoding');
+    }
+  }
+};
+
+// Serve attached_assets folder for uploaded videos/images
+app.use('/attached_assets', express.static(path.resolve(import.meta.dirname, '..', 'attached_assets'), staticCacheOptions));
 
 // Brotli/Gzip compression for all responses
 app.use(compression({
@@ -142,6 +162,9 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+
+  // Setup Swagger API documentation
+  setupSwagger(app);
 
   // Custom error handler (also sends to Sentry via errorHandler)
   app.use(errorHandler);

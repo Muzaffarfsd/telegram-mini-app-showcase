@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { X, ChevronRight, ChevronLeft, Sparkles, Gift, Trophy, Zap } from 'lucide-react';
+import { useABTest, EXPERIMENTS } from '@/hooks/useABTest';
 
 const ONBOARDING_KEY = 'tma_onboarding_complete';
 
@@ -11,7 +12,7 @@ interface OnboardingStep {
   gradient: string;
 }
 
-const steps: OnboardingStep[] = [
+const allSteps: OnboardingStep[] = [
   {
     icon: Sparkles,
     title: 'Добро пожаловать!',
@@ -38,6 +39,21 @@ const steps: OnboardingStep[] = [
   },
 ];
 
+const simplifiedSteps: OnboardingStep[] = [
+  {
+    icon: Sparkles,
+    title: 'Добро пожаловать!',
+    description: 'Откройте для себя 18+ готовых Mini App решений для вашего бизнеса: рестораны, фитнес, магазины, AI-агенты и многое другое.',
+    gradient: 'from-emerald-400/80 to-cyan-400/80',
+  },
+  {
+    icon: Zap,
+    title: 'Зарабатывайте бонусы',
+    description: 'Приглашайте друзей, выполняйте задания и получайте монеты. Используйте их для заказа собственного приложения!',
+    gradient: 'from-violet-400/80 to-fuchsia-400/80',
+  },
+];
+
 interface OnboardingTutorialProps {
   onComplete?: () => void;
 }
@@ -45,6 +61,10 @@ interface OnboardingTutorialProps {
 export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  
+  const { variant, isVariantB, trackConversion } = useABTest(EXPERIMENTS.ONBOARDING_FLOW);
+  
+  const steps = isVariantB ? simplifiedSteps : allSteps;
 
   useEffect(() => {
     const completed = localStorage.getItem(ONBOARDING_KEY);
@@ -69,6 +89,7 @@ export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
 
   const handleComplete = () => {
     localStorage.setItem(ONBOARDING_KEY, 'true');
+    trackConversion();
     setIsVisible(false);
     onComplete?.();
   };
@@ -95,6 +116,7 @@ export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
           WebkitBackdropFilter: 'blur(20px)',
         }}
         data-testid="onboarding-overlay"
+        data-ab-variant={variant}
       >
         <m.div
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -196,6 +218,7 @@ export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
                         ? '0 0 8px rgba(255,255,255,0.5)' 
                         : 'none',
                     }}
+                    data-testid={`indicator-step-${idx}`}
                   />
                 ))}
               </div>

@@ -89,6 +89,9 @@ function validateCSRF(req: Request, res: Response, next: NextFunction) {
     '/api/telegram/webhook',
     '/api/vitals',
     '/api/stripe/webhook',
+    '/api/analytics',
+    '/api/error',
+    '/api/user-action',
   ];
   
   if (excludedPaths.some(path => req.path.startsWith(path))) {
@@ -230,14 +233,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Apply XSS sanitization to all POST/PUT/PATCH request bodies
   app.use('/api/', sanitizeBodyMiddleware);
   
-  // CSRF token endpoint - generates token for client
+  /**
+   * @openapi
+   * /api/csrf-token:
+   *   get:
+   *     tags: [Auth]
+   *     summary: Get CSRF token
+   *     description: Generate a CSRF token for protected API calls
+   *     responses:
+   *       200:
+   *         description: CSRF token generated
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 csrfToken:
+   *                   type: string
+   */
   app.get("/api/csrf-token", (req, res) => {
     const sessionId = req.headers['x-telegram-init-data'] as string || req.ip || 'anonymous';
     const token = generateCSRFToken(sessionId);
     res.json({ csrfToken: token });
   });
 
-  // Health check endpoint for Railway
+  /**
+   * @openapi
+   * /api/health:
+   *   get:
+   *     tags: [Health]
+   *     summary: Health check
+   *     description: Check if the API is running
+   *     responses:
+   *       200:
+   *         description: API is healthy
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: ok
+   *                 timestamp:
+   *                   type: string
+   *                   format: date-time
+   *                 env:
+   *                   type: string
+   */
   app.get("/api/health", (req, res) => {
     res.json({ 
       status: 'ok', 
@@ -2732,6 +2775,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Interactive notification error:', error);
       res.status(500).json({ error: 'Failed to send interactive notification' });
+    }
+  });
+
+  // ============ A/B TESTING ANALYTICS ============
+  const abTestEvents: Map<string, Array<{
+    experiment: string;
+    variant: string;
+    eventType: string;
+    userId: string | null;
+    timestamp: number;
+  }>> = new Map();
+
+  app.post("/api/analytics/ab-event", (req, res) => {
+    try {
+      const { experiment, variant, eventType, userId, timestamp } = req.body;
+      
+      if (!experiment || !variant || !eventType) {
+        return res.status(400).json({ error: 'Missing required fields: experiment, variant, eventType' });
+      }
+      
+      if (!['A', 'B'].includes(variant)) {
+        return res.status(400).json({ error: 'Invalid variant. Must be A or B' });
+      }
+      
+      if (!['exposure', 'conversion'].includes(eventType)) {
+        return res.status(400).json({ error: 'Invalid eventType. Must be exposure or conversion' });
+      }
+      
+      const eventKey = `${experiment}::${variant}::${eventType}`;
+      const existingEvents = abTestEvents.get(eventKey) || [];
+      
+      existingEvents.push({
+        experiment,
+        variant,
+        eventType,
+        userId: userId || null,
+        timestamp: timestamp || Date.now(),
+      });
+      
+      abTestEvents.set(eventKey, existingEvents);
+      
+      console.log(`[A/B TEST] ${experiment}: ${variant} - ${eventType}`, { userId, total: existingEvents.length });
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('A/B event tracking error:', error);
+      res.status(500).json({ error: 'Failed to track A/B event' });
+    }
+  });
+
+  app.get("/api/analytics/ab-stats", (req, res) => {
+    try {
+      const stats: Record<string, Record<string, { exposures: number; conversions: number; conversionRate: string }>> = {};
+      
+      abTestEvents.forEach((events, key) => {
+        const [experiment, variant, eventType] = key.split('::');
+        
+        if (!stats[experiment]) {
+          stats[experiment] = {};
+        }
+        
+        if (!stats[experiment][variant]) {
+          stats[experiment][variant] = { exposures: 0, conversions: 0, conversionRate: '0%' };
+        }
+        
+        if (eventType === 'exposure') {
+          stats[experiment][variant].exposures = events.length;
+        } else if (eventType === 'conversion') {
+          stats[experiment][variant].conversions = events.length;
+        }
+      });
+      
+      Object.keys(stats).forEach(experiment => {
+        Object.keys(stats[experiment]).forEach(variant => {
+          const { exposures, conversions } = stats[experiment][variant];
+          const rate = exposures > 0 ? ((conversions / exposures) * 100).toFixed(2) : '0';
+          stats[experiment][variant].conversionRate = `${rate}%`;
+        });
+      });
+      
+      res.json({ stats, rawEventCount: Array.from(abTestEvents.values()).reduce((sum, arr) => sum + arr.length, 0) });
+    } catch (error: any) {
+      console.error('A/B stats error:', error);
+      res.status(500).json({ error: 'Failed to get A/B stats' });
     }
   });
 
