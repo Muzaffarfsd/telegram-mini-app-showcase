@@ -21,6 +21,9 @@ if (process.env.SENTRY_DSN) {
 
 const app = express();
 
+// Trust proxy for proper IP detection behind reverse proxy (Replit/Railway)
+app.set('trust proxy', 1);
+
 // Security: Helmet for HTTP headers protection
 app.use(helmet({
   contentSecurityPolicy: false, // Disabled for Telegram WebApp compatibility
