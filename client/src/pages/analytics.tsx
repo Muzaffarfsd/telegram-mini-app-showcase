@@ -183,7 +183,7 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <div className="min-h-screen px-3 pt-20 pb-32">
+    <div className="min-h-screen px-3 pt-36 pb-32">
       <div className="max-w-md mx-auto space-y-4">
         <div className="flex items-center justify-between gap-2">
           <h1 className="text-xl font-bold text-white" data-testid="text-analytics-title">
