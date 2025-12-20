@@ -1,11 +1,98 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import crypto from "crypto";
+import rateLimit from 'express-rate-limit';
+import { z } from 'zod';
 import { db } from "./db";
 import { photos, insertPhotoSchema, users, referrals, gamificationStats, dailyTasks, tasksProgress, userCoinsBalance, reviews, insertReviewSchema } from "../shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { desc, eq, and, sql } from "drizzle-orm";
 import { getCached, setCache, invalidateCache, cacheKeys, CACHE_TTL } from './redis';
+
+// ============ RATE LIMITING ============
+const globalApiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
+});
+
+const sensitiveEndpointLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests to sensitive endpoint, please try again later.' },
+});
+
+// ============ CSRF PROTECTION ============
+const csrfTokens: Map<string, { token: string; expires: number }> = new Map();
+
+function generateCSRFToken(sessionId: string): string {
+  const token = crypto.randomBytes(32).toString('hex');
+  const expires = Date.now() + 60 * 60 * 1000;
+  csrfTokens.set(sessionId, { token, expires });
+  
+  Array.from(csrfTokens.entries()).forEach(([key, value]) => {
+    if (value.expires < Date.now()) {
+      csrfTokens.delete(key);
+    }
+  });
+  
+  return token;
+}
+
+function validateCSRF(req: Request, res: Response, next: NextFunction) {
+  const excludedPaths = [
+    '/api/telegram/webhook',
+    '/api/vitals',
+    '/api/stripe/webhook',
+  ];
+  
+  if (excludedPaths.some(path => req.path.startsWith(path))) {
+    return next();
+  }
+  
+  if (!['POST', 'PATCH', 'DELETE', 'PUT'].includes(req.method)) {
+    return next();
+  }
+  
+  const csrfToken = req.headers['x-csrf-token'] as string;
+  const sessionId = req.headers['x-telegram-init-data'] as string || req.ip || 'anonymous';
+  
+  if (!csrfToken) {
+    return res.status(403).json({ error: 'Missing CSRF token' });
+  }
+  
+  const storedData = csrfTokens.get(sessionId);
+  if (!storedData || storedData.token !== csrfToken || storedData.expires < Date.now()) {
+    return res.status(403).json({ error: 'Invalid or expired CSRF token' });
+  }
+  
+  next();
+}
+
+// ============ ZOD VALIDATION SCHEMAS ============
+const referralApplySchema = z.object({
+  referralCode: z.string().min(1),
+  userId: z.number().optional(),
+});
+
+const awardXpSchema = z.object({
+  telegramId: z.number(),
+  xpAmount: z.number(),
+  action: z.string(),
+});
+
+const uploadUrlSchema = z.object({
+  fileSize: z.number().optional(),
+  fileType: z.string().optional(),
+});
+
+// ============ OBJECT STORAGE LIMITS ============
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Initialize Stripe only if secret key is available
 let stripe: any = null;
@@ -84,6 +171,27 @@ function verifyTelegramUser(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // ============ APPLY SECURITY MIDDLEWARE ============
+  
+  // Apply global rate limiter to all /api/ routes
+  app.use('/api/', globalApiLimiter);
+  
+  // Apply stricter rate limiter to sensitive endpoints
+  app.use('/api/stripe/', sensitiveEndpointLimiter);
+  app.use('/api/referrals/', sensitiveEndpointLimiter);
+  app.use('/api/referral/', sensitiveEndpointLimiter);
+  app.use('/api/tasks/complete', sensitiveEndpointLimiter);
+  
+  // Apply CSRF validation middleware to all /api/ routes
+  app.use('/api/', validateCSRF);
+  
+  // CSRF token endpoint - generates token for client
+  app.get("/api/csrf-token", (req, res) => {
+    const sessionId = req.headers['x-telegram-init-data'] as string || req.ip || 'anonymous';
+    const token = generateCSRFToken(sessionId);
+    res.json({ csrfToken: token });
+  });
+
   // Telegram Mini App routes
   const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -1033,6 +1141,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoint для получения presigned URL для загрузки фотографии
   app.post("/api/photos/upload-url", async (req, res) => {
     try {
+      // Validate file size and type if provided
+      const validationResult = uploadUrlSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: validationResult.error.errors });
+      }
+      
+      const { fileSize, fileType } = validationResult.data;
+      
+      // Validate file size
+      if (fileSize !== undefined && fileSize > MAX_FILE_SIZE) {
+        return res.status(400).json({ 
+          error: 'File too large', 
+          message: `Maximum file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+          maxSize: MAX_FILE_SIZE
+        });
+      }
+      
+      // Validate file type
+      if (fileType !== undefined && !ALLOWED_TYPES.includes(fileType)) {
+        return res.status(400).json({ 
+          error: 'Invalid file type', 
+          message: `Allowed types: ${ALLOWED_TYPES.join(', ')}`,
+          allowedTypes: ALLOWED_TYPES
+        });
+      }
+      
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       res.json({ uploadURL });
@@ -1430,8 +1564,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (updatedUser.lastVisitDate) {
           if (typeof updatedUser.lastVisitDate === 'string') {
             lastActivityStr = updatedUser.lastVisitDate;
-          } else if (updatedUser.lastVisitDate instanceof Date) {
-            lastActivityStr = updatedUser.lastVisitDate.toISOString().split('T')[0];
+          } else if (updatedUser.lastVisitDate && typeof (updatedUser.lastVisitDate as any).toISOString === 'function') {
+            lastActivityStr = (updatedUser.lastVisitDate as Date).toISOString().split('T')[0];
           } else {
             lastActivityStr = String(updatedUser.lastVisitDate);
           }
@@ -1682,6 +1816,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Apply referral code
   app.post("/api/referral/apply", async (req, res) => {
     try {
+      // Validate request body
+      const validationResult = referralApplySchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: 'Validation failed', 
+          details: validationResult.error.errors 
+        });
+      }
+      
       const { userId, referralCode } = req.body;
 
       if (!userId || !referralCode) {
@@ -1794,6 +1937,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Начислить XP (теперь в таблице users)
   app.post("/api/gamification/award-xp", async (req, res) => {
     try {
+      // Validate request body using Zod
+      const validationResult = awardXpSchema.safeParse({
+        telegramId: req.body.telegram_id,
+        xpAmount: req.body.xp,
+        action: req.body.action || 'unknown'
+      });
+      
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: 'Validation failed', 
+          details: validationResult.error.issues 
+        });
+      }
+      
       const { telegram_id, xp } = req.body;
 
       if (!telegram_id || !xp) {
@@ -2280,7 +2437,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!validationResult.success) {
         return res.status(400).json({ 
           error: 'Validation failed', 
-          details: validationResult.error.errors 
+          details: validationResult.error.issues 
         });
       }
       
