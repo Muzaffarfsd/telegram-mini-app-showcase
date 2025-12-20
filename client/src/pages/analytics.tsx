@@ -16,7 +16,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { Users, Activity, TrendingUp, Clock, Calendar } from "lucide-react";
+import { Users, Activity, TrendingUp, Clock } from "lucide-react";
 
 type DateRange = "today" | "7days" | "30days";
 
@@ -74,25 +74,25 @@ const StatCard = ({
   trend?: { value: number; positive: boolean };
 }) => (
   <Card className="relative overflow-visible" data-testid={`stat-card-${title.toLowerCase().replace(/\s/g, "-")}`}>
-    <CardContent className="p-4">
-      <div className="flex items-center justify-between gap-2">
+    <CardContent className="p-3">
+      <div className="flex items-start justify-between gap-1">
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-white/60 truncate">{title}</p>
-          <p className="text-2xl font-bold text-white mt-1">
+          <p className="text-xs text-white/60 truncate">{title}</p>
+          <p className="text-lg font-bold text-white mt-0.5">
             {value}
-            {suffix && <span className="text-lg text-white/80">{suffix}</span>}
+            {suffix && <span className="text-sm text-white/80">{suffix}</span>}
           </p>
           {trend && (
-            <p className={`text-xs mt-1 ${trend.positive ? "text-emerald-400" : "text-red-400"}`}>
-              {trend.positive ? "+" : ""}{trend.value}% vs прошлый период
+            <p className={`text-[10px] mt-0.5 ${trend.positive ? "text-emerald-400" : "text-red-400"}`}>
+              {trend.positive ? "+" : ""}{trend.value}%
             </p>
           )}
         </div>
         <div
-          className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
           style={{ background: "rgba(16, 185, 129, 0.15)" }}
         >
-          <Icon className="w-6 h-6 text-emerald-400" />
+          <Icon className="w-4 h-4 text-emerald-400" />
         </div>
       </div>
     </CardContent>
@@ -133,18 +133,14 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <div className="min-h-screen px-4 py-6 pb-32">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-white" data-testid="text-analytics-title">
-              Аналитика
-            </h1>
-            <p className="text-white/60 text-sm mt-1">Бизнес-метрики и статистика</p>
-          </div>
+    <div className="min-h-screen px-3 py-4 pb-32">
+      <div className="max-w-md mx-auto space-y-4">
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-xl font-bold text-white" data-testid="text-analytics-title">
+            Аналитика
+          </h1>
 
-          <div className="flex items-center gap-2 flex-wrap" data-testid="select-date-range">
-            <Calendar className="w-4 h-4 text-white/60" />
+          <div className="flex items-center gap-1" data-testid="select-date-range">
             {dateRangeOptions.map((option) => (
               <Button
                 key={option.value}
@@ -153,8 +149,8 @@ export default function AnalyticsPage() {
                 onClick={() => setDateRange(option.value)}
                 className={
                   dateRange === option.value
-                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                    : "text-white/60"
+                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs px-2"
+                    : "text-white/60 text-xs px-2"
                 }
                 data-testid={`button-range-${option.value}`}
               >
@@ -164,7 +160,7 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <StatCard
             title="Всего пользователей"
             value={stats.totalUsers.toLocaleString()}
@@ -191,15 +187,15 @@ export default function AnalyticsPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-4">
           <Card data-testid="chart-total-users">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-semibold text-white">
+            <CardHeader className="pb-2 px-3 pt-3">
+              <CardTitle className="text-base font-semibold text-white">
                 Рост пользователей
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="h-[280px]">
+            <CardContent className="px-2 pb-3">
+              <div className="h-[180px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={totalUsersData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -232,13 +228,13 @@ export default function AnalyticsPage() {
           </Card>
 
           <Card data-testid="chart-active-users">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-semibold text-white">
+            <CardHeader className="pb-2 px-3 pt-3">
+              <CardTitle className="text-base font-semibold text-white">
                 Активность по дням
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="h-[280px]">
+            <CardContent className="px-2 pb-3">
+              <div className="h-[180px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={activeUsersData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -267,13 +263,13 @@ export default function AnalyticsPage() {
           </Card>
 
           <Card data-testid="chart-funnel">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-semibold text-white">
+            <CardHeader className="pb-2 px-3 pt-3">
+              <CardTitle className="text-base font-semibold text-white">
                 Воронка конверсии
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="h-[280px]">
+            <CardContent className="px-2 pb-3">
+              <div className="h-[180px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={funnelData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -305,25 +301,25 @@ export default function AnalyticsPage() {
           </Card>
 
           <Card data-testid="chart-top-demos">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-semibold text-white">
-                Топ демо по просмотрам
+            <CardHeader className="pb-2 px-3 pt-3">
+              <CardTitle className="text-base font-semibold text-white">
+                Топ демо
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="h-[280px]">
+            <CardContent className="px-2 pb-3">
+              <div className="h-[180px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={topDemosData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
+                      innerRadius={40}
+                      outerRadius={70}
                       paddingAngle={2}
                       dataKey="value"
                       nameKey="name"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
                       labelLine={false}
                     >
                       {topDemosData.map((entry, index) => (
@@ -339,29 +335,23 @@ export default function AnalyticsPage() {
         </div>
 
         <Card data-testid="section-insights">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold text-white">
-              Ключевые инсайты
+          <CardHeader className="pb-2 px-3 pt-3">
+            <CardTitle className="text-base font-semibold text-white">
+              Инсайты
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
-                <p className="text-emerald-400 font-medium mb-1">Рост аудитории</p>
-                <p className="text-white/70 text-sm">
-                  +12.5% новых пользователей за последние 7 дней
+          <CardContent className="px-3 pb-3">
+            <div className="space-y-2">
+              <div className="p-3 rounded-lg" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
+                <p className="text-emerald-400 font-medium text-sm">Рост +12.5%</p>
+                <p className="text-white/70 text-xs">
+                  Новых пользователей за 7 дней
                 </p>
               </div>
-              <div className="p-4 rounded-xl" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
-                <p className="text-emerald-400 font-medium mb-1">Лучший день</p>
-                <p className="text-white/70 text-sm">
-                  Пятница показывает максимальную активность
-                </p>
-              </div>
-              <div className="p-4 rounded-xl" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
-                <p className="text-emerald-400 font-medium mb-1">Популярная категория</p>
-                <p className="text-white/70 text-sm">
-                  Демо "Ресторан" лидирует по просмотрам
+              <div className="p-3 rounded-lg" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
+                <p className="text-emerald-400 font-medium text-sm">Топ: Ресторан</p>
+                <p className="text-white/70 text-xs">
+                  Лидирует по просмотрам
                 </p>
               </div>
             </div>
