@@ -92,6 +92,7 @@ function validateCSRF(req: Request, res: Response, next: NextFunction) {
     '/api/analytics',
     '/api/error',
     '/api/user-action',
+    '/api/webhooks',
   ];
   
   if (excludedPaths.some(path => req.path.startsWith(path))) {
@@ -2879,6 +2880,173 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { action, metadata, url } = req.body;
     console.log(`[ACTION] ${action}`, { url, metadata });
     res.json({ success: true });
+  });
+
+  /**
+   * @openapi
+   * /api/analytics/track:
+   *   post:
+   *     tags: [Analytics]
+   *     summary: Track user action with Telegram notification
+   *     description: Log user action and optionally send to Telegram admin channel
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [actionType, userId]
+   *             properties:
+   *               actionType:
+   *                 type: string
+   *               userId:
+   *                 type: integer
+   *               metadata:
+   *                 type: object
+   *               notifyAdmin:
+   *                 type: boolean
+   *     responses:
+   *       200:
+   *         description: Action tracked
+   */
+  app.post("/api/analytics/track", async (req, res) => {
+    try {
+      const { actionType, userId, metadata, notifyAdmin } = req.body;
+      
+      if (!actionType) {
+        return res.status(400).json({ error: 'Missing actionType' });
+      }
+      
+      const event = {
+        actionType,
+        userId: userId || null,
+        metadata: metadata || {},
+        timestamp: Date.now(),
+      };
+      
+      console.log(`[TRACK] ${actionType}`, event);
+      
+      if (notifyAdmin && TELEGRAM_BOT_TOKEN) {
+        const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
+        if (ADMIN_CHAT_ID) {
+          const message = `<b>User Action</b>\n\nType: <code>${actionType}</code>\nUser: ${userId || 'anonymous'}\nTime: ${new Date().toISOString()}\n${metadata ? `\nData: <pre>${JSON.stringify(metadata, null, 2)}</pre>` : ''}`;
+          
+          await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: ADMIN_CHAT_ID,
+              text: message,
+              parse_mode: 'HTML',
+            }),
+          });
+        }
+      }
+      
+      res.json({ success: true, tracked: event });
+    } catch (error: any) {
+      console.error('Track action error:', error);
+      res.status(500).json({ error: 'Failed to track action' });
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/webhooks/referral:
+   *   post:
+   *     tags: [Referrals]
+   *     summary: Webhook for referral confirmation events
+   *     description: External webhook endpoint for referral system events
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [event, referralCode]
+   *             properties:
+   *               event:
+   *                 type: string
+   *                 enum: [signup, purchase, milestone]
+   *               referralCode:
+   *                 type: string
+   *               userId:
+   *                 type: integer
+   *               amount:
+   *                 type: number
+   *               metadata:
+   *                 type: object
+   *     responses:
+   *       200:
+   *         description: Webhook processed
+   */
+  app.post("/api/webhooks/referral", async (req, res) => {
+    try {
+      const { event, referralCode, userId, amount, metadata } = req.body;
+      
+      if (!event || !referralCode) {
+        return res.status(400).json({ error: 'Missing event or referralCode' });
+      }
+      
+      const validEvents = ['signup', 'purchase', 'milestone'];
+      if (!validEvents.includes(event)) {
+        return res.status(400).json({ error: `Invalid event type. Must be one of: ${validEvents.join(', ')}` });
+      }
+      
+      console.log(`[REFERRAL WEBHOOK] ${event}`, { referralCode, userId, amount, metadata });
+      
+      const [referrer] = await db.select().from(users).where(eq(users.referralCode, referralCode)).limit(1);
+      if (!referrer) {
+        return res.status(404).json({ error: 'Referral code not found' });
+      }
+      
+      let reward = 0;
+      switch (event) {
+        case 'signup':
+          reward = 50;
+          break;
+        case 'purchase':
+          reward = Math.floor((amount || 0) * 0.1);
+          break;
+        case 'milestone':
+          reward = 200;
+          break;
+      }
+      
+      if (reward > 0) {
+        await db.update(users)
+          .set({ 
+            totalCoins: sql`${users.totalCoins} + ${reward}`,
+            availableCoins: sql`${users.availableCoins} + ${reward}` 
+          })
+          .where(eq(users.telegramId, referrer.telegramId));
+        console.log(`[REFERRAL REWARD] User ${referrer.telegramId} received ${reward} coins for ${event}`);
+      }
+      
+      if (TELEGRAM_BOT_TOKEN) {
+        const message = `<b>Referral ${event}</b>\n\nYour referral code was used!\nReward: +${reward} coins`;
+        
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: referrer.telegramId,
+            text: message,
+            parse_mode: 'HTML',
+          }),
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        event,
+        referrerId: referrer.telegramId,
+        reward,
+      });
+    } catch (error: any) {
+      console.error('Referral webhook error:', error);
+      res.status(500).json({ error: 'Failed to process referral webhook' });
+    }
   });
 
   const httpServer = createServer(app);
