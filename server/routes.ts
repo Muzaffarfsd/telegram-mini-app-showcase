@@ -5,6 +5,7 @@ import { db } from "./db";
 import { photos, insertPhotoSchema, users, referrals, gamificationStats, dailyTasks, tasksProgress, userCoinsBalance, reviews, insertReviewSchema } from "../shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { desc, eq, and, sql } from "drizzle-orm";
+import { getCached, setCache, invalidateCache, cacheKeys, CACHE_TTL } from './redis';
 
 // Initialize Stripe only if secret key is available
 let stripe: any = null;
@@ -1829,6 +1830,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .returning();
 
       res.json(updated);
+      
+      // Invalidate leaderboard cache
+      await invalidateCache('leaderboard:*');
     } catch (error) {
       console.error('Error awarding XP:', error);
       res.status(500).json({ error: 'Failed to award XP' });
@@ -1976,6 +1980,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Получить leaderboard (теперь из объединенной таблицы users)
   app.get("/api/gamification/leaderboard", async (req, res) => {
     try {
+      // Try cache first
+      const cacheKey = cacheKeys.leaderboard();
+      const cached = await getCached<any[]>(cacheKey);
+      
+      if (cached) {
+        return res.json(cached);
+      }
+
       const top = await db
         .select({
           telegramId: users.telegramId,
@@ -1988,6 +2000,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .orderBy(desc(users.totalXp))
         .limit(100);
 
+      // Cache for 60 seconds
+      await setCache(cacheKey, top, CACHE_TTL.LEADERBOARD);
+      
       res.json(top);
     } catch (error) {
       console.error('Error fetching leaderboard:', error);

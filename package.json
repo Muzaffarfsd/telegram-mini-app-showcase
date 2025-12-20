@@ -65,6 +65,7 @@
     "@uppy/progress-bar": "^4.3.2",
     "@uppy/react": "^4.5.2",
     "@uppy/status-bar": "^4.2.3",
+    "@upstash/redis": "^1.35.8",
     "@vitejs/plugin-react-swc": "^4.2.1",
     "archiver": "^7.0.1",
     "class-variance-authority": "^0.7.1",
