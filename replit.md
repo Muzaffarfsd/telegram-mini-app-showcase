@@ -67,6 +67,24 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 - **Performance**: Optimized chunk splitting with React in main vendor bundle for proper load order
 - **URL**: https://w4tg.up.railway.app
 
+### Performance Optimizations (Dec 2024)
+**Video Lazy Loading:**
+- ShowcasePage video uses `useVideoLazyLoad` hook with `preload="none"`
+- IntersectionObserver triggers video load/play only when 25% visible
+- Video pauses automatically when leaving viewport
+
+**Service Worker Caching:**
+- Production SW with stale-while-revalidate strategy for assets
+- Network-first for API requests with cache fallback
+- Versioned caches for easy updates (auto-cleanup of old caches)
+- Registered only in production mode (`import.meta.env.PROD`)
+
+**Bundle Splitting:**
+- ShowcasePage: 16.56KB (gzip: 4.19KB) - optimized for fast FCP
+- Demos split by category: ecommerce, services, fashion, lifestyle, transport, premium, education
+- All demo components use React.lazy() with preload on hover/touch
+- Vendor bundle: 524KB (gzip: 163KB) - all React-dependent libs together
+
 ### Migration Notes & Performance Fixes (Nov 2024)
 Successfully migrated from Replit Agent environment to Railway production with critical performance optimizations:
 
