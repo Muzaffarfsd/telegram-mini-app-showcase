@@ -222,6 +222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/referrals/', sensitiveEndpointLimiter);
   app.use('/api/referral/', sensitiveEndpointLimiter);
   app.use('/api/tasks/complete', sensitiveEndpointLimiter);
+  app.use('/api/notifications/', sensitiveEndpointLimiter);
   
   // Apply CSRF validation middleware to all /api/ routes
   app.use('/api/', validateCSRF);
@@ -2610,6 +2611,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
       downloadUrl: 'https://t.me/web4tgs',
       note: 'Contact us to receive a personalized commercial proposal'
     });
+  });
+
+  // ============ PUSH NOTIFICATIONS VIA TELEGRAM BOT API ============
+  
+  // Send push notification to user via Telegram
+  app.post("/api/notifications/send", verifyTelegramUser, async (req: any, res) => {
+    if (!TELEGRAM_BOT_TOKEN) {
+      return res.status(503).json({ error: 'Telegram bot not configured' });
+    }
+    
+    try {
+      const { chatId, message, parseMode = 'HTML' } = req.body;
+      
+      if (!chatId || !message) {
+        return res.status(400).json({ error: 'chatId and message are required' });
+      }
+      
+      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: parseMode,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (!result.ok) {
+        return res.status(400).json({ error: result.description || 'Failed to send notification' });
+      }
+      
+      res.json({ success: true, messageId: result.result?.message_id });
+    } catch (error: any) {
+      console.error('Push notification error:', error);
+      res.status(500).json({ error: 'Failed to send notification' });
+    }
+  });
+  
+  // Broadcast notification to multiple users (admin only)
+  app.post("/api/notifications/broadcast", verifyTelegramUser, async (req: any, res) => {
+    if (!TELEGRAM_BOT_TOKEN) {
+      return res.status(503).json({ error: 'Telegram bot not configured' });
+    }
+    
+    try {
+      const { userIds, message, parseMode = 'HTML' } = req.body;
+      
+      if (!userIds || !Array.isArray(userIds) || !message) {
+        return res.status(400).json({ error: 'userIds (array) and message are required' });
+      }
+      
+      const results = await Promise.allSettled(
+        userIds.map(async (chatId: number) => {
+          const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: message,
+              parse_mode: parseMode,
+            }),
+          });
+          return response.json();
+        })
+      );
+      
+      const sent = results.filter(r => r.status === 'fulfilled').length;
+      const failed = results.filter(r => r.status === 'rejected').length;
+      
+      res.json({ success: true, sent, failed, total: userIds.length });
+    } catch (error: any) {
+      console.error('Broadcast notification error:', error);
+      res.status(500).json({ error: 'Failed to broadcast notification' });
+    }
+  });
+  
+  // Send notification with inline keyboard
+  app.post("/api/notifications/interactive", verifyTelegramUser, async (req: any, res) => {
+    if (!TELEGRAM_BOT_TOKEN) {
+      return res.status(503).json({ error: 'Telegram bot not configured' });
+    }
+    
+    try {
+      const { chatId, message, buttons, parseMode = 'HTML' } = req.body;
+      
+      if (!chatId || !message) {
+        return res.status(400).json({ error: 'chatId and message are required' });
+      }
+      
+      const inlineKeyboard = buttons ? {
+        inline_keyboard: buttons.map((row: any[]) => 
+          row.map((btn: { text: string; url?: string; callback_data?: string }) => ({
+            text: btn.text,
+            ...(btn.url ? { url: btn.url } : { callback_data: btn.callback_data || 'action' })
+          }))
+        )
+      } : undefined;
+      
+      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: parseMode,
+          reply_markup: inlineKeyboard,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (!result.ok) {
+        return res.status(400).json({ error: result.description || 'Failed to send notification' });
+      }
+      
+      res.json({ success: true, messageId: result.result?.message_id });
+    } catch (error: any) {
+      console.error('Interactive notification error:', error);
+      res.status(500).json({ error: 'Failed to send interactive notification' });
+    }
   });
 
   // Monitoring endpoints

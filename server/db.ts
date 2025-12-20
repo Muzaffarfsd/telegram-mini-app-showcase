@@ -12,5 +12,24 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// Connection pool configuration for production
+const poolConfig = {
+  connectionString: process.env.DATABASE_URL,
+  max: process.env.NODE_ENV === 'production' ? 20 : 5, // Max connections
+  idleTimeoutMillis: 30000, // Close idle connections after 30s
+  connectionTimeoutMillis: 10000, // Connection timeout 10s
+};
+
+export const pool = new Pool(poolConfig);
 export const db = drizzle({ client: pool, schema });
+
+// Graceful shutdown - close pool on process exit
+process.on('SIGINT', async () => {
+  await pool.end();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await pool.end();
+  process.exit(0);
+});
