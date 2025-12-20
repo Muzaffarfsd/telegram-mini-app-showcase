@@ -15,11 +15,6 @@ if (process.env.SENTRY_DSN) {
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV || 'development',
     tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-    integrations: [
-      new Sentry.Integrations.Http({ tracing: true }),
-      new Sentry.Integrations.OnUncaughtException(),
-      new Sentry.Integrations.OnUnhandledRejection(),
-    ],
   });
 }
 
@@ -74,11 +69,6 @@ const strictLimiter = rateLimit({
 app.use('/api', apiLimiter);
 app.use('/api/referral', strictLimiter);
 app.use('/api/coins', strictLimiter);
-
-// Sentry request handler (must be early)
-if (process.env.SENTRY_DSN) {
-  app.use(Sentry.Handlers.requestHandler());
-}
 
 logInfo('Server starting', { env: process.env.NODE_ENV });
 
@@ -153,12 +143,7 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  // Sentry error handler (must be before custom error handler)
-  if (process.env.SENTRY_DSN) {
-    app.use(Sentry.Handlers.errorHandler());
-  }
-
-  // Custom error handler
+  // Custom error handler (also sends to Sentry via errorHandler)
   app.use(errorHandler);
 
   // importantly only setup vite in development and after

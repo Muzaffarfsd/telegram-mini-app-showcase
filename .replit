@@ -38,3 +38,9 @@ externalPort = 80
 deploymentTarget = "autoscale"
 run = ["node", "./dist/index.cjs"]
 build = ["npm", "run", "build"]
+
+[userenv]
+
+[userenv.shared]
+SENTRY_DSN = "https://b4263d8a2de5da27f0f541433cc30315@o4510568451735552.ingest.us.sentry.io/4510568453701632"
+VITE_SENTRY_DSN = "https://b4263d8a2de5da27f0f541433cc30315@o4510568451735552.ingest.us.sentry.io/4510568453701632"

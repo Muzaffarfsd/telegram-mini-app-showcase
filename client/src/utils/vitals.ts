@@ -1,4 +1,4 @@
-import { onCLS, onFID, onFCP, onLCP, onTTFB, onINP } from 'web-vitals';
+import { onCLS, onFCP, onLCP, onTTFB, onINP } from 'web-vitals';
 
 const VITALS_ENDPOINT = '/api/vitals';
 
@@ -15,7 +15,6 @@ const getRating = (name: string, value: number): 'good' | 'needs-improvement' | 
   const thresholds: Record<string, { good: number; poor: number }> = {
     FCP: { good: 1800, poor: 3000 },
     LCP: { good: 2500, poor: 4000 },
-    FID: { good: 100, poor: 300 },
     INP: { good: 200, poor: 500 },
     CLS: { good: 0.1, poor: 0.25 },
     TTFB: { good: 600, poor: 1200 },
@@ -69,14 +68,6 @@ export const initializeVitals = () => {
       ...metric,
       name: 'LCP',
       rating: getRating('LCP', metric.value),
-    });
-  });
-
-  onFID((metric) => {
-    sendMetric({
-      ...metric,
-      name: 'FID',
-      rating: getRating('FID', metric.value),
     });
   });
 
