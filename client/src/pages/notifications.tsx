@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 export default function NotificationsPage() {
   return (
-    <div className="min-h-screen bg-background p-4">
+    <div className="min-h-screen bg-background px-4 pt-16 pb-32">
       <div className="max-w-md mx-auto">
         <div className="flex items-center gap-2 mb-6">
           <Link href="/">
