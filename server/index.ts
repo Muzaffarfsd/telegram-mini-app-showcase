@@ -1,10 +1,34 @@
 import express, { type Request, Response, NextFunction } from "express";
 import compression from "compression";
 import path from "path";
+import * as Sentry from '@sentry/node';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { logRequest, logInfo, logError } from "./logger";
+import { errorHandler } from "./errorHandler";
+
+// Initialize Sentry for error tracking
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    integrations: [
+      new Sentry.Integrations.Http({ tracing: true }),
+      new Sentry.Integrations.OnUncaughtException(),
+      new Sentry.Integrations.OnUnhandledRejection(),
+    ],
+  });
+}
 
 const app = express();
+
+// Sentry request handler (must be early)
+if (process.env.SENTRY_DSN) {
+  app.use(Sentry.Handlers.requestHandler());
+}
+
+logInfo('Server starting', { env: process.env.NODE_ENV });
 
 // Serve attached_assets folder for uploaded videos/images
 app.use('/attached_assets', express.static(path.resolve(import.meta.dirname, '..', 'attached_assets'), {
@@ -42,7 +66,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use((req, res, next) => {
   const start = Date.now();
-  const path = req.path;
+  const pathname = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
@@ -53,8 +77,12 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+    if (pathname.startsWith("/api")) {
+      logRequest(req.method, pathname, res.statusCode, duration, {
+        userId: (req as any).telegramUser?.id,
+      });
+
+      let logLine = `${req.method} ${pathname} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
@@ -73,13 +101,13 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+  // Sentry error handler (must be before custom error handler)
+  if (process.env.SENTRY_DSN) {
+    app.use(Sentry.Handlers.errorHandler());
+  }
 
-    res.status(status).json({ message });
-    throw err;
-  });
+  // Custom error handler
+  app.use(errorHandler);
 
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route

@@ -10,6 +10,26 @@ import UserAvatar from "./components/UserAvatar";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
 import { scrollToTop } from "./hooks/useScrollToTop";
 import { m, useSpring } from "framer-motion";
+import * as Sentry from '@sentry/react';
+import { initializeVitals, trackPageView } from "./utils/vitals";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+
+// Initialize Sentry for error tracking
+if (import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    environment: import.meta.env.MODE,
+    tracesSampleRate: import.meta.env.MODE === 'production' ? 0.1 : 1.0,
+    integrations: [
+      new Sentry.Replay({
+        maskAllText: true,
+        blockAllMedia: true,
+      }),
+    ],
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+  });
+}
 
 // Eager load providers to prevent blank screen (Suspense fallback={null} + #root:empty CSS loop)
 import { RewardsProvider } from "./contexts/RewardsContext";
@@ -163,6 +183,16 @@ function App() {
   useEffect(() => {
     setRoute(parseHash());
   }, []);
+
+  // Initialize Core Web Vitals tracking
+  useEffect(() => {
+    initializeVitals();
+  }, []);
+
+  // Track page views
+  useEffect(() => {
+    trackPageView(route.component);
+  }, [route.component]);
 
   // Listen for hash changes
   useEffect(() => {
@@ -578,7 +608,7 @@ function App() {
           
               <Toaster />
           </XPNotificationProvider>
-      </RewardsProvider>
+        </RewardsProvider>
       </LazyMotionProvider>
     </QueryClientProvider>
   );

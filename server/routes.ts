@@ -2450,6 +2450,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Monitoring endpoints
+  app.post("/api/vitals", (req, res) => {
+    const { name, value, rating, id, url } = req.body;
+    console.log(`[VITALS] ${name}: ${value.toFixed(2)}ms (${rating})`, { url });
+    res.json({ success: true });
+  });
+
+  app.post("/api/error", (req, res) => {
+    const { errorMessage, errorStack, componentName, url } = req.body;
+    console.error(`[ERROR] ${componentName}:`, errorMessage, { url, stack: errorStack });
+    res.json({ success: true });
+  });
+
+  app.post("/api/user-action", (req, res) => {
+    const { action, metadata, url } = req.body;
+    console.log(`[ACTION] ${action}`, { url, metadata });
+    res.json({ success: true });
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
