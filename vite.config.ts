@@ -82,10 +82,12 @@ export default defineConfig({
               return 'uppy-vendor';
             }
             
-            // Charts - recharts, only in profile/stats pages (lazy loaded)
-            if (id.includes('recharts') || id.includes('d3-')) {
+            // Charts - recharts depends on React, must stay in vendor chunk
+            // d3 is a pure dependency, can be separated
+            if (id.includes('d3-') && !id.includes('recharts')) {
               return 'charts-vendor';
             }
+            // recharts stays in 'vendor' with React (falls through to default)
             
             // Framer Motion - loaded via LazyMotionProvider
             if (id.includes('framer-motion')) {
