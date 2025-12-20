@@ -1,6 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import compression from "compression";
 import path from "path";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import * as Sentry from '@sentry/node';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -22,6 +24,56 @@ if (process.env.SENTRY_DSN) {
 }
 
 const app = express();
+
+// Security: Helmet for HTTP headers protection
+app.use(helmet({
+  contentSecurityPolicy: false, // Disabled for Telegram WebApp compatibility
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
+
+// Security: CORS configuration
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  // Allow Telegram domains and local development
+  const allowedOrigins = [
+    'https://web.telegram.org',
+    'https://telegram.org',
+    'https://t.me',
+  ];
+  
+  if (origin && (allowedOrigins.some(o => origin.includes(o)) || process.env.NODE_ENV === 'development')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Telegram-Init-Data');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
+// Security: Rate limiting for API endpoints
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per window per IP
+  message: { error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => !req.path.startsWith('/api'), // Only limit API routes
+});
+
+const strictLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 requests per minute for sensitive endpoints
+  message: { error: 'Rate limit exceeded' },
+});
+
+app.use('/api', apiLimiter);
+app.use('/api/referral', strictLimiter);
+app.use('/api/coins', strictLimiter);
 
 // Sentry request handler (must be early)
 if (process.env.SENTRY_DSN) {

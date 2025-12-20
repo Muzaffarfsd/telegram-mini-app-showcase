@@ -58,6 +58,7 @@ const PremiumTasksEarningPage = lazy(() => import("./components/PremiumTasksEarn
 // Global components
 import GlobalSidebar from "./components/GlobalSidebar";
 import { PageTransition } from "./components/PageTransition";
+import { OnboardingTutorial } from "./components/OnboardingTutorial";
 
 // Simple hash router types
 interface Route {
@@ -608,6 +609,9 @@ function App() {
 
           
               <Toaster />
+              
+              {/* Onboarding tutorial for new users */}
+              <OnboardingTutorial />
           </XPNotificationProvider>
         </RewardsProvider>
       </LazyMotionProvider>
