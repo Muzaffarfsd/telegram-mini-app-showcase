@@ -46,6 +46,7 @@ const PhotoGallery = lazy(() => import("./pages/PhotoGallery"));
 const ReferralProgram = lazy(() => import("./components/ReferralProgram").then(m => ({ default: m.ReferralProgram })));
 const GamificationHub = lazy(() => import("./components/GamificationHub").then(m => ({ default: m.GamificationHub })));
 const PremiumTasksEarningPage = lazy(() => import("./components/PremiumTasksEarningPage").then(m => ({ default: m.PremiumTasksEarningPage })));
+const NotificationsPage = lazy(() => import("./pages/notifications"));
 
 // Global components
 import GlobalSidebar from "./components/GlobalSidebar";
@@ -91,7 +92,8 @@ const parseHash = (): Route => {
     '/photo-gallery': 'photoGallery',
     '/referral': 'referral',
     '/rewards': 'rewards',
-    '/earning': 'earning'
+    '/earning': 'earning',
+    '/notifications': 'notifications'
   };
   
   // Always default to showcase page if route not found
@@ -373,6 +375,9 @@ function App() {
             
             case 'earning':
               return <PremiumTasksEarningPage onNavigate={handleNavigate} />;
+            
+            case 'notifications':
+              return <NotificationsPage />;
             
             // Always show showcase page as default fallback
             default:
