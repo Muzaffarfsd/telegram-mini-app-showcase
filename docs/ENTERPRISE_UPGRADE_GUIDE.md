@@ -6,6 +6,7 @@
 
 ## Содержание
 
+### Базовые улучшения (1-10)
 1. [Безопасность: Telegram initData Validation](#1-безопасность-telegram-initdata-validation)
 2. [Rate Limiting per Telegram ID](#2-rate-limiting-per-telegram-id)
 3. [Code-Splitting (Оптимизация загрузки)](#3-code-splitting-оптимизация-загрузки)
@@ -16,6 +17,16 @@
 8. [AI Integration](#8-ai-integration)
 9. [Telegram Viewport Optimization](#9-telegram-viewport-optimization)
 10. [CI/CD Pipeline](#10-cicd-pipeline)
+
+### Тренды 2025-2026 (11-18)
+11. [Telegram Mini Apps 2.0](#11-telegram-mini-apps-20-ноябрь-2024) — Full-screen, Stars, Geolocation
+12. [React 19 / 19.2 Features](#12-react-19--192-features) — Compiler, Actions, Activity
+13. [WebAssembly (Wasm)](#13-webassembly-wasm) — Нативная производительность
+14. [Zero-Trust Security](#14-zero-trust-security) — Продвинутая защита
+15. [Edge Computing](#15-edge-computing) — Глобальная скорость
+16. [Web3 / TON Integration](#16-web3--ton-integration) — Крипто и NFT
+17. [Green UX](#17-green-ux-sustainability) — Энергоэффективность
+18. [Micro-frontends](#18-micro-frontends) — Масштабируемая архитектура
 
 ---
 
@@ -2135,6 +2146,845 @@ jobs:
 
 ---
 
+## 11. Telegram Mini Apps 2.0 (Ноябрь 2024)
+
+### Что это даёт
+
+Крупнейшее обновление Mini Apps с **10+ новыми функциями и монетизацией**.
+
+| Функция | Что даёт | Бизнес-ценность |
+|---------|----------|-----------------|
+| **Full-Screen Mode** | Полноэкранный режим, ландшафтная ориентация | Игры, иммерсивный опыт |
+| **Geolocation** | Доступ к геолокации пользователя | Доставка, карты, локальные сервисы |
+| **Home Screen Shortcut** | Иконка на домашнем экране телефона | +40% возвратов, как нативное приложение |
+| **Telegram Stars** | Подписки и платежи через Stars | Монетизация без комиссии App Store |
+| **Emoji Status** | Установка статуса пользователя | Геймификация, социальные функции |
+| **shareMessage()** | Шеринг в чаты и Stories | Виральность, реферальная программа |
+| **downloadFile()** | Скачивание файлов | AI-генерация, экспорт данных |
+| **Device Motion** | Датчики движения устройства | VR/AR игры, уникальный контроль |
+| **Secondary Button** | Вторая кнопка внизу | Больше действий, лучший UX |
+| **Bottom Bar Color** | Кастомизация нижней панели | Брендинг, дизайн |
+
+### Реализация
+
+**Файл:** `client/src/lib/telegramFeatures.ts`
+
+```typescript
+const WebApp = window.Telegram?.WebApp;
+
+// === FULL-SCREEN MODE ===
+// Для игр и иммерсивного контента
+
+export function enterFullscreen(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!WebApp?.requestFullscreen) {
+      reject(new Error('Fullscreen not supported'));
+      return;
+    }
+    
+    WebApp.onEvent('fullscreenChanged', () => {
+      if (WebApp.isFullscreen) resolve();
+    });
+    
+    WebApp.onEvent('fullscreenFailed', (error: { error: string }) => {
+      reject(new Error(error.error));
+    });
+    
+    WebApp.requestFullscreen();
+  });
+}
+
+export function exitFullscreen(): void {
+  WebApp?.exitFullscreen?.();
+}
+
+// === GEOLOCATION ===
+// Для доставки, карт, локальных сервисов
+
+export interface LocationData {
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+}
+
+export function requestLocation(): Promise<LocationData> {
+  return new Promise((resolve, reject) => {
+    if (!WebApp?.LocationManager) {
+      reject(new Error('Location not supported'));
+      return;
+    }
+    
+    WebApp.LocationManager.getLocation((location) => {
+      if (location) {
+        resolve({
+          latitude: location.latitude,
+          longitude: location.longitude,
+          accuracy: location.accuracy,
+        });
+      } else {
+        reject(new Error('Location denied'));
+      }
+    });
+  });
+}
+
+// === HOME SCREEN SHORTCUT ===
+// Добавление иконки на домашний экран
+
+export async function addToHomeScreen(): Promise<boolean> {
+  if (!WebApp?.addToHomeScreen) {
+    console.warn('Home screen shortcut not supported');
+    return false;
+  }
+  
+  try {
+    WebApp.addToHomeScreen();
+    return true;
+  } catch (error) {
+    console.error('Failed to add to home screen:', error);
+    return false;
+  }
+}
+
+// Проверка статуса
+export function checkHomeScreenStatus(): 'added' | 'not_added' | 'unknown' {
+  return WebApp?.homeScreenStatus || 'unknown';
+}
+
+// === TELEGRAM STARS (ПЛАТЕЖИ) ===
+// Подписки и покупки без комиссии App Store
+
+export interface InvoiceParams {
+  title: string;
+  description: string;
+  payload: string;
+  prices: Array<{ label: string; amount: number }>;
+  subscriptionPeriod?: 'month' | 'year';  // Для подписок
+}
+
+export function openInvoice(url: string): Promise<'paid' | 'cancelled' | 'failed'> {
+  return new Promise((resolve) => {
+    WebApp?.openInvoice(url, (status) => {
+      resolve(status);
+    });
+  });
+}
+
+// === EMOJI STATUS ===
+// Установка статуса для Premium пользователей
+
+export function setEmojiStatus(customEmojiId: string, duration?: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (!WebApp?.setEmojiStatus) {
+      resolve(false);
+      return;
+    }
+    
+    WebApp.onEvent('emojiStatusSet', () => resolve(true));
+    WebApp.onEvent('emojiStatusFailed', () => resolve(false));
+    
+    WebApp.setEmojiStatus(customEmojiId, { duration });
+  });
+}
+
+// === SHARING ===
+// Шеринг контента в чаты и Stories
+
+export function shareMessage(messageId: string): void {
+  WebApp?.shareMessage?.(messageId);
+}
+
+export function shareToStory(mediaUrl: string, params?: {
+  text?: string;
+  widgetLink?: { url: string; name: string };
+}): void {
+  WebApp?.shareToStory?.(mediaUrl, params);
+}
+
+// === DOWNLOAD FILE ===
+// Скачивание файлов (AI-генерация, экспорт)
+
+export function downloadFile(url: string, filename: string): void {
+  WebApp?.downloadFile?.({ url, file_name: filename });
+}
+
+// === SECONDARY BUTTON ===
+// Вторая кнопка внизу экрана
+
+export function setupSecondaryButton(
+  text: string,
+  onClick: () => void,
+  options?: { color?: string; textColor?: string }
+): void {
+  const btn = WebApp?.SecondaryButton;
+  if (!btn) return;
+  
+  btn.setText(text);
+  if (options?.color) btn.color = options.color;
+  if (options?.textColor) btn.textColor = options.textColor;
+  
+  btn.onClick(onClick);
+  btn.show();
+}
+
+// === DEVICE MOTION ===
+// Для игр с управлением через наклон устройства
+
+export function startDeviceMotion(
+  onMotion: (data: { alpha: number; beta: number; gamma: number }) => void
+): () => void {
+  if (!WebApp?.DeviceOrientation) {
+    console.warn('Device motion not supported');
+    return () => {};
+  }
+  
+  WebApp.DeviceOrientation.start({ 
+    refresh_rate: 60,
+    need_absolute: false,
+  }, onMotion);
+  
+  return () => WebApp.DeviceOrientation.stop();
+}
+
+// === BOTTOM BAR COLOR ===
+// Кастомизация нижней панели
+
+export function setBottomBarColor(color: string): void {
+  WebApp?.setBottomBarColor?.(color);
+}
+```
+
+---
+
+## 12. React 19 / 19.2 Features
+
+### Что это даёт
+
+React 19 (декабрь 2024) — крупнейшее обновление с автоматической оптимизацией.
+
+| Функция | Что даёт | Бизнес-ценность |
+|---------|----------|-----------------|
+| **React Compiler** | Автоматическая мемоизация | -30-40% bundle, не нужен useMemo/useCallback |
+| **Server Components** | Рендеринг на сервере | -38% время загрузки |
+| **Actions API** | Упрощённые формы | Меньше кода, автоматические состояния |
+| **use() API** | Чтение промисов в рендере | Проще async код |
+| **Activity Component** | Приоритизация рендеринга | Предзагрузка страниц |
+| **useEffectEvent** | Стабильные колбэки | Меньше ре-рендеров |
+
+### Реализация
+
+**Actions API — упрощённые формы:**
+
+```typescript
+// Было (React 18):
+function OldForm() {
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsPending(true);
+    setError(null);
+    try {
+      await submitData(new FormData(e.target));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsPending(false);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      {error && <p>{error}</p>}
+      <button disabled={isPending}>
+        {isPending ? 'Saving...' : 'Save'}
+      </button>
+    </form>
+  );
+}
+
+// Стало (React 19):
+function NewForm() {
+  const [state, formAction, isPending] = useActionState(
+    async (prevState, formData) => {
+      try {
+        await submitData(formData);
+        return { success: true };
+      } catch (err) {
+        return { error: err.message };
+      }
+    },
+    { success: false, error: null }
+  );
+  
+  return (
+    <form action={formAction}>
+      {state.error && <p>{state.error}</p>}
+      <button disabled={isPending}>
+        {isPending ? 'Saving...' : 'Save'}
+      </button>
+    </form>
+  );
+}
+```
+
+**useOptimistic — мгновенный UI:**
+
+```typescript
+function LikeButton({ initialLikes, postId }) {
+  const [likes, setLikes] = useState(initialLikes);
+  const [optimisticLikes, addOptimisticLike] = useOptimistic(
+    likes,
+    (current, increment) => current + increment
+  );
+  
+  const handleLike = async () => {
+    addOptimisticLike(1);  // Мгновенно показываем +1
+    
+    try {
+      const newLikes = await api.likePost(postId);
+      setLikes(newLikes);  // Обновляем реальным значением
+    } catch {
+      // При ошибке optimisticLikes откатится автоматически
+    }
+  };
+  
+  return (
+    <button onClick={handleLike}>
+      {optimisticLikes} likes
+    </button>
+  );
+}
+```
+
+**Activity Component (React 19.2) — предзагрузка страниц:**
+
+```typescript
+import { Activity } from 'react';
+
+function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [nextPage, setNextPage] = useState(null);
+  
+  // Предзагружаем следующую страницу при наведении
+  const handleHover = (page) => setNextPage(page);
+  
+  return (
+    <>
+      {/* Текущая страница — полный рендеринг */}
+      <Activity mode="visible">
+        <Page name={currentPage} />
+      </Activity>
+      
+      {/* Следующая страница — скрытая предзагрузка */}
+      {nextPage && nextPage !== currentPage && (
+        <Activity mode="hidden">
+          <Page name={nextPage} />
+        </Activity>
+      )}
+      
+      <nav>
+        <button 
+          onMouseEnter={() => handleHover('settings')}
+          onClick={() => setCurrentPage('settings')}
+        >
+          Settings
+        </button>
+      </nav>
+    </>
+  );
+}
+```
+
+**use() API — чтение промисов:**
+
+```typescript
+// Было:
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    fetchUser(userId).then(setUser).finally(() => setLoading(false));
+  }, [userId]);
+  
+  if (loading) return <Skeleton />;
+  return <div>{user.name}</div>;
+}
+
+// Стало:
+function UserProfile({ userPromise }) {
+  const user = use(userPromise);  // React сам покажет Suspense
+  return <div>{user.name}</div>;
+}
+
+// Использование:
+<Suspense fallback={<Skeleton />}>
+  <UserProfile userPromise={fetchUser(userId)} />
+</Suspense>
+```
+
+---
+
+## 13. WebAssembly (Wasm)
+
+### Что это даёт
+
+| Преимущество | Описание |
+|--------------|----------|
+| Производительность | Код на C++/Rust работает почти как нативный |
+| Тяжёлые вычисления | Видео-редактирование, 3D, криптография в браузере |
+| Портирование | Существующий код (игры, библиотеки) работает в вебе |
+
+**Бизнес-ценность:** 
+- Photoshop в браузере (Adobe использует Wasm)
+- Figma — 3x быстрее с Wasm
+- Игры AAA-качества в браузере
+
+**Где использовать в Mini Apps:**
+- Обработка изображений (фильтры, ресайз)
+- Криптография (подпись транзакций TON)
+- Сложные анимации и игры
+
+### Реализация
+
+```typescript
+// Загрузка Wasm модуля
+async function loadImageProcessor() {
+  const wasm = await import('./image-processor.wasm');
+  await wasm.default();  // Инициализация
+  return wasm;
+}
+
+// Использование для обработки изображений
+async function applyFilter(imageData: ImageData, filterName: string): Promise<ImageData> {
+  const processor = await loadImageProcessor();
+  
+  // Передаём данные в Wasm
+  const result = processor.apply_filter(
+    imageData.data,
+    imageData.width,
+    imageData.height,
+    filterName
+  );
+  
+  return new ImageData(result, imageData.width, imageData.height);
+}
+```
+
+---
+
+## 14. Zero-Trust Security
+
+### Что это даёт
+
+| Преимущество | Описание |
+|--------------|----------|
+| Нет доверия по умолчанию | Каждый запрос проверяется |
+| Минимальные права | Доступ только к нужным ресурсам |
+| Постоянная верификация | Проверка на каждом шаге |
+
+**Бизнес-ценность:** Компании с Zero-Trust имеют в 2 раза меньше инцидентов безопасности (2025).
+
+**Принципы:**
+1. Никогда не доверяй, всегда проверяй
+2. Минимальные привилегии
+3. Предполагай, что сеть уже взломана
+
+### Реализация
+
+```typescript
+// Middleware для Zero-Trust
+
+export function zeroTrustMiddleware() {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const checks = [
+      // 1. Проверка Telegram initData (идентификация)
+      checkTelegramAuth(req),
+      
+      // 2. Проверка rate limit (защита от злоупотреблений)
+      checkRateLimit(req),
+      
+      // 3. Проверка IP/геолокации (аномалии)
+      checkGeoAnomaly(req),
+      
+      // 4. Проверка времени сессии (свежесть токена)
+      checkSessionFreshness(req),
+      
+      // 5. Проверка разрешений на ресурс
+      checkResourcePermissions(req),
+    ];
+    
+    const results = await Promise.all(checks);
+    const failed = results.find(r => !r.passed);
+    
+    if (failed) {
+      // Логируем подозрительную активность
+      await logSecurityEvent({
+        type: 'zero_trust_block',
+        reason: failed.reason,
+        ip: req.ip,
+        userId: (req as any).telegramUser?.id,
+        path: req.path,
+      });
+      
+      return res.status(403).json({
+        code: 'ACCESS_DENIED',
+        message: failed.userMessage || 'Доступ запрещён',
+      });
+    }
+    
+    next();
+  };
+}
+
+// Проверка аномалий геолокации
+async function checkGeoAnomaly(req: Request): Promise<{ passed: boolean; reason?: string }> {
+  const userId = (req as any).telegramUser?.id;
+  if (!userId) return { passed: true };  // Анонимный запрос
+  
+  const currentGeo = getGeoFromIP(req.ip);
+  const lastGeo = await redis.get(`user:${userId}:last_geo`);
+  
+  if (lastGeo && lastGeo !== currentGeo) {
+    const timeSinceLastRequest = await redis.get(`user:${userId}:last_request_time`);
+    const hoursSince = (Date.now() - parseInt(timeSinceLastRequest || '0')) / 3600000;
+    
+    // Невозможно переместиться между странами за час
+    if (hoursSince < 1) {
+      return {
+        passed: false,
+        reason: `Geo anomaly: ${lastGeo} -> ${currentGeo} in ${hoursSince}h`,
+      };
+    }
+  }
+  
+  await redis.set(`user:${userId}:last_geo`, currentGeo);
+  await redis.set(`user:${userId}:last_request_time`, Date.now().toString());
+  
+  return { passed: true };
+}
+```
+
+---
+
+## 15. Edge Computing
+
+### Что это даёт
+
+| Преимущество | Описание |
+|--------------|----------|
+| Скорость | Код выполняется близко к пользователю |
+| Персонализация | Динамический контент без задержки |
+| Масштабируемость | Автоматическое масштабирование по миру |
+
+**Бизнес-ценность:** 
+- Latency 50ms вместо 200ms
+- Лучше UX для глобальной аудитории
+- Netflix, Cloudflare, Vercel используют Edge
+
+**Что выносить на Edge:**
+- Персонализация контента
+- A/B тесты
+- Геолокационные редиректы
+- Кэширование
+
+### Реализация (Cloudflare Workers / Vercel Edge)
+
+```typescript
+// edge-functions/personalization.ts
+
+export const config = { runtime: 'edge' };
+
+export default async function handler(request: Request) {
+  const geo = request.headers.get('cf-ipcountry') || 'US';
+  const userId = getUserIdFromCookie(request);
+  
+  // Персонализация на Edge — без обращения к origin серверу
+  const personalizedContent = {
+    greeting: getGreeting(geo),
+    currency: getCurrency(geo),
+    language: getLanguage(geo),
+    recommendations: await getRecommendations(userId),
+  };
+  
+  return new Response(JSON.stringify(personalizedContent), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'private, max-age=60',
+    },
+  });
+}
+
+function getGreeting(country: string): string {
+  const greetings: Record<string, string> = {
+    RU: 'Привет!',
+    US: 'Hello!',
+    DE: 'Hallo!',
+    JP: 'こんにちは!',
+  };
+  return greetings[country] || greetings.US;
+}
+```
+
+---
+
+## 16. Web3 / TON Integration
+
+### Что это даёт
+
+| Преимущество | Описание |
+|--------------|----------|
+| Крипто-платежи | TON, USDT прямо в Mini App |
+| NFT | Уникальные награды, коллекции |
+| DeFi | Стейкинг, обмен токенов |
+| Децентрализация | Данные у пользователя, не на сервере |
+
+**Бизнес-ценность:** 
+- TON экосистема: 650+ dApps, $150M+ TVL
+- Notcoin, Blum — миллионы пользователей
+- Telegram Stars + TON = полная монетизация
+
+### Реализация
+
+```typescript
+// Подключение TON Connect
+
+import { TonConnect } from '@tonconnect/sdk';
+
+const tonConnect = new TonConnect({
+  manifestUrl: 'https://your-app.com/tonconnect-manifest.json',
+});
+
+// Подключение кошелька
+export async function connectWallet(): Promise<string | null> {
+  try {
+    const wallets = await tonConnect.getWallets();
+    
+    // Показываем Tonkeeper если установлен
+    const tonkeeper = wallets.find(w => w.name === 'Tonkeeper');
+    if (tonkeeper) {
+      await tonConnect.connect({ jsBridgeKey: tonkeeper.jsBridgeKey });
+    }
+    
+    // Ждём подключения
+    return new Promise((resolve) => {
+      tonConnect.onStatusChange((wallet) => {
+        if (wallet) {
+          resolve(wallet.account.address);
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Wallet connection failed:', error);
+    return null;
+  }
+}
+
+// Отправка транзакции
+export async function sendPayment(
+  toAddress: string,
+  amount: string,  // в нанотонах
+  comment?: string
+): Promise<boolean> {
+  try {
+    const transaction = {
+      validUntil: Math.floor(Date.now() / 1000) + 600,  // 10 минут
+      messages: [
+        {
+          address: toAddress,
+          amount: amount,
+          payload: comment ? encodeComment(comment) : undefined,
+        },
+      ],
+    };
+    
+    await tonConnect.sendTransaction(transaction);
+    return true;
+  } catch (error) {
+    console.error('Transaction failed:', error);
+    return false;
+  }
+}
+
+// NFT коллекции как награды
+export async function mintAchievementNFT(
+  userAddress: string,
+  achievementId: string
+): Promise<string> {
+  // Вызов смарт-контракта для минтинга NFT
+  const nftAddress = await callContract('mint_nft', {
+    owner: userAddress,
+    metadata: {
+      name: `Achievement: ${achievementId}`,
+      image: `https://your-app.com/nft/${achievementId}.png`,
+    },
+  });
+  
+  return nftAddress;
+}
+```
+
+---
+
+## 17. Green UX (Sustainability)
+
+### Что это даёт
+
+| Преимущество | Описание |
+|--------------|----------|
+| Экономия энергии | Меньше нагрузка на устройство = дольше батарея |
+| Экология | Меньше CO2 от серверов и устройств |
+| Скорость | Оптимизированный код = быстрее загрузка |
+| Имидж | Eco-friendly брендинг |
+
+**Бизнес-ценность:** 
+- Интернет производит 3.7% мирового CO2
+- Пользователи ценят eco-friendly бренды
+- Google учитывает Core Web Vitals в SEO
+
+**Принципы:**
+1. Меньше JavaScript = меньше CPU = меньше энергии
+2. Оптимизированные изображения
+3. Dark mode экономит батарею на OLED
+4. Lazy loading — грузим только нужное
+
+### Реализация
+
+```typescript
+// Оптимизация для энергоэффективности
+
+// 1. Reduce Motion для экономии батареи
+export function useReducedMotion(): boolean {
+  const [reducedMotion, setReducedMotion] = useState(false);
+  
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReducedMotion(mediaQuery.matches);
+    
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+  
+  return reducedMotion;
+}
+
+// 2. Остановка анимаций когда вкладка не видна
+export function useVisibilityPause(animationRef: React.RefObject<Animation>) {
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        animationRef.current?.pause();
+      } else {
+        animationRef.current?.play();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [animationRef]);
+}
+
+// 3. Автоматический Dark Mode для OLED экранов
+export function useAutoDarkMode() {
+  useEffect(() => {
+    // Проверяем предпочтения системы
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // Проверяем время суток (ночью = dark mode)
+    const hour = new Date().getHours();
+    const isNight = hour < 7 || hour > 21;
+    
+    if (prefersDark || isNight) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+}
+
+// 4. Carbon-aware loading — меньше ресурсов при высоком CO2
+export async function carbonAwareLoad(): Promise<'full' | 'lite'> {
+  try {
+    // API для проверки carbon intensity в регионе
+    const response = await fetch('https://api.carbonintensity.org.uk/intensity');
+    const data = await response.json();
+    
+    // Если высокий carbon intensity — загружаем lite версию
+    if (data.data[0].intensity.index === 'very high') {
+      return 'lite';
+    }
+  } catch {
+    // Fallback — полная версия
+  }
+  return 'full';
+}
+```
+
+---
+
+## 18. Micro-frontends
+
+### Что это даёт
+
+| Преимущество | Описание |
+|--------------|----------|
+| Независимость команд | Каждая команда владеет своим модулем |
+| Разные технологии | React + Vue + Svelte в одном приложении |
+| Независимые деплои | Обновляем части без полного редеплоя |
+| Масштабирование | Добавляем модули без переписывания |
+
+**Бизнес-ценность:** 
+- IKEA, Spotify, Zalando используют micro-frontends
+- Быстрее разработка: команды не блокируют друг друга
+- Проще поддержка: локализованные изменения
+
+**Когда использовать:**
+- Большая команда (5+ разработчиков)
+- Разные бизнес-домены в одном приложении
+- Постепенная миграция со старого стека
+
+### Реализация (Module Federation)
+
+```typescript
+// vite.config.ts для host приложения
+
+import { defineConfig } from 'vite';
+import federation from '@originjs/vite-plugin-federation';
+
+export default defineConfig({
+  plugins: [
+    federation({
+      name: 'host',
+      remotes: {
+        // Подключаем внешние модули
+        shopModule: 'http://localhost:3001/assets/remoteEntry.js',
+        blogModule: 'http://localhost:3002/assets/remoteEntry.js',
+        profileModule: 'http://localhost:3003/assets/remoteEntry.js',
+      },
+      shared: ['react', 'react-dom'],  // Общие зависимости
+    }),
+  ],
+});
+
+// Использование в коде:
+const ShopDemo = lazy(() => import('shopModule/ShopDemo'));
+const BlogDemo = lazy(() => import('blogModule/BlogDemo'));
+
+function App() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <Switch>
+        <Route path="/shop" component={ShopDemo} />
+        <Route path="/blog" component={BlogDemo} />
+      </Switch>
+    </Suspense>
+  );
+}
+```
+
+---
+
 ## Сводная таблица ценности
 
 | # | Улучшение | Что даёт | Метрика успеха |
@@ -2149,6 +2999,14 @@ jobs:
 | 8 | AI Integration | Автоматизация поддержки | -80% нагрузка на людей |
 | 9 | Viewport | Идеальное отображение | 0 жалоб на UI |
 | 10 | CI/CD | Быстрые и надёжные релизы | Деплой за 5 минут |
+| 11 | **TMA 2.0** | **Новые фичи Telegram** | **Full-screen, Stars, Geo** |
+| 12 | **React 19** | **Автоматическая оптимизация** | **-40% bundle size** |
+| 13 | **WebAssembly** | **Нативная производительность** | **3x быстрее вычисления** |
+| 14 | **Zero-Trust** | **Продвинутая безопасность** | **-50% риск взлома** |
+| 15 | **Edge Computing** | **Глобальная скорость** | **Latency 50ms** |
+| 16 | **Web3/TON** | **Крипто-платежи и NFT** | **Новая монетизация** |
+| 17 | **Green UX** | **Энергоэффективность** | **Eco-friendly бренд** |
+| 18 | **Micro-frontends** | **Масштабируемость** | **Независимые команды** |
 
 ---
 
@@ -2157,35 +3015,83 @@ jobs:
 ### Фаза 1: Безопасность (1-2 недели)
 - [ ] Telegram initData validation
 - [ ] Rate limiting per Telegram ID
+- [ ] Zero-Trust middleware
 - [ ] Audit logging
 
 ### Фаза 2: Производительность (1-2 недели)
 - [ ] Code-splitting optimization
 - [ ] Speculative prefetch
+- [ ] React 19 migration (Actions API, useOptimistic)
 - [ ] Image optimization
 
-### Фаза 3: Offline (1 неделя)
+### Фаза 3: Telegram Mini Apps 2.0 (1-2 недели)
+- [ ] Full-screen mode для демо
+- [ ] Home screen shortcut
+- [ ] Telegram Stars платежи
+- [ ] shareMessage() для реферальной программы
+- [ ] Secondary Button
+
+### Фаза 4: Offline & PWA (1 неделя)
 - [ ] Service Worker
 - [ ] Background sync
 - [ ] Optimistic UI
+- [ ] Green UX optimizations
 
-### Фаза 4: Аналитика & Эксперименты (1-2 недели)
+### Фаза 5: Аналитика & Эксперименты (1-2 недели)
 - [ ] Event taxonomy
 - [ ] A/B testing infrastructure
+- [ ] Edge Computing для персонализации
 - [ ] Dashboard
 
-### Фаза 5: Gamification & AI (2 недели)
+### Фаза 6: Gamification & AI (2 недели)
 - [ ] Rules engine
 - [ ] AI orchestrator
 - [ ] Safety filters
+- [ ] Emoji Status интеграция
 
-### Фаза 6: CI/CD (1 неделя)
+### Фаза 7: Web3 / TON (1-2 недели)
+- [ ] TON Connect интеграция
+- [ ] NFT награды за достижения
+- [ ] Крипто-платежи
+- [ ] Wallet authentication
+
+### Фаза 8: CI/CD & Architecture (1 неделя)
 - [ ] GitHub Actions
 - [ ] Lighthouse CI
 - [ ] Auto-deploy
+- [ ] Micro-frontends (опционально)
 
 ---
 
-**Общее время:** 8-12 недель
+**Общее время:** 10-16 недель
 
-**Приоритет:** Безопасность → Производительность → Офлайн → Аналитика → Gamification → AI → CI/CD
+**Приоритет:**
+1. Безопасность (критично)
+2. Telegram Mini Apps 2.0 (конкурентное преимущество)
+3. Производительность + React 19 (UX)
+4. Offline & PWA (надёжность)
+5. Аналитика (данные для решений)
+6. Gamification & AI (вовлечённость)
+7. Web3/TON (монетизация)
+8. CI/CD (масштабирование)
+
+---
+
+## Ресурсы и документация
+
+### Официальные источники
+- [Telegram Mini Apps Docs](https://core.telegram.org/bots/webapps)
+- [Mini Apps 2.0 Blog](https://telegram.org/blog/fullscreen-miniapps-and-more)
+- [React 19 Docs](https://react.dev/blog/2024/12/05/react-19)
+- [React 19.2 Release](https://react.dev/blog/2025/10/01/react-19-2)
+- [TON Connect](https://docs.ton.org/develop/dapps/ton-connect)
+
+### Сообщество
+- [Telegram Mini Apps GitHub](https://github.com/telegram-mini-apps)
+- [tma.js SDK](https://github.com/telegram-mini-apps/tma.js)
+
+---
+
+**Дата создания:** Декабрь 2024
+**Последнее обновление:** Декабрь 2024
+**Версия:** 2.0
