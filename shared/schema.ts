@@ -133,6 +133,21 @@ export const reviews = pgTable("reviews", {
   createdAtIdx: index("idx_reviews_created_at").on(table.createdAt),
 }));
 
+// Таблица аналитических событий
+export const analyticsEvents = pgTable("analytics_events", {
+  id: serial("id").primaryKey(),
+  eventType: varchar("event_type", { length: 50 }).notNull(),
+  eventName: varchar("event_name", { length: 255 }).notNull(),
+  telegramId: bigint("telegram_id", { mode: "number" }),
+  metadata: jsonb("metadata").default({}).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  eventTypeIdx: index("idx_analytics_events_type").on(table.eventType),
+  eventNameIdx: index("idx_analytics_events_name").on(table.eventName),
+  telegramIdIdx: index("idx_analytics_events_telegram_id").on(table.telegramId),
+  createdAtIdx: index("idx_analytics_events_created_at").on(table.createdAt),
+}));
+
 // Таблица для хранения метаданных фотографий
 export const photos = pgTable("photos", {
   id: serial("id").primaryKey(),
@@ -172,6 +187,11 @@ export const insertTasksProgressSchema = createInsertSchema(tasksProgress).omit(
   createdAt: true,
 });
 
+export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertPhotoSchema = createInsertSchema(photos).omit({
   id: true,
   uploadedAt: true,
@@ -200,6 +220,8 @@ export type DailyTask = typeof dailyTasks.$inferSelect;
 export type InsertDailyTask = z.infer<typeof insertDailyTaskSchema>;
 export type TasksProgress = typeof tasksProgress.$inferSelect;
 export type InsertTasksProgress = z.infer<typeof insertTasksProgressSchema>;
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
 export type Photo = typeof photos.$inferSelect;
 export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
 export type Review = typeof reviews.$inferSelect;
