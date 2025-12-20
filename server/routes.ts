@@ -9,6 +9,47 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { desc, eq, and, sql } from "drizzle-orm";
 import { getCached, setCache, invalidateCache, cacheKeys, CACHE_TTL } from './redis';
 
+// ============ XSS SANITIZATION (Context-aware) ============
+// Only sanitize specific user-generated text fields, not paths/URLs
+const XSS_SANITIZE_FIELDS = new Set(['text', 'comment', 'message', 'description', 'bio', 'content']);
+
+function sanitizeHtmlString(input: string): string {
+  if (typeof input !== 'string') return input;
+  return input
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '');
+}
+
+function sanitizeUserInput(obj: any, parentKey?: string): any {
+  if (typeof obj === 'string') {
+    // Only sanitize known text fields, leave paths/URLs intact
+    if (parentKey && XSS_SANITIZE_FIELDS.has(parentKey.toLowerCase())) {
+      return sanitizeHtmlString(obj);
+    }
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((item, i) => sanitizeUserInput(item, parentKey));
+  }
+  if (obj && typeof obj === 'object') {
+    const sanitized: any = {};
+    for (const key of Object.keys(obj)) {
+      sanitized[key] = sanitizeUserInput(obj[key], key);
+    }
+    return sanitized;
+  }
+  return obj;
+}
+
+function sanitizeBodyMiddleware(req: Request, res: Response, next: NextFunction) {
+  if (req.body && typeof req.body === 'object') {
+    req.body = sanitizeUserInput(req.body);
+  }
+  next();
+}
+
 // ============ RATE LIMITING ============
 const globalApiLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -184,6 +225,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Apply CSRF validation middleware to all /api/ routes
   app.use('/api/', validateCSRF);
+  
+  // Apply XSS sanitization to all POST/PUT/PATCH request bodies
+  app.use('/api/', sanitizeBodyMiddleware);
   
   // CSRF token endpoint - generates token for client
   app.get("/api/csrf-token", (req, res) => {
@@ -960,7 +1004,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Stripe payment routes
-  app.post("/api/create-payment-intent", async (req, res) => {
+  app.post("/api/create-payment-intent", verifyTelegramUser, async (req: any, res) => {
     if (!stripe) {
       return res.status(503).json({ 
         error: "Payment processing is not available. Stripe not configured." 
@@ -997,7 +1041,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Payment success webhook (for future use)
-  app.post("/api/payment-success", async (req, res) => {
+  app.post("/api/payment-success", verifyTelegramUser, async (req: any, res) => {
     try {
       const { paymentIntentId, projectName, features } = req.body;
       
@@ -1148,7 +1192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Referenced from javascript_object_storage blueprint
 
   // Endpoint для получения presigned URL для загрузки фотографии
-  app.post("/api/photos/upload-url", async (req, res) => {
+  app.post("/api/photos/upload-url", verifyTelegramUser, async (req: any, res) => {
     try {
       // Validate file size and type if provided
       const validationResult = uploadUrlSchema.safeParse(req.body);
@@ -1186,7 +1230,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Endpoint для сохранения метаданных фотографии после загрузки
-  app.post("/api/photos", async (req, res) => {
+  app.post("/api/photos", verifyTelegramUser, async (req: any, res) => {
     try {
       const validatedData = insertPhotoSchema.parse(req.body);
       
@@ -1260,7 +1304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Endpoint для удаления фотографии
-  app.delete("/api/photos/:id", async (req, res) => {
+  app.delete("/api/photos/:id", verifyTelegramUser, async (req: any, res) => {
     try {
       const photoId = parseInt(req.params.id);
       const [deletedPhoto] = await db.delete(photos).where(eq(photos.id, photoId)).returning();
@@ -1823,7 +1867,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Apply referral code
-  app.post("/api/referral/apply", async (req, res) => {
+  app.post("/api/referral/apply", verifyTelegramUser, async (req: any, res) => {
     try {
       // Validate request body
       const validationResult = referralApplySchema.safeParse(req.body);
@@ -1944,7 +1988,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Начислить XP (теперь в таблице users)
-  app.post("/api/gamification/award-xp", async (req, res) => {
+  app.post("/api/gamification/award-xp", verifyTelegramUser, async (req: any, res) => {
     try {
       // Validate request body using Zod
       const validationResult = awardXpSchema.safeParse({
@@ -2066,7 +2110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Выполнить задачу
-  app.post("/api/gamification/complete-task", async (req, res) => {
+  app.post("/api/gamification/complete-task", verifyTelegramUser, async (req: any, res) => {
     try {
       const { telegram_id, task_id } = req.body;
       const today = new Date().toISOString().split('T')[0];
@@ -2439,7 +2483,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Submit a new review
-  app.post("/api/reviews", async (req, res) => {
+  app.post("/api/reviews", verifyTelegramUser, async (req: any, res) => {
     try {
       const validationResult = insertReviewSchema.safeParse(req.body);
       
