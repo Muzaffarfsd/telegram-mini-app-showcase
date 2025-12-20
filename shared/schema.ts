@@ -56,8 +56,8 @@ export const users = pgTable("users", {
 // Таблица рефералов с FK
 export const referrals = pgTable("referrals", {
   id: serial("id").primaryKey(),
-  referrerTelegramId: bigint("referrer_telegram_id", { mode: "number" }).notNull(),
-  referredTelegramId: bigint("referred_telegram_id", { mode: "number" }).notNull(),
+  referrerTelegramId: bigint("referrer_telegram_id", { mode: "number" }).notNull().references(() => users.telegramId, { onDelete: "cascade" }),
+  referredTelegramId: bigint("referred_telegram_id", { mode: "number" }).notNull().references(() => users.telegramId, { onDelete: "cascade" }),
   bonusAmount: decimal("bonus_amount", { precision: 10, scale: 2 }).default("0").notNull(),
   status: varchar("status", { length: 50 }).default("pending").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -71,7 +71,7 @@ export const referrals = pgTable("referrals", {
 // Таблица ежедневных задач
 export const dailyTasks = pgTable("daily_tasks", {
   id: serial("id").primaryKey(),
-  telegramId: bigint("telegram_id", { mode: "number" }).notNull(),
+  telegramId: bigint("telegram_id", { mode: "number" }).notNull().references(() => users.telegramId, { onDelete: "cascade" }),
   taskId: varchar("task_id", { length: 100 }).notNull(),
   taskName: varchar("task_name", { length: 255 }).notNull(),
   description: text("description"),
@@ -91,7 +91,7 @@ export const dailyTasks = pgTable("daily_tasks", {
 // Таблица прогресса выполнения заданий
 export const tasksProgress = pgTable("tasks_progress", {
   id: serial("id").primaryKey(),
-  telegramId: bigint("telegram_id", { mode: "number" }).notNull(),
+  telegramId: bigint("telegram_id", { mode: "number" }).notNull().references(() => users.telegramId, { onDelete: "cascade" }),
   taskId: varchar("task_id", { length: 100 }).notNull(),
   platform: varchar("platform", { length: 50 }).notNull(),
   taskType: varchar("task_type", { length: 50 }).notNull(),
