@@ -218,10 +218,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         } else if (data === 'tasks') {
           const telegramIdTasks = Number(chatId);
-          const userStats = await db.select().from(gamificationStats)
-            .where(eq(gamificationStats.telegramId, telegramIdTasks)).limit(1);
-          const coinsDataTasks = await db.select().from(userCoinsBalance)
-            .where(eq(userCoinsBalance.telegramId, telegramIdTasks)).limit(1);
+          const [userData] = await db.select().from(users)
+            .where(eq(users.telegramId, telegramIdTasks)).limit(1);
           const completedTasks = await db.select().from(tasksProgress)
             .where(and(
               eq(tasksProgress.telegramId, telegramIdTasks),
@@ -233,9 +231,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               eq(dailyTasks.completed, false)
             ));
           
-          const coins = coinsDataTasks[0]?.availableCoins || 0;
-          const level = userStats[0]?.level || 1;
-          const streak = coinsDataTasks[0]?.currentStreak || 0;
+          const coins = userData?.availableCoins || 0;
+          const level = userData?.level || 1;
+          const streak = userData?.currentStreak || 0;
           
           await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
             method: 'POST',
@@ -276,12 +274,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         } else if (data === 'profile') {
           const telegramIdProfile = Number(chatId);
-          const profileUser = await db.select().from(users)
+          const [profileUser] = await db.select().from(users)
             .where(eq(users.telegramId, telegramIdProfile)).limit(1);
-          const profileStats = await db.select().from(gamificationStats)
-            .where(eq(gamificationStats.telegramId, telegramIdProfile)).limit(1);
-          const coinsDataProfile = await db.select().from(userCoinsBalance)
-            .where(eq(userCoinsBalance.telegramId, telegramIdProfile)).limit(1);
           const profileReferrals = await db.select().from(referrals)
             .where(eq(referrals.referrerTelegramId, telegramIdProfile));
           const profileTasks = await db.select().from(tasksProgress)
@@ -290,11 +284,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               eq(tasksProgress.completed, true)
             ));
           
-          const userName = profileUser[0]?.firstName || 'Пользователь';
-          const userCoinsProfile = coinsDataProfile[0]?.availableCoins || 0;
-          const userLevelProfile = profileStats[0]?.level || 1;
-          const userXP = profileStats[0]?.xp || 0;
-          const userStreak = coinsDataProfile[0]?.currentStreak || 0;
+          const userName = profileUser?.firstName || 'Пользователь';
+          const userCoinsProfile = profileUser?.availableCoins || 0;
+          const userLevelProfile = profileUser?.level || 1;
+          const userXP = profileUser?.xp || 0;
+          const userStreak = profileUser?.currentStreak || 0;
           const totalReferralsProfile = profileReferrals.length;
           const totalTasksProfile = profileTasks.length;
           
@@ -378,10 +372,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } else if (data === 'start') {
           // Back to main menu
           const telegramIdNum = Number(chatId);
-          const stats = await db.select().from(gamificationStats).where(eq(gamificationStats.telegramId, telegramIdNum)).limit(1);
-          const coinsData = await db.select().from(userCoinsBalance).where(eq(userCoinsBalance.telegramId, telegramIdNum)).limit(1);
-          const userCoins = coinsData[0]?.availableCoins || 0;
-          const userLevel = stats[0]?.level || 1;
+          const [userData] = await db.select().from(users).where(eq(users.telegramId, telegramIdNum)).limit(1);
+          const userCoins = userData?.availableCoins || 0;
+          const userLevel = userData?.level || 1;
           
           await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
             method: 'POST',
@@ -437,7 +430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               // Generate unique referral code
               const referralCode = `REF${telegramIdNum}`;
               
-              // Create new user
+              // Create new user (all gamification and coins fields are now in users table)
               await db.insert(users).values({
                 telegramId: telegramIdNum,
                 username: update.message?.from?.username || null,
@@ -446,22 +439,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 referralCode
               });
               
-              // Initialize gamification stats
-              await db.insert(gamificationStats).values({
-                telegramId: telegramIdNum
-              });
-              
-              // Initialize coins balance
-              await db.insert(userCoinsBalance).values({
-                telegramId: telegramIdNum
-              });
+              // Refresh user data after insert
+              user = await db.select().from(users).where(eq(users.telegramId, telegramIdNum)).limit(1);
             }
             
-            // Get user stats
-            const stats = await db.select().from(gamificationStats).where(eq(gamificationStats.telegramId, telegramIdNum)).limit(1);
-            const coinsData = await db.select().from(userCoinsBalance).where(eq(userCoinsBalance.telegramId, telegramIdNum)).limit(1);
-            const userCoins = coinsData[0]?.availableCoins || 0;
-            const userLevel = stats[0]?.level || 1;
+            // Get user stats from users table (unified)
+            const userCoins = user[0]?.availableCoins || 0;
+            const userLevel = user[0]?.level || 1;
             
             // Send message with navigation buttons
             await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -560,12 +544,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
             
           case '/tasks':
-            // Get user tasks stats
+            // Get user tasks stats (теперь из объединенной таблицы users)
             const telegramIdTasks = Number(chatId);
-            const userStats = await db.select().from(gamificationStats)
-              .where(eq(gamificationStats.telegramId, telegramIdTasks)).limit(1);
-            const coinsDataTasks = await db.select().from(userCoinsBalance)
-              .where(eq(userCoinsBalance.telegramId, telegramIdTasks)).limit(1);
+            const [tasksUserData] = await db.select().from(users)
+              .where(eq(users.telegramId, telegramIdTasks)).limit(1);
             const completedTasks = await db.select().from(tasksProgress)
               .where(and(
                 eq(tasksProgress.telegramId, telegramIdTasks),
@@ -578,9 +560,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 eq(dailyTasks.completed, false)
               ));
             
-            const coins = coinsDataTasks[0]?.availableCoins || 0;
-            const level = userStats[0]?.level || 1;
-            const streak = coinsDataTasks[0]?.currentStreak || 0;
+            const coins = tasksUserData?.availableCoins || 0;
+            const level = tasksUserData?.level || 1;
+            const streak = tasksUserData?.currentStreak || 0;
             
             await sendPremiumMessage(
               chatId,
@@ -607,14 +589,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
             
           case '/profile':
-            // Get full user profile
+            // Get full user profile (теперь из объединенной таблицы users)
             const telegramIdProfile = Number(chatId);
-            const profileUser = await db.select().from(users)
+            const [profileUserData] = await db.select().from(users)
               .where(eq(users.telegramId, telegramIdProfile)).limit(1);
-            const profileStats = await db.select().from(gamificationStats)
-              .where(eq(gamificationStats.telegramId, telegramIdProfile)).limit(1);
-            const coinsDataProfile = await db.select().from(userCoinsBalance)
-              .where(eq(userCoinsBalance.telegramId, telegramIdProfile)).limit(1);
             const profileReferrals = await db.select().from(referrals)
               .where(eq(referrals.referrerTelegramId, telegramIdProfile));
             const profileTasks = await db.select().from(tasksProgress)
@@ -623,11 +601,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 eq(tasksProgress.completed, true)
               ));
             
-            const userName = profileUser[0]?.firstName || 'Пользователь';
-            const userCoinsProfile = coinsDataProfile[0]?.availableCoins || 0;
-            const userLevelProfile = profileStats[0]?.level || 1;
-            const userXP = profileStats[0]?.xp || 0;
-            const userStreak = coinsDataProfile[0]?.currentStreak || 0;
+            const userName = profileUserData?.firstName || 'Пользователь';
+            const userCoinsProfile = profileUserData?.availableCoins || 0;
+            const userLevelProfile = profileUserData?.level || 1;
+            const userXP = profileUserData?.xp || 0;
+            const userStreak = profileUserData?.currentStreak || 0;
             const totalReferralsProfile = profileReferrals.length;
             const totalTasksProfile = profileTasks.length;
             
@@ -1420,52 +1398,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`[Tasks] Task progress saved (upsert): id ${taskProgress.id}`);
 
-      // Update user coins balance
-      let [userBalance] = await db.select().from(userCoinsBalance)
-        .where(eq(userCoinsBalance.telegramId, telegramId));
+      // Update user coins balance (now in users table)
+      let [userData] = await db.select().from(users)
+        .where(eq(users.telegramId, telegramId));
 
-      if (!userBalance) {
-        // Create balance record if doesn't exist
-        [userBalance] = await db.insert(userCoinsBalance).values({
-          telegramId: telegramId,
-          totalCoins: coins_reward,
-          availableCoins: coins_reward,
-          spentCoins: 0,
-          tasksCompleted: 1,
-          lastActivityDate: new Date().toISOString().split('T')[0]
-        }).returning();
-        
-        console.log(`[Tasks] Created new balance for user ${telegramId}: ${coins_reward} coins`);
-      } else {
-        // Update existing balance
-        [userBalance] = await db.update(userCoinsBalance)
-          .set({
-            totalCoins: (userBalance.totalCoins || 0) + coins_reward,
-            availableCoins: (userBalance.availableCoins || 0) + coins_reward,
-            tasksCompleted: (userBalance.tasksCompleted || 0) + 1,
-            lastActivityDate: new Date().toISOString().split('T')[0],
-            updatedAt: new Date()
-          })
-          .where(eq(userCoinsBalance.telegramId, telegramId))
-          .returning();
-
-        console.log(`[Tasks] Updated balance for user ${telegramId}: +${coins_reward} coins, total: ${userBalance.availableCoins}`);
+      if (!userData) {
+        return res.status(404).json({ error: 'User not found' });
       }
 
+      // Update existing user balance
+      const [updatedUser] = await db.update(users)
+        .set({
+          totalCoins: (userData.totalCoins || 0) + coins_reward,
+          availableCoins: (userData.availableCoins || 0) + coins_reward,
+          completedTasks: (userData.completedTasks || 0) + 1,
+          updatedAt: new Date()
+        })
+        .where(eq(users.telegramId, telegramId))
+        .returning();
+
+      console.log(`[Tasks] Updated balance for user ${telegramId}: +${coins_reward} coins, total: ${updatedUser.availableCoins}`);
+
       // Handle streak for daily tasks
-      let streakValue = userBalance.currentStreak || 0;
+      let streakValue = updatedUser.currentStreak || 0;
       const todayForStreak = new Date().toISOString().split('T')[0];
       
       if (platform.toLowerCase() === 'daily') {
-        // Get lastActivityDate - handle both Date objects and strings
+        // Get lastVisitDate - handle both Date objects and strings
         let lastActivityStr: string | null = null;
-        if (userBalance.lastActivityDate) {
-          if (typeof userBalance.lastActivityDate === 'string') {
-            lastActivityStr = userBalance.lastActivityDate;
-          } else if (userBalance.lastActivityDate instanceof Date) {
-            lastActivityStr = userBalance.lastActivityDate.toISOString().split('T')[0];
+        if (updatedUser.lastVisitDate) {
+          if (typeof updatedUser.lastVisitDate === 'string') {
+            lastActivityStr = updatedUser.lastVisitDate;
+          } else if (updatedUser.lastVisitDate instanceof Date) {
+            lastActivityStr = updatedUser.lastVisitDate.toISOString().split('T')[0];
           } else {
-            lastActivityStr = String(userBalance.lastActivityDate);
+            lastActivityStr = String(updatedUser.lastVisitDate);
           }
         }
         
@@ -1493,13 +1460,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`[Tasks] First daily task, starting streak: 1`);
         }
         
-        // Update streak in database
-        await db.update(userCoinsBalance)
+        // Update streak in database (now in users table)
+        await db.update(users)
           .set({ 
             currentStreak: streakValue,
-            lastActivityDate: todayForStreak
+            bestStreak: Math.max(updatedUser.bestStreak || 1, streakValue),
+            lastVisitDate: todayForStreak
           })
-          .where(eq(userCoinsBalance.telegramId, telegramId));
+          .where(eq(users.telegramId, telegramId));
         
         console.log(`[Tasks] Streak updated for user ${telegramId}: ${streakValue} days`);
       }
@@ -1508,8 +1476,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true,
         coins_awarded: coins_reward,
         task_id: task_id,
-        new_balance: userBalance.availableCoins,
-        total_tasks_completed: userBalance.tasksCompleted,
+        new_balance: updatedUser.availableCoins,
+        total_tasks_completed: updatedUser.completedTasks,
         streak: streakValue
       });
 
@@ -1540,18 +1508,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const completedTaskIds = completedTasksProgress.map(t => t.taskId);
 
-      // Get user balance for streak info
-      const [userBalance] = await db.select()
-        .from(userCoinsBalance)
-        .where(eq(userCoinsBalance.telegramId, telegramId));
+      // Get user data for streak info (now from users table)
+      const [userData] = await db.select()
+        .from(users)
+        .where(eq(users.telegramId, telegramId));
 
-      console.log(`[Tasks] Loaded progress for user ${telegramId}: ${completedTaskIds.length} completed tasks, streak: ${userBalance?.currentStreak || 0}`);
+      console.log(`[Tasks] Loaded progress for user ${telegramId}: ${completedTaskIds.length} completed tasks, streak: ${userData?.currentStreak || 0}`);
 
       res.json({
         completedTasks: completedTaskIds,
-        totalCoins: userBalance?.availableCoins || 0,
-        streak: userBalance?.currentStreak || 0,
-        tasksCompleted: userBalance?.tasksCompleted || 0
+        totalCoins: userData?.availableCoins || 0,
+        streak: userData?.currentStreak || 0,
+        tasksCompleted: userData?.completedTasks || 0
       });
 
     } catch (error) {
@@ -1636,48 +1604,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
             })
             .where(eq(users.telegramId, referrer.telegramId));
 
-          // Начислить монеты реферу (100 монет за приглашение)
+          // Начислить монеты реферу (100 монет за приглашение) - теперь в таблице users
           const REFERRAL_COINS_REWARD = 100;
-          let [referrerBalance] = await db
-            .select()
-            .from(userCoinsBalance)
-            .where(eq(userCoinsBalance.telegramId, referrer.telegramId));
+          await db.update(users)
+            .set({
+              totalCoins: sql`COALESCE(${users.totalCoins}, 0) + ${REFERRAL_COINS_REWARD}`,
+              availableCoins: sql`COALESCE(${users.availableCoins}, 0) + ${REFERRAL_COINS_REWARD}`,
+              lastVisitDate: new Date().toISOString().split('T')[0],
+            })
+            .where(eq(users.telegramId, referrer.telegramId));
 
-          if (!referrerBalance) {
-            await db.insert(userCoinsBalance).values({
-              telegramId: referrer.telegramId,
-              totalCoins: REFERRAL_COINS_REWARD,
-              availableCoins: REFERRAL_COINS_REWARD,
-              tasksCompleted: 0,
-              lastActivityDate: new Date().toISOString().split('T')[0],
-            });
-          } else {
-            await db
-              .update(userCoinsBalance)
-              .set({
-                totalCoins: (referrerBalance.totalCoins || 0) + REFERRAL_COINS_REWARD,
-                availableCoins: (referrerBalance.availableCoins || 0) + REFERRAL_COINS_REWARD,
-                lastActivityDate: new Date().toISOString().split('T')[0],
-              })
-              .where(eq(userCoinsBalance.telegramId, referrer.telegramId));
-          }
-
-          // Начислить приветственный бонус новому пользователю (50 монет)
+          // Начислить приветственный бонус новому пользователю (50 монет) - теперь в таблице users
           const WELCOME_BONUS = 50;
-          await db.insert(userCoinsBalance).values({
-            telegramId: telegram_id,
-            totalCoins: WELCOME_BONUS,
-            availableCoins: WELCOME_BONUS,
-            tasksCompleted: 0,
-            lastActivityDate: new Date().toISOString().split('T')[0],
-          }).onConflictDoNothing();
+          await db.update(users)
+            .set({
+              totalCoins: WELCOME_BONUS,
+              availableCoins: WELCOME_BONUS,
+            })
+            .where(eq(users.telegramId, telegram_id));
         }
       }
 
-      // Создать gamification stats для нового пользователя
-      await db.insert(gamificationStats).values({
-        telegramId: telegram_id,
-      }).onConflictDoNothing();
+      // gamificationStats и userCoinsBalance больше не нужны - все поля уже в users
 
       res.json(newUser);
     } catch (error) {
@@ -1797,27 +1745,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ===== GAMIFICATION API =====
 
-  // Получить gamification stats
+  // Получить gamification stats (теперь из объединенной таблицы users)
   app.get("/api/gamification/stats/:telegram_id", async (req, res) => {
     try {
       const telegram_id = parseInt(req.params.telegram_id);
 
-      let [stats] = await db.select().from(gamificationStats).where(eq(gamificationStats.telegramId, telegram_id));
+      let [userData] = await db.select().from(users).where(eq(users.telegramId, telegram_id));
 
-      if (!stats) {
-        // Создать если не существует
-        [stats] = await db.insert(gamificationStats).values({
-          telegramId: telegram_id,
-        }).returning();
+      if (!userData) {
+        return res.status(404).json({ error: 'User not found' });
       }
 
       // Обновить streak
       const currentDate = new Date().toISOString().split('T')[0];
-      const lastVisit = stats.lastVisitDate;
+      const lastVisit = userData.lastVisitDate;
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
       if (lastVisit !== currentDate) {
-        let newStreak = stats.currentStreak || 1;
+        let newStreak = userData.currentStreak || 1;
         
         if (lastVisit === yesterday) {
           newStreak += 1;
@@ -1825,26 +1770,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           newStreak = 1;
         }
 
-        const bestStreak = Math.max(stats.bestStreak || 1, newStreak);
+        const bestStreak = Math.max(userData.bestStreak || 1, newStreak);
 
-        [stats] = await db.update(gamificationStats)
+        [userData] = await db.update(users)
           .set({
             currentStreak: newStreak,
             bestStreak: bestStreak,
             lastVisitDate: currentDate,
+            updatedAt: new Date(),
           })
-          .where(eq(gamificationStats.telegramId, telegram_id))
+          .where(eq(users.telegramId, telegram_id))
           .returning();
       }
 
-      res.json(stats);
+      res.json(userData);
     } catch (error) {
       console.error('Error fetching gamification stats:', error);
       res.status(500).json({ error: 'Failed to fetch gamification stats' });
     }
   });
 
-  // Начислить XP
+  // Начислить XP (теперь в таблице users)
   app.post("/api/gamification/award-xp", async (req, res) => {
     try {
       const { telegram_id, xp } = req.body;
@@ -1853,16 +1799,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'telegram_id and xp are required' });
       }
 
-      const [stats] = await db.select().from(gamificationStats).where(eq(gamificationStats.telegramId, telegram_id));
+      const [userData] = await db.select().from(users).where(eq(users.telegramId, telegram_id));
 
-      if (!stats) {
-        return res.status(404).json({ error: 'Stats not found' });
+      if (!userData) {
+        return res.status(404).json({ error: 'User not found' });
       }
 
-      let newXp = (stats.xp || 0) + xp;
-      let newLevel = stats.level || 1;
-      let newTotalXp = (stats.totalXp || 0) + xp;
-      let xpToNextLevel = stats.xpToNextLevel || 100;
+      let newXp = (userData.xp || 0) + xp;
+      let newLevel = userData.level || 1;
+      let newTotalXp = (userData.totalXp || 0) + xp;
+      let xpToNextLevel = userData.xpToNextLevel || 100;
 
       // Проверка повышения уровня
       while (newXp >= xpToNextLevel) {
@@ -1871,14 +1817,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         xpToNextLevel = calculateXpToNextLevel(newLevel);
       }
 
-      const [updated] = await db.update(gamificationStats)
+      const [updated] = await db.update(users)
         .set({
           xp: newXp,
           level: newLevel,
           totalXp: newTotalXp,
           xpToNextLevel: xpToNextLevel,
+          updatedAt: new Date(),
         })
-        .where(eq(gamificationStats.telegramId, telegram_id))
+        .where(eq(users.telegramId, telegram_id))
         .returning();
 
       res.json(updated);
@@ -1984,22 +1931,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           )
         );
 
-      // Начислить XP
+      // Начислить XP (теперь в таблице users)
       const xpReward = task.xpReward || 0;
-      await db.update(gamificationStats)
+      await db.update(users)
         .set({
-          totalXp: sql`${gamificationStats.totalXp} + ${xpReward}`,
-          xp: sql`${gamificationStats.xp} + ${xpReward}`,
-          completedTasks: sql`${gamificationStats.completedTasks} + 1`,
+          totalXp: sql`COALESCE(${users.totalXp}, 0) + ${xpReward}`,
+          xp: sql`COALESCE(${users.xp}, 0) + ${xpReward}`,
+          completedTasks: sql`COALESCE(${users.completedTasks}, 0) + 1`,
+          updatedAt: new Date(),
         })
-        .where(eq(gamificationStats.telegramId, telegram_id));
+        .where(eq(users.telegramId, telegram_id));
 
       // Проверить повышение уровня
-      const [stats] = await db.select().from(gamificationStats).where(eq(gamificationStats.telegramId, telegram_id));
+      const [userData] = await db.select().from(users).where(eq(users.telegramId, telegram_id));
 
-      let newXp = stats.xp || 0;
-      let newLevel = stats.level || 1;
-      let xpToNextLevel = stats.xpToNextLevel || 100;
+      let newXp = userData?.xp || 0;
+      let newLevel = userData?.level || 1;
+      let xpToNextLevel = userData?.xpToNextLevel || 100;
 
       while (newXp >= xpToNextLevel) {
         newXp -= xpToNextLevel;
@@ -2007,14 +1955,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         xpToNextLevel = calculateXpToNextLevel(newLevel);
       }
 
-      if (newLevel !== stats.level) {
-        await db.update(gamificationStats)
+      if (userData && newLevel !== userData.level) {
+        await db.update(users)
           .set({
             xp: newXp,
             level: newLevel,
             xpToNextLevel: xpToNextLevel,
+            updatedAt: new Date(),
           })
-          .where(eq(gamificationStats.telegramId, telegram_id));
+          .where(eq(users.telegramId, telegram_id));
       }
 
       res.json({ success: true, xp_awarded: xpReward });
@@ -2024,20 +1973,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Получить leaderboard
+  // Получить leaderboard (теперь из объединенной таблицы users)
   app.get("/api/gamification/leaderboard", async (req, res) => {
     try {
       const top = await db
         .select({
-          telegramId: gamificationStats.telegramId,
-          level: gamificationStats.level,
-          totalXp: gamificationStats.totalXp,
+          telegramId: users.telegramId,
+          level: users.level,
+          totalXp: users.totalXp,
           username: users.username,
           firstName: users.firstName,
         })
-        .from(gamificationStats)
-        .innerJoin(users, eq(gamificationStats.telegramId, users.telegramId))
-        .orderBy(desc(gamificationStats.totalXp))
+        .from(users)
+        .orderBy(desc(users.totalXp))
         .limit(100);
 
       res.json(top);
@@ -2049,26 +1997,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ===== TASKS & COINS API =====
 
-  // Получить баланс монет пользователя
+  // Получить баланс монет пользователя (теперь из объединенной таблицы users)
   app.get("/api/tasks/balance", verifyTelegramUser, async (req: any, res) => {
     try {
       const telegram_id = req.telegramUser.id;
 
-      let [balance] = await db.select().from(userCoinsBalance).where(eq(userCoinsBalance.telegramId, telegram_id));
+      const [userData] = await db.select().from(users).where(eq(users.telegramId, telegram_id));
 
-      // Создать баланс если не существует
-      if (!balance) {
-        [balance] = await db.insert(userCoinsBalance).values({
-          telegramId: telegram_id,
-          totalCoins: 0,
-          availableCoins: 0,
-          spentCoins: 0,
-          tasksCompleted: 0,
-          currentStreak: 0,
-        }).returning();
+      if (!userData) {
+        return res.status(404).json({ error: 'User not found' });
       }
 
-      res.json(balance);
+      // Возвращаем данные в формате, совместимом с предыдущим API
+      res.json({
+        telegramId: userData.telegramId,
+        totalCoins: userData.totalCoins || 0,
+        availableCoins: userData.availableCoins || 0,
+        spentCoins: userData.spentCoins || 0,
+        tasksCompleted: userData.completedTasks || 0,
+        currentStreak: userData.currentStreak || 0,
+      });
     } catch (error) {
       console.error('Error fetching balance:', error);
       res.status(500).json({ error: 'Failed to fetch balance' });
@@ -2246,39 +2194,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
             )
           );
 
-        // Обновить баланс монет
-        let [balance] = await db
-          .select()
-          .from(userCoinsBalance)
-          .where(eq(userCoinsBalance.telegramId, telegram_id));
+        // Обновить баланс монет (теперь в таблице users)
+        const [verifyUserData] = await db.select().from(users)
+          .where(eq(users.telegramId, telegram_id));
 
-        if (!balance) {
-          [balance] = await db.insert(userCoinsBalance).values({
-            telegramId: telegram_id,
-            totalCoins: taskProgress.coinsReward,
-            availableCoins: taskProgress.coinsReward,
-            spentCoins: 0,
-            tasksCompleted: 1,
-            currentStreak: 1,
-            lastActivityDate: new Date().toISOString().split('T')[0],
-          }).returning();
-        } else {
-          await db
-            .update(userCoinsBalance)
-            .set({
-              totalCoins: (balance.totalCoins || 0) + taskProgress.coinsReward,
-              availableCoins: (balance.availableCoins || 0) + taskProgress.coinsReward,
-              tasksCompleted: (balance.tasksCompleted || 0) + 1,
-              lastActivityDate: new Date().toISOString().split('T')[0],
-            })
-            .where(eq(userCoinsBalance.telegramId, telegram_id));
+        if (!verifyUserData) {
+          return res.status(404).json({ error: 'User not found' });
         }
+
+        await db.update(users)
+          .set({
+            totalCoins: (verifyUserData.totalCoins || 0) + taskProgress.coinsReward,
+            availableCoins: (verifyUserData.availableCoins || 0) + taskProgress.coinsReward,
+            completedTasks: (verifyUserData.completedTasks || 0) + 1,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.telegramId, telegram_id));
 
         res.json({ 
           success: true, 
           verified: true,
           coins_awarded: taskProgress.coinsReward,
-          new_balance: (balance.totalCoins || 0) + taskProgress.coinsReward
+          new_balance: (verifyUserData.totalCoins || 0) + taskProgress.coinsReward
         });
       } else {
         await db
