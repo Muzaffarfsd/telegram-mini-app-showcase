@@ -192,6 +192,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ csrfToken: token });
   });
 
+  // Health check endpoint for Railway
+  app.get("/api/health", (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV || 'development'
+    });
+  });
+
   // Telegram Mini App routes
   const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
