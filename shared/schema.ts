@@ -1,5 +1,5 @@
 // Схема БД для хранения метаданных фотографий
-import { pgTable, serial, varchar, text, timestamp, bigint, integer, decimal, boolean, date, jsonb, unique } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, text, timestamp, bigint, integer, decimal, boolean, date, jsonb, unique, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -12,7 +12,10 @@ export const photos = pgTable("photos", {
   thumbnailPath: varchar("thumbnail_path", { length: 500 }), // Опционально: путь к миниатюре
   uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
   userId: varchar("user_id", { length: 100 }), // ID пользователя из Telegram (опционально)
-});
+}, (table) => ({
+  userIdIdx: index("idx_photos_user_id").on(table.userId),
+  uploadedAtIdx: index("idx_photos_uploaded_at").on(table.uploadedAt),
+}));
 
 // Zod schemas для валидации
 export const insertPhotoSchema = createInsertSchema(photos).omit({
@@ -42,7 +45,11 @@ export const users = pgTable("users", {
   tier: varchar("tier", { length: 50 }).default("Bronze").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  telegramIdIdx: index("idx_users_telegram_id").on(table.telegramId),
+  referralCodeIdx: index("idx_users_referral_code").on(table.referralCode),
+  createdAtIdx: index("idx_users_created_at").on(table.createdAt),
+}));
 
 // Таблица рефералов
 export const referrals = pgTable("referrals", {
@@ -52,7 +59,12 @@ export const referrals = pgTable("referrals", {
   bonusAmount: decimal("bonus_amount", { precision: 10, scale: 2 }).default("0").notNull(),
   status: varchar("status", { length: 50 }).default("pending").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  referrerIdIdx: index("idx_referrals_referrer_id").on(table.referrerTelegramId),
+  referredIdIdx: index("idx_referrals_referred_id").on(table.referredTelegramId),
+  statusIdx: index("idx_referrals_status").on(table.status),
+  createdAtIdx: index("idx_referrals_created_at").on(table.createdAt),
+}));
 
 // Таблица статистики геймификации
 export const gamificationStats = pgTable("gamification_stats", {
@@ -69,7 +81,11 @@ export const gamificationStats = pgTable("gamification_stats", {
   achievements: jsonb("achievements").default([]).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  telegramIdIdx: index("idx_gamification_stats_telegram_id").on(table.telegramId),
+  levelIdx: index("idx_gamification_stats_level").on(table.level),
+  lastVisitDateIdx: index("idx_gamification_stats_last_visit").on(table.lastVisitDate),
+}));
 
 // Таблица ежедневных задач
 export const dailyTasks = pgTable("daily_tasks", {
@@ -84,7 +100,12 @@ export const dailyTasks = pgTable("daily_tasks", {
   completed: boolean("completed").default(false).notNull(),
   taskDate: date("task_date").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  telegramIdIdx: index("idx_daily_tasks_telegram_id").on(table.telegramId),
+  taskIdIdx: index("idx_daily_tasks_task_id").on(table.taskId),
+  completedIdx: index("idx_daily_tasks_completed").on(table.completed),
+  taskDateIdx: index("idx_daily_tasks_task_date").on(table.taskDate),
+}));
 
 // Zod schemas
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -127,6 +148,11 @@ export const tasksProgress = pgTable("tasks_progress", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
   uniqueTelegramTask: unique().on(table.telegramId, table.taskId),
+  telegramIdIdx: index("idx_tasks_progress_telegram_id").on(table.telegramId),
+  taskIdIdx: index("idx_tasks_progress_task_id").on(table.taskId),
+  completedIdx: index("idx_tasks_progress_completed").on(table.completed),
+  verificationStatusIdx: index("idx_tasks_progress_verification_status").on(table.verificationStatus),
+  createdAtIdx: index("idx_tasks_progress_created_at").on(table.createdAt),
 }));
 
 // Таблица баланса монет пользователей
@@ -141,7 +167,10 @@ export const userCoinsBalance = pgTable("user_coins_balance", {
   lastActivityDate: date("last_activity_date"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  telegramIdIdx: index("idx_user_coins_balance_telegram_id").on(table.telegramId),
+  lastActivityDateIdx: index("idx_user_coins_balance_last_activity").on(table.lastActivityDate),
+}));
 
 // Zod schemas
 export const insertTasksProgressSchema = createInsertSchema(tasksProgress).omit({
@@ -182,7 +211,12 @@ export const reviews = pgTable("reviews", {
   isApproved: boolean("is_approved").default(false).notNull(),
   isFeatured: boolean("is_featured").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  approvedIdx: index("idx_reviews_is_approved").on(table.isApproved),
+  featuredIdx: index("idx_reviews_is_featured").on(table.isFeatured),
+  ratingIdx: index("idx_reviews_rating").on(table.rating),
+  createdAtIdx: index("idx_reviews_created_at").on(table.createdAt),
+}));
 
 // Zod schema для отзывов
 export const insertReviewSchema = createInsertSchema(reviews).omit({
