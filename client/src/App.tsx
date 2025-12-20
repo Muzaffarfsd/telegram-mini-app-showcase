@@ -13,6 +13,7 @@ import { m, useSpring } from "framer-motion";
 import * as Sentry from '@sentry/react';
 import { initializeVitals, trackPageView } from "./utils/vitals";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { PageLoadingFallback } from "./components/PageLoadingFallback";
 
 // Initialize Sentry for error tracking
 if (import.meta.env.VITE_SENTRY_DSN) {
@@ -299,10 +300,10 @@ function App() {
   // No loading screen - instant load
   const PageLoader = useCallback(() => null, []);
 
-  // Route component rendering with Suspense - no loading fallback for smooth experience
+  // Route component rendering with Suspense - shows loading spinner for code-split pages
   const renderRoute = () => {
     return (
-      <Suspense fallback={null}>
+      <Suspense fallback={<PageLoadingFallback />}>
         {(() => {
           switch (route.component) {
             case 'showcase':
