@@ -98,13 +98,13 @@ function generateCSRFToken(sessionId: string): string {
 
 function validateCSRF(req: Request, res: Response, next: NextFunction) {
   const excludedPaths = [
-    '/api/telegram/webhook',
-    '/api/vitals',
-    '/api/stripe/webhook',
-    '/api/analytics',
-    '/api/error',
-    '/api/user-action',
-    '/api/webhooks',
+    '/telegram/webhook',
+    '/vitals',
+    '/stripe/webhook',
+    '/analytics',
+    '/error',
+    '/user-action',
+    '/webhooks',
   ];
   
   if (excludedPaths.some(path => req.path.startsWith(path))) {
