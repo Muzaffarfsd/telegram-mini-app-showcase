@@ -6,8 +6,20 @@ import { z } from 'zod';
 import { db } from "./db";
 import { photos, insertPhotoSchema, users, referrals, gamificationStats, dailyTasks, tasksProgress, userCoinsBalance, reviews, insertReviewSchema } from "../shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
-import { desc, eq, and, sql } from "drizzle-orm";
+import { desc, eq, and, sql, count } from "drizzle-orm";
 import { getCached, setCache, invalidateCache, cacheKeys, CACHE_TTL } from './redis';
+import {
+  parsePaginationParams,
+  createPaginatedResponse,
+  withTimeout,
+  isDbTimeoutError,
+  ErrorCodes,
+  validationError,
+  notFoundError,
+  duplicateEntryError,
+  dbTimeoutError,
+  internalError,
+} from './apiUtils';
 
 // ============ XSS SANITIZATION (Context-aware) ============
 // Only sanitize specific user-generated text fields, not paths/URLs
@@ -1305,14 +1317,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Endpoint для получения всех фотографий
+  // Endpoint для получения всех фотографий (с пагинацией)
   app.get("/api/photos", async (req, res) => {
     try {
-      const allPhotos = await db.select().from(photos).orderBy(desc(photos.uploadedAt));
-      res.json(allPhotos);
+      const { limit, offset } = parsePaginationParams(req);
+
+      const [totalResult, photosList] = await Promise.all([
+        withTimeout(db.select({ count: count() }).from(photos)),
+        withTimeout(
+          db.select()
+            .from(photos)
+            .orderBy(desc(photos.uploadedAt))
+            .limit(limit)
+            .offset(offset)
+        ),
+      ]);
+
+      const total = totalResult[0]?.count ?? 0;
+      res.json(createPaginatedResponse(photosList, total, { limit, offset }));
     } catch (error) {
       console.error('Error fetching photos:', error);
-      res.status(500).json({ error: 'Failed to fetch photos' });
+      if (isDbTimeoutError(error)) {
+        return dbTimeoutError(res, 'Failed to fetch photos: database timeout');
+      }
+      return internalError(res, 'Failed to fetch photos');
     }
   });
 
@@ -1917,71 +1945,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate request body
       const validationResult = referralApplySchema.safeParse(req.body);
       if (!validationResult.success) {
-        return res.status(400).json({ 
-          message: 'Validation failed', 
-          details: validationResult.error.errors 
+        return validationError(res, 'Validation failed', { 
+          errors: validationResult.error.errors 
         });
       }
       
       const { userId, referralCode } = req.body;
 
       if (!userId || !referralCode) {
-        return res.status(400).json({ message: 'userId and referralCode are required' });
+        return validationError(res, 'userId and referralCode are required');
       }
 
       // Decode referral code to get referrer's telegram ID
       const codePrefix = 'W4T';
       if (!referralCode.startsWith(codePrefix)) {
-        return res.status(400).json({ message: 'Неверный формат кода' });
+        return validationError(res, 'Неверный формат кода');
       }
 
       const encodedId = referralCode.slice(codePrefix.length);
       const referrerTelegramId = parseInt(encodedId, 36);
 
       if (isNaN(referrerTelegramId)) {
-        return res.status(400).json({ message: 'Неверный реферальный код' });
+        return validationError(res, 'Неверный реферальный код');
       }
 
       // Check if user is trying to use their own code
       if (referrerTelegramId === userId) {
-        return res.status(400).json({ message: 'Нельзя использовать свой собственный код' });
+        return validationError(res, 'Нельзя использовать свой собственный код');
       }
 
       // Check if referrer exists
-      const [referrer] = await db.select().from(users).where(eq(users.telegramId, referrerTelegramId));
+      const [referrer] = await withTimeout(
+        db.select().from(users).where(eq(users.telegramId, referrerTelegramId))
+      );
       if (!referrer) {
-        return res.status(400).json({ message: 'Пользователь с таким кодом не найден' });
+        return notFoundError(res, 'Пользователь с таким кодом не найден');
       }
 
-      // Check if user already has a referrer
-      const [existingReferral] = await db.select().from(referrals)
-        .where(eq(referrals.referredTelegramId, userId));
+      // Check if user already has a referrer (duplicate check)
+      const [existingReferral] = await withTimeout(
+        db.select().from(referrals).where(eq(referrals.referredTelegramId, userId))
+      );
       
       if (existingReferral) {
-        return res.status(400).json({ message: 'Вы уже использовали реферальный код' });
+        return duplicateEntryError(res, 'Вы уже использовали реферальный код', {
+          existingReferrerId: existingReferral.referrerTelegramId,
+        });
       }
 
       // Create referral record
       const bonusAmount = "100"; // Bonus coins for referrer (as string for decimal)
-      await db.insert(referrals).values({
-        referrerTelegramId: referrerTelegramId,
-        referredTelegramId: userId,
-        bonusAmount: bonusAmount,
-        status: 'pending',
-      });
+      await withTimeout(
+        db.insert(referrals).values({
+          referrerTelegramId: referrerTelegramId,
+          referredTelegramId: userId,
+          bonusAmount: bonusAmount,
+          status: 'pending',
+        })
+      );
 
       // Update referrer's referral count
-      await db.update(users)
-        .set({ 
-          totalReferrals: sql`COALESCE(${users.totalReferrals}, 0) + 1`,
-          totalEarnings: sql`COALESCE(${users.totalEarnings}, 0) + 100`
-        })
-        .where(eq(users.telegramId, referrerTelegramId));
+      await withTimeout(
+        db.update(users)
+          .set({ 
+            totalReferrals: sql`COALESCE(${users.totalReferrals}, 0) + 1`,
+            totalEarnings: sql`COALESCE(${users.totalEarnings}, 0) + 100`
+          })
+          .where(eq(users.telegramId, referrerTelegramId))
+      );
 
       res.json({ success: true, message: 'Реферальный код успешно применён!' });
     } catch (error) {
       console.error('Error applying referral code:', error);
-      res.status(500).json({ message: 'Ошибка при применении кода' });
+      if (isDbTimeoutError(error)) {
+        return dbTimeoutError(res, 'Ошибка при применении кода: database timeout');
+      }
+      return internalError(res, 'Ошибка при применении кода');
     }
   });
 
@@ -2232,36 +2271,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Получить leaderboard (теперь из объединенной таблицы users)
+  // Получить leaderboard (теперь из объединенной таблицы users, с пагинацией)
   app.get("/api/gamification/leaderboard", async (req, res) => {
     try {
-      // Try cache first
+      const { limit, offset } = parsePaginationParams(req);
+
+      // Try cache first (only for default pagination)
       const cacheKey = cacheKeys.leaderboard();
-      const cached = await getCached<any[]>(cacheKey);
-      
-      if (cached) {
-        return res.json(cached);
+      if (limit === 20 && offset === 0) {
+        const cached = await getCached<any>(cacheKey);
+        if (cached) {
+          return res.json(cached);
+        }
       }
 
-      const top = await db
-        .select({
-          telegramId: users.telegramId,
-          level: users.level,
-          totalXp: users.totalXp,
-          username: users.username,
-          firstName: users.firstName,
-        })
-        .from(users)
-        .orderBy(desc(users.totalXp))
-        .limit(100);
+      const [totalResult, top] = await Promise.all([
+        withTimeout(db.select({ count: count() }).from(users)),
+        withTimeout(
+          db.select({
+            telegramId: users.telegramId,
+            level: users.level,
+            totalXp: users.totalXp,
+            username: users.username,
+            firstName: users.firstName,
+          })
+          .from(users)
+          .orderBy(desc(users.totalXp))
+          .limit(limit)
+          .offset(offset)
+        ),
+      ]);
 
-      // Cache for 60 seconds
-      await setCache(cacheKey, top, CACHE_TTL.LEADERBOARD);
-      
-      res.json(top);
+      const total = totalResult[0]?.count ?? 0;
+      const response = createPaginatedResponse(top, total, { limit, offset });
+
+      // Cache for 60 seconds (only default pagination)
+      if (limit === 20 && offset === 0) {
+        await setCache(cacheKey, response, CACHE_TTL.LEADERBOARD);
+      }
+
+      res.json(response);
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
-      res.status(500).json({ error: 'Failed to fetch leaderboard' });
+      if (isDbTimeoutError(error)) {
+        return dbTimeoutError(res, 'Failed to fetch leaderboard: database timeout');
+      }
+      return internalError(res, 'Failed to fetch leaderboard');
     }
   });
 
@@ -2510,20 +2565,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ==================== REVIEWS API ====================
   
-  // Get approved reviews
+  // Get approved reviews (with pagination)
   app.get("/api/reviews", async (req, res) => {
     try {
-      const allReviews = await db
-        .select()
-        .from(reviews)
-        .where(eq(reviews.isApproved, true))
-        .orderBy(desc(reviews.isFeatured), desc(reviews.createdAt))
-        .limit(50);
-      
-      res.json(allReviews);
+      const { limit, offset } = parsePaginationParams(req);
+
+      const [totalResult, reviewsList] = await Promise.all([
+        withTimeout(
+          db.select({ count: count() })
+            .from(reviews)
+            .where(eq(reviews.isApproved, true))
+        ),
+        withTimeout(
+          db.select()
+            .from(reviews)
+            .where(eq(reviews.isApproved, true))
+            .orderBy(desc(reviews.isFeatured), desc(reviews.createdAt))
+            .limit(limit)
+            .offset(offset)
+        ),
+      ]);
+
+      const total = totalResult[0]?.count ?? 0;
+      res.json(createPaginatedResponse(reviewsList, total, { limit, offset }));
     } catch (error) {
       console.error('Error fetching reviews:', error);
-      res.status(500).json({ error: 'Failed to fetch reviews' });
+      if (isDbTimeoutError(error)) {
+        return dbTimeoutError(res, 'Failed to fetch reviews: database timeout');
+      }
+      return internalError(res, 'Failed to fetch reviews');
     }
   });
 
