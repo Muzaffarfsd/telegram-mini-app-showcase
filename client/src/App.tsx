@@ -53,6 +53,7 @@ const AnalyticsPage = lazy(() => import("./pages/analytics"));
 import GlobalSidebar from "./components/GlobalSidebar";
 import { PageTransition } from "./components/PageTransition";
 import { OnboardingTutorial } from "./components/OnboardingTutorial";
+import { OfflineIndicator } from "./components/OfflineIndicator";
 
 // Simple hash router types
 interface Route {
@@ -611,6 +612,9 @@ function App() {
 
           
               <Toaster />
+              
+              {/* Offline status indicator */}
+              <OfflineIndicator />
               
               {/* Onboarding tutorial for new users */}
               <OnboardingTutorial />
