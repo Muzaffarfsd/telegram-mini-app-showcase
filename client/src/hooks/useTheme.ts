@@ -41,14 +41,14 @@ function applyTheme(theme: Theme) {
     root.style.setProperty('--liquid-blur', '80px');
     
     // Labels
-    root.style.setProperty('--label', '#1e293b');
+    root.style.setProperty('--label', '#0F172A');
     root.style.setProperty('--secondary-label', '#64748b');
     root.style.setProperty('--muted-foreground', '#64748b');
     
     // Semantic tokens
     root.style.setProperty('--surface', '#f8fafc');
     root.style.setProperty('--surface-elevated', '#ffffff');
-    root.style.setProperty('--text-primary', '#1e293b');
+    root.style.setProperty('--text-primary', '#0F172A');
     root.style.setProperty('--text-secondary', '#64748b');
     root.style.setProperty('--text-tertiary', '#94a3b8');
     root.style.setProperty('--text-quaternary', '#cbd5e1');
@@ -59,7 +59,7 @@ function applyTheme(theme: Theme) {
     root.style.setProperty('--cta-background', '#3b82f6');
     root.style.setProperty('--cta-foreground', '#ffffff');
     root.style.setProperty('--cta-secondary-border', 'rgba(0, 0, 0, 0.12)');
-    root.style.setProperty('--cta-secondary-text', '#1e293b');
+    root.style.setProperty('--cta-secondary-text', '#0F172A');
     root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.92)');
     root.style.setProperty('--card-border', 'rgba(0, 0, 0, 0.04)');
     root.style.setProperty('--card-hover', 'rgba(255, 255, 255, 0.98)');

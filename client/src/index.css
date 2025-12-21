@@ -5475,6 +5475,20 @@ html.light .gamification-hub .border-white\/20 {
   border-color: var(--card-border) !important;
 }
 
+html.light .gamification-hub .from-emerald-500\/20,
+html.light .gamification-hub .to-cyan-500\/20 {
+  --tw-gradient-from: rgba(16, 185, 129, 0.1) !important;
+  --tw-gradient-to: rgba(6, 182, 212, 0.1) !important;
+}
+
+html.light .gamification-hub .backdrop-blur-xl {
+  background: var(--card-bg) !important;
+}
+
+html.light .gamification-hub .opacity-60 {
+  opacity: 0.8 !important;
+}
+
 /* ═══════════════════════════════════════════════════════
    AI AGENT PAGE - Light Theme Overrides
    ═══════════════════════════════════════════════════════ */
@@ -5482,6 +5496,41 @@ html.light .gamification-hub .border-white\/20 {
 html.light .ai-agent-page,
 html.light [data-page="ai-agent"] {
   background: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light .ai-agent-page.bg-\[\#000000\] {
+  background: var(--background) !important;
+}
+
+html.light .ai-agent-page .text-white {
+  color: var(--text-primary) !important;
+}
+
+html.light .ai-agent-page .text-white\/70,
+html.light .ai-agent-page .text-white\/60,
+html.light .ai-agent-page .text-white\/50 {
+  color: var(--text-secondary) !important;
+}
+
+html.light .ai-agent-page .bg-white\/10,
+html.light .ai-agent-page .bg-white\/5 {
+  background: var(--card-bg) !important;
+}
+
+html.light .ai-agent-page .border-white\/10,
+html.light .ai-agent-page .border-white\/20 {
+  border-color: var(--card-border) !important;
+}
+
+html.light .ai-agent-page [style*="boxShadow"] {
+  box-shadow: var(--card-shadow) !important;
+}
+
+html.light .ai-agent-page [style*="rgba(255, 255, 255, 0.15"],
+html.light .ai-agent-page [style*="rgba(255,255,255,0.15"] {
+  background: transparent !important;
+  box-shadow: var(--card-shadow) !important;
 }
 
 html.light .ai-agent-page [style*="rgba(255, 255, 255, 0.8"],
