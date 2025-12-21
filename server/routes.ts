@@ -80,7 +80,16 @@ const globalApiLimiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Too many requests, please try again later.' },
+  handler: (req, res) => {
+    const retryAfter = req.rateLimit?.resetTime 
+      ? Math.ceil((req.rateLimit.resetTime - Date.now()) / 1000)
+      : 60;
+    res.status(429).json({
+      error: 'Too many requests, please try again later.',
+      retryAfter,
+      resetTime: req.rateLimit?.resetTime,
+    });
+  },
 });
 
 const sensitiveEndpointLimiter = rateLimit({
@@ -88,7 +97,16 @@ const sensitiveEndpointLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Too many requests to sensitive endpoint, please try again later.' },
+  handler: (req, res) => {
+    const retryAfter = req.rateLimit?.resetTime 
+      ? Math.ceil((req.rateLimit.resetTime - Date.now()) / 1000)
+      : 60;
+    res.status(429).json({
+      error: 'Too many requests to sensitive endpoint, please try again later.',
+      retryAfter,
+      resetTime: req.rateLimit?.resetTime,
+    });
+  },
 });
 
 // ============ CSRF PROTECTION (Redis-based) ============

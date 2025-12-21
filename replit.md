@@ -14,6 +14,7 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 1. **Error Boundaries (✅ FIXED)**: Added ErrorBoundary wrapper around all route components in `App.tsx` with Suspense fallback. Prevents component crashes from breaking entire app. See lines 476-480 in `client/src/App.tsx`.
 2. **404 Not Found Page (✅ FIXED - COMPLETE)**: Created lazy-loaded NotFound component at `client/src/pages/NotFound.tsx` and wired it into routing. Unknown routes now properly show 404 page instead of defaulting to showcase (line 109 in App.tsx changed from `'showcase'` to `'notFound'`).
 3. **CSRF Token Storage (✅ FIXED)**: Migrated from in-memory Map to Redis-based storage with 1-hour TTL. Solves memory leak issues and enables production scalability with multiple instances. Updated `generateCSRFToken()` and `validateCSRF()` in `server/routes.ts` (lines 97-146) to use `setCache()` and `getCached()` from Redis.
+4. **Rate Limit JSON Responses (✅ FIXED)**: Added JSON handlers to rate limiters (lines 86-113 in `server/routes.ts`). Returns proper JSON with `retryAfter` and `resetTime` instead of HTML errors. All rate limit responses now return 429 status with JSON format.
 
 ## Important Findings (Query Performance Audit)
 - ✅ **N+1 Queries (VERIFIED SAFE)**: Code analysis shows no N+1 query patterns. Leaderboard endpoint (line 2267) uses batch SELECT with Promise.all(). Referrals endpoint (line 1908) uses innerJoin pattern. All critical paths are optimized.
