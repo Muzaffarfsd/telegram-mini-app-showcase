@@ -20,6 +20,16 @@ import {
   dbTimeoutError,
   internalError,
 } from './apiUtils';
+import {
+  telegramAuthMiddleware,
+  optionalTelegramAuthMiddleware,
+  validateTelegramInitData,
+  type TelegramAuthRequest,
+} from './telegramAuth';
+import {
+  createStandardRateLimitMiddleware,
+  createSensitiveRateLimitMiddleware,
+} from './rateLimiter';
 
 // ============ XSS SANITIZATION (Context-aware) ============
 // Only sanitize specific user-generated text fields, not paths/URLs
@@ -160,52 +170,7 @@ if (process.env.STRIPE_SECRET_KEY) {
   });
 }
 
-// Validate Telegram WebApp initData
-function validateTelegramInitData(initData: string, botToken: string): any {
-  try {
-    const urlParams = new URLSearchParams(initData);
-    const hash = urlParams.get('hash');
-    if (!hash) return null;
-
-    // Remove hash from params for validation
-    urlParams.delete('hash');
-
-    // Create data-check string (sorted keys)
-    const dataCheckString = Array.from(urlParams.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, value]) => `${key}=${value}`)
-      .join('\n');
-
-    // Calculate secret key
-    const secretKey = crypto
-      .createHmac('sha256', 'WebAppData')
-      .update(botToken)
-      .digest();
-
-    // Calculate hash
-    const calculatedHash = crypto
-      .createHmac('sha256', secretKey)
-      .update(dataCheckString)
-      .digest('hex');
-
-    // Verify hash
-    if (calculatedHash !== hash) {
-      return null;
-    }
-
-    // Parse user data
-    const userParam = urlParams.get('user');
-    if (!userParam) return null;
-
-    const user = JSON.parse(userParam);
-    return user;
-  } catch (error) {
-    console.error('Error validating Telegram initData:', error);
-    return null;
-  }
-}
-
-// Middleware to verify Telegram user
+// Middleware to verify Telegram user (uses imported validateTelegramInitData)
 function verifyTelegramUser(req: any, res: any, next: any) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) {
@@ -217,28 +182,34 @@ function verifyTelegramUser(req: any, res: any, next: any) {
     return res.status(401).json({ error: 'Missing Telegram init data' });
   }
 
-  const user = validateTelegramInitData(initData, botToken);
-  if (!user) {
+  const validated = validateTelegramInitData(initData, botToken);
+  if (!validated || !validated.user) {
     return res.status(401).json({ error: 'Invalid Telegram init data' });
   }
 
   // Attach verified user to request
-  req.telegramUser = user;
+  req.telegramUser = validated.user;
+  req.telegramAuthDate = validated.auth_date;
   next();
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // ============ APPLY SECURITY MIDDLEWARE ============
   
-  // Apply global rate limiter to all /api/ routes
+  // Apply global rate limiter to all /api/ routes (IP-based)
   app.use('/api/', globalApiLimiter);
   
-  // Apply stricter rate limiter to sensitive endpoints
+  // Apply stricter rate limiter to sensitive endpoints (IP-based)
   app.use('/api/stripe/', sensitiveEndpointLimiter);
   app.use('/api/referrals/', sensitiveEndpointLimiter);
   app.use('/api/referral/', sensitiveEndpointLimiter);
   app.use('/api/tasks/complete', sensitiveEndpointLimiter);
   app.use('/api/notifications/', sensitiveEndpointLimiter);
+  
+  // Apply Telegram-based rate limiting (per Telegram ID, after auth)
+  // Uses Redis for distributed rate limiting across instances
+  app.use('/api/gamification/', createSensitiveRateLimitMiddleware());
+  app.use('/api/payment/', createSensitiveRateLimitMiddleware());
   
   // Apply CSRF validation middleware to all /api/ routes
   app.use('/api/', validateCSRF);

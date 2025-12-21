@@ -1,0 +1,168 @@
+Безопасность: Telegram initData Validation
+Что это даёт
+Преимущество	Описание
+Защита от подделки	Злоумышленник не сможет притвориться другим пользователем
+Защита от ботов	Только реальные пользователи Telegram смогут использовать API
+Доверие клиентов	Enterprise-клиенты требуют проверенную аутентификацию
+Бизнес-ценность: Без этого любой может отправить запрос от имени любого пользователя. С этим — только настоящие пользователи Telegram.
+
+Риск без внедрения: Кража данных пользователей, мошенничество с рефералами, накрутка XP.
+
+Как это работает
+Telegram подписывает данные пользователя секретным ключом бота. Мы проверяем эту подпись на сервере.
+
+Пользователь открывает Mini App
+        ↓
+Telegram формирует initData с подписью (hash)
+        ↓
+Приложение отправляет initData в заголовке x-telegram-init-data
+        ↓
+Сервер проверяет подпись через HMAC-SHA256
+        ↓
+Если подпись верна → пользователь настоящий
+Если нет → запрос отклоняется
+Реализация
+Файл: server/telegramAuth.ts
+
+import crypto from 'crypto';
+import { Request, Response, NextFunction } from 'express';
+// === ТИПЫ ===
+interface TelegramUser {
+  id: number;
+  first_name: string;
+  last_name?: string;
+  username?: string;
+  language_code?: string;
+  photo_url?: string;
+  is_premium?: boolean;
+}
+interface ParsedInitData {
+  user?: TelegramUser;
+  auth_date: number;
+  hash: string;
+  query_id?: string;
+  chat_type?: string;
+  start_param?: string;
+}
+// === ГЛАВНАЯ ФУНКЦИЯ ВАЛИДАЦИИ ===
+export function validateTelegramInitData(
+  initData: string, 
+  botToken: string,
+  maxAgeSeconds: number = 86400 // 24 часа — данные старше отклоняются
+): ParsedInitData | null {
+  try {
+    // Парсим строку параметров
+    const params = new URLSearchParams(initData);
+    const hash = params.get('hash');
+    if (!hash) return null;
+    
+    // Удаляем hash для проверки
+    params.delete('hash');
+    
+    // Сортируем параметры и создаём строку для проверки
+    // Telegram требует именно такой формат
+    const dataCheckString = Array.from(params.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, value]) => `${key}=${value}`)
+      .join('\n');
+    
+    // Создаём секретный ключ из токена бота
+    const secretKey = crypto
+      .createHmac('sha256', 'WebAppData')
+      .update(botToken)
+      .digest();
+    
+    // Вычисляем hash
+    const calculatedHash = crypto
+      .createHmac('sha256', secretKey)
+      .update(dataCheckString)
+      .digest('hex');
+    
+    // ВАЖНО: Timing-safe сравнение защищает от timing attacks
+    // Обычное сравнение строк уязвимо — злоумышленник может
+    // по времени ответа угадать правильный hash
+    const hashBuffer = Buffer.from(hash, 'hex');
+    const calculatedBuffer = Buffer.from(calculatedHash, 'hex');
+    
+    if (hashBuffer.length !== calculatedBuffer.length) return null;
+    if (!crypto.timingSafeEqual(hashBuffer, calculatedBuffer)) return null;
+    
+    // Проверяем возраст данных
+    // Старые данные могут быть украдены и переиспользованы
+    const authDate = parseInt(params.get('auth_date') || '0', 10);
+    const now = Math.floor(Date.now() / 1000);
+    if (now - authDate > maxAgeSeconds) return null;
+    
+    // Парсим данные пользователя
+    const userStr = params.get('user');
+    const user = userStr ? JSON.parse(userStr) : undefined;
+    
+    return {
+      user,
+      auth_date: authDate,
+      hash,
+      query_id: params.get('query_id') || undefined,
+      chat_type: params.get('chat_type') || undefined,
+      start_param: params.get('start_param') || undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+// === MIDDLEWARE ДЛЯ ЗАЩИЩЁННЫХ ЭНДПОИНТОВ ===
+export function telegramAuthMiddleware(botToken: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const initData = req.headers['x-telegram-init-data'] as string;
+    
+    if (!initData) {
+      return res.status(401).json({ 
+        code: 'UNAUTHORIZED',
+        message: 'Требуется авторизация через Telegram' 
+      });
+    }
+    
+    const validated = validateTelegramInitData(initData, botToken);
+    if (!validated) {
+      return res.status(401).json({ 
+        code: 'UNAUTHORIZED',
+        message: 'Неверная подпись Telegram' 
+      });
+    }
+    
+    // Прикрепляем данные пользователя к запросу
+    // Теперь в любом роуте доступен req.telegramUser
+    (req as any).telegramUser = validated.user;
+    (req as any).telegramAuthDate = validated.auth_date;
+    
+    next();
+  };
+}
+// === ОПЦИОНАЛЬНАЯ АВТОРИЗАЦИЯ ===
+// Для публичных эндпоинтов, где авторизация желательна но не обязательна
+export function optionalTelegramAuth(botToken: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const initData = req.headers['x-telegram-init-data'] as string;
+    
+    if (initData) {
+      const validated = validateTelegramInitData(initData, botToken);
+      if (validated?.user) {
+        (req as any).telegramUser = validated.user;
+      }
+    }
+    
+    next(); // Всегда пропускаем, даже без авторизации
+  };
+}
+Использование в routes.ts:
+
+import { telegramAuthMiddleware, optionalTelegramAuth } from './telegramAuth';
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
+// Защищённые эндпоинты — только для авторизованных
+app.use('/api/user', telegramAuthMiddleware(BOT_TOKEN));
+app.use('/api/referral', telegramAuthMiddleware(BOT_TOKEN));
+app.use('/api/gamification', telegramAuthMiddleware(BOT_TOKEN));
+app.use('/api/payment', telegramAuthMiddleware(BOT_TOKEN));
+// Публичные с опциональной авторизацией
+// Работают и без авторизации, но если есть — используем
+app.use('/api/demos', optionalTelegramAuth(BOT_TOKEN));
+app.use('/api/analytics', optionalTelegramAuth(BOT_TOKEN));
