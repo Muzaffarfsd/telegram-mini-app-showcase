@@ -36,7 +36,7 @@ interface AnalyticsData {
 }
 
 const NoDataPlaceholder = ({ message = "Нет данных" }: { message?: string }) => (
-  <div className="h-[180px] flex flex-col items-center justify-center text-white/40">
+  <div className="h-[180px] flex flex-col items-center justify-center" style={{ color: 'var(--text-tertiary)' }}>
     <Activity className="w-8 h-8 mb-2 opacity-50" />
     <p className="text-sm">{message}</p>
   </div>
@@ -61,13 +61,13 @@ const StatCard = ({
     <CardContent className="p-3">
       <div className="flex items-start justify-between gap-1">
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-white/60 truncate">{title}</p>
+          <p className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>{title}</p>
           {isLoading ? (
             <Skeleton className="h-6 w-16 mt-0.5" />
           ) : (
-            <p className="text-lg font-bold text-white mt-0.5">
+            <p className="text-lg font-bold mt-0.5" style={{ color: 'var(--text-primary)' }}>
               {value}
-              {suffix && <span className="text-sm text-white/80">{suffix}</span>}
+              {suffix && <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{suffix}</span>}
             </p>
           )}
           {trend && !isLoading && (
@@ -91,16 +91,16 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div
-        className="rounded-lg px-3 py-2 text-sm"
+        className="analytics-tooltip rounded-lg px-3 py-2 text-sm"
         style={{
-          background: "rgba(0, 0, 0, 0.85)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
+          background: 'var(--tooltip-bg, rgba(0, 0, 0, 0.85))',
+          border: '1px solid var(--tooltip-border, rgba(255, 255, 255, 0.1))',
           backdropFilter: "blur(10px)",
         }}
       >
-        <p className="text-white/60 mb-1">{label}</p>
+        <p className="mb-1" style={{ color: 'var(--text-secondary)' }}>{label}</p>
         {payload.map((entry: any, index: number) => (
-          <p key={index} className="text-white font-medium">
+          <p key={index} className="font-medium" style={{ color: 'var(--text-primary)' }}>
             {entry.name}: {entry.value.toLocaleString()}
           </p>
         ))}
@@ -157,10 +157,10 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <div className="min-h-screen px-3 pb-32" style={{ paddingTop: '160px' }}>
+    <div className="analytics-page min-h-screen px-3 pb-32" style={{ paddingTop: '160px' }}>
       <div className="max-w-md mx-auto space-y-4">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <h1 className="text-xl font-bold text-white" data-testid="text-analytics-title">
+          <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }} data-testid="text-analytics-title">
             Аналитика
           </h1>
 
@@ -174,7 +174,7 @@ export default function AnalyticsPage() {
                 className={
                   dateRange === option.value
                     ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs px-2"
-                    : "text-white/60 text-xs px-2"
+                    : "text-xs px-2"
                 }
                 data-testid={`button-range-${option.value}`}
               >
@@ -218,7 +218,7 @@ export default function AnalyticsPage() {
         <div className="space-y-4">
           <Card data-testid="chart-total-users">
             <CardHeader className="pb-2 px-3 pt-3">
-              <CardTitle className="text-base font-semibold text-white">
+              <CardTitle className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
                 Рост пользователей
               </CardTitle>
             </CardHeader>
@@ -263,7 +263,7 @@ export default function AnalyticsPage() {
 
           <Card data-testid="chart-active-users">
             <CardHeader className="pb-2 px-3 pt-3">
-              <CardTitle className="text-base font-semibold text-white">
+              <CardTitle className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
                 Активность по дням
               </CardTitle>
             </CardHeader>
@@ -304,7 +304,7 @@ export default function AnalyticsPage() {
 
           <Card data-testid="chart-funnel">
             <CardHeader className="pb-2 px-3 pt-3">
-              <CardTitle className="text-base font-semibold text-white">
+              <CardTitle className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
                 Воронка конверсии
               </CardTitle>
             </CardHeader>
@@ -348,7 +348,7 @@ export default function AnalyticsPage() {
 
           <Card data-testid="chart-top-demos">
             <CardHeader className="pb-2 px-3 pt-3">
-              <CardTitle className="text-base font-semibold text-white">
+              <CardTitle className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
                 Топ демо
               </CardTitle>
             </CardHeader>
@@ -388,7 +388,7 @@ export default function AnalyticsPage() {
 
         <Card data-testid="section-insights">
           <CardHeader className="pb-2 px-3 pt-3">
-            <CardTitle className="text-base font-semibold text-white">
+            <CardTitle className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
               Инсайты
             </CardTitle>
           </CardHeader>
@@ -401,17 +401,17 @@ export default function AnalyticsPage() {
                 </>
               ) : (
                 <>
-                  <div className="p-3 rounded-lg" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
+                  <div className="analytics-insight p-3 rounded-lg" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
                     <p className="text-emerald-400 font-medium text-sm">Рост +12.5%</p>
-                    <p className="text-white/70 text-xs">
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                       Новых пользователей за {dateRange === "today" ? "сегодня" : dateRange === "7days" ? "7 дней" : "30 дней"}
                     </p>
                   </div>
-                  <div className="p-3 rounded-lg" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
+                  <div className="analytics-insight p-3 rounded-lg" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
                     <p className="text-emerald-400 font-medium text-sm">
                       Топ: {topDemos[0]?.name || "Ресторан"}
                     </p>
-                    <p className="text-white/70 text-xs">
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                       Лидирует по просмотрам
                     </p>
                   </div>
