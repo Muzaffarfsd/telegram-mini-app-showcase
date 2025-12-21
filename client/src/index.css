@@ -319,12 +319,18 @@ input, textarea {
   /* iOS 17 Color Tokens - Dark Theme */
   --foreground: #FFFFFF;
   --card: rgba(255, 255, 255, 0.1);
-  --card-bg: rgba(255, 255, 255, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.05);
   --card-foreground: #FFFFFF;
-  --card-border: rgba(255, 255, 255, 0.2);
+  --card-border: rgba(255, 255, 255, 0.08);
   --card-shadow: none;
   --card-shadow-hover: none;
-  --card-radius: 16px;
+  --card-radius: 18px;
+  
+  /* Divider */
+  --divider: rgba(255, 255, 255, 0.06);
+  
+  /* Hero section */
+  --hero-border: rgba(255, 255, 255, 0.08);
   --popover: rgba(255, 255, 255, 0.1);
   --popover-foreground: #FFFFFF;
   
@@ -843,9 +849,29 @@ html.light :root,
   --cta-secondary-text: #1e293b;
   
   /* Card specific */
-  --card-bg: rgba(255, 255, 255, 0.8);
-  --card-border: rgba(0, 0, 0, 0.06);
-  --card-hover: rgba(255, 255, 255, 0.95);
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-border: rgba(0, 0, 0, 0.04);
+  --card-hover: rgba(255, 255, 255, 1);
+  --card-shadow: 0 0 0 0.5px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.03);
+  --card-shadow-hover: 0 0 0 0.5px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.04);
+  --card-radius: 20px;
+  
+  /* Divider */
+  --divider: rgba(0, 0, 0, 0.06);
+  
+  /* Hero section */
+  --hero-gradient: linear-gradient(135deg, rgba(0, 122, 255, 0.08) 0%, rgba(88, 86, 214, 0.06) 50%, rgba(255, 45, 85, 0.04) 100%);
+  --hero-border: rgba(0, 0, 0, 0.04);
+  
+  /* Accent colors */
+  --accent-primary: #007AFF;
+  --accent-secondary: #5856D6;
+  
+  /* Button colors */
+  --button-primary-bg: #007AFF;
+  --button-primary-text: #ffffff;
+  --button-secondary-bg: rgba(0, 122, 255, 0.1);
+  --button-secondary-text: #007AFF;
 }
 
 /* Montserrat Typography Classes */
