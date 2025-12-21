@@ -1672,6 +1672,26 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
+            {/* Twinkling stars (night mode) */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              opacity: isDark ? 1 : 0,
+              transition: 'opacity 0.2s ease',
+              pointerEvents: 'none',
+              overflow: 'visible',
+            }}>
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '4px', left: '38px', animation: 'twinkle 2s ease-in-out infinite 0s', boxShadow: '0 0 4px rgba(255,255,255,0.9)', willChange: 'opacity, filter' }} />
+              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#FFFFFF', borderRadius: '50%', top: '12px', left: '42px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s', boxShadow: '0 0 3px rgba(255,255,255,0.7)', willChange: 'opacity, filter' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '20px', left: '38px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s', boxShadow: '0 0 4px rgba(255,255,255,0.9)', willChange: 'opacity, filter' }} />
+            </div>
+            <style>{`
+              @keyframes twinkle {
+                0%, 100% { opacity: 0.3; filter: brightness(0.8); }
+                50% { opacity: 1; filter: brightness(1.2); }
+              }
+            `}</style>
+            
             {/* Clouds (day mode) - positioned on right side */}
             <div style={{
               position: 'absolute',
