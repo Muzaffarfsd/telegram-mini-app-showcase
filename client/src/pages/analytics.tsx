@@ -35,45 +35,12 @@ interface AnalyticsData {
   funnel: { name: string; value: number; fill: string }[];
 }
 
-const generateMockData = (range: DateRange): AnalyticsData => {
-  const days = range === "today" ? 24 : range === "7days" ? 7 : 30;
-  const isHourly = range === "today";
-
-  const userGrowth = Array.from({ length: days }, (_, i) => ({
-    date: isHourly ? `${i}:00` : `День ${i + 1}`,
-    users: Math.floor(Math.random() * 500) + (isHourly ? 50 : 200) + i * 10,
-  }));
-
-  const activeUsers = Array.from({ length: Math.min(days, 14) }, (_, i) => ({
-    date: isHourly ? `${i}:00` : range === "7days" ? ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"][i] : `${i + 1}`,
-    active: Math.floor(Math.random() * 300) + 100,
-    new: Math.floor(Math.random() * 100) + 20,
-  }));
-
-  const funnel = [
-    { name: "Посетители", value: 10000, fill: "#10B981" },
-    { name: "Регистрации", value: 6500, fill: "#34D399" },
-    { name: "Активация", value: 4200, fill: "#6EE7B7" },
-    { name: "Конверсия", value: 2100, fill: "#A7F3D0" },
-  ];
-
-  const topDemos = [
-    { name: "Ресторан", value: 2450, fill: "#10B981" },
-    { name: "Магазин", value: 1890, fill: "#34D399" },
-    { name: "Фитнес", value: 1560, fill: "#6EE7B7" },
-    { name: "Красота", value: 1230, fill: "#A7F3D0" },
-    { name: "Курсы", value: 980, fill: "#D1FAE5" },
-  ];
-
-  const stats = {
-    totalUsers: range === "today" ? 1247 : range === "7days" ? 8456 : 34521,
-    activeToday: 847,
-    conversionRate: 21.4,
-    avgSessionMinutes: 4.5,
-  };
-
-  return { stats, userGrowth, activeUsers, funnel, topDemos };
-};
+const NoDataPlaceholder = ({ message = "Нет данных" }: { message?: string }) => (
+  <div className="h-[180px] flex flex-col items-center justify-center text-white/40">
+    <Activity className="w-8 h-8 mb-2 opacity-50" />
+    <p className="text-sm">{message}</p>
+  </div>
+);
 
 const StatCard = ({
   title,
@@ -165,8 +132,15 @@ export default function AnalyticsPage() {
     retry: 2,
   });
 
-  const mockData = generateMockData(dateRange);
-  const analyticsData = isError ? mockData : (data || mockData);
+  const emptyData: AnalyticsData = {
+    stats: { totalUsers: 0, activeToday: 0, conversionRate: 0, avgSessionMinutes: 0 },
+    userGrowth: [],
+    activeUsers: [],
+    funnel: [],
+    topDemos: [],
+  };
+  
+  const analyticsData = data || emptyData;
   
   const { stats, userGrowth, activeUsers, funnel, topDemos } = analyticsData;
   
@@ -183,9 +157,9 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <div className="min-h-screen px-3 pt-36 pb-32">
+    <div className="min-h-screen px-3 pb-32" style={{ paddingTop: '160px' }}>
       <div className="max-w-md mx-auto space-y-4">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <h1 className="text-xl font-bold text-white" data-testid="text-analytics-title">
             Аналитика
           </h1>
@@ -251,6 +225,8 @@ export default function AnalyticsPage() {
             <CardContent className="px-2 pb-3">
               {isLoading ? (
                 <ChartSkeleton />
+              ) : userGrowth.length === 0 ? (
+                <NoDataPlaceholder message="Нет данных о росте" />
               ) : (
                 <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -294,6 +270,8 @@ export default function AnalyticsPage() {
             <CardContent className="px-2 pb-3">
               {isLoading ? (
                 <ChartSkeleton />
+              ) : activeUsers.length === 0 ? (
+                <NoDataPlaceholder message="Нет данных об активности" />
               ) : (
                 <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -333,6 +311,8 @@ export default function AnalyticsPage() {
             <CardContent className="px-2 pb-3">
               {isLoading ? (
                 <ChartSkeleton />
+              ) : funnel.length === 0 ? (
+                <NoDataPlaceholder message="Нет данных о конверсии" />
               ) : (
                 <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -375,6 +355,8 @@ export default function AnalyticsPage() {
             <CardContent className="px-2 pb-3">
               {isLoading ? (
                 <ChartSkeleton />
+              ) : topDemos.length === 0 ? (
+                <NoDataPlaceholder message="Нет данных о демо" />
               ) : (
                 <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
