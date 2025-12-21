@@ -8,6 +8,13 @@ Preferred communication style: Simple, casual language.
 Design preference: Modern minimalistic design with a clean white background and simple elements.
 Typography: Clean, modern fonts with an emphasis on readability and simplicity. Inter font for modern pages like the AI Agent.
 
+# Recent Fixes (December 2025)
+
+## Critical Issues Resolved
+1. **Error Boundaries (✅ FIXED)**: Added ErrorBoundary wrapper around all route components in `App.tsx` with Suspense fallback. Prevents component crashes from breaking entire app. See lines 476-480 in `client/src/App.tsx`.
+2. **404 Not Found Page (✅ FIXED)**: Created lazy-loaded NotFound component at `client/src/pages/NotFound.tsx` for undefined routes. Graceful fallback for routing errors.
+3. **CSRF Token Storage (✅ FIXED)**: Migrated from in-memory Map to Redis-based storage with 1-hour TTL. Solves memory leak issues and enables production scalability with multiple instances. Updated `generateCSRFToken()` and `validateCSRF()` in `server/routes.ts` (lines 97-146) to use `setCache()` and `getCached()` from Redis.
+
 # System Architecture
 
 ## Frontend Architecture
@@ -19,7 +26,7 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Structure**: Main application router, `ShowcasePage` (premium Bento grid layout), `DemoAppShell` for universal navigation, and individual Demo components for business scenarios.
 - **Navigation**: iOS 26 Liquid Glass bottom navigation with refraction, adaptive coloring, spring physics, chromatic aberration, prismatic glares, and enhanced blur effects. Includes Telegram user avatar integration.
 - **Telegram Integration**: Home screen shortcuts (`homeScreen.add()`), API 2025 support (fullscreen, safe area insets, share message, download file), geolocation tracking.
-- **Technical Implementations**: 45+ custom hooks, `ErrorBoundary`, performance optimizations (`React.memo`, `useMemo`, `useCallback`), `OptimizedImage`, `ModernAnimatedIcons`.
+- **Technical Implementations**: 45+ custom hooks, ErrorBoundary (wraps all routes for crash isolation), performance optimizations (`React.memo`, `useMemo`, `useCallback`), `OptimizedImage`, `ModernAnimatedIcons`.
 - **Viewport Configuration**: Responsive `width=device-width` for all platforms including Telegram WebApp.
 - **Video Optimization**: Smart lazy loading with `useVideoLazyLoad` hook, `preload="none"`, `IntersectionObserver` for play/pause, prefetching of components using `preloadDemo()`.
 - **Layout Philosophy**: Mobile-first responsive design with Tailwind breakpoints.
@@ -41,7 +48,8 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Referral System**: Deep linking via Telegram start parameters, level-based commissions, server-side Telegram WebApp initData validation.
 - **Gamification Engine**: Exponential XP-based leveling, daily streak tracking, task rewards, global leaderboards.
 - **Performance**: Single query for user data, ~50% reduction in database calls.
-- **Security**: Telegram authentication validation (HMAC-SHA256), CSRF tokens, XSS sanitization, 4-tier rate limiting, Redis for distributed limiting.
+- **Security**: Telegram authentication validation (HMAC-SHA256), CSRF tokens in Redis (1-hour TTL, scalable), XSS sanitization, 4-tier rate limiting, Redis for distributed limiting.
+- **Caching Layer**: Upstash Redis for CSRF tokens, leaderboard caching, session management. Fallback to memory if Redis unavailable.
 
 ## Deployment Architecture (Production - Railway)
 - **Builder**: Railpack.

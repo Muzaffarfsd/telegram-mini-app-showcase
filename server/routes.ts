@@ -91,20 +91,12 @@ const sensitiveEndpointLimiter = rateLimit({
   message: { error: 'Too many requests to sensitive endpoint, please try again later.' },
 });
 
-// ============ CSRF PROTECTION ============
-const csrfTokens: Map<string, { token: string; expires: number }> = new Map();
-
-function generateCSRFToken(sessionId: string): string {
+// ============ CSRF PROTECTION (Redis-based) ============
+async function generateCSRFToken(sessionId: string): Promise<string> {
   const token = crypto.randomBytes(32).toString('hex');
-  const expires = Date.now() + 60 * 60 * 1000;
-  csrfTokens.set(sessionId, { token, expires });
-  
-  Array.from(csrfTokens.entries()).forEach(([key, value]) => {
-    if (value.expires < Date.now()) {
-      csrfTokens.delete(key);
-    }
-  });
-  
+  const key = `csrf:${sessionId}`;
+  // Store in Redis with 1 hour TTL
+  await setCache(key, token, 3600);
   return token;
 }
 
@@ -134,12 +126,20 @@ function validateCSRF(req: Request, res: Response, next: NextFunction) {
     return res.status(403).json({ error: 'Missing CSRF token' });
   }
   
-  const storedData = csrfTokens.get(sessionId);
-  if (!storedData || storedData.token !== csrfToken || storedData.expires < Date.now()) {
-    return res.status(403).json({ error: 'Invalid or expired CSRF token' });
-  }
-  
-  next();
+  // Validate CSRF token from Redis
+  (async () => {
+    const key = `csrf:${sessionId}`;
+    const storedToken = await getCached(key);
+    
+    if (!storedToken || storedToken !== csrfToken) {
+      return res.status(403).json({ error: 'Invalid or expired CSRF token' });
+    }
+    
+    next();
+  })().catch(err => {
+    console.error('CSRF validation error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  });
 }
 
 // ============ ZOD VALIDATION SCHEMAS ============
@@ -244,9 +244,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
    *                 csrfToken:
    *                   type: string
    */
-  app.get("/api/csrf-token", (req, res) => {
+  app.get("/api/csrf-token", async (req, res) => {
     const sessionId = req.headers['x-telegram-init-data'] as string || req.ip || 'anonymous';
-    const token = generateCSRFToken(sessionId);
+    const token = await generateCSRFToken(sessionId);
     res.json({ csrfToken: token });
   });
 
