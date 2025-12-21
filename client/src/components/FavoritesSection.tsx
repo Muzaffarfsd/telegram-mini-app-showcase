@@ -1,7 +1,7 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useEffect } from 'react';
 import { Heart, ArrowUpRight, X } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
-import { useFavorites } from '@/hooks/useTelegramStorage';
+import { useFavoritesStore } from '@/stores/favoritesStore';
 import { useHaptic } from '@/hooks/useHaptic';
 import { demoApps } from '@/data/demoApps';
 
@@ -12,8 +12,14 @@ interface FavoritesSectionProps {
 export const FavoritesSection = memo(function FavoritesSection({
   onOpenDemo,
 }: FavoritesSectionProps) {
-  const { favorites, isLoading, count, toggle } = useFavorites();
+  const { favorites, isLoading, toggle, initialize, isInitialized } = useFavoritesStore();
   const haptic = useHaptic();
+
+  useEffect(() => {
+    if (!isInitialized) {
+      initialize();
+    }
+  }, [initialize, isInitialized]);
 
   const favoriteDemos = useMemo(() => {
     return favorites
@@ -27,7 +33,7 @@ export const FavoritesSection = memo(function FavoritesSection({
     await toggle(demoId);
   };
 
-  if (isLoading || count === 0) {
+  if (isLoading || favorites.length === 0) {
     return null;
   }
 
@@ -85,7 +91,7 @@ export const FavoritesSection = memo(function FavoritesSection({
                 className="text-[12px]"
                 style={{ color: 'rgba(167, 139, 250, 0.8)' }}
               >
-                {count} {count === 1 ? 'приложение' : count < 5 ? 'приложения' : 'приложений'}
+                {favorites.length} {favorites.length === 1 ? 'приложение' : favorites.length < 5 ? 'приложения' : 'приложений'}
               </p>
             </div>
           </div>

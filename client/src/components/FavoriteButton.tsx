@@ -1,7 +1,7 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { m } from 'framer-motion';
-import { useFavorites } from '@/hooks/useTelegramStorage';
+import { useFavoritesStore } from '@/stores/favoritesStore';
 import { useHaptic } from '@/hooks/useHaptic';
 
 interface FavoriteButtonProps {
@@ -15,9 +15,15 @@ export const FavoriteButton = memo(function FavoriteButton({
   className = '',
   size = 'md',
 }: FavoriteButtonProps) {
-  const { isFavorite, toggle } = useFavorites();
+  const { isFavorite, toggle, initialize, isInitialized } = useFavoritesStore();
   const haptic = useHaptic();
   const isActive = isFavorite(demoId);
+
+  useEffect(() => {
+    if (!isInitialized) {
+      initialize();
+    }
+  }, [initialize, isInitialized]);
 
   const sizeClasses = {
     sm: 'w-7 h-7',
