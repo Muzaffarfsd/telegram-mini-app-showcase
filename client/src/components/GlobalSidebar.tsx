@@ -1062,6 +1062,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         html.light .social-link:hover {
           background: rgba(0, 0, 0, 0.08);
         }
+        
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
       `}</style>
 
       <div 
@@ -1674,9 +1679,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               opacity: isDark ? 1 : 0,
               transition: 'opacity 0.2s ease',
             }}>
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', top: '6px', left: '6px' }} />
-              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: 'rgba(255,255,255,0.7)', borderRadius: '50%', top: '14px', left: '12px' }} />
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.8)', borderRadius: '50%', top: '20px', left: '8px' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', top: '6px', left: '6px', animation: 'twinkle 2s ease-in-out infinite' }} />
+              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: 'rgba(255,255,255,0.7)', borderRadius: '50%', top: '14px', left: '12px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.8)', borderRadius: '50%', top: '20px', left: '8px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s' }} />
               <div style={{ position: 'absolute', width: '1px', height: '1px', background: 'rgba(255,255,255,0.6)', borderRadius: '50%', top: '10px', left: '18px' }} />
             </div>
             
