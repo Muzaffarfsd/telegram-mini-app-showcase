@@ -4,10 +4,59 @@
   <meta charset="UTF-8">
   <!-- CRITICAL: Adaptive viewport for all devices (Telegram Mini App optimized) -->
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-  <meta name="theme-color" content="#000000">
+  
+  <!-- PWA Theme Colors -->
+  <meta name="theme-color" content="#10B981" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="msapplication-TileColor" content="#10B981">
+  <meta name="msapplication-navbutton-color" content="#10B981">
+  
+  <!-- iOS PWA Configuration -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WEB4TG">
+  <meta name="application-name" content="WEB4TG Studio">
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="WEB4TG Studio - Professional Telegram Mini Apps portfolio. 18 full-featured demos for fashion, restaurants, fitness, real estate & AI agents. 24/7 business automation.">
+  <meta name="keywords" content="Telegram Mini App, TMA, Telegram WebApp, business automation, AI agent, ecommerce, restaurant app, fitness app">
+  <meta name="author" content="WEB4TG Studio">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://w4tg.up.railway.app/">
+  <meta property="og:title" content="WEB4TG Studio - Telegram Mini Apps Portfolio">
+  <meta property="og:description" content="18 professional Telegram Mini Apps demos. Fashion, restaurants, fitness, real estate & AI agents. Build your business app today.">
+  <meta property="og:image" content="https://w4tg.up.railway.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="WEB4TG Studio">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://w4tg.up.railway.app/">
+  <meta name="twitter:title" content="WEB4TG Studio - Telegram Mini Apps">
+  <meta name="twitter:description" content="Professional Telegram Mini Apps for your business. AI automation, 24/7 support, sales analytics.">
+  <meta name="twitter:image" content="https://w4tg.up.railway.app/twitter-image.png">
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://w4tg.up.railway.app/">
+  
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
+  <link rel="mask-icon" href="/icons/icon.svg" color="#10B981">
+  
+  <!-- iOS Splash Screen Generation Instructions:
+       To generate splash screens, run: npx pwa-asset-generator icons/icon.svg ./public --splash-only
+       Then uncomment the links below and add the generated splash screen paths.
+       Required sizes: iPhone 15 Pro Max (1290x2796), iPhone 15 Pro (1179x2556), 
+       iPhone 15 (1170x2532), iPhone SE (750x1334), iPad Pro 12.9" (2048x2732), etc.
+  -->
   
   <!-- CRITICAL: Inline критический CSS (< 14KB) -->
   <style>
@@ -149,7 +198,7 @@
     }
   </script>
   
-  <title>WEB4TG</title>
+  <title>WEB4TG Studio - Telegram Mini Apps Portfolio</title>
 </head>
 <body>
   <!-- App Root with Static Shell for instant FCP -->

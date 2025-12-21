@@ -1,26 +1,72 @@
 {
-  "name": "WEB4TG - Telegram Mini Apps Portfolio",
+  "name": "WEB4TG Studio - Telegram Mini Apps",
   "short_name": "WEB4TG",
-  "description": "Showcase of full-featured Telegram Mini Apps for various business verticals",
-  "start_url": "/",
+  "description": "Professional Telegram Mini Apps portfolio. 18 full-featured demos for fashion, restaurants, fitness, real estate & AI agents. 24/7 automation, sales & analytics.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0A0A0B",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#000000",
   "theme_color": "#10B981",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
+  "dir": "ltr",
+  "lang": "ru",
+  "id": "web4tg-studio",
+  "categories": ["business", "productivity", "shopping", "lifestyle", "entertainment"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
+      "src": "/favicon.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity", "shopping"],
-  "screenshots": []
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "AI Agent Demo",
+      "short_name": "AI Agent",
+      "description": "Explore AI-powered business automation",
+      "url": "/demo/ai-agent?source=shortcut"
+    },
+    {
+      "name": "Fashion Store",
+      "short_name": "Fashion",
+      "description": "Premium clothing store demo",
+      "url": "/demo/fashion?source=shortcut"
+    },
+    {
+      "name": "Restaurant Menu",
+      "short_name": "Restaurant",
+      "description": "Digital menu with ordering",
+      "url": "/demo/restaurant?source=shortcut"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://w4tg.up.railway.app"
+    }
+  ],
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }

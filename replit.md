@@ -28,6 +28,7 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 13. **Onboarding Persistence (✅ FIXED)**: Updated `OnboardingTutorial.tsx` to use Telegram CloudStorage (version 6.9+) with localStorage fallback. Onboarding now shows only on first visit.
 14. **Telegram DeviceStorage & SecureStorage (✅ ADDED)**: Created `client/src/lib/telegramStorage.ts` with Bot API 9.2 storage wrappers. Features: TTL-based caching, localStorage fallback, helpers for viewed demos, favorites, preferences, API response caching. Functions: `deviceStorage`, `secureStorage`, `getViewedDemos`, `addViewedDemo`, `getFavorites`, `toggleFavorite`, `cacheApiResponse`.
 15. **React Storage Hooks (✅ ADDED)**: Created `client/src/hooks/useTelegramStorage.ts` with hooks: `useViewedDemos`, `useFavorites`, `useUserPreferences`, `useCachedQuery`, `useDeviceStorage`. Integrated into `ShowcasePage` for tracking viewed demos and `queryClient` for API caching with `getCachedQueryFn`.
+16. **PWA Manifest (✅ IMPROVED)**: Professional manifest.json with full metadata, shortcuts, share_target, launch_handler. iOS splash screens for all devices. SEO meta tags, Open Graph, Twitter Cards. Icon structure ready for generation.
 
 ## Important Findings (Query Performance Audit)
 - ✅ **N+1 Queries (VERIFIED SAFE)**: Code analysis shows no N+1 query patterns. Leaderboard endpoint (line 2267) uses batch SELECT with Promise.all(). Referrals endpoint (line 1908) uses innerJoin pattern. All critical paths are optimized.
