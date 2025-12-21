@@ -1672,22 +1672,41 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
-            {/* Twinkling stars (night mode) */}
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              opacity: isDark ? 1 : 0,
-              transition: 'opacity 0.2s ease',
-              pointerEvents: 'none',
-            }}>
-              <div style={{ position: 'absolute', width: '3px', height: '3px', background: '#FFFFFF', borderRadius: '50%', top: '3px', left: '6px', animation: 'twinkle 2s ease-in-out infinite 0s', boxShadow: '0 0 6px 2px rgba(255,255,255,1)', willChange: 'opacity, filter' }} />
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '14px', left: '3px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s', boxShadow: '0 0 4px 1px rgba(255,255,255,0.9)', willChange: 'opacity, filter' }} />
-              <div style={{ position: 'absolute', width: '2.5px', height: '2.5px', background: '#FFFFFF', borderRadius: '50%', top: '22px', left: '8px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s', boxShadow: '0 0 5px 2px rgba(255,255,255,1)', willChange: 'opacity, filter' }} />
-            </div>
+            {/* Night sky background with twinkling stars */}
+            {isDark && (
+              <>
+                {/* Star field - positioned around the moon's crescent arc */}
+                {[
+                  { size: 2.2, top: 5, left: 4, delay: 0, duration: 2.2 },
+                  { size: 1.4, top: 12, left: 8, delay: 0.4, duration: 2.6 },
+                  { size: 1.8, top: 20, left: 5, delay: 0.8, duration: 1.9 },
+                  { size: 1.2, top: 8, left: 14, delay: 0.2, duration: 2.4 },
+                  { size: 1.6, top: 18, left: 12, delay: 0.6, duration: 2.1 },
+                ].map((star, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      position: 'absolute',
+                      width: `${star.size}px`,
+                      height: `${star.size}px`,
+                      background: 'radial-gradient(circle, #FFFFFF 0%, rgba(255,255,255,0.8) 50%, transparent 100%)',
+                      borderRadius: '50%',
+                      top: `${star.top}px`,
+                      left: `${star.left}px`,
+                      boxShadow: `0 0 ${star.size * 2}px ${star.size * 0.5}px rgba(255,255,255,0.7)`,
+                      animation: `headerTwinkle ${star.duration}s ease-in-out infinite`,
+                      animationDelay: `${star.delay}s`,
+                      pointerEvents: 'none',
+                      willChange: 'opacity',
+                    }}
+                  />
+                ))}
+              </>
+            )}
             <style>{`
-              @keyframes twinkle {
-                0%, 100% { opacity: 0.4; filter: brightness(0.9); }
-                50% { opacity: 1; filter: brightness(1.3); }
+              @keyframes headerTwinkle {
+                0%, 100% { opacity: 0.3; transform: scale(0.9); }
+                50% { opacity: 1; transform: scale(1.1); }
               }
             `}</style>
             
