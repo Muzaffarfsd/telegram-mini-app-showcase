@@ -6197,21 +6197,12 @@ html.light .global-sidebar-panel [style*="linear-gradient(90deg, transparent 0%,
   ) !important;
 }
 
-/* Icons in sidebar */
-html.light .global-sidebar-panel svg {
-  color: #3C3C43 !important;
-}
-
-html.light .global-sidebar-item.active svg {
-  color: #007AFF !important;
-}
-
-/* Chevron icons */
-html.light .global-sidebar-panel [class*="ChevronRight"] {
+/* Chevron icons only - menu icons have their own colors */
+html.light .global-sidebar-panel button > svg:last-of-type {
   color: #C7C7CC !important;
 }
 
-html.light .global-sidebar-item.active [class*="ChevronRight"] {
+html.light .global-sidebar-item.active > svg:last-of-type {
   color: #007AFF !important;
 }
 

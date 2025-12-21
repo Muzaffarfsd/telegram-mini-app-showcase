@@ -183,49 +183,63 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       label: 'Главная', 
       section: '', 
       routes: ['showcase'],
-      description: 'Все возможности'
+      description: 'Все возможности',
+      iconColor: '#007AFF',      // iOS Blue
+      iconBg: 'rgba(0, 122, 255, 0.12)'
     },
     { 
       icon: Sparkles, 
       label: 'Бизнес приложения', 
       section: 'projects', 
       routes: ['projects'],
-      description: 'Готовые решения'
+      description: 'Готовые решения',
+      iconColor: '#FF9500',      // Orange
+      iconBg: 'rgba(255, 149, 0, 0.12)'
     },
     { 
       icon: Bot, 
       label: 'ИИ агент для бизнеса', 
       section: 'ai-process', 
       routes: ['aiProcess', 'aiAgent'],
-      description: 'Автоматизация 24/7'
+      description: 'Автоматизация 24/7',
+      iconColor: '#AF52DE',      // Purple
+      iconBg: 'rgba(175, 82, 222, 0.12)'
     },
     { 
       icon: Users, 
       label: 'О студии', 
       section: 'about', 
       routes: ['about'],
-      description: 'Наша команда'
+      description: 'Наша команда',
+      iconColor: '#5856D6',      // Indigo
+      iconBg: 'rgba(88, 86, 214, 0.12)'
     },
     { 
       icon: MessageCircle, 
       label: 'Заказать проект', 
       section: 'constructor', 
       routes: ['constructor', 'checkout'],
-      description: 'Индивидуальное решение'
+      description: 'Индивидуальное решение',
+      iconColor: '#34C759',      // Green
+      iconBg: 'rgba(52, 199, 89, 0.12)'
     },
     { 
       icon: Bell, 
       label: 'Push-уведомления', 
       section: 'notifications', 
       routes: ['notifications'],
-      description: 'Тест Telegram Bot API'
+      description: 'Тест Telegram Bot API',
+      iconColor: '#FF3B30',      // Red
+      iconBg: 'rgba(255, 59, 48, 0.12)'
     },
     { 
       icon: BarChart3, 
       label: 'Аналитика', 
       section: 'analytics', 
       routes: ['analytics'],
-      description: 'Бизнес-метрики'
+      description: 'Бизнес-метрики',
+      iconColor: '#30D158',      // Mint
+      iconBg: 'rgba(48, 209, 88, 0.12)'
     },
   ];
 
@@ -1409,10 +1423,22 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 >
                   {active && <div className="menu-item-glow" />}
                   
-                  <div className="menu-icon-wrap">
+                  <div 
+                    className="menu-icon-wrap"
+                    style={{
+                      background: item.iconBg,
+                      borderRadius: '10px',
+                      width: '36px',
+                      height: '36px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}
+                  >
                     <item.icon 
                       size={20} 
-                      color={isPressed || active ? colors.accent : colors.textSecondary} 
+                      color={item.iconColor} 
                     />
                   </div>
                   
