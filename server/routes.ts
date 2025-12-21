@@ -217,10 +217,11 @@ const notificationInteractiveSchema = z.object({
 // Analytics schemas
 const abEventSchema = z.object({
   experiment: z.string().min(1).max(100),
-  variant: z.enum(['A', 'B']),
-  eventType: z.enum(['exposure', 'conversion']),
+  variant: z.string().min(1).max(20),
+  eventType: z.string().min(1).max(50),
   userId: z.string().optional(),
   timestamp: z.number().optional(),
+  metadata: z.record(z.unknown()).optional(),
 });
 
 const trackEventSchema = z.object({
@@ -3008,6 +3009,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     eventType: string;
     userId: string | null;
     timestamp: number;
+    metadata?: Record<string, unknown>;
   }>> = new Map();
 
   app.post("/api/analytics/ab-event", (req, res) => {
@@ -3015,12 +3017,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!validationResult.success) {
       return res.status(400).json({ 
         error: 'Validation error', 
-        details: validationResult.error.issues 
+        details: validationResult.error.issues,
+        hint: 'Required: experiment (string), variant (string), eventType (string). Optional: userId, timestamp, metadata'
       });
     }
     
     try {
-      const { experiment, variant, eventType, userId, timestamp } = validationResult.data;
+      const { experiment, variant, eventType, userId, timestamp, metadata } = validationResult.data;
       
       const eventKey = `${experiment}::${variant}::${eventType}`;
       const existingEvents = abTestEvents.get(eventKey) || [];
@@ -3031,13 +3034,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         eventType,
         userId: userId || null,
         timestamp: timestamp || Date.now(),
+        metadata,
       });
       
       abTestEvents.set(eventKey, existingEvents);
       
       console.log(`[A/B TEST] ${experiment}: ${variant} - ${eventType}`, { userId, total: existingEvents.length });
       
-      res.json({ success: true });
+      res.json({ success: true, eventKey });
     } catch (error: any) {
       console.error('A/B event tracking error:', error);
       res.status(500).json({ error: 'Failed to track A/B event' });
