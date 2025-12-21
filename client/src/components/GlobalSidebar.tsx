@@ -87,7 +87,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pressedItem, setPressedItem] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isThemeAnimating, setIsThemeAnimating] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   const themeButtonRef = useRef<HTMLButtonElement>(null);
@@ -1642,12 +1641,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           
           <button
             ref={themeButtonRef}
-            onClick={(e) => {
-              if (isThemeAnimating) return;
-              setIsThemeAnimating(true);
+            onClick={() => {
               triggerHaptic('medium');
-              toggleTheme(e);
-              setTimeout(() => setIsThemeAnimating(false), 150);
+              toggleTheme();
             }}
             data-testid="button-theme-toggle"
             className="day-night-toggle"
@@ -1667,19 +1663,16 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
-            {/* Sun/Moon orb - optimized for mobile */}
+            {/* Sun/Moon orb - instant switch */}
             <div style={{
               position: 'absolute',
               width: '22px',
               height: '22px',
               borderRadius: '50%',
               top: '3px',
-              left: '3px',
-              transform: isDark ? 'translateX(24px)' : 'translateX(0)',
+              left: isDark ? '27px' : '3px',
               background: isDark ? '#E8E8E8' : '#FFD93D',
-              transition: 'transform 0.15s ease-out',
             }}>
-              {/* Moon craters - no transition */}
               {isDark && (
                 <div style={{ position: 'absolute', inset: 0, borderRadius: '50%' }}>
                   <div style={{ position: 'absolute', width: '5px', height: '5px', background: 'rgba(180,180,180,0.4)', borderRadius: '50%', top: '4px', left: '5px' }} />

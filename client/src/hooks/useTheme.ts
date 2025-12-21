@@ -150,31 +150,12 @@ export function useTheme() {
     applyTheme(theme);
   }, [theme]);
 
-  const toggleTheme = useCallback((event?: MouseEvent | React.MouseEvent) => {
-    const switchTheme = () => {
-      setTheme((prev) => {
-        const next = prev === 'dark' ? 'light' : 'dark';
-        console.log('[Theme] Toggle:', prev, '->', next);
-        return next;
-      });
-    };
-
-    // Set click position for animation
-    if (event) {
-      const x = event.clientX;
-      const y = event.clientY;
-      document.documentElement.style.setProperty('--click-x', `${x}px`);
-      document.documentElement.style.setProperty('--click-y', `${y}px`);
-    }
-
-    // Use View Transitions API if available (Chrome 111+, Safari 18+)
-    if (document.startViewTransition) {
-      document.startViewTransition(() => {
-        switchTheme();
-      });
-    } else {
-      switchTheme();
-    }
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      console.log('[Theme] Toggle:', prev, '->', next);
+      return next;
+    });
   }, []);
 
   const setThemeValue = useCallback((newTheme: Theme) => {
