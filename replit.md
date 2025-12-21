@@ -70,6 +70,12 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
     - `.ios26-btn` / `.ios26-btn-filled` - Button styles with iOS Blue (#007AFF)
     - `.ios26-input` - Input field with focus ring
     - `.ios26-separator` - 1px divider line
+    - `.ios26-feature-card` - Feature cards with hover elevation and soft shadows
+    - `.ios26-luminous` - Luminous highlight (white glow line at top of cards)
+    - `.global-sidebar-panel` - GlobalSidebar panel with blur and layered shadows
+    - `.global-sidebar-item` - Sidebar menu items with hover/active states
+    - `.hover-elevate-light` / `.active-press` - Light theme hover/pressed interactions
+  - **CTA Button Shadows**: Primary buttons have blue glow shadows (box-shadow with rgba(59, 130, 246, 0.3)), demo buttons have glass effect with backdrop-filter
   - **Dark Theme**: #0f0f11 premium black with #10B981 emerald accent. Glass utilities: `.glass-panel`, `.glass-card`, `.shadow-ios`, `.text-gradient-primary`. CSS variables for automatic theme adaptation.
 
 ## Backend Architecture (Development - Replit)
