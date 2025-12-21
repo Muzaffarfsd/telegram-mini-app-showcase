@@ -1632,25 +1632,23 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           top: 0,
           left: 0,
           right: 0,
-          bottom: 0,
-          overflow: 'hidden',
+          height: '100%',
           pointerEvents: 'none',
           zIndex: 1
         }}>
-          {[...Array(12)].map((_, i) => (
+          {[...Array(15)].map((_, i) => (
             <div 
               key={i}
               className="snowflake"
               style={{
                 position: 'absolute',
-                left: `${8 + i * 8}%`,
-                top: '-20px',
-                fontSize: `${10 + (i % 3) * 4}px`,
-                color: 'rgba(255,255,255,0.9)',
-                textShadow: '0 0 3px rgba(255,255,255,0.5)',
-                animation: `snowflakeFall ${8 + (i % 4) * 2}s linear infinite`,
-                animationDelay: `${i * 0.8}s`,
-                opacity: 0.7 + (i % 3) * 0.1
+                left: `${5 + i * 6.5}%`,
+                top: '0px',
+                fontSize: `${8 + (i % 4) * 3}px`,
+                color: 'rgba(255,255,255,0.85)',
+                textShadow: '0 0 4px rgba(255,255,255,0.6)',
+                animation: `snowflakeFall${i % 3} ${5 + (i % 5)}s linear infinite`,
+                animationDelay: `${(i * 0.5) % 5}s`
               }}
             >
               ❄
@@ -1659,21 +1657,18 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         </div>
         
         <style>{`
-          @keyframes snowflakeFall {
-            0% {
-              transform: translateY(-20px) rotate(0deg);
-              opacity: 0;
-            }
-            10% {
-              opacity: 0.8;
-            }
-            90% {
-              opacity: 0.8;
-            }
-            100% {
-              transform: translateY(120px) rotate(360deg);
-              opacity: 0;
-            }
+          @keyframes snowflakeFall0 {
+            0% { transform: translateY(-5px) rotate(0deg); opacity: 0.9; }
+            100% { transform: translateY(100px) rotate(180deg); opacity: 0.3; }
+          }
+          @keyframes snowflakeFall1 {
+            0% { transform: translateY(-8px) translateX(-5px) rotate(0deg); opacity: 0.85; }
+            50% { transform: translateY(45px) translateX(5px) rotate(90deg); }
+            100% { transform: translateY(95px) translateX(-3px) rotate(200deg); opacity: 0.2; }
+          }
+          @keyframes snowflakeFall2 {
+            0% { transform: translateY(-3px) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(85px) rotate(-150deg); opacity: 0.25; }
           }
         `}</style>
         
