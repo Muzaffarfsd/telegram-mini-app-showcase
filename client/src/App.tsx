@@ -449,17 +449,21 @@ function App() {
                     {/* Разделитель */}
                     <div className="w-px h-8 mx-1" style={{ background: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)' }} />
                     
-                    {/* Переключатель темы со звёздами внутри иконки */}
+                    {/* Переключатель темы - яркий и заметный */}
                     <button
                       onClick={() => { toggleTheme(); hapticFeedback.medium(); }}
-                      className="relative flex items-center justify-center w-11 h-11 rounded-full"
+                      className="relative flex items-center justify-center w-11 h-11 rounded-full gpu-layer"
                       style={{
                         background: isDark 
-                          ? 'rgba(99,102,241,0.25)' 
-                          : 'rgba(251,191,36,0.25)',
+                          ? 'linear-gradient(145deg, rgba(99,102,241,0.3) 0%, rgba(139,92,246,0.2) 100%)' 
+                          : 'linear-gradient(145deg, rgba(251,191,36,0.3) 0%, rgba(245,158,11,0.2) 100%)',
                         border: isDark 
-                          ? '1px solid rgba(139,92,246,0.3)' 
-                          : '1px solid rgba(245,158,11,0.3)',
+                          ? '1px solid rgba(139,92,246,0.4)' 
+                          : '1px solid rgba(245,158,11,0.4)',
+                        boxShadow: isDark 
+                          ? '0 0 12px rgba(139,92,246,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' 
+                          : '0 0 12px rgba(251,191,36,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                        transition: 'all 0.3s ease',
                       }}
                       aria-label="Переключить тему"
                       data-testid="button-theme-toggle-mobile"
@@ -467,48 +471,57 @@ function App() {
                       <div className="relative w-6 h-6">
                         {/* Солнце */}
                         <Sun 
-                          className="absolute inset-0 w-6 h-6"
+                          className="absolute inset-0 w-6 h-6 transition-all duration-300"
                           style={{
                             color: '#FBBF24',
                             opacity: isDark ? 0 : 1,
-                            transition: 'opacity 0.15s',
+                            transform: isDark ? 'rotate(-90deg) scale(0.5)' : 'rotate(0) scale(1)',
+                            filter: isDark ? 'none' : 'drop-shadow(0 0 4px rgba(251,191,36,0.6))',
                           }}
                           strokeWidth={2.5}
                         />
-                        {/* Луна со звёздами внутри */}
-                        <div 
-                          className="absolute inset-0 w-6 h-6"
-                          style={{ opacity: isDark ? 1 : 0, transition: 'opacity 0.15s' }}
-                        >
-                          <Moon 
-                            className="absolute inset-0 w-6 h-6"
-                            style={{ color: '#C4B5FD' }}
-                            strokeWidth={2.5}
-                          />
-                          {/* Звёзды внутри полумесяца */}
-                          <span className="moon-stars">
-                            <span style={{ top: '2px', left: '5px', animationDelay: '0s' }} />
-                            <span style={{ top: '8px', left: '7px', animationDelay: '0.4s' }} />
-                            <span style={{ top: '14px', left: '4px', animationDelay: '0.8s' }} />
-                          </span>
-                        </div>
+                        {/* Луна */}
+                        <Moon 
+                          className="absolute inset-0 w-6 h-6 transition-all duration-300"
+                          style={{
+                            color: '#C4B5FD',
+                            opacity: isDark ? 1 : 0,
+                            filter: 'drop-shadow(0 0 4px rgba(196,181,253,0.6))',
+                          }}
+                          strokeWidth={2.5}
+                        />
                       </div>
+                      {/* Twinkling stars - visible in dark mode */}
+                      {isDark && (
+                        <>
+                          {[
+                            { size: 3, top: 8, left: 8 },
+                            { size: 2.5, top: 28, left: 10 },
+                            { size: 2, top: 18, left: 6 },
+                            { size: 2.5, top: 12, left: 32 },
+                            { size: 2, top: 26, left: 30 },
+                          ].map((star, i) => (
+                            <span
+                              key={i}
+                              style={{
+                                position: 'absolute',
+                                width: `${star.size}px`,
+                                height: `${star.size}px`,
+                                background: '#FFFFFF',
+                                borderRadius: '50%',
+                                top: `${star.top}px`,
+                                left: `${star.left}px`,
+                                boxShadow: `0 0 ${star.size * 2}px rgba(255,255,255,0.9)`,
+                                animation: `twinkleMobile ${1.8 + i * 0.3}s ease-in-out infinite`,
+                                animationDelay: `${i * 0.2}s`,
+                                pointerEvents: 'none',
+                              }}
+                            />
+                          ))}
+                        </>
+                      )}
                       <style>{`
-                        .moon-stars {
-                          position: absolute;
-                          inset: 0;
-                          pointer-events: none;
-                        }
-                        .moon-stars span {
-                          position: absolute;
-                          width: 2px;
-                          height: 2px;
-                          background: #fff;
-                          border-radius: 50%;
-                          will-change: opacity;
-                          animation: moonStarTwinkle 1.8s ease-in-out infinite;
-                        }
-                        @keyframes moonStarTwinkle {
+                        @keyframes twinkleMobile {
                           0%, 100% { opacity: 0.4; }
                           50% { opacity: 1; }
                         }
