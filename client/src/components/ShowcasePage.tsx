@@ -259,7 +259,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   loop
                   muted
                   playsInline
-                  preload="none"
+                  autoPlay
+                  preload="metadata"
                   className="absolute inset-0 w-full h-full object-cover"
                   style={{ filter: 'brightness(0.6)' }}
                 />

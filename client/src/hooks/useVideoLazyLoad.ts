@@ -46,6 +46,36 @@ export function useVideoLazyLoad(options: UseVideoLazyLoadOptions = {}) {
     const video = videoRef.current;
     if (!video) return;
 
+    const loadAndPlay = () => {
+      if (!loadedRef.current && video.readyState === 0) {
+        loadedRef.current = true;
+        video.load();
+      }
+      
+      if (!shouldAutoplay()) return;
+      
+      if (video.readyState >= 2) {
+        video.play().catch(() => {});
+      } else {
+        if (!canplayHandlerRef.current) {
+          canplayHandlerRef.current = () => {
+            setIsLoaded(true);
+            if (isIntersectingRef.current && shouldAutoplay()) {
+              video.play().catch(() => {});
+            }
+          };
+          video.addEventListener('canplay', canplayHandlerRef.current, { once: true });
+        }
+      }
+    };
+
+    const isTelegramWebApp = !!(window as any).Telegram?.WebApp;
+    if (isTelegramWebApp) {
+      isIntersectingRef.current = true;
+      setIsVisible(true);
+      setTimeout(() => loadAndPlay(), 100);
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -53,26 +83,7 @@ export function useVideoLazyLoad(options: UseVideoLazyLoadOptions = {}) {
           setIsVisible(entry.isIntersecting);
           
           if (entry.isIntersecting) {
-            if (!loadedRef.current && video.readyState === 0) {
-              loadedRef.current = true;
-              video.load();
-            }
-            
-            if (!shouldAutoplay()) return;
-            
-            if (video.readyState >= 2) {
-              video.play().catch(() => {});
-            } else {
-              if (!canplayHandlerRef.current) {
-                canplayHandlerRef.current = () => {
-                  setIsLoaded(true);
-                  if (isIntersectingRef.current && shouldAutoplay()) {
-                    video.play().catch(() => {});
-                  }
-                };
-                video.addEventListener('canplay', canplayHandlerRef.current, { once: true });
-              }
-            }
+            loadAndPlay();
           } else {
             if (canplayHandlerRef.current) {
               video.removeEventListener('canplay', canplayHandlerRef.current);
