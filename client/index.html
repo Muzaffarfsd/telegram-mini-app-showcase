@@ -97,7 +97,11 @@
     }
   </style>
   
-  <!-- CRITICAL: Vite will inject modulepreload links automatically during build -->
+  <!-- CRITICAL: Preload hints for faster loading -->
+  <!-- Vite will inject modulepreload links automatically during build -->
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="/src/main.tsx" as="script" crossorigin>
   
   <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.json">
@@ -152,8 +156,75 @@
   <title>WEB4TG</title>
 </head>
 <body>
-  <!-- App Root -->
-  <div id="root"></div>
+  <!-- App Root with Static Shell for instant FCP -->
+  <div id="root">
+    <!-- STATIC SHELL: Показывается мгновенно пока React загружается -->
+    <!-- React заменит этот контент после hydration -->
+    <div id="static-shell" style="
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+    ">
+      <!-- Header skeleton -->
+      <header style="
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      ">
+        <div class="skeleton" style="width: 100px; height: 24px; border-radius: 6px;"></div>
+        <div class="skeleton" style="width: 36px; height: 36px; border-radius: 50%;"></div>
+      </header>
+      
+      <!-- Hero skeleton -->
+      <div style="padding: 40px 20px; text-align: center;">
+        <div class="skeleton" style="
+          width: 80%;
+          max-width: 400px;
+          height: 48px;
+          margin: 0 auto 16px;
+          border-radius: 8px;
+        "></div>
+        <div class="skeleton" style="
+          width: 60%;
+          max-width: 300px;
+          height: 20px;
+          margin: 0 auto;
+          border-radius: 6px;
+        "></div>
+      </div>
+      
+      <!-- Cards skeleton grid -->
+      <div style="
+        padding: 20px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      ">
+        <div class="skeleton" style="height: 160px; border-radius: 12px;"></div>
+        <div class="skeleton" style="height: 160px; border-radius: 12px;"></div>
+        <div class="skeleton" style="height: 160px; border-radius: 12px;"></div>
+        <div class="skeleton" style="height: 160px; border-radius: 12px;"></div>
+      </div>
+      
+      <!-- Bottom nav skeleton -->
+      <nav style="
+        margin-top: auto;
+        padding: 12px 20px 24px;
+        display: flex;
+        justify-content: space-around;
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(20px);
+      ">
+        <div class="skeleton" style="width: 48px; height: 48px; border-radius: 12px;"></div>
+        <div class="skeleton" style="width: 48px; height: 48px; border-radius: 12px;"></div>
+        <div class="skeleton" style="width: 48px; height: 48px; border-radius: 12px;"></div>
+        <div class="skeleton" style="width: 48px; height: 48px; border-radius: 12px;"></div>
+      </nav>
+    </div>
+  </div>
   
   <!-- CRITICAL: Defer non-critical scripts -->
   <script type="module" src="/src/main.tsx"></script>
