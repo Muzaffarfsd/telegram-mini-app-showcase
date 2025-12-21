@@ -15,18 +15,13 @@ function getInitialTheme(): Theme {
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  const body = document.body;
   
   if (theme === 'light') {
     root.classList.add('light');
     root.classList.remove('dark');
-    body.style.backgroundColor = '#f8fafc';
-    body.style.color = '#1e293b';
   } else {
     root.classList.remove('light');
     root.classList.add('dark');
-    body.style.backgroundColor = '#0f0f11';
-    body.style.color = '#ffffff';
   }
   
   try {
@@ -43,7 +38,7 @@ function applyTheme(theme: Theme) {
     } catch (e) {}
   }
   
-  console.log('[Theme] Applied:', theme);
+  console.log('[Theme] Applied:', theme, '- html classes:', root.classList.toString());
 }
 
 export function useTheme() {
