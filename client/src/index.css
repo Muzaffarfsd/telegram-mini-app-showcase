@@ -4670,8 +4670,10 @@ html.light #root {
 }
 
 html.light .top-bar {
-  background: rgba(242, 244, 246, 0.85) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
   border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
 }
 
 html.light .hamburger-btn {
