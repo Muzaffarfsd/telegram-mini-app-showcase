@@ -5,7 +5,7 @@ interface StickyGlassHeaderProps {
 export default function StickyGlassHeader({ title = "WEB4TG" }: StickyGlassHeaderProps) {
   return (
     <header 
-      className="sticky top-0 z-50 backdrop-blur-3xl shadow-2xl"
+      className="sticky-glass-header sticky top-0 z-50 backdrop-blur-3xl shadow-2xl transition-colors duration-300"
       style={{
         background: 'var(--glass-nav-background)',
         borderBottom: '1px solid var(--glass-nav-border)',

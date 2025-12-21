@@ -22,9 +22,9 @@ function applyTheme(theme: Theme) {
     root.classList.add('light');
     root.classList.remove('dark');
     
-    // Core colors
-    root.style.setProperty('--background', '#f8fafc');
-    root.style.setProperty('--foreground', '#1e293b');
+    // Core colors - iOS 26 Light Theme
+    root.style.setProperty('--background', '#F2F4F6');
+    root.style.setProperty('--foreground', '#0F172A');
     root.style.setProperty('--card', 'rgba(255, 255, 255, 0.85)');
     root.style.setProperty('--border', 'rgba(0, 0, 0, 0.08)');
     
@@ -45,12 +45,31 @@ function applyTheme(theme: Theme) {
     root.style.setProperty('--secondary-label', '#64748b');
     root.style.setProperty('--muted-foreground', '#64748b');
     
-    // Inline styles for body/root
-    body.style.backgroundColor = '#f8fafc';
-    body.style.color = '#1e293b';
+    // Semantic tokens
+    root.style.setProperty('--surface', '#f8fafc');
+    root.style.setProperty('--surface-elevated', '#ffffff');
+    root.style.setProperty('--text-primary', '#1e293b');
+    root.style.setProperty('--text-secondary', '#64748b');
+    root.style.setProperty('--text-tertiary', '#94a3b8');
+    root.style.setProperty('--text-quaternary', '#cbd5e1');
+    root.style.setProperty('--text-inverted', '#ffffff');
+    root.style.setProperty('--overlay-weak', 'rgba(0, 0, 0, 0.03)');
+    root.style.setProperty('--overlay-medium', 'rgba(0, 0, 0, 0.06)');
+    root.style.setProperty('--overlay-strong', 'rgba(0, 0, 0, 0.1)');
+    root.style.setProperty('--cta-background', '#3b82f6');
+    root.style.setProperty('--cta-foreground', '#ffffff');
+    root.style.setProperty('--cta-secondary-border', 'rgba(0, 0, 0, 0.12)');
+    root.style.setProperty('--cta-secondary-text', '#1e293b');
+    root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.8)');
+    root.style.setProperty('--card-border', 'rgba(0, 0, 0, 0.06)');
+    root.style.setProperty('--card-hover', 'rgba(255, 255, 255, 0.95)');
+    
+    // Inline styles for body/root - iOS 26 Light Theme
+    body.style.backgroundColor = '#F2F4F6';
+    body.style.color = '#0F172A';
     if (rootEl) {
-      rootEl.style.backgroundColor = '#f8fafc';
-      rootEl.style.color = '#1e293b';
+      rootEl.style.backgroundColor = '#F2F4F6';
+      rootEl.style.color = '#0F172A';
     }
   } else {
     root.classList.remove('light');
@@ -79,6 +98,25 @@ function applyTheme(theme: Theme) {
     root.style.setProperty('--secondary-label', 'rgba(255, 255, 255, 0.7)');
     root.style.setProperty('--muted-foreground', 'rgba(255, 255, 255, 0.7)');
     
+    // Semantic tokens
+    root.style.setProperty('--surface', '#0f0f11');
+    root.style.setProperty('--surface-elevated', '#1a1a1e');
+    root.style.setProperty('--text-primary', '#FFFFFF');
+    root.style.setProperty('--text-secondary', 'rgba(255, 255, 255, 0.7)');
+    root.style.setProperty('--text-tertiary', 'rgba(255, 255, 255, 0.5)');
+    root.style.setProperty('--text-quaternary', 'rgba(255, 255, 255, 0.3)');
+    root.style.setProperty('--text-inverted', '#000000');
+    root.style.setProperty('--overlay-weak', 'rgba(255, 255, 255, 0.05)');
+    root.style.setProperty('--overlay-medium', 'rgba(255, 255, 255, 0.1)');
+    root.style.setProperty('--overlay-strong', 'rgba(255, 255, 255, 0.15)');
+    root.style.setProperty('--cta-background', '#10B981');
+    root.style.setProperty('--cta-foreground', '#000000');
+    root.style.setProperty('--cta-secondary-border', 'rgba(255, 255, 255, 0.12)');
+    root.style.setProperty('--cta-secondary-text', 'rgba(255, 255, 255, 0.85)');
+    root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.05)');
+    root.style.setProperty('--card-border', 'rgba(255, 255, 255, 0.08)');
+    root.style.setProperty('--card-hover', 'rgba(255, 255, 255, 0.1)');
+    
     // Inline styles for body/root
     body.style.backgroundColor = '#0f0f11';
     body.style.color = '#FFFFFF';
@@ -96,8 +134,8 @@ function applyTheme(theme: Theme) {
     const tg = window.Telegram.WebApp as any;
     try {
       if (typeof tg.setHeaderColor === 'function') {
-        tg.setHeaderColor(theme === 'dark' ? '#0f0f11' : '#f8fafc');
-        tg.setBackgroundColor(theme === 'dark' ? '#0f0f11' : '#f8fafc');
+        tg.setHeaderColor(theme === 'dark' ? '#0f0f11' : '#F2F4F6');
+        tg.setBackgroundColor(theme === 'dark' ? '#0f0f11' : '#F2F4F6');
       }
     } catch (e) {}
   }

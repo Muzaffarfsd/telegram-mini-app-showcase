@@ -1,0 +1,172 @@
+Основной файл стилей (client/src/index.css)
+Скопируйте этот код и полностью замените им содержимое файла client/src/index.css.
+
+CSS
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* IOS 26 LIGHT THEME PALETTE 
+      Основная концепция: "Воздух и Стекло"
+    */
+
+    /* Основной фон: не белый, а очень светлый серо-голубой (Cool Gray) */
+    /* HEX: #F2F4F6 */
+    --background: 210 20% 98%; 
+    
+    /* Основной текст: Глубокий темно-синий (почти черный, но мягче) */
+    /* HEX: #0F172A */
+    --foreground: 222 47% 11%;
+
+    /* Карточки: Чисто белый цвет для контраста с фоном */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    /* Popovers и меню: Белые с легкой прозрачностью */
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Primary Color: "Тихий Океан" (Deep Navy) или "Electric Blue" для акцентов */
+    /* Выбираем глубокий синий для кнопок, чтобы они выглядели дорого */
+    --primary: 221 83% 53%; /* Яркий синий (iOS Blue) */
+    --primary-foreground: 210 40% 98%; /* Белый текст на синем */
+
+    /* Secondary: Светло-серый для второстепенных кнопок */
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+
+    /* Muted: Для неактивного текста */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 16% 47%;
+
+    /* Accent: Используется для выделения при наведении */
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11%;
+
+    /* Destructive: Мягкий красный */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    /* Границы: Очень тонкие и светлые */
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+
+    /* Радиус скругления: iOS стиль требует больших радиусов */
+    --radius: 1rem; /* 16px */
+  }
+
+  /* Темную тему оставляем для совместимости, но она будет вторичной */
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    /* Добавляем трекинг шрифта и антиалиасинг для четкости на светлом фоне */
+    @apply bg-background text-foreground antialiased tracking-tight;
+    /* Убираем стандартный скроллбар для эстетики */
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+  }
+  body::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Специальные утилиты для "Стеклянного эффекта" в светлой теме 
+   Используйте класс .glass-panel вместо обычного bg-white
+*/
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)];
+  }
+  
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-md border border-white/40 shadow-sm transition-all duration-300 hover:shadow-md hover:bg-white/80;
+  }
+
+  /* Мягкая тень iOS стиля */
+  .shadow-ios {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Текст с градиентом (если нужно для заголовков) */
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
+  }
+}
+
+/* Анимации появления */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+2. Важные шаги для завершения перехода
+Поскольку вы переходите с темной темы на светлую, в коде компонентов (например, App.tsx, ShowcasePage.tsx) могут остаться "жесткие" цвета.
+
+Вам нужно сделать следующие замены в коде (через поиск и замену):
+
+Найти: bg-black Заменить на: bg-background (или bg-[#F2F4F6])
+
+Найти: text-white Заменить на: text-foreground (или text-slate-900)
+
+Найти: border-white/10 Заменить на: border-black/5 (границы должны быть темными и прозрачными, а не белыми)
+
+Найти: shadow-purple-500/xxx (цветные тени) Заменить на: shadow-black/5 (в светлой теме тени только серые!)
+
+3. Обновите App.tsx (или корневой компонент)
+Чтобы приложение сразу стало светлым и Telegram это понял, добавьте этот эффект в client/src/App.tsx:
+
+TypeScript
+
+useEffect(() => {
+  // Настройка Telegram WebApp под светлую тему
+  if (window.Telegram?.WebApp) {
+    const tg = window.Telegram.WebApp;
+    
+    // Светлый хедер и фон
+    tg.setHeaderColor('#F2F4F6'); 
+    tg.setBackgroundColor('#F2F4F6');
+    
+    // Устанавливаем цвет статус бара (часы, батарейка) в черный
+    // В Telegram нет прямой функции setStatusBarStyle, 
+    // но headerColor обычно влияет на это автоматически.
+    
+    tg.expand();
+    tg.ready();
+  }
+  
+  // Принудительно ставим класс "light" на html (если используется переключатель тем)
+  document.documentElement.classList.remove('dark');
+  document.documentElement.classList.add('light');
+}, []);

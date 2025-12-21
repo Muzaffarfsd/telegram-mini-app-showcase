@@ -409,6 +409,25 @@ input, textarea {
   --tertiary-system-fill: rgba(255, 255, 255, 0.06);
   --quaternary-system-fill: rgba(255, 255, 255, 0.04);
   
+  /* === SEMANTIC TOKENS (Dark Theme) === */
+  --surface: #0f0f11;
+  --surface-elevated: #1a1a1e;
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-tertiary: rgba(255, 255, 255, 0.5);
+  --text-quaternary: rgba(255, 255, 255, 0.3);
+  --text-inverted: #000000;
+  --overlay-weak: rgba(255, 255, 255, 0.05);
+  --overlay-medium: rgba(255, 255, 255, 0.1);
+  --overlay-strong: rgba(255, 255, 255, 0.15);
+  --cta-background: #10B981;
+  --cta-foreground: #000000;
+  --cta-secondary-border: rgba(255, 255, 255, 0.12);
+  --cta-secondary-text: rgba(255, 255, 255, 0.85);
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-hover: rgba(255, 255, 255, 0.1);
+  
   /* === 2025 PREMIUM GRADIENT SYSTEM === */
   
   /* Aurora Gradient - Multi-stop premium effect */
@@ -628,6 +647,37 @@ input, textarea {
   --glass-bg: rgba(20, 20, 20, 0.6);
   --glass-border-color: rgba(255, 255, 255, 0.08);
   --glass-shadow-style: 0 0 0 transparent;
+  
+  /* === SEMANTIC THEME TOKENS (for components) === */
+  
+  /* Surface colors */
+  --surface: #0f0f11;
+  --surface-elevated: #1a1a1e;
+  --surface-overlay: rgba(0, 0, 0, 0.6);
+  
+  /* Text colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-tertiary: rgba(255, 255, 255, 0.5);
+  --text-quaternary: rgba(255, 255, 255, 0.3);
+  --text-inverted: #000000;
+  
+  /* Overlay colors */
+  --overlay-weak: rgba(255, 255, 255, 0.05);
+  --overlay-medium: rgba(255, 255, 255, 0.1);
+  --overlay-strong: rgba(255, 255, 255, 0.15);
+  
+  /* Button/CTA colors */
+  --cta-background: #10B981;
+  --cta-foreground: #000000;
+  --cta-secondary-bg: transparent;
+  --cta-secondary-border: rgba(255, 255, 255, 0.12);
+  --cta-secondary-text: rgba(255, 255, 255, 0.85);
+  
+  /* Card specific */
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-hover: rgba(255, 255, 255, 0.1);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -637,31 +687,33 @@ input, textarea {
 html.light,
 html.light :root,
 .light {
-  /* Core Background Colors */
-  --background: #f8fafc;               /* Icy White / Slate 50 */
-  --background-primary: #f8fafc;
+  /* === iOS 26 LIGHT THEME - "Воздух и Стекло" === */
+  
+  /* Core Background Colors (Cool Gray) */
+  --background: #F2F4F6;               /* iOS 26 Light Gray */
+  --background-primary: #F2F4F6;
   --background-secondary: #ffffff;     /* Pure white for cards */
   --background-tertiary: #f1f5f9;      /* Slate 100 for modals */
   --background-elevated: #e2e8f0;      /* Slate 200 for hover */
   
-  /* iOS 17 Color Tokens - Light Theme */
-  --foreground: #1e293b;               /* Slate 800 - premium dark gray */
-  --card: rgba(255, 255, 255, 0.85);
-  --card-foreground: #1e293b;
-  --popover: rgba(255, 255, 255, 0.95);
-  --popover-foreground: #1e293b;
-  --primary: #3b82f6;                  /* Apple Blue */
+  /* iOS 26 Color Tokens - Light Theme */
+  --foreground: #0F172A;               /* Deep Navy - soft black */
+  --card: 0 0% 100%;                   /* Pure white */
+  --card-foreground: #0F172A;
+  --popover: 0 0% 100%;
+  --popover-foreground: #0F172A;
+  --primary: #3b82f6;                  /* iOS Blue */
   --primary-foreground: #ffffff;
-  --secondary: rgba(0, 0, 0, 0.05);
-  --secondary-foreground: #1e293b;
-  --muted: rgba(0, 0, 0, 0.04);
+  --secondary: #f1f5f9;                /* Slate 100 */
+  --secondary-foreground: #0F172A;
+  --muted: #f1f5f9;
   --muted-foreground: #64748b;         /* Slate 500 */
-  --accent: #3b82f6;
-  --accent-foreground: #ffffff;
+  --accent: #f1f5f9;
+  --accent-foreground: #0F172A;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.08);
-  --input: rgba(0, 0, 0, 0.05);
+  --border: #e2e8f0;                   /* Slate 200 */
+  --input: #e2e8f0;
   --ring: #3b82f6;
   
   /* iOS Label Colors - Light Theme */
@@ -734,6 +786,37 @@ html.light :root,
   --neuro-light: #ffffff;
   --neuro-dark: #e2e8f0;
   --neuro-highlight: rgba(59, 130, 246, 0.1);
+  
+  /* === SEMANTIC THEME TOKENS - Light Theme === */
+  
+  /* Surface colors */
+  --surface: #f8fafc;
+  --surface-elevated: #ffffff;
+  --surface-overlay: rgba(255, 255, 255, 0.8);
+  
+  /* Text colors */
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-tertiary: #94a3b8;
+  --text-quaternary: #cbd5e1;
+  --text-inverted: #ffffff;
+  
+  /* Overlay colors */
+  --overlay-weak: rgba(0, 0, 0, 0.03);
+  --overlay-medium: rgba(0, 0, 0, 0.06);
+  --overlay-strong: rgba(0, 0, 0, 0.1);
+  
+  /* Button/CTA colors */
+  --cta-background: #3b82f6;
+  --cta-foreground: #ffffff;
+  --cta-secondary-bg: transparent;
+  --cta-secondary-border: rgba(0, 0, 0, 0.12);
+  --cta-secondary-text: #1e293b;
+  
+  /* Card specific */
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --card-border: rgba(0, 0, 0, 0.06);
+  --card-hover: rgba(255, 255, 255, 0.95);
 }
 
 /* Montserrat Typography Classes */
@@ -1304,6 +1387,31 @@ html.light :root,
 }
 
 @layer utilities {
+  /* === iOS 26 GLASS UTILITIES === */
+  /* "Воздух и Стекло" style glass effects */
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20;
+    box-shadow: 0 8px 30px rgb(0 0 0 / 0.04);
+  }
+  
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-md border border-white/40 shadow-sm transition-all duration-300;
+  }
+  
+  .glass-card:hover {
+    @apply shadow-md bg-white/80;
+  }
+  
+  /* iOS style soft shadow */
+  .shadow-ios {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Text gradient for headers */
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
+  }
+
   /* === iOS 26 3D SCROLL DEPTH EFFECT === */
   /* Elements scale up and rise as they approach the bottom nav */
   .nav-depth-zone {
@@ -4225,10 +4333,10 @@ html.slow-network video {
    Force light colors when html has 'light' class
    ═══════════════════════════════════════════════════════ */
 html.light {
-  --background: #f8fafc !important;
-  --foreground: #1e293b !important;
+  --background: #F2F4F6 !important;
+  --foreground: #0F172A !important;
   --card: rgba(255, 255, 255, 0.85) !important;
-  --card-foreground: #1e293b !important;
+  --card-foreground: #0F172A !important;
   --border: rgba(0, 0, 0, 0.08) !important;
   --glass-background: rgba(255, 255, 255, 0.65) !important;
   --glass-border: rgba(0, 0, 0, 0.05) !important;
@@ -4236,12 +4344,12 @@ html.light {
 
 html.light body,
 html.light #root {
-  background-color: #f8fafc !important;
-  color: #1e293b !important;
+  background-color: #F2F4F6 !important;
+  color: #0F172A !important;
 }
 
 html.light .top-bar {
-  background: rgba(248, 250, 252, 0.85) !important;
+  background: rgba(242, 244, 246, 0.85) !important;
   border-bottom-color: rgba(0, 0, 0, 0.06) !important;
 }
 
@@ -4252,4 +4360,107 @@ html.light .hamburger-btn {
 
 html.light .hamburger-line {
   background: #1e293b !important;
+}
+
+/* GlobalSidebar light theme overrides */
+html.light .sidebar-overlay {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+html.light .sidebar-panel {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-right-color: rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 20px 0 60px rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light .sidebar-menu-item {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .sidebar-menu-item:hover,
+html.light .sidebar-menu-item.active {
+  background: rgba(59, 130, 246, 0.08) !important;
+  border-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+html.light .sidebar-menu-item .menu-label {
+  color: #1e293b !important;
+}
+
+html.light .sidebar-menu-item .menu-description {
+  color: #64748b !important;
+}
+
+html.light .sidebar-menu-item.active .menu-label {
+  color: #3b82f6 !important;
+}
+
+html.light .sidebar-section-title {
+  color: #94a3b8 !important;
+}
+
+html.light .sidebar-divider {
+  background: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 50%, transparent 100%) !important;
+}
+
+html.light .sidebar-cta-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.06) 100%) !important;
+  border-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+html.light .sidebar-cta-title {
+  color: #1e293b !important;
+}
+
+html.light .sidebar-cta-subtitle {
+  color: #64748b !important;
+}
+
+html.light .sidebar-social-btn {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .sidebar-social-btn:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .sidebar-footer {
+  border-top-color: rgba(0, 0, 0, 0.05) !important;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.02) 100%) !important;
+}
+
+html.light .sidebar-footer-text {
+  color: #94a3b8 !important;
+}
+
+/* StickyGlassHeader light theme */
+html.light .sticky-glass-header {
+  background: rgba(242, 244, 246, 0.9) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.05) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+html.light .sticky-glass-header .header-title {
+  color: #1e293b !important;
+}
+
+/* AdaptiveNavigation light theme */
+html.light .adaptive-nav {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light .adaptive-nav-item {
+  color: #64748b !important;
+}
+
+html.light .adaptive-nav-item.active {
+  color: #3b82f6 !important;
+}
+
+html.light .adaptive-nav-item .nav-label {
+  color: inherit !important;
 }
