@@ -815,7 +815,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                   <Package className="w-7 h-7" style={{ color: palette.textTertiary }} />
                 </div>
                 <h3 className="text-[17px] font-semibold mb-2" style={{ color: palette.textPrimary }}>Ваши конкуренты уже в Telegram</h3>
-                <p className="text-[13px] mb-5 leading-relaxed" style={{ color: palette.textTertiary }}>
+                <p className="text-[13px] mb-5 leading-relaxed" style={{ color: palette.textPrimary }}>
                   Пока вы думаете — они забирают ваших клиентов. Запустите своё приложение за 7 дней и получайте заявки 24/7.
                 </p>
                 <button 
