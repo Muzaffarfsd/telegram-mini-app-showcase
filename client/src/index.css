@@ -618,6 +618,16 @@ input, textarea {
   /* Liquid Glass Gradient */
   --liquid-gradient-start: #7B3FE4;
   --liquid-gradient-end: #3B82F6;
+  
+  /* Liquid Blobs (for animated backgrounds) */
+  --liquid-1: #7928CA;
+  --liquid-2: #FF0080;
+  --liquid-blur: 120px;
+  
+  /* Glass component styling (JavaScript-accessible) */
+  --glass-bg: rgba(20, 20, 20, 0.6);
+  --glass-border-color: rgba(255, 255, 255, 0.08);
+  --glass-shadow-style: 0 0 0 transparent;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -709,6 +719,16 @@ html.light :root,
   /* Liquid Gradient - Light Theme (pastel/vibrant) */
   --liquid-gradient-start: #FF3CAC;
   --liquid-gradient-end: #784BA0;
+  
+  /* Liquid Blobs - Light Theme (Aurora style) */
+  --liquid-1: #60A5FA;
+  --liquid-2: #F472B6;
+  --liquid-blur: 80px;
+  
+  /* Glass component styling - Light Theme */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border-color: rgba(0, 0, 0, 0.04);
+  --glass-shadow-style: 0 10px 40px -10px rgba(0,0,0,0.08);
   
   /* Neuromorphic Effects - Light Theme */
   --neuro-light: #ffffff;

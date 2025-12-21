@@ -21,12 +21,31 @@ function applyTheme(theme: Theme) {
   if (theme === 'light') {
     root.classList.add('light');
     root.classList.remove('dark');
+    
+    // Core colors
     root.style.setProperty('--background', '#f8fafc');
     root.style.setProperty('--foreground', '#1e293b');
     root.style.setProperty('--card', 'rgba(255, 255, 255, 0.85)');
     root.style.setProperty('--border', 'rgba(0, 0, 0, 0.08)');
+    
+    // Glass effects
     root.style.setProperty('--glass-background', 'rgba(255, 255, 255, 0.65)');
     root.style.setProperty('--glass-border', 'rgba(0, 0, 0, 0.05)');
+    root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.75)');
+    root.style.setProperty('--glass-border-color', 'rgba(0, 0, 0, 0.04)');
+    root.style.setProperty('--glass-shadow-style', '0 10px 40px -10px rgba(0,0,0,0.08)');
+    
+    // Liquid blobs
+    root.style.setProperty('--liquid-1', '#60A5FA');
+    root.style.setProperty('--liquid-2', '#F472B6');
+    root.style.setProperty('--liquid-blur', '80px');
+    
+    // Labels
+    root.style.setProperty('--label', '#1e293b');
+    root.style.setProperty('--secondary-label', '#64748b');
+    root.style.setProperty('--muted-foreground', '#64748b');
+    
+    // Inline styles for body/root
     body.style.backgroundColor = '#f8fafc';
     body.style.color = '#1e293b';
     if (rootEl) {
@@ -36,12 +55,31 @@ function applyTheme(theme: Theme) {
   } else {
     root.classList.remove('light');
     root.classList.add('dark');
+    
+    // Core colors
     root.style.setProperty('--background', '#0f0f11');
     root.style.setProperty('--foreground', '#FFFFFF');
     root.style.setProperty('--card', 'rgba(255, 255, 255, 0.1)');
     root.style.setProperty('--border', 'rgba(255, 255, 255, 0.2)');
+    
+    // Glass effects
     root.style.setProperty('--glass-background', 'rgba(255, 255, 255, 0.1)');
     root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.2)');
+    root.style.setProperty('--glass-bg', 'rgba(20, 20, 20, 0.6)');
+    root.style.setProperty('--glass-border-color', 'rgba(255, 255, 255, 0.08)');
+    root.style.setProperty('--glass-shadow-style', '0 0 0 transparent');
+    
+    // Liquid blobs
+    root.style.setProperty('--liquid-1', '#7928CA');
+    root.style.setProperty('--liquid-2', '#FF0080');
+    root.style.setProperty('--liquid-blur', '120px');
+    
+    // Labels
+    root.style.setProperty('--label', '#FFFFFF');
+    root.style.setProperty('--secondary-label', 'rgba(255, 255, 255, 0.7)');
+    root.style.setProperty('--muted-foreground', 'rgba(255, 255, 255, 0.7)');
+    
+    // Inline styles for body/root
     body.style.backgroundColor = '#0f0f11';
     body.style.color = '#FFFFFF';
     if (rootEl) {
