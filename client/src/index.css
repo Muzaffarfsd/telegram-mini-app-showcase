@@ -6309,3 +6309,520 @@ html.light .showcase-page [data-testid="bento-all"]:hover {
     0 12px 32px rgba(0, 0, 0, 0.06) !important;
   transform: translateY(-2px);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PREMIUM DARK THEME 2025 - OLED Optimized
+   Top-tier visual design with depth, glow effects, and micro-interactions
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* === 1. OLED BLACK FOUNDATION === */
+html:not(.light) {
+  --oled-black: #000000;
+  --surface-1: #0A0A0C;
+  --surface-2: #121214;
+  --surface-3: #1A1A1E;
+  --surface-4: #242428;
+  --surface-5: #2E2E34;
+  
+  /* Premium Glow Colors */
+  --glow-emerald: rgba(16, 185, 129, 0.4);
+  --glow-cyan: rgba(6, 182, 212, 0.35);
+  --glow-purple: rgba(168, 85, 247, 0.35);
+  --glow-pink: rgba(236, 72, 153, 0.3);
+  --glow-blue: rgba(59, 130, 246, 0.35);
+  
+  /* Gradient Borders */
+  --border-gradient: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+  
+  /* Premium Shadows */
+  --shadow-glow-sm: 0 0 20px var(--glow-emerald);
+  --shadow-glow-md: 0 0 40px var(--glow-emerald);
+  --shadow-glow-lg: 0 0 60px var(--glow-emerald);
+  --shadow-depth-1: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-depth-2: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-depth-3: 0 8px 32px rgba(0,0,0,0.5);
+  --shadow-depth-4: 0 16px 48px rgba(0,0,0,0.6);
+}
+
+/* === 2. PREMIUM CARD STYLES === */
+.premium-card {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  opacity: 0.6;
+}
+
+.premium-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(16, 185, 129, 0.15);
+}
+
+/* === 3. SPOTLIGHT HOVER EFFECT === */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(16, 185, 129, 0.15),
+    transparent 40%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.spotlight-card:hover::after {
+  opacity: 1;
+}
+
+/* === 4. GRADIENT GLOW BUTTONS === */
+.glow-button {
+  position: relative;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  border: none;
+  border-radius: 14px;
+  padding: 14px 28px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.glow-button::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, #10B981, #06B6D4, #8B5CF6);
+  border-radius: 16px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  filter: blur(12px);
+}
+
+.glow-button:hover::before {
+  opacity: 0.7;
+}
+
+.glow-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+}
+
+.glow-button:active {
+  transform: translateY(0);
+}
+
+/* === 5. ANIMATED SHIMMER LOADING === */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 20%,
+    rgba(255, 255, 255, 0.15) 40%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0.05) 80%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 8px;
+}
+
+/* === 6. GLASSMORPHISM 2.0 === */
+.glass-premium {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-premium-strong {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 16px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* === 7. STICKY HEADER WITH BLUR === */
+.sticky-blur-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.3s ease;
+}
+
+.sticky-blur-header.scrolled {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+/* === 8. DUOTONE ICON STYLES === */
+.icon-duotone {
+  position: relative;
+}
+
+.icon-duotone .icon-primary {
+  color: #10B981;
+}
+
+.icon-duotone .icon-secondary {
+  color: rgba(16, 185, 129, 0.4);
+}
+
+/* Icon with glow */
+.icon-glow {
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.icon-glow-strong {
+  filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 24px currentColor);
+}
+
+/* === 9. GRADIENT TEXT === */
+.text-gradient-premium {
+  background: linear-gradient(135deg, #10B981 0%, #06B6D4 50%, #8B5CF6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* === 10. MICRO-ANIMATIONS === */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.5);
+  }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* === 11. PREMIUM TRANSITIONS === */
+.transition-premium {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-bounce {
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* === 12. NEOMORPHISM ELEMENTS === */
+.neomorph-dark {
+  background: #121214;
+  box-shadow: 
+    8px 8px 16px #0a0a0c,
+    -8px -8px 16px #1a1a1e,
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+}
+
+.neomorph-dark-inset {
+  background: #121214;
+  box-shadow: 
+    inset 4px 4px 8px #0a0a0c,
+    inset -4px -4px 8px #1a1a1e;
+  border-radius: 12px;
+}
+
+/* === 13. PARTICLE BACKGROUND EFFECT === */
+.particles-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.particles-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, rgba(16, 185, 129, 0.4) 0%, transparent 100%),
+    radial-gradient(2px 2px at 40% 70%, rgba(6, 182, 212, 0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 100%),
+    radial-gradient(2px 2px at 80% 50%, rgba(168, 85, 247, 0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+  background-size: 100% 100%;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* === 14. GRADIENT BORDER ANIMATION === */
+@keyframes border-gradient-rotate {
+  0% { --angle: 0deg; }
+  100% { --angle: 360deg; }
+}
+
+.gradient-border-animated {
+  position: relative;
+  background: #121214;
+  border-radius: 16px;
+}
+
+.gradient-border-animated::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    #10B981,
+    #06B6D4,
+    #8B5CF6,
+    #EC4899,
+    #10B981
+  );
+  border-radius: 18px;
+  z-index: -1;
+  animation: border-gradient-rotate 4s linear infinite;
+}
+
+.gradient-border-animated::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: #121214;
+  border-radius: 15px;
+  z-index: -1;
+}
+
+/* === 15. NOTIFICATION PULSE === */
+@keyframes notification-pulse {
+  0% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% { 
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.notification-badge {
+  animation: notification-pulse 2s infinite;
+}
+
+/* === 16. HOLOGRAPHIC EFFECT === */
+.holographic {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(16, 185, 129, 0.1) 50%,
+    rgba(6, 182, 212, 0.1) 75%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 6s ease infinite;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* === 17. FOCUS RING WITH GLOW === */
+.focus-glow:focus-visible {
+  outline: none;
+  box-shadow: 
+    0 0 0 2px #000,
+    0 0 0 4px #10B981,
+    0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+/* === 18. AURORA BACKGROUND === */
+.aurora-bg {
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.3), transparent),
+    radial-gradient(ellipse 60% 40% at 70% 120%, rgba(6, 182, 212, 0.2), transparent),
+    radial-gradient(ellipse 50% 35% at 20% 100%, rgba(168, 85, 247, 0.15), transparent),
+    #0A0A0C;
+}
+
+/* === 19. MESH GRADIENT BACKGROUND === */
+.mesh-gradient-dark {
+  background-color: #0A0A0C;
+  background-image: 
+    radial-gradient(at 40% 20%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(6, 182, 212, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(168, 85, 247, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, rgba(236, 72, 153, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.08) 0px, transparent 50%);
+}
+
+/* === 20. CARD HOVER LIFT === */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(16, 185, 129, 0.1);
+}
+
+/* === Apply Premium Styles to Dark Theme Cards === */
+html:not(.light) .card,
+html:not(.light) [data-slot="card"] {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 4px 24px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+html:not(.light) .card:hover,
+html:not(.light) [data-slot="card"]:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(16, 185, 129, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* === Premium Dark Sidebar === */
+html:not(.light) .global-sidebar-panel {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 12, 0.98) 0%,
+    rgba(18, 18, 20, 0.98) 100%
+  );
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* === Premium Dark Buttons === */
+html:not(.light) button[class*="bg-emerald"],
+html:not(.light) button[class*="bg-primary"] {
+  position: relative;
+  box-shadow: 
+    0 4px 16px rgba(16, 185, 129, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+html:not(.light) button[class*="bg-emerald"]:hover,
+html:not(.light) button[class*="bg-primary"]:hover {
+  box-shadow: 
+    0 8px 24px rgba(16, 185, 129, 0.4),
+    0 0 40px rgba(16, 185, 129, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* === Premium Analytics Cards === */
+html:not(.light) .analytics-page .card {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(16, 185, 129, 0.05);
+}
+
+/* === Premium Bottom Navigation === */
+html:not(.light) .bottom-nav-premium {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+}
