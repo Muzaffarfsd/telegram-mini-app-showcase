@@ -4633,11 +4633,158 @@ html.light .sidebar-panel {
   background: rgba(255, 255, 255, 0.95) !important;
   border-right-color: rgba(0, 0, 0, 0.06) !important;
   box-shadow: 20px 0 60px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
 }
 
+/* Menu items - actual class names used in GlobalSidebar */
+html.light .menu-item {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+html.light .menu-item:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .menu-item.active {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+/* Menu icon wrap */
+html.light .menu-icon-wrap {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .menu-item:hover .menu-icon-wrap {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .menu-item.active .menu-icon-wrap {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Menu text colors */
+html.light .menu-label {
+  color: #1e293b !important;
+}
+
+html.light .menu-description {
+  color: #64748b !important;
+}
+
+html.light .menu-item.active .menu-label {
+  color: #3b82f6 !important;
+}
+
+/* Menu icons */
+html.light .menu-icon {
+  color: #475569 !important;
+}
+
+html.light .menu-item.active .menu-icon {
+  color: #3b82f6 !important;
+}
+
+/* Social links */
+html.light .social-link {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .social-link:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light .social-link svg {
+  color: #475569 !important;
+}
+
+/* Close button */
+html.light .close-btn {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .close-btn:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light .close-btn svg {
+  color: #475569 !important;
+}
+
+/* Sidebar header text */
+html.light .sidebar-header-title {
+  color: #1e293b !important;
+}
+
+html.light .sidebar-header-subtitle {
+  color: #64748b !important;
+}
+
+/* Force all text in sidebar-panel to be dark in light theme */
+html.light .sidebar-panel p,
+html.light .sidebar-panel span {
+  color: #1e293b !important;
+}
+
+html.light .sidebar-panel [style*="color: #FAFAFA"],
+html.light .sidebar-panel [style*="color: #fafafa"] {
+  color: #1e293b !important;
+}
+
+html.light .sidebar-panel [style*="color: #71717A"],
+html.light .sidebar-panel [style*="color: #52525B"] {
+  color: #64748b !important;
+}
+
+/* Sidebar border overrides */
+html.light .sidebar-panel [style*="border"] {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light .sidebar-panel [style*="rgba(255,255,255"] {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Level badge in light theme */
+html.light .sidebar-panel [style*="rgba(139,92,246"] {
+  background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(99,102,241,0.1) 100%) !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+html.light .sidebar-panel [style*="#A78BFA"] {
+  color: #3b82f6 !important;
+}
+
+/* Progress bar in light theme */
+html.light .sidebar-panel .progress-bar {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .sidebar-panel .progress-fill {
+  background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%) !important;
+}
+
+/* Stage indicators */
+html.light .sidebar-panel [style*="background: #52525B"] {
+  background: #94a3b8 !important;
+}
+
+html.light .sidebar-panel [style*="background: #A78BFA"] {
+  background: #3b82f6 !important;
+}
+
+/* Legacy class names fallback */
 html.light .sidebar-menu-item {
-  background: rgba(0, 0, 0, 0.02) !important;
-  border-color: rgba(0, 0, 0, 0.04) !important;
+  background: transparent !important;
+  border-color: transparent !important;
 }
 
 html.light .sidebar-menu-item:hover,

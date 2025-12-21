@@ -102,6 +102,26 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   const edgeSwipeStartY = useRef<number>(0);
   const swipeDirection = useRef<'horizontal' | 'vertical' | null>(null);
 
+  // Theme-aware colors
+  const colors = useMemo(() => ({
+    textPrimary: isDark ? '#FAFAFA' : '#1e293b',
+    textSecondary: isDark ? '#71717A' : '#64748b',
+    textMuted: isDark ? '#52525B' : '#94a3b8',
+    accent: isDark ? '#A78BFA' : '#3b82f6',
+    accentBg: isDark 
+      ? 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(59,130,246,0.15) 100%)'
+      : 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(99,102,241,0.1) 100%)',
+    accentBorder: isDark ? 'rgba(139, 92, 246, 0.25)' : 'rgba(59, 130, 246, 0.2)',
+    cardBg: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
+    cardBorder: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+    progressBg: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+    progressFill: isDark ? '#A78BFA' : '#3b82f6',
+    stageBg: isDark ? '#52525B' : '#94a3b8',
+    stageActiveBg: isDark ? '#A78BFA' : '#3b82f6',
+    onlineDotBorder: isDark ? '#0C0C0E' : '#F2F4F6',
+    sectionBorder: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+  }), [isDark]);
+
   const menuItems = [
     { 
       icon: Home, 
@@ -1100,7 +1120,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
         <div style={{ 
           padding: '60px 24px 28px 24px',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          borderBottom: `1px solid ${colors.sectionBorder}`,
           overflow: 'visible'
         }}>
           <div className="flex items-center justify-between gap-3" style={{ overflow: 'visible' }}>
@@ -1120,7 +1140,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   height: '10px',
                   borderRadius: '50%',
                   background: '#22C55E',
-                  border: '2px solid #0C0C0E'
+                  border: `2px solid ${colors.onlineDotBorder}`
                 }} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -1128,7 +1148,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   fontSize: '16px',
                   fontWeight: 600,
                   letterSpacing: '-0.02em',
-                  color: '#FAFAFA',
+                  color: colors.textPrimary,
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap'
@@ -1151,13 +1171,13 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                       <div style={{
                         padding: '2px 8px',
                         borderRadius: '6px',
-                        background: 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(59,130,246,0.15) 100%)',
-                        border: '1px solid rgba(139, 92, 246, 0.25)'
+                        background: colors.accentBg,
+                        border: `1px solid ${colors.accentBorder}`
                       }}>
                         <span style={{
                           fontSize: '10px',
                           fontWeight: 700,
-                          color: '#A78BFA',
+                          color: colors.accent,
                           letterSpacing: '0.02em'
                         }}>
                           LVL 1
@@ -1165,7 +1185,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                       </div>
                       <span style={{
                         fontSize: '11px',
-                        color: '#52525B'
+                        color: colors.textMuted
                       }}>
                         Новичок
                       </span>
@@ -1173,7 +1193,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                     <span style={{
                       fontSize: '10px',
                       fontWeight: 600,
-                      color: '#71717A'
+                      color: colors.textSecondary
                     }}>
                       0/100 XP
                     </span>
@@ -1199,7 +1219,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               fontSize: '10px',
               fontWeight: 700,
               letterSpacing: '0.15em',
-              color: '#52525B',
+              color: colors.textMuted,
               textTransform: 'uppercase',
               marginBottom: '12px'
             }}>
@@ -1209,8 +1229,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             <div style={{
               padding: '16px',
               borderRadius: '14px',
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.06)'
+              background: colors.cardBg,
+              border: `1px solid ${colors.cardBorder}`
             }}>
               <div style={{
                 display: 'flex',
@@ -1221,7 +1241,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 <span style={{
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#FAFAFA',
+                  color: colors.textPrimary,
                   letterSpacing: '-0.01em'
                 }}>
                   Разработка приложения
@@ -1229,7 +1249,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 <span style={{
                   fontSize: '13px',
                   fontWeight: 600,
-                  color: '#71717A'
+                  color: colors.textSecondary
                 }}>
                   0%
                 </span>
@@ -1239,7 +1259,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 width: '100%',
                 height: '4px',
                 borderRadius: '2px',
-                background: 'rgba(255,255,255,0.08)',
+                background: colors.progressBg,
                 marginBottom: '16px',
                 overflow: 'hidden'
               }}>
@@ -1247,7 +1267,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   height: '100%',
                   width: '2%',
                   borderRadius: '2px',
-                  background: '#A78BFA',
+                  background: colors.progressFill,
                   transition: 'width 0.4s ease'
                 }} />
               </div>
@@ -1275,11 +1295,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                       height: '28px',
                       borderRadius: '50%',
                       background: stage.active 
-                        ? 'rgba(167, 139, 250, 0.15)'
-                        : 'rgba(255,255,255,0.04)',
+                        ? (isDark ? 'rgba(167, 139, 250, 0.15)' : 'rgba(59, 130, 246, 0.1)')
+                        : (isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'),
                       border: stage.active 
-                        ? '1.5px solid rgba(167, 139, 250, 0.4)'
-                        : '1.5px solid rgba(255,255,255,0.08)',
+                        ? `1.5px solid ${isDark ? 'rgba(167, 139, 250, 0.4)' : 'rgba(59, 130, 246, 0.3)'}`
+                        : `1.5px solid ${colors.cardBorder}`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center'
@@ -1287,7 +1307,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                       <span style={{
                         fontSize: '11px',
                         fontWeight: 600,
-                        color: stage.active ? '#A78BFA' : '#52525B'
+                        color: stage.active ? colors.accent : colors.textMuted
                       }}>
                         {stage.num}
                       </span>
@@ -1295,7 +1315,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                     <span style={{
                       fontSize: '10px',
                       fontWeight: stage.active ? 600 : 500,
-                      color: stage.active ? '#A1A1AA' : '#52525B',
+                      color: stage.active ? colors.textSecondary : colors.textMuted,
                       textAlign: 'center'
                     }}>
                       {stage.name}
@@ -1312,7 +1332,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             fontSize: '10px',
             fontWeight: 700,
             letterSpacing: '0.15em',
-            color: '#52525B',
+            color: colors.textMuted,
             textTransform: 'uppercase',
             padding: '0 16px',
             marginBottom: '12px'
@@ -1337,7 +1357,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   <div className="menu-icon-wrap">
                     <item.icon 
                       size={20} 
-                      color={isPressed || active ? '#A78BFA' : '#71717A'} 
+                      color={isPressed || active ? colors.accent : colors.textSecondary} 
                     />
                   </div>
                   
@@ -1345,14 +1365,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                     <span style={{
                       fontSize: '15px',
                       fontWeight: isPressed || active ? 600 : 500,
-                      color: isPressed || active ? '#FAFAFA' : '#A1A1AA',
+                      color: isPressed || active ? colors.textPrimary : colors.textSecondary,
                       display: 'block'
                     }}>
                       {item.label}
                     </span>
                     <span style={{
                       fontSize: '11px',
-                      color: '#52525B',
+                      color: colors.textMuted,
                       marginTop: '2px',
                       display: 'block'
                     }}>
@@ -1362,7 +1382,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   
                   <ChevronRight 
                     size={16} 
-                    color={active ? '#A78BFA' : '#3F3F46'}
+                    color={active ? colors.accent : colors.textMuted}
                     style={{ opacity: active ? 1 : 0.5 }}
                   />
                 </button>
