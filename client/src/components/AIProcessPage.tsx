@@ -19,7 +19,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   
   const handleGetConsultation = useCallback(() => {
     // Open Telegram for consultation
-    window.open('https://t.me/your_username', '_blank');
+    window.open('https://t.me/web4tgs', '_blank');
   }, []);
 
   useEffect(() => {
