@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef, forwardRef, memo, useMemo } from "react";
-import { Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight, Bell, BarChart3 } from "lucide-react";
+import { Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight, Bell, BarChart3, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 import { SiInstagram, SiTelegram } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
 
@@ -82,6 +83,7 @@ const AnimatedHamburgerIcon = memo(forwardRef<HTMLButtonElement, AnimatedHamburg
 AnimatedHamburgerIcon.displayName = 'AnimatedHamburgerIcon';
 
 export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
+  const { theme, toggleTheme, isDark } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pressedItem, setPressedItem] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -1559,14 +1561,39 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             fontSize: '13px',
             fontWeight: 600,
             letterSpacing: '0.14em',
-            color: '#FAFAFA',
+            color: isDark ? '#FAFAFA' : '#1e293b',
             fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-            textShadow: '0 0 20px rgba(255,255,255,0.1)'
+            textShadow: isDark ? '0 0 20px rgba(255,255,255,0.1)' : 'none'
           }}>
             WEB4TG STUDIO
           </p>
           
-          <div style={{ width: '44px' }} />
+          <button
+            onClick={() => {
+              toggleTheme();
+              triggerHaptic('light');
+            }}
+            data-testid="button-theme-toggle"
+            style={{
+              width: '44px',
+              height: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '12px',
+              border: 'none',
+              background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
+          >
+            {isDark ? (
+              <Sun style={{ width: '20px', height: '20px', color: '#FAFAFA' }} />
+            ) : (
+              <Moon style={{ width: '20px', height: '20px', color: '#1e293b' }} />
+            )}
+          </button>
         </div>
       </div>
     </>

@@ -606,6 +606,103 @@ input, textarea {
   --radius-organic-1: 16px 24px 20px 28px;
   --radius-organic-2: 20px 32px 28px 24px;
   --radius-squircle: 20px;  /* Use with smooth corners */
+  
+  /* Liquid Glass Gradient */
+  --liquid-gradient-start: #7B3FE4;
+  --liquid-gradient-end: #3B82F6;
+}
+
+/* ═══════════════════════════════════════════════════════
+   LIGHT THEME - Apple Vision Pro Inspired
+   ═══════════════════════════════════════════════════════ */
+.light {
+  /* Core Background Colors */
+  --background: #f8fafc;               /* Icy White / Slate 50 */
+  --background-primary: #f8fafc;
+  --background-secondary: #ffffff;     /* Pure white for cards */
+  --background-tertiary: #f1f5f9;      /* Slate 100 for modals */
+  --background-elevated: #e2e8f0;      /* Slate 200 for hover */
+  
+  /* iOS 17 Color Tokens - Light Theme */
+  --foreground: #1e293b;               /* Slate 800 - premium dark gray */
+  --card: rgba(255, 255, 255, 0.85);
+  --card-foreground: #1e293b;
+  --popover: rgba(255, 255, 255, 0.95);
+  --popover-foreground: #1e293b;
+  --primary: #3b82f6;                  /* Apple Blue */
+  --primary-foreground: #ffffff;
+  --secondary: rgba(0, 0, 0, 0.05);
+  --secondary-foreground: #1e293b;
+  --muted: rgba(0, 0, 0, 0.04);
+  --muted-foreground: #64748b;         /* Slate 500 */
+  --accent: #3b82f6;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.05);
+  --ring: #3b82f6;
+  
+  /* iOS Label Colors - Light Theme */
+  --label: #1e293b;
+  --secondary-label: #64748b;
+  --tertiary-label: #94a3b8;
+  --quaternary-label: #cbd5e1;
+  
+  /* iOS Separator Colors - Light Theme */
+  --separator: rgba(0, 0, 0, 0.08);
+  --opaque-separator: rgba(0, 0, 0, 0.12);
+  
+  /* iOS Fill Colors - Light Theme */
+  --system-fill: rgba(0, 0, 0, 0.05);
+  --secondary-system-fill: rgba(0, 0, 0, 0.04);
+  --tertiary-system-fill: rgba(0, 0, 0, 0.03);
+  --quaternary-system-fill: rgba(0, 0, 0, 0.02);
+  
+  /* Glass Effects - Light Theme */
+  --glass-background: rgba(255, 255, 255, 0.65);
+  --glass-background-strong: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.05);
+  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  --glass-nav-background: rgba(255, 255, 255, 0.75);
+  --glass-nav-border: rgba(0, 0, 0, 0.06);
+  --glass-nav-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  
+  /* Glassmorphism 2.0 - Light Theme Levels */
+  --glass-subtle-bg: rgba(255, 255, 255, 0.6);
+  --glass-subtle-border: rgba(0, 0, 0, 0.06);
+  --glass-subtle-shadow: 0 8px 32px rgba(31, 38, 135, 0.08);
+  
+  --glass-medium-bg: rgba(255, 255, 255, 0.7);
+  --glass-medium-border: rgba(0, 0, 0, 0.08);
+  --glass-medium-shadow: 0 12px 40px rgba(31, 38, 135, 0.1);
+  
+  --glass-strong-bg: rgba(255, 255, 255, 0.85);
+  --glass-strong-border: rgba(0, 0, 0, 0.1);
+  --glass-strong-shadow: 0 20px 60px rgba(31, 38, 135, 0.12);
+  
+  /* Gradient Glass - Light Theme */
+  --glass-gradient-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+  --glass-gradient-border: rgba(59, 130, 246, 0.2);
+  --glass-gradient-shadow: 0 15px 45px rgba(59, 130, 246, 0.1);
+  
+  /* Frosted Glass - Light Theme */
+  --glass-frosted-bg: rgba(255, 255, 255, 0.75);
+  --glass-frosted-border: rgba(0, 0, 0, 0.05);
+  --glass-frosted-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+  
+  /* Aurora Glassmorphism - Light Theme */
+  --aurora-bg: rgba(255, 255, 255, 0.5);
+  --aurora-border: rgba(0, 0, 0, 0.05);
+  
+  /* Liquid Gradient - Light Theme (pastel/vibrant) */
+  --liquid-gradient-start: #FF3CAC;
+  --liquid-gradient-end: #784BA0;
+  
+  /* Neuromorphic Effects - Light Theme */
+  --neuro-light: #ffffff;
+  --neuro-dark: #e2e8f0;
+  --neuro-highlight: rgba(59, 130, 246, 0.1);
 }
 
 /* Montserrat Typography Classes */

@@ -1,0 +1,158 @@
+1. Настройка цветовой палитры (client/src/index.css)
+Вам нужно добавить класс .light и переопределить переменные. Я подобрал цвета так, чтобы они создавали эффект «доророго фарфора» или «матового стекла» (в стиле Apple Vision Pro Light Mode).
+
+Откройте client/src/index.css и добавьте секцию .light:
+
+CSS
+
+@layer base {
+  :root {
+    /* Ваши текущие темные переменные (оставьте как есть) */
+    --background: 0 0% 0%; /* Черный */
+    /* ... остальные переменные ... */
+    
+    /* Добавляем переменную для "жидкого" градиента в темной теме */
+    --liquid-gradient-start: #7B3FE4;
+    --liquid-gradient-end: #3B82F6;
+  }
+
+  /* ДОБАВЛЯЕМ СВЕТЛУЮ ТЕМУ */
+  .light {
+    --background: 210 40% 98%; /* Очень светло-голубой, почти белый (Icy White) */
+    --foreground: 222 47% 11%; /* Темно-синий, почти черный (для текста) */
+
+    --card: 0 0% 100%; /* Чистый белый */
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 221 83% 53%; /* Яркий синий (Apple Blue) */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%; /* Мягкий серый бордюр */
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+
+    /* Специальные переменные для Glassmorphism в светлой теме */
+    --glass-bg: rgba(255, 255, 255, 0.65); /* Более плотное белое стекло */
+    --glass-border: rgba(0, 0, 0, 0.05); /* Еле заметная темная обводка */
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10); /* Цветная мягкая тень */
+    
+    /* Перенастройка жидких блоков для светлого фона */
+    /* Делаем их более пастельными или, наоборот, яркими лавовыми */
+    --liquid-gradient-start: #FF3CAC;
+    --liquid-gradient-end: #784BA0;
+  }
+}
+2. Настройка Tailwind (tailwind.config.ts)
+Убедитесь, что Tailwind умеет переключать темы по классу. В файле tailwind.config.ts добавьте:
+
+TypeScript
+
+export default {
+  darkMode: ["class"], // Включаем переключение через CSS класс
+  content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        // Убедитесь, что ваши utility классы ссылаются на CSS переменные
+        glass: "var(--glass-bg)", 
+        // ...
+      },
+      boxShadow: {
+        // Добавьте тень для светлого стекла
+        'glass-light': 'var(--glass-shadow)',
+      }
+    }
+  }
+  // ...
+}
+3. Хук для переключения (useTheme.ts)
+Создайте простой хук (или дополните существующий контекст), чтобы менять класс на теге <html> или <body>.
+
+TypeScript
+
+// client/src/hooks/useTheme.ts
+import { useEffect, useState } from 'react';
+
+export function useTheme() {
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+    
+    // Сообщаем Telegram, чтобы он поменял цвет хедера
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      if (theme === 'dark') {
+        tg.setHeaderColor('#000000');
+        tg.setBackgroundColor('#000000');
+      } else {
+        tg.setHeaderColor('#ffffff'); // Или ваш цвет фона
+        tg.setBackgroundColor('#ffffff');
+      }
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  return { theme, toggleTheme };
+}
+4. Адаптация "Стеклянных" компонентов (GlassCard)
+В светлой теме белый текст на белом стекле не виден. Вам нужно изменить стили ваших компонентов GlassCard (или аналогичных в client/src/components/ui/GlassCard.tsx).
+
+Вместо жестких цветов используйте классы Tailwind, которые адаптируются:
+
+Было (примерно):
+
+TypeScript
+
+<div className="bg-black/10 border-white/10 backdrop-blur-xl ...">
+Станет (Адаптивно):
+
+TypeScript
+
+<div className="
+    backdrop-blur-xl 
+    bg-black/40 border-white/10 text-white   /* Dark Mode Styles */
+    dark:bg-black/40 dark:border-white/10 dark:text-white
+    
+    light:bg-white/60 light:border-black/5 light:text-slate-900 light:shadow-glass-light /* Light Mode Styles */
+    
+    /* Или через переменные, если настроили index.css */
+    bg-[var(--glass-bg)] border-[var(--glass-border)] shadow-[var(--glass-shadow)]
+">
+Совет: Лучше использовать подход CSS-переменных (вариант 2), тогда код компонента будет чище.
+
+5. Адаптация "Жидких блоков" (Liquid Blocks)
+Жидкие блоки обычно сделаны через градиенты. В светлой теме неоновые градиенты на белом фоне могут смотреться грязно, если они слишком прозрачные.
+
+В компонентах, где есть анимация (например, AnimatedElements.tsx или LiquidButton), используйте переменные, которые мы задали:
+
+CSS
+
+/* Пример использования в style={{ background: ... }} */
+background: `linear-gradient(45deg, var(--liquid-gradient-start), var(--liquid-gradient-end))`
+Итоговый рецепт красоты:
+Фон: Не #FFFFFF, а очень светлый оттенок (например, #F8FAFC - Slate 50).
+
+Тени: В светлой теме используйте мягкие, цветные тени (например, легкая синяя дымка под карточками), чтобы создать глубину, так как белые рамки на белом фоне не видны.
+
+Текст: Никогда не используйте чистый черный #000000 для текста. Используйте темно-серый #1e293b (Slate 800) — это выглядит дороже.
