@@ -212,7 +212,7 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-80 smooth-scroll-page">
+    <div className="checkout-page min-h-screen bg-black text-white pb-80 smooth-scroll-page">
       <BackHeader onBack={onBack} title="Оплата заказа" />
       
       <div className="max-w-md mx-auto p-4">

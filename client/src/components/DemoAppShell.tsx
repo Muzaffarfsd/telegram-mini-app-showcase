@@ -239,7 +239,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       {/* Fixed background layer - covers entire viewport including bottom edge */}
       <div className="fixed inset-0 -z-10" style={{ backgroundColor: theme.background }} />
       
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: theme.background }}>
+      <div className="demo-app-shell min-h-screen flex flex-col" style={{ backgroundColor: theme.background }}>
         {/* Mobile Container - Max width for desktop view */}
         <div className="w-full max-w-md mx-auto min-h-screen flex flex-col relative shadow-2xl" style={{ backgroundColor: theme.background }}>
           

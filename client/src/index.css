@@ -5441,3 +5441,118 @@ html.light .ios26-separator {
   background: rgba(0, 0, 0, 0.06) !important;
   height: 1px !important;
 }
+
+/* ═══════════════════════════════════════════════════════
+   GAMIFICATION HUB - Light Theme Overrides
+   ═══════════════════════════════════════════════════════ */
+
+html.light .gamification-hub,
+html.light [class*="gamification"] {
+  background: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light .gamification-hub .bg-black {
+  background: var(--background) !important;
+}
+
+html.light .gamification-hub .text-white {
+  color: var(--text-primary) !important;
+}
+
+html.light .gamification-hub .text-white\/60,
+html.light .gamification-hub .text-white\/50 {
+  color: var(--text-secondary) !important;
+}
+
+html.light .gamification-hub .bg-white\/10,
+html.light .gamification-hub .bg-white\/5 {
+  background: var(--card-bg) !important;
+}
+
+html.light .gamification-hub .border-white\/10,
+html.light .gamification-hub .border-white\/20 {
+  border-color: var(--card-border) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   AI AGENT PAGE - Light Theme Overrides
+   ═══════════════════════════════════════════════════════ */
+
+html.light .ai-agent-page,
+html.light [data-page="ai-agent"] {
+  background: var(--background) !important;
+}
+
+html.light .ai-agent-page [style*="rgba(255, 255, 255, 0.8"],
+html.light .ai-agent-page [style*="rgba(255,255,255,0.8"] {
+  color: var(--text-primary) !important;
+}
+
+html.light .ai-agent-page [style*="rgba(255, 255, 255, 0.6"],
+html.light .ai-agent-page [style*="rgba(255,255,255,0.6"] {
+  color: var(--text-secondary) !important;
+}
+
+html.light .ai-agent-page [style*="rgba(255, 255, 255, 0.4"],
+html.light .ai-agent-page [style*="rgba(255,255,255,0.4"],
+html.light .ai-agent-page [style*="rgba(255, 255, 255, 0.3"],
+html.light .ai-agent-page [style*="rgba(255,255,255,0.3"] {
+  color: var(--text-tertiary) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHECKOUT PAGE - Light Theme Overrides
+   ═══════════════════════════════════════════════════════ */
+
+html.light .checkout-page,
+html.light [data-page="checkout"] {
+  background: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light .checkout-page .bg-black {
+  background: var(--background) !important;
+}
+
+html.light .checkout-page .text-white {
+  color: var(--text-primary) !important;
+}
+
+html.light .checkout-page .text-white\/70,
+html.light .checkout-page .text-white\/60 {
+  color: var(--text-secondary) !important;
+}
+
+html.light .checkout-page .bg-white\/10,
+html.light .checkout-page .bg-white\/5 {
+  background: var(--card-bg) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   DEMO APP SHELL - Light Theme Overrides
+   ═══════════════════════════════════════════════════════ */
+
+html.light .demo-app-shell .bg-black {
+  background: var(--background) !important;
+}
+
+html.light .demo-app-shell .text-white {
+  color: var(--text-primary) !important;
+}
+
+html.light .demo-app-shell .text-white\/80,
+html.light .demo-app-shell .text-white\/70,
+html.light .demo-app-shell .text-white\/60 {
+  color: var(--text-secondary) !important;
+}
+
+html.light .demo-app-shell .border-white\/10,
+html.light .demo-app-shell .border-white\/20 {
+  border-color: var(--card-border) !important;
+}
+
+html.light .demo-app-shell .bg-white\/10,
+html.light .demo-app-shell .bg-white\/5 {
+  background: var(--card-bg) !important;
+}
