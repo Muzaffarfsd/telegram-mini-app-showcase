@@ -157,8 +157,15 @@
   <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.json">
   
-  <!-- Telegram Web App SDK -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Prefetch likely navigation targets -->
+  <link rel="prefetch" href="/projects" as="document">
+  <link rel="prefetch" href="/analytics" as="document">
+  
+  <!-- Preload critical hero images for faster LCP -->
+  <link rel="preload" href="/showcase-hero.webp" as="image" type="image/webp" fetchpriority="high">
+  
+  <!-- Telegram Web App SDK - загружаем с высоким приоритетом -->
+  <script src="https://telegram.org/js/telegram-web-app.js" fetchpriority="high"></script>
   
   <!-- CRITICAL: Call ready() and expand() immediately for fullscreen -->
   <script>
