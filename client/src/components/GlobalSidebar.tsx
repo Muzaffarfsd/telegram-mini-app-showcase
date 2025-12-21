@@ -1672,27 +1672,41 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
-            {/* Stars - always visible on the dark background area */}
-            {[
-              { size: 2.5, top: 7, left: 32 },
-              { size: 2, top: 14, left: 40 },
-              { size: 1.8, top: 20, left: 35 },
-            ].map((star, i) => (
-              <span
-                key={i}
-                style={{
-                  position: 'absolute',
-                  width: `${star.size}px`,
-                  height: `${star.size}px`,
-                  background: '#FFFFFF',
-                  borderRadius: '50%',
-                  top: `${star.top}px`,
-                  left: `${star.left}px`,
-                  boxShadow: `0 0 ${star.size}px rgba(255,255,255,0.6)`,
-                  pointerEvents: 'none',
-                }}
-              />
-            ))}
+            {/* Twinkling stars - visible in dark mode with professional quality */}
+            {isDark && (
+              <>
+                {[
+                  { size: 3, top: 5, left: 4, delay: 0 },
+                  { size: 2.5, top: 14, left: 7, delay: 0.3 },
+                  { size: 2, top: 21, left: 5, delay: 0.6 },
+                  { size: 2.5, top: 8, left: 14, delay: 0.2 },
+                  { size: 2, top: 18, left: 12, delay: 0.5 },
+                ].map((star, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      position: 'absolute',
+                      width: `${star.size}px`,
+                      height: `${star.size}px`,
+                      background: '#FFFFFF',
+                      borderRadius: '50%',
+                      top: `${star.top}px`,
+                      left: `${star.left}px`,
+                      boxShadow: `0 0 ${star.size * 2}px rgba(255,255,255,0.9)`,
+                      animation: `headerStarTwinkle ${1.8 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${star.delay}s`,
+                      pointerEvents: 'none',
+                    }}
+                  />
+                ))}
+              </>
+            )}
+            <style>{`
+              @keyframes headerStarTwinkle {
+                0%, 100% { opacity: 0.4; }
+                50% { opacity: 1; }
+              }
+            `}</style>
             
             
             {/* Sun/Moon orb - GPU optimized */}
