@@ -452,7 +452,7 @@ function App() {
                     {/* Переключатель темы - яркий и заметный */}
                     <button
                       onClick={() => { toggleTheme(); hapticFeedback.medium(); }}
-                      className="relative flex items-center justify-center w-11 h-11 rounded-full gpu-layer"
+                      className="relative flex items-center justify-center w-11 h-11 rounded-full"
                       style={{
                         background: isDark 
                           ? 'linear-gradient(145deg, rgba(99,102,241,0.3) 0%, rgba(139,92,246,0.2) 100%)' 
@@ -463,7 +463,6 @@ function App() {
                         boxShadow: isDark 
                           ? '0 0 12px rgba(139,92,246,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' 
                           : '0 0 12px rgba(251,191,36,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-                        transition: 'all 0.3s ease',
                       }}
                       aria-label="Переключить тему"
                       data-testid="button-theme-toggle-mobile"
@@ -471,22 +470,23 @@ function App() {
                       <div className="relative w-6 h-6">
                         {/* Солнце */}
                         <Sun 
-                          className="absolute inset-0 w-6 h-6 transition-all duration-300"
+                          className="absolute inset-0 w-6 h-6"
                           style={{
                             color: '#FBBF24',
                             opacity: isDark ? 0 : 1,
-                            transform: isDark ? 'rotate(-90deg) scale(0.5)' : 'rotate(0) scale(1)',
                             filter: isDark ? 'none' : 'drop-shadow(0 0 4px rgba(251,191,36,0.6))',
+                            transition: 'opacity 0.15s ease-out',
                           }}
                           strokeWidth={2.5}
                         />
                         {/* Луна */}
                         <Moon 
-                          className="absolute inset-0 w-6 h-6 transition-all duration-300"
+                          className="absolute inset-0 w-6 h-6"
                           style={{
                             color: '#C4B5FD',
                             opacity: isDark ? 1 : 0,
                             filter: 'drop-shadow(0 0 4px rgba(196,181,253,0.6))',
+                            transition: 'opacity 0.15s ease-out',
                           }}
                           strokeWidth={2.5}
                         />
