@@ -1664,6 +1664,47 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
+            {/* Stars (night mode) */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              opacity: isDark ? 1 : 0,
+              transition: 'opacity 0.4s ease',
+            }}>
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', top: '6px', left: '6px', animation: 'twinkle 2s ease-in-out infinite' }} />
+              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: 'rgba(255,255,255,0.7)', borderRadius: '50%', top: '14px', left: '12px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.8)', borderRadius: '50%', top: '20px', left: '8px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s' }} />
+              <div style={{ position: 'absolute', width: '1px', height: '1px', background: 'rgba(255,255,255,0.6)', borderRadius: '50%', top: '10px', left: '18px' }} />
+            </div>
+            
+            {/* Clouds (day mode) */}
+            <div style={{
+              position: 'absolute',
+              opacity: isDark ? 0 : 1,
+              transition: 'opacity 0.4s ease, transform 0.5s ease',
+              transform: isDark ? 'translateX(-8px)' : 'translateX(0)',
+            }}>
+              <div style={{
+                position: 'absolute',
+                width: '10px',
+                height: '5px',
+                background: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.08)',
+                borderRadius: '8px',
+                top: '7px',
+                left: '6px',
+                boxShadow: isDark ? 'none' : '4px -2px 0 0 rgba(0,0,0,0.06)',
+              }} />
+              <div style={{
+                position: 'absolute',
+                width: '8px',
+                height: '4px',
+                background: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.06)',
+                borderRadius: '6px',
+                top: '17px',
+                left: '10px',
+              }} />
+            </div>
+            
             {/* Sun/Moon orb */}
             <div style={{
               position: 'absolute',
