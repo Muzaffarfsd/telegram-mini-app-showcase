@@ -54,7 +54,9 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **AI Personalization System**: `AIAssistant` (contextual chat), `PersonalizedRecommendations` (ML-driven engine), `useAIRecommendations` (behavior tracking).
 - **Gamification System**: `useGamification` (achievements, XP, daily tasks), `GamificationHub` (leaderboards UI).
 - **Accessibility**: WCAG 2.1 AA compliance, ARIA labels, keyboard navigation.
-- **PWA Infrastructure**: Service Worker with offline-first strategy, caching, background sync, push notifications.
+- **PWA Infrastructure**: Service Worker (`client/public/sw.js`) with offline-first strategy, multi-tier caching (static/dynamic/data), background sync queue, push notifications.
+- **Offline-First UI**: `OfflineIndicator` component with animated banner for offline/online status, sync progress, `OfflineBadge` for inline status. Hooks: `useOnlineStatus`, `useOfflineData`, `useOfflineSync`, `useOfflineMutation`.
+- **IndexedDB Storage**: `offlineStorage.ts` with stores for userProfile, gamificationStats, viewedDemos, pendingActions. Auto-sync on reconnect.
 
 ## Backend Architecture (Development - Replit)
 - **Server**: Express.js with TypeScript.
