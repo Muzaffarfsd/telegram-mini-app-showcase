@@ -563,7 +563,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
         <div className="pb-32 pt-4">
           <div className="text-center">
             <div 
-              className="text-[10px] font-medium tracking-[0.2em] uppercase transition-colors duration-300"
+              className="text-[10px] font-medium tracking-[0.2em] uppercase transition-colors duration-300 light:text-black"
               style={{ color: 'var(--text-quaternary)' }}
             >
               WEB4TG

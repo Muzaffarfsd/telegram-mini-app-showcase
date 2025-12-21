@@ -1683,11 +1683,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             justifyContent: 'space-between'
           }}>
             <div>
-              <p style={{
-                fontSize: '12px',
-                fontWeight: 500,
-                color: '#71717A'
-              }}>
+              <p 
+                className="light:!text-black"
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  color: '#71717A'
+                }}
+              >
                 Web4TG Studio
               </p>
               <p style={{
@@ -1732,7 +1735,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               fontSize: '13px',
               fontWeight: 600,
               letterSpacing: '0.14em',
-              color: isDark ? '#FAFAFA' : '#1e293b',
+              color: isDark ? '#FAFAFA' : '#000000',
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
               textShadow: isDark ? '0 0 20px rgba(255,255,255,0.1)' : 'none'
             }}>

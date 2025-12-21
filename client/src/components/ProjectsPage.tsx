@@ -29,7 +29,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
         <header className="px-7 pt-8 pb-16">
           {/* Eyebrow */}
           <p 
-            className="scroll-fade-in"
+            className="scroll-fade-in light:text-black"
             style={{
               fontSize: '11px',
               fontWeight: 500,
