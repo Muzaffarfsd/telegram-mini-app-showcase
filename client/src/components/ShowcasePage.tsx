@@ -81,7 +81,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     >
       <div 
         className="max-w-lg mx-auto px-5"
-        style={{ paddingTop: '100px' }}
+        style={{ paddingTop: '120px' }}
       >
         <m.section
           initial={{ opacity: 0 }}
