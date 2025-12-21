@@ -177,6 +177,89 @@ const uploadUrlSchema = z.object({
   fileType: z.string().optional(),
 });
 
+// Notification schemas
+const notificationSendSchema = z.object({
+  chatId: z.number(),
+  message: z.string().min(1).max(4096),
+  parseMode: z.enum(['HTML', 'Markdown', 'MarkdownV2']).optional().default('HTML'),
+});
+
+const notificationBroadcastSchema = z.object({
+  userIds: z.array(z.number()).min(1).max(100),
+  message: z.string().min(1).max(4096),
+  parseMode: z.enum(['HTML', 'Markdown', 'MarkdownV2']).optional().default('HTML'),
+});
+
+const notificationInteractiveSchema = z.object({
+  chatId: z.number(),
+  message: z.string().min(1).max(4096),
+  buttons: z.array(z.array(z.object({
+    text: z.string().min(1).max(64),
+    url: z.string().url().optional(),
+    callback_data: z.string().max(64).optional(),
+  }))).optional(),
+  parseMode: z.enum(['HTML', 'Markdown', 'MarkdownV2']).optional().default('HTML'),
+});
+
+// Analytics schemas
+const abEventSchema = z.object({
+  experiment: z.string().min(1).max(100),
+  variant: z.enum(['A', 'B']),
+  eventType: z.enum(['exposure', 'conversion']),
+  userId: z.string().optional(),
+  timestamp: z.number().optional(),
+});
+
+const trackEventSchema = z.object({
+  type: z.string().min(1).max(100),
+  data: z.record(z.unknown()).optional(),
+  telegramId: z.number().optional(),
+  sessionId: z.string().optional(),
+});
+
+// Tasks schemas
+const tasksStartSchema = z.object({
+  task_id: z.string().min(1),
+  platform: z.string().optional(),
+  task_type: z.string().optional(),
+  coins_reward: z.number().optional(),
+});
+
+const tasksVerifySchema = z.object({
+  task_id: z.string().min(1),
+});
+
+const tasksCompleteSchema = z.object({
+  taskId: z.number(),
+});
+
+// Photo schemas
+const photoCreateSchema = z.object({
+  filename: z.string().min(1).max(255),
+  url: z.string().url(),
+  title: z.string().max(255).optional(),
+  description: z.string().max(1000).optional(),
+});
+
+// Project schemas
+const createProjectSchema = z.object({
+  name: z.string().min(1).max(255),
+  description: z.string().max(2000).optional(),
+  features: z.array(z.string()).optional(),
+});
+
+const updateProjectStatusSchema = z.object({
+  projectId: z.number(),
+  status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']),
+});
+
+// Payment schemas
+const paymentIntentSchema = z.object({
+  amount: z.number().min(100).max(10000000),
+  currency: z.string().length(3).optional().default('rub'),
+  description: z.string().max(500).optional(),
+});
+
 // ============ OBJECT STORAGE LIMITS ============
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
