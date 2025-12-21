@@ -989,19 +989,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         
         /* ═══════════════════════════════════════════════════════════════
-           SNOWFLAKE EFFECT - REAL SNOWFLAKES ❄
-           ═══════════════════════════════════════════════════════════════ */
-        
-        /* Уменьшаем анимацию для пользователей с настройкой reduced-motion */
-        @media (prefers-reduced-motion: reduce) {
-          .snowflake {
-            animation: none !important;
-            opacity: 0.5;
-          }
-        }
-        
-        
-        /* ═══════════════════════════════════════════════════════════════
            BREATHING ANIMATION FOR IDLE STATE
            ═══════════════════════════════════════════════════════════════ */
         
@@ -1626,52 +1613,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       </div>
 
       <div className="top-bar">
-        {/* Настоящие снежинки ❄ */}
-        <div className="snowflakes-container" aria-hidden="true" style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '100%',
-          pointerEvents: 'none',
-          zIndex: 1
-        }}>
-          {[...Array(15)].map((_, i) => (
-            <div 
-              key={i}
-              className="snowflake"
-              style={{
-                position: 'absolute',
-                left: `${5 + i * 6.5}%`,
-                top: '0px',
-                fontSize: `${8 + (i % 4) * 3}px`,
-                color: 'rgba(255,255,255,0.85)',
-                textShadow: '0 0 4px rgba(255,255,255,0.6)',
-                animation: `snowflakeFall${i % 3} ${5 + (i % 5)}s linear infinite`,
-                animationDelay: `${(i * 0.5) % 5}s`
-              }}
-            >
-              ❄
-            </div>
-          ))}
-        </div>
-        
-        <style>{`
-          @keyframes snowflakeFall0 {
-            0% { transform: translateY(-5px) rotate(0deg); opacity: 0.9; }
-            100% { transform: translateY(100px) rotate(180deg); opacity: 0.3; }
-          }
-          @keyframes snowflakeFall1 {
-            0% { transform: translateY(-8px) translateX(-5px) rotate(0deg); opacity: 0.85; }
-            50% { transform: translateY(45px) translateX(5px) rotate(90deg); }
-            100% { transform: translateY(95px) translateX(-3px) rotate(200deg); opacity: 0.2; }
-          }
-          @keyframes snowflakeFall2 {
-            0% { transform: translateY(-3px) rotate(0deg); opacity: 0.8; }
-            100% { transform: translateY(85px) rotate(-150deg); opacity: 0.25; }
-          }
-        `}</style>
-        
         <div className="max-w-md mx-auto px-5 pt-16 pb-4 flex items-center justify-between gap-4" style={{ position: 'relative', zIndex: 2 }}>
           <div style={{ marginTop: '8px' }}>
             <AnimatedHamburgerIcon 
