@@ -1064,8 +1064,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         
         @keyframes twinkle {
-          0%, 100% { opacity: 0.6; }
-          50% { opacity: 1; }
+          0%, 100% { opacity: 0.3; filter: brightness(0.8); }
+          50% { opacity: 1; filter: brightness(1.2); }
         }
       `}</style>
 
@@ -1679,11 +1679,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               opacity: isDark ? 1 : 0,
               transition: 'opacity 0.2s ease',
               pointerEvents: 'none',
+              overflow: 'visible',
             }}>
-              <div style={{ position: 'absolute', width: '3px', height: '3px', background: '#FFFFFF', borderRadius: '50%', top: '5px', left: '5px', animation: 'twinkle 2s ease-in-out infinite', boxShadow: '0 0 6px rgba(255,255,255,0.8)' }} />
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '12px', left: '12px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s', boxShadow: '0 0 4px rgba(255,255,255,0.6)' }} />
-              <div style={{ position: 'absolute', width: '3px', height: '3px', background: '#FFFFFF', borderRadius: '50%', top: '18px', left: '7px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s', boxShadow: '0 0 6px rgba(255,255,255,0.8)' }} />
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '8px', left: '18px', boxShadow: '0 0 4px rgba(255,255,255,0.6)' }} />
+              <div style={{ position: 'absolute', width: '3px', height: '3px', background: '#FFFFFF', borderRadius: '50%', top: '5px', left: '5px', animation: 'twinkle 2s ease-in-out infinite 0s', boxShadow: '0 0 6px rgba(255,255,255,0.9)', willChange: 'opacity, filter' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '12px', left: '12px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s', boxShadow: '0 0 4px rgba(255,255,255,0.7)', willChange: 'opacity, filter' }} />
+              <div style={{ position: 'absolute', width: '3px', height: '3px', background: '#FFFFFF', borderRadius: '50%', top: '18px', left: '7px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s', boxShadow: '0 0 6px rgba(255,255,255,0.9)', willChange: 'opacity, filter' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '8px', left: '18px', animation: 'twinkle 2.2s ease-in-out infinite 0.9s', boxShadow: '0 0 4px rgba(255,255,255,0.7)', willChange: 'opacity, filter' }} />
             </div>
             
             {/* Clouds (day mode) - positioned on right side */}
