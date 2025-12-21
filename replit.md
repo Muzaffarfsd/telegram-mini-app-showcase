@@ -18,6 +18,13 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 5. **API Types (✅ FIXED)**: Created `server/types/api.ts` with TypeScript interfaces for all API requests/responses. Replaced `any` types in middleware (`verifyTelegramUser`, `sanitizeUserInput`) with proper types. Added module augmentation for Express Request to include `telegramUser` and `rateLimit` properties.
 6. **Custom Hooks Refactoring (✅ FIXED)**: Extracted 4 custom hooks from App.tsx: `useRouting`, `useScrollDepthEffect`, `useAppInitialization`, `useTelegramBackButtonHandler`. Reduced useEffect count from 7+ to 0 in main component.
 
+## Frontend Infrastructure (December 2025)
+7. **Logger System (✅ ADDED)**: Created `client/src/lib/logger.ts` with Sentry integration. Auto-reporting errors, breadcrumbs for user actions, API timing tracking. Methods: `debug`, `info`, `warn`, `error`, `api`, `performance`, `userAction`.
+8. **API Client (✅ ADDED)**: Created `client/src/lib/apiClient.ts` with unified interface. Features: CSRF token handling, Telegram initData headers, Zod response validation, timeout handling, structured error responses.
+9. **Debounce Utilities (✅ ADDED)**: Created `client/src/lib/debounce.ts` with `debounce`, `debounceAsync`, `throttle` functions. React hooks: `useDebounceValue`, `useDebouncedCallback`, `useThrottledCallback`.
+10. **Query Caching (✅ UPDATED)**: Updated `client/src/lib/queryClient.ts` - staleTime 5 min (was Infinity), gcTime 10 min, smart retry logic (no retry on 401/403/404), typed query function with Zod validation (`createTypedQueryFn`).
+11. **Virtual Lists (✅ ADDED)**: Created `client/src/components/ui/virtual-list.tsx` with `VirtualList` and `VirtualGrid` components using @tanstack/react-virtual for efficient rendering of large lists (leaderboards, referrals).
+
 ## Important Findings (Query Performance Audit)
 - ✅ **N+1 Queries (VERIFIED SAFE)**: Code analysis shows no N+1 query patterns. Leaderboard endpoint (line 2267) uses batch SELECT with Promise.all(). Referrals endpoint (line 1908) uses innerJoin pattern. All critical paths are optimized.
 - ✅ **Database Performance**: Single query for user data achieved, ~50% reduction in database calls through proper indexing (25+ indexes) and query optimization.
