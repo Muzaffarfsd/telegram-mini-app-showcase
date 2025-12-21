@@ -5734,6 +5734,11 @@ html.light .favorites-section [style*="border:1px solid rgba(255"] {
    CONSTRUCTOR PAGE - Additional Light Theme Overrides
    ═══════════════════════════════════════════════════════ */
 
+html.light .constructor-page {
+  background: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
 html.light .constructor-page [style*="color: #FAFAFA"],
 html.light .constructor-page [style*="color:#FAFAFA"] {
   color: var(--text-primary) !important;
@@ -5747,4 +5752,59 @@ html.light .constructor-page [style*="color:#71717A"] {
 html.light .constructor-page [style*="background: rgba(255"],
 html.light .constructor-page [style*="background:rgba(255"] {
   background: var(--card-bg) !important;
+}
+
+html.light .constructor-page .bg-white\/10,
+html.light .constructor-page .bg-white\/5 {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+}
+
+html.light .constructor-page .border-white\/20,
+html.light .constructor-page .border-white\/30,
+html.light .constructor-page .border-white\/10 {
+  border-color: var(--card-border) !important;
+}
+
+html.light .constructor-page .text-white {
+  color: var(--text-primary) !important;
+}
+
+html.light .constructor-page .text-white\/70,
+html.light .constructor-page .text-white\/60,
+html.light .constructor-page .text-white\/50 {
+  color: var(--text-secondary) !important;
+}
+
+html.light .constructor-page .backdrop-blur-xl {
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+html.light .constructor-page .ios-field {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: var(--card-border) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light .constructor-page .ios-field::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+html.light .constructor-page .ios-list-item {
+  background: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+}
+
+html.light .constructor-page .ios-body {
+  color: var(--text-primary) !important;
+}
+
+html.light .constructor-page .ios-footnote {
+  color: var(--text-secondary) !important;
+}
+
+html.light .constructor-page .ios-caption1,
+html.light .constructor-page .ios-caption2 {
+  color: var(--text-secondary) !important;
 }
