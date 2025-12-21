@@ -319,9 +319,38 @@ input, textarea {
   /* iOS 17 Color Tokens - Dark Theme */
   --foreground: #FFFFFF;
   --card: rgba(255, 255, 255, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.1);
   --card-foreground: #FFFFFF;
+  --card-border: rgba(255, 255, 255, 0.2);
+  --card-shadow: none;
+  --card-shadow-hover: none;
+  --card-radius: 16px;
   --popover: rgba(255, 255, 255, 0.1);
   --popover-foreground: #FFFFFF;
+  
+  /* Surface and overlay */
+  --surface: #0f0f11;
+  --overlay-weak: rgba(255, 255, 255, 0.05);
+  --overlay-medium: rgba(255, 255, 255, 0.1);
+  
+  /* Text hierarchy */
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-tertiary: rgba(255, 255, 255, 0.5);
+  --text-quaternary: rgba(255, 255, 255, 0.3);
+  
+  /* Accent colors */
+  --accent-primary: #10B981;
+  --accent-secondary: #5856D6;
+  
+  /* Button colors */
+  --button-primary-bg: #10B981;
+  --button-primary-text: #FFFFFF;
+  --button-secondary-bg: rgba(16, 185, 129, 0.2);
+  --button-secondary-text: #10B981;
+  
+  /* Hero gradient */
+  --hero-gradient: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(88, 86, 214, 0.1) 50%, rgba(255, 45, 146, 0.08) 100%);
   --primary: #10B981;
   --primary-foreground: #FFFFFF;
   --secondary: rgba(255, 255, 255, 0.1);
@@ -4532,13 +4561,47 @@ html.slow-network video {
    Force light colors when html has 'light' class
    ═══════════════════════════════════════════════════════ */
 html.light {
+  /* Core surfaces */
   --background: #F2F4F6 !important;
   --foreground: #0F172A !important;
-  --card: rgba(255, 255, 255, 0.85) !important;
+  --surface: #F2F4F6 !important;
+  
+  /* Card system - iOS 26 stacked sheets */
+  --card: rgba(255, 255, 255, 0.92) !important;
+  --card-bg: rgba(255, 255, 255, 0.92) !important;
   --card-foreground: #0F172A !important;
+  --card-border: rgba(0, 0, 0, 0.06) !important;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  --card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+  --card-radius: 20px !important;
+  
+  /* Borders */
   --border: rgba(0, 0, 0, 0.08) !important;
   --glass-background: rgba(255, 255, 255, 0.65) !important;
   --glass-border: rgba(0, 0, 0, 0.05) !important;
+  
+  /* Text hierarchy */
+  --text-primary: #0F172A !important;
+  --text-secondary: #475569 !important;
+  --text-tertiary: #64748B !important;
+  --text-quaternary: #94A3B8 !important;
+  
+  /* Accent colors - iOS Blue */
+  --accent-primary: #007AFF !important;
+  --accent-secondary: #5856D6 !important;
+  
+  /* Button colors */
+  --button-primary-bg: #007AFF !important;
+  --button-primary-text: #FFFFFF !important;
+  --button-secondary-bg: rgba(0, 122, 255, 0.1) !important;
+  --button-secondary-text: #007AFF !important;
+  
+  /* Hero gradient */
+  --hero-gradient: linear-gradient(135deg, rgba(0, 122, 255, 0.08) 0%, rgba(88, 86, 214, 0.06) 50%, rgba(255, 45, 85, 0.04) 100%) !important;
+  
+  /* Overlays */
+  --overlay-weak: rgba(0, 0, 0, 0.02) !important;
+  --overlay-medium: rgba(0, 0, 0, 0.04) !important;
 }
 
 html.light body,
