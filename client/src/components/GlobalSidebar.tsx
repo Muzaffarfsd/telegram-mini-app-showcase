@@ -1672,70 +1672,28 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
-            {/* Night sky background with twinkling stars */}
-            {isDark && (
-              <>
-                {/* Star field - positioned around the moon's crescent arc */}
-                {[
-                  { size: 2.2, top: 5, left: 4, delay: 0, duration: 2.2 },
-                  { size: 1.4, top: 12, left: 8, delay: 0.4, duration: 2.6 },
-                  { size: 1.8, top: 20, left: 5, delay: 0.8, duration: 1.9 },
-                  { size: 1.2, top: 8, left: 14, delay: 0.2, duration: 2.4 },
-                  { size: 1.6, top: 18, left: 12, delay: 0.6, duration: 2.1 },
-                ].map((star, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      position: 'absolute',
-                      width: `${star.size}px`,
-                      height: `${star.size}px`,
-                      background: 'radial-gradient(circle, #FFFFFF 0%, rgba(255,255,255,0.8) 50%, transparent 100%)',
-                      borderRadius: '50%',
-                      top: `${star.top}px`,
-                      left: `${star.left}px`,
-                      boxShadow: `0 0 ${star.size * 2}px ${star.size * 0.5}px rgba(255,255,255,0.7)`,
-                      animation: `headerTwinkle ${star.duration}s ease-in-out infinite`,
-                      animationDelay: `${star.delay}s`,
-                      pointerEvents: 'none',
-                      willChange: 'opacity',
-                    }}
-                  />
-                ))}
-              </>
-            )}
-            <style>{`
-              @keyframes headerTwinkle {
-                0%, 100% { opacity: 0.3; transform: scale(0.9); }
-                50% { opacity: 1; transform: scale(1.1); }
-              }
-            `}</style>
+            {/* Stars - always visible on the dark background area */}
+            {[
+              { size: 2.5, top: 7, left: 32 },
+              { size: 2, top: 14, left: 40 },
+              { size: 1.8, top: 20, left: 35 },
+            ].map((star, i) => (
+              <span
+                key={i}
+                style={{
+                  position: 'absolute',
+                  width: `${star.size}px`,
+                  height: `${star.size}px`,
+                  background: '#FFFFFF',
+                  borderRadius: '50%',
+                  top: `${star.top}px`,
+                  left: `${star.left}px`,
+                  boxShadow: `0 0 ${star.size}px rgba(255,255,255,0.6)`,
+                  pointerEvents: 'none',
+                }}
+              />
+            ))}
             
-            {/* Clouds (day mode) - positioned on right side */}
-            <div style={{
-              position: 'absolute',
-              opacity: isDark ? 0 : 1,
-              transition: 'opacity 0.2s ease',
-            }}>
-              <div style={{
-                position: 'absolute',
-                width: '10px',
-                height: '5px',
-                background: 'rgba(255,255,255,0.95)',
-                borderRadius: '8px',
-                top: '5px',
-                left: '30px',
-                boxShadow: '3px -1px 0 1px rgba(255,255,255,0.8)',
-              }} />
-              <div style={{
-                position: 'absolute',
-                width: '8px',
-                height: '4px',
-                background: 'rgba(255,255,255,0.85)',
-                borderRadius: '6px',
-                top: '18px',
-                left: '32px',
-              }} />
-            </div>
             
             {/* Sun/Moon orb - GPU optimized */}
             <div style={{
