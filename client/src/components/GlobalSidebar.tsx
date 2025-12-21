@@ -140,39 +140,39 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         onlineDotBorder: 'rgba(0, 0, 0, 0.9)',
       };
     } else {
-      // Light Theme - iOS 26 "Stacked Sheets" with soft shadows
+      // Light Theme - iOS 26 "Stacked Sheets" with excellent contrast
       return {
-        // Text hierarchy - Apple HIG compliant
-        textPrimary: '#000000',
-        textSecondary: 'rgba(60, 60, 67, 0.6)',
-        textMuted: 'rgba(60, 60, 67, 0.3)',
-        textLabel: 'rgba(60, 60, 67, 0.4)',
+        // Text hierarchy - High contrast for readability
+        textPrimary: '#1C1C1E',           // Deep black for maximum readability
+        textSecondary: '#3C3C43',          // Dark gray - very readable
+        textMuted: '#636366',              // Medium gray - still readable
+        textLabel: '#8E8E93',              // System gray - visible labels
         
         // iOS System Blue
         accent: '#007AFF',
-        accentLight: 'rgba(0, 122, 255, 0.08)',
-        accentBorder: 'rgba(0, 122, 255, 0.2)',
+        accentLight: 'rgba(0, 122, 255, 0.12)',
+        accentBorder: 'rgba(0, 122, 255, 0.25)',
         
-        // Surfaces - Layered sheets with shadows
-        panelBg: 'rgba(255, 255, 255, 0.94)',
-        cardBg: 'rgba(255, 255, 255, 1)',
-        cardBorder: 'rgba(0, 0, 0, 0.04)',
-        cardShadow: '0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03)',
+        // Surfaces - Clean white with subtle depth
+        panelBg: '#FFFFFF',
+        cardBg: '#F2F2F7',                 // iOS system gray 6
+        cardBorder: 'rgba(0, 0, 0, 0.08)',
+        cardShadow: '0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06)',
         
         // Interactive states
-        hoverBg: 'rgba(0, 0, 0, 0.03)',
-        activeBg: 'rgba(0, 122, 255, 0.08)',
+        hoverBg: 'rgba(0, 0, 0, 0.04)',
+        activeBg: 'rgba(0, 122, 255, 0.12)',
         
         // Progress & indicators
-        progressBg: 'rgba(0, 0, 0, 0.05)',
+        progressBg: 'rgba(0, 0, 0, 0.08)',
         progressFill: 'linear-gradient(90deg, #007AFF 0%, #5856D6 100%)',
         
         // Semantic
         success: '#34C759',
-        sectionBorder: 'rgba(0, 0, 0, 0.04)',
-        avatarRing: 'rgba(0, 0, 0, 0.06)',
+        sectionBorder: 'rgba(0, 0, 0, 0.08)',
+        avatarRing: 'rgba(0, 0, 0, 0.1)',
         onlineDot: '#30D158',
-        onlineDotBorder: 'rgba(255, 255, 255, 1)',
+        onlineDotBorder: '#FFFFFF',
       };
     }
   }, [isDark]);
