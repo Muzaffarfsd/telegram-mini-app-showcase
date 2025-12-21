@@ -5,6 +5,7 @@ import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
 import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
 import { preloadDemo } from './demos/DemoRegistry';
+import { useViewedDemos } from '../hooks/useTelegramStorage';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
@@ -51,6 +52,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const haptic = useHaptic();
   const [headlineIndex, setHeadlineIndex] = useState(0);
   const { videoRef } = useVideoLazyLoad({ threshold: 0.25 });
+  const { markAsViewed, viewedCount } = useViewedDemos();
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -62,8 +64,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     
   const handleOpenDemo = useCallback((demoId: string) => {
     haptic.light();
+    markAsViewed(demoId);
     onOpenDemo(demoId);
-  }, [haptic, onOpenDemo]);
+  }, [haptic, onOpenDemo, markAsViewed]);
 
   const handleNavigate = useCallback((section: string) => {
     haptic.light();

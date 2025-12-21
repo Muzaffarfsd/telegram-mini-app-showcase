@@ -1,6 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { ZodSchema } from "zod";
 import { logger } from "./logger";
+import { getCachedApiResponse, cacheApiResponse, CACHE_TTL } from "./telegramStorage";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -178,4 +179,64 @@ export function prefetchQuery<T>(
   });
 }
 
-export { CACHE_TIME };
+/**
+ * Query function with DeviceStorage caching (Bot API 9.2)
+ * Seeds queryClient with cached data, then fetches fresh data
+ */
+export function getCachedQueryFn<T>(options: {
+  on401: UnauthorizedBehavior;
+  cacheTtl?: number;
+}): QueryFunction<T> {
+  const { on401: unauthorizedBehavior, cacheTtl = CACHE_TTL.FIVE_MINUTES } = options;
+  
+  return async ({ queryKey }) => {
+    const url = queryKey[0] as string;
+    
+    const cached = await getCachedApiResponse<T>(url);
+    if (cached !== null) {
+      queryClient.setQueryData(queryKey, cached);
+    }
+    
+    return fetchAndCache<T>(url, unauthorizedBehavior, cacheTtl);
+  };
+}
+
+async function fetchAndCache<T>(
+  url: string, 
+  unauthorizedBehavior: UnauthorizedBehavior,
+  cacheTtl: number
+): Promise<T> {
+  const headers: Record<string, string> = {};
+  
+  const initData = getTelegramInitData();
+  if (initData) {
+    headers["X-Telegram-Init-Data"] = initData;
+  }
+
+  const startTime = performance.now();
+  
+  const res = await fetch(url, {
+    credentials: "include",
+    headers,
+  });
+
+  const duration = Math.round(performance.now() - startTime);
+  logger.api('GET', url, res.status, duration);
+
+  if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+    return null as T;
+  }
+
+  await throwIfResNotOk(res);
+  const data = await res.json();
+  
+  try {
+    await cacheApiResponse(url, data, cacheTtl);
+  } catch {
+    // Silently ignore storage errors - caching is optional
+  }
+  
+  return data;
+}
+
+export { CACHE_TIME, CACHE_TTL };
