@@ -1646,11 +1646,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               if (isThemeAnimating) return;
               setIsThemeAnimating(true);
               triggerHaptic('medium');
-              
               toggleTheme(e);
-              triggerHaptic('light');
-              
-              setTimeout(() => setIsThemeAnimating(false), 300);
+              setTimeout(() => setIsThemeAnimating(false), 150);
             }}
             data-testid="button-theme-toggle"
             className="day-night-toggle"
@@ -1667,12 +1664,10 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               background: isDark 
                 ? 'rgba(255,255,255,0.08)'
                 : 'rgba(0,0,0,0.05)',
-              transition: 'transform 0.2s ease',
-              transform: isThemeAnimating ? 'scale(0.95)' : 'scale(1)',
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
-            {/* Sun/Moon orb - GPU optimized */}
+            {/* Sun/Moon orb - optimized for mobile */}
             <div style={{
               position: 'absolute',
               width: '22px',
@@ -1681,26 +1676,16 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               top: '3px',
               left: '3px',
               transform: isDark ? 'translateX(24px)' : 'translateX(0)',
-              background: isDark 
-                ? '#E8E8E8'
-                : '#FFD93D',
-              boxShadow: isDark 
-                ? '0 2px 8px rgba(0,0,0,0.3)'
-                : '0 2px 8px rgba(255,150,0,0.3)',
-              transition: 'transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
+              background: isDark ? '#E8E8E8' : '#FFD93D',
+              transition: 'transform 0.15s ease-out',
             }}>
-              {/* Moon craters */}
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: '50%',
-                opacity: isDark ? 1 : 0,
-                transition: 'opacity 0.2s ease',
-              }}>
-                <div style={{ position: 'absolute', width: '5px', height: '5px', background: 'rgba(180,180,180,0.4)', borderRadius: '50%', top: '4px', left: '5px' }} />
-                <div style={{ position: 'absolute', width: '3px', height: '3px', background: 'rgba(180,180,180,0.3)', borderRadius: '50%', top: '12px', left: '13px' }} />
-                <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(180,180,180,0.25)', borderRadius: '50%', top: '15px', left: '6px' }} />
-              </div>
+              {/* Moon craters - no transition */}
+              {isDark && (
+                <div style={{ position: 'absolute', inset: 0, borderRadius: '50%' }}>
+                  <div style={{ position: 'absolute', width: '5px', height: '5px', background: 'rgba(180,180,180,0.4)', borderRadius: '50%', top: '4px', left: '5px' }} />
+                  <div style={{ position: 'absolute', width: '3px', height: '3px', background: 'rgba(180,180,180,0.3)', borderRadius: '50%', top: '12px', left: '13px' }} />
+                </div>
+              )}
             </div>
           </button>
         </div>
