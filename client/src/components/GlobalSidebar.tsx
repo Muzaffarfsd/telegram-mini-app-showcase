@@ -1639,45 +1639,100 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               setIsThemeAnimating(true);
               triggerHaptic('medium');
               
-              // Pass event for View Transitions API position
               toggleTheme(e);
               triggerHaptic('light');
               
               setTimeout(() => setIsThemeAnimating(false), 700);
             }}
             data-testid="button-theme-toggle"
+            className="day-night-toggle"
             style={{
-              width: '44px',
-              height: '44px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '12px',
+              width: '56px',
+              height: '28px',
+              borderRadius: '14px',
               border: 'none',
-              background: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
               cursor: 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              transform: isThemeAnimating ? 'scale(0.85)' : 'scale(1)',
-              overflow: 'visible',
               position: 'relative',
+              overflow: 'hidden',
+              background: isDark 
+                ? 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
+                : 'linear-gradient(180deg, #87CEEB 0%, #98D8F0 50%, #B8E4F8 100%)',
+              transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: isThemeAnimating ? 'scale(0.95)' : 'scale(1)',
+              boxShadow: isDark 
+                ? 'inset 0 2px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)'
+                : 'inset 0 2px 4px rgba(255,255,255,0.3), 0 1px 2px rgba(0,0,0,0.1)',
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
-            {/* Dark Side Toggle - Minimalist half-circle design */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 32 32"
-              fill="currentColor"
-              style={{
-                color: isDark ? '#FAFAFA' : '#0F172A',
-                transform: isDark ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease',
-              }}
-            >
-              <path d="M16 .5C7.4.5.5 7.4.5 16S7.4 31.5 16 31.5 31.5 24.6 31.5 16 24.6.5 16 .5zm0 28.1V3.4C23 3.4 28.6 9 28.6 16S23 28.6 16 28.6z" />
-            </svg>
+            {/* Stars (visible in dark mode) */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              opacity: isDark ? 1 : 0,
+              transition: 'opacity 0.4s ease',
+            }}>
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#fff', borderRadius: '50%', top: '6px', left: '8px', boxShadow: '0 0 2px #fff' }} />
+              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#fff', borderRadius: '50%', top: '10px', left: '16px', boxShadow: '0 0 2px #fff' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#fff', borderRadius: '50%', top: '18px', left: '12px', boxShadow: '0 0 2px #fff' }} />
+              <div style={{ position: 'absolute', width: '1px', height: '1px', background: '#fff', borderRadius: '50%', top: '8px', left: '22px', boxShadow: '0 0 2px #fff' }} />
+              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#fff', borderRadius: '50%', top: '15px', left: '6px', boxShadow: '0 0 2px #fff' }} />
+            </div>
+            
+            {/* Clouds (visible in light mode) */}
+            <div style={{
+              position: 'absolute',
+              opacity: isDark ? 0 : 0.9,
+              transition: 'opacity 0.4s ease, transform 0.5s ease',
+              transform: isDark ? 'translateX(-10px)' : 'translateX(0)',
+            }}>
+              <div style={{
+                position: 'absolute',
+                width: '12px',
+                height: '5px',
+                background: 'rgba(255,255,255,0.9)',
+                borderRadius: '10px',
+                top: '8px',
+                left: '6px',
+                boxShadow: '4px -2px 0 0 rgba(255,255,255,0.7), 8px 0 0 0 rgba(255,255,255,0.5)',
+              }} />
+              <div style={{
+                position: 'absolute',
+                width: '10px',
+                height: '4px',
+                background: 'rgba(255,255,255,0.8)',
+                borderRadius: '10px',
+                top: '18px',
+                left: '10px',
+                boxShadow: '3px -1px 0 0 rgba(255,255,255,0.6)',
+              }} />
+            </div>
+            
+            {/* Sun/Moon orb */}
+            <div style={{
+              position: 'absolute',
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              top: '4px',
+              left: isDark ? '32px' : '4px',
+              background: isDark 
+                ? 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)'
+                : 'linear-gradient(135deg, #FFD93D 0%, #FF9500 100%)',
+              boxShadow: isDark 
+                ? 'inset -2px -2px 4px rgba(0,0,0,0.1), 0 0 8px rgba(255,255,255,0.3)'
+                : '0 0 12px rgba(255,200,0,0.6), inset -2px -2px 4px rgba(255,150,0,0.3)',
+              transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}>
+              {/* Moon craters */}
+              {isDark && (
+                <>
+                  <div style={{ position: 'absolute', width: '4px', height: '4px', background: 'rgba(200,200,200,0.5)', borderRadius: '50%', top: '4px', left: '6px' }} />
+                  <div style={{ position: 'absolute', width: '3px', height: '3px', background: 'rgba(200,200,200,0.4)', borderRadius: '50%', top: '10px', left: '12px' }} />
+                  <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(200,200,200,0.3)', borderRadius: '50%', top: '14px', left: '5px' }} />
+                </>
+              )}
+            </div>
           </button>
         </div>
       </div>
