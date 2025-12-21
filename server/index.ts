@@ -31,6 +31,18 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
 }));
 
+// Cache control for Telegram Mini App - force refresh
+app.use((req, res, next) => {
+  // Disable caching for HTML and API to ensure Telegram gets fresh content
+  if (req.path === '/' || req.path.endsWith('.html') || req.path.startsWith('/api')) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+  }
+  next();
+});
+
 // Security: CORS configuration
 app.use((req, res, next) => {
   const origin = req.headers.origin;
