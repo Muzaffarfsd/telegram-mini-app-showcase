@@ -12,15 +12,15 @@ export function LoadingProgress({
   indeterminate = false 
 }: LoadingProgressProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 p-8">
+    <div className="loading-progress flex flex-col items-center justify-center gap-4 p-8">
       {label && (
-        <p className="text-sm text-white/70 font-medium">
+        <p className="text-sm text-muted-foreground font-medium">
           {label}
         </p>
       )}
       
       <div className="w-full max-w-xs">
-        <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+        <div className="h-1 bg-muted rounded-full overflow-hidden">
           {indeterminate ? (
             <motion.div
               className="h-full bg-emerald-500 rounded-full"
@@ -48,7 +48,7 @@ export function LoadingProgress({
       </div>
       
       {!indeterminate && (
-        <p className="text-xs text-white/50 font-medium tabular-nums">
+        <p className="text-xs text-muted-foreground font-medium tabular-nums">
           {Math.round(progress)}%
         </p>
       )}
@@ -64,10 +64,10 @@ export function LoadingSpinner({ size = 'medium', className = '' }: { size?: 'sm
   };
   
   return (
-    <div className={`inline-flex ${className}`}>
+    <div className={`loading-spinner inline-flex ${className}`}>
       <div className={`
         ${sizes[size]}
-        border-white/20
+        border-muted
         border-t-emerald-500
         rounded-full
         animate-spin
