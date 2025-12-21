@@ -43,6 +43,7 @@ const ReviewPage = lazy(() => import("./components/ReviewPage"));
 const AIAgentPage = lazy(() => import("./components/AIAgentPage"));
 const AIProcessPage = lazy(() => import("./components/AIProcessPage"));
 const PhotoGallery = lazy(() => import("./pages/PhotoGallery"));
+const NotFoundPage = lazy(() => import("./pages/NotFound"));
 const ReferralProgram = lazy(() => import("./components/ReferralProgram").then(m => ({ default: m.ReferralProgram })));
 const GamificationHub = lazy(() => import("./components/GamificationHub").then(m => ({ default: m.GamificationHub })));
 const PremiumTasksEarningPage = lazy(() => import("./components/PremiumTasksEarningPage").then(m => ({ default: m.PremiumTasksEarningPage })));
@@ -385,6 +386,9 @@ function App() {
             case 'analytics':
               return <AnalyticsPage />;
             
+            case 'notFound':
+              return <NotFoundPage />;
+            
             // Always show showcase page as default fallback
             default:
               return <ShowcasePage onOpenDemo={handleOpenDemo} onNavigate={handleNavigate} />;
@@ -466,7 +470,11 @@ function App() {
                 
                 <div ref={scrollContainerRef} className="pb-36" data-scroll="main">
                   <PageTransition routeKey={`${route.component}-${route.params?.id || ''}`} variant="fade">
-                    {renderRoute()}
+                    <ErrorBoundary>
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        {renderRoute()}
+                      </Suspense>
+                    </ErrorBoundary>
                   </PageTransition>
                 </div>
               </div>
