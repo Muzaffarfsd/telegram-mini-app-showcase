@@ -57,6 +57,7 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **PWA Infrastructure**: Service Worker (`client/public/sw.js`) with offline-first strategy, multi-tier caching (static/dynamic/data), background sync queue, push notifications.
 - **Offline-First UI**: `OfflineIndicator` component with animated banner for offline/online status, sync progress, `OfflineBadge` for inline status. Hooks: `useOnlineStatus`, `useOfflineData`, `useOfflineSync`, `useOfflineMutation`.
 - **IndexedDB Storage**: `offlineStorage.ts` with stores for userProfile, gamificationStats, viewedDemos, pendingActions. Auto-sync on reconnect.
+- **Push Notifications**: Telegram Bot integration for push notifications. Endpoints: `/api/notifications/send`, `/api/notifications/broadcast`, `/api/notifications/interactive`. Hook: `useTelegramNotifications` with helpers: `sendOrderUpdate`, `sendPromotion`, `sendAchievement`, `sendReferralBonus`.
 
 ## Backend Architecture (Development - Replit)
 - **Server**: Express.js with TypeScript.
