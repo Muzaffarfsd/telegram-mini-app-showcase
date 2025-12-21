@@ -2,6 +2,30 @@
 
 This project showcases a Telegram Mini App (TMA) portfolio featuring 18 full-featured demo applications across various business verticals (e.g., clothing stores, restaurants, fitness centers). It demonstrates the potential of AI agents in business for 24/7 support, sales automation, personalization, and analytics, acting as an "app within an app." The project aims to provide an interactive platform for users to explore diverse business scenarios.
 
+# Recent Changes (December 21, 2025)
+
+## Full Codebase Audit Completed ✅
+
+**21,466 lines of code analyzed** - See `FULL_CODE_AUDIT_2025-2026.md` for comprehensive review including:
+
+### Key Findings:
+- ✅ **Strengths**: React 19 optimization, secure database schema, Telegram 2025 API support
+- 🔴 **Critical Issues**: routes.ts (3460 lines in single file), env validation missing, CSRF tokens in memory
+- 🟠 **Important Fixes**: Query N+1 problems, hardcoded URLs, missing input validation
+- 🟡 **Improvements**: Caching strategy, unified API client, better error handling
+
+### Recommendations (2025-2026):
+1. Split routes.ts into modular files (Priority 1)
+2. Add environment variable validation (Priority 1)
+3. Move CSRF tokens to Redis (Priority 1)
+4. Remove deprecated DB tables (Priority 2)
+5. Fix query N+1 patterns (Priority 2)
+6. Add input validation to all endpoints (Priority 2)
+
+**Action Plan**: See detailed solutions with code examples in audit file
+
+---
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -11,10 +35,10 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
 # System Architecture
 
 ## Frontend Architecture
-- **Frameworks**: React 18 with TypeScript, Vite.
+- **Frameworks**: React 19 (upgraded from 18.3.1) with TypeScript, Vite.
 - **Styling**: Tailwind CSS with a 2025 premium design system, including a global dark theme, glassmorphism, neumorphism, gradients, and micro-interactions.
 - **UI Components**: Shadcn/ui (Radix UI), Lucide React, Phosphor Icons.
-- **State Management**: React Query for server state.
+- **State Management**: React Query for server state, Zustand for client state.
 - **Design System**: Responsive mobile-first design with desktop layout in Telegram (1200px viewport), Apple-style minimalism with premium aesthetics, full-screen layouts, and an 8px spacing grid.
 - **Structure**: Main App router, `ShowcasePage` (premium Bento grid layout), `DemoAppShell` for universal navigation, and individual Demo Components for business simulations.
 - **ShowcasePage Design (Dec 2024)**: Ultra-premium Apple-style minimalist landing with AIDA headline ("Когда другие обещают — ваши продукты уже [приносят выручку/общаются с клиентами/собирают заявки/масштабируются].") featuring blur animation on word transitions, process timeline (Бриф→Спринт→Запуск→Рост), demo cards with type labels (Retail/Luxury/Services) and metrics, integrations pills (Stripe/ЮKassa/OpenAI/Notion/Airtable/WhatsApp), stats grid (24h TTV/4.9 CSAT/99.9% Uptime), minimal dual CTAs. Color tokens: #000000 background, emerald #10B981 accent. Framer-motion fadeUp/AnimatePresence with blur effects.
@@ -26,8 +50,12 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
   - **Prismatic highlights**: Multi-layer gradient overlays for glass caustics
   - **Enhanced blur**: `blur(40px) saturate(180%) brightness(1.1)` for transparency
   - Telegram user avatar integration (`UserAvatar` component with photo_url support, initials fallback)
-- **Telegram Integration**: Home screen shortcut support (`homeScreen.add()` with error handling and toast notifications for unsupported versions).
-- **Technical Implementations**: Custom hooks, `ErrorBoundary`, performance optimizations (`React.memo`, `useMemo`, `useCallback`), `OptimizedImage`, `ModernAnimatedIcons`, and vertical stack card layouts.
+- **Telegram Integration**: 
+  - Home screen shortcut support (`homeScreen.add()` with error handling and toast notifications for unsupported versions)
+  - 2025 API support: Fullscreen mode, Safe area insets, Share message, Download file
+  - Geolocation tracking with coordinates, accuracy, altitude, speed
+  - React 19 features: useActionState, useOptimistic, use() API
+- **Technical Implementations**: 45+ custom hooks, `ErrorBoundary`, performance optimizations (`React.memo`, `useMemo`, `useCallback`), `OptimizedImage`, `ModernAnimatedIcons`, and vertical stack card layouts.
 - **Page Transitions**: None (removed for instant navigation - PageTransition, MotionBox, and MotionStagger components return plain div wrappers without animations).
 - **Viewport Configuration**: Responsive `width=device-width` viewport for all platforms including Telegram WebApp - ensures correct display on all devices (mobile and desktop).
 - **Video Optimization**: Smart lazy loading with `useVideoLazyLoad` hook - videos automatically pause/play based on visibility (IntersectionObserver with intersection state tracking), preload="none" for minimal initial load (videos load only when needed), canplay event listeners with proper cleanup to prevent off-screen playback. Handler refs reset when leaving viewport to enable fresh listeners on re-entry. Component prefetching implemented via `preloadDemo()` function - demo components preload on hover/touch for instant transitions.
@@ -47,13 +75,14 @@ Typography: Clean, modern fonts with emphasis on readability and simplicity. Int
   - **Foreign Keys**: referrals, dailyTasks, tasksProgress reference users.telegramId with CASCADE delete
   - **25+ indexes**: Optimized for telegramId, referralCode, taskId, level, dates
   - **Legacy tables**: gamification_stats and user_coins_balance marked @deprecated (kept for migration safety)
-- **Tables**: users (unified), referrals, daily_tasks, tasks_progress, reviews, photos
+- **Tables**: users (unified), referrals, daily_tasks, tasks_progress, reviews, analytics_events, photos
 - **Active APIs**: Telegram webhook, Stripe payment processing, Photo management, Referral program, Gamification API.
 - **Storage**: Replit Object Storage for photos, using presigned URLs.
 - **Database Migrations**: Managed via Drizzle Kit (`npm run db:push`).
 - **Referral System**: Deep linking via Telegram start parameters, tier-based commissions, server-side Telegram WebApp initData validation.
 - **Gamification Engine**: Exponential XP-based level progression, daily streak tracking, task rewards, global leaderboards.
 - **Performance**: Single query for user data (was 3 queries), ~50% reduction in database calls.
+- **Security**: Telegram auth validation (HMAC-SHA256), CSRF tokens, XSS sanitization, 4-tier rate limiting, Redis for distributed limiting.
 
 ## Deployment Architecture (Production - Railway)
 - **Builder**: Railpack (Railway's modern builder, replacing Nixpacks)
@@ -108,7 +137,7 @@ Successfully migrated from Replit Agent environment to Railway production with c
 
 # External Dependencies
 
-- **React Ecosystem**: React, React DOM, TypeScript.
+- **React Ecosystem**: React 19.2.3, React DOM, TypeScript.
 - **Build & Styling**: Vite, Tailwind CSS, PostCSS.
 - **UI Libraries**: Radix UI, Shadcn/ui, Lucide React, Swiper.js, Phosphor React, Framer Motion.
 - **Data Fetching**: @tanstack/react-query, @tanstack/react-virtual.
@@ -116,3 +145,5 @@ Successfully migrated from Replit Agent environment to Railway production with c
 - **Backend**: Express.js, Stripe (for payment processing), Zod (for validation).
 - **Photo Upload**: Uppy ecosystem (`@uppy/core`, `@uppy/dashboard`, `@uppy/aws-s3`, `@uppy/react`).
 - **Database**: @neondatabase/serverless (PostgreSQL with Drizzle ORM).
+- **Monitoring**: Sentry for error tracking, Pino for structured logging.
+- **Total Packages**: 829 npm packages installed
