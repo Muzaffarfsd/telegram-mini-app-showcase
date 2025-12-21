@@ -5587,32 +5587,11 @@ html.light .checkout-page .bg-white\/5 {
 }
 
 /* ═══════════════════════════════════════════════════════
-   DEMO APP SHELL - Light Theme Overrides
+   DEMO APP SHELL - Keep dark theme design in light mode
+   Demo apps should maintain their original dark aesthetic
    ═══════════════════════════════════════════════════════ */
 
-html.light .demo-app-shell .bg-black {
-  background: var(--background) !important;
-}
-
-html.light .demo-app-shell .text-white {
-  color: var(--text-primary) !important;
-}
-
-html.light .demo-app-shell .text-white\/80,
-html.light .demo-app-shell .text-white\/70,
-html.light .demo-app-shell .text-white\/60 {
-  color: var(--text-secondary) !important;
-}
-
-html.light .demo-app-shell .border-white\/10,
-html.light .demo-app-shell .border-white\/20 {
-  border-color: var(--card-border) !important;
-}
-
-html.light .demo-app-shell .bg-white\/10,
-html.light .demo-app-shell .bg-white\/5 {
-  background: var(--card-bg) !important;
-}
+/* Demo apps preserve dark theme - no overrides needed */
 
 /* ═══════════════════════════════════════════════════════
    REVIEW PAGE - Light Theme Overrides

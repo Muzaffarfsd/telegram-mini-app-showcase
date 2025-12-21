@@ -18,6 +18,7 @@ export const FavoriteButton = memo(function FavoriteButton({
   const { isFavorite, toggle, initialize, isInitialized } = useFavoritesStore();
   const haptic = useHaptic();
   const isActive = isFavorite(demoId);
+  const isLightTheme = document.documentElement.classList.contains('light');
 
   useEffect(() => {
     if (!isInitialized) {
@@ -44,13 +45,16 @@ export const FavoriteButton = memo(function FavoriteButton({
     await toggle(demoId);
   }, [demoId, toggle, haptic]);
 
+  const inactiveColor = isLightTheme ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.7)';
+  const inactiveBg = isLightTheme ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.15)';
+
   return (
     <m.button
       whileTap={{ scale: 0.85 }}
       onClick={handleClick}
       className={`flex items-center justify-center rounded-full transition-colors ${sizeClasses[size]} ${className}`}
       style={{
-        backgroundColor: isActive ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: isActive ? 'rgba(239, 68, 68, 0.2)' : inactiveBg,
       }}
       data-testid={`button-favorite-${demoId}`}
       aria-label={isActive ? 'Удалить из избранного' : 'Добавить в избранное'}
@@ -64,7 +68,7 @@ export const FavoriteButton = memo(function FavoriteButton({
         <Heart
           className={`${iconSizes[size]} transition-colors`}
           style={{
-            color: isActive ? '#ef4444' : 'rgba(255, 255, 255, 0.7)',
+            color: isActive ? '#ef4444' : inactiveColor,
             fill: isActive ? '#ef4444' : 'transparent',
           }}
         />
