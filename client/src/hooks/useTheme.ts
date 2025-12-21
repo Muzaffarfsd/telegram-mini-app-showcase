@@ -15,48 +15,31 @@ function getInitialTheme(): Theme {
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  const body = document.body;
-  const rootEl = document.getElementById('root');
   
   if (theme === 'light') {
     root.classList.add('light');
     root.classList.remove('dark');
-    root.dataset.theme = 'light';
-    
-    body.style.backgroundColor = '#F2F4F6';
-    body.style.color = '#0F172A';
-    if (rootEl) {
-      rootEl.style.backgroundColor = '#F2F4F6';
-      rootEl.style.color = '#0F172A';
-    }
   } else {
     root.classList.remove('light');
     root.classList.add('dark');
-    root.dataset.theme = 'dark';
-    
-    body.style.backgroundColor = '#000000';
-    body.style.color = '#FFFFFF';
-    if (rootEl) {
-      rootEl.style.backgroundColor = '#000000';
-      rootEl.style.color = '#FFFFFF';
-    }
   }
+  root.dataset.theme = theme;
   
   queueMicrotask(() => {
     try {
       localStorage.setItem(STORAGE_KEY, theme);
     } catch (e) {}
+    
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp as any;
+      try {
+        if (typeof tg.setHeaderColor === 'function') {
+          tg.setHeaderColor(theme === 'dark' ? '#000000' : '#F2F4F6');
+          tg.setBackgroundColor(theme === 'dark' ? '#000000' : '#F2F4F6');
+        }
+      } catch (e) {}
+    }
   });
-
-  if (window.Telegram?.WebApp) {
-    const tg = window.Telegram.WebApp as any;
-    try {
-      if (typeof tg.setHeaderColor === 'function') {
-        tg.setHeaderColor(theme === 'dark' ? '#000000' : '#F2F4F6');
-        tg.setBackgroundColor(theme === 'dark' ? '#000000' : '#F2F4F6');
-      }
-    } catch (e) {}
-  }
   
   console.log('[Theme] Applied:', theme);
 }
