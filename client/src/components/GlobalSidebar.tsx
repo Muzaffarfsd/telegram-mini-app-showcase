@@ -1645,7 +1645,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               toggleTheme(e);
               triggerHaptic('light');
               
-              setTimeout(() => setIsThemeAnimating(false), 500);
+              setTimeout(() => setIsThemeAnimating(false), 300);
             }}
             data-testid="button-theme-toggle"
             className="day-night-toggle"
@@ -1662,7 +1662,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               background: isDark 
                 ? 'rgba(255,255,255,0.08)'
                 : 'rgba(0,0,0,0.05)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'transform 0.2s ease',
               transform: isThemeAnimating ? 'scale(0.95)' : 'scale(1)',
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
@@ -1672,11 +1672,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               position: 'absolute',
               inset: 0,
               opacity: isDark ? 1 : 0,
-              transition: 'opacity 0.4s ease',
+              transition: 'opacity 0.2s ease',
             }}>
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', top: '6px', left: '6px', animation: 'twinkle 2s ease-in-out infinite' }} />
-              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: 'rgba(255,255,255,0.7)', borderRadius: '50%', top: '14px', left: '12px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s' }} />
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.8)', borderRadius: '50%', top: '20px', left: '8px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', top: '6px', left: '6px' }} />
+              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: 'rgba(255,255,255,0.7)', borderRadius: '50%', top: '14px', left: '12px' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.8)', borderRadius: '50%', top: '20px', left: '8px' }} />
               <div style={{ position: 'absolute', width: '1px', height: '1px', background: 'rgba(255,255,255,0.6)', borderRadius: '50%', top: '10px', left: '18px' }} />
             </div>
             
@@ -1684,8 +1684,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             <div style={{
               position: 'absolute',
               opacity: isDark ? 0 : 1,
-              transition: 'opacity 0.4s ease, transform 0.5s ease',
-              transform: isDark ? 'translateX(8px)' : 'translateX(0)',
+              transition: 'opacity 0.2s ease',
             }}>
               <div style={{
                 position: 'absolute',
@@ -1716,15 +1715,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               borderRadius: '50%',
               top: '3px',
               left: '3px',
-              transform: isDark ? 'translateX(24px) translateZ(0)' : 'translateX(0) translateZ(0)',
+              transform: isDark ? 'translateX(24px)' : 'translateX(0)',
               background: isDark 
-                ? 'linear-gradient(145deg, #E8E8E8 0%, #CACACA 100%)'
-                : 'linear-gradient(145deg, #FFD93D 0%, #FF9500 100%)',
+                ? '#E8E8E8'
+                : '#FFD93D',
               boxShadow: isDark 
                 ? '0 2px 8px rgba(0,0,0,0.3)'
-                : '0 2px 8px rgba(255,150,0,0.4)',
-              transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, box-shadow 0.3s ease',
-              willChange: 'transform',
+                : '0 2px 8px rgba(255,150,0,0.3)',
+              transition: 'transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
             }}>
               {/* Moon craters */}
               <div style={{
@@ -1732,7 +1730,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 inset: 0,
                 borderRadius: '50%',
                 opacity: isDark ? 1 : 0,
-                transition: 'opacity 0.3s ease',
+                transition: 'opacity 0.2s ease',
               }}>
                 <div style={{ position: 'absolute', width: '5px', height: '5px', background: 'rgba(180,180,180,0.4)', borderRadius: '50%', top: '4px', left: '5px' }} />
                 <div style={{ position: 'absolute', width: '3px', height: '3px', background: 'rgba(180,180,180,0.3)', borderRadius: '50%', top: '12px', left: '13px' }} />
