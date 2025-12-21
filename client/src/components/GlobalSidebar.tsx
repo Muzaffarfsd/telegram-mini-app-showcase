@@ -985,6 +985,86 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(0.98);
           border-bottom: 1px solid rgba(255, 255, 255, 0.06);
           padding-top: max(env(safe-area-inset-top, 0px), 12px);
+          overflow: hidden;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           SNOWFALL EFFECT - GPU OPTIMIZED
+           ═══════════════════════════════════════════════════════════════ */
+        
+        .top-bar::before,
+        .top-bar::after {
+          content: '';
+          position: absolute;
+          top: -10px;
+          left: 0;
+          right: 0;
+          height: 120%;
+          pointer-events: none;
+          will-change: transform;
+          transform: translateZ(0);
+          contain: layout paint;
+        }
+        
+        .top-bar::before {
+          background-image: 
+            radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,0.9) 50%, transparent 50%),
+            radial-gradient(1.5px 1.5px at 25% 40%, rgba(255,255,255,0.8) 50%, transparent 50%),
+            radial-gradient(2px 2px at 40% 10%, rgba(255,255,255,0.85) 50%, transparent 50%),
+            radial-gradient(1px 1px at 55% 60%, rgba(255,255,255,0.7) 50%, transparent 50%),
+            radial-gradient(2px 2px at 70% 30%, rgba(255,255,255,0.9) 50%, transparent 50%),
+            radial-gradient(1.5px 1.5px at 85% 50%, rgba(255,255,255,0.75) 50%, transparent 50%),
+            radial-gradient(1px 1px at 95% 20%, rgba(255,255,255,0.8) 50%, transparent 50%),
+            radial-gradient(2px 2px at 15% 70%, rgba(255,255,255,0.85) 50%, transparent 50%),
+            radial-gradient(1.5px 1.5px at 60% 80%, rgba(255,255,255,0.7) 50%, transparent 50%);
+          background-size: 100% 100%;
+          animation: snowfall-1 10s linear infinite;
+          opacity: 0.8;
+        }
+        
+        .top-bar::after {
+          background-image: 
+            radial-gradient(1.5px 1.5px at 5% 35%, rgba(255,255,255,0.7) 50%, transparent 50%),
+            radial-gradient(2px 2px at 20% 55%, rgba(255,255,255,0.8) 50%, transparent 50%),
+            radial-gradient(1px 1px at 35% 25%, rgba(255,255,255,0.75) 50%, transparent 50%),
+            radial-gradient(1.5px 1.5px at 50% 45%, rgba(255,255,255,0.85) 50%, transparent 50%),
+            radial-gradient(2px 2px at 65% 15%, rgba(255,255,255,0.8) 50%, transparent 50%),
+            radial-gradient(1px 1px at 80% 65%, rgba(255,255,255,0.7) 50%, transparent 50%),
+            radial-gradient(1.5px 1.5px at 90% 40%, rgba(255,255,255,0.9) 50%, transparent 50%);
+          background-size: 100% 100%;
+          animation: snowfall-2 14s linear infinite;
+          opacity: 0.6;
+        }
+        
+        @keyframes snowfall-1 {
+          0% { transform: translate3d(0, -100%, 0); }
+          100% { transform: translate3d(0, 100%, 0); }
+        }
+        
+        @keyframes snowfall-2 {
+          0% { transform: translate3d(-5%, -100%, 0); }
+          100% { transform: translate3d(5%, 100%, 0); }
+        }
+        
+        /* Уменьшаем анимацию для пользователей с настройкой reduced-motion */
+        @media (prefers-reduced-motion: reduce) {
+          .top-bar::before,
+          .top-bar::after {
+            animation: none;
+            opacity: 0.3;
+          }
+        }
+        
+        /* Снеговик - лёгкое покачивание */
+        .snowman-wrapper {
+          animation: snowman-sway 3s ease-in-out infinite;
+          transform-origin: bottom center;
+        }
+        
+        @keyframes snowman-sway {
+          0%, 100% { transform: rotate(0deg); }
+          25% { transform: rotate(2deg); }
+          75% { transform: rotate(-2deg); }
         }
         
         /* ═══════════════════════════════════════════════════════════════
@@ -1621,16 +1701,53 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             />
           </div>
           
-          <p style={{
-            fontSize: '13px',
-            fontWeight: 600,
-            letterSpacing: '0.14em',
-            color: isDark ? '#FAFAFA' : '#1e293b',
-            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-            textShadow: isDark ? '0 0 20px rgba(255,255,255,0.1)' : 'none'
-          }}>
-            WEB4TG STUDIO
-          </p>
+          <div className="flex items-center gap-2">
+            <p style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              letterSpacing: '0.14em',
+              color: isDark ? '#FAFAFA' : '#1e293b',
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              textShadow: isDark ? '0 0 20px rgba(255,255,255,0.1)' : 'none'
+            }}>
+              WEB4TG STUDIO
+            </p>
+            
+            {/* Милый снеговик */}
+            <div className="snowman-wrapper" data-testid="icon-snowman" aria-hidden="true">
+              <svg width="24" height="28" viewBox="0 0 24 28" fill="none" style={{ marginTop: '-2px' }}>
+                {/* Тело снеговика - нижний шар */}
+                <ellipse cx="12" cy="22" rx="8" ry="5" fill="url(#snowBody)" />
+                {/* Средний шар */}
+                <circle cx="12" cy="14" r="5.5" fill="url(#snowBody)" />
+                {/* Голова */}
+                <circle cx="12" cy="6" r="4" fill="url(#snowBody)" />
+                {/* Глазки */}
+                <circle cx="10" cy="5" r="0.8" fill="#2D3748" />
+                <circle cx="14" cy="5" r="0.8" fill="#2D3748" />
+                {/* Носик морковка */}
+                <path d="M12 6.5 L14.5 7.5 L12 7.8 Z" fill="#FF6B35" />
+                {/* Улыбка */}
+                <path d="M9.5 8 Q12 9.5 14.5 8" stroke="#2D3748" strokeWidth="0.5" fill="none" strokeLinecap="round" />
+                {/* Шарфик */}
+                <path d="M7 11 Q12 13 17 11" stroke="#E53E3E" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                <path d="M15 11 L16 15" stroke="#E53E3E" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+                {/* Шляпа */}
+                <rect x="9" y="1" width="6" height="3" rx="0.5" fill="#2D3748" />
+                <rect x="7.5" y="3.5" width="9" height="1" rx="0.3" fill="#2D3748" />
+                {/* Пуговки */}
+                <circle cx="12" cy="13" r="0.6" fill="#2D3748" />
+                <circle cx="12" cy="15" r="0.6" fill="#2D3748" />
+                {/* Градиенты */}
+                <defs>
+                  <radialGradient id="snowBody" cx="0.3" cy="0.3" r="0.7">
+                    <stop offset="0%" stopColor="#FFFFFF" />
+                    <stop offset="100%" stopColor="#E2E8F0" />
+                  </radialGradient>
+                </defs>
+              </svg>
+            </div>
+          </div>
           
           <button
             ref={themeButtonRef}
