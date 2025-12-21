@@ -59,6 +59,7 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **IndexedDB Storage**: `offlineStorage.ts` with stores for userProfile, gamificationStats, viewedDemos, pendingActions. Auto-sync on reconnect.
 - **Push Notifications**: Telegram Bot integration for push notifications. Endpoints: `/api/notifications/send`, `/api/notifications/broadcast`, `/api/notifications/interactive`. Hook: `useTelegramNotifications` with helpers: `sendOrderUpdate`, `sendPromotion`, `sendAchievement`, `sendReferralBonus`.
 - **Favorites System**: `FavoriteButton` component with heart animation, `FavoritesSection` horizontal scroll section. Hook: `useFavorites` from `useTelegramStorage.ts` with DeviceStorage persistence. Integrated into `ShowcasePage` for demo cards.
+- **Theme System**: Dark/light theme toggle with `useTheme` hook (`client/src/hooks/useTheme.ts`). Features localStorage persistence, Telegram WebApp color sync (setHeaderColor, setBackgroundColor). Toggle button in GlobalSidebar header with Sun/Moon icons and haptic feedback. Light theme uses Apple Vision Pro inspired colors (Icy White #f8fafc, Apple Blue #3b82f6). Glass components use CSS variables for automatic theme adaptation.
 
 ## Backend Architecture (Development - Replit)
 - **Server**: Express.js with TypeScript.
