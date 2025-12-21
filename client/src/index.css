@@ -5808,3 +5808,46 @@ html.light .constructor-page .ios-caption1,
 html.light .constructor-page .ios-caption2 {
   color: var(--text-secondary) !important;
 }
+
+/* === ShowcasePage Light Theme === */
+/* Keep white text on image cards with dark overlays */
+html.light .showcase-page .nav-depth-zone .text-white,
+html.light .showcase-page .nav-depth-zone .text-white\/90,
+html.light .showcase-page .nav-depth-zone .text-white\/80,
+html.light .showcase-page .nav-depth-zone .text-white\/70,
+html.light .showcase-page .nav-depth-zone .text-white\/60,
+html.light .showcase-page .nav-depth-zone .text-white\/55,
+html.light .showcase-page .nav-depth-zone .text-white\/50,
+html.light .showcase-page .nav-depth-zone .text-white\/40 {
+  color: inherit !important;
+}
+
+/* Restore original white colors for bento cards with images */
+html.light .showcase-page [data-testid="bento-main"] .text-white,
+html.light .showcase-page [data-testid="bento-sneaker"] .text-white,
+html.light .showcase-page [data-testid="bento-luxury"] .text-white,
+html.light .showcase-page [data-testid="bento-restaurant"] .text-white {
+  color: #ffffff !important;
+}
+
+html.light .showcase-page [data-testid="bento-main"] .text-white\/55,
+html.light .showcase-page [data-testid="bento-main"] .text-white\/50,
+html.light .showcase-page [data-testid="bento-main"] .text-white\/40,
+html.light .showcase-page [data-testid="bento-sneaker"] .text-white\/50,
+html.light .showcase-page [data-testid="bento-luxury"] .text-white\/50,
+html.light .showcase-page [data-testid="bento-restaurant"] .text-white\/50 {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* Buttons on image cards */
+html.light .showcase-page [data-testid="bento-main"] button,
+html.light .showcase-page [data-testid="btn-open-watches"] {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+/* Arrow icons on image cards */
+html.light .showcase-page [data-testid="bento-sneaker"] .text-white,
+html.light .showcase-page [data-testid="bento-luxury"] .text-white {
+  color: #ffffff !important;
+}

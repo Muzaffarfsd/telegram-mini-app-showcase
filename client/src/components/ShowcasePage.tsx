@@ -76,7 +76,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
   return (
     <div 
-      className="min-h-screen transition-colors duration-300"
+      className="min-h-screen transition-colors duration-300 showcase-page"
       style={{ backgroundColor: 'var(--surface)' }}
     >
       <div 
