@@ -58,6 +58,7 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Offline-First UI**: `OfflineIndicator` component with animated banner for offline/online status, sync progress, `OfflineBadge` for inline status. Hooks: `useOnlineStatus`, `useOfflineData`, `useOfflineSync`, `useOfflineMutation`.
 - **IndexedDB Storage**: `offlineStorage.ts` with stores for userProfile, gamificationStats, viewedDemos, pendingActions. Auto-sync on reconnect.
 - **Push Notifications**: Telegram Bot integration for push notifications. Endpoints: `/api/notifications/send`, `/api/notifications/broadcast`, `/api/notifications/interactive`. Hook: `useTelegramNotifications` with helpers: `sendOrderUpdate`, `sendPromotion`, `sendAchievement`, `sendReferralBonus`.
+- **Favorites System**: `FavoriteButton` component with heart animation, `FavoritesSection` horizontal scroll section. Hook: `useFavorites` from `useTelegramStorage.ts` with DeviceStorage persistence. Integrated into `ShowcasePage` for demo cards.
 
 ## Backend Architecture (Development - Replit)
 - **Server**: Express.js with TypeScript.

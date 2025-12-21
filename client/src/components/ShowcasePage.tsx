@@ -6,6 +6,8 @@ import { useHaptic } from '../hooks/useHaptic';
 import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
 import { preloadDemo } from './demos/DemoRegistry';
 import { useViewedDemos } from '../hooks/useTelegramStorage';
+import { FavoriteButton } from './FavoriteButton';
+import { FavoritesSection } from './FavoritesSection';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
@@ -214,6 +216,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           </m.div>
         </m.section>
 
+        <FavoritesSection onOpenDemo={handleOpenDemo} />
+
         <m.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -267,7 +271,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.95) 100%)' }}
                 />
                 
-                <div className="absolute top-5 right-5">
+                <div className="absolute top-5 right-5 flex items-center gap-2">
+                  <FavoriteButton demoId="luxury-watches" size="md" />
                   <div 
                     className="flex items-center justify-center w-10 h-10 rounded-full"
                     style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
@@ -330,6 +335,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="absolute inset-0"
                 style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.95) 100%)' }}
               />
+              <div className="absolute top-3 right-3">
+                <FavoriteButton demoId="sneaker-store" size="sm" />
+              </div>
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <div className="text-[18px] font-semibold mb-0.5" style={{ color: '#FFFFFF' }}>
                   Sneaker Store
@@ -373,6 +381,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="absolute inset-0"
                 style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.95) 100%)' }}
               />
+              <div className="absolute top-3 right-3">
+                <FavoriteButton demoId="clothing-store" size="sm" />
+              </div>
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <div className="text-[18px] font-semibold mb-0.5" style={{ color: '#FFFFFF' }}>
                   Премиум бренд
@@ -416,6 +427,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="absolute inset-0"
                 style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.95) 100%)' }}
               />
+              <div className="absolute top-3 right-3">
+                <FavoriteButton demoId="restaurant" size="sm" />
+              </div>
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <div className="text-[16px] font-semibold mb-0.5" style={{ color: '#FFFFFF' }}>
                   Ресторан
