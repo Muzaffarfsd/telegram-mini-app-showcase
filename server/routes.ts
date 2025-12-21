@@ -29,6 +29,8 @@ import {
 import {
   createStandardRateLimitMiddleware,
   createSensitiveRateLimitMiddleware,
+  createBurstRateLimitMiddleware,
+  createAnalyticsRateLimitMiddleware,
 } from './rateLimiter';
 
 // ============ XSS SANITIZATION (Context-aware) ============
@@ -210,6 +212,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Uses Redis for distributed rate limiting across instances
   app.use('/api/gamification/', createSensitiveRateLimitMiddleware());
   app.use('/api/payment/', createSensitiveRateLimitMiddleware());
+  
+  // Burst protection — 10 req/sec против скриптов и автоматизации
+  app.use('/api/stripe/', createBurstRateLimitMiddleware());
+  app.use('/api/referral/', createBurstRateLimitMiddleware());
+  
+  // Analytics rate limiting — 30 req/min для эндпоинтов с большими данными
+  app.use('/api/analytics/', createAnalyticsRateLimitMiddleware());
   
   // Apply CSRF validation middleware to all /api/ routes
   app.use('/api/', validateCSRF);
