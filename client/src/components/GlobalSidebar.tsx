@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, forwardRef, memo, useMemo } from "react";
-import { Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight, Bell, BarChart3, Sun, Moon } from "lucide-react";
+import { Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight, Bell, BarChart3 } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { SiInstagram, SiTelegram } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
@@ -1654,7 +1654,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               justifyContent: 'center',
               borderRadius: '12px',
               border: 'none',
-              background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+              background: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
               cursor: 'pointer',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               transform: isThemeAnimating ? 'scale(0.85)' : 'scale(1)',
@@ -1663,44 +1663,21 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
-            <div style={{
-              position: 'relative',
-              width: '22px',
-              height: '22px',
-            }}>
-              <Sun 
-                style={{ 
-                  width: '22px', 
-                  height: '22px', 
-                  color: '#FCD34D',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  transform: isDark 
-                    ? 'rotate(0deg) scale(1)' 
-                    : 'rotate(-180deg) scale(0)',
-                  opacity: isDark ? 1 : 0,
-                  transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  filter: isDark ? 'drop-shadow(0 0 8px rgba(252, 211, 77, 0.5))' : 'none',
-                }} 
-              />
-              <Moon 
-                style={{ 
-                  width: '22px', 
-                  height: '22px', 
-                  color: '#6366F1',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  transform: isDark 
-                    ? 'rotate(180deg) scale(0)' 
-                    : 'rotate(0deg) scale(1)',
-                  opacity: isDark ? 0 : 1,
-                  transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  filter: !isDark ? 'drop-shadow(0 0 8px rgba(99, 102, 241, 0.5))' : 'none',
-                }} 
-              />
-            </div>
+            {/* Dark Side Toggle - Minimalist half-circle design */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 32 32"
+              fill="currentColor"
+              style={{
+                color: isDark ? '#FAFAFA' : '#0F172A',
+                transform: isDark ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease',
+              }}
+            >
+              <path d="M16 .5C7.4.5.5 7.4.5 16S7.4 31.5 16 31.5 31.5 24.6 31.5 16 24.6.5 16 .5zm0 28.1V3.4C23 3.4 28.6 9 28.6 16S23 28.6 16 28.6z" />
+            </svg>
           </button>
         </div>
       </div>
