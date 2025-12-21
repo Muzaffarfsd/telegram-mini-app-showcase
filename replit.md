@@ -59,7 +59,18 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **IndexedDB Storage**: `offlineStorage.ts` with stores for userProfile, gamificationStats, viewedDemos, pendingActions. Auto-sync on reconnect.
 - **Push Notifications**: Telegram Bot integration for push notifications. Endpoints: `/api/notifications/send`, `/api/notifications/broadcast`, `/api/notifications/interactive`. Hook: `useTelegramNotifications` with helpers: `sendOrderUpdate`, `sendPromotion`, `sendAchievement`, `sendReferralBonus`.
 - **Favorites System**: `FavoriteButton` component with heart animation, `FavoritesSection` horizontal scroll section. Hook: `useFavorites` from `useTelegramStorage.ts` with DeviceStorage persistence. Integrated into `ShowcasePage` for demo cards.
-- **Theme System**: Dark/light theme toggle with `useTheme` hook (`client/src/hooks/useTheme.ts`). Features localStorage persistence, Telegram WebApp color sync (setHeaderColor, setBackgroundColor). Toggle button in GlobalSidebar header with Sun/Moon icons and haptic feedback. **iOS 26 Design**: Light theme uses iOS 26 "Air & Glass" style (#F2F4F6 Cool Gray background, #0F172A Deep Navy text, #3b82f6 iOS Blue primary). Dark theme uses #0f0f11 premium black with #10B981 emerald accent. Glass utilities: `.glass-panel`, `.glass-card`, `.shadow-ios`, `.text-gradient-primary`. CSS variables for automatic theme adaptation.
+- **Theme System**: Dark/light theme toggle with `useTheme` hook (`client/src/hooks/useTheme.ts`). Features localStorage persistence, Telegram WebApp color sync (setHeaderColor, setBackgroundColor). Toggle button in GlobalSidebar header with Sun/Moon icons and haptic feedback.
+  - **iOS 26 Light Theme**: "Air & Glass" design language with #F2F4F6 Cool Gray background, #0F172A Deep Navy text, #007AFF iOS Blue accent. Uses "stacked sheets" with soft layered shadows (0 2px 8px), 18-24px border-radius, pastel tonal gradients. Text opacity follows Apple HIG: 1.0/0.6/0.3/0.18.
+  - **iOS 26 CSS Classes** (in `index.css`):
+    - `.ios26-sheet` - Base stacked sheet with 20px radius, layered shadows
+    - `.ios26-sheet-elevated` - Prominent shadow, 24px radius for modals
+    - `.ios26-sheet-subtle` - Minimal shadow (0 2px 8px), 18px radius for nested content
+    - `.ios26-tonal-blue/green/orange/purple` - Pastel gradient backgrounds
+    - `.ios26-text-primary/secondary/tertiary/quaternary` - Apple HIG text hierarchy
+    - `.ios26-btn` / `.ios26-btn-filled` - Button styles with iOS Blue (#007AFF)
+    - `.ios26-input` - Input field with focus ring
+    - `.ios26-separator` - 1px divider line
+  - **Dark Theme**: #0f0f11 premium black with #10B981 emerald accent. Glass utilities: `.glass-panel`, `.glass-card`, `.shadow-ios`, `.text-gradient-primary`. CSS variables for automatic theme adaptation.
 
 ## Backend Architecture (Development - Replit)
 - **Server**: Express.js with TypeScript.
