@@ -100,10 +100,10 @@ const parseHash = (): Route => {
     '/analytics': 'analytics'
   };
   
-  // Always default to showcase page if route not found
+  // Return notFound for unknown routes
   return {
     path,
-    component: routeMap[path] || 'showcase',
+    component: routeMap[path] || 'notFound',
     params: {}
   };
 };

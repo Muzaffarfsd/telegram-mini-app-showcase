@@ -12,7 +12,7 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 
 ## Critical Issues Resolved
 1. **Error Boundaries (✅ FIXED)**: Added ErrorBoundary wrapper around all route components in `App.tsx` with Suspense fallback. Prevents component crashes from breaking entire app. See lines 476-480 in `client/src/App.tsx`.
-2. **404 Not Found Page (✅ FIXED)**: Created lazy-loaded NotFound component at `client/src/pages/NotFound.tsx` for undefined routes. Graceful fallback for routing errors.
+2. **404 Not Found Page (✅ FIXED - COMPLETE)**: Created lazy-loaded NotFound component at `client/src/pages/NotFound.tsx` and wired it into routing. Unknown routes now properly show 404 page instead of defaulting to showcase (line 109 in App.tsx changed from `'showcase'` to `'notFound'`).
 3. **CSRF Token Storage (✅ FIXED)**: Migrated from in-memory Map to Redis-based storage with 1-hour TTL. Solves memory leak issues and enables production scalability with multiple instances. Updated `generateCSRFToken()` and `validateCSRF()` in `server/routes.ts` (lines 97-146) to use `setCache()` and `getCached()` from Redis.
 
 ## Important Findings (Query Performance Audit)
