@@ -698,9 +698,9 @@ html.light :root,
   
   /* iOS 26 Color Tokens - Light Theme */
   --foreground: #0F172A;               /* Deep Navy - soft black */
-  --card: 0 0% 100%;                   /* Pure white */
+  --card: rgba(255, 255, 255, 0.85);   /* White with transparency for glass effect */
   --card-foreground: #0F172A;
-  --popover: 0 0% 100%;
+  --popover: rgba(255, 255, 255, 0.95);
   --popover-foreground: #0F172A;
   --primary: #3b82f6;                  /* iOS Blue */
   --primary-foreground: #ffffff;
