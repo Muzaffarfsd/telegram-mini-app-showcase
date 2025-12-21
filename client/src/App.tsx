@@ -287,11 +287,13 @@ function App() {
                 
                 {/* Global Sidebar for all pages except demo apps */}
                 {shouldShowSidebar && (
-                  <GlobalSidebar 
-                    currentRoute={route.component} 
-                    onNavigate={handleNavigate}
-                    user={user}
-                  />
+                  <ErrorBoundary fallback={null}>
+                    <GlobalSidebar 
+                      currentRoute={route.component} 
+                      onNavigate={handleNavigate}
+                      user={user}
+                    />
+                  </ErrorBoundary>
                 )}
                 
                 <div ref={scrollContainerRef} className="pb-36" data-scroll="main">
@@ -317,13 +319,14 @@ function App() {
 
               {/* Bottom Navigation - Premium Glass */}
               {shouldShowBottomNav && (
-                <m.div 
-                  className="fixed bottom-6 left-0 right-0 flex justify-center z-50"
-                  initial={{ y: 100, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  style={{ isolation: 'isolate' }}
-                >
+                <ErrorBoundary fallback={null}>
+                  <m.div 
+                    className="fixed bottom-6 left-0 right-0 flex justify-center z-50"
+                    initial={{ y: 100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    style={{ isolation: 'isolate' }}
+                  >
                   <div className="relative">
                     {/* Subtle outer glow */}
                     <div 
@@ -441,7 +444,8 @@ function App() {
                     </NavButton>
                     </nav>
                   </div>
-                </m.div>
+                  </m.div>
+                </ErrorBoundary>
               )}
 
           

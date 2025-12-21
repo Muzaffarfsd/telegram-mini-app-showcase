@@ -1,0 +1,125 @@
+3. Отсутствует кэширование часто запрашиваемых данных
+⚠️ ПРОБЛЕМА: /api/user запрашивается 3-4 раза при загрузке
+   - Нет кэширования на уровне API
+   - Нет объединения запросов
+РЕШЕНИЕ (Приоритет 3):
+// client/lib/queryClient.ts добавить:
+queryClient: new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 минут кэша (не бесконечность!)
+      gcTime: 10 * 60 * 1000,   // 10 минут сборка мусора
+    }
+  }
+})
+// Или использовать объединение React Query:
+// Несколько параллельных запросов с одинаковым ключом будут объединены
+14. Отсутствует валидация Zod на фронтенде
+⚠️ ПРОБЛЕМА: Ответы API не проверяются на фронтенде
+   Если сервер отправит неправильные данные - фронт сломается
+РЕШЕНИЕ (Приоритет 3):
+// client/lib/queryClient.ts:
+async function getQueryFn<T>(schema: ZodSchema<T>) {
+  return async ({ queryKey }) => {
+    const res = await fetch(...);
+    const data = await res.json();
+    return schema.parse(data); // Валидация!
+  };
+}
+// Использование:
+useQuery({
+  queryKey: ['/api/user'],
+  queryFn: getQueryFn(userSchema)
+});
+15. Отсутствует логирование на фронтенде (только Sentry)
+⚠️ ПРОБЛЕМА: Только критические ошибки идут в Sentry
+   Нет информационных/отладочных логов для диагностики
+РЕШЕНИЕ (Приоритет 3):
+// client/lib/logger.ts:
+export const logger = {
+  info: (msg: string, data?: any) => {
+    console.log(msg, data);
+  },
+  error: (msg: string, err?: Error) => {
+    console.error(msg, err);
+    if (import.meta.env.VITE_SENTRY_DSN) {
+      Sentry.captureException(err);
+    }
+  },
+  warn: (msg: string, data?: any) => {
+    console.warn(msg, data);
+  }
+};
+16. Отсутствует единая точка входа для запросов API
+⚠️ ПРОБЛЕМА: fetch вызывается из разных мест
+   - queryClient.ts
+   - компоненты через useMutation
+   - страницы через useEffect
+❌ Это затрудняет:
+   - Добавление глобального состояния загрузки
+   - Обработку ошибок
+   - Логирование
+РЕШЕНИЕ (Приоритет 3):
+// client/lib/apiClient.ts:
+class APIClient {
+  async request<T>(method: string, url: string, data?: any): Promise<T> {
+    const csrfToken = await this.getCSRFToken();
+    
+    const res = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken,
+        'X-Telegram-Init-Data': this.getTelegramInitData(),
+      },
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: 'include',
+    });
+    
+    if (res.status === 401) {
+      // Переход к входу
+    }
+    if (!res.ok) {
+      // Унифицированная обработка ошибок
+    }
+    
+    return res.json();
+  }
+}
+export const apiClient = new APIClient();
+17. Отсутствует замедление для поиска/фильтра
+⚠️ ПРОБЛЕМА: Каждый введённый символ = запрос на сервер
+   Если пользователь пишет "telegram" - 8 запросов вместо 1
+РЕШЕНИЕ (Приоритет 3):
+// client/lib/debounce.ts:
+export function debounce<T extends any[], R>(
+  fn: (...args: T) => Promise<R>,
+  delay: number
+): (...args: T) => Promise<R> {
+  let timeoutId: NodeJS.Timeout | null = null;
+  
+  return (...args: T) => {
+    return new Promise((resolve) => {
+      if (timeoutId) clearTimeout(timeoutId);
+      
+      timeoutId = setTimeout(() => {
+        fn(...args).then(resolve);
+      }, delay);
+    });
+  };
+}
+// Использование:
+const debouncedSearch = useMemo(
+  () => debounce((query: string) => apiClient.search(query), 300),
+  []
+);
+18. Отсутствует виртуализация для длинных списков
+⚠️ ПРОБЛЕМА: Таблица лидеров, список рефералов - отрисовываются ВСЕ элементы
+   Если 10,000 элементов - 10,000 узлов DOM = торможение
+РЕШЕНИЕ (Приоритет 3):
+// Использовать @tanstack/react-virtual (уже установлен):
+import { useVirtualizer } from '@tanstack/react-virtual';
+<div ref={parentRef} className="h-96 overflow-auto">
+  <VirtualList items={items} />
+</div>
+// Это отрендеит только видимые элементы (~20 вместо 10,000)
