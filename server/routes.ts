@@ -220,9 +220,9 @@ const trackEventSchema = z.object({
 // Tasks schemas
 const tasksStartSchema = z.object({
   task_id: z.string().min(1),
-  platform: z.string().optional(),
-  task_type: z.string().optional(),
-  coins_reward: z.number().optional(),
+  platform: z.string().max(50).optional(),
+  task_type: z.string().max(50).optional(),
+  coins_reward: z.number().min(0).max(1000).optional(),
 });
 
 const tasksVerifySchema = z.object({
