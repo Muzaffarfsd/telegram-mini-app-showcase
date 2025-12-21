@@ -1713,38 +1713,38 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               WEB4TG STUDIO
             </p>
             
-            {/* Милый снеговик */}
+            {/* Милый Kawaii снеговик */}
             <div className="snowman-wrapper" data-testid="icon-snowman" aria-hidden="true">
-              <svg width="24" height="28" viewBox="0 0 24 28" fill="none" style={{ marginTop: '-2px' }}>
-                {/* Тело снеговика - нижний шар */}
-                <ellipse cx="12" cy="22" rx="8" ry="5" fill="url(#snowBody)" />
-                {/* Средний шар */}
-                <circle cx="12" cy="14" r="5.5" fill="url(#snowBody)" />
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="28">
+                {/* Нижний снежок */}
+                <circle cx="32" cy="48" r="14" fill="#ffffff" stroke="#e0e0e0" strokeWidth="1.5"/>
+                {/* Средний снежок */}
+                <circle cx="32" cy="28" r="11" fill="#ffffff" stroke="#e0e0e0" strokeWidth="1.5"/>
                 {/* Голова */}
-                <circle cx="12" cy="6" r="4" fill="url(#snowBody)" />
-                {/* Глазки */}
-                <circle cx="10" cy="5" r="0.8" fill="#2D3748" />
-                <circle cx="14" cy="5" r="0.8" fill="#2D3748" />
-                {/* Носик морковка */}
-                <path d="M12 6.5 L14.5 7.5 L12 7.8 Z" fill="#FF6B35" />
-                {/* Улыбка */}
-                <path d="M9.5 8 Q12 9.5 14.5 8" stroke="#2D3748" strokeWidth="0.5" fill="none" strokeLinecap="round" />
-                {/* Шарфик */}
-                <path d="M7 11 Q12 13 17 11" stroke="#E53E3E" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                <path d="M15 11 L16 15" stroke="#E53E3E" strokeWidth="1.2" fill="none" strokeLinecap="round" />
-                {/* Шляпа */}
-                <rect x="9" y="1" width="6" height="3" rx="0.5" fill="#2D3748" />
-                <rect x="7.5" y="3.5" width="9" height="1" rx="0.3" fill="#2D3748" />
+                <circle cx="32" cy="13" r="8" fill="#ffffff" stroke="#e0e0e0" strokeWidth="1.5"/>
+                {/* Kawaii румянец на щёчках */}
+                <ellipse cx="27" cy="15" rx="2.5" ry="1.8" fill="#ffb3ba" opacity="0.7"/>
+                <ellipse cx="37" cy="15" rx="2.5" ry="1.8" fill="#ffb3ba" opacity="0.7"/>
+                {/* Счастливые глазки-дуги */}
+                <path d="M 28 11 Q 28 12.5 29 12.5 Q 30 12.5 30 11" stroke="#333333" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                <path d="M 34 11 Q 34 12.5 35 12.5 Q 36 12.5 36 11" stroke="#333333" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                {/* Милая улыбка */}
+                <path d="M 29 16 Q 32 18 35 16" stroke="#333333" strokeWidth="1.3" fill="none" strokeLinecap="round"/>
+                {/* Носик-морковка */}
+                <path d="M 32 14 L 38 14.5 L 32 15 Z" fill="#ff9147"/>
                 {/* Пуговки */}
-                <circle cx="12" cy="13" r="0.6" fill="#2D3748" />
-                <circle cx="12" cy="15" r="0.6" fill="#2D3748" />
-                {/* Градиенты */}
-                <defs>
-                  <radialGradient id="snowBody" cx="0.3" cy="0.3" r="0.7">
-                    <stop offset="0%" stopColor="#FFFFFF" />
-                    <stop offset="100%" stopColor="#E2E8F0" />
-                  </radialGradient>
-                </defs>
+                <circle cx="32" cy="26" r="1.2" fill="#333333"/>
+                <circle cx="32" cy="30" r="1.2" fill="#333333"/>
+                <circle cx="32" cy="45" r="1.3" fill="#333333"/>
+                <circle cx="32" cy="49.5" r="1.3" fill="#333333"/>
+                {/* Шляпа */}
+                <rect x="26" y="5" width="12" height="3" fill="#333333" rx="1"/>
+                <rect x="28" y="2" width="8" height="5" fill="#333333" rx="0.5"/>
+                {/* Веточки-ручки */}
+                <line x1="20" y1="28" x2="15" y2="25" stroke="#8b4513" strokeWidth="1.8" strokeLinecap="round"/>
+                <line x1="44" y1="28" x2="49" y2="25" stroke="#8b4513" strokeWidth="1.8" strokeLinecap="round"/>
+                <line x1="15" y1="25" x2="12" y2="23" stroke="#8b4513" strokeWidth="1.3" strokeLinecap="round"/>
+                <line x1="49" y1="25" x2="52" y2="23" stroke="#8b4513" strokeWidth="1.3" strokeLinecap="round"/>
               </svg>
             </div>
           </div>
