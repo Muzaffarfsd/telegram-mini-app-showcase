@@ -447,37 +447,49 @@ function App() {
                     </NavButton>
                     
                     {/* Разделитель */}
-                    <div className="w-px h-6 bg-white/20 mx-1" />
+                    <div className="w-px h-8 mx-1" style={{ background: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)' }} />
                     
-                    {/* Переключатель темы - компактный */}
+                    {/* Переключатель темы - яркий и заметный */}
                     <button
-                      onClick={() => { toggleTheme(); hapticFeedback.light(); }}
-                      className="relative flex items-center justify-center w-10 h-10 rounded-full gpu-layer"
+                      onClick={() => { toggleTheme(); hapticFeedback.medium(); }}
+                      className="relative flex items-center justify-center w-11 h-11 rounded-full gpu-layer"
                       style={{
-                        background: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                        background: isDark 
+                          ? 'linear-gradient(145deg, rgba(99,102,241,0.3) 0%, rgba(139,92,246,0.2) 100%)' 
+                          : 'linear-gradient(145deg, rgba(251,191,36,0.3) 0%, rgba(245,158,11,0.2) 100%)',
+                        border: isDark 
+                          ? '1px solid rgba(139,92,246,0.4)' 
+                          : '1px solid rgba(245,158,11,0.4)',
+                        boxShadow: isDark 
+                          ? '0 0 12px rgba(139,92,246,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' 
+                          : '0 0 12px rgba(251,191,36,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
                         transition: 'all 0.3s ease',
                       }}
                       aria-label="Переключить тему"
                       data-testid="button-theme-toggle-mobile"
                     >
-                      <div className="relative w-5 h-5">
+                      <div className="relative w-6 h-6">
                         {/* Солнце */}
                         <Sun 
-                          className="absolute inset-0 w-5 h-5 text-amber-400 transition-all duration-300"
+                          className="absolute inset-0 w-6 h-6 transition-all duration-300"
                           style={{
+                            color: '#FBBF24',
                             opacity: isDark ? 0 : 1,
                             transform: isDark ? 'rotate(-90deg) scale(0.5)' : 'rotate(0) scale(1)',
+                            filter: isDark ? 'none' : 'drop-shadow(0 0 4px rgba(251,191,36,0.6))',
                           }}
-                          strokeWidth={2}
+                          strokeWidth={2.5}
                         />
                         {/* Луна */}
                         <Moon 
-                          className="absolute inset-0 w-5 h-5 text-slate-300 transition-all duration-300"
+                          className="absolute inset-0 w-6 h-6 transition-all duration-300"
                           style={{
+                            color: '#C4B5FD',
                             opacity: isDark ? 1 : 0,
                             transform: isDark ? 'rotate(0) scale(1)' : 'rotate(90deg) scale(0.5)',
+                            filter: isDark ? 'drop-shadow(0 0 4px rgba(196,181,253,0.6))' : 'none',
                           }}
-                          strokeWidth={2}
+                          strokeWidth={2.5}
                         />
                       </div>
                     </button>
