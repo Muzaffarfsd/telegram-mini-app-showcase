@@ -3964,8 +3964,9 @@ html.slow-network video {
 }
 
 /* 2025 Ultra Premium Theme Transition - Cinematic Day/Night */
+/* GPU-optimized for 60fps performance */
 :root {
-  --theme-duration: 0.6s;
+  --theme-duration: 0.55s;
   --theme-easing: cubic-bezier(0.33, 1, 0.68, 1);
   --theme-easing-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -3978,8 +3979,12 @@ html.slow-network video {
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+  /* GPU acceleration */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  will-change: clip-path, opacity, filter, transform;
+  transform: translateZ(0);
+  contain: layout style paint;
 }
 
 ::view-transition-old(root) {

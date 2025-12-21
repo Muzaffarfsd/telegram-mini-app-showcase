@@ -1705,21 +1705,23 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               }} />
             </div>
             
-            {/* Sun/Moon orb */}
+            {/* Sun/Moon orb - GPU optimized */}
             <div style={{
               position: 'absolute',
               width: '22px',
               height: '22px',
               borderRadius: '50%',
               top: '3px',
-              left: isDark ? '27px' : '3px',
+              left: '3px',
+              transform: isDark ? 'translateX(24px) translateZ(0)' : 'translateX(0) translateZ(0)',
               background: isDark 
                 ? 'linear-gradient(145deg, #E8E8E8 0%, #CACACA 100%)'
                 : 'linear-gradient(145deg, #FFD93D 0%, #FF9500 100%)',
               boxShadow: isDark 
                 ? '0 2px 8px rgba(0,0,0,0.3)'
                 : '0 2px 8px rgba(255,150,0,0.4)',
-              transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, box-shadow 0.3s ease',
+              willChange: 'transform',
             }}>
               {/* Moon craters */}
               <div style={{
