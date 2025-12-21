@@ -491,6 +491,41 @@ function App() {
                           strokeWidth={2.5}
                         />
                       </div>
+                      {/* Twinkling stars - visible in dark mode */}
+                      {isDark && (
+                        <>
+                          {[
+                            { size: 3, top: 8, left: 8 },
+                            { size: 2.5, top: 28, left: 10 },
+                            { size: 2, top: 18, left: 6 },
+                            { size: 2.5, top: 12, left: 32 },
+                            { size: 2, top: 26, left: 30 },
+                          ].map((star, i) => (
+                            <span
+                              key={i}
+                              style={{
+                                position: 'absolute',
+                                width: `${star.size}px`,
+                                height: `${star.size}px`,
+                                background: '#FFFFFF',
+                                borderRadius: '50%',
+                                top: `${star.top}px`,
+                                left: `${star.left}px`,
+                                boxShadow: `0 0 ${star.size * 2}px rgba(255,255,255,0.9)`,
+                                animation: `twinkleMobile ${1.8 + i * 0.3}s ease-in-out infinite`,
+                                animationDelay: `${i * 0.2}s`,
+                                pointerEvents: 'none',
+                              }}
+                            />
+                          ))}
+                        </>
+                      )}
+                      <style>{`
+                        @keyframes twinkleMobile {
+                          0%, 100% { opacity: 0.4; }
+                          50% { opacity: 1; }
+                        }
+                      `}</style>
                     </button>
                     </nav>
                   </div>
