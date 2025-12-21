@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { m } from 'framer-motion';
 import { useFavoritesStore } from '@/stores/favoritesStore';
@@ -18,7 +18,17 @@ export const FavoriteButton = memo(function FavoriteButton({
   const { isFavorite, toggle, initialize, isInitialized } = useFavoritesStore();
   const haptic = useHaptic();
   const isActive = isFavorite(demoId);
-  const isLightTheme = document.documentElement.classList.contains('light');
+  const [isLightTheme, setIsLightTheme] = useState(() => 
+    document.documentElement.classList.contains('light')
+  );
+  
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsLightTheme(document.documentElement.classList.contains('light'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!isInitialized) {

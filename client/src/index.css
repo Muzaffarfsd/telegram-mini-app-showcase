@@ -4595,10 +4595,11 @@ html.slow-network video {
    Force light colors when html has 'light' class
    ═══════════════════════════════════════════════════════ */
 html.light {
-  /* Core surfaces */
+  /* Core surfaces - iOS 26 Light Theme */
   --background: #F2F4F6 !important;
   --foreground: #0F172A !important;
   --surface: #F2F4F6 !important;
+  --surface-elevated: #ffffff !important;
   
   /* Card system - iOS 26 stacked sheets */
   --card: rgba(255, 255, 255, 0.92) !important;
@@ -4607,35 +4608,59 @@ html.light {
   --card-border: rgba(0, 0, 0, 0.06) !important;
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
   --card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+  --card-hover: rgba(255, 255, 255, 0.98) !important;
   --card-radius: 20px !important;
   
-  /* Borders */
+  /* Borders and Glass */
   --border: rgba(0, 0, 0, 0.08) !important;
   --glass-background: rgba(255, 255, 255, 0.65) !important;
   --glass-border: rgba(0, 0, 0, 0.05) !important;
+  --glass-bg: rgba(255, 255, 255, 0.75) !important;
+  --glass-border-color: rgba(0, 0, 0, 0.04) !important;
+  --glass-shadow-style: 0 10px 40px -10px rgba(0,0,0,0.08) !important;
   
   /* Text hierarchy */
   --text-primary: #0F172A !important;
-  --text-secondary: #475569 !important;
-  --text-tertiary: #64748B !important;
-  --text-quaternary: #94A3B8 !important;
+  --text-secondary: #64748b !important;
+  --text-tertiary: #94a3b8 !important;
+  --text-quaternary: #cbd5e1 !important;
+  --text-inverted: #ffffff !important;
+  --label: #0F172A !important;
+  --secondary-label: #64748b !important;
+  --muted-foreground: #64748b !important;
   
   /* Accent colors - iOS Blue */
   --accent-primary: #007AFF !important;
   --accent-secondary: #5856D6 !important;
+  --primary: #007AFF !important;
+  --primary-foreground: #FFFFFF !important;
   
   /* Button colors */
   --button-primary-bg: #007AFF !important;
   --button-primary-text: #FFFFFF !important;
   --button-secondary-bg: rgba(0, 122, 255, 0.1) !important;
   --button-secondary-text: #007AFF !important;
+  --cta-background: #007AFF !important;
+  --cta-foreground: #ffffff !important;
   
   /* Hero gradient */
   --hero-gradient: linear-gradient(135deg, rgba(0, 122, 255, 0.08) 0%, rgba(88, 86, 214, 0.06) 50%, rgba(255, 45, 85, 0.04) 100%) !important;
+  --hero-border: rgba(0, 122, 255, 0.12) !important;
   
   /* Overlays */
-  --overlay-weak: rgba(0, 0, 0, 0.02) !important;
-  --overlay-medium: rgba(0, 0, 0, 0.04) !important;
+  --overlay-weak: rgba(0, 0, 0, 0.03) !important;
+  --overlay-medium: rgba(0, 0, 0, 0.06) !important;
+  --overlay-strong: rgba(0, 0, 0, 0.1) !important;
+  
+  /* Dividers and Pills */
+  --divider: rgba(0,0,0,0.06) !important;
+  --pill-bg: rgba(0,0,0,0.04) !important;
+  --pill-border: rgba(0,0,0,0.06) !important;
+  
+  /* Liquid blobs */
+  --liquid-1: #60A5FA !important;
+  --liquid-2: #F472B6 !important;
+  --liquid-blur: 80px !important;
 }
 
 html.light body,
