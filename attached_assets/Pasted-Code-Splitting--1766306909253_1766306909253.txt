@@ -1,0 +1,138 @@
+Code-Splitting (Оптимизация загрузки)
+Что это даёт
+Преимущество	Описание
+Быстрый первый экран	Пользователь видит контент за 1.5 секунды вместо 4
+Меньше трафика	Загружается только нужный код, экономия мобильного интернета
+Лучше конверсия	Каждая секунда задержки = -7% конверсии
+Бизнес-ценность: FCP с 3.5с до 1.8с = +15-20% удержания пользователей.
+
+Статистика: 53% пользователей уходят если сайт загружается >3 секунд.
+
+Как это работает
+БЕЗ code-splitting:
+┌─────────────────────────────────────┐
+│   Один огромный bundle.js (2MB)    │  ← Пользователь ждёт всё
+└─────────────────────────────────────┘
+С code-splitting:
+┌──────────┐ ┌──────────┐ ┌──────────┐
+│ react.js │ │ page1.js │ │ charts.js│
+│  (150KB) │ │  (50KB)  │ │  (200KB) │
+└──────────┘ └──────────┘ └──────────┘
+     ↑            ↑            ↑
+   Сразу     По требованию  Когда нужны
+Реализация
+Файл: vite.config.ts — секция build.rollupOptions.output.manualChunks
+
+manualChunks(id) {
+  // Только для node_modules
+  if (!id.includes('node_modules')) return;
+  
+  // КРИТИЧНО: React и связанные библиотеки ВМЕСТЕ
+  // Если разделить — получим ошибку "Cannot read properties of undefined"
+  if (
+    id.includes('react') ||
+    id.includes('react-dom') ||
+    id.includes('scheduler') ||
+    id.includes('@tanstack/react-query') ||
+    id.includes('wouter')
+  ) {
+    return 'react-core'; // ~150KB — загружается первым
+  }
+  
+  // UI компоненты — нужны почти сразу
+  if (
+    id.includes('@radix-ui') ||
+    id.includes('lucide-react') ||
+    id.includes('class-variance-authority') ||
+    id.includes('clsx') ||
+    id.includes('tailwind-merge')
+  ) {
+    return 'ui-framework'; // ~80KB
+  }
+  
+  // Графики — ТОЛЬКО когда открывают аналитику
+  // Recharts очень тяжёлый, не грузим на главной
+  if (id.includes('recharts') || id.includes('d3')) {
+    return 'charts'; // ~300KB — lazy load
+  }
+  
+  // Анимации — можно подгрузить позже
+  if (id.includes('framer-motion')) {
+    return 'animations'; // ~100KB
+  }
+  
+  // Swiper — только для слайдеров
+  if (id.includes('swiper')) {
+    return 'swiper'; // ~150KB — lazy load
+  }
+  
+  // Утилиты — маленькие, можно вместе
+  if (
+    id.includes('date-fns') ||
+    id.includes('zod') ||
+    id.includes('nanoid')
+  ) {
+    return 'utils'; // ~30KB
+  }
+  
+  // Telegram SDK
+  if (id.includes('@twa-dev')) {
+    return 'telegram'; // ~20KB
+  }
+}
+Speculative Prefetch — загрузка заранее при hover:
+
+Файл: client/src/lib/prefetch.ts
+
+// Кэш чтобы не грузить дважды
+const prefetchedModules = new Set<string>();
+// Prefetch модуля в фоне
+export function prefetchModule(moduleLoader: () => Promise<any>): void {
+  const key = moduleLoader.toString();
+  if (prefetchedModules.has(key)) return;
+  
+  prefetchedModules.add(key);
+  
+  // requestIdleCallback — грузим когда браузер свободен
+  // Не блокирует основной поток, пользователь не заметит
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => {
+      moduleLoader().catch(() => {
+        prefetchedModules.delete(key); // Если ошибка — попробуем снова
+      });
+    }, { timeout: 2000 });
+  } else {
+    // Fallback для Safari
+    setTimeout(() => {
+      moduleLoader().catch(() => {
+        prefetchedModules.delete(key);
+      });
+    }, 100);
+  }
+}
+// Prefetch при наведении на элемент
+export function prefetchOnHover(
+  element: HTMLElement, 
+  loader: () => Promise<any>
+): void {
+  let prefetched = false;
+  
+  const handleInteraction = () => {
+    if (!prefetched) {
+      prefetched = true;
+      prefetchModule(loader);
+    }
+  };
+  
+  // Грузим при hover (desktop) или touch (mobile)
+  element.addEventListener('mouseenter', handleInteraction, { once: true });
+  element.addEventListener('touchstart', handleInteraction, { once: true, passive: true });
+}
+// Пример использования в компоненте:
+// 
+// const cardRef = useRef<HTMLDivElement>(null);
+// 
+// useEffect(() => {
+//   if (cardRef.current) {
+//     prefetchOnHover(cardRef.current, () => import('@/demos/RestaurantDemo'));
+//   }
