@@ -1188,8 +1188,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
               
               <div className="ios26-item cursor-pointer" onClick={handleInstagramClick}>
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                    <Instagram className="w-5 h-5 text-white/90" />
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: palette.iconBg, border: `1px solid ${palette.iconBorder}` }}>
+                    <Instagram className="w-5 h-5" style={{ color: palette.textSecondary }} />
                   </div>
                   <div className="flex-1">
                     <div className="ios26-title">Instagram</div>

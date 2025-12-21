@@ -184,16 +184,41 @@ export function useTheme() {
     applyTheme(theme);
   }, [theme]);
 
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        const newTheme = e.newValue as Theme;
+        if (newTheme === 'light' || newTheme === 'dark') {
+          setTheme(newTheme);
+        }
+      }
+    };
+
+    const handleThemeChange = (e: CustomEvent<{ theme: Theme }>) => {
+      setTheme(e.detail.theme);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('themeChange', handleThemeChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('themeChange', handleThemeChange as EventListener);
+    };
+  }, []);
+
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
       const next = prev === 'dark' ? 'light' : 'dark';
       console.log('[Theme] Toggle:', prev, '->', next);
+      window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: next } }));
       return next;
     });
   }, []);
 
   const setThemeValue = useCallback((newTheme: Theme) => {
     setTheme(newTheme);
+    window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
   }, []);
 
   return { 
