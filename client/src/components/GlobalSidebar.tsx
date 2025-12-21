@@ -997,6 +997,68 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .hamburger-btn:not(.open):not(.hovered):not(:active) {
           animation: subtle-breathe 4s ease-in-out infinite;
         }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           LIGHT THEME OVERRIDES
+           ═══════════════════════════════════════════════════════════════ */
+        
+        html.light .hamburger-btn {
+          background: rgba(0, 0, 0, 0.05);
+          border-color: rgba(0, 0, 0, 0.08);
+        }
+        
+        html.light .hamburger-btn.hovered {
+          background: rgba(0, 0, 0, 0.08);
+          border-color: rgba(0, 0, 0, 0.12);
+        }
+        
+        html.light .hamburger-line {
+          background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+        }
+        
+        html.light .hamburger-ripple {
+          background: rgba(0, 0, 0, 0.2);
+        }
+        
+        html.light .sidebar-overlay {
+          background: rgba(255, 255, 255, 0.6);
+        }
+        
+        html.light .sidebar-panel {
+          background: rgba(248, 250, 252, 0.95);
+          border-right-color: rgba(0, 0, 0, 0.08);
+          box-shadow: 20px 0 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        html.light .sidebar-menu-item {
+          background: rgba(0, 0, 0, 0.03);
+          border-color: rgba(0, 0, 0, 0.05);
+          color: #1e293b;
+        }
+        
+        html.light .sidebar-menu-item:hover,
+        html.light .sidebar-menu-item.active {
+          background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(99,102,241,0.05) 100%);
+          border-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        html.light .sidebar-menu-item .menu-item-glow {
+          background: rgba(59, 130, 246, 0.15);
+        }
+        
+        html.light .top-bar {
+          background: rgba(248, 250, 252, 0.8);
+          border-bottom-color: rgba(0, 0, 0, 0.06);
+        }
+        
+        html.light .social-link {
+          background: rgba(0, 0, 0, 0.04);
+          border-color: rgba(0, 0, 0, 0.06);
+        }
+        
+        html.light .social-link:hover {
+          background: rgba(0, 0, 0, 0.08);
+        }
       `}</style>
 
       <div 
