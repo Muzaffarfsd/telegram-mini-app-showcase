@@ -177,6 +177,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     }
   }, [isDark]);
 
+  // Monochrome icon colors - professional and minimal
+  const iconStyle = isDark 
+    ? { color: '#A1A1AA', bg: 'rgba(255, 255, 255, 0.06)' }
+    : { color: '#6B7280', bg: 'rgba(0, 0, 0, 0.05)' };
+  
   const menuItems = [
     { 
       icon: Home, 
@@ -184,8 +189,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       section: '', 
       routes: ['showcase'],
       description: 'Все возможности',
-      iconColor: '#007AFF',      // iOS Blue
-      iconBg: 'rgba(0, 122, 255, 0.12)'
     },
     { 
       icon: Sparkles, 
@@ -193,8 +196,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       section: 'projects', 
       routes: ['projects'],
       description: 'Готовые решения',
-      iconColor: '#FF9500',      // Orange
-      iconBg: 'rgba(255, 149, 0, 0.12)'
     },
     { 
       icon: Bot, 
@@ -202,8 +203,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       section: 'ai-process', 
       routes: ['aiProcess', 'aiAgent'],
       description: 'Автоматизация 24/7',
-      iconColor: '#AF52DE',      // Purple
-      iconBg: 'rgba(175, 82, 222, 0.12)'
     },
     { 
       icon: Users, 
@@ -211,8 +210,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       section: 'about', 
       routes: ['about'],
       description: 'Наша команда',
-      iconColor: '#5856D6',      // Indigo
-      iconBg: 'rgba(88, 86, 214, 0.12)'
     },
     { 
       icon: MessageCircle, 
@@ -220,8 +217,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       section: 'constructor', 
       routes: ['constructor', 'checkout'],
       description: 'Индивидуальное решение',
-      iconColor: '#34C759',      // Green
-      iconBg: 'rgba(52, 199, 89, 0.12)'
     },
     { 
       icon: Bell, 
@@ -229,8 +224,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       section: 'notifications', 
       routes: ['notifications'],
       description: 'Тест Telegram Bot API',
-      iconColor: '#FF3B30',      // Red
-      iconBg: 'rgba(255, 59, 48, 0.12)'
     },
     { 
       icon: BarChart3, 
@@ -238,32 +231,26 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       section: 'analytics', 
       routes: ['analytics'],
       description: 'Бизнес-метрики',
-      iconColor: '#30D158',      // Mint
-      iconBg: 'rgba(48, 209, 88, 0.12)'
     },
   ];
 
+  // Social links use muted colors
+  const socialIconColor = isDark ? '#71717A' : '#9CA3AF';
   const socialLinks = [
     { 
       icon: SiInstagram, 
       label: 'Instagram', 
       url: 'https://instagram.com/web4tg',
-      color: '#E4405F',
-      hoverBg: 'rgba(228, 64, 95, 0.15)'
     },
     { 
       icon: SiTelegram, 
       label: 'Telegram канал', 
       url: 'https://t.me/web4_tg',
-      color: '#26A5E4',
-      hoverBg: 'rgba(38, 165, 228, 0.15)'
     },
     { 
       icon: Send, 
       label: 'Консультация', 
       url: 'https://t.me/web4tgs',
-      color: '#A78BFA',
-      hoverBg: 'rgba(167, 139, 250, 0.15)'
     },
   ];
 
@@ -1426,7 +1413,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   <div 
                     className="menu-icon-wrap"
                     style={{
-                      background: item.iconBg,
+                      background: iconStyle.bg,
                       borderRadius: '10px',
                       width: '36px',
                       height: '36px',
@@ -1438,7 +1425,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   >
                     <item.icon 
                       size={20} 
-                      color={item.iconColor} 
+                      color={iconStyle.color} 
                     />
                   </div>
                   
@@ -1658,21 +1645,18 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 target="_blank"
                 rel="noopener noreferrer"
                 className="social-link"
-                style={{ '--hover-bg': social.hoverBg, '--hover-border': `${social.color}40` } as any}
                 aria-label={social.label}
                 data-testid={`link-social-${social.label.toLowerCase().replace(' ', '-')}`}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = social.hoverBg;
-                  e.currentTarget.style.borderColor = `${social.color}40`;
-                  e.currentTarget.style.boxShadow = `0 8px 24px ${social.color}20`;
+                  e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+                  e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
-                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)';
+                  e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
                 }}
               >
-                <social.icon size={22} color={social.color} />
+                <social.icon size={20} color={socialIconColor} />
               </a>
             ))}
           </div>
