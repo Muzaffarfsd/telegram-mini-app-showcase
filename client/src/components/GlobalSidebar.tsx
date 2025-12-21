@@ -1678,11 +1678,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               inset: 0,
               opacity: isDark ? 1 : 0,
               transition: 'opacity 0.2s ease',
+              pointerEvents: 'none',
             }}>
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', top: '6px', left: '6px', animation: 'twinkle 2s ease-in-out infinite' }} />
-              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: 'rgba(255,255,255,0.7)', borderRadius: '50%', top: '14px', left: '12px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s' }} />
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(255,255,255,0.8)', borderRadius: '50%', top: '20px', left: '8px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s' }} />
-              <div style={{ position: 'absolute', width: '1px', height: '1px', background: 'rgba(255,255,255,0.6)', borderRadius: '50%', top: '10px', left: '18px' }} />
+              <div style={{ position: 'absolute', width: '3px', height: '3px', background: '#FFFFFF', borderRadius: '50%', top: '5px', left: '5px', animation: 'twinkle 2s ease-in-out infinite', boxShadow: '0 0 6px rgba(255,255,255,0.8)' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '12px', left: '12px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s', boxShadow: '0 0 4px rgba(255,255,255,0.6)' }} />
+              <div style={{ position: 'absolute', width: '3px', height: '3px', background: '#FFFFFF', borderRadius: '50%', top: '18px', left: '7px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s', boxShadow: '0 0 6px rgba(255,255,255,0.8)' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '8px', left: '18px', boxShadow: '0 0 4px rgba(255,255,255,0.6)' }} />
             </div>
             
             {/* Clouds (day mode) - positioned on right side */}
