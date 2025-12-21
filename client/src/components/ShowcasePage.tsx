@@ -81,13 +81,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     >
       <div 
         className="max-w-lg mx-auto px-5"
-        style={{ paddingTop: '140px' }}
+        style={{ paddingTop: '110px' }}
       >
         <m.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="min-h-[75vh] flex flex-col justify-start pt-12"
+          className="min-h-[75vh] flex flex-col justify-start pt-4"
         >
           <m.div
             initial={{ opacity: 0, y: 40 }}
