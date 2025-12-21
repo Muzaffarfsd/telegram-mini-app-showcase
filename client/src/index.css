@@ -3963,16 +3963,23 @@ html.slow-network video {
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
-/* 2025 Premium Theme Transition - Gradient Horizon with Blur */
+/* 2025 Ultra Premium Theme Transition - Cinematic Day/Night */
 :root {
-  --theme-transition-duration: 0.5s;
-  --theme-transition-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --theme-duration: 0.6s;
+  --theme-easing: cubic-bezier(0.33, 1, 0.68, 1);
+  --theme-easing-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--theme-duration);
 }
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 ::view-transition-old(root) {
@@ -3983,69 +3990,131 @@ html.slow-network video {
   z-index: 9999;
 }
 
-/* Sunrise - gradient mask rises from bottom with warm glow */
+/* ===== SUNRISE: Dark → Light ===== */
+/* New light view emerges with golden hour warmth */
 .light::view-transition-new(root) {
-  animation: theme-sunrise var(--theme-transition-duration) var(--theme-transition-easing) forwards;
-  mask-image: linear-gradient(to top, #000 0%, #000 60%, rgba(0,0,0,0.8) 80%, transparent 100%);
-  mask-size: 100% 200%;
-  mask-position: 0 100%;
+  animation: 
+    sunrise-reveal var(--theme-duration) var(--theme-easing) forwards,
+    sunrise-glow var(--theme-duration) var(--theme-easing-out) forwards;
 }
 
-/* Sunset - gradient mask descends from top with cool fade */
-.dark::view-transition-new(root) {
-  animation: theme-sunset var(--theme-transition-duration) var(--theme-transition-easing) forwards;
-  mask-image: linear-gradient(to bottom, #000 0%, #000 60%, rgba(0,0,0,0.8) 80%, transparent 100%);
-  mask-size: 100% 200%;
-  mask-position: 0 -100%;
-}
-
-/* Old view fades with blur - sunrise */
+/* Old dark view dissolves with twilight fade */
 .light::view-transition-old(root) {
-  animation: theme-old-fade-blur var(--theme-transition-duration) ease-out forwards;
+  animation: 
+    old-view-dissolve var(--theme-duration) var(--theme-easing-out) forwards;
 }
 
-/* Old view fades with blur - sunset */
+/* ===== SUNSET: Light → Dark ===== */
+/* New dark view descends with deep blue hour */  
+.dark::view-transition-new(root) {
+  animation: 
+    sunset-reveal var(--theme-duration) var(--theme-easing) forwards,
+    sunset-depth var(--theme-duration) var(--theme-easing-out) forwards;
+}
+
+/* Old light view fades with warm afterglow */
 .dark::view-transition-old(root) {
-  animation: theme-old-fade-blur var(--theme-transition-duration) ease-out forwards;
+  animation: 
+    old-view-dissolve var(--theme-duration) var(--theme-easing-out) forwards;
 }
 
-/* Sunrise animation - warm and bright */
-@keyframes theme-sunrise {
+/* Sunrise reveal - soft gradient wipe from bottom */
+@keyframes sunrise-reveal {
   0% {
-    mask-position: 0 100%;
-    filter: brightness(1.15) saturate(1.1);
+    clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+  }
+  15% {
+    clip-path: polygon(0 92%, 100% 88%, 100% 100%, 0 100%);
   }
   100% {
-    mask-position: 0 0%;
-    filter: brightness(1) saturate(1);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
   }
 }
 
-/* Sunset animation - cool and deep */
-@keyframes theme-sunset {
+/* Sunrise golden hour glow */
+@keyframes sunrise-glow {
   0% {
-    mask-position: 0 -100%;
-    filter: brightness(0.9) saturate(1.05);
+    filter: brightness(1.25) saturate(1.15) contrast(1.02);
+    opacity: 0.9;
+  }
+  40% {
+    filter: brightness(1.12) saturate(1.08) contrast(1.01);
+    opacity: 0.95;
   }
   100% {
-    mask-position: 0 0%;
-    filter: brightness(1) saturate(1);
-  }
-}
-
-/* Old view fades out with progressive blur */
-@keyframes theme-old-fade-blur {
-  0% {
+    filter: brightness(1) saturate(1) contrast(1);
     opacity: 1;
-    filter: blur(0px);
+  }
+}
+
+/* Sunset reveal - elegant wipe from top */
+@keyframes sunset-reveal {
+  0% {
+    clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+  }
+  15% {
+    clip-path: polygon(0 0, 100% 0, 100% 12%, 0 8%);
+  }
+  100% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+/* Sunset blue hour depth */
+@keyframes sunset-depth {
+  0% {
+    filter: brightness(0.85) saturate(1.2) contrast(1.05);
+    opacity: 0.9;
   }
   50% {
-    opacity: 0.5;
-    filter: blur(4px);
+    filter: brightness(0.92) saturate(1.1) contrast(1.02);
+    opacity: 0.95;
+  }
+  100% {
+    filter: brightness(1) saturate(1) contrast(1);
+    opacity: 1;
+  }
+}
+
+/* Old view elegant dissolve with scale and blur */
+@keyframes old-view-dissolve {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0px) brightness(1);
+  }
+  40% {
+    opacity: 0.6;
+    transform: scale(0.995);
+    filter: blur(6px) brightness(1.1);
   }
   100% {
     opacity: 0;
-    filter: blur(12px);
+    transform: scale(0.98);
+    filter: blur(16px) brightness(1.2);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .light::view-transition-new(root),
+  .dark::view-transition-new(root) {
+    animation: simple-fade 0.3s ease forwards;
+  }
+  
+  .light::view-transition-old(root),
+  .dark::view-transition-old(root) {
+    animation: simple-fade-out 0.3s ease forwards;
+  }
+  
+  @keyframes simple-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes simple-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
   }
 }
 
