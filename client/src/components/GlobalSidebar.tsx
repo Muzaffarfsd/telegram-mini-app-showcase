@@ -1672,20 +1672,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
-            {/* Stars inside moon crescent (night mode) */}
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              opacity: isDark ? 1 : 0,
-              transition: 'opacity 0.2s ease',
-              pointerEvents: 'none',
-              overflow: 'visible',
-            }}>
-              <div style={{ position: 'absolute', width: '3px', height: '3px', background: '#FFFFFF', borderRadius: '50%', top: '3px', left: '18px', animation: 'twinkle 2s ease-in-out infinite 0s', boxShadow: '0 0 6px rgba(255,255,255,0.9)', willChange: 'opacity, filter' }} />
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '10px', left: '20px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s', boxShadow: '0 0 4px rgba(255,255,255,0.7)', willChange: 'opacity, filter' }} />
-              <div style={{ position: 'absolute', width: '3px', height: '3px', background: '#FFFFFF', borderRadius: '50%', top: '17px', left: '18px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s', boxShadow: '0 0 6px rgba(255,255,255,0.9)', willChange: 'opacity, filter' }} />
-            </div>
-            
             {/* Clouds (day mode) - positioned on right side */}
             <div style={{
               position: 'absolute',
