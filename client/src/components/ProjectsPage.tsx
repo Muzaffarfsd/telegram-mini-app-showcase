@@ -16,8 +16,8 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
       className="min-h-screen pb-32 smooth-scroll-page"
      
       style={{ 
-        background: '#09090B',
-        color: '#E4E4E7',
+        background: 'var(--surface)',
+        color: 'var(--text-secondary)',
         paddingTop: '140px'
       }}
     >
@@ -34,7 +34,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               fontSize: '11px',
               fontWeight: 500,
               letterSpacing: '0.18em',
-              color: '#71717A',
+              color: 'var(--text-quaternary)',
               textTransform: 'uppercase',
               marginBottom: '24px'
             }}
@@ -51,16 +51,16 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               fontWeight: 600,
               letterSpacing: '-0.025em',
               lineHeight: '1.3',
-              color: '#FAFAFA'
+              color: 'var(--text-primary)'
             }}
           >
             Премиальные приложения
             <br />
-            <span style={{ color: '#A78BFA' }}>
+            <span style={{ color: 'var(--accent-primary)' }}>
               для Telegram.
             </span>
             <br />
-            <span style={{ color: '#FFFFFF' }}>
+            <span style={{ color: 'var(--text-primary)' }}>
               Бизнес-решения нового уровня.
             </span>
           </h1>
@@ -71,7 +71,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             style={{ marginTop: '28px' }}
           >
             <div className="scroll-icon" />
-            <span style={{ fontSize: '15px', color: '#A78BFA', fontWeight: 500 }}>
+            <span style={{ fontSize: '15px', color: 'var(--accent-primary)', fontWeight: 500 }}>
               Смотреть примеры
             </span>
           </div>
@@ -82,28 +82,29 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             style={{
               marginTop: '36px',
               padding: '24px',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.04) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.2)'
+              borderRadius: 'var(--card-radius)',
+              background: 'var(--hero-gradient)',
+              border: '1px solid var(--hero-border)',
+              boxShadow: 'var(--card-shadow)'
             }}
           >
             <p style={{
               fontSize: '15px',
               fontWeight: 500,
               letterSpacing: '-0.01em',
-              color: '#E4E4E7',
+              color: 'var(--text-secondary)',
               lineHeight: '1.6'
             }}>
               Через 7 дней у вас будет
               <br />
               <span style={{ 
-                color: '#A78BFA',
+                color: 'var(--accent-primary)',
                 fontWeight: 600
               }}>
                 своё приложение.
               </span>
               <br />
-              <span style={{ color: '#71717A' }}>
+              <span style={{ color: 'var(--text-tertiary)' }}>
                 Или у вашего конкурента.
               </span>
             </p>
@@ -122,15 +123,16 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             <div style={{
               flex: 1,
               padding: '20px 16px',
-              borderRadius: '12px',
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid rgba(255, 255, 255, 0.04)'
+              borderRadius: 'var(--card-radius)',
+              background: 'var(--card-bg)',
+              border: '1px solid var(--card-border)',
+              boxShadow: 'var(--card-shadow)'
             }}>
               <p style={{
                 fontSize: '11px',
                 fontWeight: 600,
                 letterSpacing: '0.08em',
-                color: '#52525B',
+                color: 'var(--text-tertiary)',
                 textTransform: 'uppercase',
                 marginBottom: '12px'
               }}>
@@ -139,12 +141,12 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               <p style={{
                 fontSize: '14px',
                 fontWeight: 500,
-                color: '#FAFAFA',
+                color: 'var(--text-primary)',
                 lineHeight: '1.4'
               }}>
                 Ваш бренд.
                 <br />
-                <span style={{ color: '#A78BFA' }}>Ваш стиль.</span>
+                <span style={{ color: 'var(--accent-primary)' }}>Ваш стиль.</span>
                 <br />
                 Ваши правила.
               </p>
@@ -154,15 +156,16 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             <div style={{
               flex: 1,
               padding: '20px 16px',
-              borderRadius: '12px',
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid rgba(255, 255, 255, 0.04)'
+              borderRadius: 'var(--card-radius)',
+              background: 'var(--card-bg)',
+              border: '1px solid var(--card-border)',
+              boxShadow: 'var(--card-shadow)'
             }}>
               <p style={{
                 fontSize: '11px',
                 fontWeight: 600,
                 letterSpacing: '0.08em',
-                color: '#52525B',
+                color: 'var(--text-tertiary)',
                 textTransform: 'uppercase',
                 marginBottom: '12px'
               }}>
@@ -171,14 +174,14 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               <p style={{
                 fontSize: '28px',
                 fontWeight: 700,
-                color: '#FAFAFA',
+                color: 'var(--text-primary)',
                 letterSpacing: '-0.03em'
               }}>
                 3 слота
               </p>
               <p style={{
                 fontSize: '14px',
-                color: '#71717A',
+                color: 'var(--text-tertiary)',
                 marginTop: '4px'
               }}>
                 на Декабрь
@@ -190,7 +193,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
         {/* Hairline */}
         <div 
           className="mx-7"
-          style={{ height: '1px', background: '#27272A' }}
+          style={{ height: '1px', background: 'var(--divider)' }}
         />
 
         {/* ═══════════════════════════════════════════════════════
@@ -210,7 +213,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 fontSize: '12px',
                 fontWeight: 500,
                 letterSpacing: '0.12em',
-                color: '#52525B',
+                color: 'var(--text-quaternary)',
                 textTransform: 'uppercase'
               }}
             >
@@ -219,7 +222,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             <p 
               style={{
                 fontSize: '13px',
-                color: '#52525B'
+                color: 'var(--text-quaternary)'
               }}
             >
               {topApps.length} проектов
@@ -240,11 +243,12 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               style={{
                 position: 'relative',
                 cursor: 'pointer',
-                borderRadius: '16px',
+                borderRadius: 'var(--card-radius)',
                 padding: '20px 20px 20px 24px',
-                background: 'rgba(255, 255, 255, 0.03)',
+                background: 'var(--card-bg)',
                 backdropFilter: 'blur(40px) saturate(180%)',
-                border: '1px solid rgba(255, 255, 255, 0.06)',
+                border: '1px solid var(--card-border)',
+                boxShadow: 'var(--card-shadow)',
                 transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 opacity: 0,
                 animationDelay: `${0.05 + index * 0.04}s`,
@@ -258,7 +262,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                       fontSize: '17px',
                       fontWeight: 600,
                       letterSpacing: '-0.02em',
-                      color: '#FFFFFF',
+                      color: 'var(--text-primary)',
                       marginBottom: '4px'
                     }}
                   >
@@ -269,7 +273,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                     style={{
                       fontSize: '14px',
                       lineHeight: '1.4',
-                      color: 'rgba(255, 255, 255, 0.45)',
+                      color: 'var(--text-tertiary)',
                       letterSpacing: '-0.005em',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -286,9 +290,9 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                   <button
                     className="open-button flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      color: '#FFFFFF',
+                      background: 'var(--button-secondary-bg)',
+                      border: '1px solid var(--button-secondary-border)',
+                      color: 'var(--button-secondary-text)',
                       fontSize: '13px',
                       fontWeight: 600,
                       letterSpacing: '0.01em',
@@ -314,7 +318,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           <div 
             style={{ 
               height: '1px', 
-              background: '#27272A',
+              background: 'var(--divider)',
               marginBottom: '32px'
             }}
           />
@@ -325,7 +329,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 style={{
                   fontSize: '20px',
                   fontWeight: 600,
-                  color: '#FAFAFA',
+                  color: 'var(--text-primary)',
                   letterSpacing: '-0.02em'
                 }}
               >
@@ -334,7 +338,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               <p 
                 style={{
                   fontSize: '11px',
-                  color: '#52525B',
+                  color: 'var(--text-tertiary)',
                   marginTop: '4px',
                   letterSpacing: '0.05em',
                   textTransform: 'uppercase'
@@ -348,7 +352,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 style={{
                   fontSize: '20px',
                   fontWeight: 600,
-                  color: '#FAFAFA',
+                  color: 'var(--text-primary)',
                   letterSpacing: '-0.02em'
                 }}
               >
@@ -357,7 +361,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               <p 
                 style={{
                   fontSize: '11px',
-                  color: '#52525B',
+                  color: 'var(--text-tertiary)',
                   marginTop: '4px',
                   letterSpacing: '0.05em',
                   textTransform: 'uppercase'
@@ -371,7 +375,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 style={{
                   fontSize: '20px',
                   fontWeight: 600,
-                  color: '#FAFAFA',
+                  color: 'var(--text-primary)',
                   letterSpacing: '-0.02em'
                 }}
               >
@@ -380,7 +384,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               <p 
                 style={{
                   fontSize: '11px',
-                  color: '#52525B',
+                  color: 'var(--text-tertiary)',
                   marginTop: '4px',
                   letterSpacing: '0.05em',
                   textTransform: 'uppercase'
@@ -394,7 +398,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           <div 
             style={{ 
               height: '1px', 
-              background: '#27272A',
+              background: 'var(--divider)',
               marginTop: '32px'
             }}
           />
@@ -412,7 +416,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 fontSize: '18px',
                 fontStyle: 'italic',
                 fontWeight: 400,
-                color: '#A1A1AA',
+                color: 'var(--text-secondary)',
                 lineHeight: '1.5',
                 marginBottom: '24px'
               }}
@@ -429,8 +433,8 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               rel="noopener noreferrer"
               className="cta-button inline-flex items-center justify-center gap-2.5 w-full py-4 rounded-xl font-medium transition-all duration-300"
               style={{
-                background: '#FAFAFA',
-                color: '#09090B',
+                background: 'var(--button-primary-bg)',
+                color: 'var(--button-primary-text)',
                 fontSize: '15px',
                 letterSpacing: '-0.01em',
                 textDecoration: 'none'
@@ -445,7 +449,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             <p 
               style={{
                 fontSize: '12px',
-                color: '#52525B',
+                color: 'var(--text-tertiary)',
                 marginTop: '16px',
                 letterSpacing: '0.01em'
               }}
@@ -462,7 +466,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           <div 
             style={{ 
               height: '1px', 
-              background: '#18181B',
+              background: 'var(--divider)',
               marginBottom: '24px'
             }}
           />
@@ -470,7 +474,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             style={{
               fontSize: '10px',
               letterSpacing: '0.25em',
-              color: '#3F3F46',
+              color: 'var(--text-tertiary)',
               textTransform: 'uppercase'
             }}
           >
@@ -482,14 +486,16 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
 
       <style>{`
         .premium-card:hover {
-          background: rgba(255, 255, 255, 0.06);
-          border-color: rgba(255, 255, 255, 0.12);
+          background: var(--card-hover);
+          border-color: var(--card-border);
+          box-shadow: var(--card-shadow-hover);
           transform: translateX(4px);
         }
 
         .premium-card:hover .open-button {
-          background: rgba(255, 255, 255, 0.18);
-          border-color: rgba(255, 255, 255, 0.25);
+          background: var(--button-primary-bg);
+          color: var(--button-primary-text);
+          border-color: transparent;
         }
 
         .premium-card:active {
@@ -498,9 +504,9 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
         }
 
         .cta-button:hover {
-          background: #FFFFFF;
+          opacity: 0.9;
           transform: translateY(-1px);
-          box-shadow: 0 8px 24px rgba(250, 250, 250, 0.1);
+          box-shadow: var(--card-shadow-hover);
         }
 
         .cta-button:active {
@@ -537,7 +543,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
         .scroll-icon {
           width: 20px;
           height: 32px;
-          border: 2px solid #A78BFA;
+          border: 2px solid var(--accent-primary);
           border-radius: 10px;
           position: relative;
         }
@@ -546,7 +552,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           content: '';
           width: 4px;
           height: 6px;
-          background: #A78BFA;
+          background: var(--accent-primary);
           border-radius: 2px;
           position: absolute;
           top: 6px;

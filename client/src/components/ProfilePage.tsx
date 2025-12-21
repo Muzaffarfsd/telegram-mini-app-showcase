@@ -484,7 +484,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
   const toggleNotifications = useCallback(() => setNotificationsEnabled(prev => !prev), []);
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24 smooth-scroll-page ios26-profile" style={{ paddingTop: '140px' }}>
+    <div className="min-h-screen pb-24 smooth-scroll-page ios26-profile" style={{ paddingTop: '140px', background: 'var(--surface)', color: 'var(--text-secondary)' }}>
       <style>{`
         .ios26-profile .ios26-card {
           background: rgba(255, 255, 255, 0.03);

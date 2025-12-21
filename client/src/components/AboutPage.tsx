@@ -10,8 +10,8 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
       className="min-h-screen pb-32 smooth-scroll-page"
      
       style={{ 
-        background: '#09090B',
-        color: '#E4E4E7',
+        background: 'var(--surface)',
+        color: 'var(--text-secondary)',
         paddingTop: '140px'
       }}
     >
@@ -25,7 +25,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               fontSize: '11px',
               fontWeight: 500,
               letterSpacing: '0.18em',
-              color: '#71717A',
+              color: 'var(--text-tertiary)',
               textTransform: 'uppercase',
               marginBottom: '24px'
             }}
@@ -41,12 +41,12 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               fontWeight: 600,
               letterSpacing: '-0.025em',
               lineHeight: '1.2',
-              color: '#FAFAFA'
+              color: 'var(--text-primary)'
             }}
           >
             Мы создаём
             <br />
-            <span style={{ color: '#A78BFA' }}>будущее продаж</span>
+            <span style={{ color: 'var(--accent-primary)' }}>будущее продаж</span>
             <br />
             в Telegram.
           </h1>
@@ -58,7 +58,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               fontWeight: 400,
               letterSpacing: '-0.01em',
               lineHeight: '1.6',
-              color: '#71717A',
+              color: 'var(--text-tertiary)',
               marginTop: '20px',
               maxWidth: '320px'
             }}
@@ -70,7 +70,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
         {/* Hairline */}
         <div 
           className="mx-7"
-          style={{ height: '1px', background: '#27272A' }}
+          style={{ height: '1px', background: 'var(--divider)' }}
         />
 
         {/* MISSION SECTION */}
@@ -80,7 +80,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               fontSize: '10px',
               fontWeight: 600,
               letterSpacing: '0.12em',
-              color: '#52525B',
+              color: 'var(--text-tertiary)',
               textTransform: 'uppercase',
               marginBottom: '16px'
             }}
@@ -91,15 +91,16 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
           <div 
             style={{
               padding: '24px',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.04) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.15)'
+              borderRadius: 'var(--card-radius)',
+              background: 'var(--hero-gradient)',
+              border: '1px solid var(--hero-border)',
+              boxShadow: 'var(--card-shadow)'
             }}
           >
             <p style={{
               fontSize: '17px',
               fontWeight: 500,
-              color: '#E4E4E7',
+              color: 'var(--text-secondary)',
               lineHeight: '1.5',
               fontStyle: 'italic'
             }}>
@@ -115,7 +116,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               fontSize: '10px',
               fontWeight: 600,
               letterSpacing: '0.12em',
-              color: '#52525B',
+              color: 'var(--text-tertiary)',
               textTransform: 'uppercase',
               marginBottom: '20px'
             }}
@@ -152,9 +153,10 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
                   display: 'flex',
                   gap: '16px',
                   padding: '20px',
-                  borderRadius: '14px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.04)'
+                  borderRadius: 'var(--card-radius)',
+                  background: 'var(--card-bg)',
+                  border: '1px solid var(--card-border)',
+                  boxShadow: 'var(--card-shadow)'
                 }}
               >
                 <div style={{
@@ -164,23 +166,23 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: '12px',
-                  background: 'rgba(139, 92, 246, 0.1)',
+                  background: 'var(--button-secondary-bg)',
                   flexShrink: 0
                 }}>
-                  <item.icon size={20} color="#A78BFA" />
+                  <item.icon size={20} style={{ color: 'var(--accent-primary)' }} />
                 </div>
                 <div>
                   <p style={{
                     fontSize: '15px',
                     fontWeight: 600,
-                    color: '#FAFAFA',
+                    color: 'var(--text-primary)',
                     marginBottom: '4px'
                   }}>
                     {item.title}
                   </p>
                   <p style={{
                     fontSize: '13px',
-                    color: '#71717A',
+                    color: 'var(--text-tertiary)',
                     lineHeight: '1.4'
                   }}>
                     {item.desc}
@@ -198,7 +200,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               fontSize: '10px',
               fontWeight: 600,
               letterSpacing: '0.12em',
-              color: '#52525B',
+              color: 'var(--text-tertiary)',
               textTransform: 'uppercase',
               marginBottom: '20px'
             }}
@@ -223,23 +225,24 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
                 key={index}
                 style={{
                   padding: '20px',
-                  borderRadius: '14px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.04)',
+                  borderRadius: 'var(--card-radius)',
+                  background: 'var(--card-bg)',
+                  border: '1px solid var(--card-border)',
+                  boxShadow: 'var(--card-shadow)',
                   textAlign: 'center'
                 }}
               >
                 <p style={{
                   fontSize: '28px',
                   fontWeight: 700,
-                  color: '#FAFAFA',
+                  color: 'var(--text-primary)',
                   letterSpacing: '-0.03em'
                 }}>
                   {stat.value}
                 </p>
                 <p style={{
                   fontSize: '12px',
-                  color: '#52525B',
+                  color: 'var(--text-tertiary)',
                   marginTop: '4px'
                 }}>
                   {stat.label}
@@ -254,9 +257,10 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
           <div 
             style={{
               padding: '28px',
-              borderRadius: '20px',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(59,130,246,0.08) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.2)',
+              borderRadius: 'var(--card-radius)',
+              background: 'var(--hero-gradient)',
+              border: '1px solid var(--hero-border)',
+              boxShadow: 'var(--card-shadow)',
               textAlign: 'center'
             }}
           >
@@ -267,16 +271,16 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: '16px',
-              background: 'rgba(139, 92, 246, 0.2)',
+              background: 'var(--button-secondary-bg)',
               margin: '0 auto 16px'
             }}>
-              <Rocket size={28} color="#A78BFA" />
+              <Rocket size={28} style={{ color: 'var(--accent-primary)' }} />
             </div>
             
             <h3 style={{
               fontSize: '20px',
               fontWeight: 600,
-              color: '#FAFAFA',
+              color: 'var(--text-primary)',
               marginBottom: '8px'
             }}>
               Готовы начать?
@@ -284,7 +288,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
             
             <p style={{
               fontSize: '14px',
-              color: '#71717A',
+              color: 'var(--text-tertiary)',
               marginBottom: '20px',
               lineHeight: '1.5'
             }}>
@@ -301,9 +305,9 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
                 gap: '8px',
                 padding: '14px 28px',
                 borderRadius: '12px',
-                background: '#A78BFA',
+                background: 'var(--button-primary-bg)',
                 border: 'none',
-                color: '#09090B',
+                color: 'var(--button-primary-text)',
                 fontSize: '15px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -324,7 +328,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               fontSize: '10px',
               fontWeight: 600,
               letterSpacing: '0.12em',
-              color: '#52525B',
+              color: 'var(--text-tertiary)',
               textTransform: 'uppercase',
               marginBottom: '16px'
             }}
@@ -335,15 +339,16 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
           <div 
             style={{
               padding: '24px',
-              borderRadius: '16px',
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid rgba(255, 255, 255, 0.04)'
+              borderRadius: 'var(--card-radius)',
+              background: 'var(--card-bg)',
+              border: '1px solid var(--card-border)',
+              boxShadow: 'var(--card-shadow)'
             }}
           >
             <div style={{ marginBottom: '16px' }}>
               <p style={{
                 fontSize: '12px',
-                color: '#52525B',
+                color: 'var(--text-tertiary)',
                 marginBottom: '4px'
               }}>
                 Telegram
@@ -351,7 +356,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               <p style={{
                 fontSize: '15px',
                 fontWeight: 500,
-                color: '#FAFAFA'
+                color: 'var(--text-primary)'
               }}>
                 @web4tg_studio
               </p>
@@ -360,7 +365,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
             <div style={{ marginBottom: '16px' }}>
               <p style={{
                 fontSize: '12px',
-                color: '#52525B',
+                color: 'var(--text-tertiary)',
                 marginBottom: '4px'
               }}>
                 Email
@@ -368,7 +373,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               <p style={{
                 fontSize: '15px',
                 fontWeight: 500,
-                color: '#FAFAFA'
+                color: 'var(--text-primary)'
               }}>
                 hello@web4tg.studio
               </p>
@@ -377,7 +382,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
             <div>
               <p style={{
                 fontSize: '12px',
-                color: '#52525B',
+                color: 'var(--text-tertiary)',
                 marginBottom: '4px'
               }}>
                 Время работы
@@ -385,7 +390,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               <p style={{
                 fontSize: '15px',
                 fontWeight: 500,
-                color: '#FAFAFA'
+                color: 'var(--text-primary)'
               }}>
                 Пн-Пт, 10:00 — 19:00 МСК
               </p>

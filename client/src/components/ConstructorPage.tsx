@@ -74,7 +74,7 @@ const PaymentSection = memo(() => {
           fontSize: '10px',
           fontWeight: 600,
           letterSpacing: '0.12em',
-          color: '#52525B',
+          color: 'var(--text-tertiary)',
           textTransform: 'uppercase',
           marginBottom: '16px'
         }}
@@ -91,7 +91,7 @@ const PaymentSection = memo(() => {
           fontWeight: 600,
           letterSpacing: '-0.035em',
           lineHeight: '1.02',
-          color: '#FAFAFA',
+          color: 'var(--text-primary)',
           marginBottom: '4px'
         }}
       >
@@ -128,7 +128,7 @@ const PaymentSection = memo(() => {
           fontWeight: 400,
           letterSpacing: '-0.01em',
           lineHeight: '1.6',
-          color: '#71717A',
+          color: 'var(--text-tertiary)',
           marginBottom: '32px',
           maxWidth: '320px'
         }}
@@ -141,9 +141,10 @@ const PaymentSection = memo(() => {
         className="scroll-fade-in"
         style={{
           padding: '24px',
-          borderRadius: '16px',
-          background: 'rgba(255, 255, 255, 0.02)',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
+          borderRadius: 'var(--card-radius)',
+          background: 'var(--card-bg)',
+          border: '1px solid var(--card-border)',
+          boxShadow: 'var(--card-shadow)',
           marginBottom: '12px'
         }}
       >
@@ -161,7 +162,7 @@ const PaymentSection = memo(() => {
               fontWeight: 700,
               color: '#10B981'
             }}>1</div>
-            <span style={{ fontSize: '16px', fontWeight: 600, color: '#FAFAFA' }}>Предоплата</span>
+            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>Предоплата</span>
           </div>
           <span style={{
             fontSize: '20px',
@@ -169,14 +170,14 @@ const PaymentSection = memo(() => {
             color: '#10B981'
           }}>35%</span>
         </div>
-        <p style={{ fontSize: '14px', color: '#A1A1AA', lineHeight: '1.5', marginBottom: '16px' }}>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px' }}>
           Оплата перед началом работ. Мы приступаем к разработке вашего приложения.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {['Дизайн интерфейса', 'Структура приложения', 'Первая демо-версия'].map((item, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Check size={14} color="#10B981" />
-              <span style={{ fontSize: '13px', color: '#D4D4D8' }}>{item}</span>
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{item}</span>
             </div>
           ))}
         </div>
@@ -187,9 +188,10 @@ const PaymentSection = memo(() => {
         className="scroll-fade-in"
         style={{
           padding: '24px',
-          borderRadius: '16px',
-          background: 'rgba(255, 255, 255, 0.02)',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
+          borderRadius: 'var(--card-radius)',
+          background: 'var(--card-bg)',
+          border: '1px solid var(--card-border)',
+          boxShadow: 'var(--card-shadow)',
           marginBottom: '12px'
         }}
       >
@@ -199,37 +201,37 @@ const PaymentSection = memo(() => {
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: 'rgba(139, 92, 246, 0.15)',
+              background: 'var(--button-secondary-bg)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '14px',
               fontWeight: 700,
-              color: '#A78BFA'
+              color: 'var(--accent-primary)'
             }}>2</div>
-            <span style={{ fontSize: '16px', fontWeight: 600, color: '#FAFAFA' }}>После сдачи проекта</span>
+            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>После сдачи проекта</span>
           </div>
           <span style={{
             fontSize: '20px',
             fontWeight: 700,
-            color: '#A78BFA'
+            color: 'var(--accent-primary)'
           }}>65%</span>
         </div>
-        <p style={{ fontSize: '14px', color: '#A1A1AA', lineHeight: '1.5', marginBottom: '16px' }}>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px' }}>
           Оплата после полной готовности и вашего одобрения. Тестируете — потом платите.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {['Готовое приложение', 'Все правки учтены', 'Публикация в Telegram'].map((item, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Check size={14} color="#A78BFA" />
-              <span style={{ fontSize: '13px', color: '#D4D4D8' }}>{item}</span>
+              <Check size={14} style={{ color: 'var(--accent-primary)' }} />
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{item}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Hairline */}
-      <div style={{ height: '1px', background: '#27272A', margin: '24px 0' }} />
+      <div style={{ height: '1px', background: 'var(--divider)', margin: '24px 0' }} />
 
       {/* ЭТАП 3: Ежемесячная подписка */}
       <p 
@@ -237,7 +239,7 @@ const PaymentSection = memo(() => {
           fontSize: '10px',
           fontWeight: 600,
           letterSpacing: '0.12em',
-          color: '#52525B',
+          color: 'var(--text-tertiary)',
           textTransform: 'uppercase',
           marginBottom: '12px'
         }}
@@ -249,9 +251,10 @@ const PaymentSection = memo(() => {
         className="scroll-fade-in"
         style={{
           padding: '24px',
-          borderRadius: '16px',
-          background: 'rgba(255, 255, 255, 0.02)',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
+          borderRadius: 'var(--card-radius)',
+          background: 'var(--card-bg)',
+          border: '1px solid var(--card-border)',
+          boxShadow: 'var(--card-shadow)',
           marginBottom: '24px'
         }}
       >
@@ -269,10 +272,10 @@ const PaymentSection = memo(() => {
               fontWeight: 700,
               color: '#5AC8FA'
             }}>3</div>
-            <span style={{ fontSize: '16px', fontWeight: 600, color: '#FAFAFA' }}>Ежемесячная подписка</span>
+            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>Ежемесячная подписка</span>
           </div>
         </div>
-        <p style={{ fontSize: '14px', color: '#A1A1AA', lineHeight: '1.5', marginBottom: '16px' }}>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px' }}>
           Мы полностью берём на себя техническую часть — серверы, обновления, поддержку.
         </p>
         <div style={{ 
@@ -292,12 +295,12 @@ const PaymentSection = memo(() => {
               style={{
                 padding: '12px',
                 borderRadius: '10px',
-                background: 'rgba(255, 255, 255, 0.03)',
+                background: 'var(--button-secondary-bg)',
                 textAlign: 'center'
               }}
             >
-              <p style={{ fontSize: '13px', fontWeight: 600, color: '#FAFAFA', marginBottom: '2px' }}>{feature.text}</p>
-              <p style={{ fontSize: '11px', color: '#71717A' }}>{feature.sub}</p>
+              <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>{feature.text}</p>
+              <p style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>{feature.sub}</p>
             </div>
           ))}
         </div>
@@ -308,17 +311,17 @@ const PaymentSection = memo(() => {
           <div style={{ 
             padding: '16px', 
             borderRadius: '12px', 
-            background: 'rgba(113, 113, 122, 0.08)',
-            border: '1px solid rgba(113, 113, 122, 0.15)'
+            background: 'var(--card-bg)',
+            border: '1px solid var(--card-border)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: '#FAFAFA' }}>Минимальный</p>
-                <p style={{ fontSize: '11px', color: '#71717A', marginTop: '2px' }}>Хостинг + мелкие правки</p>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Минимальный</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '2px' }}>Хостинг + мелкие правки</p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '22px', fontWeight: 700, color: '#FAFAFA' }}>9 900</span>
-                <span style={{ fontSize: '12px', color: '#71717A' }}> ₽/мес</span>
+                <span style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>9 900</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> ₽/мес</span>
               </div>
             </div>
           </div>
@@ -345,12 +348,12 @@ const PaymentSection = memo(() => {
             }}>ПОПУЛЯРНЫЙ</div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: '#FAFAFA' }}>Стандартный</p>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Стандартный</p>
                 <p style={{ fontSize: '11px', color: '#5AC8FA', marginTop: '2px' }}>Поддержка + обновления</p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '22px', fontWeight: 700, color: '#FAFAFA' }}>14 900</span>
-                <span style={{ fontSize: '12px', color: '#71717A' }}> ₽/мес</span>
+                <span style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>14 900</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> ₽/мес</span>
               </div>
             </div>
           </div>
@@ -359,17 +362,17 @@ const PaymentSection = memo(() => {
           <div style={{ 
             padding: '16px', 
             borderRadius: '12px', 
-            background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(139, 92, 246, 0.08) 100%)',
-            border: '1px solid rgba(167, 139, 250, 0.2)'
+            background: 'var(--hero-gradient)',
+            border: '1px solid var(--hero-border)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: '#FAFAFA' }}>Премиум</p>
-                <p style={{ fontSize: '11px', color: '#A78BFA', marginTop: '2px' }}>Приоритет + консультации</p>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Премиум</p>
+                <p style={{ fontSize: '11px', color: 'var(--accent-primary)', marginTop: '2px' }}>Приоритет + консультации</p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '22px', fontWeight: 700, color: '#FAFAFA' }}>24 900</span>
-                <span style={{ fontSize: '12px', color: '#71717A' }}> ₽/мес</span>
+                <span style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>24 900</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> ₽/мес</span>
               </div>
             </div>
           </div>
@@ -685,7 +688,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
   }, [selectedFeatures, selectedTemplate]);
 
   return (
-    <div className="min-h-screen bg-black text-white pb-32 smooth-scroll-page" style={{ paddingTop: '140px' }}>
+    <div className="min-h-screen pb-32 smooth-scroll-page" style={{ paddingTop: '140px', background: 'var(--surface)', color: 'var(--text-secondary)' }}>
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
         {/* Payment Section - AIDA Style with Animated Text */}

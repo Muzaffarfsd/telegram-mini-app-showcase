@@ -29,7 +29,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#000000] pb-24 overflow-hidden smooth-scroll-page" style={{ paddingTop: '140px' }}>
+    <div className="min-h-screen pb-24 overflow-hidden smooth-scroll-page" style={{ paddingTop: '140px', backgroundColor: 'var(--surface)' }}>
       <div className="max-w-md mx-auto">
         
         {/* Apple-Style Hero with Parallax */}
@@ -78,10 +78,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 fontWeight: 700,
                 letterSpacing: '-0.05em',
                 lineHeight: '1.05',
-                background: 'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.7) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
+                color: 'var(--text-primary)'
               }}
             >
               ИИ агент
@@ -98,7 +95,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 fontSize: '19px',
                 lineHeight: '1.42',
                 fontWeight: 400,
-                color: 'rgba(255, 255, 255, 0.65)',
+                color: 'var(--text-tertiary)',
                 letterSpacing: '-0.015em'
               }}
             >
@@ -207,7 +204,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               fontSize: '32px',
               fontWeight: 700,
               letterSpacing: '-0.04em',
-              color: '#FFFFFF',
+              color: 'var(--text-primary)',
               lineHeight: '1.1'
             }}
           >
@@ -219,14 +216,10 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[28px] p-8 space-y-5"
             style={{
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
+              background: 'var(--card-bg)',
               backdropFilter: 'blur(40px) saturate(180%)',
-              border: '0.5px solid rgba(255, 255, 255, 0.15)',
-              boxShadow: `
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                0 20px 60px rgba(0, 0, 0, 0.4),
-                0 2px 8px rgba(0, 0, 0, 0.25)
-              `
+              border: '1px solid var(--card-border)',
+              boxShadow: 'var(--glass-shadow-style)'
             }}
           >
             <BenefitItemPremium text="Telegram Mini App с премиум дизайном" />
@@ -246,7 +239,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               fontSize: '32px',
               fontWeight: 700,
               letterSpacing: '-0.04em',
-              color: '#FFFFFF',
+              color: 'var(--text-primary)',
               lineHeight: '1.1'
             }}
           >
@@ -365,7 +358,7 @@ const StatBadge = memo(({ number, label }: { number: string; label: string }) =>
         fontSize: '24px',
         fontWeight: 700,
         letterSpacing: '-0.03em',
-        color: '#FFFFFF',
+        color: 'var(--text-primary)',
         lineHeight: '1',
         marginBottom: '4px'
       }}
@@ -375,7 +368,7 @@ const StatBadge = memo(({ number, label }: { number: string; label: string }) =>
     <div 
       style={{
         fontSize: '12px',
-        color: 'rgba(255, 255, 255, 0.5)',
+        color: 'var(--text-quaternary)',
         letterSpacing: '0.02em',
         textTransform: 'uppercase'
       }}
@@ -407,10 +400,10 @@ const ProcessStepPremium = memo(({
   <div 
     className="rounded-[24px] p-6 relative overflow-hidden group interactive-smooth active:scale-[0.98]"
     style={{
-      background: 'rgba(255, 255, 255, 0.04)',
+      background: 'var(--card-bg)',
       backdropFilter: 'blur(20px)',
-      border: '0.5px solid rgba(255, 255, 255, 0.1)',
-      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.25)',
+      border: '1px solid var(--card-border)',
+      boxShadow: 'var(--glass-shadow-style)',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
     }}
   >
@@ -445,7 +438,7 @@ const ProcessStepPremium = memo(({
               fontSize: '20px',
               fontWeight: 700,
               letterSpacing: '-0.02em',
-              color: '#FFFFFF'
+              color: 'var(--text-primary)'
             }}
           >
             {title}
@@ -453,9 +446,9 @@ const ProcessStepPremium = memo(({
           <div 
             className="px-3 py-1.5 rounded-full shrink-0"
             style={{
-              background: 'rgba(255, 255, 255, 0.1)',
+              background: 'var(--overlay-medium)',
               fontSize: '13px',
-              color: 'rgba(255, 255, 255, 0.8)',
+              color: 'var(--text-secondary)',
               fontWeight: 600
             }}
           >
@@ -466,7 +459,7 @@ const ProcessStepPremium = memo(({
           style={{
             fontSize: '15px',
             lineHeight: '1.5',
-            color: 'rgba(255, 255, 255, 0.65)',
+            color: 'var(--text-tertiary)',
             letterSpacing: '-0.01em',
             marginBottom: '16px'
           }}
@@ -485,7 +478,7 @@ const ProcessStepPremium = memo(({
               <span 
                 style={{
                   fontSize: '14px',
-                  color: 'rgba(255, 255, 255, 0.6)',
+                  color: 'var(--text-tertiary)',
                   letterSpacing: '-0.01em'
                 }}
               >
@@ -503,7 +496,7 @@ const ProcessStepPremium = memo(({
       style={{
         fontSize: '120px',
         fontWeight: 900,
-        color: '#FFFFFF',
+        color: 'var(--text-primary)',
         lineHeight: '1'
       }}
     >
@@ -531,7 +524,7 @@ const BenefitItemPremium = memo(({ text }: { text: string }) => (
       style={{
         fontSize: '16px',
         lineHeight: '1.5',
-        color: 'rgba(255, 255, 255, 0.9)',
+        color: 'var(--text-primary)',
         letterSpacing: '-0.01em',
         fontWeight: 500
       }}
@@ -555,9 +548,9 @@ const WhyFeatureCard = memo(({
   <div 
     className="rounded-[20px] p-5 interactive-smooth active:scale-[0.98]"
     style={{
-      background: 'rgba(255, 255, 255, 0.04)',
+      background: 'var(--card-bg)',
       backdropFilter: 'blur(10px)',
-      border: '0.5px solid rgba(255, 255, 255, 0.1)',
+      border: '1px solid var(--card-border)',
       transition: 'all 0.3s ease'
     }}
   >
@@ -576,7 +569,7 @@ const WhyFeatureCard = memo(({
           style={{
             fontSize: '17px',
             fontWeight: 600,
-            color: '#FFFFFF',
+            color: 'var(--text-primary)',
             marginBottom: '6px',
             letterSpacing: '-0.02em'
           }}
@@ -587,7 +580,7 @@ const WhyFeatureCard = memo(({
           style={{
             fontSize: '15px',
             lineHeight: '1.5',
-            color: 'rgba(255, 255, 255, 0.6)',
+            color: 'var(--text-tertiary)',
             letterSpacing: '-0.01em'
           }}
         >

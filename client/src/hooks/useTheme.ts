@@ -60,9 +60,26 @@ function applyTheme(theme: Theme) {
     root.style.setProperty('--cta-foreground', '#ffffff');
     root.style.setProperty('--cta-secondary-border', 'rgba(0, 0, 0, 0.12)');
     root.style.setProperty('--cta-secondary-text', '#1e293b');
-    root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.8)');
-    root.style.setProperty('--card-border', 'rgba(0, 0, 0, 0.06)');
-    root.style.setProperty('--card-hover', 'rgba(255, 255, 255, 0.95)');
+    root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.92)');
+    root.style.setProperty('--card-border', 'rgba(0, 0, 0, 0.04)');
+    root.style.setProperty('--card-hover', 'rgba(255, 255, 255, 0.98)');
+    
+    // iOS 26 Light Theme - Stacked Sheets Design
+    root.style.setProperty('--card-shadow', '0 2px 8px -2px rgba(0,0,0,0.08), 0 4px 16px -4px rgba(0,0,0,0.06)');
+    root.style.setProperty('--card-shadow-hover', '0 4px 12px -2px rgba(0,0,0,0.12), 0 8px 24px -4px rgba(0,0,0,0.08)');
+    root.style.setProperty('--card-radius', '20px');
+    root.style.setProperty('--hero-gradient', 'linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(168,85,247,0.06) 50%, rgba(236,72,153,0.04) 100%)');
+    root.style.setProperty('--hero-border', 'rgba(99,102,241,0.12)');
+    root.style.setProperty('--accent-primary', '#6366F1');
+    root.style.setProperty('--accent-secondary', '#8B5CF6');
+    root.style.setProperty('--divider', 'rgba(0,0,0,0.06)');
+    root.style.setProperty('--pill-bg', 'rgba(0,0,0,0.04)');
+    root.style.setProperty('--pill-border', 'rgba(0,0,0,0.06)');
+    root.style.setProperty('--button-primary-bg', '#6366F1');
+    root.style.setProperty('--button-primary-text', '#FFFFFF');
+    root.style.setProperty('--button-secondary-bg', 'rgba(99,102,241,0.08)');
+    root.style.setProperty('--button-secondary-text', '#6366F1');
+    root.style.setProperty('--button-secondary-border', 'rgba(99,102,241,0.2)');
     
     // Inline styles for body/root - iOS 26 Light Theme
     body.style.backgroundColor = '#F2F4F6';
@@ -116,6 +133,23 @@ function applyTheme(theme: Theme) {
     root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.05)');
     root.style.setProperty('--card-border', 'rgba(255, 255, 255, 0.08)');
     root.style.setProperty('--card-hover', 'rgba(255, 255, 255, 0.1)');
+    
+    // Dark Theme - Glass Design
+    root.style.setProperty('--card-shadow', 'none');
+    root.style.setProperty('--card-shadow-hover', 'none');
+    root.style.setProperty('--card-radius', '16px');
+    root.style.setProperty('--hero-gradient', 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(59,130,246,0.08) 100%)');
+    root.style.setProperty('--hero-border', 'rgba(139, 92, 246, 0.25)');
+    root.style.setProperty('--accent-primary', '#A78BFA');
+    root.style.setProperty('--accent-secondary', '#8B5CF6');
+    root.style.setProperty('--divider', 'rgba(255,255,255,0.08)');
+    root.style.setProperty('--pill-bg', 'rgba(255,255,255,0.08)');
+    root.style.setProperty('--pill-border', 'rgba(255,255,255,0.12)');
+    root.style.setProperty('--button-primary-bg', '#A78BFA');
+    root.style.setProperty('--button-primary-text', '#000000');
+    root.style.setProperty('--button-secondary-bg', 'rgba(167,139,250,0.15)');
+    root.style.setProperty('--button-secondary-text', '#A78BFA');
+    root.style.setProperty('--button-secondary-border', 'rgba(167,139,250,0.3)');
     
     // Inline styles for body/root
     body.style.backgroundColor = '#0f0f11';
