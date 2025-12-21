@@ -295,11 +295,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const update = req.body;
       console.log('Telegram webhook:', JSON.stringify(update, null, 2));
       
-      const webAppUrl = process.env.RAILWAY_PUBLIC_DOMAIN 
-        ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-        : process.env.REPLIT_DEV_DOMAIN 
-        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-        : 'https://telegram-mini-app-showcase-production.up.railway.app';
+      const webAppUrl = process.env.WEBAPP_URL || (
+        process.env.RAILWAY_PUBLIC_DOMAIN 
+          ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+          : `https://${process.env.REPLIT_DEV_DOMAIN}`
+      );
+      
+      if (!webAppUrl) {
+        return res.status(503).json({ error: 'WEBAPP_URL не настроен' });
+      }
       
       // Premium Welcome Message Helper
       const sendPremiumMessage = async (chatId: number, text: string, extraButtons: any[] = []) => {
@@ -889,11 +893,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const webAppUrl = process.env.RAILWAY_PUBLIC_DOMAIN 
-        ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-        : process.env.REPLIT_DEV_DOMAIN 
-        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-        : 'https://telegram-mini-app-showcase-production.up.railway.app';
+      const webAppUrl = process.env.WEBAPP_URL || (
+        process.env.RAILWAY_PUBLIC_DOMAIN 
+          ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+          : `https://${process.env.REPLIT_DEV_DOMAIN}`
+      );
+      
+      if (!webAppUrl) {
+        return res.status(503).json({ error: 'WEBAPP_URL не настроен' });
+      }
       
       // Set bot menu commands
       const commandsResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setMyCommands`, {
@@ -1023,11 +1031,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe`);
       const botInfo = await response.json();
       
-      const webAppUrl = process.env.RAILWAY_PUBLIC_DOMAIN 
-        ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-        : process.env.REPLIT_DEV_DOMAIN 
-        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-        : 'https://telegram-mini-app-showcase-production.up.railway.app';
+      const webAppUrl = process.env.WEBAPP_URL || (
+        process.env.RAILWAY_PUBLIC_DOMAIN 
+          ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+          : `https://${process.env.REPLIT_DEV_DOMAIN}`
+      );
+      
+      if (!webAppUrl) {
+        return res.status(503).json({ error: 'WEBAPP_URL не настроен' });
+      }
       
       res.json({
         bot: botInfo.result,
