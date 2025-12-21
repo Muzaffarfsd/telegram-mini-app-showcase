@@ -1491,14 +1491,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               <span style={{
                 fontSize: '15px',
                 fontWeight: isProfilePressed || isProfileActive ? 600 : 500,
-                color: isProfilePressed || isProfileActive ? '#FAFAFA' : '#A1A1AA',
+                color: isProfilePressed || isProfileActive ? colors.textPrimary : colors.textSecondary,
                 display: 'block'
               }}>
                 Мой профиль
               </span>
               <span style={{
                 fontSize: '11px',
-                color: '#52525B',
+                color: colors.textMuted,
                 marginTop: '2px',
                 display: 'block'
               }}>
@@ -1508,7 +1508,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             
             <ChevronRight 
               size={16} 
-              color={isProfileActive ? '#A78BFA' : '#3F3F46'}
+              color={isProfileActive ? colors.accent : colors.textMuted}
               style={{ opacity: isProfileActive ? 1 : 0.5 }}
             />
           </button>
@@ -1518,8 +1518,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           margin: '0 16px 16px',
           padding: '20px',
           borderRadius: '16px',
-          background: 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.06) 100%)',
-          border: '1px solid rgba(139, 92, 246, 0.12)',
+          background: isDark 
+            ? 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.06) 100%)'
+            : 'linear-gradient(135deg, rgba(0,122,255,0.08) 0%, rgba(88,86,214,0.04) 100%)',
+          border: isDark 
+            ? '1px solid rgba(139, 92, 246, 0.12)'
+            : '1px solid rgba(0, 122, 255, 0.15)',
           position: 'relative',
           overflow: 'hidden'
         }}>
@@ -1530,7 +1534,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             width: '80px',
             height: '80px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)',
+            background: isDark 
+              ? 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(0,122,255,0.15) 0%, transparent 70%)',
             filter: 'blur(20px)'
           }} />
           
@@ -1539,7 +1545,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               fontSize: '11px',
               fontWeight: 600,
               letterSpacing: '0.05em',
-              color: '#A78BFA',
+              color: colors.accent,
               marginBottom: '8px',
               textTransform: 'uppercase'
             }}>
@@ -1548,7 +1554,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             <p style={{
               fontSize: '28px',
               fontWeight: 700,
-              color: '#FAFAFA',
+              color: colors.textPrimary,
               letterSpacing: '-0.03em',
               lineHeight: 1
             }}>
@@ -1556,7 +1562,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             </p>
             <p style={{
               fontSize: '13px',
-              color: '#71717A',
+              color: colors.textSecondary,
               marginTop: '6px'
             }}>
               осталось на этот месяц
@@ -1571,8 +1577,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           <div style={{
             padding: '20px',
             borderRadius: '16px',
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)'
+            background: colors.cardBg,
+            border: `1px solid ${colors.cardBorder}`
           }}>
             <div style={{
               display: 'flex',
@@ -1580,18 +1586,18 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               gap: '10px',
               marginBottom: '10px'
             }}>
-              <Sparkles size={18} color="#A78BFA" />
+              <Sparkles size={18} color={colors.accent} />
               <span style={{
                 fontSize: '14px',
                 fontWeight: 600,
-                color: '#FAFAFA'
+                color: colors.textPrimary
               }}>
-                Boost with <span style={{ color: '#A78BFA' }}>AI</span>
+                Boost with <span style={{ color: colors.accent }}>AI</span>
               </span>
             </div>
             <p style={{
               fontSize: '12px',
-              color: '#71717A',
+              color: colors.textSecondary,
               lineHeight: 1.5,
               marginBottom: '16px'
             }}>
@@ -1619,14 +1625,16 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
         <div style={{
           padding: '20px 24px 28px',
-          borderTop: '1px solid rgba(255,255,255,0.05)',
-          background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.2) 100%)'
+          borderTop: `1px solid ${colors.sectionBorder}`,
+          background: isDark 
+            ? 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.2) 100%)'
+            : 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.03) 100%)'
         }}>
           <p style={{
             fontSize: '10px',
             fontWeight: 700,
             letterSpacing: '0.15em',
-            color: '#52525B',
+            color: colors.textMuted,
             textTransform: 'uppercase',
             marginBottom: '12px'
           }}>
@@ -1668,18 +1676,17 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           }}>
             <div>
               <p 
-                className="light:!text-black"
                 style={{
                   fontSize: '12px',
                   fontWeight: 500,
-                  color: '#71717A'
+                  color: colors.textSecondary
                 }}
               >
                 Web4TG Studio
               </p>
               <p style={{
                 fontSize: '11px',
-                color: '#3F3F46',
+                color: colors.textMuted,
                 marginTop: '2px'
               }}>
                 2025
@@ -1694,7 +1701,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               <p style={{
                 fontSize: '10px',
                 fontWeight: 600,
-                color: '#22C55E',
+                color: colors.success,
                 letterSpacing: '0.02em'
               }}>
                 ONLINE
