@@ -1,0 +1,65 @@
+[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!
+[Redis] Connection failed: UrlError: Upstash Redis client was passed an invalid URL. You should pass a URL starting with https. Received: "AZtRAAIncDE5MDhhNDc2ODBmYTY0NWEyYjYxZmFiM2RkOTAwYjgwMHAxMzk3NjE". 
+    at new HttpClient (file:///app/node_modules/@upstash/redis/chunk-XUWAB4YZ.mjs:105:13)
+    at new _Redis (file:///app/node_modules/@upstash/redis/nodejs.mjs:53:20)
+    at getRedis (/app/server/redis.ts:17:13)
+    at initializeLimiters (/app/server/rateLimiter.ts:225:17)
+    at getLimiter (/app/server/rateLimiter.ts:247:5)
+    at createSensitiveRateLimitMiddleware (/app/server/rateLimiter.ts:346:44)
+    at registerRoutes (/app/server/routes.ts:327:33)
+    at <anonymous> (/app/server/index.ts:167:24)
+    at <anonymous> (/app/server/index.ts:196:1)
+    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+[RateLimiter] Redis not available - rate limiting disabled
+[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!
+[Redis] Connection failed: UrlError: Upstash Redis client was passed an invalid URL. You should pass a URL starting with https. Received: "AZtRAAIncDE5MDhhNDc2ODBmYTY0NWEyYjYxZmFiM2RkOTAwYjgwMHAxMzk3NjE". 
+    at new HttpClient (file:///app/node_modules/@upstash/redis/chunk-XUWAB4YZ.mjs:105:13)
+    at new _Redis (file:///app/node_modules/@upstash/redis/nodejs.mjs:53:20)
+    at getRedis (/app/server/redis.ts:17:13)
+    at initializeLimiters (/app/server/rateLimiter.ts:225:17)
+    at getLimiter (/app/server/rateLimiter.ts:247:5)
+    at createSensitiveRateLimitMiddleware (/app/server/rateLimiter.ts:346:44)
+    at registerRoutes (/app/server/routes.ts:328:28)
+    at <anonymous> (/app/server/index.ts:167:24)
+    at <anonymous> (/app/server/index.ts:196:1)
+    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+[RateLimiter] Redis not available - rate limiting disabled
+[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!
+[RateLimiter] Redis not available - rate limiting disabled
+[Redis] Connection failed: UrlError: Upstash Redis client was passed an invalid URL. You should pass a URL starting with https. Received: "AZtRAAIncDE5MDhhNDc2ODBmYTY0NWEyYjYxZmFiM2RkOTAwYjgwMHAxMzk3NjE". 
+    at new HttpClient (file:///app/node_modules/@upstash/redis/chunk-XUWAB4YZ.mjs:105:13)
+    at new _Redis (file:///app/node_modules/@upstash/redis/nodejs.mjs:53:20)
+    at getRedis (/app/server/redis.ts:17:13)
+    at initializeLimiters (/app/server/rateLimiter.ts:225:17)
+    at <anonymous> (/app/server/index.ts:196:1)
+    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!
+[RateLimiter] Redis not available - rate limiting disabled
+[Redis] Connection failed: UrlError: Upstash Redis client was passed an invalid URL. You should pass a URL starting with https. Received: "AZtRAAIncDE5MDhhNDc2ODBmYTY0NWEyYjYxZmFiM2RkOTAwYjgwMHAxMzk3NjE". 
+    at new HttpClient (file:///app/node_modules/@upstash/redis/chunk-XUWAB4YZ.mjs:105:13)
+    at new _Redis (file:///app/node_modules/@upstash/redis/nodejs.mjs:53:20)
+    at getRedis (/app/server/redis.ts:17:13)
+    at initializeLimiters (/app/server/rateLimiter.ts:225:17)
+    at getLimiter (/app/server/rateLimiter.ts:247:5)
+    at createBurstRateLimitMiddleware (/app/server/rateLimiter.ts:356:44)
+    at registerRoutes (/app/server/routes.ts:332:29)
+    at <anonymous> (/app/server/index.ts:167:24)
+    at <anonymous> (/app/server/index.ts:196:1)
+    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+    at getLimiter (/app/server/rateLimiter.ts:247:5)
+    at createBurstRateLimitMiddleware (/app/server/rateLimiter.ts:356:44)
+    at registerRoutes (/app/server/routes.ts:331:27)
+    at <anonymous> (/app/server/index.ts:167:24)
+[Upstash Redis] The redis token contains whitespace or newline, which can cause errors!
+[RateLimiter] Redis not available - rate limiting disabled
+[Redis] Connection failed: UrlError: Upstash Redis client was passed an invalid URL. You should pass a URL starting with https. Received: "AZtRAAIncDE5MDhhNDc2ODBmYTY0NWEyYjYxZmFiM2RkOTAwYjgwMHAxMzk3NjE". 
+    at new HttpClient (file:///app/node_modules/@upstash/redis/chunk-XUWAB4YZ.mjs:105:13)
+    at new _Redis (file:///app/node_modules/@upstash/redis/nodejs.mjs:53:20)
+    at getRedis (/app/server/redis.ts:17:13)
+    at initializeLimiters (/app/server/rateLimiter.ts:225:17)
+    at getLimiter (/app/server/rateLimiter.ts:247:5)
+    at createAnalyticsRateLimitMiddleware (/app/server/rateLimiter.ts:351:44)
+    at registerRoutes (/app/server/routes.ts:335:30)
+    at <anonymous> (/app/server/index.ts:167:24)
+    at <anonymous> (/app/server/index.ts:196:1)
+    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
