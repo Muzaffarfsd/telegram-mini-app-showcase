@@ -5710,8 +5710,22 @@ html.light .help-page [style*="background:#18181B"] {
 }
 
 /* ═══════════════════════════════════════════════════════
-   FAVORITES SECTION - Light Theme Overrides
+   FAVORITES SECTION - Light Theme Overrides (iOS 26)
    ═══════════════════════════════════════════════════════ */
+
+html.light .favorites-section {
+  --favorites-bg: linear-gradient(135deg, rgba(167, 139, 250, 0.06) 0%, rgba(139, 92, 246, 0.03) 50%, rgba(59, 130, 246, 0.04) 100%);
+  --favorites-border: rgba(167, 139, 250, 0.12);
+  --favorites-shadow: 0 4px 20px rgba(139, 92, 246, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+html.light .favorites-section > div {
+  background: var(--favorites-bg) !important;
+  border-color: var(--favorites-border) !important;
+  box-shadow: var(--favorites-shadow) !important;
+  backdrop-filter: blur(20px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(120%) !important;
+}
 
 html.light .favorites-section [style*="color: #FAFAFA"],
 html.light .favorites-section [style*="color:#FAFAFA"],
@@ -5722,12 +5736,144 @@ html.light .favorites-section [style*="color:#FFFFFF"] {
 
 html.light .favorites-section [style*="background: rgba(255"],
 html.light .favorites-section [style*="background:rgba(255"] {
-  background: var(--card-bg) !important;
+  background: rgba(0, 0, 0, 0.02) !important;
 }
 
 html.light .favorites-section [style*="border: 1px solid rgba(255"],
 html.light .favorites-section [style*="border:1px solid rgba(255"] {
-  border-color: var(--card-border) !important;
+  border-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .favorites-section [style*="rgba(167, 139, 250, 0.8)"] {
+  color: rgba(139, 92, 246, 0.8) !important;
+}
+
+/* Favorite cards hover */
+html.light .favorites-section .group:hover {
+  background: rgba(0, 0, 0, 0.03) !important;
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════
+   ONBOARDING MODAL - Light Theme (iOS 26)
+   ═══════════════════════════════════════════════════════ */
+
+html.light [class*="onboarding"],
+html.light [data-testid*="onboarding"] {
+  --onboarding-bg: rgba(255, 255, 255, 0.95);
+  --onboarding-card-bg: rgba(255, 255, 255, 0.98);
+  --onboarding-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 8px 32px rgba(0, 0, 0, 0.08), 0 24px 64px rgba(0, 0, 0, 0.06);
+}
+
+html.light .bg-black\/60,
+html.light .bg-black\/70,
+html.light .bg-black\/80 {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+html.light [class*="rounded-3xl"][class*="backdrop-blur"] {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
+  box-shadow: 
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 24px 64px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Onboarding text */
+html.light [class*="from-emerald-400"] + div h2,
+html.light [class*="from-violet-400"] + div h2,
+html.light [class*="from-amber-400"] + div h2,
+html.light [class*="from-blue-400"] + div h2 {
+  color: var(--text-primary) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   BOTTOM NAVIGATION - Light Theme (iOS 26)
+   ═══════════════════════════════════════════════════════ */
+
+html.light .liquid-glass-nav,
+html.light [class*="bottom-nav"],
+html.light [class*="fixed"][class*="bottom-0"][class*="left-0"][class*="right-0"] {
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  --nav-border: rgba(0, 0, 0, 0.06);
+  --nav-shadow: 0 -1px 0 rgba(0, 0, 0, 0.04), 0 -8px 32px rgba(0, 0, 0, 0.04);
+}
+
+html.light .liquid-glass-nav {
+  background: var(--nav-bg) !important;
+  border-top-color: var(--nav-border) !important;
+  box-shadow: var(--nav-shadow) !important;
+  backdrop-filter: blur(40px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
+}
+
+/* Nav icons and text */
+html.light .liquid-glass-nav .text-white\/60,
+html.light .liquid-glass-nav .text-white\/70 {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+html.light .liquid-glass-nav .text-white {
+  color: var(--text-primary) !important;
+}
+
+/* Active nav item */
+html.light .liquid-glass-nav [class*="active"],
+html.light .liquid-glass-nav [data-active="true"] {
+  color: #007AFF !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   TYPOGRAPHY CONTRAST - Light Theme (iOS 26)
+   ═══════════════════════════════════════════════════════ */
+
+/* Primary text - full opacity for readability */
+html.light .text-primary,
+html.light [style*="color: var(--text-primary)"] {
+  color: rgba(15, 23, 42, 1) !important; /* #0F172A Deep Navy */
+}
+
+/* Secondary text - 60% opacity per Apple HIG */
+html.light .text-secondary,
+html.light [style*="color: var(--text-secondary)"] {
+  color: rgba(15, 23, 42, 0.6) !important;
+}
+
+/* Tertiary text - 30% opacity */
+html.light .text-tertiary,
+html.light [style*="color: var(--text-tertiary)"] {
+  color: rgba(15, 23, 42, 0.3) !important;
+}
+
+/* Quaternary text - 18% opacity for subtle hints */
+html.light .text-quaternary,
+html.light [style*="color: var(--text-quaternary)"] {
+  color: rgba(15, 23, 42, 0.18) !important;
+}
+
+/* Muted text adjustments */
+html.light .text-muted-foreground {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   DIALOGS & MODALS - Light Theme (iOS 26)
+   ═══════════════════════════════════════════════════════ */
+
+html.light [role="dialog"],
+html.light [aria-modal="true"] {
+  --dialog-bg: rgba(255, 255, 255, 0.98);
+  --dialog-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 16px 48px rgba(0, 0, 0, 0.12);
+}
+
+html.light [role="dialog"] > div,
+html.light [aria-modal="true"] > div {
+  background: var(--dialog-bg) !important;
+  box-shadow: var(--dialog-shadow) !important;
+  backdrop-filter: blur(40px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
 }
 
 /* ═══════════════════════════════════════════════════════
