@@ -32,6 +32,20 @@ import {
   createBurstRateLimitMiddleware,
   createAnalyticsRateLimitMiddleware,
 } from './rateLimiter';
+import type { RequestWithRateLimit, TelegramUserData } from './types/api';
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    rateLimit?: {
+      limit: number;
+      current: number;
+      remaining: number;
+      resetTime: number;
+    };
+    telegramUser?: TelegramUserData;
+    telegramAuthDate?: number;
+  }
+}
 
 // ============ XSS SANITIZATION (Context-aware) ============
 // Only sanitize specific user-generated text fields, not paths/URLs
@@ -46,21 +60,20 @@ function sanitizeHtmlString(input: string): string {
     .replace(/on\w+\s*=/gi, '');
 }
 
-function sanitizeUserInput(obj: any, parentKey?: string): any {
+function sanitizeUserInput(obj: unknown, parentKey?: string): unknown {
   if (typeof obj === 'string') {
-    // Only sanitize known text fields, leave paths/URLs intact
     if (parentKey && XSS_SANITIZE_FIELDS.has(parentKey.toLowerCase())) {
       return sanitizeHtmlString(obj);
     }
     return obj;
   }
   if (Array.isArray(obj)) {
-    return obj.map((item, i) => sanitizeUserInput(item, parentKey));
+    return obj.map((item) => sanitizeUserInput(item, parentKey));
   }
   if (obj && typeof obj === 'object') {
-    const sanitized: any = {};
+    const sanitized: Record<string, unknown> = {};
     for (const key of Object.keys(obj)) {
-      sanitized[key] = sanitizeUserInput(obj[key], key);
+      sanitized[key] = sanitizeUserInput((obj as Record<string, unknown>)[key], key);
     }
     return sanitized;
   }
@@ -264,34 +277,33 @@ const paymentIntentSchema = z.object({
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-// Initialize Stripe only if secret key is available
-let stripe: any = null;
+import Stripe from 'stripe';
+
+let stripeClient: Stripe | null = null;
 if (process.env.STRIPE_SECRET_KEY) {
-  const Stripe = require('stripe');
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2023-10-16",
-  });
+  stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
 }
 
-// Middleware to verify Telegram user (uses imported validateTelegramInitData)
-function verifyTelegramUser(req: any, res: any, next: any) {
+function verifyTelegramUser(req: Request, res: Response, next: NextFunction): void {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) {
-    return res.status(503).json({ error: 'Telegram bot not configured' });
+    res.status(503).json({ error: 'Telegram bot not configured' });
+    return;
   }
 
-  const initData = req.headers['x-telegram-init-data'] || req.body.initData;
+  const initData = (req.headers['x-telegram-init-data'] as string) || req.body?.initData;
   if (!initData) {
-    return res.status(401).json({ error: 'Missing Telegram init data' });
+    res.status(401).json({ error: 'Missing Telegram init data' });
+    return;
   }
 
   const validated = validateTelegramInitData(initData, botToken);
   if (!validated || !validated.user) {
-    return res.status(401).json({ error: 'Invalid Telegram init data' });
+    res.status(401).json({ error: 'Invalid Telegram init data' });
+    return;
   }
 
-  // Attach verified user to request
-  req.telegramUser = validated.user;
+  req.telegramUser = validated.user as TelegramUserData;
   req.telegramAuthDate = validated.auth_date;
   next();
 }
@@ -1153,9 +1165,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe payment routes
-  app.post("/api/create-payment-intent", verifyTelegramUser, async (req: any, res) => {
-    if (!stripe) {
+  app.post("/api/create-payment-intent", verifyTelegramUser, async (req: Request, res: Response) => {
+    if (!stripeClient) {
       return res.status(503).json({ 
         error: "Payment processing is not available. Stripe not configured." 
       });
@@ -1164,10 +1175,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { amount, project_name, features } = req.body;
       
-      // Convert amount to cents (Stripe expects cents)
       const amountInCents = Math.round(amount * 100);
       
-      const paymentIntent = await stripe.paymentIntents.create({
+      const paymentIntent = await stripeClient.paymentIntents.create({
         amount: amountInCents,
         currency: "rub", // Russian Ruble
         metadata: {
@@ -1190,8 +1200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Payment success webhook (for future use)
-  app.post("/api/payment-success", verifyTelegramUser, async (req: any, res) => {
+  app.post("/api/payment-success", verifyTelegramUser, async (req: Request, res: Response) => {
     try {
       const { paymentIntentId, projectName, features } = req.body;
       
@@ -1209,10 +1218,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Health check for payment system
   app.get("/api/payment-status", (req, res) => {
     res.json({ 
-      stripe_available: !!stripe,
+      stripe_available: !!stripeClient,
       environment: process.env.NODE_ENV || 'development'
     });
   });
