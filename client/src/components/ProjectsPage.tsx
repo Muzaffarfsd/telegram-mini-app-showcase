@@ -1,5 +1,7 @@
 import { demoApps } from "../data/demoApps";
 import { ArrowRight } from "lucide-react";
+import { FavoritesSection } from "./FavoritesSection";
+import { FavoriteButton } from "./FavoriteButton";
 
 interface ProjectsPageProps {
   onNavigate: (section: string) => void;
@@ -192,6 +194,13 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
         />
 
         {/* ═══════════════════════════════════════════════════════
+            FAVORITES SECTION — Liquid Glass Style
+        ═══════════════════════════════════════════════════════ */}
+        <div className="py-6">
+          <FavoritesSection onOpenDemo={onOpenDemo} />
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════
             TIER 2: CURATED SHOWCASE INTRO
         ═══════════════════════════════════════════════════════ */}
         <section className="px-7 py-10">
@@ -271,25 +280,28 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                   </p>
                 </div>
                 
-                <button
-                  className="open-button flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    color: '#FFFFFF',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    letterSpacing: '0.01em',
-                    flexShrink: 0
-                  }}
-                  data-testid={`button-open-${app.id}`}
-                >
-                  <span>Открыть</span>
-                  <ArrowRight 
-                    className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5" 
-                    strokeWidth={2.5}
-                  />
-                </button>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <FavoriteButton demoId={app.id} size="md" />
+                  
+                  <button
+                    className="open-button flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      color: '#FFFFFF',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      letterSpacing: '0.01em',
+                    }}
+                    data-testid={`button-open-${app.id}`}
+                  >
+                    <span>Открыть</span>
+                    <ArrowRight 
+                      className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5" 
+                      strokeWidth={2.5}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
