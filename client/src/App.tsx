@@ -449,7 +449,7 @@ function App() {
                     {/* Разделитель */}
                     <div className="w-px h-8 mx-1" style={{ background: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)' }} />
                     
-                    {/* Переключатель темы со звёздами - оптимизировано для мобильных */}
+                    {/* Переключатель темы со звёздами внутри иконки */}
                     <button
                       onClick={() => { toggleTheme(); hapticFeedback.medium(); }}
                       className="relative flex items-center justify-center w-11 h-11 rounded-full"
@@ -464,32 +464,6 @@ function App() {
                       aria-label="Переключить тему"
                       data-testid="button-theme-toggle-mobile"
                     >
-                      {/* Звёзды - всегда рендерятся, скрываются через opacity */}
-                      <span className="theme-stars" style={{ opacity: isDark ? 1 : 0, transition: 'opacity 0.2s' }}>
-                        <span style={{ top: 6, left: 6, animationDelay: '0s' }} />
-                        <span style={{ top: 28, left: 8, animationDelay: '0.5s' }} />
-                        <span style={{ top: 16, left: 30, animationDelay: '1s' }} />
-                      </span>
-                      <style>{`
-                        .theme-stars {
-                          position: absolute;
-                          inset: 0;
-                          pointer-events: none;
-                        }
-                        .theme-stars span {
-                          position: absolute;
-                          width: 2.5px;
-                          height: 2.5px;
-                          background: #fff;
-                          border-radius: 50%;
-                          will-change: opacity;
-                          animation: starTwinkle 2s ease-in-out infinite;
-                        }
-                        @keyframes starTwinkle {
-                          0%, 100% { opacity: 0.3; }
-                          50% { opacity: 1; }
-                        }
-                      `}</style>
                       <div className="relative w-6 h-6">
                         {/* Солнце */}
                         <Sun 
@@ -501,17 +475,44 @@ function App() {
                           }}
                           strokeWidth={2.5}
                         />
-                        {/* Луна */}
-                        <Moon 
+                        {/* Луна со звёздами внутри */}
+                        <div 
                           className="absolute inset-0 w-6 h-6"
-                          style={{
-                            color: '#C4B5FD',
-                            opacity: isDark ? 1 : 0,
-                            transition: 'opacity 0.15s',
-                          }}
-                          strokeWidth={2.5}
-                        />
+                          style={{ opacity: isDark ? 1 : 0, transition: 'opacity 0.15s' }}
+                        >
+                          <Moon 
+                            className="absolute inset-0 w-6 h-6"
+                            style={{ color: '#C4B5FD' }}
+                            strokeWidth={2.5}
+                          />
+                          {/* Звёзды внутри полумесяца */}
+                          <span className="moon-stars">
+                            <span style={{ top: '2px', left: '5px', animationDelay: '0s' }} />
+                            <span style={{ top: '8px', left: '7px', animationDelay: '0.4s' }} />
+                            <span style={{ top: '14px', left: '4px', animationDelay: '0.8s' }} />
+                          </span>
+                        </div>
                       </div>
+                      <style>{`
+                        .moon-stars {
+                          position: absolute;
+                          inset: 0;
+                          pointer-events: none;
+                        }
+                        .moon-stars span {
+                          position: absolute;
+                          width: 2px;
+                          height: 2px;
+                          background: #fff;
+                          border-radius: 50%;
+                          will-change: opacity;
+                          animation: moonStarTwinkle 1.8s ease-in-out infinite;
+                        }
+                        @keyframes moonStarTwinkle {
+                          0%, 100% { opacity: 0.4; }
+                          50% { opacity: 1; }
+                        }
+                      `}</style>
                     </button>
                     </nav>
                   </div>
