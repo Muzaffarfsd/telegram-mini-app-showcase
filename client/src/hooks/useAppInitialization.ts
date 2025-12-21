@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { scrollToTop } from './useScrollToTop';
 import { initializeVitals } from '../utils/vitals';
+import { initTelegramPrefetch, cleanupTelegramPrefetch } from '@/lib/telegramPrefetch';
 
 export function useAppInitialization() {
   useEffect(() => {
@@ -15,6 +16,14 @@ export function useAppInitialization() {
 
   useEffect(() => {
     initializeVitals();
+  }, []);
+
+  useEffect(() => {
+    initTelegramPrefetch();
+    
+    return () => {
+      cleanupTelegramPrefetch();
+    };
   }, []);
 }
 

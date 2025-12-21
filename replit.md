@@ -24,6 +24,8 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 9. **Debounce Utilities (✅ ADDED)**: Created `client/src/lib/debounce.ts` with `debounce`, `debounceAsync`, `throttle` functions. React hooks: `useDebounceValue`, `useDebouncedCallback`, `useThrottledCallback`.
 10. **Query Caching (✅ UPDATED)**: Updated `client/src/lib/queryClient.ts` - staleTime 5 min (was Infinity), gcTime 10 min, smart retry logic (no retry on 401/403/404), typed query function with Zod validation (`createTypedQueryFn`).
 11. **Virtual Lists (✅ ADDED)**: Created `client/src/components/ui/virtual-list.tsx` with `VirtualList` and `VirtualGrid` components using @tanstack/react-virtual for efficient rendering of large lists (leaderboards, referrals).
+12. **Telegram WebApp 7.0 Prefetch (✅ ADDED)**: Created `client/src/lib/telegramPrefetch.ts` with intelligent prefetching. Features: version detection (7.0+), activated/deactivated event handling, viewport-aware prefetch triggers, network-aware loading (4G detection), requestIdleCallback optimization. Hooks: `useDemoPrefetchOnHover`, `useDemoPrefetchOnVisible`, `useImagesPrefetch`, `useNetworkAwarePrefetch`.
+13. **Onboarding Persistence (✅ FIXED)**: Updated `OnboardingTutorial.tsx` to use Telegram CloudStorage (version 6.9+) with localStorage fallback. Onboarding now shows only on first visit.
 
 ## Important Findings (Query Performance Audit)
 - ✅ **N+1 Queries (VERIFIED SAFE)**: Code analysis shows no N+1 query patterns. Leaderboard endpoint (line 2267) uses batch SELECT with Promise.all(). Referrals endpoint (line 1908) uses innerJoin pattern. All critical paths are optimized.
