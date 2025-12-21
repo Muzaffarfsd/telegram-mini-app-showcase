@@ -1,9 +1,88 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { X, ChevronRight, ChevronLeft, Sparkles, Gift, Trophy, Zap } from 'lucide-react';
 import { useABTest, EXPERIMENTS } from '@/hooks/useABTest';
 
 const ONBOARDING_KEY = 'tma_onboarding_complete';
+const CLOUD_STORAGE_KEY = 'onboarding_v1';
+
+interface TelegramCloudStorage {
+  getItem: (key: string, callback: (error: Error | null, value: string | null) => void) => void;
+  setItem: (key: string, value: string, callback: (error: Error | null) => void) => void;
+}
+
+function isCloudStorageSupported(): boolean {
+  try {
+    const webApp = window.Telegram?.WebApp as { version?: string } | undefined;
+    const version = webApp?.version;
+    if (!version) return false;
+    const [major, minor] = version.split('.').map(Number);
+    return major > 6 || (major === 6 && minor >= 9);
+  } catch {
+    return false;
+  }
+}
+
+function getTelegramCloudStorage(): TelegramCloudStorage | null {
+  if (!isCloudStorageSupported()) {
+    return null;
+  }
+  
+  try {
+    const webApp = window.Telegram?.WebApp as { CloudStorage?: TelegramCloudStorage } | undefined;
+    return webApp?.CloudStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function getOnboardingStatus(): Promise<boolean> {
+  const localValue = localStorage.getItem(ONBOARDING_KEY) === 'true';
+  
+  const cloudStorage = getTelegramCloudStorage();
+  if (!cloudStorage) {
+    return localValue;
+  }
+  
+  try {
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => resolve(localValue), 2000);
+      
+      try {
+        cloudStorage.getItem(CLOUD_STORAGE_KEY, (error: Error | null, value: string | null) => {
+          clearTimeout(timeout);
+          if (!error && value === 'true') {
+            localStorage.setItem(ONBOARDING_KEY, 'true');
+            resolve(true);
+          } else if (localValue) {
+            try {
+              cloudStorage.setItem(CLOUD_STORAGE_KEY, 'true', () => {});
+            } catch {}
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        });
+      } catch {
+        clearTimeout(timeout);
+        resolve(localValue);
+      }
+    });
+  } catch {
+    return localValue;
+  }
+}
+
+function setOnboardingComplete(): void {
+  localStorage.setItem(ONBOARDING_KEY, 'true');
+  
+  try {
+    const cloudStorage = getTelegramCloudStorage();
+    if (cloudStorage) {
+      cloudStorage.setItem(CLOUD_STORAGE_KEY, 'true', () => {});
+    }
+  } catch {}
+}
 
 interface OnboardingStep {
   icon: typeof Sparkles;
@@ -67,17 +146,23 @@ export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
   const steps = isVariantB ? simplifiedSteps : allSteps;
 
   useEffect(() => {
-    const completed = localStorage.getItem(ONBOARDING_KEY);
-    if (!completed) {
-      setTimeout(() => setIsVisible(true), 800);
-    }
+    let mounted = true;
+    
+    getOnboardingStatus().then((completed) => {
+      if (!mounted) return;
+      if (!completed) {
+        setTimeout(() => setIsVisible(true), 800);
+      }
+    });
+    
+    return () => { mounted = false; };
   }, []);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      handleComplete();
+      handleCompleteAction();
     }
   };
 
@@ -87,15 +172,15 @@ export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
     }
   };
 
-  const handleComplete = () => {
-    localStorage.setItem(ONBOARDING_KEY, 'true');
+  const handleCompleteAction = () => {
+    setOnboardingComplete();
     trackConversion();
     setIsVisible(false);
     onComplete?.();
   };
 
   const handleSkip = () => {
-    handleComplete();
+    handleCompleteAction();
   };
 
   if (!isVisible) return null;

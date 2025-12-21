@@ -44,7 +44,7 @@ function parseHash(): Route {
   
   return {
     path,
-    component: routes[path] || 'notFound',
+    component: routes[path] || 'showcase',
     params: {}
   };
 }
