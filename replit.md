@@ -23,7 +23,20 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **AI/Gamification**: `AIAssistant` for contextual chat, `PersonalizedRecommendations` (ML-driven), and a gamification system with achievements, XP, daily tasks, and leaderboards.
 - **Accessibility**: WCAG 2.1 AA compliance with ARIA labels and keyboard navigation.
 - **PWA Infrastructure**: Service Worker for offline-first strategy, multi-tier caching, background sync, and push notifications. Includes `OfflineIndicator` and IndexedDB storage for offline data persistence.
-- **Theming**: Dark/light theme toggle (`useTheme` hook) with localStorage persistence and Telegram WebApp color synchronization. Implements an iOS 26-inspired "Air & Glass" light theme and a premium black dark theme.
+- **Theming**: Dark/light theme toggle (`useTheme` hook) with localStorage persistence and Telegram WebApp color synchronization. Implements an iOS 26-inspired "Air & Glass" light theme and a premium OLED-optimized dark theme with 20+ effects:
+  - OLED Black foundation with 5 surface depth levels (surface-1 to surface-5)
+  - Premium card styles with gradient backgrounds and luminous borders
+  - Glassmorphism 2.0 with blur(24-40px) and saturate effects
+  - Gradient glow buttons with animated border effects
+  - Spotlight hover effect for cards (radial gradient follows cursor)
+  - Shimmer skeleton loading animations
+  - Sticky blur headers with backdrop-filter
+  - Duotone icon styles with glow effects
+  - Micro-animations: float, pulse-glow, gradient-shift
+  - Neomorphism dark elements with inset shadows
+  - Aurora and mesh gradient backgrounds
+  - Holographic animated effects
+  - Premium transition curves (cubic-bezier)
 - **Core Utilities**: Comprehensive logging system (Sentry integration), unified API client with CSRF and Zod validation, debounce/throttle utilities, and query caching with Zod validation.
 - **Virtualization**: `VirtualList` and `VirtualGrid` components for efficient rendering of large lists.
 - **Storage**: Telegram CloudStorage (version 6.9+) with localStorage fallback for onboarding persistence, and Bot API 9.2 storage wrappers (`deviceStorage`, `secureStorage`) with TTL-based caching.
