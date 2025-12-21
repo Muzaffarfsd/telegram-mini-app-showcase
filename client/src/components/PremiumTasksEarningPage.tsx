@@ -8,6 +8,7 @@ import { SiTiktok, SiInstagram } from 'react-icons/si';
 import { useTelegram } from '@/hooks/useTelegram';
 import { useRewards } from '@/contexts/RewardsContext';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from '@/hooks/useTheme';
 
 interface TasksEarningPageProps {
   onNavigate: (section: string) => void;
@@ -454,11 +455,25 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
   const { hapticFeedback, initData, user } = useTelegram();
   const { userStats } = useRewards();
   const { toast } = useToast();
+  const { isDark } = useTheme();
   
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [pendingTasks, setPendingTasks] = useState<Set<string>>(new Set());
   const [streak, setStreak] = useState(0);
   const [timeToReset, setTimeToReset] = useState('');
+  
+  // Theme-aware colors
+  const colors = {
+    background: isDark ? '#09090B' : '#F2F4F6',
+    foreground: isDark ? '#E4E4E7' : '#1e293b',
+    textPrimary: isDark ? '#FAFAFA' : '#000000',
+    textSecondary: isDark ? '#71717A' : '#64748b',
+    textMuted: isDark ? '#52525B' : '#94a3b8',
+    cardBg: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
+    cardBorder: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.06)',
+    hairline: isDark ? '#27272A' : '#e2e8f0',
+    progressBg: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+  };
 
   // Calculate time until daily reset (midnight)
   useEffect(() => {
@@ -636,7 +651,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
   const renderTaskCard = (task: SocialTask) => {
     const isCompleted = completedTasks.has(task.id);
     const isPending = pendingTasks.has(task.id);
-    const colors = getPlatformColor(task.platform);
+    const platformColors = getPlatformColor(task.platform);
     
     return (
       <div 
@@ -649,10 +664,10 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
           borderRadius: '14px',
           background: isCompleted 
             ? 'rgba(16, 185, 129, 0.06)' 
-            : 'rgba(255, 255, 255, 0.02)',
+            : colors.cardBg,
           border: isCompleted 
             ? '1px solid rgba(16, 185, 129, 0.2)' 
-            : '1px solid rgba(255, 255, 255, 0.04)',
+            : `1px solid ${colors.cardBorder}`,
           cursor: isCompleted || isPending ? 'default' : 'pointer',
           opacity: isPending ? 0.7 : 1,
           transition: 'all 0.2s ease'
@@ -666,8 +681,8 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: '12px',
-          background: colors.bg,
-          color: colors.color,
+          background: platformColors.bg,
+          color: platformColors.color,
           flexShrink: 0
         }}>
           {getPlatformIcon(task.platform)}
@@ -677,17 +692,17 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
             <p style={{
               fontSize: '15px',
               fontWeight: 600,
-              color: '#FAFAFA'
+              color: colors.textPrimary
             }}>
               {task.title}
             </p>
-            <div style={{ color: '#71717A' }}>
+            <div style={{ color: colors.textSecondary }}>
               {getTypeIcon(task.type)}
             </div>
           </div>
           <p style={{
             fontSize: '13px',
-            color: '#71717A',
+            color: colors.textSecondary,
             lineHeight: '1.4'
           }}>
             {task.description}
@@ -727,7 +742,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
             fontSize: '10px',
             fontWeight: 600,
             letterSpacing: '0.12em',
-            color: '#52525B',
+            color: colors.textMuted,
             textTransform: 'uppercase',
             marginBottom: '20px'
           }}
@@ -746,8 +761,8 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
     <div 
       className="premium-tasks-page min-h-screen pb-32 smooth-scroll-page"
       style={{ 
-        background: 'var(--background, #09090B)',
-        color: 'var(--foreground, #E4E4E7)',
+        background: colors.background,
+        color: colors.foreground,
         paddingTop: '140px'
       }}
     >
@@ -761,7 +776,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               fontSize: '11px',
               fontWeight: 500,
               letterSpacing: '0.18em',
-              color: '#71717A',
+              color: colors.textSecondary,
               textTransform: 'uppercase',
               marginBottom: '24px'
             }}
@@ -777,7 +792,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               fontWeight: 600,
               letterSpacing: '-0.025em',
               lineHeight: '1.2',
-              color: '#FAFAFA'
+              color: colors.textPrimary
             }}
           >
             Выполняй задания,
@@ -794,7 +809,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               fontWeight: 400,
               letterSpacing: '-0.01em',
               lineHeight: '1.6',
-              color: '#71717A',
+              color: colors.textSecondary,
               marginTop: '20px',
               maxWidth: '320px'
             }}
@@ -806,7 +821,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
         {/* Hairline */}
         <div 
           className="mx-7"
-          style={{ height: '1px', background: '#27272A' }}
+          style={{ height: '1px', background: colors.hairline }}
         />
 
         {/* HOW IT WORKS SECTION */}
@@ -816,7 +831,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               fontSize: '10px',
               fontWeight: 600,
               letterSpacing: '0.12em',
-              color: '#52525B',
+              color: colors.textMuted,
               textTransform: 'uppercase',
               marginBottom: '16px'
             }}
@@ -828,14 +843,16 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
             style={{
               padding: '24px',
               borderRadius: '16px',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.04) 100%)',
+              background: isDark 
+                ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.04) 100%)'
+                : 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.08) 100%)',
               border: '1px solid rgba(139, 92, 246, 0.15)'
             }}
           >
             <p style={{
               fontSize: '17px',
               fontWeight: 500,
-              color: '#E4E4E7',
+              color: colors.foreground,
               lineHeight: '1.5',
               fontStyle: 'italic'
             }}>
@@ -851,7 +868,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               fontSize: '10px',
               fontWeight: 600,
               letterSpacing: '0.12em',
-              color: '#52525B',
+              color: colors.textMuted,
               textTransform: 'uppercase',
               marginBottom: '20px'
             }}
@@ -870,8 +887,8 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               style={{
                 padding: '20px',
                 borderRadius: '14px',
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.04)',
+                background: colors.cardBg,
+                border: `1px solid ${colors.cardBorder}`,
                 textAlign: 'center'
               }}
             >
@@ -885,7 +902,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               </p>
               <p style={{
                 fontSize: '12px',
-                color: '#52525B',
+                color: colors.textMuted,
                 marginTop: '4px'
               }}>
                 монет собрано
@@ -895,8 +912,8 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               style={{
                 padding: '20px',
                 borderRadius: '14px',
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.04)',
+                background: colors.cardBg,
+                border: `1px solid ${colors.cardBorder}`,
                 textAlign: 'center'
               }}
             >
@@ -905,7 +922,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                 <p style={{
                   fontSize: '28px',
                   fontWeight: 700,
-                  color: '#FAFAFA',
+                  color: colors.textPrimary,
                   letterSpacing: '-0.03em'
                 }}>
                   {streak}
@@ -913,7 +930,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               </div>
               <p style={{
                 fontSize: '12px',
-                color: '#52525B',
+                color: colors.textMuted,
                 marginTop: '4px'
               }}>
                 дней подряд
@@ -926,7 +943,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
             <div style={{
               height: '8px',
               borderRadius: '4px',
-              background: 'rgba(255, 255, 255, 0.05)',
+              background: colors.progressBg,
               overflow: 'hidden'
             }}>
               <div style={{
@@ -939,7 +956,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
             </div>
             <p style={{
               fontSize: '12px',
-              color: '#52525B',
+              color: colors.textMuted,
               marginTop: '8px',
               textAlign: 'center'
             }}>
@@ -951,7 +968,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
         {/* Hairline */}
         <div 
           className="mx-7"
-          style={{ height: '1px', background: '#27272A' }}
+          style={{ height: '1px', background: colors.hairline }}
         />
 
         {/* DAILY TASKS SECTION */}
@@ -962,7 +979,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                 fontSize: '10px',
                 fontWeight: 600,
                 letterSpacing: '0.12em',
-                color: '#52525B',
+                color: colors.textMuted,
                 textTransform: 'uppercase'
               }}
             >
@@ -998,7 +1015,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
         {/* Hairline */}
         <div 
           className="mx-7"
-          style={{ height: '1px', background: '#27272A' }}
+          style={{ height: '1px', background: colors.hairline }}
         />
 
         {/* EXCHANGE RATES */}
@@ -1008,7 +1025,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               fontSize: '10px',
               fontWeight: 600,
               letterSpacing: '0.12em',
-              color: '#52525B',
+              color: colors.textMuted,
               textTransform: 'uppercase',
               marginBottom: '20px'
             }}
@@ -1038,10 +1055,10 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                     borderRadius: '14px',
                     background: isAchieved 
                       ? 'rgba(16, 185, 129, 0.06)' 
-                      : 'rgba(255, 255, 255, 0.02)',
+                      : colors.cardBg,
                     border: isAchieved 
                       ? '1px solid rgba(16, 185, 129, 0.2)' 
-                      : '1px solid rgba(255, 255, 255, 0.04)'
+                      : `1px solid ${colors.cardBorder}`
                   }}
                 >
                   <div style={{
@@ -1066,14 +1083,14 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                     <p style={{
                       fontSize: '15px',
                       fontWeight: 600,
-                      color: '#FAFAFA',
+                      color: colors.textPrimary,
                       marginBottom: '4px'
                     }}>
                       {tier.coins} монет = скидка {tier.discount}
                     </p>
                     <p style={{
                       fontSize: '13px',
-                      color: '#71717A',
+                      color: colors.textSecondary,
                       lineHeight: '1.4'
                     }}>
                       {tier.label}
@@ -1086,7 +1103,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
           
           <p style={{
             fontSize: '12px',
-            color: '#52525B',
+            color: colors.textMuted,
             marginTop: '16px',
             textAlign: 'center',
             lineHeight: '1.5'
@@ -1103,7 +1120,9 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
             style={{
               padding: '28px',
               borderRadius: '20px',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(59,130,246,0.08) 100%)',
+              background: isDark 
+                ? 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(59,130,246,0.08) 100%)'
+                : 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(59,130,246,0.12) 100%)',
               border: '1px solid rgba(139, 92, 246, 0.2)',
               textAlign: 'center'
             }}
@@ -1124,7 +1143,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
             <h3 style={{
               fontSize: '20px',
               fontWeight: 600,
-              color: '#FAFAFA',
+              color: colors.textPrimary,
               marginBottom: '8px'
             }}>
               Приглашай друзей
@@ -1132,7 +1151,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
             
             <p style={{
               fontSize: '14px',
-              color: '#71717A',
+              color: colors.textSecondary,
               marginBottom: '20px',
               lineHeight: '1.5'
             }}>
@@ -1172,7 +1191,7 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
               fontSize: '10px',
               fontWeight: 600,
               letterSpacing: '0.12em',
-              color: '#52525B',
+              color: colors.textMuted,
               textTransform: 'uppercase',
               marginBottom: '16px'
             }}
@@ -1184,14 +1203,14 @@ export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
             style={{
               padding: '24px',
               borderRadius: '16px',
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid rgba(255, 255, 255, 0.04)'
+              background: colors.cardBg,
+              border: `1px solid ${colors.cardBorder}`
             }}
           >
             <p style={{
               fontSize: '15px',
               fontWeight: 500,
-              color: '#E4E4E7',
+              color: colors.foreground,
               lineHeight: '1.6',
               marginBottom: '20px'
             }}>
