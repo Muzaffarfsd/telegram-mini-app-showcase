@@ -4,7 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { useTelegram } from "./hooks/useTelegram";
 import { useTelegramButtons } from "./hooks/useTelegramButtons";
-import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
+import { Home, ShoppingCart, Briefcase, Bot, Sun, Moon } from "lucide-react";
+import { useTheme } from "./hooks/useTheme";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
@@ -102,6 +103,8 @@ const NavButton = ({ onClick, isActive, ariaLabel, testId, children }: NavButton
 function App() {
   const [orderData, setOrderData] = useState<any>(null);
   const { hapticFeedback, user } = useTelegram();
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
   
   // Custom hooks for cleaner code (replaces 7+ useEffects)
   const { route } = useRouting();
@@ -442,6 +445,42 @@ function App() {
                         }`}
                       />
                     </NavButton>
+                    
+                    {/* Разделитель */}
+                    <div className="w-px h-6 bg-white/20 mx-1" />
+                    
+                    {/* Переключатель темы - компактный */}
+                    <button
+                      onClick={() => { toggleTheme(); hapticFeedback.light(); }}
+                      className="relative flex items-center justify-center w-10 h-10 rounded-full gpu-layer"
+                      style={{
+                        background: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                        transition: 'all 0.3s ease',
+                      }}
+                      aria-label="Переключить тему"
+                      data-testid="button-theme-toggle-mobile"
+                    >
+                      <div className="relative w-5 h-5">
+                        {/* Солнце */}
+                        <Sun 
+                          className="absolute inset-0 w-5 h-5 text-amber-400 transition-all duration-300"
+                          style={{
+                            opacity: isDark ? 0 : 1,
+                            transform: isDark ? 'rotate(-90deg) scale(0.5)' : 'rotate(0) scale(1)',
+                          }}
+                          strokeWidth={2}
+                        />
+                        {/* Луна */}
+                        <Moon 
+                          className="absolute inset-0 w-5 h-5 text-slate-300 transition-all duration-300"
+                          style={{
+                            opacity: isDark ? 1 : 0,
+                            transform: isDark ? 'rotate(0) scale(1)' : 'rotate(90deg) scale(0.5)',
+                          }}
+                          strokeWidth={2}
+                        />
+                      </div>
+                    </button>
                     </nav>
                   </div>
                   </m.div>
