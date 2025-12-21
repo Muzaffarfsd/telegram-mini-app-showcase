@@ -88,8 +88,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   const [pressedItem, setPressedItem] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isThemeAnimating, setIsThemeAnimating] = useState(false);
+  const [showThemeOverlay, setShowThemeOverlay] = useState(false);
+  const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
+  const [overlayTheme, setOverlayTheme] = useState<'light' | 'dark'>('light');
   const sidebarRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
+  const themeButtonRef = useRef<HTMLButtonElement>(null);
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
   const touchStartX = useRef<number>(0);
   const touchCurrentX = useRef<number>(0);
@@ -1632,15 +1636,36 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </p>
           
           <button
+            ref={themeButtonRef}
             onClick={() => {
               if (isThemeAnimating) return;
+              
+              // Get button position for overlay
+              const btn = themeButtonRef.current;
+              if (btn) {
+                const rect = btn.getBoundingClientRect();
+                setOverlayPosition({
+                  x: rect.left + rect.width / 2,
+                  y: rect.top + rect.height / 2
+                });
+              }
+              
               setIsThemeAnimating(true);
+              setOverlayTheme(isDark ? 'light' : 'dark');
+              setShowThemeOverlay(true);
               triggerHaptic('medium');
+              
+              // Toggle theme after slight delay
               setTimeout(() => {
                 toggleTheme();
                 triggerHaptic('light');
-              }, 150);
-              setTimeout(() => setIsThemeAnimating(false), 600);
+              }, 200);
+              
+              // Hide overlay after animation
+              setTimeout(() => {
+                setShowThemeOverlay(false);
+                setIsThemeAnimating(false);
+              }, 800);
             }}
             data-testid="button-theme-toggle"
             style={{
@@ -1696,18 +1721,25 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 }} 
               />
             </div>
-            {isThemeAnimating && (
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: '12px',
-                background: isDark 
-                  ? 'radial-gradient(circle, rgba(251,191,36,0.3) 0%, transparent 70%)' 
-                  : 'radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%)',
-                animation: 'pulse-glow 0.6s ease-out',
-              }} />
-            )}
           </button>
+          
+          {/* Theme transition overlay */}
+          {showThemeOverlay && (
+            <div className="theme-transition-overlay">
+              <div 
+                className="theme-transition-circle"
+                style={{
+                  left: overlayPosition.x,
+                  top: overlayPosition.y,
+                  width: '300vmax',
+                  height: '300vmax',
+                  background: overlayTheme === 'light' 
+                    ? 'radial-gradient(circle, #F2F4F6 0%, #F2F4F6 50%, transparent 70%)'
+                    : 'radial-gradient(circle, #0f0f11 0%, #0f0f11 50%, transparent 70%)',
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>

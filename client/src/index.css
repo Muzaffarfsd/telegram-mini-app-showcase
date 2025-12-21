@@ -3949,6 +3949,48 @@ html.slow-network video {
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
+/* Theme transition overlay animation */
+@keyframes theme-circle-expand {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes theme-circle-fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.theme-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 99999;
+  overflow: hidden;
+}
+
+.theme-transition-circle {
+  position: absolute;
+  border-radius: 50%;
+  animation: theme-circle-expand 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.theme-transition-circle.fade-out {
+  animation: theme-circle-fade 0.3s ease-out forwards;
+}
+
 /* Premium shimmer loading effect */
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
