@@ -20,6 +20,17 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Telegram Integration**: Supports Home screen shortcuts, API 2025 (fullscreen, safe area insets, share message, download file), and geolocation tracking. Includes intelligent prefetching for Telegram WebApp Bot API 9.2.
 - **Performance**: Optimized FCP via bundle splitting, lazy loading, static `ShowcaseShell`, and video playback control. Incorporates custom hooks for various functionalities and ErrorBoundary for crash isolation.
 - **Advanced Interactions**: Voice UI (`VoiceSearch`), WebGL Particle Background, 3D Parallax Cards, Liquid Button Effects, Pull-to-Refresh.
+- **Premium Effects Components** (`client/src/components/effects/`):
+  - `GradientMesh` - Animated mesh gradient backgrounds with multiple floating orbs
+  - `NoiseOverlay` - Subtle animated grain texture for depth
+  - `ParallaxContainer/ParallaxLayer` - Performance-optimized parallax scrolling using refs (no setState per frame)
+  - `SkeletonShimmer` - Premium loading skeletons with shimmer animation
+  - `Confetti` - Achievement celebration effects with multiple shapes
+- **Navigation Components** (`client/src/components/navigation/`):
+  - `FloatingRadialMenu` - Expandable FAB with radial menu items
+  - `SwipeNavigation/SwipeableCard` - Touch gesture support for cards/navigation
+  - `AnimatedBreadcrumbs` - Breadcrumb navigation with animations
+  - `StickyBlurHeader/CollapsibleHeader` - Headers with glassmorphism blur effects
 - **AI/Gamification**: `AIAssistant` for contextual chat, `PersonalizedRecommendations` (ML-driven), and a gamification system with achievements, XP, daily tasks, and leaderboards.
 - **Accessibility**: WCAG 2.1 AA compliance with ARIA labels and keyboard navigation.
 - **PWA Infrastructure**: Service Worker for offline-first strategy, multi-tier caching, background sync, and push notifications. Includes `OfflineIndicator` and IndexedDB storage for offline data persistence.
