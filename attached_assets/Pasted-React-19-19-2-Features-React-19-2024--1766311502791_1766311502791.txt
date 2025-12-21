@@ -1,0 +1,148 @@
+React 19 / 19.2 Features
+Что это даёт
+React 19 (декабрь 2024) — крупнейшее обновление с автоматической оптимизацией.
+
+Функция	Что даёт	Бизнес-ценность
+React Compiler	Автоматическая мемоизация	-30-40% bundle, не нужен useMemo/useCallback
+Server Components	Рендеринг на сервере	-38% время загрузки
+Actions API	Упрощённые формы	Меньше кода, автоматические состояния
+use() API	Чтение промисов в рендере	Проще async код
+Activity Component	Приоритизация рендеринга	Предзагрузка страниц
+useEffectEvent	Стабильные колбэки	Меньше ре-рендеров
+Реализация
+Actions API — упрощённые формы:
+
+// Было (React 18):
+function OldForm() {
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsPending(true);
+    setError(null);
+    try {
+      await submitData(new FormData(e.target));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsPending(false);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      {error && <p>{error}</p>}
+      <button disabled={isPending}>
+        {isPending ? 'Saving...' : 'Save'}
+      </button>
+    </form>
+  );
+}
+// Стало (React 19):
+function NewForm() {
+  const [state, formAction, isPending] = useActionState(
+    async (prevState, formData) => {
+      try {
+        await submitData(formData);
+        return { success: true };
+      } catch (err) {
+        return { error: err.message };
+      }
+    },
+    { success: false, error: null }
+  );
+  
+  return (
+    <form action={formAction}>
+      {state.error && <p>{state.error}</p>}
+      <button disabled={isPending}>
+        {isPending ? 'Saving...' : 'Save'}
+      </button>
+    </form>
+  );
+}
+useOptimistic — мгновенный UI:
+
+function LikeButton({ initialLikes, postId }) {
+  const [likes, setLikes] = useState(initialLikes);
+  const [optimisticLikes, addOptimisticLike] = useOptimistic(
+    likes,
+    (current, increment) => current + increment
+  );
+  
+  const handleLike = async () => {
+    addOptimisticLike(1);  // Мгновенно показываем +1
+    
+    try {
+      const newLikes = await api.likePost(postId);
+      setLikes(newLikes);  // Обновляем реальным значением
+    } catch {
+      // При ошибке optimisticLikes откатится автоматически
+    }
+  };
+  
+  return (
+    <button onClick={handleLike}>
+      {optimisticLikes} likes
+    </button>
+  );
+}
+Activity Component (React 19.2) — предзагрузка страниц:
+
+import { Activity } from 'react';
+function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [nextPage, setNextPage] = useState(null);
+  
+  // Предзагружаем следующую страницу при наведении
+  const handleHover = (page) => setNextPage(page);
+  
+  return (
+    <>
+      {/* Текущая страница — полный рендеринг */}
+      <Activity mode="visible">
+        <Page name={currentPage} />
+      </Activity>
+      
+      {/* Следующая страница — скрытая предзагрузка */}
+      {nextPage && nextPage !== currentPage && (
+        <Activity mode="hidden">
+          <Page name={nextPage} />
+        </Activity>
+      )}
+      
+      <nav>
+        <button 
+          onMouseEnter={() => handleHover('settings')}
+          onClick={() => setCurrentPage('settings')}
+        >
+          Settings
+        </button>
+      </nav>
+    </>
+  );
+}
+use() API — чтение промисов:
+
+// Было:
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    fetchUser(userId).then(setUser).finally(() => setLoading(false));
+  }, [userId]);
+  
+  if (loading) return <Skeleton />;
+  return <div>{user.name}</div>;
+}
+// Стало:
+function UserProfile({ userPromise }) {
+  const user = use(userPromise);  // React сам покажет Suspense
+  return <div>{user.name}</div>;
+}
+// Использование:
+<Suspense fallback={<Skeleton />}>
+  <UserProfile userPromise={fetchUser(userId)} />
+</Suspense>
