@@ -490,11 +490,11 @@ function App() {
                             }}
                             strokeWidth={2.5}
                           />
-                          {/* Stars around moon */}
+                          {/* Stars inside moon crescent */}
                           <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible' }}>
-                            <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#FFFFFF', borderRadius: '50%', top: '0px', left: '1px', animation: 'twinkleMobile 2s ease-in-out infinite', boxShadow: '0 0 3px rgba(255,255,255,0.8)' }} />
-                            <div style={{ position: 'absolute', width: '1px', height: '1px', background: '#FFFFFF', borderRadius: '50%', top: '2px', left: '5px', animation: 'twinkleMobile 2.5s ease-in-out infinite 0.3s', boxShadow: '0 0 2px rgba(255,255,255,0.6)' }} />
-                            <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#FFFFFF', borderRadius: '50%', top: '4px', left: '0px', animation: 'twinkleMobile 1.8s ease-in-out infinite 0.6s', boxShadow: '0 0 3px rgba(255,255,255,0.8)' }} />
+                            <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#FFFFFF', borderRadius: '50%', top: '1px', left: '4px', animation: 'twinkleMobile 2s ease-in-out infinite', boxShadow: '0 0 3px rgba(255,255,255,0.8)' }} />
+                            <div style={{ position: 'absolute', width: '1px', height: '1px', background: '#FFFFFF', borderRadius: '50%', top: '3px', left: '5px', animation: 'twinkleMobile 2.5s ease-in-out infinite 0.3s', boxShadow: '0 0 2px rgba(255,255,255,0.6)' }} />
+                            <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#FFFFFF', borderRadius: '50%', top: '5px', left: '4px', animation: 'twinkleMobile 1.8s ease-in-out infinite 0.6s', boxShadow: '0 0 3px rgba(255,255,255,0.8)' }} />
                           </div>
                         </div>
                       </div>
