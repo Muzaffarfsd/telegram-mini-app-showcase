@@ -6942,3 +6942,234 @@ html:not(.light) .bottom-nav-premium {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
 }
+
+/* ═══════════════════════════════════════════════════════
+   PREMIUM EFFECTS - Gradient Mesh, Noise, Parallax, Shimmer
+   ═══════════════════════════════════════════════════════ */
+
+/* Gradient Mesh Floating Animations */
+@keyframes mesh-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(50px, -30px) scale(1.1); }
+  50% { transform: translate(-30px, 40px) scale(0.95); }
+  75% { transform: translate(40px, 20px) scale(1.05); }
+}
+
+@keyframes mesh-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-40px, 30px) scale(0.95); }
+  50% { transform: translate(50px, -20px) scale(1.1); }
+  75% { transform: translate(-20px, -40px) scale(1.02); }
+}
+
+@keyframes mesh-float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, 40px) scale(1.05); }
+  50% { transform: translate(-50px, -30px) scale(0.9); }
+  75% { transform: translate(20px, -50px) scale(1.08); }
+}
+
+@keyframes mesh-float-4 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-30px, -40px) scale(1.1); }
+  50% { transform: translate(40px, 30px) scale(0.95); }
+  75% { transform: translate(-50px, 20px) scale(1.02); }
+}
+
+.animate-mesh-float-1 {
+  animation: mesh-float-1 20s ease-in-out infinite;
+}
+
+.animate-mesh-float-2 {
+  animation: mesh-float-2 25s ease-in-out infinite;
+}
+
+.animate-mesh-float-3 {
+  animation: mesh-float-3 22s ease-in-out infinite;
+}
+
+.animate-mesh-float-4 {
+  animation: mesh-float-4 28s ease-in-out infinite;
+}
+
+/* Noise Texture Animation */
+@keyframes noise-shift {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -5%); }
+  20% { transform: translate(5%, 5%); }
+  30% { transform: translate(-5%, 5%); }
+  40% { transform: translate(5%, -5%); }
+  50% { transform: translate(-3%, 0); }
+  60% { transform: translate(3%, -3%); }
+  70% { transform: translate(-3%, 3%); }
+  80% { transform: translate(0, 5%); }
+  90% { transform: translate(5%, 0); }
+  100% { transform: translate(0, 0); }
+}
+
+.animate-noise-shift {
+  animation: noise-shift 8s steps(10) infinite;
+}
+
+/* Skeleton Shimmer Effect */
+@keyframes skeleton-shimmer-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer-sweep 1.5s ease-in-out infinite;
+}
+
+/* Premium Shimmer with Glow */
+.skeleton-shimmer-premium {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(139, 92, 246, 0.15) 25%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(139, 92, 246, 0.15) 75%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer-sweep 2s ease-in-out infinite;
+}
+
+/* Aurora Background Effect */
+@keyframes aurora-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-aurora {
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.3) 0%,
+    rgba(59, 130, 246, 0.2) 25%,
+    rgba(16, 185, 129, 0.25) 50%,
+    rgba(236, 72, 153, 0.2) 75%,
+    rgba(124, 58, 237, 0.3) 100%
+  );
+  background-size: 400% 400%;
+  animation: aurora-shift 15s ease infinite;
+}
+
+/* Holographic Shimmer */
+@keyframes holo-shimmer {
+  0% { 
+    background-position: 0% 50%;
+    filter: hue-rotate(0deg);
+  }
+  50% { 
+    background-position: 100% 50%;
+    filter: hue-rotate(30deg);
+  }
+  100% { 
+    background-position: 0% 50%;
+    filter: hue-rotate(0deg);
+  }
+}
+
+.holo-effect {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 0, 128, 0.3) 0%,
+    rgba(0, 255, 255, 0.3) 25%,
+    rgba(255, 255, 0, 0.3) 50%,
+    rgba(0, 128, 255, 0.3) 75%,
+    rgba(255, 0, 128, 0.3) 100%
+  );
+  background-size: 300% 300%;
+  animation: holo-shimmer 5s ease infinite;
+}
+
+/* Pulse Glow for Achievements */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.8), 0 0 60px rgba(139, 92, 246, 0.4);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Floating Animation for Cards */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Gradient Border Animation */
+@keyframes gradient-border-spin {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.gradient-border-animated {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.gradient-border-animated::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.6) 0%,
+    rgba(236, 72, 153, 0.6) 25%,
+    rgba(59, 130, 246, 0.6) 50%,
+    rgba(16, 185, 129, 0.6) 75%,
+    rgba(139, 92, 246, 0.6) 100%
+  );
+  background-size: 300% 300%;
+  animation: gradient-border-spin 4s linear infinite;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Spotlight Hover Effect */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.spotlight-card:hover::after {
+  opacity: 1;
+}
