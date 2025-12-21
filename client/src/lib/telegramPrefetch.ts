@@ -1,11 +1,17 @@
 import { demoRegistry, preloadCriticalDemos } from '@/components/demos/DemoRegistry';
 
 /**
- * Telegram WebApp Bot API 8.0 interface (December 2024)
- * Features: fullscreen, home shortcuts, emoji status, secondary button, 
- * geolocation, device orientation, DeviceStorage, SecureStorage
+ * Telegram WebApp Bot API 9.2 interface (December 2025)
+ * 
+ * Bot API 9.0 (May 2025): Business branding, paid gifts, star management, stories
+ * Bot API 9.1 (July 2025): Checklists, gift improvements, star balance check
+ * Bot API 9.2 (Sept 2025): Checklist tasks, gift publisher, direct messages
+ * 
+ * Previous versions:
+ * Bot API 8.0 (Dec 2024): fullscreen, home shortcuts, emoji status, secondary button,
+ *   geolocation, device orientation, DeviceStorage, SecureStorage, activated/deactivated events
  */
-interface TelegramWebApp8 {
+interface TelegramWebApp9 {
   version?: string;
   isActive?: boolean;
   isFullscreen?: boolean;
@@ -20,11 +26,14 @@ interface TelegramWebApp8 {
   Accelerometer?: unknown;
   DeviceOrientation?: unknown;
   Gyroscope?: unknown;
+  // Bot API 9.x additions
+  isDirectMessages?: boolean;
+  parentChat?: unknown;
 }
 
-function getTelegramWebApp(): TelegramWebApp8 | null {
+function getTelegramWebApp(): TelegramWebApp9 | null {
   try {
-    return (window.Telegram?.WebApp as TelegramWebApp8) ?? null;
+    return (window.Telegram?.WebApp as TelegramWebApp9) ?? null;
   } catch {
     return null;
   }
@@ -40,6 +49,15 @@ function getVersion(): { major: number; minor: number } | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Check if Bot API version is 9.0 or higher (May 2025 release)
+ * Bot API 9.0+ added: business branding, paid gifts, star management, stories, checklists
+ */
+function isVersion9OrHigher(): boolean {
+  const version = getVersion();
+  return version !== null && version.major >= 9;
 }
 
 /**
