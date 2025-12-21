@@ -1,0 +1,190 @@
+Аналитика (Event Taxonomy)
+Что это даёт
+Преимущество	Описание
+Понимание пользователей	Видите что делают, где уходят, что нравится
+Данные для решений	Не гадаете, а знаете что улучшать
+Воронки конверсии	Видите где теряете клиентов
+ROI маркетинга	Понимаете какие каналы работают
+Бизнес-ценность: Компании управляемые данными растут в 23 раза быстрее (McKinsey).
+
+Без аналитики: "Кажется пользователям не нравится" → Гадание С аналитикой: "78% уходят на шаге 3, причина — медленная загрузка" → Решение
+
+Как это работает
+Пользователь делает действие
+        ↓
+Событие записывается с метаданными
+        ↓
+События группируются и отправляются батчами
+        ↓
+На сервере сохраняются в базу
+        ↓
+Dashboard показывает графики и метрики
+Реализация
+Файл: shared/analytics.ts — Стандартизированная схема событий
+
+// === КАТЕГОРИИ СОБЫТИЙ ===
+// Все события делятся на категории для удобства анализа
+export const EVENT_CATEGORIES = {
+  PAGE: 'page',              // Просмотры страниц
+  USER: 'user',              // Действия пользователя (регистрация, логин)
+  DEMO: 'demo',              // Взаимодействие с демо-приложениями
+  ENGAGEMENT: 'engagement',  // Клики, шеры, закладки
+  CONVERSION: 'conversion',  // Конверсии (оплата, реферал)
+  ERROR: 'error',            // Ошибки
+  PERFORMANCE: 'performance', // Метрики производительности
+} as const;
+// === ДЕЙСТВИЯ ===
+// Конкретные действия внутри категорий
+export const EVENT_ACTIONS = {
+  // Страницы
+  VIEW: 'view',
+  LEAVE: 'leave',
+  SCROLL: 'scroll',
+  
+  // Пользователь
+  REGISTER: 'register',
+  LOGIN: 'login',
+  
+  // Демо
+  DEMO_START: 'demo_start',
+  DEMO_COMPLETE: 'demo_complete',
+  DEMO_INTERACT: 'demo_interact',
+  
+  // Вовлечённость
+  CLICK: 'click',
+  SHARE: 'share',
+  
+  // Конверсии
+  REFERRAL_CLICK: 'referral_click',
+  REFERRAL_SIGNUP: 'referral_signup',
+  PAYMENT_START: 'payment_start',
+  PAYMENT_COMPLETE: 'payment_complete',
+  
+  // Производительность (Web Vitals)
+  FCP: 'fcp',
+  LCP: 'lcp',
+  FID: 'fid',
+  CLS: 'cls',
+} as const;
+// === ИНТЕРФЕЙС СОБЫТИЯ ===
+export interface AnalyticsEvent {
+  category: string;
+  action: string;
+  label?: string;          // Дополнительная метка (например, название кнопки)
+  value?: number;          // Числовое значение (например, время в мс)
+  metadata?: Record<string, any>; // Любые дополнительные данные
+  timestamp: number;
+  sessionId: string;       // ID сессии для группировки
+  telegramId?: number;     // ID пользователя если авторизован
+}
+Файл: client/src/lib/analytics.ts — Клиент аналитики
+
+import { AnalyticsEvent, EVENT_CATEGORIES, EVENT_ACTIONS } from '@shared/analytics';
+import { queueAction } from './offlineStorage';
+// === СЕССИЯ ===
+const getSessionId = (): string => {
+  let sessionId = sessionStorage.getItem('analytics_session');
+  if (!sessionId) {
+    sessionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem('analytics_session', sessionId);
+  }
+  return sessionId;
+};
+// === ОЧЕРЕДЬ СОБЫТИЙ ===
+// Собираем события и отправляем батчами для экономии запросов
+const eventQueue: AnalyticsEvent[] = [];
+let flushTimeout: NodeJS.Timeout | null = null;
+// Отправка событий на сервер
+async function flushEvents(): Promise<void> {
+  if (eventQueue.length === 0) return;
+  
+  const events = [...eventQueue];
+  eventQueue.length = 0;
+  
+  try {
+    if (navigator.onLine) {
+      await fetch('/api/analytics/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ events }),
+      });
+    } else {
+      // Офлайн — сохраняем для синхронизации
+      await queueAction('analytics/events', { events });
+    }
+  } catch (error) {
+    console.error('[Analytics] Ошибка отправки:', error);
+    eventQueue.push(...events); // Возвращаем в очередь
+  }
+}
+// === ГЛАВНАЯ ФУНКЦИЯ ТРЕКИНГА ===
+export function track(
+  category: string,
+  action: string,
+  label?: string,
+  value?: number,
+  metadata?: Record<string, any>
+): void {
+  const event: AnalyticsEvent = {
+    category,
+    action,
+    label,
+    value,
+    metadata,
+    timestamp: Date.now(),
+    sessionId: getSessionId(),
+    telegramId: window.Telegram?.WebApp?.initDataUnsafe?.user?.id,
+  };
+  
+  eventQueue.push(event);
+  
+  // Отправляем через 1 секунду (собираем батч)
+  if (flushTimeout) clearTimeout(flushTimeout);
+  flushTimeout = setTimeout(flushEvents, 1000);
+}
+// === УДОБНЫЕ МЕТОДЫ ===
+export const analytics = {
+  // Просмотр страницы
+  pageView: (path: string, title?: string) =>
+    track(EVENT_CATEGORIES.PAGE, EVENT_ACTIONS.VIEW, path, undefined, { title }),
+  
+  // Начало демо
+  demoStart: (demoId: string, demoName: string) =>
+    track(EVENT_CATEGORIES.DEMO, EVENT_ACTIONS.DEMO_START, demoId, undefined, { demoName }),
+  
+  // Завершение демо
+  demoComplete: (demoId: string, durationMs: number) =>
+    track(EVENT_CATEGORIES.DEMO, EVENT_ACTIONS.DEMO_COMPLETE, demoId, durationMs),
+  
+  // Клик
+  click: (element: string, context?: Record<string, any>) =>
+    track(EVENT_CATEGORIES.ENGAGEMENT, EVENT_ACTIONS.CLICK, element, undefined, context),
+  
+  // Ошибка
+  error: (message: string, stack?: string) =>
+    track(EVENT_CATEGORIES.ERROR, 'js_error', message, undefined, { stack }),
+  
+  // Web Vitals
+  performance: (metric: string, value: number) =>
+    track(EVENT_CATEGORIES.PERFORMANCE, metric, undefined, value),
+};
+// === АВТОМАТИЧЕСКИЙ ТРЕКИНГ ===
+if (typeof window !== 'undefined') {
+  // Первый просмотр
+  analytics.pageView(window.location.pathname, document.title);
+  
+  // SPA навигация
+  const originalPushState = history.pushState;
+  history.pushState = function(...args) {
+    originalPushState.apply(this, args);
+    analytics.pageView(window.location.pathname, document.title);
+  };
+  
+  // Web Vitals
+  import('web-vitals').then(({ onCLS, onFCP, onFID, onLCP }) => {
+    onFCP((m) => analytics.performance('fcp', m.value));
+    onLCP((m) => analytics.performance('lcp', m.value));
+    onFID((m) => analytics.performance('fid', m.value));
+    onCLS((m) => analytics.performance('cls', m.value));
+  });
+}

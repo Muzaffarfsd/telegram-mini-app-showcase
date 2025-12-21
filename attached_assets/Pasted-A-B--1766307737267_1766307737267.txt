@@ -1,0 +1,173 @@
+A/B Тестирование
+Что это даёт
+Преимущество	Описание
+Проверка гипотез	Тестируете изменения на части пользователей
+Минимизация рисков	Плохое изменение увидят 10%, не все
+Рост метрик	Находите что работает лучше
+Культура экспериментов	Решения на основе данных, не мнений
+Бизнес-ценность: Компании с A/B тестами растут на 30% быстрее. Netflix тестирует даже иконки фильмов.
+
+Пример: Booking.com проводит 1000+ A/B тестов одновременно и увеличил конверсию на 25%.
+
+Как это работает
+Определяем эксперимент:
+- Контроль (текущий вариант): 50%
+- Вариант A (новый): 50%
+        ↓
+Пользователь заходит
+        ↓
+Рассчитываем bucket по hash(userId + experimentId)
+        ↓
+Показываем соответствующий вариант
+        ↓
+Трекаем конверсии для каждого варианта
+        ↓
+Через неделю анализируем:
+- Контроль: 5% конверсия
+- Вариант A: 7% конверсия → Внедряем!
+Реализация
+Файл: client/src/lib/experiments.ts
+
+import { getCachedData, setCachedData } from './offlineStorage';
+import { analytics } from './analytics';
+// === КОНФИГУРАЦИЯ ЭКСПЕРИМЕНТОВ ===
+interface Experiment {
+  id: string;
+  name: string;
+  variants: string[];
+  weights: number[];  // Сумма должна = 1
+  active: boolean;
+}
+// Все активные эксперименты
+const EXPERIMENTS: Experiment[] = [
+  {
+    id: 'homepage_cta',
+    name: 'Кнопка на главной',
+    variants: ['control', 'variant_a', 'variant_b'],
+    weights: [0.34, 0.33, 0.33],  // Равное распределение
+    active: true,
+  },
+  {
+    id: 'onboarding_steps',
+    name: 'Количество шагов онбординга',
+    variants: ['5_steps', '3_steps'],
+    weights: [0.5, 0.5],
+    active: true,
+  },
+  {
+    id: 'demo_card_layout',
+    name: 'Дизайн карточек демо',
+    variants: ['grid', 'list'],
+    weights: [0.5, 0.5],
+    active: false,  // Пока выключен
+  },
+];
+// === ДЕТЕРМИНИРОВАННЫЙ HASH ===
+// Один и тот же пользователь ВСЕГДА получает тот же вариант
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+}
+// Bucket от 0 до 99
+function getUserBucket(userId: string, experimentId: string): number {
+  return hashString(`${userId}:${experimentId}`) % 100;
+}
+// Выбор варианта по bucket
+function assignVariant(experiment: Experiment, bucket: number): string {
+  let cumulative = 0;
+  for (let i = 0; i < experiment.variants.length; i++) {
+    cumulative += experiment.weights[i] * 100;
+    if (bucket < cumulative) {
+      return experiment.variants[i];
+    }
+  }
+  return experiment.variants[0];
+}
+// === ГЛАВНАЯ ФУНКЦИЯ ===
+export async function getVariant(experimentId: string): Promise<string | null> {
+  const experiment = EXPERIMENTS.find(e => e.id === experimentId);
+  
+  // Эксперимент не найден или выключен
+  if (!experiment || !experiment.active) return null;
+  
+  // Проверяем кэш (пользователь должен видеть один вариант)
+  const cacheKey = `experiment:${experimentId}`;
+  const cached = await getCachedData<{ variant: string }>(cacheKey);
+  if (cached) {
+    return cached.variant;
+  }
+  
+  // Получаем ID пользователя
+  const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+  const userId = telegramId?.toString() || 
+    localStorage.getItem('anonymous_id') ||
+    `anon-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
+  // Сохраняем анонимный ID
+  if (!telegramId) {
+    localStorage.setItem('anonymous_id', userId);
+  }
+  
+  // Назначаем вариант
+  const bucket = getUserBucket(userId, experimentId);
+  const variant = assignVariant(experiment, bucket);
+  
+  // Кэшируем на 30 дней
+  await setCachedData(cacheKey, { variant }, 30 * 24 * 60 * 60 * 1000);
+  
+  // Трекаем назначение
+  analytics.track('experiment', 'assign', experimentId, undefined, { variant });
+  
+  return variant;
+}
+// === REACT HOOK ===
+export function useExperiment(experimentId: string): {
+  variant: string | null;
+  isLoading: boolean;
+} {
+  const [variant, setVariant] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    getVariant(experimentId)
+      .then(setVariant)
+      .finally(() => setIsLoading(false));
+  }, [experimentId]);
+  
+  return { variant, isLoading };
+}
+// === ТРЕКИНГ КОНВЕРСИИ ===
+export function trackConversion(experimentId: string, conversionType: string): void {
+  getVariant(experimentId).then(variant => {
+    if (variant) {
+      analytics.track('experiment', 'convert', experimentId, undefined, {
+        variant,
+        conversionType,
+      });
+    }
+  });
+}
+// Пример использования:
+//
+// function HomePage() {
+//   const { variant, isLoading } = useExperiment('homepage_cta');
+//   
+//   if (isLoading) return <Skeleton />;
+//   
+//   return (
+//     <Button 
+//       variant={variant === 'variant_a' ? 'primary' : 'secondary'}
+//       onClick={() => {
+//         trackConversion('homepage_cta', 'cta_click');
+//         // ...
+//       }}
+//     >
+//       {variant === 'variant_b' ? 'Попробовать бесплатно' : 'Начать'}
+//     </Button>
+//   );
+// }

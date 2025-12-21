@@ -1,285 +1,547 @@
-interface AnalyticsEvent {
-  category: string;
-  action: string;
-  label?: string;
-  value?: number;
-  metadata?: Record<string, any>;
+// ============================================================================
+// ANALYTICS CLIENT — Профессиональная система аналитики
+// ============================================================================
+
+import { 
+  EVENT_CATEGORIES, 
+  EVENT_ACTIONS, 
+  WEB_VITALS_THRESHOLDS,
+  getWebVitalRating,
+  type AnalyticsEvent,
+  type EventCategory,
+  type EventAction 
+} from '@shared/analytics';
+
+// === КОНФИГУРАЦИЯ ===
+const CONFIG = {
+  FLUSH_INTERVAL: 1000,       // Батчинг: отправка каждую секунду
+  MAX_QUEUE_SIZE: 100,        // Максимум событий в очереди
+  MAX_RETRIES: 3,             // Максимум повторных попыток
+  SCROLL_THRESHOLD: 25,       // Порог для scroll depth (25%, 50%, 75%, 100%)
+  MIN_TIME_ON_PAGE: 5000,     // Минимум 5 сек для time_on_page
+} as const;
+
+// === СЕССИЯ ===
+function getSessionId(): string {
+  let sessionId = sessionStorage.getItem('analytics_session');
+  if (!sessionId) {
+    sessionId = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+    sessionStorage.setItem('analytics_session', sessionId);
+  }
+  return sessionId;
 }
 
-interface UserProperties {
-  userId?: string;
-  email?: string;
-  plan?: string;
-  referralCode?: string;
-  [key: string]: any;
-}
-
-class Analytics {
-  private enabled: boolean;
-  private userId: string | null = null;
-  private sessionId: string;
-  private eventQueue: AnalyticsEvent[] = [];
-  private flushInterval: number = 30000; // 30 seconds
-  private flushTimer: NodeJS.Timeout | null = null;
-
-  constructor() {
-    this.enabled = import.meta.env.PROD; // Only in production
-    this.sessionId = this.generateSessionId();
+// === TELEGRAM DATA ===
+function getTelegramData(): { telegramId?: number; platform?: string; version?: string } {
+  try {
+    const tg = window.Telegram?.WebApp;
+    if (!tg) return {};
     
-    if (this.enabled) {
-      this.startFlushTimer();
-      this.trackPageView();
+    return {
+      telegramId: tg.initDataUnsafe?.user?.id,
+      platform: tg.platform,
+      version: tg.version,
+    };
+  } catch {
+    return {};
+  }
+}
+
+// === ОЧЕРЕДЬ СОБЫТИЙ ===
+class AnalyticsQueue {
+  private queue: AnalyticsEvent[] = [];
+  private flushTimeout: ReturnType<typeof setTimeout> | null = null;
+  private retryCount: number = 0;
+  private enabled: boolean;
+  private sessionId: string;
+  private pageLoadTime: number;
+  private scrollDepthTracked: Set<number> = new Set();
+  private visibilityStartTime: number;
+  
+  constructor() {
+    this.enabled = true;
+    this.sessionId = getSessionId();
+    this.pageLoadTime = Date.now();
+    this.visibilityStartTime = Date.now();
+    
+    if (typeof window !== 'undefined') {
       this.setupAutoTracking();
+      this.setupWebVitals();
+      this.setupTelegramEvents();
+      
+      // Sync offline queue on initialization if online
+      if (navigator.onLine) {
+        this.syncOfflineQueue();
+      }
     }
   }
 
-  private generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-  }
+  // === ГЛАВНЫЙ МЕТОД ТРЕКИНГА ===
+  track(
+    category: EventCategory | string,
+    action: EventAction | string,
+    label?: string,
+    value?: number,
+    metadata?: Record<string, unknown>
+  ): void {
+    const telegramData = getTelegramData();
+    
+    const event: AnalyticsEvent = {
+      category,
+      action,
+      label,
+      value,
+      metadata,
+      timestamp: Date.now(),
+      sessionId: this.sessionId,
+      telegramId: telegramData.telegramId,
+      platform: telegramData.platform,
+      version: telegramData.version,
+      isOnline: navigator.onLine,
+    };
 
-  private startFlushTimer() {
-    this.flushTimer = setInterval(() => {
-      this.flush();
-    }, this.flushInterval);
-  }
+    this.queue.push(event);
 
-  private setupAutoTracking() {
-    // Track page visibility
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        this.trackEvent({
-          category: 'Engagement',
-          action: 'page_hidden',
-        });
-      } else {
-        this.trackEvent({
-          category: 'Engagement',
-          action: 'page_visible',
-        });
-      }
-    });
-
-    // Track errors
-    window.addEventListener('error', (event) => {
-      this.trackEvent({
-        category: 'Error',
-        action: 'javascript_error',
-        label: event.message,
-        metadata: {
-          filename: event.filename,
-          lineno: event.lineno,
-          colno: event.colno,
-        },
-      });
-    });
-
-    // Track unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event) => {
-      this.trackEvent({
-        category: 'Error',
-        action: 'unhandled_rejection',
-        label: event.reason?.toString(),
-      });
-    });
-  }
-
-  setUserId(userId: string) {
-    this.userId = userId;
-    this.trackEvent({
-      category: 'User',
-      action: 'identify',
-      metadata: { userId },
-    });
-  }
-
-  setUserProperties(properties: UserProperties) {
-    this.trackEvent({
-      category: 'User',
-      action: 'set_properties',
-      metadata: properties,
-    });
-  }
-
-  trackPageView(path?: string) {
-    const currentPath = path || window.location.pathname;
-    this.trackEvent({
-      category: 'Navigation',
-      action: 'page_view',
-      label: currentPath,
-      metadata: {
-        title: document.title,
-        referrer: document.referrer,
-        url: window.location.href,
-      },
-    });
-  }
-
-  trackEvent(event: AnalyticsEvent) {
-    if (!this.enabled) {
+    if (import.meta.env.DEV) {
       console.debug('[Analytics]', event);
+    }
+
+    // Немедленный flush для критических событий
+    if (category === EVENT_CATEGORIES.ERROR || category === EVENT_CATEGORIES.CONVERSION) {
+      this.flush();
       return;
     }
 
-    const enrichedEvent = {
-      ...event,
-      timestamp: new Date().toISOString(),
-      sessionId: this.sessionId,
-      userId: this.userId,
-      userAgent: navigator.userAgent,
-      language: navigator.language,
-      screenResolution: `${window.screen.width}x${window.screen.height}`,
-      viewportSize: `${window.innerWidth}x${window.innerHeight}`,
-    };
-
-    this.eventQueue.push(enrichedEvent);
-
-    // Flush immediately for important events
-    if (event.category === 'Error' || event.category === 'Purchase') {
+    // Стандартный батчинг
+    if (this.queue.length >= CONFIG.MAX_QUEUE_SIZE) {
       this.flush();
+    } else {
+      this.scheduleFlush();
     }
   }
 
-  // Convenience methods for common events
-  trackClick(elementName: string, metadata?: Record<string, any>) {
-    this.trackEvent({
-      category: 'Interaction',
-      action: 'click',
-      label: elementName,
-      metadata,
+  private scheduleFlush(): void {
+    if (this.flushTimeout) return;
+    this.flushTimeout = setTimeout(() => {
+      this.flushTimeout = null;
+      this.flush();
+    }, CONFIG.FLUSH_INTERVAL);
+  }
+
+  private async flush(): Promise<void> {
+    if (this.queue.length === 0) return;
+
+    const events = [...this.queue];
+    this.queue = [];
+
+    try {
+      if (!navigator.onLine) {
+        await this.saveToOfflineQueue(events);
+        return;
+      }
+
+      const response = await fetch('/api/analytics/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ events }),
+        keepalive: true,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Analytics API error: ${response.status}`);
+      }
+
+      this.retryCount = 0;
+    } catch (error) {
+      console.error('[Analytics] Flush failed:', error);
+      
+      if (this.retryCount < CONFIG.MAX_RETRIES) {
+        this.retryCount++;
+        this.queue.unshift(...events);
+        this.scheduleFlush();
+      } else {
+        await this.saveToOfflineQueue(events);
+        this.retryCount = 0;
+      }
+    }
+  }
+
+  private async saveToOfflineQueue(events: AnalyticsEvent[]): Promise<void> {
+    try {
+      const existing = localStorage.getItem('analytics_offline_queue');
+      const queue = existing ? JSON.parse(existing) : [];
+      queue.push(...events);
+      
+      // Ограничиваем размер офлайн-очереди
+      const trimmed = queue.slice(-500);
+      localStorage.setItem('analytics_offline_queue', JSON.stringify(trimmed));
+    } catch (error) {
+      console.error('[Analytics] Offline save failed:', error);
+    }
+  }
+
+  async syncOfflineQueue(): Promise<void> {
+    if (!navigator.onLine) return;
+
+    try {
+      const stored = localStorage.getItem('analytics_offline_queue');
+      if (!stored) return;
+
+      const events = JSON.parse(stored);
+      if (events.length === 0) return;
+
+      localStorage.removeItem('analytics_offline_queue');
+
+      const response = await fetch('/api/analytics/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ events, offline: true }),
+      });
+
+      if (!response.ok) {
+        localStorage.setItem('analytics_offline_queue', stored);
+      }
+    } catch (error) {
+      console.error('[Analytics] Offline sync failed:', error);
+    }
+  }
+
+  // === АВТОТРЕКИНГ ===
+  private setupAutoTracking(): void {
+    // Page View при загрузке
+    this.pageView(window.location.pathname, document.title);
+
+    // SPA навигация
+    const originalPushState = history.pushState.bind(history);
+    history.pushState = (...args) => {
+      originalPushState(...args);
+      this.pageView(window.location.pathname, document.title);
+      this.resetPageTracking();
+    };
+
+    window.addEventListener('popstate', () => {
+      this.pageView(window.location.pathname, document.title);
+      this.resetPageTracking();
+    });
+
+    // Scroll Depth
+    window.addEventListener('scroll', this.handleScroll.bind(this), { passive: true });
+
+    // Visibility (time on page)
+    document.addEventListener('visibilitychange', this.handleVisibility.bind(this));
+
+    // Errors
+    window.addEventListener('error', this.handleError.bind(this));
+    window.addEventListener('unhandledrejection', this.handleRejection.bind(this));
+
+    // Beforeunload — финальный flush
+    window.addEventListener('beforeunload', () => {
+      this.trackTimeOnPage();
+      this.flush();
+    });
+
+    // Online/Offline
+    window.addEventListener('online', () => {
+      this.syncOfflineQueue();
+      this.track(EVENT_CATEGORIES.ENGAGEMENT, 'connection_restored');
+    });
+
+    window.addEventListener('offline', () => {
+      this.track(EVENT_CATEGORIES.ENGAGEMENT, 'connection_lost');
     });
   }
 
-  trackFormSubmit(formName: string, success: boolean, metadata?: Record<string, any>) {
-    this.trackEvent({
-      category: 'Form',
-      action: success ? 'submit_success' : 'submit_failure',
-      label: formName,
-      metadata,
+  private resetPageTracking(): void {
+    this.pageLoadTime = Date.now();
+    this.scrollDepthTracked.clear();
+    this.visibilityStartTime = Date.now();
+  }
+
+  private handleScroll(): void {
+    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollHeight <= 0) return;
+
+    const scrollPercent = Math.round((window.scrollY / scrollHeight) * 100);
+    
+    for (const threshold of [25, 50, 75, 100]) {
+      if (scrollPercent >= threshold && !this.scrollDepthTracked.has(threshold)) {
+        this.scrollDepthTracked.add(threshold);
+        this.track(
+          EVENT_CATEGORIES.ENGAGEMENT,
+          EVENT_ACTIONS.SCROLL_DEPTH,
+          window.location.pathname,
+          threshold,
+          { page: window.location.pathname }
+        );
+      }
+    }
+  }
+
+  private handleVisibility(): void {
+    if (document.hidden) {
+      this.trackTimeOnPage();
+      this.flush();
+    } else {
+      this.visibilityStartTime = Date.now();
+    }
+  }
+
+  private trackTimeOnPage(): void {
+    const timeSpent = Date.now() - this.visibilityStartTime;
+    if (timeSpent >= CONFIG.MIN_TIME_ON_PAGE) {
+      this.track(
+        EVENT_CATEGORIES.ENGAGEMENT,
+        EVENT_ACTIONS.TIME_ON_PAGE,
+        window.location.pathname,
+        Math.round(timeSpent / 1000),
+        { page: window.location.pathname }
+      );
+    }
+  }
+
+  private handleError(event: ErrorEvent): void {
+    this.track(
+      EVENT_CATEGORIES.ERROR,
+      EVENT_ACTIONS.JS_ERROR,
+      event.message,
+      undefined,
+      {
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        stack: event.error?.stack?.slice(0, 1000),
+      }
+    );
+  }
+
+  private handleRejection(event: PromiseRejectionEvent): void {
+    this.track(
+      EVENT_CATEGORIES.ERROR,
+      EVENT_ACTIONS.JS_ERROR,
+      `Unhandled Promise: ${event.reason?.message || event.reason}`,
+      undefined,
+      { type: 'unhandledrejection' }
+    );
+  }
+
+  // === WEB VITALS ===
+  private setupWebVitals(): void {
+    import('web-vitals').then(({ onFCP, onLCP, onFID, onCLS, onTTFB, onINP }) => {
+      onFCP((metric) => this.trackWebVital('FCP', metric.value));
+      onLCP((metric) => this.trackWebVital('LCP', metric.value));
+      onFID((metric) => this.trackWebVital('FID', metric.value));
+      onCLS((metric) => this.trackWebVital('CLS', metric.value));
+      onTTFB((metric) => this.trackWebVital('TTFB', metric.value));
+      onINP((metric) => this.trackWebVital('INP', metric.value));
+    }).catch(() => {
+      // web-vitals не загрузился
     });
   }
 
-  trackSearch(query: string, resultsCount?: number) {
-    this.trackEvent({
-      category: 'Search',
-      action: 'search',
-      label: query,
-      value: resultsCount,
+  private trackWebVital(name: keyof typeof WEB_VITALS_THRESHOLDS, value: number): void {
+    const rating = getWebVitalRating(name, value);
+    this.track(
+      EVENT_CATEGORIES.PERFORMANCE,
+      name.toLowerCase(),
+      rating,
+      Math.round(value),
+      { rating, name }
+    );
+  }
+
+  // === TELEGRAM EVENTS ===
+  private setupTelegramEvents(): void {
+    const tg = window.Telegram?.WebApp;
+    if (!tg) return;
+
+    // Main Button
+    tg.MainButton?.onClick?.(() => {
+      this.track(EVENT_CATEGORIES.TELEGRAM, EVENT_ACTIONS.TG_MAIN_BUTTON_CLICK);
+    });
+
+    // Back Button
+    tg.BackButton?.onClick?.(() => {
+      this.track(EVENT_CATEGORIES.TELEGRAM, EVENT_ACTIONS.TG_BACK_BUTTON_CLICK);
     });
   }
 
-  trackShare(method: string, contentType: string, contentId?: string) {
-    this.trackEvent({
-      category: 'Social',
-      action: 'share',
-      label: method,
-      metadata: { contentType, contentId },
-    });
+  // === ПУБЛИЧНЫЕ МЕТОДЫ ===
+  
+  pageView(path: string, title?: string): void {
+    this.track(
+      EVENT_CATEGORIES.PAGE,
+      EVENT_ACTIONS.VIEW,
+      path,
+      undefined,
+      { title, referrer: document.referrer }
+    );
   }
 
-  trackVideoPlay(videoId: string, duration?: number) {
-    this.trackEvent({
-      category: 'Media',
-      action: 'video_play',
-      label: videoId,
-      value: duration,
-    });
+  demoStart(demoId: string, demoName: string): void {
+    this.track(
+      EVENT_CATEGORIES.DEMO,
+      EVENT_ACTIONS.DEMO_START,
+      demoId,
+      undefined,
+      { demoName }
+    );
   }
 
-  trackPurchase(amount: number, currency: string, items: any[]) {
-    this.trackEvent({
-      category: 'Purchase',
-      action: 'transaction',
-      value: amount,
-      metadata: {
-        currency,
-        items,
-        transactionId: `txn_${Date.now()}`,
-      },
-    });
+  demoComplete(demoId: string, durationMs: number): void {
+    this.track(
+      EVENT_CATEGORIES.DEMO,
+      EVENT_ACTIONS.DEMO_COMPLETE,
+      demoId,
+      durationMs
+    );
   }
 
-  trackSignup(method: string) {
-    this.trackEvent({
-      category: 'User',
-      action: 'signup',
-      label: method,
-    });
+  demoInteract(demoId: string, interactionType: string, details?: Record<string, unknown>): void {
+    this.track(
+      EVENT_CATEGORIES.DEMO,
+      EVENT_ACTIONS.DEMO_INTERACT,
+      demoId,
+      undefined,
+      { interactionType, ...details }
+    );
   }
 
-  trackLogin(method: string) {
-    this.trackEvent({
-      category: 'User',
-      action: 'login',
-      label: method,
-    });
+  click(element: string, context?: Record<string, unknown>): void {
+    this.track(
+      EVENT_CATEGORIES.ENGAGEMENT,
+      EVENT_ACTIONS.CLICK,
+      element,
+      undefined,
+      context
+    );
   }
 
-  trackLogout() {
-    this.trackEvent({
-      category: 'User',
-      action: 'logout',
-    });
+  share(method: string, contentId?: string): void {
+    this.track(
+      EVENT_CATEGORIES.ENGAGEMENT,
+      EVENT_ACTIONS.SHARE,
+      method,
+      undefined,
+      { contentId }
+    );
   }
 
-  trackTiming(category: string, variable: string, time: number, label?: string) {
-    this.trackEvent({
-      category,
-      action: 'timing',
-      label: `${variable}${label ? `:${label}` : ''}`,
-      value: time,
-    });
+  search(query: string, resultsCount?: number): void {
+    this.track(
+      EVENT_CATEGORIES.ENGAGEMENT,
+      EVENT_ACTIONS.SEARCH,
+      query,
+      resultsCount
+    );
   }
 
+  referralClick(code: string): void {
+    this.track(
+      EVENT_CATEGORIES.CONVERSION,
+      EVENT_ACTIONS.REFERRAL_CLICK,
+      code
+    );
+  }
+
+  referralCopy(code: string): void {
+    this.track(
+      EVENT_CATEGORIES.CONVERSION,
+      EVENT_ACTIONS.REFERRAL_COPY,
+      code
+    );
+  }
+
+  paymentStart(amount: number, currency: string, productId?: string): void {
+    this.track(
+      EVENT_CATEGORIES.CONVERSION,
+      EVENT_ACTIONS.PAYMENT_START,
+      productId,
+      amount,
+      { currency }
+    );
+  }
+
+  paymentComplete(amount: number, currency: string, transactionId: string): void {
+    this.track(
+      EVENT_CATEGORIES.CONVERSION,
+      EVENT_ACTIONS.PAYMENT_COMPLETE,
+      transactionId,
+      amount,
+      { currency }
+    );
+  }
+
+  xpEarned(amount: number, source: string): void {
+    this.track(
+      EVENT_CATEGORIES.GAMIFICATION,
+      EVENT_ACTIONS.XP_EARNED,
+      source,
+      amount
+    );
+  }
+
+  levelUp(newLevel: number): void {
+    this.track(
+      EVENT_CATEGORIES.GAMIFICATION,
+      EVENT_ACTIONS.LEVEL_UP,
+      undefined,
+      newLevel
+    );
+  }
+
+  achievementUnlocked(achievementId: string, achievementName: string): void {
+    this.track(
+      EVENT_CATEGORIES.GAMIFICATION,
+      EVENT_ACTIONS.ACHIEVEMENT_UNLOCKED,
+      achievementId,
+      undefined,
+      { achievementName }
+    );
+  }
+
+  apiError(endpoint: string, status: number, message?: string): void {
+    this.track(
+      EVENT_CATEGORIES.ERROR,
+      EVENT_ACTIONS.API_ERROR,
+      endpoint,
+      status,
+      { message }
+    );
+  }
+
+  // === TIMING ===
   startTiming(name: string): () => void {
     const startTime = performance.now();
     return () => {
       const duration = Math.round(performance.now() - startTime);
-      this.trackTiming('Performance', name, duration);
+      this.track(
+        EVENT_CATEGORIES.PERFORMANCE,
+        'timing',
+        name,
+        duration
+      );
     };
   }
 
-  private async flush() {
-    if (this.eventQueue.length === 0) return;
-
-    const events = [...this.eventQueue];
-    this.eventQueue = [];
-
-    try {
-      // Send to your analytics backend
-      await fetch('/api/analytics', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ events }),
-      });
-    } catch (error) {
-      console.error('[Analytics] Failed to send events:', error);
-      // Re-add failed events to queue
-      this.eventQueue.unshift(...events);
-    }
-  }
-
-  async destroy() {
-    if (this.flushTimer) {
-      clearInterval(this.flushTimer);
-      this.flushTimer = null;
-    }
-    
-    // Final flush
-    await this.flush();
+  // === USER IDENTIFICATION ===
+  identify(telegramId: number, properties?: Record<string, unknown>): void {
+    this.track(
+      EVENT_CATEGORIES.USER,
+      'identify',
+      String(telegramId),
+      undefined,
+      properties
+    );
   }
 }
 
-// Create singleton instance
-export const analytics = new Analytics();
+// === SINGLETON ===
+export const analytics = new AnalyticsQueue();
 
-// Cleanup on page unload
-window.addEventListener('beforeunload', () => {
-  analytics.destroy();
-});
-
-// Export for debugging
+// === ЭКСПОРТ ДЛЯ ДЕБАГА ===
 if (import.meta.env.DEV) {
-  (window as any).analytics = analytics;
+  (window as Window & { analytics?: AnalyticsQueue }).analytics = analytics;
 }
+
+// Re-export types
+export { EVENT_CATEGORIES, EVENT_ACTIONS } from '@shared/analytics';

@@ -2913,6 +2913,196 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ ANALYTICS EVENTS (BATCH) ============
+  interface AnalyticsEventPayload {
+    category: string;
+    action: string;
+    label?: string;
+    value?: number;
+    metadata?: Record<string, unknown>;
+    timestamp: number;
+    sessionId: string;
+    telegramId?: number;
+    platform?: string;
+    version?: string;
+    isOnline?: boolean;
+  }
+
+  const analyticsStore: AnalyticsEventPayload[] = [];
+  const MAX_ANALYTICS_STORE = 10000;
+
+  /**
+   * @openapi
+   * /api/analytics/events:
+   *   post:
+   *     tags: [Analytics]
+   *     summary: Batch analytics events
+   *     description: Receive batched analytics events from the client
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [events]
+   *             properties:
+   *               events:
+   *                 type: array
+   *                 items:
+   *                   type: object
+   *                   properties:
+   *                     category:
+   *                       type: string
+   *                     action:
+   *                       type: string
+   *                     label:
+   *                       type: string
+   *                     value:
+   *                       type: number
+   *                     timestamp:
+   *                       type: number
+   *                     sessionId:
+   *                       type: string
+   *               offline:
+   *                 type: boolean
+   *                 description: Whether these events were queued offline
+   *     responses:
+   *       200:
+   *         description: Events received
+   */
+  app.post("/api/analytics/events", (req, res) => {
+    try {
+      const { events, offline } = req.body;
+      
+      if (!Array.isArray(events)) {
+        return res.status(400).json({ error: 'events must be an array' });
+      }
+
+      const validEvents = events.filter((e: unknown): e is AnalyticsEventPayload => {
+        if (!e || typeof e !== 'object') return false;
+        const event = e as Record<string, unknown>;
+        return typeof event.category === 'string' && 
+               typeof event.action === 'string' &&
+               typeof event.timestamp === 'number';
+      });
+
+      if (validEvents.length === 0) {
+        return res.json({ success: true, received: 0 });
+      }
+
+      analyticsStore.push(...validEvents);
+      
+      if (analyticsStore.length > MAX_ANALYTICS_STORE) {
+        analyticsStore.splice(0, analyticsStore.length - MAX_ANALYTICS_STORE);
+      }
+
+      if (import.meta.env?.DEV || process.env.NODE_ENV !== 'production') {
+        validEvents.forEach((e: AnalyticsEventPayload) => {
+          console.log(`[ANALYTICS] ${e.category}/${e.action}`, {
+            label: e.label,
+            value: e.value,
+            telegramId: e.telegramId,
+            offline: offline || false,
+          });
+        });
+      }
+
+      const errorEvents = validEvents.filter((e: AnalyticsEventPayload) => e.category === 'error');
+      if (errorEvents.length > 0) {
+        console.warn(`[ANALYTICS] ${errorEvents.length} error event(s) received:`, 
+          errorEvents.map((e: AnalyticsEventPayload) => ({ action: e.action, label: e.label }))
+        );
+      }
+
+      res.json({ 
+        success: true, 
+        received: validEvents.length,
+        offline: offline || false,
+      });
+    } catch (error: unknown) {
+      console.error('Analytics events error:', error);
+      res.status(500).json({ error: 'Failed to process analytics events' });
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/analytics/summary:
+   *   get:
+   *     tags: [Analytics]
+   *     summary: Get analytics summary
+   *     description: Returns aggregated analytics data
+   *     responses:
+   *       200:
+   *         description: Analytics summary
+   */
+  app.get("/api/analytics/summary", (req, res) => {
+    try {
+      const now = Date.now();
+      const last24h = now - 24 * 60 * 60 * 1000;
+      const last7d = now - 7 * 24 * 60 * 60 * 1000;
+
+      const recentEvents = analyticsStore.filter(e => e.timestamp > last24h);
+      const weekEvents = analyticsStore.filter(e => e.timestamp > last7d);
+
+      const categoryCount: Record<string, number> = {};
+      const actionCount: Record<string, number> = {};
+      const uniqueSessions = new Set<string>();
+      const uniqueUsers = new Set<number>();
+
+      recentEvents.forEach(e => {
+        categoryCount[e.category] = (categoryCount[e.category] || 0) + 1;
+        actionCount[e.action] = (actionCount[e.action] || 0) + 1;
+        uniqueSessions.add(e.sessionId);
+        if (e.telegramId) uniqueUsers.add(e.telegramId);
+      });
+
+      const pageViews = recentEvents.filter(e => e.category === 'page' && e.action === 'view').length;
+      const demoStarts = recentEvents.filter(e => e.category === 'demo' && e.action === 'demo_start').length;
+      const demoCompletes = recentEvents.filter(e => e.category === 'demo' && e.action === 'demo_complete').length;
+      const errors = recentEvents.filter(e => e.category === 'error').length;
+
+      const perfEvents = recentEvents.filter(e => e.category === 'performance' && e.value !== undefined);
+      const avgWebVitals: Record<string, { avg: number; count: number }> = {};
+      perfEvents.forEach(e => {
+        if (!avgWebVitals[e.action]) {
+          avgWebVitals[e.action] = { avg: 0, count: 0 };
+        }
+        const current = avgWebVitals[e.action];
+        current.avg = (current.avg * current.count + (e.value || 0)) / (current.count + 1);
+        current.count++;
+      });
+
+      res.json({
+        period: '24h',
+        totalEvents: recentEvents.length,
+        totalEventsWeek: weekEvents.length,
+        uniqueSessions: uniqueSessions.size,
+        uniqueUsers: uniqueUsers.size,
+        metrics: {
+          pageViews,
+          demoStarts,
+          demoCompletes,
+          demoCompletionRate: demoStarts > 0 ? ((demoCompletes / demoStarts) * 100).toFixed(1) + '%' : '0%',
+          errors,
+        },
+        byCategory: categoryCount,
+        topActions: Object.entries(actionCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .map(([action, count]) => ({ action, count })),
+        webVitals: Object.entries(avgWebVitals).map(([metric, data]) => ({
+          metric,
+          avg: Math.round(data.avg),
+          count: data.count,
+        })),
+      });
+    } catch (error: unknown) {
+      console.error('Analytics summary error:', error);
+      res.status(500).json({ error: 'Failed to get analytics summary' });
+    }
+  });
+
   // Monitoring endpoints
   app.post("/api/vitals", (req, res) => {
     const { name, value, rating, id, url } = req.body;
