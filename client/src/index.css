@@ -3963,7 +3963,12 @@ html.slow-network video {
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
-/* 2025 Theme Transition - Horizon Sweep (Sunrise/Sunset) */
+/* 2025 Premium Theme Transition - Gradient Horizon with Blur */
+:root {
+  --theme-transition-duration: 0.5s;
+  --theme-transition-easing: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -3978,76 +3983,69 @@ html.slow-network video {
   z-index: 9999;
 }
 
-/* Sunrise - wave rises from bottom (dark to light) */
+/* Sunrise - gradient mask rises from bottom with warm glow */
 .light::view-transition-new(root) {
-  animation: horizon-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: theme-sunrise var(--theme-transition-duration) var(--theme-transition-easing) forwards;
+  mask-image: linear-gradient(to top, #000 0%, #000 60%, rgba(0,0,0,0.8) 80%, transparent 100%);
+  mask-size: 100% 200%;
+  mask-position: 0 100%;
 }
 
-/* Sunset - wave descends from top (light to dark) */
+/* Sunset - gradient mask descends from top with cool fade */
 .dark::view-transition-new(root) {
-  animation: horizon-fall 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: theme-sunset var(--theme-transition-duration) var(--theme-transition-easing) forwards;
+  mask-image: linear-gradient(to bottom, #000 0%, #000 60%, rgba(0,0,0,0.8) 80%, transparent 100%);
+  mask-size: 100% 200%;
+  mask-position: 0 -100%;
 }
 
-/* Old view fades smoothly */
+/* Old view fades with blur - sunrise */
 .light::view-transition-old(root) {
-  animation: horizon-fade-down 0.5s ease-out forwards;
+  animation: theme-old-fade-blur var(--theme-transition-duration) ease-out forwards;
 }
 
+/* Old view fades with blur - sunset */
 .dark::view-transition-old(root) {
-  animation: horizon-fade-up 0.5s ease-out forwards;
+  animation: theme-old-fade-blur var(--theme-transition-duration) ease-out forwards;
 }
 
-/* Sunrise - new light theme rises from bottom like dawn */
-@keyframes horizon-rise {
+/* Sunrise animation - warm and bright */
+@keyframes theme-sunrise {
   0% {
-    clip-path: inset(100% 0 0 0);
-    filter: brightness(1.2);
-  }
-  60% {
-    filter: brightness(1.1);
+    mask-position: 0 100%;
+    filter: brightness(1.15) saturate(1.1);
   }
   100% {
-    clip-path: inset(0 0 0 0);
-    filter: brightness(1);
+    mask-position: 0 0%;
+    filter: brightness(1) saturate(1);
   }
 }
 
-/* Sunset - new dark theme descends from top like dusk */
-@keyframes horizon-fall {
+/* Sunset animation - cool and deep */
+@keyframes theme-sunset {
   0% {
-    clip-path: inset(0 0 100% 0);
-    filter: brightness(0.85);
-  }
-  60% {
-    filter: brightness(0.95);
+    mask-position: 0 -100%;
+    filter: brightness(0.9) saturate(1.05);
   }
   100% {
-    clip-path: inset(0 0 0 0);
-    filter: brightness(1);
+    mask-position: 0 0%;
+    filter: brightness(1) saturate(1);
   }
 }
 
-/* Old dark theme fades down as sunrise comes */
-@keyframes horizon-fade-down {
+/* Old view fades out with progressive blur */
+@keyframes theme-old-fade-blur {
   0% {
     opacity: 1;
-    transform: translateY(0);
+    filter: blur(0px);
+  }
+  50% {
+    opacity: 0.5;
+    filter: blur(4px);
   }
   100% {
     opacity: 0;
-    transform: translateY(30px);
-  }
-}
-
-/* Old light theme fades up as sunset comes */
-@keyframes horizon-fade-up {
-  0% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-30px);
+    filter: blur(12px);
   }
 }
 
