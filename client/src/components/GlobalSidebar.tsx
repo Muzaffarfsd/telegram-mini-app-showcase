@@ -1663,7 +1663,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 : '1px solid rgba(0,0,0,0.1)',
               cursor: 'pointer',
               position: 'relative',
-              overflow: 'hidden',
+              overflow: 'visible',
               background: isDark 
                 ? 'rgba(255,255,255,0.08)'
                 : 'rgba(0,0,0,0.05)',
@@ -1679,16 +1679,15 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               opacity: isDark ? 1 : 0,
               transition: 'opacity 0.2s ease',
               pointerEvents: 'none',
-              overflow: 'visible',
             }}>
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '4px', left: '38px', animation: 'twinkle 2s ease-in-out infinite 0s', boxShadow: '0 0 4px rgba(255,255,255,0.9)', willChange: 'opacity, filter' }} />
-              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#FFFFFF', borderRadius: '50%', top: '12px', left: '42px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s', boxShadow: '0 0 3px rgba(255,255,255,0.7)', willChange: 'opacity, filter' }} />
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '20px', left: '38px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s', boxShadow: '0 0 4px rgba(255,255,255,0.9)', willChange: 'opacity, filter' }} />
+              <div style={{ position: 'absolute', width: '3px', height: '3px', background: '#FFFFFF', borderRadius: '50%', top: '3px', left: '6px', animation: 'twinkle 2s ease-in-out infinite 0s', boxShadow: '0 0 6px 2px rgba(255,255,255,1)', willChange: 'opacity, filter' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#FFFFFF', borderRadius: '50%', top: '14px', left: '3px', animation: 'twinkle 2.5s ease-in-out infinite 0.3s', boxShadow: '0 0 4px 1px rgba(255,255,255,0.9)', willChange: 'opacity, filter' }} />
+              <div style={{ position: 'absolute', width: '2.5px', height: '2.5px', background: '#FFFFFF', borderRadius: '50%', top: '22px', left: '8px', animation: 'twinkle 1.8s ease-in-out infinite 0.6s', boxShadow: '0 0 5px 2px rgba(255,255,255,1)', willChange: 'opacity, filter' }} />
             </div>
             <style>{`
               @keyframes twinkle {
-                0%, 100% { opacity: 0.3; filter: brightness(0.8); }
-                50% { opacity: 1; filter: brightness(1.2); }
+                0%, 100% { opacity: 0.4; filter: brightness(0.9); }
+                50% { opacity: 1; filter: brightness(1.3); }
               }
             `}</style>
             
