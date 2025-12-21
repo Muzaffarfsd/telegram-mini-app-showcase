@@ -1237,8 +1237,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Создание нового проекта после оплаты
   app.post("/api/create-project", (req, res) => {
+    const projectCreateSchema = z.object({
+      telegramId: z.string().min(1),
+      projectName: z.string().min(1).max(255).optional(),
+      projectType: z.string().max(50).optional(),
+      features: z.array(z.string()).optional(),
+      paymentIntentId: z.string().optional(),
+    });
+    
+    const validationResult = projectCreateSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Validation error', 
+        details: validationResult.error.issues 
+      });
+    }
+    
     try {
-      const { telegramId, projectName, projectType, features, paymentIntentId } = req.body;
+      const { telegramId, projectName, projectType, features, paymentIntentId } = validationResult.data;
       
       // Создаем новый проект
       const newProject = {
@@ -1268,8 +1284,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Обновление статуса проекта (для имитации прогресса разработки)
   app.post("/api/update-project-status", (req, res) => {
+    const projectUpdateSchema = z.object({
+      telegramId: z.string().min(1),
+      projectId: z.number(),
+      status: z.string().max(100).optional(),
+      progress: z.number().min(0).max(100).optional(),
+    });
+    
+    const validationResult = projectUpdateSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Validation error', 
+        details: validationResult.error.issues 
+      });
+    }
+    
     try {
-      const { telegramId, projectId, status, progress } = req.body;
+      const { telegramId, projectId, status, progress } = validationResult.data;
       
       const projects = userProjects.get(telegramId) || [];
       const projectIndex = projects.findIndex(p => p.id === projectId);
@@ -2460,13 +2491,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Начать задание
   app.post("/api/tasks/start", verifyTelegramUser, async (req: any, res) => {
+    const validationResult = tasksStartSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Validation error', 
+        details: validationResult.error.issues 
+      });
+    }
+    
     try {
       const telegram_id = req.telegramUser.id;
-      const { task_id, platform, task_type, coins_reward } = req.body;
-
-      if (!task_id) {
-        return res.status(400).json({ error: 'task_id is required' });
-      }
+      const { task_id, platform, task_type, coins_reward } = validationResult.data;
 
       // Проверить существующий прогресс
       const [existing] = await db
@@ -2538,13 +2573,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Проверить и подтвердить выполнение задания
   app.post("/api/tasks/verify", verifyTelegramUser, async (req: any, res) => {
+    const validationResult = tasksVerifySchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Validation error', 
+        details: validationResult.error.issues 
+      });
+    }
+    
     try {
       const telegram_id = req.telegramUser.id;
-      const { task_id } = req.body;
-
-      if (!task_id) {
-        return res.status(400).json({ error: 'task_id is required' });
-      }
+      const { task_id } = validationResult.data;
 
       // Получить прогресс задания
       const [taskProgress] = await db
