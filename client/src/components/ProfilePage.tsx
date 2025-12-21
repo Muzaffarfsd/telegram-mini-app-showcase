@@ -38,7 +38,67 @@ import {
 } from "lucide-react";
 import { useTelegram } from "../hooks/useTelegram";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/hooks/useTheme";
 import { Copy, Share2, UserPlus } from "lucide-react";
+
+// iOS 26 Design System Palette
+const createProfilePalette = (isDark: boolean) => ({
+  // Surface colors
+  surface: isDark ? '#0f0f11' : '#F2F4F6',
+  cardBg: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(255, 255, 255, 0.98)',
+  cardBorder: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+  cardShadow: isDark ? 'none' : '0 0 0 0.5px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.03)',
+  
+  // Text colors (Apple HIG opacity levels)
+  textPrimary: isDark ? 'rgba(255, 255, 255, 0.9)' : '#000000',
+  textSecondary: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(60, 60, 67, 0.6)',
+  textTertiary: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(60, 60, 67, 0.3)',
+  textQuaternary: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(60, 60, 67, 0.18)',
+  
+  // Accent colors
+  accent: isDark ? '#A78BFA' : '#007AFF',
+  accentBg: isDark ? 'rgba(167, 139, 250, 0.15)' : 'rgba(0, 122, 255, 0.1)',
+  
+  // Interactive states
+  hoverBg: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
+  activeBg: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)',
+  
+  // Dividers and borders
+  divider: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)',
+  inputBg: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)',
+  inputBorder: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)',
+  
+  // Button styles
+  btnPrimaryBg: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+  btnPrimaryBorder: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+  btnGlowBg: isDark 
+    ? 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)' 
+    : 'linear-gradient(135deg, #007AFF 0%, #0051D5 100%)',
+  btnGlowBorder: isDark ? 'rgba(255,255,255,0.15)' : 'transparent',
+  btnGlowShadow: isDark 
+    ? '0 0 20px rgba(255,255,255,0.08), 0 0 40px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.15)'
+    : '0 4px 16px rgba(0,122,255,0.3), 0 1px 3px rgba(0,122,255,0.2), inset 0 1px 0 rgba(255,255,255,0.2)',
+  
+  // Avatar
+  avatarBg: isDark ? '#000000' : 'rgba(0, 0, 0, 0.04)',
+  avatarBorder: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0, 0, 0, 0.08)',
+  
+  // Switch
+  switchBg: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+  switchActiveBg: isDark ? 'rgba(255, 255, 255, 0.25)' : '#34C759',
+  
+  // Progress
+  progressBg: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.06)',
+  
+  // Top highlight (cards)
+  cardHighlight: isDark 
+    ? 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12) 30%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.12) 70%, transparent)'
+    : 'none',
+  
+  // Icon backgrounds
+  iconBg: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)',
+  iconBorder: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+});
 
 interface ProfilePageProps {
   onNavigate: (section: string) => void;
@@ -483,15 +543,21 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
   const toggleBackup = useCallback(() => setBackupEnabled(prev => !prev), []);
   const toggleNotifications = useCallback(() => setNotificationsEnabled(prev => !prev), []);
 
+  // iOS 26 Theme Support
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const palette = useMemo(() => createProfilePalette(isDark), [isDark]);
+
   return (
-    <div className="min-h-screen pb-24 smooth-scroll-page ios26-profile" style={{ paddingTop: '140px', background: 'var(--surface)', color: 'var(--text-secondary)' }}>
+    <div className="min-h-screen pb-24 smooth-scroll-page ios26-profile" style={{ paddingTop: '140px', background: palette.surface, color: palette.textSecondary }}>
       <style>{`
         .ios26-profile .ios26-card {
-          background: rgba(255, 255, 255, 0.03);
+          background: ${palette.cardBg};
           backdrop-filter: blur(40px) saturate(150%);
           -webkit-backdrop-filter: blur(40px) saturate(150%);
           border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          border: 1px solid ${palette.cardBorder};
+          box-shadow: ${palette.cardShadow};
           overflow: hidden;
         }
         .ios26-profile .ios26-card::before {
@@ -499,7 +565,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           position: absolute;
           top: 0; left: 0; right: 0;
           height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12) 30%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.12) 70%, transparent);
+          background: ${palette.cardHighlight};
           pointer-events: none;
         }
         .ios26-profile .ios26-icon {
@@ -509,8 +575,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: ${palette.iconBg};
+          border: 1px solid ${palette.iconBorder};
           flex-shrink: 0;
         }
         .ios26-profile .ios26-item {
@@ -518,20 +584,20 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           transition: background 0.2s ease;
         }
         .ios26-profile .ios26-item:hover {
-          background: rgba(255, 255, 255, 0.02);
+          background: ${palette.hoverBg};
         }
         .ios26-profile .ios26-item:active {
-          background: rgba(255, 255, 255, 0.04);
+          background: ${palette.activeBg};
         }
         .ios26-profile .ios26-divider {
           height: 1px;
-          background: rgba(255, 255, 255, 0.04);
+          background: ${palette.divider};
           margin: 0 16px;
         }
         .ios26-profile .ios26-header {
           font-size: 13px;
           font-weight: 500;
-          color: rgba(255, 255, 255, 0.4);
+          color: ${palette.textTertiary};
           padding: 0 4px;
           margin-bottom: 8px;
           letter-spacing: -0.01em;
@@ -539,19 +605,20 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         .ios26-profile .ios26-title {
           font-size: 15px;
           font-weight: 500;
-          color: rgba(255, 255, 255, 0.85);
+          color: ${palette.textPrimary};
         }
         .ios26-profile .ios26-subtitle {
           font-size: 13px;
-          color: rgba(255, 255, 255, 0.4);
+          color: ${palette.textTertiary};
           margin-top: 1px;
         }
         .ios26-profile .ios26-stats-card {
-          background: rgba(255, 255, 255, 0.03);
+          background: ${palette.cardBg};
           backdrop-filter: blur(40px);
           -webkit-backdrop-filter: blur(40px);
           border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          border: 1px solid ${palette.cardBorder};
+          box-shadow: ${palette.cardShadow};
           padding: 20px;
         }
         .ios26-profile .ios26-stat-icon {
@@ -561,18 +628,18 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: rgba(255, 255, 255, 0.04);
+          background: ${palette.iconBg};
           margin: 0 auto 10px;
         }
         .ios26-profile .ios26-stat-value {
           font-size: 24px;
           font-weight: 600;
-          color: rgba(255, 255, 255, 0.9);
+          color: ${palette.textPrimary};
           letter-spacing: -0.02em;
         }
         .ios26-profile .ios26-stat-label {
           font-size: 12px;
-          color: rgba(255, 255, 255, 0.4);
+          color: ${palette.textTertiary};
           margin-top: 2px;
         }
         .ios26-profile .ios26-badge {
@@ -580,36 +647,36 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           align-items: center;
           gap: 6px;
           padding: 6px 12px;
-          background: rgba(255, 255, 255, 0.04);
+          background: ${palette.iconBg};
           border-radius: 100px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          border: 1px solid ${palette.iconBorder};
           font-size: 12px;
-          color: rgba(255, 255, 255, 0.6);
+          color: ${palette.textSecondary};
         }
         .ios26-profile .ios26-input {
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: ${palette.inputBg};
+          border: 1px solid ${palette.inputBorder};
           border-radius: 12px;
           padding: 12px 16px;
           font-size: 15px;
-          color: white;
+          color: ${palette.textPrimary};
           transition: border-color 0.2s ease;
         }
         .ios26-profile .ios26-input:focus {
-          border-color: rgba(255, 255, 255, 0.15);
+          border-color: ${palette.accent};
           outline: none;
         }
         .ios26-profile .ios26-input::placeholder {
-          color: rgba(255, 255, 255, 0.25);
+          color: ${palette.textQuaternary};
         }
         .ios26-profile .ios26-btn-primary {
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: ${palette.btnPrimaryBg};
+          border: 1px solid ${palette.btnPrimaryBorder};
           border-radius: 12px;
           padding: 14px 20px;
           font-size: 15px;
           font-weight: 500;
-          color: rgba(255, 255, 255, 0.9);
+          color: ${palette.textPrimary};
           transition: all 0.2s ease;
           display: flex;
           align-items: center;
@@ -617,7 +684,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           gap: 8px;
         }
         .ios26-profile .ios26-btn-primary:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: ${palette.activeBg};
         }
         .ios26-profile .ios26-btn-primary:active {
           transform: scale(0.98);
@@ -626,13 +693,13 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           width: 51px;
           height: 31px;
           border-radius: 16px;
-          background: rgba(255, 255, 255, 0.1);
+          background: ${palette.switchBg};
           position: relative;
           cursor: pointer;
           transition: background 0.2s ease;
         }
         .ios26-profile .ios26-switch.active {
-          background: rgba(255, 255, 255, 0.25);
+          background: ${palette.switchActiveBg};
         }
         .ios26-profile .ios26-switch-thumb {
           width: 27px;
@@ -650,10 +717,10 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         }
         .ios26-profile .ios26-btn-glow {
           position: relative;
-          background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%);
+          background: ${palette.btnGlowBg};
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255,255,255,0.15);
+          border: 1px solid ${palette.btnGlowBorder};
           border-radius: 14px;
           padding: 16px 24px;
           font-size: 16px;
@@ -665,10 +732,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           justify-content: center;
           gap: 10px;
           overflow: hidden;
-          box-shadow: 
-            0 0 20px rgba(255,255,255,0.08),
-            0 0 40px rgba(255,255,255,0.04),
-            inset 0 1px 0 rgba(255,255,255,0.15);
+          box-shadow: ${palette.btnGlowShadow};
+          animation: ${isDark ? 'ios26-pulse-glow 3s ease-in-out infinite' : 'none'};
         }
         .ios26-profile .ios26-btn-glow::before {
           content: '';
@@ -677,22 +742,12 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255,255,255,0.15),
-            transparent
-          );
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
           transition: left 0.5s ease;
+          display: ${isDark ? 'block' : 'none'};
         }
         .ios26-profile .ios26-btn-glow:hover {
           transform: translateY(-2px);
-          box-shadow: 
-            0 0 30px rgba(255,255,255,0.12),
-            0 0 60px rgba(255,255,255,0.06),
-            0 8px 32px rgba(0,0,0,0.3),
-            inset 0 1px 0 rgba(255,255,255,0.2);
-          border-color: rgba(255,255,255,0.25);
         }
         .ios26-profile .ios26-btn-glow:hover::before {
           left: 100%;
@@ -702,20 +757,11 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         }
         @keyframes ios26-pulse-glow {
           0%, 100% {
-            box-shadow: 
-              0 0 20px rgba(255,255,255,0.08),
-              0 0 40px rgba(255,255,255,0.04),
-              inset 0 1px 0 rgba(255,255,255,0.15);
+            box-shadow: 0 0 20px rgba(255,255,255,0.08), 0 0 40px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.15);
           }
           50% {
-            box-shadow: 
-              0 0 25px rgba(255,255,255,0.12),
-              0 0 50px rgba(255,255,255,0.06),
-              inset 0 1px 0 rgba(255,255,255,0.2);
+            box-shadow: 0 0 25px rgba(255,255,255,0.12), 0 0 50px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.2);
           }
-        }
-        .ios26-profile .ios26-btn-glow {
-          animation: ios26-pulse-glow 3s ease-in-out infinite;
         }
       `}</style>
       <div className="max-w-md mx-auto px-4 pt-4 pb-6 space-y-6">
