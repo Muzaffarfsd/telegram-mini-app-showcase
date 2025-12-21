@@ -370,7 +370,7 @@ input, textarea {
   --secondary: rgba(255, 255, 255, 0.1);
   --secondary-foreground: #FFFFFF;
   --muted: rgba(255, 255, 255, 0.05);
-  --muted-foreground: rgba(255, 255, 255, 0.7);
+  --muted-foreground: #A1A1A6;
   --accent: #10B981;
   --accent-foreground: #FFFFFF;
   --destructive: #FF3B30;
@@ -566,10 +566,10 @@ input, textarea {
   /* Glass Effects - Dark Theme - Upgraded to 2.0 */
   --glass-background: rgba(255, 255, 255, 0.1);
   --glass-background-strong: rgba(255, 255, 255, 0.15);
-  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.05);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   --glass-nav-background: rgba(255, 255, 255, 0.1);
-  --glass-nav-border: rgba(255, 255, 255, 0.2);
+  --glass-nav-border: rgba(255, 255, 255, 0.05);
   --glass-nav-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   
   /* Glassmorphism 2.0 - Five Levels */
