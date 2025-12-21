@@ -307,23 +307,31 @@ input, textarea {
 }
 
 :root {
-  /* === 2025 PREMIUM COLOR PALETTE === */
+  /* === 2025 PREMIUM OLED COLOR PALETTE === */
   
-  /* Core Background Colors (not pure black - better for modern displays) */
-  --background: #0f0f11;           /* Deep premium black */
-  --background-primary: #0f0f11;
-  --background-secondary: #111113;   /* For cards */
-  --background-tertiary: #1A1A1E;    /* For modals */
-  --background-elevated: #242429;    /* For hover states */
+  /* OLED Black Foundation - Pure black for OLED screens */
+  --background: #000000;           /* Pure OLED black */
+  --background-primary: #000000;
+  --background-secondary: #1C1C1E;   /* Elevated cards */
+  --background-tertiary: #2C2C2E;    /* Higher elevation */
+  --background-elevated: #3A3A3C;    /* Hover states */
+  
+  /* Elevated Surface System (Apple Dark Mode) */
+  --surface-base: #000000;
+  --surface-1: #1C1C1E;           /* Cards level 1 */
+  --surface-2: #2C2C2E;           /* Cards level 2 */
+  --surface-3: #3A3A3C;           /* Modals */
+  --surface-4: #48484A;           /* Popovers */
+  --surface-5: #636366;           /* Highest elevation */
   
   /* iOS 17 Color Tokens - Dark Theme */
   --foreground: #FFFFFF;
-  --card: rgba(255, 255, 255, 0.1);
-  --card-bg: rgba(255, 255, 255, 0.05);
+  --card: #1C1C1E;
+  --card-bg: #1C1C1E;
   --card-foreground: #FFFFFF;
-  --card-border: rgba(255, 255, 255, 0.08);
-  --card-shadow: none;
-  --card-shadow-hover: none;
+  --card-border: rgba(255, 255, 255, 0.05);
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
   --card-radius: 18px;
   
   /* Divider */
@@ -331,19 +339,19 @@ input, textarea {
   
   /* Hero section */
   --hero-border: rgba(255, 255, 255, 0.08);
-  --popover: rgba(255, 255, 255, 0.1);
+  --popover: #2C2C2E;
   --popover-foreground: #FFFFFF;
   
   /* Surface and overlay */
-  --surface: #0f0f11;
+  --surface: #000000;
   --overlay-weak: rgba(255, 255, 255, 0.05);
   --overlay-medium: rgba(255, 255, 255, 0.1);
   
-  /* Text hierarchy */
-  --text-primary: #FFFFFF;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-tertiary: rgba(255, 255, 255, 0.5);
-  --text-quaternary: rgba(255, 255, 255, 0.3);
+  /* Text hierarchy (Apple Dark Mode exact colors) */
+  --text-primary: #FFFFFF;           /* Bright white for headings */
+  --text-secondary: #A1A1A6;         /* Medium gray for descriptions */
+  --text-tertiary: #636366;          /* Muted gray for small text */
+  --text-quaternary: #48484A;        /* Very muted */
   
   /* Accent colors */
   --accent-primary: #10B981;
@@ -6315,47 +6323,61 @@ html.light .showcase-page [data-testid="bento-all"]:hover {
    Top-tier visual design with depth, glow effects, and micro-interactions
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* === 1. OLED BLACK FOUNDATION === */
+/* === 1. OLED BLACK FOUNDATION (Apple Dark Mode Exact Colors) === */
 html:not(.light) {
+  /* Pure OLED Black */
   --oled-black: #000000;
-  --surface-1: #0A0A0C;
-  --surface-2: #121214;
-  --surface-3: #1A1A1E;
-  --surface-4: #242428;
-  --surface-5: #2E2E34;
+  --background: #000000;
   
-  /* Premium Glow Colors */
-  --glow-emerald: rgba(16, 185, 129, 0.4);
-  --glow-cyan: rgba(6, 182, 212, 0.35);
-  --glow-purple: rgba(168, 85, 247, 0.35);
-  --glow-pink: rgba(236, 72, 153, 0.3);
-  --glow-blue: rgba(59, 130, 246, 0.35);
+  /* Elevated Surface System (Apple iOS Dark Mode) */
+  --surface-1: #1C1C1E;           /* Cards base */
+  --surface-2: #2C2C2E;           /* Cards elevated */
+  --surface-3: #3A3A3C;           /* Modals */
+  --surface-4: #48484A;           /* Popovers */
+  --surface-5: #636366;           /* Highest */
+  
+  /* Card backgrounds */
+  --card: #1C1C1E;
+  --card-bg: #1C1C1E;
+  --card-hover: #2C2C2E;
+  
+  /* Text hierarchy (Apple Dark Mode) */
+  --text-primary: #FFFFFF;
+  --text-secondary: #A1A1A6;
+  --text-tertiary: #636366;
+  --text-quaternary: #48484A;
+  
+  /* Premium Glow Colors (Neon accents) */
+  --glow-emerald: rgba(16, 185, 129, 0.5);
+  --glow-cyan: rgba(6, 182, 212, 0.45);
+  --glow-purple: rgba(168, 85, 247, 0.45);
+  --glow-pink: rgba(236, 72, 153, 0.4);
+  --glow-blue: rgba(59, 130, 246, 0.45);
+  --glow-orange: rgba(255, 149, 0, 0.4);
+  --glow-red: rgba(255, 59, 48, 0.4);
   
   /* Gradient Borders */
-  --border-gradient: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+  --border-gradient: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+  --border-glass: rgba(255, 255, 255, 0.05);
   
-  /* Premium Shadows */
-  --shadow-glow-sm: 0 0 20px var(--glow-emerald);
-  --shadow-glow-md: 0 0 40px var(--glow-emerald);
-  --shadow-glow-lg: 0 0 60px var(--glow-emerald);
-  --shadow-depth-1: 0 2px 8px rgba(0,0,0,0.3);
-  --shadow-depth-2: 0 4px 16px rgba(0,0,0,0.4);
-  --shadow-depth-3: 0 8px 32px rgba(0,0,0,0.5);
-  --shadow-depth-4: 0 16px 48px rgba(0,0,0,0.6);
+  /* Premium Shadows with Glow */
+  --shadow-glow-sm: 0 0 15px var(--glow-emerald);
+  --shadow-glow-md: 0 0 30px var(--glow-emerald);
+  --shadow-glow-lg: 0 0 50px var(--glow-emerald);
+  --shadow-depth-1: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-depth-2: 0 4px 16px rgba(0,0,0,0.5);
+  --shadow-depth-3: 0 8px 32px rgba(0,0,0,0.6);
+  --shadow-depth-4: 0 16px 48px rgba(0,0,0,0.7);
 }
 
-/* === 2. PREMIUM CARD STYLES === */
+/* === 2. PREMIUM CARD STYLES (Apple Dark Mode) === */
 .premium-card {
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.03) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  background: #1C1C1E;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
   position: relative;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .premium-card::before {
@@ -6367,18 +6389,50 @@ html:not(.light) {
   height: 1px;
   background: linear-gradient(90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.15) 50%,
     transparent 100%
   );
-  opacity: 0.6;
 }
 
 .premium-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    0 0 40px rgba(16, 185, 129, 0.15);
+  background: #2C2C2E;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-depth-3);
+}
+
+/* Elevated card variant */
+.premium-card-elevated {
+  background: #2C2C2E;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+}
+
+.premium-card-elevated:hover {
+  background: #3A3A3C;
+}
+
+/* Card with gradient border */
+.card-gradient-border {
+  position: relative;
+  background: #1C1C1E;
+  border-radius: 16px;
+}
+
+.card-gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(135deg, 
+    rgba(16, 185, 129, 0.3) 0%,
+    rgba(6, 182, 212, 0.2) 50%,
+    rgba(168, 85, 247, 0.3) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
 }
 
 /* === 3. SPOTLIGHT HOVER EFFECT === */
@@ -6472,25 +6526,38 @@ html:not(.light) {
   border-radius: 8px;
 }
 
-/* === 6. GLASSMORPHISM 2.0 === */
+/* === 6. GLASSMORPHISM 2.0 (Thin white borders 1px, 5% opacity) === */
 .glass-premium {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(28, 28, 30, 0.8);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .glass-premium-strong {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(44, 44, 46, 0.85);
   backdrop-filter: blur(40px) saturate(200%);
   -webkit-backdrop-filter: blur(40px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 
-    0 16px 48px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Glass sidebar */
+.glass-sidebar {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Glass modal */
+.glass-modal {
+  background: rgba(44, 44, 46, 0.95);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
 }
 
 /* === 7. STICKY HEADER WITH BLUR === */
@@ -6749,56 +6816,99 @@ html:not(.light) {
     0 0 30px rgba(16, 185, 129, 0.1);
 }
 
-/* === Apply Premium Styles to Dark Theme Cards === */
+/* === Apply Premium Styles to Dark Theme Cards (Apple Dark Mode) === */
 html:not(.light) .card,
 html:not(.light) [data-slot="card"] {
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.06) 0%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    0 4px 24px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: #1C1C1E;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
 html:not(.light) .card:hover,
 html:not(.light) [data-slot="card"]:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(16, 185, 129, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  background: #2C2C2E;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 /* === Premium Dark Sidebar === */
 html:not(.light) .global-sidebar-panel {
-  background: linear-gradient(
-    180deg,
-    rgba(10, 10, 12, 0.98) 0%,
-    rgba(18, 18, 20, 0.98) 100%
-  );
+  background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* === Premium Dark Buttons === */
+/* === Premium Dark Buttons with Glow === */
 html:not(.light) button[class*="bg-emerald"],
 html:not(.light) button[class*="bg-primary"] {
   position: relative;
-  box-shadow: 
-    0 4px 16px rgba(16, 185, 129, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  transition: all 0.3s ease;
 }
 
 html:not(.light) button[class*="bg-emerald"]:hover,
 html:not(.light) button[class*="bg-primary"]:hover {
   box-shadow: 
-    0 8px 24px rgba(16, 185, 129, 0.4),
-    0 0 40px rgba(16, 185, 129, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 0 30px rgba(16, 185, 129, 0.5),
+    0 0 60px rgba(16, 185, 129, 0.3);
+}
+
+/* Active button glow */
+html:not(.light) button[class*="bg-emerald"]:active,
+html:not(.light) button[class*="bg-primary"]:active {
+  box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+}
+
+/* Neon accent buttons */
+.btn-neon-emerald {
+  background: #10B981;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-neon-emerald:hover {
+  box-shadow: 
+    0 0 30px rgba(16, 185, 129, 0.6),
+    0 0 60px rgba(16, 185, 129, 0.4);
+}
+
+.btn-neon-cyan {
+  background: #06B6D4;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+}
+
+.btn-neon-cyan:hover {
+  box-shadow: 
+    0 0 30px rgba(6, 182, 212, 0.6),
+    0 0 60px rgba(6, 182, 212, 0.4);
+}
+
+.btn-neon-purple {
+  background: #A855F7;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+.btn-neon-purple:hover {
+  box-shadow: 
+    0 0 30px rgba(168, 85, 247, 0.6),
+    0 0 60px rgba(168, 85, 247, 0.4);
+}
+
+/* Gradient CTA button */
+.btn-gradient-cta {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  border: none;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-gradient-cta:hover {
+  background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+  box-shadow: 
+    0 8px 30px rgba(16, 185, 129, 0.5),
+    0 0 50px rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
 }
 
 /* === Premium Analytics Cards === */
