@@ -1677,32 +1677,31 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               <div style={{ position: 'absolute', width: '1px', height: '1px', background: 'rgba(255,255,255,0.6)', borderRadius: '50%', top: '10px', left: '18px' }} />
             </div>
             
-            {/* Clouds (day mode) */}
+            {/* Clouds (day mode) - positioned on right side */}
             <div style={{
               position: 'absolute',
               opacity: isDark ? 0 : 1,
               transition: 'opacity 0.4s ease, transform 0.5s ease',
-              transform: isDark ? 'translateX(-8px)' : 'translateX(0)',
+              transform: isDark ? 'translateX(8px)' : 'translateX(0)',
             }}>
               <div style={{
                 position: 'absolute',
-                width: '12px',
-                height: '6px',
+                width: '10px',
+                height: '5px',
                 background: 'rgba(255,255,255,0.95)',
-                borderRadius: '10px',
-                top: '6px',
-                left: '5px',
-                boxShadow: '4px -2px 0 1px rgba(255,255,255,0.8), 8px 0 0 0 rgba(255,255,255,0.6)',
+                borderRadius: '8px',
+                top: '5px',
+                left: '30px',
+                boxShadow: '3px -1px 0 1px rgba(255,255,255,0.8)',
               }} />
               <div style={{
                 position: 'absolute',
-                width: '9px',
-                height: '5px',
-                background: 'rgba(255,255,255,0.9)',
-                borderRadius: '8px',
-                top: '17px',
-                left: '9px',
-                boxShadow: '3px -1px 0 0 rgba(255,255,255,0.7)',
+                width: '8px',
+                height: '4px',
+                background: 'rgba(255,255,255,0.85)',
+                borderRadius: '6px',
+                top: '18px',
+                left: '32px',
               }} />
             </div>
             
