@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy, useCallback, useRef } from "react";
+import { useState, Suspense, lazy, useCallback } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,12 +8,14 @@ import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
-import { scrollToTop } from "./hooks/useScrollToTop";
 import { m, useSpring } from "framer-motion";
 import * as Sentry from '@sentry/react';
-import { initializeVitals, trackPageView } from "./utils/vitals";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PageLoadingFallback } from "./components/PageLoadingFallback";
+import { useRouting, navigate } from "./hooks/useRouting";
+import { useScrollDepthEffect } from "./hooks/useScrollDepthEffect";
+import { useAppInitialization } from "./hooks/useAppInitialization";
+import { useTelegramBackButtonHandler } from "./hooks/useTelegramBackButtonHandler";
 
 // Initialize Sentry for error tracking
 if (import.meta.env.VITE_SENTRY_DSN) {
@@ -55,63 +57,6 @@ import GlobalSidebar from "./components/GlobalSidebar";
 import { PageTransition } from "./components/PageTransition";
 import { OnboardingTutorial } from "./components/OnboardingTutorial";
 import { OfflineIndicator } from "./components/OfflineIndicator";
-
-// Simple hash router types
-interface Route {
-  path: string;
-  component: string;
-  params?: Record<string, string>;
-}
-
-// Router utilities
-const parseHash = (): Route => {
-  const hash = window.location.hash.slice(1) || '/';
-  const [path, ...rest] = hash.split('?');
-  
-  // Parse demo routes
-  const demoMatch = path.match(/^\/demos\/([^\/]+)(?:\/app)?$/);
-  if (demoMatch) {
-    const demoId = demoMatch[1];
-    const isApp = path.includes('/app');
-    return {
-      path: isApp ? '/demos/:id/app' : '/demos/:id',
-      component: isApp ? 'demoApp' : 'demoLanding',
-      params: { id: demoId }
-    };
-  }
-  
-  // Regular routes
-  const routeMap: Record<string, string> = {
-    '/': 'showcase',
-    '/projects': 'projects',
-    '/about': 'about',
-    '/constructor': 'constructor',
-    '/profile': 'profile',
-    '/help': 'help',
-    '/review': 'review',
-    '/checkout': 'checkout',
-    '/ai-agent': 'aiAgent',
-    '/ai-process': 'aiProcess',
-    '/photo-gallery': 'photoGallery',
-    '/referral': 'referral',
-    '/rewards': 'rewards',
-    '/earning': 'earning',
-    '/notifications': 'notifications',
-    '/analytics': 'analytics'
-  };
-  
-  // Return notFound for unknown routes
-  return {
-    path,
-    component: routeMap[path] || 'notFound',
-    params: {}
-  };
-};
-
-// Simple instant navigation without animations
-const navigate = (path: string) => {
-  window.location.hash = path;
-};
 
 const goBack = () => {
   window.history.back();
@@ -155,9 +100,12 @@ const NavButton = ({ onClick, isActive, ariaLabel, testId, children }: NavButton
 };
 
 function App() {
-  const [route, setRoute] = useState<Route>({ path: '/', component: 'showcase', params: {} });
   const [orderData, setOrderData] = useState<any>(null);
   const { hapticFeedback, user } = useTelegram();
+  
+  // Custom hooks for cleaner code (replaces 7+ useEffects)
+  const { route } = useRouting();
+  useAppInitialization();
   
   // Initialize performance mode detection
   const performanceMode = usePerformanceMode();
@@ -165,94 +113,16 @@ function App() {
   // Native Telegram buttons
   useTelegramButtons(route.component as any);
   
-  // Force scroll to top on initial app load (Telegram preserves scroll position)
-  useEffect(() => {
-    // Immediate scroll on mount
-    scrollToTop();
-    
-    // Additional scroll after Telegram WebApp initializes
-    const tg = window.Telegram?.WebApp;
-    if (tg) {
-      // Wait for Telegram to finish its initialization
-      setTimeout(() => scrollToTop(), 100);
-      setTimeout(() => scrollToTop(), 300);
-    }
-  }, []);
-  
-  // Initialize route after mount to ensure showcase is default
-  useEffect(() => {
-    setRoute(parseHash());
-  }, []);
-
-  // Initialize Core Web Vitals tracking
-  useEffect(() => {
-    initializeVitals();
-  }, []);
-
-  // Track page views
-  useEffect(() => {
-    trackPageView(route.component);
-  }, [route.component]);
-
-  // Listen for hash changes
-  useEffect(() => {
-    const handleHashChange = () => {
-      setRoute(parseHash());
-    };
-    
-    window.addEventListener('hashchange', handleHashChange);
-    
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  // Global scroll to top on every route change - fixed for all pages
-  useEffect(() => {
-    // Use global scrollToTop helper for reliable scroll reset
-    scrollToTop();
-  }, [route.component, route.params?.id]);
-
-  // Telegram BackButton - показываем на всех страницах кроме главной
-  useEffect(() => {
-    const tg = window.Telegram?.WebApp;
-    if (!tg?.BackButton) return;
-
-    // Определяем, нужно ли показывать кнопку "Назад"
-    const isMainPage = route.component === 'showcase';
-    
-    if (!isMainPage) {
-      tg.BackButton.show();
-    } else {
-      tg.BackButton.hide();
-    }
-
-    // Обработчик клика на BackButton
-    const handleBackButton = () => {
+  // Telegram BackButton handler - uses handleCheckoutBack defined below
+  useTelegramBackButtonHandler({
+    routeComponent: route.component,
+    onCheckoutBack: () => {
+      setOrderData(null);
+      navigate('/constructor');
       hapticFeedback.light();
-      
-      // Специальная логика для разных страниц
-      if (route.component === 'checkout') {
-        // Из чекаута возвращаемся в конструктор
-        setOrderData(null);
-        navigate('/constructor');
-      } else if (route.component === 'demoApp' || route.component === 'demoLanding') {
-        // Из демо возвращаемся на главную
-        navigate('/');
-      } else if (route.component === 'help' || route.component === 'review') {
-        // Из справки/отзывов возвращаемся в профиль
-        navigate('/profile');
-      } else {
-        // Для остальных страниц - на главную
-        navigate('/');
-      }
-    };
-
-    tg.BackButton.onClick(handleBackButton);
-
-    // Cleanup
-    return () => {
-      tg.BackButton.offClick(handleBackButton);
-    };
-  }, [route.component, hapticFeedback]);
+    },
+    hapticFeedback,
+  });
 
   // Navigation handlers - memoized for better performance with React.memo children
   const handleNavigate = useCallback((section: string, data?: any) => {
@@ -404,52 +274,8 @@ function App() {
   // Pages that should show the global sidebar (all except demo apps)
   const shouldShowSidebar = !route.component.includes('demo') && route.component !== 'notFound';
 
-  // 3D scroll depth effect - elements scale as they approach bottom nav
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    if (!shouldShowBottomNav) return;
-    
-    const handleScroll = () => {
-      const container = scrollContainerRef.current;
-      if (!container) return;
-      
-      // Get all elements that should have the 3D effect
-      const depthElements = container.querySelectorAll('[data-depth-zone]');
-      const viewportHeight = window.innerHeight;
-      const navZoneStart = viewportHeight - 180; // Start effect 180px from bottom
-      
-      depthElements.forEach((el) => {
-        const rect = el.getBoundingClientRect();
-        const elementBottom = rect.bottom;
-        
-        // Calculate progress (0 = far from nav, 1 = at nav)
-        if (elementBottom > navZoneStart && elementBottom < viewportHeight + 50) {
-          const progress = Math.min(1, (elementBottom - navZoneStart) / (viewportHeight - navZoneStart));
-          (el as HTMLElement).style.setProperty('--nav-depth-progress', progress.toFixed(3));
-        } else {
-          (el as HTMLElement).style.setProperty('--nav-depth-progress', '0');
-        }
-      });
-    };
-    
-    // Use requestAnimationFrame for smooth updates
-    let ticking = false;
-    const onScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    
-    window.addEventListener('scroll', onScroll, { passive: true });
-    handleScroll(); // Initial call
-    
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [shouldShowBottomNav]);
+  // 3D scroll depth effect - extracted to custom hook
+  const scrollContainerRef = useScrollDepthEffect(shouldShowBottomNav);
 
   return (
     <QueryClientProvider client={queryClient}>
