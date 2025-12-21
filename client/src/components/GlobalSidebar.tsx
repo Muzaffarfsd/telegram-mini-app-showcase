@@ -1686,22 +1686,23 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             }}>
               <div style={{
                 position: 'absolute',
-                width: '10px',
-                height: '5px',
-                background: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.08)',
-                borderRadius: '8px',
-                top: '7px',
-                left: '6px',
-                boxShadow: isDark ? 'none' : '4px -2px 0 0 rgba(0,0,0,0.06)',
+                width: '12px',
+                height: '6px',
+                background: 'rgba(255,255,255,0.95)',
+                borderRadius: '10px',
+                top: '6px',
+                left: '5px',
+                boxShadow: '4px -2px 0 1px rgba(255,255,255,0.8), 8px 0 0 0 rgba(255,255,255,0.6)',
               }} />
               <div style={{
                 position: 'absolute',
-                width: '8px',
-                height: '4px',
-                background: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.06)',
-                borderRadius: '6px',
+                width: '9px',
+                height: '5px',
+                background: 'rgba(255,255,255,0.9)',
+                borderRadius: '8px',
                 top: '17px',
-                left: '10px',
+                left: '9px',
+                boxShadow: '3px -1px 0 0 rgba(255,255,255,0.7)',
               }} />
             </div>
             
