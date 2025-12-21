@@ -18,6 +18,29 @@ import { useScrollDepthEffect } from "./hooks/useScrollDepthEffect";
 import { useAppInitialization } from "./hooks/useAppInitialization";
 import { useTelegramBackButtonHandler } from "./hooks/useTelegramBackButtonHandler";
 
+// Retry wrapper for dynamic imports - handles chunk loading failures after deploys
+function lazyWithRetry<T extends { default: any }>(
+  importFn: () => Promise<T>,
+  retries = 2
+): React.LazyExoticComponent<T["default"]> {
+  return lazy(() =>
+    importFn().catch((error) => {
+      if (retries > 0 && error.message?.includes('Failed to fetch dynamically imported module')) {
+        console.warn('[Lazy] Retrying chunk load...', retries);
+        return new Promise<T>((resolve) => {
+          setTimeout(() => resolve(lazyWithRetry(importFn, retries - 1) as any), 500);
+        });
+      }
+      // Last resort: reload page to get fresh chunks
+      if (error.message?.includes('Failed to fetch dynamically imported module')) {
+        console.error('[Lazy] Chunk load failed, reloading page');
+        window.location.reload();
+      }
+      throw error;
+    })
+  );
+}
+
 // Initialize Sentry for error tracking
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
@@ -32,26 +55,26 @@ import { RewardsProvider } from "./contexts/RewardsContext";
 import { XPNotificationProvider } from "./contexts/XPNotificationContext";
 import { LazyMotionProvider } from "./utils/LazyMotionProvider";
 
-// Lazy load ALL pages including ShowcasePage for optimal bundle splitting
-const ShowcasePage = lazy(() => import("./components/ShowcasePage"));
-const ProjectsPage = lazy(() => import("./components/ProjectsPage"));
-const AboutPage = lazy(() => import("./components/AboutPage"));
-const DemoAppLanding = lazy(() => import("./components/DemoAppLanding"));
-const ConstructorPage = lazy(() => import("./components/ConstructorPage"));
-const ProfilePage = lazy(() => import("./components/ProfilePage"));
-const CheckoutPage = lazy(() => import("./components/CheckoutPage"));
-const DemoAppShell = lazy(() => import("./components/DemoAppShell"));
-const HelpPage = lazy(() => import("./components/HelpPage"));
-const ReviewPage = lazy(() => import("./components/ReviewPage"));
-const AIAgentPage = lazy(() => import("./components/AIAgentPage"));
-const AIProcessPage = lazy(() => import("./components/AIProcessPage"));
-const PhotoGallery = lazy(() => import("./pages/PhotoGallery"));
-const NotFoundPage = lazy(() => import("./pages/NotFound"));
+// Lazy load ALL pages with retry logic for chunk loading failures after deploys
+const ShowcasePage = lazyWithRetry(() => import("./components/ShowcasePage"));
+const ProjectsPage = lazyWithRetry(() => import("./components/ProjectsPage"));
+const AboutPage = lazyWithRetry(() => import("./components/AboutPage"));
+const DemoAppLanding = lazyWithRetry(() => import("./components/DemoAppLanding"));
+const ConstructorPage = lazyWithRetry(() => import("./components/ConstructorPage"));
+const ProfilePage = lazyWithRetry(() => import("./components/ProfilePage"));
+const CheckoutPage = lazyWithRetry(() => import("./components/CheckoutPage"));
+const DemoAppShell = lazyWithRetry(() => import("./components/DemoAppShell"));
+const HelpPage = lazyWithRetry(() => import("./components/HelpPage"));
+const ReviewPage = lazyWithRetry(() => import("./components/ReviewPage"));
+const AIAgentPage = lazyWithRetry(() => import("./components/AIAgentPage"));
+const AIProcessPage = lazyWithRetry(() => import("./components/AIProcessPage"));
+const PhotoGallery = lazyWithRetry(() => import("./pages/PhotoGallery"));
+const NotFoundPage = lazyWithRetry(() => import("./pages/NotFound"));
 const ReferralProgram = lazy(() => import("./components/ReferralProgram").then(m => ({ default: m.ReferralProgram })));
 const GamificationHub = lazy(() => import("./components/GamificationHub").then(m => ({ default: m.GamificationHub })));
 const PremiumTasksEarningPage = lazy(() => import("./components/PremiumTasksEarningPage").then(m => ({ default: m.PremiumTasksEarningPage })));
-const NotificationsPage = lazy(() => import("./pages/notifications"));
-const AnalyticsPage = lazy(() => import("./pages/analytics"));
+const NotificationsPage = lazyWithRetry(() => import("./pages/notifications"));
+const AnalyticsPage = lazyWithRetry(() => import("./pages/analytics"));
 
 // Global components
 import GlobalSidebar from "./components/GlobalSidebar";
