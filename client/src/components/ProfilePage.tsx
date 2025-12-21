@@ -888,7 +888,10 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-white/10 rounded-xl px-4 py-3 font-mono text-lg text-emerald-400 text-center tracking-wider">
+                  <div 
+                    className="flex-1 rounded-xl px-4 py-3 font-mono text-lg text-emerald-400 text-center tracking-wider"
+                    style={{ background: palette.inputBg, border: `1px solid ${palette.inputBorder}` }}
+                  >
                     {myReferralCode}
                   </div>
                   <button 
@@ -932,7 +935,12 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     value={friendReferralCode}
                     onChange={(e) => setFriendReferralCode(e.target.value.toUpperCase())}
                     placeholder="W4TXXXXXX"
-                    className="flex-1 bg-white/10 rounded-xl px-4 py-3 font-mono text-white placeholder-white/30 text-center tracking-wider border border-white/10 focus:border-blue-500/50 focus:outline-none transition-colors"
+                    className="flex-1 rounded-xl px-4 py-3 font-mono text-center tracking-wider focus:border-blue-500/50 focus:outline-none transition-colors"
+                    style={{ 
+                      background: palette.inputBg, 
+                      border: `1px solid ${palette.inputBorder}`,
+                      color: palette.textPrimary
+                    }}
                     data-testid="input-friend-referral"
                   />
                   <button 
@@ -951,7 +959,12 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
               <div className="ios26-item">
                 <button 
                   onClick={handleShareApp}
-                  className="w-full bg-white/10 hover:bg-white/15 text-white font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors border border-white/10"
+                  className="w-full font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
+                  style={{ 
+                    background: palette.btnPrimaryBg, 
+                    border: `1px solid ${palette.btnPrimaryBorder}`,
+                    color: palette.textPrimary
+                  }}
                   data-testid="button-share-app"
                 >
                   <Share2 className="w-5 h-5" />
@@ -1017,6 +1030,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           <ProjectsVirtualList 
             projects={userProjects} 
             onNavigateConstructor={handleNavigateConstructor}
+            palette={palette}
           />
         )}
 
