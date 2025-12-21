@@ -480,28 +480,50 @@ function App() {
                           }}
                           strokeWidth={2.5}
                         />
-                        {/* Луна с звёздами */}
-                        <div className="absolute inset-0 w-6 h-6 transition-all duration-300" style={{ opacity: isDark ? 1 : 0 }}>
-                          <Moon 
-                            className="absolute inset-0 w-6 h-6"
-                            style={{
-                              color: '#C4B5FD',
-                              filter: 'drop-shadow(0 0 4px rgba(196,181,253,0.6))',
-                            }}
-                            strokeWidth={2.5}
-                          />
-                          {/* Stars inside moon crescent */}
-                          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible' }}>
-                            <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#FFFFFF', borderRadius: '50%', top: '1px', left: '4px', animation: 'twinkleMobile 2s ease-in-out infinite', boxShadow: '0 0 3px rgba(255,255,255,0.8)' }} />
-                            <div style={{ position: 'absolute', width: '1px', height: '1px', background: '#FFFFFF', borderRadius: '50%', top: '3px', left: '5px', animation: 'twinkleMobile 2.5s ease-in-out infinite 0.3s', boxShadow: '0 0 2px rgba(255,255,255,0.6)' }} />
-                            <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#FFFFFF', borderRadius: '50%', top: '5px', left: '4px', animation: 'twinkleMobile 1.8s ease-in-out infinite 0.6s', boxShadow: '0 0 3px rgba(255,255,255,0.8)' }} />
-                          </div>
-                        </div>
+                        {/* Луна */}
+                        <Moon 
+                          className="absolute inset-0 w-6 h-6 transition-all duration-300"
+                          style={{
+                            color: '#C4B5FD',
+                            opacity: isDark ? 1 : 0,
+                            filter: 'drop-shadow(0 0 4px rgba(196,181,253,0.6))',
+                          }}
+                          strokeWidth={2.5}
+                        />
                       </div>
+                      {/* Twinkling stars - visible in dark mode, positioned on button background */}
+                      {isDark && (
+                        <>
+                          {[
+                            { size: 3, top: 8, left: 8 },
+                            { size: 2.5, top: 28, left: 10 },
+                            { size: 2, top: 18, left: 6 },
+                            { size: 2.5, top: 12, left: 32 },
+                            { size: 2, top: 26, left: 30 },
+                          ].map((star, i) => (
+                            <span
+                              key={i}
+                              style={{
+                                position: 'absolute',
+                                width: `${star.size}px`,
+                                height: `${star.size}px`,
+                                background: '#FFFFFF',
+                                borderRadius: '50%',
+                                top: `${star.top}px`,
+                                left: `${star.left}px`,
+                                boxShadow: `0 0 ${star.size * 2}px rgba(255,255,255,0.9)`,
+                                animation: `twinkleMobile ${1.8 + i * 0.3}s ease-in-out infinite`,
+                                animationDelay: `${i * 0.2}s`,
+                                pointerEvents: 'none',
+                              }}
+                            />
+                          ))}
+                        </>
+                      )}
                       <style>{`
                         @keyframes twinkleMobile {
-                          0%, 100% { opacity: 0.3; filter: brightness(0.8); }
-                          50% { opacity: 1; filter: brightness(1.2); }
+                          0%, 100% { opacity: 0.4; }
+                          50% { opacity: 1; }
                         }
                       `}</style>
                     </button>
