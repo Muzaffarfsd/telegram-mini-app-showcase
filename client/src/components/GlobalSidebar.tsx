@@ -83,14 +83,11 @@ const AnimatedHamburgerIcon = memo(forwardRef<HTMLButtonElement, AnimatedHamburg
 AnimatedHamburgerIcon.displayName = 'AnimatedHamburgerIcon';
 
 export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pressedItem, setPressedItem] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isThemeAnimating, setIsThemeAnimating] = useState(false);
-  const [showThemeOverlay, setShowThemeOverlay] = useState(false);
-  const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
-  const [overlayTheme, setOverlayTheme] = useState<'light' | 'dark'>('light');
   const sidebarRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   const themeButtonRef = useRef<HTMLButtonElement>(null);
@@ -1637,35 +1634,16 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           
           <button
             ref={themeButtonRef}
-            onClick={() => {
+            onClick={(e) => {
               if (isThemeAnimating) return;
-              
-              // Get button position for overlay
-              const btn = themeButtonRef.current;
-              if (btn) {
-                const rect = btn.getBoundingClientRect();
-                setOverlayPosition({
-                  x: rect.left + rect.width / 2,
-                  y: rect.top + rect.height / 2
-                });
-              }
-              
               setIsThemeAnimating(true);
-              setOverlayTheme(isDark ? 'light' : 'dark');
-              setShowThemeOverlay(true);
               triggerHaptic('medium');
               
-              // Toggle theme after slight delay
-              setTimeout(() => {
-                toggleTheme();
-                triggerHaptic('light');
-              }, 200);
+              // Pass event for View Transitions API position
+              toggleTheme(e);
+              triggerHaptic('light');
               
-              // Hide overlay after animation
-              setTimeout(() => {
-                setShowThemeOverlay(false);
-                setIsThemeAnimating(false);
-              }, 800);
+              setTimeout(() => setIsThemeAnimating(false), 700);
             }}
             data-testid="button-theme-toggle"
             style={{
@@ -1679,67 +1657,51 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
               cursor: 'pointer',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              transform: isThemeAnimating ? 'scale(0.9)' : 'scale(1)',
-              overflow: 'hidden',
+              transform: isThemeAnimating ? 'scale(0.85)' : 'scale(1)',
+              overflow: 'visible',
               position: 'relative',
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
             <div style={{
               position: 'relative',
-              width: '20px',
-              height: '20px',
+              width: '22px',
+              height: '22px',
             }}>
               <Sun 
                 style={{ 
-                  width: '20px', 
-                  height: '20px', 
-                  color: '#FAFAFA',
+                  width: '22px', 
+                  height: '22px', 
+                  color: '#FCD34D',
                   position: 'absolute',
                   top: 0,
                   left: 0,
                   transform: isDark 
                     ? 'rotate(0deg) scale(1)' 
-                    : 'rotate(-90deg) scale(0)',
+                    : 'rotate(-180deg) scale(0)',
                   opacity: isDark ? 1 : 0,
-                  transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  filter: isDark ? 'drop-shadow(0 0 8px rgba(252, 211, 77, 0.5))' : 'none',
                 }} 
               />
               <Moon 
                 style={{ 
-                  width: '20px', 
-                  height: '20px', 
-                  color: '#1e293b',
+                  width: '22px', 
+                  height: '22px', 
+                  color: '#6366F1',
                   position: 'absolute',
                   top: 0,
                   left: 0,
                   transform: isDark 
-                    ? 'rotate(90deg) scale(0)' 
+                    ? 'rotate(180deg) scale(0)' 
                     : 'rotate(0deg) scale(1)',
                   opacity: isDark ? 0 : 1,
-                  transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  filter: !isDark ? 'drop-shadow(0 0 8px rgba(99, 102, 241, 0.5))' : 'none',
                 }} 
               />
             </div>
           </button>
-          
-          {/* Theme transition overlay */}
-          {showThemeOverlay && (
-            <div className="theme-transition-overlay">
-              <div 
-                className="theme-transition-circle"
-                style={{
-                  left: overlayPosition.x,
-                  top: overlayPosition.y,
-                  width: '300vmax',
-                  height: '300vmax',
-                  background: overlayTheme === 'light' 
-                    ? 'radial-gradient(circle, #F2F4F6 0%, #F2F4F6 50%, transparent 70%)'
-                    : 'radial-gradient(circle, #0f0f11 0%, #0f0f11 50%, transparent 70%)',
-                }}
-              />
-            </div>
-          )}
         </div>
       </div>
     </>

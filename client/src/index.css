@@ -3949,33 +3949,43 @@ html.slow-network video {
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
-/* Theme transition overlay animation */
-@keyframes theme-circle-expand {
-  0% {
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 1;
+/* 2025 Theme Transition - View Transitions API + clip-path fallback */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+/* Circular reveal animation for light theme */
+.light::view-transition-new(root) {
+  animation: circle-reveal-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.dark::view-transition-new(root) {
+  animation: circle-reveal-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes circle-reveal-in {
+  from {
+    clip-path: circle(0% at var(--click-x, 50%) var(--click-y, 50%));
   }
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
+  to {
+    clip-path: circle(150% at var(--click-x, 50%) var(--click-y, 50%));
   }
 }
 
-@keyframes theme-circle-fade {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
+/* Fallback for browsers without View Transitions */
 .theme-transition-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   pointer-events: none;
   z-index: 99999;
   overflow: hidden;
@@ -3984,11 +3994,17 @@ html.slow-network video {
 .theme-transition-circle {
   position: absolute;
   border-radius: 50%;
-  animation: theme-circle-expand 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  will-change: clip-path;
+  animation: clip-circle-expand 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-.theme-transition-circle.fade-out {
-  animation: theme-circle-fade 0.3s ease-out forwards;
+@keyframes clip-circle-expand {
+  from {
+    clip-path: circle(0% at 50% 50%);
+  }
+  to {
+    clip-path: circle(150% at 50% 50%);
+  }
 }
 
 /* Premium shimmer loading effect */
