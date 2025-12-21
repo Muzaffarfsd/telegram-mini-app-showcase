@@ -2828,12 +2828,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(503).json({ error: 'Telegram bot not configured' });
     }
     
+    const validationResult = notificationSendSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Validation error', 
+        details: validationResult.error.issues 
+      });
+    }
+    
     try {
-      const { chatId, message, parseMode = 'HTML' } = req.body;
-      
-      if (!chatId || !message) {
-        return res.status(400).json({ error: 'chatId and message are required' });
-      }
+      const { chatId, message, parseMode } = validationResult.data;
       
       const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
         method: 'POST',
@@ -2864,12 +2868,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(503).json({ error: 'Telegram bot not configured' });
     }
     
+    const validationResult = notificationBroadcastSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Validation error', 
+        details: validationResult.error.issues 
+      });
+    }
+    
     try {
-      const { userIds, message, parseMode = 'HTML' } = req.body;
-      
-      if (!userIds || !Array.isArray(userIds) || !message) {
-        return res.status(400).json({ error: 'userIds (array) and message are required' });
-      }
+      const { userIds, message, parseMode } = validationResult.data;
       
       const results = await Promise.allSettled(
         userIds.map(async (chatId: number) => {
@@ -2902,16 +2910,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(503).json({ error: 'Telegram bot not configured' });
     }
     
+    const validationResult = notificationInteractiveSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Validation error', 
+        details: validationResult.error.issues 
+      });
+    }
+    
     try {
-      const { chatId, message, buttons, parseMode = 'HTML' } = req.body;
-      
-      if (!chatId || !message) {
-        return res.status(400).json({ error: 'chatId and message are required' });
-      }
+      const { chatId, message, buttons, parseMode } = validationResult.data;
       
       const inlineKeyboard = buttons ? {
-        inline_keyboard: buttons.map((row: any[]) => 
-          row.map((btn: { text: string; url?: string; callback_data?: string }) => ({
+        inline_keyboard: buttons.map((row) => 
+          row.map((btn) => ({
             text: btn.text,
             ...(btn.url ? { url: btn.url } : { callback_data: btn.callback_data || 'action' })
           }))
@@ -2952,20 +2964,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }>> = new Map();
 
   app.post("/api/analytics/ab-event", (req, res) => {
+    const validationResult = abEventSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Validation error', 
+        details: validationResult.error.issues 
+      });
+    }
+    
     try {
-      const { experiment, variant, eventType, userId, timestamp } = req.body;
-      
-      if (!experiment || !variant || !eventType) {
-        return res.status(400).json({ error: 'Missing required fields: experiment, variant, eventType' });
-      }
-      
-      if (!['A', 'B'].includes(variant)) {
-        return res.status(400).json({ error: 'Invalid variant. Must be A or B' });
-      }
-      
-      if (!['exposure', 'conversion'].includes(eventType)) {
-        return res.status(400).json({ error: 'Invalid eventType. Must be exposure or conversion' });
-      }
+      const { experiment, variant, eventType, userId, timestamp } = validationResult.data;
       
       const eventKey = `${experiment}::${variant}::${eventType}`;
       const existingEvents = abTestEvents.get(eventKey) || [];
@@ -3263,12 +3271,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
    *         description: Action tracked
    */
   app.post("/api/analytics/track", async (req, res) => {
+    const analyticsTrackSchema = z.object({
+      actionType: z.string().min(1).max(100),
+      userId: z.number().optional(),
+      metadata: z.record(z.unknown()).optional(),
+      notifyAdmin: z.boolean().optional(),
+    });
+    
+    const validationResult = analyticsTrackSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Validation error', 
+        details: validationResult.error.issues 
+      });
+    }
+    
     try {
-      const { actionType, userId, metadata, notifyAdmin } = req.body;
-      
-      if (!actionType) {
-        return res.status(400).json({ error: 'Missing actionType' });
-      }
+      const { actionType, userId, metadata, notifyAdmin } = validationResult.data;
       
       const event = {
         actionType,
