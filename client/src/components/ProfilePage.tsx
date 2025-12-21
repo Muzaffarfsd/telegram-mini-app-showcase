@@ -149,8 +149,16 @@ const getGradientForUser = (userId: number | null): string => {
   return gradients[userId % gradients.length];
 };
 
+// Palette type for subcomponents
+type ProfilePalette = ReturnType<typeof createProfilePalette>;
+
 // Memoized User Card Component
-const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData: any, isAvailable: boolean, telegramUser: any }) => {
+const UserCard = memo(({ profileData, isAvailable, telegramUser, palette }: { 
+  profileData: any, 
+  isAvailable: boolean, 
+  telegramUser: any,
+  palette: ProfilePalette 
+}) => {
   const hasValidUser = !!telegramUser && !!telegramUser.first_name;
   const initials = getUserInitials(profileData.name);
   const photoUrl = telegramUser?.photo_url;
@@ -160,10 +168,11 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
       {/* User Avatar - Premium minimal style */}
       <div className="relative w-24 h-24 mx-auto z-10" data-testid="user-avatar">
         <div 
-          className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden"
+          className="w-full h-full rounded-full flex items-center justify-center overflow-hidden"
           style={{
-            border: '1.5px solid rgba(255,255,255,0.2)',
-            boxShadow: '0 0 0 1px rgba(0,0,0,0.5)'
+            background: palette.avatarBg,
+            border: `1.5px solid ${palette.avatarBorder}`,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
           }}
           data-testid="avatar-container"
         >
@@ -175,20 +184,20 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
               data-testid="avatar-image"
             />
           ) : hasValidUser ? (
-            <span className="text-3xl font-bold text-white/80">{initials}</span>
+            <span className="text-3xl font-bold" style={{ color: palette.textPrimary }}>{initials}</span>
           ) : (
-            <User className="w-10 h-10 text-white/50" />
+            <User className="w-10 h-10" style={{ color: palette.textTertiary }} />
           )}
         </div>
       </div>
       
       {/* User name */}
-      <h2 className="ios-title2 mt-4 text-white" data-testid="user-name">
+      <h2 className="ios-title2 mt-4" style={{ color: palette.textPrimary }} data-testid="user-name">
         {profileData.name}
       </h2>
       
       {profileData.username && (
-        <div className="ios-footnote text-white/50 mt-1" data-testid="user-username">
+        <div className="ios-footnote mt-1" style={{ color: palette.textTertiary }} data-testid="user-username">
           {profileData.username}
         </div>
       )}
@@ -198,7 +207,10 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser }: { profileData
 UserCard.displayName = 'UserCard';
 
 // Memoized Stats Card Component - iOS 26 Style
-const StatsCard = memo(({ stats }: { stats: { total: number, completed: number, inProgress: number } }) => (
+const StatsCard = memo(({ stats, palette }: { 
+  stats: { total: number, completed: number, inProgress: number },
+  palette: ProfilePalette 
+}) => (
   <div className="ios26-stats-card">
     <div className="grid grid-cols-3 gap-4">
       <div className="text-center">
@@ -206,21 +218,21 @@ const StatsCard = memo(({ stats }: { stats: { total: number, completed: number, 
           <Package className="w-6 h-6 text-system-blue" />
         </div>
         <div className="text-2xl font-semibold text-system-blue">{stats.total}</div>
-        <div className="text-xs text-white/50 mt-1">Проектов</div>
+        <div className="text-xs mt-1" style={{ color: palette.textTertiary }}>Проектов</div>
       </div>
       <div className="text-center">
         <div className="w-12 h-12 bg-system-green/10 rounded-full flex items-center justify-center mx-auto mb-2">
           <CheckCircle className="w-6 h-6 text-system-green" />
         </div>
         <div className="text-2xl font-semibold text-system-green">{stats.completed}</div>
-        <div className="text-xs text-white/50 mt-1">Завершено</div>
+        <div className="text-xs mt-1" style={{ color: palette.textTertiary }}>Завершено</div>
       </div>
       <div className="text-center">
         <div className="w-12 h-12 bg-system-orange/10 rounded-full flex items-center justify-center mx-auto mb-2">
           <Clock className="w-6 h-6 text-system-orange" />
         </div>
         <div className="text-2xl font-semibold text-system-orange">{stats.inProgress}</div>
-        <div className="text-xs text-white/50 mt-1">В работе</div>
+        <div className="text-xs mt-1" style={{ color: palette.textTertiary }}>В работе</div>
       </div>
     </div>
   </div>
@@ -228,12 +240,16 @@ const StatsCard = memo(({ stats }: { stats: { total: number, completed: number, 
 StatsCard.displayName = 'StatsCard';
 
 // Memoized Project Item Component
-const ProjectItem = memo(({ project, isLast }: { project: any, isLast: boolean }) => (
-  <div className={`p-4 ${!isLast ? 'border-b border-white/10' : ''}`}>
+const ProjectItem = memo(({ project, isLast, palette }: { 
+  project: any, 
+  isLast: boolean,
+  palette: ProfilePalette 
+}) => (
+  <div className="p-4" style={{ borderBottom: !isLast ? `1px solid ${palette.divider}` : 'none' }}>
     <div className="flex items-center space-x-3">
       <StatusIcon status={project.status} />
       <div className="flex-1">
-        <div className="ios-body font-bold text-white">{project.name}</div>
+        <div className="ios-body font-bold" style={{ color: palette.textPrimary }}>{project.name}</div>
         <div className="flex items-center space-x-2">
           <span className={`ios-caption2 font-semibold ${
             project.status === 'Готово' || project.status === 'Завершен' ? 'text-system-green' :
@@ -242,10 +258,10 @@ const ProjectItem = memo(({ project, isLast }: { project: any, isLast: boolean }
           }`}>
             {project.status}
           </span>
-          <span className="ios-caption2 text-white/40">•</span>
-          <span className="ios-caption2 text-white/70 font-medium">{project.progress || 0}%</span>
+          <span className="ios-caption2" style={{ color: palette.textQuaternary }}>•</span>
+          <span className="ios-caption2 font-medium" style={{ color: palette.textSecondary }}>{project.progress || 0}%</span>
         </div>
-        <div className="w-full bg-white/20 rounded-full h-1.5 mt-2">
+        <div className="w-full rounded-full h-1.5 mt-2" style={{ background: palette.progressBg }}>
           <div 
             className={`h-1.5 rounded-full transition-all duration-300 ${
               project.status === 'Готово' || project.status === 'Завершен' ? 'bg-system-green' : 
@@ -256,16 +272,17 @@ const ProjectItem = memo(({ project, isLast }: { project: any, isLast: boolean }
           />
         </div>
       </div>
-      <ChevronRight className="w-5 h-5 text-white/40" />
+      <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
     </div>
   </div>
 ));
 ProjectItem.displayName = 'ProjectItem';
 
 // Virtualized Projects List Component
-const ProjectsVirtualList = memo(({ projects, onNavigateConstructor }: { 
+const ProjectsVirtualList = memo(({ projects, onNavigateConstructor, palette }: { 
   projects: any[], 
-  onNavigateConstructor: () => void 
+  onNavigateConstructor: () => void,
+  palette: ProfilePalette
 }) => {
   const parentRef = useRef<HTMLDivElement>(null);
   
@@ -279,12 +296,17 @@ const ProjectsVirtualList = memo(({ projects, onNavigateConstructor }: {
   return (
     <section>
       <div className="space-y-3">
-        <div className="ios-list-header text-white/70 font-medium px-2">Мои проекты</div>
+        <div className="ios-list-header font-medium px-2" style={{ color: palette.textSecondary }}>Мои проекты</div>
         
         <div 
           ref={parentRef}
-          className="liquid-glass-card rounded-2xl overflow-auto"
-          style={{ maxHeight: '400px' }}
+          className="rounded-2xl overflow-auto"
+          style={{ 
+            maxHeight: '400px',
+            background: palette.cardBg,
+            border: `1px solid ${palette.cardBorder}`,
+            boxShadow: palette.cardShadow
+          }}
         >
           <div
             style={{
@@ -308,16 +330,20 @@ const ProjectsVirtualList = memo(({ projects, onNavigateConstructor }: {
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
-                    <div className="p-4 border-t border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onClick={onNavigateConstructor}>
+                    <div 
+                      className="p-4 cursor-pointer transition-colors" 
+                      style={{ borderTop: `1px solid ${palette.divider}` }}
+                      onClick={onNavigateConstructor}
+                    >
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
                           <Wrench className="w-5 h-5 text-system-blue" />
                         </div>
                         <div className="flex-1">
                           <div className="ios-body font-bold text-system-blue">Создать новый проект</div>
-                          <div className="ios-footnote text-white/70">Запустите еще одно приложение</div>
+                          <div className="ios-footnote" style={{ color: palette.textSecondary }}>Запустите еще одно приложение</div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-white/40" />
+                        <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
                       </div>
                     </div>
                   </div>
@@ -336,7 +362,7 @@ const ProjectsVirtualList = memo(({ projects, onNavigateConstructor }: {
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
                 >
-                  <ProjectItem project={project} isLast={virtualRow.index === projects.length - 1} />
+                  <ProjectItem project={project} isLast={virtualRow.index === projects.length - 1} palette={palette} />
                 </div>
               );
             })}
@@ -768,7 +794,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         
         {/* User Profile Card */}
         <div className="scroll-fade-in">
-          <UserCard profileData={profileData} isAvailable={isAvailable} telegramUser={user} />
+          <UserCard profileData={profileData} isAvailable={isAvailable} telegramUser={user} palette={palette} />
         </div>
 
         {/* Statistics */}
@@ -778,18 +804,18 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             
             {isLoadingProjects ? (
               <div className="ios26-card relative p-6 text-center">
-                <div className="w-8 h-8 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mx-auto mb-3"></div>
-                <div className="text-[13px] text-white/40">Загружаем ваши проекты...</div>
+                <div className="w-8 h-8 border-2 rounded-full animate-spin mx-auto mb-3" style={{ borderColor: palette.divider, borderTopColor: palette.accent }}></div>
+                <div className="text-[13px]" style={{ color: palette.textTertiary }}>Загружаем ваши проекты...</div>
               </div>
             ) : userProjects.length > 0 ? (
-              <StatsCard stats={stats} />
+              <StatsCard stats={stats} palette={palette} />
             ) : (
               <div className="ios26-card relative p-6 text-center">
                 <div className="ios26-stat-icon mx-auto mb-4" style={{ width: '56px', height: '56px' }}>
-                  <Package className="w-7 h-7 text-white/50" />
+                  <Package className="w-7 h-7" style={{ color: palette.textTertiary }} />
                 </div>
-                <h3 className="text-[17px] font-semibold mb-2 text-white/90">Ваши конкуренты уже в Telegram</h3>
-                <p className="text-[13px] text-white/50 mb-5 leading-relaxed">
+                <h3 className="text-[17px] font-semibold mb-2" style={{ color: palette.textPrimary }}>Ваши конкуренты уже в Telegram</h3>
+                <p className="text-[13px] mb-5 leading-relaxed" style={{ color: palette.textTertiary }}>
                   Пока вы думаете — они забирают ваших клиентов. Запустите своё приложение за 7 дней и получайте заявки 24/7.
                 </p>
                 <button 
@@ -800,7 +826,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                 </button>
                 <button 
                   className="ios26-btn-primary w-full"
-                  style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.08)' }}
+                  style={{ background: 'transparent', border: `1px solid ${palette.cardBorder}` }}
                   onClick={handleNavigatePricing}
                 >
                   Выбрать шаблон
