@@ -102,25 +102,80 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   const edgeSwipeStartY = useRef<number>(0);
   const swipeDirection = useRef<'horizontal' | 'vertical' | null>(null);
 
-  // Theme-aware colors
-  const colors = useMemo(() => ({
-    textPrimary: isDark ? '#FAFAFA' : '#1e293b',
-    textSecondary: isDark ? '#71717A' : '#64748b',
-    textMuted: isDark ? '#52525B' : '#94a3b8',
-    accent: isDark ? '#A78BFA' : '#3b82f6',
-    accentBg: isDark 
-      ? 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(59,130,246,0.15) 100%)'
-      : 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(99,102,241,0.1) 100%)',
-    accentBorder: isDark ? 'rgba(139, 92, 246, 0.25)' : 'rgba(59, 130, 246, 0.2)',
-    cardBg: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
-    cardBorder: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-    progressBg: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
-    progressFill: isDark ? '#A78BFA' : '#3b82f6',
-    stageBg: isDark ? '#52525B' : '#94a3b8',
-    stageActiveBg: isDark ? '#A78BFA' : '#3b82f6',
-    onlineDotBorder: isDark ? '#0C0C0E' : '#F2F4F6',
-    sectionBorder: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-  }), [isDark]);
+  // iOS 26 Design System - Professional Theme Colors
+  const colors = useMemo(() => {
+    if (isDark) {
+      // Dark Theme - Glass morphism with emerald accent
+      return {
+        // Text hierarchy
+        textPrimary: '#FFFFFF',
+        textSecondary: 'rgba(255, 255, 255, 0.7)',
+        textMuted: 'rgba(255, 255, 255, 0.45)',
+        textLabel: 'rgba(255, 255, 255, 0.55)',
+        
+        // iOS System accent
+        accent: '#A78BFA',
+        accentLight: 'rgba(167, 139, 250, 0.15)',
+        accentBorder: 'rgba(167, 139, 250, 0.3)',
+        
+        // Surfaces - Glass effect
+        panelBg: 'rgba(28, 28, 30, 0.85)',
+        cardBg: 'rgba(255, 255, 255, 0.04)',
+        cardBorder: 'rgba(255, 255, 255, 0.08)',
+        cardShadow: 'none',
+        
+        // Interactive states
+        hoverBg: 'rgba(255, 255, 255, 0.06)',
+        activeBg: 'rgba(167, 139, 250, 0.12)',
+        
+        // Progress & indicators
+        progressBg: 'rgba(255, 255, 255, 0.1)',
+        progressFill: 'linear-gradient(90deg, #A78BFA 0%, #8B5CF6 100%)',
+        
+        // Semantic
+        success: '#34C759',
+        sectionBorder: 'rgba(255, 255, 255, 0.06)',
+        avatarRing: 'rgba(255, 255, 255, 0.15)',
+        onlineDot: '#30D158',
+        onlineDotBorder: 'rgba(0, 0, 0, 0.9)',
+      };
+    } else {
+      // Light Theme - iOS 26 "Stacked Sheets" with soft shadows
+      return {
+        // Text hierarchy - Apple HIG compliant
+        textPrimary: '#000000',
+        textSecondary: 'rgba(60, 60, 67, 0.6)',
+        textMuted: 'rgba(60, 60, 67, 0.3)',
+        textLabel: 'rgba(60, 60, 67, 0.4)',
+        
+        // iOS System Blue
+        accent: '#007AFF',
+        accentLight: 'rgba(0, 122, 255, 0.08)',
+        accentBorder: 'rgba(0, 122, 255, 0.2)',
+        
+        // Surfaces - Layered sheets with shadows
+        panelBg: 'rgba(255, 255, 255, 0.94)',
+        cardBg: 'rgba(255, 255, 255, 1)',
+        cardBorder: 'rgba(0, 0, 0, 0.04)',
+        cardShadow: '0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03)',
+        
+        // Interactive states
+        hoverBg: 'rgba(0, 0, 0, 0.03)',
+        activeBg: 'rgba(0, 122, 255, 0.08)',
+        
+        // Progress & indicators
+        progressBg: 'rgba(0, 0, 0, 0.05)',
+        progressFill: 'linear-gradient(90deg, #007AFF 0%, #5856D6 100%)',
+        
+        // Semantic
+        success: '#34C759',
+        sectionBorder: 'rgba(0, 0, 0, 0.04)',
+        avatarRing: 'rgba(0, 0, 0, 0.06)',
+        onlineDot: '#30D158',
+        onlineDotBorder: 'rgba(255, 255, 255, 1)',
+      };
+    }
+  }, [isDark]);
 
   const menuItems = [
     { 
@@ -1171,7 +1226,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                       <div style={{
                         padding: '2px 8px',
                         borderRadius: '6px',
-                        background: colors.accentBg,
+                        background: colors.accentLight,
                         border: `1px solid ${colors.accentBorder}`
                       }}>
                         <span style={{

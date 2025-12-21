@@ -4624,161 +4624,153 @@ html.light .hamburger-line {
   background: #1e293b !important;
 }
 
-/* GlobalSidebar light theme overrides */
+/* ═══════════════════════════════════════════════════════════════
+   iOS 26 DESIGN SYSTEM - GLOBALSIDEBAR
+   Professional "Stacked Sheets" Light Theme
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Overlay */
 html.light .sidebar-overlay {
-  background: rgba(0, 0, 0, 0.3) !important;
+  background: rgba(0, 0, 0, 0.25) !important;
 }
 
+/* Main Panel - iOS 26 Frosted Glass Sheet */
 html.light .sidebar-panel {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border-right-color: rgba(0, 0, 0, 0.06) !important;
-  box-shadow: 20px 0 60px rgba(0, 0, 0, 0.1) !important;
-  backdrop-filter: blur(40px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-right: none !important;
+  box-shadow: 
+    0 0 0 0.5px rgba(0, 0, 0, 0.04),
+    0 8px 40px rgba(0, 0, 0, 0.08),
+    0 12px 60px rgba(0, 0, 0, 0.04) !important;
+  backdrop-filter: blur(50px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(50px) saturate(180%) !important;
 }
 
-/* Menu items - actual class names used in GlobalSidebar */
+/* Hide gradient line in light theme */
+html.light .sidebar-gradient-line {
+  opacity: 0 !important;
+}
+
+/* ═══ Menu Items - iOS 26 Style ═══ */
 html.light .menu-item {
   background: transparent !important;
   border-color: transparent !important;
+  border-radius: 14px !important;
 }
 
 html.light .menu-item:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
+  background: rgba(0, 0, 0, 0.03) !important;
 }
 
 html.light .menu-item.active {
-  background: rgba(59, 130, 246, 0.1) !important;
-  border-color: rgba(59, 130, 246, 0.15) !important;
+  background: rgba(0, 122, 255, 0.08) !important;
 }
 
-/* Menu icon wrap */
+/* Active indicator glow - iOS Blue */
+html.light .menu-item-glow {
+  background: linear-gradient(180deg, #5AC8FA 0%, #007AFF 50%, #0051D5 100%) !important;
+  box-shadow: 0 0 12px rgba(0, 122, 255, 0.5) !important;
+}
+
+/* ═══ Menu Icon Containers ═══ */
 html.light .menu-icon-wrap {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+  border-color: rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+html.light .menu-icon-wrap::after {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.8) 0%,
+    transparent 50%
+  ) !important;
 }
 
 html.light .menu-item:hover .menu-icon-wrap {
-  background: rgba(0, 0, 0, 0.06) !important;
+  background: rgba(0, 0, 0, 0.05) !important;
 }
 
 html.light .menu-item.active .menu-icon-wrap {
-  background: rgba(59, 130, 246, 0.15) !important;
-  border-color: rgba(59, 130, 246, 0.2) !important;
+  background: rgba(0, 122, 255, 0.12) !important;
+  border-color: rgba(0, 122, 255, 0.15) !important;
+  box-shadow: 
+    0 2px 8px rgba(0, 122, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
 }
 
-/* Menu text colors */
-html.light .menu-label {
-  color: #1e293b !important;
-}
-
-html.light .menu-description {
-  color: #64748b !important;
-}
-
-html.light .menu-item.active .menu-label {
-  color: #3b82f6 !important;
-}
-
-/* Menu icons */
-html.light .menu-icon {
-  color: #475569 !important;
-}
-
-html.light .menu-item.active .menu-icon {
-  color: #3b82f6 !important;
-}
-
-/* Social links */
+/* ═══ Social Links - iOS Style ═══ */
 html.light .social-link {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+  border-color: rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+html.light .social-link::before {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.6) 0%,
+    transparent 50%
+  ) !important;
 }
 
 html.light .social-link:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
 
 html.light .social-link svg {
-  color: #475569 !important;
+  color: rgba(60, 60, 67, 0.6) !important;
 }
 
-/* Close button */
-html.light .close-btn {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
-}
-
-html.light .close-btn:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
-}
-
-html.light .close-btn svg {
-  color: #475569 !important;
-}
-
-/* Sidebar header text */
-html.light .sidebar-header-title {
-  color: #1e293b !important;
-}
-
-html.light .sidebar-header-subtitle {
-  color: #64748b !important;
-}
-
-/* Force all text in sidebar-panel to be dark in light theme */
-html.light .sidebar-panel p,
-html.light .sidebar-panel span {
-  color: #1e293b !important;
-}
-
-html.light .sidebar-panel [style*="color: #FAFAFA"],
-html.light .sidebar-panel [style*="color: #fafafa"] {
-  color: #1e293b !important;
-}
-
-html.light .sidebar-panel [style*="color: #71717A"],
-html.light .sidebar-panel [style*="color: #52525B"] {
-  color: #64748b !important;
-}
-
-/* Sidebar border overrides */
-html.light .sidebar-panel [style*="border"] {
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-html.light .sidebar-panel [style*="rgba(255,255,255"] {
+/* ═══ Close/Hamburger Button ═══ */
+html.light .hamburger-btn {
   background: rgba(0, 0, 0, 0.03) !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
 }
 
-/* Level badge in light theme */
-html.light .sidebar-panel [style*="rgba(139,92,246"] {
-  background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(99,102,241,0.1) 100%) !important;
-  border-color: rgba(59, 130, 246, 0.2) !important;
+html.light .hamburger-btn:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
 }
 
-html.light .sidebar-panel [style*="#A78BFA"] {
-  color: #3b82f6 !important;
+html.light .hamburger-line {
+  background: rgba(60, 60, 67, 0.8) !important;
 }
 
-/* Progress bar in light theme */
-html.light .sidebar-panel .progress-bar {
-  background: rgba(0, 0, 0, 0.06) !important;
+html.light .hamburger-glow,
+html.light .hamburger-shine,
+html.light .hamburger-border-glow {
+  opacity: 0 !important;
 }
 
-html.light .sidebar-panel .progress-fill {
-  background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%) !important;
+/* ═══ Progress Bar - iOS Style ═══ */
+html.light .progress-bar {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-radius: 2px !important;
 }
 
-/* Stage indicators */
-html.light .sidebar-panel [style*="background: #52525B"] {
-  background: #94a3b8 !important;
+html.light .progress-fill {
+  background: linear-gradient(90deg, #007AFF 0%, #5856D6 100%) !important;
 }
 
-html.light .sidebar-panel [style*="background: #A78BFA"] {
-  background: #3b82f6 !important;
+html.light .progress-shimmer {
+  opacity: 0.3 !important;
+}
+
+/* ═══ Boost Button - iOS Blue ═══ */
+html.light .boost-btn {
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%) !important;
+  box-shadow: 
+    0 4px 16px rgba(0, 122, 255, 0.3),
+    0 1px 3px rgba(0, 122, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+html.light .boost-btn:hover {
+  box-shadow: 
+    0 6px 24px rgba(0, 122, 255, 0.35),
+    0 2px 6px rgba(0, 122, 255, 0.25) !important;
 }
 
 /* Legacy class names fallback */
