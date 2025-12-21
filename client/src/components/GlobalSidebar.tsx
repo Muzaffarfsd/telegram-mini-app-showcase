@@ -87,6 +87,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pressedItem, setPressedItem] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isThemeAnimating, setIsThemeAnimating] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
@@ -1632,8 +1633,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           
           <button
             onClick={() => {
-              toggleTheme();
-              triggerHaptic('light');
+              if (isThemeAnimating) return;
+              setIsThemeAnimating(true);
+              triggerHaptic('medium');
+              setTimeout(() => {
+                toggleTheme();
+                triggerHaptic('light');
+              }, 150);
+              setTimeout(() => setIsThemeAnimating(false), 600);
             }}
             data-testid="button-theme-toggle"
             style={{
@@ -1646,14 +1653,59 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               border: 'none',
               background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: isThemeAnimating ? 'scale(0.9)' : 'scale(1)',
+              overflow: 'hidden',
+              position: 'relative',
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
-            {isDark ? (
-              <Sun style={{ width: '20px', height: '20px', color: '#FAFAFA' }} />
-            ) : (
-              <Moon style={{ width: '20px', height: '20px', color: '#1e293b' }} />
+            <div style={{
+              position: 'relative',
+              width: '20px',
+              height: '20px',
+            }}>
+              <Sun 
+                style={{ 
+                  width: '20px', 
+                  height: '20px', 
+                  color: '#FAFAFA',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  transform: isDark 
+                    ? 'rotate(0deg) scale(1)' 
+                    : 'rotate(-90deg) scale(0)',
+                  opacity: isDark ? 1 : 0,
+                  transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                }} 
+              />
+              <Moon 
+                style={{ 
+                  width: '20px', 
+                  height: '20px', 
+                  color: '#1e293b',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  transform: isDark 
+                    ? 'rotate(90deg) scale(0)' 
+                    : 'rotate(0deg) scale(1)',
+                  opacity: isDark ? 0 : 1,
+                  transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                }} 
+              />
+            </div>
+            {isThemeAnimating && (
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '12px',
+                background: isDark 
+                  ? 'radial-gradient(circle, rgba(251,191,36,0.3) 0%, transparent 70%)' 
+                  : 'radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%)',
+                animation: 'pulse-glow 0.6s ease-out',
+              }} />
             )}
           </button>
         </div>
