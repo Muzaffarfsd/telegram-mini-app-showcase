@@ -1155,7 +1155,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       
       <div 
         ref={sidebarRef}
-        className={`sidebar-panel ${sidebarOpen ? 'open' : ''}`}
+        className={`sidebar-panel global-sidebar-panel ${sidebarOpen ? 'open' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-label="Главное меню"
@@ -1404,7 +1404,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 <button
                   key={item.section}
                   onClick={() => handleNavClick(item.section)}
-                  className={`menu-item ${active ? 'active' : ''} ${isPressed ? 'pressed' : ''}`}
+                  className={`menu-item global-sidebar-item ${active ? 'active' : ''} ${isPressed ? 'pressed' : ''}`}
                   data-testid={`button-nav-${item.section || 'home'}`}
                 >
                   {active && <div className="menu-item-glow" />}
@@ -1453,7 +1453,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           
           <button
             onClick={() => handleNavClick('profile')}
-            className={`menu-item ${isProfileActive ? 'active' : ''} ${isProfilePressed ? 'pressed' : ''}`}
+            className={`menu-item global-sidebar-item ${isProfileActive ? 'active' : ''} ${isProfilePressed ? 'pressed' : ''}`}
             data-testid="button-nav-profile"
           >
             {isProfileActive && <div className="menu-item-glow" />}

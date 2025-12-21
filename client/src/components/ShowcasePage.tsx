@@ -481,15 +481,19 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           
           <div className="grid grid-cols-2 gap-3">
             {[
-              { title: 'Оплата', desc: 'Stripe, ЮKassa' },
-              { title: 'AI-бот', desc: 'Поддержка 24/7' },
-              { title: 'Аналитика', desc: 'Realtime' },
-              { title: 'CRM', desc: 'Заказы' },
+              { title: 'Оплата', desc: 'Stripe, ЮKassa', tonal: 'ios26-tonal-blue', icon: '💳' },
+              { title: 'AI-бот', desc: 'Поддержка 24/7', tonal: 'ios26-tonal-purple', icon: '🤖' },
+              { title: 'Аналитика', desc: 'Realtime', tonal: 'ios26-tonal-green', icon: '📊' },
+              { title: 'CRM', desc: 'Заказы', tonal: 'ios26-tonal-orange', icon: '📋' },
             ].map((item, i) => (
               <div 
                 key={i}
-                className="p-4 rounded-xl transition-colors duration-300"
-                style={{ backgroundColor: 'var(--card-bg)' }}
+                className={`p-4 rounded-xl transition-all duration-300 ios26-feature-card ${item.tonal} ios26-luminous`}
+                style={{ 
+                  backgroundColor: 'var(--card-bg)',
+                  border: '1px solid var(--card-border)',
+                  boxShadow: 'var(--card-shadow)'
+                }}
               >
                 <div className="text-[14px] font-medium mb-0.5 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
                   {item.title}
