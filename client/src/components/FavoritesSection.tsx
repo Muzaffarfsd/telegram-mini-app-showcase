@@ -42,7 +42,7 @@ export const FavoritesSection = memo(function FavoritesSection({
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="mx-5 mb-6"
+      className="favorites-section mx-5 mb-6"
     >
       <div 
         className="relative overflow-hidden rounded-[20px]"

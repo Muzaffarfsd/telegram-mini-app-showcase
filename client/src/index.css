@@ -5556,3 +5556,146 @@ html.light .demo-app-shell .bg-white\/10,
 html.light .demo-app-shell .bg-white\/5 {
   background: var(--card-bg) !important;
 }
+
+/* ═══════════════════════════════════════════════════════
+   REVIEW PAGE - Light Theme Overrides
+   ═══════════════════════════════════════════════════════ */
+
+html.light .review-page {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+html.light .review-page [style*="color: #FAFAFA"],
+html.light .review-page [style*="color:#FAFAFA"] {
+  color: var(--text-primary) !important;
+}
+
+html.light .review-page [style*="color: #71717A"],
+html.light .review-page [style*="color:#71717A"],
+html.light .review-page [style*="color: #52525B"],
+html.light .review-page [style*="color:#52525B"] {
+  color: var(--text-secondary) !important;
+}
+
+html.light .review-page [style*="background: rgba(255"],
+html.light .review-page [style*="background:rgba(255"] {
+  background: var(--card-bg) !important;
+}
+
+html.light .review-page [style*="border: 1px solid rgba(255"],
+html.light .review-page [style*="border:1px solid rgba(255"] {
+  border-color: var(--card-border) !important;
+}
+
+html.light .review-page [style*="background: #27272A"],
+html.light .review-page [style*="background:#27272A"] {
+  background: var(--divider) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PREMIUM TASKS EARNING PAGE - Light Theme Overrides
+   ═══════════════════════════════════════════════════════ */
+
+html.light .premium-tasks-page {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+html.light .premium-tasks-page [style*="color: #FAFAFA"],
+html.light .premium-tasks-page [style*="color:#FAFAFA"] {
+  color: var(--text-primary) !important;
+}
+
+html.light .premium-tasks-page [style*="color: #71717A"],
+html.light .premium-tasks-page [style*="color:#71717A"],
+html.light .premium-tasks-page [style*="color: #52525B"],
+html.light .premium-tasks-page [style*="color:#52525B"] {
+  color: var(--text-secondary) !important;
+}
+
+html.light .premium-tasks-page [style*="background: rgba(255"],
+html.light .premium-tasks-page [style*="background:rgba(255"] {
+  background: var(--card-bg) !important;
+}
+
+html.light .premium-tasks-page [style*="border: 1px solid rgba(255"],
+html.light .premium-tasks-page [style*="border:1px solid rgba(255"] {
+  border-color: var(--card-border) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   HELP PAGE - Light Theme Overrides
+   ═══════════════════════════════════════════════════════ */
+
+html.light .help-page {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+html.light .help-page [style*="color: #FAFAFA"],
+html.light .help-page [style*="color:#FAFAFA"] {
+  color: var(--text-primary) !important;
+}
+
+html.light .help-page [style*="color: #71717A"],
+html.light .help-page [style*="color:#71717A"],
+html.light .help-page [style*="color: #A1A1AA"],
+html.light .help-page [style*="color:#A1A1AA"] {
+  color: var(--text-secondary) !important;
+}
+
+html.light .help-page [style*="background: rgba(255"],
+html.light .help-page [style*="background:rgba(255"] {
+  background: var(--card-bg) !important;
+}
+
+html.light .help-page [style*="border: 1px solid rgba(255"],
+html.light .help-page [style*="border:1px solid rgba(255"] {
+  border-color: var(--card-border) !important;
+}
+
+html.light .help-page [style*="background: #18181B"],
+html.light .help-page [style*="background:#18181B"] {
+  background: var(--card-bg) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FAVORITES SECTION - Light Theme Overrides
+   ═══════════════════════════════════════════════════════ */
+
+html.light .favorites-section [style*="color: #FAFAFA"],
+html.light .favorites-section [style*="color:#FAFAFA"],
+html.light .favorites-section [style*="color: #FFFFFF"],
+html.light .favorites-section [style*="color:#FFFFFF"] {
+  color: var(--text-primary) !important;
+}
+
+html.light .favorites-section [style*="background: rgba(255"],
+html.light .favorites-section [style*="background:rgba(255"] {
+  background: var(--card-bg) !important;
+}
+
+html.light .favorites-section [style*="border: 1px solid rgba(255"],
+html.light .favorites-section [style*="border:1px solid rgba(255"] {
+  border-color: var(--card-border) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CONSTRUCTOR PAGE - Additional Light Theme Overrides
+   ═══════════════════════════════════════════════════════ */
+
+html.light .constructor-page [style*="color: #FAFAFA"],
+html.light .constructor-page [style*="color:#FAFAFA"] {
+  color: var(--text-primary) !important;
+}
+
+html.light .constructor-page [style*="color: #71717A"],
+html.light .constructor-page [style*="color:#71717A"] {
+  color: var(--text-secondary) !important;
+}
+
+html.light .constructor-page [style*="background: rgba(255"],
+html.light .constructor-page [style*="background:rgba(255"] {
+  background: var(--card-bg) !important;
+}

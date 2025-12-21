@@ -51,10 +51,10 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
 
   return (
     <div 
-      className="min-h-screen pb-32"
+      className="help-page min-h-screen pb-32"
       style={{ 
-        background: '#09090B',
-        color: '#E4E4E7',
+        background: 'var(--background, #09090B)',
+        color: 'var(--foreground, #E4E4E7)',
         paddingTop: '140px'
       }}
     >

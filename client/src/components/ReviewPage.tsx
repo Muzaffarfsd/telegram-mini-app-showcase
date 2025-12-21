@@ -62,10 +62,10 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
   if (submitted) {
     return (
       <div 
-        className="min-h-screen pb-32"
+        className="review-page min-h-screen pb-32"
         style={{ 
-          background: '#09090B',
-          color: '#E4E4E7',
+          background: 'var(--background, #09090B)',
+          color: 'var(--foreground, #E4E4E7)',
           paddingTop: '140px'
         }}
       >
@@ -129,10 +129,10 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
 
   return (
     <div 
-      className="min-h-screen pb-32"
+      className="review-page min-h-screen pb-32"
       style={{ 
-        background: '#09090B',
-        color: '#E4E4E7',
+        background: 'var(--background, #09090B)',
+        color: 'var(--foreground, #E4E4E7)',
         paddingTop: '140px'
       }}
     >

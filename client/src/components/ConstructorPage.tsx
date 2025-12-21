@@ -688,7 +688,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
   }, [selectedFeatures, selectedTemplate]);
 
   return (
-    <div className="min-h-screen pb-32 smooth-scroll-page" style={{ paddingTop: '140px', background: 'var(--surface)', color: 'var(--text-secondary)' }}>
+    <div className="constructor-page min-h-screen pb-32 smooth-scroll-page" style={{ paddingTop: '140px', background: 'var(--surface)', color: 'var(--text-secondary)' }}>
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
         {/* Payment Section - AIDA Style with Animated Text */}
