@@ -989,83 +989,17 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         
         /* ═══════════════════════════════════════════════════════════════
-           SNOWFALL EFFECT - GPU OPTIMIZED
+           SNOWFLAKE EFFECT - REAL SNOWFLAKES ❄
            ═══════════════════════════════════════════════════════════════ */
-        
-        .top-bar::before,
-        .top-bar::after {
-          content: '';
-          position: absolute;
-          top: -10px;
-          left: 0;
-          right: 0;
-          height: 120%;
-          pointer-events: none;
-          will-change: transform;
-          transform: translateZ(0);
-          contain: layout paint;
-        }
-        
-        .top-bar::before {
-          background-image: 
-            radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,0.9) 50%, transparent 50%),
-            radial-gradient(1.5px 1.5px at 25% 40%, rgba(255,255,255,0.8) 50%, transparent 50%),
-            radial-gradient(2px 2px at 40% 10%, rgba(255,255,255,0.85) 50%, transparent 50%),
-            radial-gradient(1px 1px at 55% 60%, rgba(255,255,255,0.7) 50%, transparent 50%),
-            radial-gradient(2px 2px at 70% 30%, rgba(255,255,255,0.9) 50%, transparent 50%),
-            radial-gradient(1.5px 1.5px at 85% 50%, rgba(255,255,255,0.75) 50%, transparent 50%),
-            radial-gradient(1px 1px at 95% 20%, rgba(255,255,255,0.8) 50%, transparent 50%),
-            radial-gradient(2px 2px at 15% 70%, rgba(255,255,255,0.85) 50%, transparent 50%),
-            radial-gradient(1.5px 1.5px at 60% 80%, rgba(255,255,255,0.7) 50%, transparent 50%);
-          background-size: 100% 100%;
-          animation: snowfall-1 10s linear infinite;
-          opacity: 0.8;
-        }
-        
-        .top-bar::after {
-          background-image: 
-            radial-gradient(1.5px 1.5px at 5% 35%, rgba(255,255,255,0.7) 50%, transparent 50%),
-            radial-gradient(2px 2px at 20% 55%, rgba(255,255,255,0.8) 50%, transparent 50%),
-            radial-gradient(1px 1px at 35% 25%, rgba(255,255,255,0.75) 50%, transparent 50%),
-            radial-gradient(1.5px 1.5px at 50% 45%, rgba(255,255,255,0.85) 50%, transparent 50%),
-            radial-gradient(2px 2px at 65% 15%, rgba(255,255,255,0.8) 50%, transparent 50%),
-            radial-gradient(1px 1px at 80% 65%, rgba(255,255,255,0.7) 50%, transparent 50%),
-            radial-gradient(1.5px 1.5px at 90% 40%, rgba(255,255,255,0.9) 50%, transparent 50%);
-          background-size: 100% 100%;
-          animation: snowfall-2 14s linear infinite;
-          opacity: 0.6;
-        }
-        
-        @keyframes snowfall-1 {
-          0% { transform: translate3d(0, -100%, 0); }
-          100% { transform: translate3d(0, 100%, 0); }
-        }
-        
-        @keyframes snowfall-2 {
-          0% { transform: translate3d(-5%, -100%, 0); }
-          100% { transform: translate3d(5%, 100%, 0); }
-        }
         
         /* Уменьшаем анимацию для пользователей с настройкой reduced-motion */
         @media (prefers-reduced-motion: reduce) {
-          .top-bar::before,
-          .top-bar::after {
-            animation: none;
-            opacity: 0.3;
+          .snowflake {
+            animation: none !important;
+            opacity: 0.5;
           }
         }
         
-        /* Снеговик - лёгкое покачивание */
-        .snowman-wrapper {
-          animation: snowman-sway 3s ease-in-out infinite;
-          transform-origin: bottom center;
-        }
-        
-        @keyframes snowman-sway {
-          0%, 100% { transform: rotate(0deg); }
-          25% { transform: rotate(2deg); }
-          75% { transform: rotate(-2deg); }
-        }
         
         /* ═══════════════════════════════════════════════════════════════
            BREATHING ANIMATION FOR IDLE STATE
@@ -1692,7 +1626,58 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       </div>
 
       <div className="top-bar">
-        <div className="max-w-md mx-auto px-5 pt-16 pb-4 flex items-center justify-between gap-4">
+        {/* Настоящие снежинки ❄ */}
+        <div className="snowflakes-container" aria-hidden="true" style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          overflow: 'hidden',
+          pointerEvents: 'none',
+          zIndex: 1
+        }}>
+          {[...Array(12)].map((_, i) => (
+            <div 
+              key={i}
+              className="snowflake"
+              style={{
+                position: 'absolute',
+                left: `${8 + i * 8}%`,
+                top: '-20px',
+                fontSize: `${10 + (i % 3) * 4}px`,
+                color: 'rgba(255,255,255,0.9)',
+                textShadow: '0 0 3px rgba(255,255,255,0.5)',
+                animation: `snowflakeFall ${8 + (i % 4) * 2}s linear infinite`,
+                animationDelay: `${i * 0.8}s`,
+                opacity: 0.7 + (i % 3) * 0.1
+              }}
+            >
+              ❄
+            </div>
+          ))}
+        </div>
+        
+        <style>{`
+          @keyframes snowflakeFall {
+            0% {
+              transform: translateY(-20px) rotate(0deg);
+              opacity: 0;
+            }
+            10% {
+              opacity: 0.8;
+            }
+            90% {
+              opacity: 0.8;
+            }
+            100% {
+              transform: translateY(120px) rotate(360deg);
+              opacity: 0;
+            }
+          }
+        `}</style>
+        
+        <div className="max-w-md mx-auto px-5 pt-16 pb-4 flex items-center justify-between gap-4" style={{ position: 'relative', zIndex: 2 }}>
           <div style={{ marginTop: '8px' }}>
             <AnimatedHamburgerIcon 
               ref={triggerButtonRef}
@@ -1712,41 +1697,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             }}>
               WEB4TG STUDIO
             </p>
-            
-            {/* Милый Kawaii снеговик */}
-            <div className="snowman-wrapper" data-testid="icon-snowman" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="28">
-                {/* Нижний снежок */}
-                <circle cx="32" cy="48" r="14" fill="#ffffff" stroke="#e0e0e0" strokeWidth="1.5"/>
-                {/* Средний снежок */}
-                <circle cx="32" cy="28" r="11" fill="#ffffff" stroke="#e0e0e0" strokeWidth="1.5"/>
-                {/* Голова */}
-                <circle cx="32" cy="13" r="8" fill="#ffffff" stroke="#e0e0e0" strokeWidth="1.5"/>
-                {/* Kawaii румянец на щёчках */}
-                <ellipse cx="27" cy="15" rx="2.5" ry="1.8" fill="#ffb3ba" opacity="0.7"/>
-                <ellipse cx="37" cy="15" rx="2.5" ry="1.8" fill="#ffb3ba" opacity="0.7"/>
-                {/* Счастливые глазки-дуги */}
-                <path d="M 28 11 Q 28 12.5 29 12.5 Q 30 12.5 30 11" stroke="#333333" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-                <path d="M 34 11 Q 34 12.5 35 12.5 Q 36 12.5 36 11" stroke="#333333" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-                {/* Милая улыбка */}
-                <path d="M 29 16 Q 32 18 35 16" stroke="#333333" strokeWidth="1.3" fill="none" strokeLinecap="round"/>
-                {/* Носик-морковка */}
-                <path d="M 32 14 L 38 14.5 L 32 15 Z" fill="#ff9147"/>
-                {/* Пуговки */}
-                <circle cx="32" cy="26" r="1.2" fill="#333333"/>
-                <circle cx="32" cy="30" r="1.2" fill="#333333"/>
-                <circle cx="32" cy="45" r="1.3" fill="#333333"/>
-                <circle cx="32" cy="49.5" r="1.3" fill="#333333"/>
-                {/* Шляпа */}
-                <rect x="26" y="5" width="12" height="3" fill="#333333" rx="1"/>
-                <rect x="28" y="2" width="8" height="5" fill="#333333" rx="0.5"/>
-                {/* Веточки-ручки */}
-                <line x1="20" y1="28" x2="15" y2="25" stroke="#8b4513" strokeWidth="1.8" strokeLinecap="round"/>
-                <line x1="44" y1="28" x2="49" y2="25" stroke="#8b4513" strokeWidth="1.8" strokeLinecap="round"/>
-                <line x1="15" y1="25" x2="12" y2="23" stroke="#8b4513" strokeWidth="1.3" strokeLinecap="round"/>
-                <line x1="49" y1="25" x2="52" y2="23" stroke="#8b4513" strokeWidth="1.3" strokeLinecap="round"/>
-              </svg>
-            </div>
           </div>
           
           <button
