@@ -1642,97 +1642,214 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               toggleTheme(e);
               triggerHaptic('light');
               
-              setTimeout(() => setIsThemeAnimating(false), 700);
+              setTimeout(() => setIsThemeAnimating(false), 800);
             }}
             data-testid="button-theme-toggle"
             className="day-night-toggle"
             style={{
-              width: '56px',
-              height: '28px',
-              borderRadius: '14px',
+              width: '64px',
+              height: '32px',
+              borderRadius: '16px',
               border: 'none',
               cursor: 'pointer',
               position: 'relative',
               overflow: 'hidden',
               background: isDark 
-                ? 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
-                : 'linear-gradient(180deg, #87CEEB 0%, #98D8F0 50%, #B8E4F8 100%)',
-              transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-              transform: isThemeAnimating ? 'scale(0.95)' : 'scale(1)',
+                ? 'linear-gradient(180deg, #0c1445 0%, #1a237e 40%, #283593 100%)'
+                : 'linear-gradient(180deg, #64B5F6 0%, #90CAF9 40%, #BBDEFB 100%)',
+              transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: isThemeAnimating ? 'scale(0.92)' : 'scale(1)',
               boxShadow: isDark 
-                ? 'inset 0 2px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)'
-                : 'inset 0 2px 4px rgba(255,255,255,0.3), 0 1px 2px rgba(0,0,0,0.1)',
+                ? 'inset 0 2px 8px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3), inset 0 -1px 2px rgba(100,100,200,0.2)'
+                : 'inset 0 2px 8px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.15), inset 0 -1px 2px rgba(255,255,255,0.6)',
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >
-            {/* Stars (visible in dark mode) */}
+            {/* Aurora/Glow effect */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: isDark 
+                ? 'radial-gradient(ellipse at 70% 20%, rgba(138,43,226,0.15) 0%, transparent 50%)'
+                : 'radial-gradient(ellipse at 30% 80%, rgba(255,193,7,0.2) 0%, transparent 50%)',
+              transition: 'all 0.6s ease',
+            }} />
+            
+            {/* Stars with twinkling animation */}
             <div style={{
               position: 'absolute',
               inset: 0,
               opacity: isDark ? 1 : 0,
-              transition: 'opacity 0.4s ease',
+              transition: 'opacity 0.5s ease',
             }}>
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#fff', borderRadius: '50%', top: '6px', left: '8px', boxShadow: '0 0 2px #fff' }} />
-              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#fff', borderRadius: '50%', top: '10px', left: '16px', boxShadow: '0 0 2px #fff' }} />
-              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#fff', borderRadius: '50%', top: '18px', left: '12px', boxShadow: '0 0 2px #fff' }} />
-              <div style={{ position: 'absolute', width: '1px', height: '1px', background: '#fff', borderRadius: '50%', top: '8px', left: '22px', boxShadow: '0 0 2px #fff' }} />
-              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#fff', borderRadius: '50%', top: '15px', left: '6px', boxShadow: '0 0 2px #fff' }} />
+              {/* Large stars */}
+              <div style={{ position: 'absolute', width: '2.5px', height: '2.5px', background: '#fff', borderRadius: '50%', top: '5px', left: '6px', boxShadow: '0 0 4px 1px rgba(255,255,255,0.8)', animation: 'twinkle 2s ease-in-out infinite' }} />
+              <div style={{ position: 'absolute', width: '2px', height: '2px', background: '#fff', borderRadius: '50%', top: '12px', left: '14px', boxShadow: '0 0 3px 1px rgba(255,255,255,0.6)', animation: 'twinkle 2.5s ease-in-out infinite 0.5s' }} />
+              <div style={{ position: 'absolute', width: '2.5px', height: '2.5px', background: '#fff', borderRadius: '50%', top: '22px', left: '10px', boxShadow: '0 0 4px 1px rgba(255,255,255,0.7)', animation: 'twinkle 1.8s ease-in-out infinite 0.3s' }} />
+              {/* Medium stars */}
+              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#E8EAF6', borderRadius: '50%', top: '8px', left: '22px', boxShadow: '0 0 2px rgba(255,255,255,0.5)', animation: 'twinkle 3s ease-in-out infinite 0.7s' }} />
+              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#E8EAF6', borderRadius: '50%', top: '18px', left: '5px', boxShadow: '0 0 2px rgba(255,255,255,0.5)', animation: 'twinkle 2.2s ease-in-out infinite 1s' }} />
+              <div style={{ position: 'absolute', width: '1.5px', height: '1.5px', background: '#fff', borderRadius: '50%', top: '25px', left: '18px', boxShadow: '0 0 2px rgba(255,255,255,0.4)', animation: 'twinkle 2.8s ease-in-out infinite 0.2s' }} />
+              {/* Small stars */}
+              <div style={{ position: 'absolute', width: '1px', height: '1px', background: 'rgba(255,255,255,0.8)', borderRadius: '50%', top: '15px', left: '8px' }} />
+              <div style={{ position: 'absolute', width: '1px', height: '1px', background: 'rgba(255,255,255,0.7)', borderRadius: '50%', top: '6px', left: '18px' }} />
+              <div style={{ position: 'absolute', width: '1px', height: '1px', background: 'rgba(255,255,255,0.6)', borderRadius: '50%', top: '20px', left: '24px' }} />
             </div>
             
-            {/* Clouds (visible in light mode) */}
+            {/* Clouds - multi-layer */}
             <div style={{
               position: 'absolute',
-              opacity: isDark ? 0 : 0.9,
-              transition: 'opacity 0.4s ease, transform 0.5s ease',
-              transform: isDark ? 'translateX(-10px)' : 'translateX(0)',
+              opacity: isDark ? 0 : 1,
+              transition: 'opacity 0.4s ease 0.1s, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: isDark ? 'translateX(-15px) scale(0.8)' : 'translateX(0) scale(1)',
             }}>
+              {/* Back cloud layer */}
               <div style={{
                 position: 'absolute',
-                width: '12px',
-                height: '5px',
-                background: 'rgba(255,255,255,0.9)',
-                borderRadius: '10px',
-                top: '8px',
-                left: '6px',
-                boxShadow: '4px -2px 0 0 rgba(255,255,255,0.7), 8px 0 0 0 rgba(255,255,255,0.5)',
+                width: '16px',
+                height: '6px',
+                background: 'rgba(255,255,255,0.7)',
+                borderRadius: '12px',
+                top: '6px',
+                left: '4px',
+                boxShadow: '5px -2px 0 1px rgba(255,255,255,0.5), 10px 1px 0 0 rgba(255,255,255,0.4)',
+                filter: 'blur(0.5px)',
               }} />
+              {/* Front cloud layer */}
+              <div style={{
+                position: 'absolute',
+                width: '14px',
+                height: '7px',
+                background: 'rgba(255,255,255,0.95)',
+                borderRadius: '14px',
+                top: '9px',
+                left: '7px',
+                boxShadow: '4px -3px 0 2px rgba(255,255,255,0.85), 9px 0 0 1px rgba(255,255,255,0.7), -3px 1px 0 1px rgba(255,255,255,0.6)',
+              }} />
+              {/* Bottom small cloud */}
               <div style={{
                 position: 'absolute',
                 width: '10px',
-                height: '4px',
-                background: 'rgba(255,255,255,0.8)',
+                height: '5px',
+                background: 'rgba(255,255,255,0.85)',
                 borderRadius: '10px',
-                top: '18px',
-                left: '10px',
-                boxShadow: '3px -1px 0 0 rgba(255,255,255,0.6)',
+                top: '20px',
+                left: '12px',
+                boxShadow: '4px -1px 0 1px rgba(255,255,255,0.7)',
               }} />
             </div>
+            
+            {/* Sun glow ring */}
+            <div style={{
+              position: 'absolute',
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              top: '2px',
+              left: isDark ? '34px' : '2px',
+              background: 'transparent',
+              boxShadow: isDark 
+                ? 'none'
+                : '0 0 20px 4px rgba(255,193,7,0.4), 0 0 40px 8px rgba(255,152,0,0.2)',
+              transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+              opacity: isDark ? 0 : 1,
+            }} />
             
             {/* Sun/Moon orb */}
             <div style={{
               position: 'absolute',
-              width: '20px',
-              height: '20px',
+              width: '24px',
+              height: '24px',
               borderRadius: '50%',
               top: '4px',
-              left: isDark ? '32px' : '4px',
+              left: isDark ? '36px' : '4px',
               background: isDark 
-                ? 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)'
-                : 'linear-gradient(135deg, #FFD93D 0%, #FF9500 100%)',
+                ? 'linear-gradient(145deg, #ECEFF1 0%, #CFD8DC 50%, #B0BEC5 100%)'
+                : 'linear-gradient(145deg, #FFEE58 0%, #FFD54F 40%, #FFB300 100%)',
               boxShadow: isDark 
-                ? 'inset -2px -2px 4px rgba(0,0,0,0.1), 0 0 8px rgba(255,255,255,0.3)'
-                : '0 0 12px rgba(255,200,0,0.6), inset -2px -2px 4px rgba(255,150,0,0.3)',
-              transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                ? 'inset -3px -3px 6px rgba(0,0,0,0.15), inset 2px 2px 4px rgba(255,255,255,0.3), 0 0 15px 3px rgba(200,200,220,0.3)'
+                : 'inset -3px -3px 6px rgba(255,152,0,0.4), inset 2px 2px 4px rgba(255,255,255,0.6), 0 0 8px 2px rgba(255,193,7,0.5)',
+              transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
             }}>
-              {/* Moon craters */}
-              {isDark && (
-                <>
-                  <div style={{ position: 'absolute', width: '4px', height: '4px', background: 'rgba(200,200,200,0.5)', borderRadius: '50%', top: '4px', left: '6px' }} />
-                  <div style={{ position: 'absolute', width: '3px', height: '3px', background: 'rgba(200,200,200,0.4)', borderRadius: '50%', top: '10px', left: '12px' }} />
-                  <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(200,200,200,0.3)', borderRadius: '50%', top: '14px', left: '5px' }} />
-                </>
-              )}
+              {/* Moon surface details */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '50%',
+                opacity: isDark ? 1 : 0,
+                transition: 'opacity 0.4s ease',
+              }}>
+                {/* Large crater */}
+                <div style={{ 
+                  position: 'absolute', 
+                  width: '6px', 
+                  height: '6px', 
+                  background: 'radial-gradient(circle, rgba(158,158,158,0.4) 0%, rgba(120,120,120,0.2) 100%)', 
+                  borderRadius: '50%', 
+                  top: '4px', 
+                  left: '5px',
+                  boxShadow: 'inset 1px 1px 2px rgba(0,0,0,0.2)',
+                }} />
+                {/* Medium craters */}
+                <div style={{ 
+                  position: 'absolute', 
+                  width: '4px', 
+                  height: '4px', 
+                  background: 'radial-gradient(circle, rgba(158,158,158,0.35) 0%, rgba(120,120,120,0.15) 100%)', 
+                  borderRadius: '50%', 
+                  top: '12px', 
+                  left: '14px',
+                  boxShadow: 'inset 0.5px 0.5px 1px rgba(0,0,0,0.15)',
+                }} />
+                <div style={{ 
+                  position: 'absolute', 
+                  width: '3px', 
+                  height: '3px', 
+                  background: 'radial-gradient(circle, rgba(158,158,158,0.3) 0%, rgba(120,120,120,0.1) 100%)', 
+                  borderRadius: '50%', 
+                  top: '16px', 
+                  left: '6px' 
+                }} />
+                {/* Small details */}
+                <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(158,158,158,0.25)', borderRadius: '50%', top: '8px', left: '12px' }} />
+                <div style={{ position: 'absolute', width: '2px', height: '2px', background: 'rgba(158,158,158,0.2)', borderRadius: '50%', top: '18px', left: '10px' }} />
+              </div>
+              
+              {/* Sun rays */}
+              <div style={{
+                position: 'absolute',
+                inset: '-4px',
+                opacity: isDark ? 0 : 0.6,
+                transition: 'opacity 0.4s ease 0.2s',
+              }}>
+                {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
+                  <div key={i} style={{
+                    position: 'absolute',
+                    width: '2px',
+                    height: '6px',
+                    background: 'linear-gradient(to top, rgba(255,193,7,0.8), transparent)',
+                    left: '50%',
+                    top: '50%',
+                    transformOrigin: 'center 16px',
+                    transform: `translateX(-50%) translateY(-16px) rotate(${angle}deg)`,
+                    borderRadius: '2px',
+                  }} />
+                ))}
+              </div>
             </div>
+            
+            {/* Horizon line with silhouette */}
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '6px',
+              background: isDark 
+                ? 'linear-gradient(180deg, transparent 0%, rgba(26,35,126,0.5) 100%)'
+                : 'linear-gradient(180deg, transparent 0%, rgba(129,199,132,0.3) 100%)',
+              transition: 'all 0.5s ease',
+            }} />
           </button>
         </div>
       </div>
