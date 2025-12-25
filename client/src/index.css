@@ -2457,6 +2457,22 @@ html.light :root,
   animation: wow-gradient-flow 6s ease-in-out infinite;
 }
 
+/* Light theme - darker gradient for visibility on white background */
+:root.light .wow-gradient-text {
+  background: linear-gradient(
+    135deg,
+    #4338ca 0%,
+    #5b21b6 25%,
+    #a21caf 50%,
+    #be123c 75%,
+    #0369a1 100%
+  );
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 @keyframes wow-gradient-flow {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
