@@ -106,6 +106,8 @@ export function serveStatic(app: Express) {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     // CRITICAL: Clear all client-side storage including Service Workers
     res.setHeader('Clear-Site-Data', '"cache", "storage"');
+    // Add Vary headers for proper caching across different networks
+    res.setHeader('Vary', 'Accept-Encoding, Origin, Accept-Language, User-Agent');
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

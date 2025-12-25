@@ -39,6 +39,8 @@ app.use((req, res, next) => {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.setHeader('Surrogate-Control', 'no-store');
+    // Add Vary header to ensure caching works correctly with proxies/CDN from different countries
+    res.setHeader('Vary', 'Accept-Encoding, Origin, Accept-Language, User-Agent');
   }
   next();
 });
@@ -55,10 +57,15 @@ app.use((req, res, next) => {
   
   if (origin && (allowedOrigins.some(o => origin.includes(o)) || process.env.NODE_ENV === 'development')) {
     res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (process.env.NODE_ENV === 'development') {
+    // In development, allow all origins for VPN/geolocation testing
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Telegram-Init-Data, X-CSRF-Token');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
+  // Add Access-Control-Max-Age for better performance
+  res.setHeader('Access-Control-Max-Age', '86400');
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(204);
@@ -137,6 +144,8 @@ if (process.env.NODE_ENV === 'development') {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
+    // Add Vary headers for development to handle VPN/geolocation changes
+    res.setHeader('Vary', 'Accept-Encoding, Origin, Accept-Language, User-Agent');
     next();
   });
 }
