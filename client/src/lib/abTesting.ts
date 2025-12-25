@@ -117,9 +117,13 @@ export async function trackABEvent(
 }
 
 export function trackExposure(experiment: ExperimentName, variant: Variant): void {
-  trackABEvent(experiment, variant, 'exposure');
+  void trackABEvent(experiment, variant, 'exposure').catch(() => {
+    // Silently fail - A/B testing is not critical
+  });
 }
 
 export function trackConversion(experiment: ExperimentName, variant: Variant): void {
-  trackABEvent(experiment, variant, 'conversion');
+  void trackABEvent(experiment, variant, 'conversion').catch(() => {
+    // Silently fail - A/B testing is not critical
+  });
 }
