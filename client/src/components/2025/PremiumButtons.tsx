@@ -8,6 +8,7 @@ interface GradientButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
   variant?: 'primary' | 'aurora' | 'emerald-cyan' | 'emerald-purple';
   size?: 'sm' | 'md' | 'lg';
   children: React.ReactNode;
+  'data-testid'?: string;
 }
 
 export const GradientButton: React.FC<GradientButtonProps> = ({
@@ -15,7 +16,10 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
   size = 'md',
   children,
   className,
-  ...props
+  onClick,
+  disabled,
+  type,
+  'data-testid': dataTestId,
 }) => {
   const { hapticFeedback } = useTelegram();
   
@@ -47,9 +51,11 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
       whileTap={{ scale: 0.95 }}
       onClick={(e) => {
         hapticFeedback.medium();
-        props.onClick?.(e);
+        onClick?.(e as React.MouseEvent<HTMLButtonElement>);
       }}
-      {...props}
+      disabled={disabled}
+      type={type}
+      data-testid={dataTestId}
     >
       <span className="relative z-10">{children}</span>
     </motion.button>
@@ -61,6 +67,7 @@ interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   variant?: 'subtle' | 'medium' | 'strong';
   children: React.ReactNode;
   icon?: React.ReactNode;
+  'data-testid'?: string;
 }
 
 export const GlassButton: React.FC<GlassButtonProps> = ({
@@ -68,7 +75,10 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
   children,
   icon,
   className,
-  ...props
+  onClick,
+  disabled,
+  type,
+  'data-testid': dataTestId,
 }) => {
   const { hapticFeedback } = useTelegram();
   
@@ -92,9 +102,11 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
       whileTap={{ scale: 0.95 }}
       onClick={(e) => {
         hapticFeedback.light();
-        props.onClick?.(e);
+        onClick?.(e as React.MouseEvent<HTMLButtonElement>);
       }}
-      {...props}
+      disabled={disabled}
+      type={type}
+      data-testid={dataTestId}
     >
       <div className="flex items-center justify-center gap-2">
         {icon && <span>{icon}</span>}
@@ -109,6 +121,7 @@ interface MorphingButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
   isLoading?: boolean;
   loadingText?: string;
   children: React.ReactNode;
+  'data-testid'?: string;
 }
 
 export const MorphingButton: React.FC<MorphingButtonProps> = ({
@@ -116,7 +129,10 @@ export const MorphingButton: React.FC<MorphingButtonProps> = ({
   loadingText = 'Loading...',
   children,
   className,
-  ...props
+  onClick,
+  disabled,
+  type,
+  'data-testid': dataTestId,
 }) => {
   const { hapticFeedback } = useTelegram();
   
@@ -136,11 +152,12 @@ export const MorphingButton: React.FC<MorphingButtonProps> = ({
       onClick={(e) => {
         if (!isLoading) {
           hapticFeedback.medium();
-          props.onClick?.(e);
+          onClick?.(e as React.MouseEvent<HTMLButtonElement>);
         }
       }}
-      disabled={isLoading || props.disabled}
-      {...props}
+      disabled={isLoading || disabled}
+      type={type}
+      data-testid={dataTestId}
     >
       <motion.div
         initial={false}
@@ -168,13 +185,17 @@ export const MorphingButton: React.FC<MorphingButtonProps> = ({
 interface MagneticButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   strength?: number;
   children: React.ReactNode;
+  'data-testid'?: string;
 }
 
 export const MagneticButton: React.FC<MagneticButtonProps> = ({
   strength = 20,
   children,
   className,
-  ...props
+  onClick,
+  disabled,
+  type,
+  'data-testid': dataTestId,
 }) => {
   const ref = useRef<HTMLButtonElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -225,9 +246,11 @@ export const MagneticButton: React.FC<MagneticButtonProps> = ({
       }}
       onClick={(e) => {
         hapticFeedback.heavy();
-        props.onClick?.(e);
+        onClick?.(e as React.MouseEvent<HTMLButtonElement>);
       }}
-      {...props}
+      disabled={disabled}
+      type={type}
+      data-testid={dataTestId}
     >
       {children}
     </motion.button>
@@ -238,13 +261,17 @@ export const MagneticButton: React.FC<MagneticButtonProps> = ({
 interface FABProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: React.ReactNode;
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+  'data-testid'?: string;
 }
 
 export const FAB: React.FC<FABProps> = ({
   icon,
   position = 'bottom-right',
   className,
-  ...props
+  onClick,
+  disabled,
+  type,
+  'data-testid': dataTestId,
 }) => {
   const { hapticFeedback } = useTelegram();
   
@@ -277,9 +304,11 @@ export const FAB: React.FC<FABProps> = ({
       }}
       onClick={(e) => {
         hapticFeedback.heavy();
-        props.onClick?.(e);
+        onClick?.(e as React.MouseEvent<HTMLButtonElement>);
       }}
-      {...props}
+      disabled={disabled}
+      type={type}
+      data-testid={dataTestId}
     >
       {icon}
     </motion.button>
@@ -290,13 +319,17 @@ export const FAB: React.FC<FABProps> = ({
 interface PulseButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   pulseColor?: string;
+  'data-testid'?: string;
 }
 
 export const PulseButton: React.FC<PulseButtonProps> = ({
   children,
   pulseColor = 'rgba(16, 185, 129, 0.5)',
   className,
-  ...props
+  onClick,
+  disabled,
+  type,
+  'data-testid': dataTestId,
 }) => {
   const { hapticFeedback } = useTelegram();
   
@@ -311,17 +344,17 @@ export const PulseButton: React.FC<PulseButtonProps> = ({
       )}
       onClick={(e) => {
         hapticFeedback.medium();
-        props.onClick?.(e);
+        onClick?.(e as React.MouseEvent<HTMLButtonElement>);
       }}
-      {...props}
+      disabled={disabled}
+      type={type}
+      data-testid={dataTestId}
     >
-      {/* Pulse rings */}
       <span className="absolute inset-0 rounded-full animate-ping opacity-75" 
             style={{ backgroundColor: pulseColor }} />
       <span className="absolute inset-0 rounded-full animate-pulse" 
             style={{ backgroundColor: pulseColor }} />
       
-      {/* Button content */}
       <span className="relative z-10">{children}</span>
     </motion.button>
   );
