@@ -177,15 +177,15 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
           <div className="p-4 bg-gradient-to-br from-orange-500/10 to-red-500/10 backdrop-blur-xl rounded-2xl border border-orange-400/30">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Flame className="w-6 h-6 text-orange-600 dark:text-orange-500" />
+                <Flame className="w-6 h-6 text-orange-500" />
                 <div>
                   <h3 className="font-bold text-lg">{stats.streak} дней</h3>
-                  <p className="text-sm text-orange-700 dark:text-orange-300">Текущая серия</p>
+                  <p className="text-sm text-orange-300">Текущая серия</p>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-2xl font-bold text-orange-600">{stats.totalMinutes}</p>
-                <p className="text-xs text-orange-700 dark:text-orange-300">минут всего</p>
+                <p className="text-xs text-orange-300">минут всего</p>
               </div>
             </div>
             <div className="h-2 bg-orange-900/20 rounded-full overflow-hidden">
@@ -194,7 +194,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                 style={{ width: `${(stats.streak / 30) * 100}%` }}
               />
             </div>
-            <p className="text-xs text-orange-700 dark:text-orange-300 mt-2">До достижения "Стальная воля": {30 - stats.streak} дней</p>
+            <p className="text-xs text-orange-300 mt-2">До достижения "Стальная воля": {30 - stats.streak} дней</p>
           </div>
 
           <div>
@@ -343,9 +343,9 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
             <div className="p-4 bg-gradient-to-br from-orange-500/10 to-red-500/10 backdrop-blur-xl rounded-xl border border-orange-400/30">
               <div className="flex items-center gap-2 mb-2">
                 <Trophy className="w-5 h-5 text-orange-600" />
-                <p className="font-semibold text-orange-900 dark:text-orange-100">Трекер достижений</p>
+                <p className="font-semibold text-orange-100">Трекер достижений</p>
               </div>
-              <p className="text-sm text-orange-800 dark:text-orange-200">
+              <p className="text-sm text-orange-200">
                 Завершите эту тренировку и получите +{selectedWorkout.calories} калорий к статистике
               </p>
             </div>

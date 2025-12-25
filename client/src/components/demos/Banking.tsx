@@ -154,15 +154,15 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
           <div className="p-4 bg-gradient-to-br from-green-500/10 to-emerald-500/10 backdrop-blur-xl rounded-2xl border border-green-400/30">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-500" />
+                <TrendingUp className="w-6 h-6 text-green-500" />
                 <div>
                   <h3 className="font-bold text-lg">Прибыль</h3>
-                  <p className="text-sm text-green-700 dark:text-green-300">За все время</p>
+                  <p className="text-sm text-green-300">За все время</p>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-2xl font-bold text-green-600">+{totalGain.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</p>
-                <p className="text-xs text-green-700 dark:text-green-300">+{gainPercent}%</p>
+                <p className="text-xs text-green-300">+{gainPercent}%</p>
               </div>
             </div>
           </div>
