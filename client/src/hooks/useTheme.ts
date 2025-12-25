@@ -83,12 +83,19 @@ export function useTheme() {
     setTheme((prev) => {
       const next = prev === 'dark' ? 'light' : 'dark';
       console.log('[Theme] Toggle:', prev, '->', next);
+      
+      // Dispatch event to sync all useTheme instances
+      isInternalUpdate.current = true;
+      window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: next } }));
+      
       return next;
     });
   }, []);
 
   const setThemeValue = useCallback((newTheme: Theme) => {
     if (newTheme !== theme) {
+      isInternalUpdate.current = true;
+      window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
       setTheme(newTheme);
     }
   }, [theme]);
