@@ -1748,13 +1748,13 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               borderRadius: '14px',
               border: isDark 
                 ? '1px solid rgba(255,255,255,0.15)'
-                : '1px solid rgba(0,0,0,0.1)',
+                : '1px solid rgba(0,0,0,0.25)',
               cursor: 'pointer',
               position: 'relative',
               overflow: 'visible',
               background: isDark 
                 ? 'rgba(255,255,255,0.08)'
-                : 'rgba(0,0,0,0.05)',
+                : 'rgba(0,0,0,0.12)',
             }}
             aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
           >

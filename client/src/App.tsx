@@ -470,7 +470,7 @@ function App() {
                     </NavButton>
                     
                     {/* Разделитель */}
-                    <div className="w-px h-8 mx-1" style={{ background: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)' }} />
+                    <div className="w-px h-8 mx-1" style={{ background: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.2)' }} />
                     
                     {/* Переключатель темы - яркий и заметный */}
                     <button
@@ -479,13 +479,13 @@ function App() {
                       style={{
                         background: isDark 
                           ? 'linear-gradient(145deg, rgba(99,102,241,0.3) 0%, rgba(139,92,246,0.2) 100%)' 
-                          : 'linear-gradient(145deg, rgba(251,191,36,0.3) 0%, rgba(245,158,11,0.2) 100%)',
+                          : 'linear-gradient(145deg, rgba(251,191,36,0.5) 0%, rgba(245,158,11,0.4) 100%)',
                         border: isDark 
                           ? '1px solid rgba(139,92,246,0.4)' 
-                          : '1px solid rgba(245,158,11,0.4)',
+                          : '1px solid rgba(245,158,11,0.6)',
                         boxShadow: isDark 
                           ? '0 0 12px rgba(139,92,246,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' 
-                          : '0 0 12px rgba(251,191,36,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                          : '0 0 12px rgba(251,191,36,0.5), inset 0 1px 0 rgba(255,255,255,0.3)',
                       }}
                       aria-label="Переключить тему"
                       data-testid="button-theme-toggle-mobile"
