@@ -103,11 +103,17 @@ export function serveStatic(app: Express) {
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    // CRITICAL: Clear all client-side storage including Service Workers
-    res.setHeader('Clear-Site-Data', '"cache", "storage"');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    // CRITICAL: Force clear ALL client-side storage including Service Workers
+    res.setHeader('Clear-Site-Data', '"cache", "cookies", "storage", "executionContexts"');
     // Add Vary headers for proper caching across different networks
-    res.setHeader('Vary', 'Accept-Encoding, Origin, Accept-Language, User-Agent');
+    res.setHeader('Vary', 'Accept-Encoding, Origin, Accept-Language, User-Agent, X-Forwarded-For');
+    // Force content-type and disable any proxy caching
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

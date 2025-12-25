@@ -2,6 +2,7 @@
   "name": "WEB4TG Studio - Telegram Mini Apps",
   "short_name": "WEB4TG",
   "description": "Professional Telegram Mini Apps portfolio. 18 full-featured demos for fashion, restaurants, fitness, real estate & AI agents. 24/7 automation, sales & analytics.",
+  "version": "1.0.0",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
