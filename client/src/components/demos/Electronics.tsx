@@ -897,7 +897,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             </div>
             <div>
               <h2 className="text-xl font-bold">Иван Петров</h2>
-              <p className="text-sm text-muted-foreground">+7 (999) 123-45-67</p>
+              <p className="text-sm text-white/60">+7 (999) 123-45-67</p>
             </div>
           </div>
 

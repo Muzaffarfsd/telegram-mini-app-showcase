@@ -170,7 +170,7 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Портфели</h2>
-              <PiggyBank className="w-5 h-5 text-muted-foreground" />
+              <PiggyBank className="w-5 h-5 text-white/60" />
             </div>
             <div className="grid gap-3">
               {portfolios.map((portfolio) => (
@@ -178,20 +178,20 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
                   key={portfolio.id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="relative h-32 rounded-2xl overflow-hidden hover-elevate active-elevate-2 cursor-pointer bg-card/50 backdrop-blur-xl border border-border/50"
+                  className="relative h-32 rounded-2xl overflow-hidden hover-elevate active-elevate-2 cursor-pointer bg-white/5 backdrop-blur-xl border border-white/10"
                 >
                   <div className={`absolute inset-0 bg-gradient-to-r ${portfolio.gradient}`} />
                   
                   <div className="relative h-full p-5 flex flex-col justify-between">
                     <div>
                       <h3 className="text-xl font-bold mb-1">{portfolio.title}</h3>
-                      <p className="text-muted-foreground text-sm">{portfolio.subtitle}</p>
+                      <p className="text-white/60 text-sm">{portfolio.subtitle}</p>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-bold text-green-600">{portfolio.returns}</span>
                       <div className="flex gap-2">
                         {assets.filter(a => portfolio.assets.includes(a.id)).slice(0, 3).map(asset => (
-                          <div key={asset.id} className="w-8 h-8 rounded-lg bg-card/50 backdrop-blur-xl border border-border/50 flex items-center justify-center">
+                          <div key={asset.id} className="w-8 h-8 rounded-lg bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center">
                             <span className="text-xs font-bold">{asset.symbol.substring(0, 2)}</span>
                           </div>
                         ))}
@@ -215,7 +215,7 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setSelectedAsset(asset)}
-                  className="bg-card/50 backdrop-blur-xl rounded-2xl overflow-hidden border border-border/50 hover-elevate active-elevate-2 cursor-pointer"
+                  className="bg-white/5 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover-elevate active-elevate-2 cursor-pointer"
                   data-testid={`card-asset-${asset.id}`}
                 >
                   <div className="relative aspect-[3/4]">
@@ -241,7 +241,7 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
                     <h3 className="font-medium mb-1 line-clamp-1">{asset.name}</h3>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-bold">{asset.price.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</span>
-                      <span className="text-xs text-muted-foreground">{asset.symbol}</span>
+                      <span className="text-xs text-white/60">{asset.symbol}</span>
                     </div>
                   </div>
                 </m.div>
@@ -256,7 +256,7 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
   if (activeTab === 'catalog') {
     if (selectedAsset) {
       return (
-        <div className="h-full flex flex-col bg-background smooth-scroll-page">
+        <div className="h-full flex flex-col bg-[#0A0A0A] smooth-scroll-page">
           <div className="relative">
             <div className="aspect-[3/4] relative">
               <LazyImage src={selectedAsset.image} alt={selectedAsset.name} className="w-full h-full object-cover" />
@@ -282,26 +282,26 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <h1 className="text-2xl font-bold">{selectedAsset.name}</h1>
-                  <p className="text-muted-foreground">{selectedAsset.symbol}</p>
+                  <p className="text-white/60">{selectedAsset.symbol}</p>
                 </div>
                 <div className={`flex items-center gap-1 px-3 py-1 rounded-full ${selectedAsset.change24h >= 0 ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
                   {selectedAsset.change24h >= 0 ? <ArrowUpRight className="w-4 h-4 text-green-600" /> : <ArrowDownLeft className="w-4 h-4 text-red-600" />}
                   <span className={`font-bold ${selectedAsset.change24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>{Math.abs(selectedAsset.change24h)}%</span>
                 </div>
               </div>
-              <p className="text-muted-foreground">{selectedAsset.description}</p>
+              <p className="text-white/60">{selectedAsset.description}</p>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Категория</p>
+              <div className="p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 text-center">
+                <p className="text-xs text-white/60 mb-1">Категория</p>
                 <p className="text-sm font-bold">{selectedAsset.category}</p>
               </div>
-              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
+              <div className="p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 text-center">
                 <Shield className="w-5 h-5 mx-auto mb-1" style={{ color: 'var(--theme-primary)' }} />
                 <p className="text-xs font-bold">{selectedAsset.risk}</p>
               </div>
-              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
+              <div className="p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 text-center">
                 <Star className="w-5 h-5 mx-auto mb-1" style={{ fill: 'var(--theme-primary)', color: 'var(--theme-primary)' }} />
                 <p className="text-xs font-bold">{selectedAsset.rating}</p>
               </div>
@@ -312,7 +312,7 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
                 <Zap className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
                 <p className="font-semibold">Быстрая инвестиция</p>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-white/60">
                 Начните инвестировать с любой суммы • Комиссия 0%
               </p>
             </div>
@@ -321,7 +321,7 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
 
             <div className="flex items-center justify-between pt-2">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Цена</p>
+                <p className="text-sm text-white/60 mb-1">Цена</p>
                 <p className="text-3xl font-bold">{selectedAsset.price.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</p>
               </div>
               <button
@@ -340,7 +340,7 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
 
     return (
       <div className="h-full overflow-y-auto smooth-scroll-page">
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-5">
+        <div className="sticky top-0 z-10 bg-[#0A0A0A]/80 backdrop-blur-xl border-b border-white/10 px-4 py-5">
           <h1 className="text-2xl font-bold mb-4">Активы</h1>
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
             {categories.map((category) => (
@@ -350,7 +350,7 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
                 className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
                   selectedCategory === category
                     ? 'text-white'
-                    : 'bg-card/50 backdrop-blur-xl border border-border/50 hover-elevate'
+                    : 'bg-white/5 backdrop-blur-xl border border-white/10 hover-elevate'
                 }`}
                 style={selectedCategory === category ? { backgroundColor: 'var(--theme-primary)' } : {}}
                 data-testid={`button-category-${category}`}
@@ -370,7 +370,7 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedAsset(asset)}
-              className="bg-card/50 backdrop-blur-xl rounded-2xl overflow-hidden border border-border/50 hover-elevate active-elevate-2 cursor-pointer"
+              className="bg-white/5 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover-elevate active-elevate-2 cursor-pointer"
               data-testid={`card-catalog-asset-${asset.id}`}
             >
               <div className="relative aspect-[3/4]">
@@ -399,10 +399,10 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
               </div>
               <div className="p-3">
                 <h3 className="font-medium mb-1 line-clamp-1">{asset.name}</h3>
-                <p className="text-xs text-muted-foreground mb-2">{asset.category}</p>
+                <p className="text-xs text-white/60 mb-2">{asset.category}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold">{asset.price.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</span>
-                  <span className="text-xs text-muted-foreground">{asset.symbol}</span>
+                  <span className="text-xs text-white/60">{asset.symbol}</span>
                 </div>
               </div>
             </m.div>
@@ -415,52 +415,52 @@ const Banking = memo(function Banking({ activeTab }: BankingProps) {
   if (activeTab === 'profile') {
     return (
       <div className="h-full overflow-y-auto smooth-scroll-page">
-        <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
+        <div className="p-6 bg-white/10 backdrop-blur-xl border-b border-white/10">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(to bottom right, var(--theme-primary), var(--theme-accent))' }}>
               <User className="w-8 h-8 text-white" />
             </div>
             <div>
               <h2 className="text-xl font-bold">Александр Иванов</h2>
-              <p className="text-sm text-muted-foreground">+7 (999) 777-66-55</p>
+              <p className="text-sm text-white/60">+7 (999) 777-66-55</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 bg-[var(--theme-primary)]/10 backdrop-blur-xl rounded-xl border border-[var(--theme-primary)]/30">
-              <p className="text-sm text-muted-foreground mb-1">Баланс</p>
+              <p className="text-sm text-white/60 mb-1">Баланс</p>
               <p className="text-2xl font-bold" style={{ color: 'var(--theme-primary)' }}>{balance.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })}</p>
             </div>
             <div className="p-4 bg-green-500/10 backdrop-blur-xl rounded-xl border border-green-400/30">
-              <p className="text-sm text-muted-foreground mb-1">Доходность</p>
+              <p className="text-sm text-white/60 mb-1">Доходность</p>
               <p className="text-2xl font-bold text-green-600">+{gainPercent}%</p>
             </div>
           </div>
         </div>
 
         <div className="p-4 space-y-2">
-          <button className="w-full p-4 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-history">
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-history">
             <div className="flex items-center gap-3">
-              <History className="w-5 h-5 text-muted-foreground" />
+              <History className="w-5 h-5 text-white/60" />
               <span className="font-medium">История операций</span>
             </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-muted-foreground" />
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/60" />
           </button>
 
-          <button className="w-full p-4 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-cards">
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-cards">
             <div className="flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-muted-foreground" />
+              <CreditCard className="w-5 h-5 text-white/60" />
               <span className="font-medium">Мои карты</span>
             </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-muted-foreground" />
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/60" />
           </button>
 
-          <button className="w-full p-4 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
             <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-muted-foreground" />
+              <Settings className="w-5 h-5 text-white/60" />
               <span className="font-medium">Настройки</span>
             </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-muted-foreground" />
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/60" />
           </button>
         </div>
       </div>

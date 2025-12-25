@@ -988,14 +988,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   if (activeTab === 'profile') {
     return (
       <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
-        <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
+        <div className="p-6 bg-white/10 backdrop-blur-xl border-b border-white/10">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-accent)] rounded-full flex items-center justify-center">
               <User className="w-8 h-8 text-black" />
             </div>
             <div>
               <h2 className="text-xl font-bold">Александр Петров</h2>
-              <p className="text-sm text-muted-foreground">+7 (999) 123-45-67</p>
+              <p className="text-sm text-white/60">+7 (999) 123-45-67</p>
             </div>
           </div>
 

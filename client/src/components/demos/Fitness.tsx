@@ -200,7 +200,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Программы тренировок</h2>
-              <TrendingUp className="w-5 h-5 text-muted-foreground" />
+              <TrendingUp className="w-5 h-5 text-white/60" />
             </div>
             <div className="grid gap-3">
               {collections.map((collection) => (
@@ -244,7 +244,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setSelectedWorkout(workout)}
-                  className="bg-card/50 backdrop-blur-xl rounded-2xl overflow-hidden border border-border/50 hover-elevate active-elevate-2 cursor-pointer"
+                  className="bg-white/5 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover-elevate active-elevate-2 cursor-pointer"
                   data-testid={`card-workout-${workout.id}`}
                 >
                   <div className="relative aspect-[3/4]">
@@ -268,7 +268,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                   </div>
                   <div className="p-3">
                     <h3 className="font-medium mb-1 line-clamp-1">{workout.name}</h3>
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between text-sm text-white/60">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {workout.duration} мин
@@ -291,7 +291,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
   if (activeTab === 'catalog') {
     if (selectedWorkout) {
       return (
-        <div className="h-full flex flex-col bg-background smooth-scroll-page">
+        <div className="h-full flex flex-col bg-[#0A0A0A] smooth-scroll-page">
           <div className="relative">
             <div className="aspect-[3/4] relative">
               <LazyImage src={selectedWorkout.image} alt={selectedWorkout.name} className="w-full h-full object-cover" />
@@ -321,20 +321,20 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                   <span className="font-bold text-orange-600">{selectedWorkout.rating}</span>
                 </div>
               </div>
-              <p className="text-muted-foreground mb-3">{selectedWorkout.description}</p>
-              <p className="text-sm text-muted-foreground">Тренер: {selectedWorkout.trainer}</p>
+              <p className="text-white/60 mb-3">{selectedWorkout.description}</p>
+              <p className="text-sm text-white/60">Тренер: {selectedWorkout.trainer}</p>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
+              <div className="p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 text-center">
                 <Clock className="w-5 h-5 mx-auto mb-1 text-orange-600" />
                 <p className="text-sm font-bold">{selectedWorkout.duration} мин</p>
               </div>
-              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
+              <div className="p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 text-center">
                 <Flame className="w-5 h-5 mx-auto mb-1 text-red-600" />
                 <p className="text-sm font-bold">{selectedWorkout.calories} ккал</p>
               </div>
-              <div className="p-3 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 text-center">
+              <div className="p-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 text-center">
                 <Target className="w-5 h-5 mx-auto mb-1 text-blue-600" />
                 <p className="text-xs font-bold">{selectedWorkout.level}</p>
               </div>
@@ -365,7 +365,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
 
     return (
       <div className="h-full overflow-y-auto smooth-scroll-page">
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-5">
+        <div className="sticky top-0 z-10 bg-[#0A0A0A]/80 backdrop-blur-xl border-b border-white/10 px-4 py-5">
           <h1 className="text-2xl font-bold mb-4">Тренировки</h1>
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
             {categories.map((category) => (
@@ -375,7 +375,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                 className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
                   selectedCategory === category
                     ? 'bg-orange-600 text-white'
-                    : 'bg-card/50 backdrop-blur-xl border border-border/50 hover-elevate'
+                    : 'bg-white/5 backdrop-blur-xl border border-white/10 hover-elevate'
                 }`}
                 data-testid={`button-category-${category}`}
               >
@@ -394,7 +394,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedWorkout(workout)}
-              className="bg-card/50 backdrop-blur-xl rounded-2xl overflow-hidden border border-border/50 hover-elevate active-elevate-2 cursor-pointer"
+              className="bg-white/5 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 hover-elevate active-elevate-2 cursor-pointer"
               data-testid={`card-catalog-workout-${workout.id}`}
             >
               <div className="relative aspect-[3/4]">
@@ -423,9 +423,9 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
               </div>
               <div className="p-3">
                 <h3 className="font-medium mb-1 line-clamp-1">{workout.name}</h3>
-                <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{workout.description}</p>
+                <p className="text-xs text-white/60 mb-2 line-clamp-1">{workout.description}</p>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1 text-muted-foreground">
+                  <span className="flex items-center gap-1 text-white/60">
                     <Clock className="w-3 h-3" />
                     {workout.duration} мин
                   </span>
@@ -445,32 +445,32 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
   if (activeTab === 'profile') {
     return (
       <div className="h-full overflow-y-auto smooth-scroll-page">
-        <div className="p-6 bg-card/80 backdrop-blur-xl border-b border-border/50">
+        <div className="p-6 bg-white/10 backdrop-blur-xl border-b border-white/10">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center">
               <User className="w-8 h-8 text-white" />
             </div>
             <div>
               <h2 className="text-xl font-bold">Алексей Кузнецов</h2>
-              <p className="text-sm text-muted-foreground">+7 (999) 888-77-66</p>
+              <p className="text-sm text-white/60">+7 (999) 888-77-66</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="p-4 bg-orange-500/20 backdrop-blur-xl rounded-xl border border-orange-400/30">
-              <p className="text-sm text-muted-foreground mb-1">Тренировки</p>
+              <p className="text-sm text-white/60 mb-1">Тренировки</p>
               <p className="text-2xl font-bold text-orange-600">{stats.workoutsCompleted}</p>
             </div>
             <div className="p-4 bg-red-500/20 backdrop-blur-xl rounded-xl border border-red-400/30">
-              <p className="text-sm text-muted-foreground mb-1">Калорий</p>
+              <p className="text-sm text-white/60 mb-1">Калорий</p>
               <p className="text-2xl font-bold text-red-600">{stats.caloriesBurned.toLocaleString('ru-RU')}</p>
             </div>
             <div className="p-4 bg-purple-500/20 backdrop-blur-xl rounded-xl border border-purple-400/30">
-              <p className="text-sm text-muted-foreground mb-1">Минут</p>
+              <p className="text-sm text-white/60 mb-1">Минут</p>
               <p className="text-2xl font-bold text-purple-600">{stats.totalMinutes}</p>
             </div>
             <div className="p-4 bg-green-500/20 backdrop-blur-xl rounded-xl border border-green-400/30">
-              <p className="text-sm text-muted-foreground mb-1">Серия</p>
+              <p className="text-sm text-white/60 mb-1">Серия</p>
               <p className="text-2xl font-bold text-green-600">{stats.streak} дней</p>
             </div>
           </div>
@@ -486,7 +486,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
               {achievements.map((achievement) => (
                 <div 
                   key={achievement.id}
-                  className={`p-4 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 ${
+                  className={`p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 ${
                     achievement.unlocked ? 'bg-green-500/5 border-green-400/30' : ''
                   }`}
                   data-testid={`achievement-${achievement.id}`}
@@ -502,7 +502,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{achievement.description}</p>
+                      <p className="text-sm text-white/60 mb-2">{achievement.description}</p>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                           <div 
@@ -510,7 +510,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                             style={{ width: `${(achievement.progress / achievement.total) * 100}%` }}
                           />
                         </div>
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        <span className="text-xs text-white/60 whitespace-nowrap">
                           {achievement.progress}/{achievement.total}
                         </span>
                       </div>
@@ -521,12 +521,12 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
             </div>
           </div>
 
-          <button className="w-full p-4 bg-card/50 backdrop-blur-xl rounded-xl border border-border/50 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-history">
+          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-history">
             <div className="flex items-center gap-3">
-              <Calendar className="w-5 h-5 text-muted-foreground" />
+              <Calendar className="w-5 h-5 text-white/60" />
               <span className="font-medium">История тренировок</span>
             </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-muted-foreground" />
+            <ChevronLeft className="w-5 h-5 rotate-180 text-white/60" />
           </button>
         </div>
       </div>

@@ -922,7 +922,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
             </div>
             <div>
               <h2 className="text-xl font-bold">Анна Смирнова</h2>
-              <p className="text-sm text-muted-foreground">+7 (999) 888-77-66</p>
+              <p className="text-sm text-white/60">+7 (999) 888-77-66</p>
             </div>
           </div>
 
