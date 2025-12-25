@@ -1,11 +1,12 @@
-import { motion, HTMLMotionProps } from '@/utils/LazyMotionProvider';
+import { motion } from '@/utils/LazyMotionProvider';
 import { hoverScale } from '@/utils/motionConfig';
 
-interface CardProps extends HTMLMotionProps<'div'> {
+interface CardProps {
   children: React.ReactNode;
   variant?: 'default' | 'glass' | 'premium';
   hoverable?: boolean;
   className?: string;
+  onClick?: () => void;
 }
 
 export function Card({
@@ -13,7 +14,7 @@ export function Card({
   variant = 'default',
   hoverable = false,
   className = '',
-  ...props
+  onClick,
 }: CardProps) {
   const variants = {
     default: 'bg-white/10 border border-white/20',
@@ -29,7 +30,7 @@ export function Card({
         ${className}
       `}
       whileHover={hoverable ? hoverScale : undefined}
-      {...props}
+      onClick={onClick}
     >
       {children}
     </motion.div>

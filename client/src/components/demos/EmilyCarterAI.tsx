@@ -1074,7 +1074,7 @@ function EmilyCarterAI({ activeTab, onTabChange }: EmilyCarterAIProps) {
                   >
                     <div className="w-[80px] h-[100px] rounded-xl overflow-hidden flex-shrink-0">
                       <LazyImage
-                        src={item.image}
+                        src={item.image || ''}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />

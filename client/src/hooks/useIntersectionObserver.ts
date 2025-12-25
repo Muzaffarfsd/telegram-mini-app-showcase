@@ -9,7 +9,7 @@ interface UseIntersectionObserverOptions {
 }
 
 interface UseIntersectionObserverResult<T extends Element> {
-  ref: RefObject<T>;
+  ref: RefObject<T | null>;
   isIntersecting: boolean;
   entry: IntersectionObserverEntry | null;
   disconnect: () => void;
@@ -86,7 +86,7 @@ interface UseIntersectionObserverCallbackOptions extends UseIntersectionObserver
 
 export function useIntersectionObserverCallback<T extends Element = HTMLDivElement>(
   options: UseIntersectionObserverCallbackOptions
-): RefObject<T> {
+): RefObject<T | null> {
   const {
     callback,
     root = null,

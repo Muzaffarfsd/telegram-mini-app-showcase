@@ -771,8 +771,8 @@ export const LegalIcon = () => (
   </svg>
 );
 
-export const getBusinessIcon = (appId: string) => {
-  const icons: Record<string, JSX.Element> = {
+export const getBusinessIcon = (appId: string): React.ReactNode => {
+  const icons: Record<string, React.ReactNode> = {
     'clothing-store': <ClothingStoreIcon />,
     'electronics': <ElectronicsIcon />,
     'beauty': <BeautyIcon />,

@@ -29,10 +29,13 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
       if (data.company) {
         payload.company = data.company;
       }
-      return apiRequest('/api/reviews', {
+      const response = await fetch('/api/reviews', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+      if (!response.ok) throw new Error('Failed to submit review');
+      return response.json();
     },
     onSuccess: () => {
       setSubmitted(true);

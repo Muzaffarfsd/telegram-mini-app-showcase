@@ -845,7 +845,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                   data-testid={`cart-item-${item.id}`}
                 >
                   <LazyImage
-                    src={item.image}
+                    src={item.image || ''}
                     alt={item.name}
                     className="w-24 h-24 rounded-xl object-cover"
                   />

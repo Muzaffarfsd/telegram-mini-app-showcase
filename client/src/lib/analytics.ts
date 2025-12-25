@@ -39,8 +39,8 @@ function getTelegramData(): { telegramId?: number; platform?: string; version?: 
     
     return {
       telegramId: tg.initDataUnsafe?.user?.id,
-      platform: tg.platform,
-      version: tg.version,
+      platform: (tg as any).platform,
+      version: (tg as any).version,
     };
   } catch {
     return {};
@@ -326,13 +326,12 @@ class AnalyticsQueue {
 
   // === WEB VITALS ===
   private setupWebVitals(): void {
-    import('web-vitals').then(({ onFCP, onLCP, onFID, onCLS, onTTFB, onINP }) => {
-      onFCP((metric) => this.trackWebVital('FCP', metric.value));
-      onLCP((metric) => this.trackWebVital('LCP', metric.value));
-      onFID((metric) => this.trackWebVital('FID', metric.value));
-      onCLS((metric) => this.trackWebVital('CLS', metric.value));
-      onTTFB((metric) => this.trackWebVital('TTFB', metric.value));
-      onINP((metric) => this.trackWebVital('INP', metric.value));
+    import('web-vitals').then(({ onFCP, onLCP, onCLS, onTTFB, onINP }) => {
+      onFCP((metric: { value: number }) => this.trackWebVital('FCP', metric.value));
+      onLCP((metric: { value: number }) => this.trackWebVital('LCP', metric.value));
+      onCLS((metric: { value: number }) => this.trackWebVital('CLS', metric.value));
+      onTTFB((metric: { value: number }) => this.trackWebVital('TTFB', metric.value));
+      onINP((metric: { value: number }) => this.trackWebVital('INP', metric.value));
     }).catch(() => {
       // web-vitals не загрузился
     });

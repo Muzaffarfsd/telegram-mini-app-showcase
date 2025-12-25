@@ -65,7 +65,7 @@ export const Heading = ({
 }) => {
   const currentLevel = useHeadingLevel();
   const actualLevel = level ?? currentLevel;
-  const Tag = `h${actualLevel}` as keyof JSX.IntrinsicElements;
+  const Tag = `h${actualLevel}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   
   return (
     <Tag className={className} {...props}>

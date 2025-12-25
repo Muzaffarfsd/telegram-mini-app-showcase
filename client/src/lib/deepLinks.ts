@@ -79,7 +79,7 @@ class DeepLinker {
     
     setTimeout(() => {
       if (!document.hidden) {
-        if (isInTelegramWebView) {
+        if (isInTelegramWebView && window.Telegram?.WebApp) {
           window.Telegram.WebApp.openLink(webUrl);
         } else {
           window.location.href = webUrl;
@@ -101,7 +101,7 @@ class DeepLinker {
         setTimeout(() => {
           document.body.removeChild(iframe);
           if (!document.hidden) {
-            if (isInTelegramWebView) {
+            if (isInTelegramWebView && window.Telegram?.WebApp) {
               window.Telegram.WebApp.openLink(webUrl);
             } else {
               window.open(webUrl, '_blank');
@@ -111,13 +111,13 @@ class DeepLinker {
       } else {
         window.location.href = deepLink;
         setTimeout(() => {
-          if (!document.hidden && isInTelegramWebView) {
+          if (!document.hidden && isInTelegramWebView && window.Telegram?.WebApp) {
             window.Telegram.WebApp.openLink(webUrl);
           }
         }, 1500);
       }
     } else {
-      if (isInTelegramWebView) {
+      if (isInTelegramWebView && window.Telegram?.WebApp) {
         window.Telegram.WebApp.openLink(webUrl);
       } else {
         window.open(webUrl, '_blank');

@@ -185,7 +185,7 @@ function Bookstore({ activeTab }: BookstoreProps) {
                   <span className="ios-caption font-bold" style={{ color: 'var(--theme-primary)' }}>${book.price}</span>
                 </div>
                 {book.inStock <= 5 && (
-                  <UrgencyIndicator stock={book.inStock} />
+                  <UrgencyIndicator type="stock" value={book.inStock} />
                 )}
               </div>
             </div>
@@ -289,7 +289,7 @@ function Bookstore({ activeTab }: BookstoreProps) {
                 </div>
                 {book.inStock <= 5 && (
                   <div className="mt-2">
-                    <UrgencyIndicator stock={book.inStock} />
+                    <UrgencyIndicator type="stock" value={book.inStock} />
                   </div>
                 )}
               </div>
@@ -464,7 +464,7 @@ function Bookstore({ activeTab }: BookstoreProps) {
                 <p className="ios-title font-bold" style={{ color: 'var(--theme-primary)' }}>${selectedBook.price}</p>
                 {selectedBook.inStock <= 5 && (
                   <div className="mt-2">
-                    <UrgencyIndicator stock={selectedBook.inStock} />
+                    <UrgencyIndicator type="stock" value={selectedBook.inStock} />
                   </div>
                 )}
               </div>

@@ -46,14 +46,19 @@ export const logDebug = (message: string, data?: Record<string, any>) => {
 
 // API logging
 export const logRequest = (method: string, path: string, statusCode: number, duration: number, data?: Record<string, any>) => {
-  const level = statusCode >= 400 ? 'warn' : 'info';
-  logger[level as keyof typeof logger]({
+  const logData = {
     method,
     path,
     statusCode,
     duration,
     ...data,
-  }, `${method} ${path} ${statusCode} ${duration}ms`);
+  };
+  const message = `${method} ${path} ${statusCode} ${duration}ms`;
+  if (statusCode >= 400) {
+    logger.warn(logData, message);
+  } else {
+    logger.info(logData, message);
+  }
 };
 
 // Database logging

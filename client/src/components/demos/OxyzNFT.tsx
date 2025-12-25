@@ -1042,7 +1042,7 @@ function OxyzNFT({ activeTab, onTabChange }: OxyzNFTProps) {
   }
 
   if (activeTab === 'cart') {
-    const recommendations = products.filter(p => !cart.some(c => c.id === p.id)).slice(0, 3);
+    const recommendations = products.filter(p => !cart.some(c => String(c.id) === String(p.id))).slice(0, 3);
     
     return (
       <div 

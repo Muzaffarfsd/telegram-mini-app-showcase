@@ -6,13 +6,82 @@ interface ParticleBackgroundProps {
   className?: string;
 }
 
-export function ParticleBackground({ 
+interface ParticleData {
+  x: number;
+  y: number;
+  z: number;
+  vx: number;
+  vy: number;
+  vz: number;
+  color: string;
+  size: number;
+}
+
+function createParticle(canvasWidth: number, canvasHeight: number): ParticleData {
+  const hue = 150 + Math.random() * 30;
+  return {
+    x: (Math.random() - 0.5) * canvasWidth,
+    y: (Math.random() - 0.5) * canvasHeight,
+    z: Math.random() * 1000,
+    vx: (Math.random() - 0.5) * 0.5,
+    vy: (Math.random() - 0.5) * 0.5,
+    vz: Math.random() * 0.5 + 0.1,
+    color: `hsl(${hue}, 70%, ${50 + Math.random() * 20}%)`,
+    size: Math.random() * 2 + 0.5,
+  };
+}
+
+function updateParticle(p: ParticleData, canvasWidth: number, canvasHeight: number, deltaTime: number, speed: number): void {
+  const speedMultiplier = deltaTime * speed * 60;
+  p.x += p.vx * speedMultiplier;
+  p.y += p.vy * speedMultiplier;
+  p.z -= p.vz * speedMultiplier;
+
+  if (p.z < 1) {
+    p.z = 1000;
+    p.x = (Math.random() - 0.5) * canvasWidth;
+    p.y = (Math.random() - 0.5) * canvasHeight;
+  }
+}
+
+function drawParticle(
+  ctx: CanvasRenderingContext2D,
+  p: ParticleData,
+  canvasWidth: number,
+  canvasHeight: number
+): void {
+  const scale = 1000 / (1000 + p.z);
+  const x2d = p.x * scale + canvasWidth / 2;
+  const y2d = p.y * scale + canvasHeight / 2;
+  const size = p.size * scale;
+
+  if (x2d < 0 || x2d > canvasWidth || y2d < 0 || y2d > canvasHeight) {
+    return;
+  }
+
+  const opacity = 1 - p.z / 1000;
+  ctx.fillStyle = p.color;
+  ctx.globalAlpha = opacity * 0.8;
+
+  ctx.beginPath();
+  ctx.arc(x2d, y2d, size, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (p.z < 300) {
+    ctx.globalAlpha = opacity * 0.3;
+    ctx.beginPath();
+    ctx.arc(x2d, y2d, size * 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+export function ParticleBackground({
   particleCount = 80,
-  speed = 0.0005, 
-  className = '' 
+  speed = 0.0005,
+  className = '',
 }: ParticleBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationIdRef = useRef<number>();
+  const animationIdRef = useRef<number | undefined>(undefined);
   const lastFrameTimeRef = useRef<number>(0);
 
   useEffect(() => {
@@ -23,7 +92,7 @@ export function ParticleBackground({
     if (!ctx) return;
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    
+
     if (prefersReducedMotion.matches) {
       ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -31,12 +100,12 @@ export function ParticleBackground({
     }
 
     const handleReducedMotionChange = (e: MediaQueryListEvent) => {
-      if (e.matches && animationIdRef.current) {
+      if (e.matches && animationIdRef.current !== undefined) {
         cancelAnimationFrame(animationIdRef.current);
         animationIdRef.current = undefined;
       }
     };
-    
+
     prefersReducedMotion.addEventListener('change', handleReducedMotionChange);
 
     const setCanvasSize = () => {
@@ -45,71 +114,9 @@ export function ParticleBackground({
     };
     setCanvasSize();
 
-    class Particle {
-      x: number;
-      y: number;
-      z: number;
-      vx: number;
-      vy: number;
-      vz: number;
-      color: string;
-      size: number;
-
-      constructor() {
-        this.x = (Math.random() - 0.5) * canvas.width;
-        this.y = (Math.random() - 0.5) * canvas.height;
-        this.z = Math.random() * 1000;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
-        this.vz = Math.random() * 0.5 + 0.1;
-        
-        const hue = 150 + Math.random() * 30;
-        this.color = `hsl(${hue}, 70%, ${50 + Math.random() * 20}%)`;
-        this.size = Math.random() * 2 + 0.5;
-      }
-
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.z -= this.vz;
-
-        if (this.z < 1) {
-          this.z = 1000;
-          this.x = (Math.random() - 0.5) * canvas.width;
-          this.y = (Math.random() - 0.5) * canvas.height;
-        }
-      }
-
-      draw(ctx: CanvasRenderingContext2D) {
-        const scale = 1000 / (1000 + this.z);
-        const x2d = this.x * scale + canvas.width / 2;
-        const y2d = this.y * scale + canvas.height / 2;
-        const size = this.size * scale;
-
-        if (x2d < 0 || x2d > canvas.width || y2d < 0 || y2d > canvas.height) {
-          return;
-        }
-
-        const opacity = 1 - this.z / 1000;
-        ctx.fillStyle = this.color;
-        ctx.globalAlpha = opacity * 0.8;
-        
-        ctx.beginPath();
-        ctx.arc(x2d, y2d, size, 0, Math.PI * 2);
-        ctx.fill();
-        
-        if (this.z < 300) {
-          ctx.globalAlpha = opacity * 0.3;
-          ctx.beginPath();
-          ctx.arc(x2d, y2d, size * 2, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    }
-
-    const particles: Particle[] = [];
+    const particles: ParticleData[] = [];
     for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
+      particles.push(createParticle(canvas.width, canvas.height));
     }
 
     let mouseX = 0;
@@ -128,12 +135,12 @@ export function ParticleBackground({
 
     const animate = (currentTime: number) => {
       const deltaTime = currentTime - lastFrameTimeRef.current;
-      
+
       if (deltaTime < targetFrameTime) {
         animationIdRef.current = requestAnimationFrame(animate);
         return;
       }
-      
+
       lastFrameTimeRef.current = currentTime - (deltaTime % targetFrameTime);
 
       mouseX += (targetMouseX - mouseX) * 0.05;
@@ -145,9 +152,9 @@ export function ParticleBackground({
       ctx.save();
       ctx.translate(mouseX, mouseY);
 
-      particles.forEach(particle => {
-        particle.update();
-        particle.draw(ctx);
+      particles.forEach((particle) => {
+        updateParticle(particle, canvas.width, canvas.height, deltaTime, speed);
+        drawParticle(ctx, particle, canvas.width, canvas.height);
       });
 
       ctx.restore();
@@ -160,13 +167,13 @@ export function ParticleBackground({
       for (let i = 0; i < particles.length; i++) {
         let connectionCount = 0;
         const p1 = particles[i];
-        
+
         for (let j = i + 1; j < particles.length && connectionCount < maxConnections; j++) {
           const p2 = particles[j];
           const dx = p1.x - p2.x;
           const dy = p1.y - p2.y;
           const dz = p1.z - p2.z;
-          
+
           const distanceSq = dx * dx + dy * dy + dz * dz;
 
           if (distanceSq < connectionDistanceSq) {
@@ -183,7 +190,7 @@ export function ParticleBackground({
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y2);
             ctx.stroke();
-            
+
             connectionCount++;
           }
         }
@@ -200,7 +207,7 @@ export function ParticleBackground({
       window.removeEventListener('resize', setCanvasSize);
       window.removeEventListener('mousemove', handleMouseMove);
       prefersReducedMotion.removeEventListener('change', handleReducedMotionChange);
-      if (animationIdRef.current) {
+      if (animationIdRef.current !== undefined) {
         cancelAnimationFrame(animationIdRef.current);
         animationIdRef.current = undefined;
       }

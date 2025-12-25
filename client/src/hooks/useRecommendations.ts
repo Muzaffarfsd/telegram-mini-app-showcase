@@ -93,7 +93,7 @@ export function useRecommendations(demoApps: any[]) {
       const current = JSON.parse(stored);
       const newBehavior = {
         ...current,
-        viewedDemos: [...new Set([...current.viewedDemos, demoId])],
+        viewedDemos: Array.from(new Set([...current.viewedDemos, demoId])),
         categoryPreferences: {
           ...current.categoryPreferences,
           [category]: (current.categoryPreferences[category] || 0) + 1

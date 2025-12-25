@@ -1,4 +1,3 @@
-import { MotionConfig } from '@/utils/LazyMotionProvider';
 import { DesignTokens } from '@/design-tokens';
 
 export const appleEasing = {
@@ -58,7 +57,6 @@ export const scaleIn = {
     opacity: 1,
     translateZ: 0,
     transition: {
-      type: 'spring',
       ...appleSpring.default
     }
   },
@@ -112,7 +110,6 @@ export const modalFromBottom = {
     scale: 1,
     translateZ: 0,
     transition: {
-      type: 'spring',
       ...appleSpring.default
     }
   },
