@@ -168,9 +168,8 @@ input, textarea {
 
 /* Optimize scrollable content children for paint performance */
 [data-scroll="main"] > * {
-  /* content-visibility enables lazy rendering - huge performance win */
-  content-visibility: auto;
-  contain-intrinsic-size: auto 200px;
+  /* content-visibility disabled - causes content to be hidden */
+  /* contain-intrinsic-size disabled - can hide content */
 }
 
 /* ========================================
@@ -3743,11 +3742,8 @@ html.light :root,
 .demo-card,
 .bento-item,
 [data-scroll-optimize] {
-  /* Browser skips rendering off-screen elements */
-  content-visibility: auto;
-  
-  /* Hint approximate size to prevent layout shifts */
-  contain-intrinsic-size: auto 400px;
+  /* content-visibility disabled - causes content to be hidden */
+  /* contain-intrinsic-size disabled - can hide content */
 }
 
 /* CRITICAL: Fixed elements must not interfere with scroll */
@@ -3921,8 +3917,8 @@ html.low-performance .demo-card,
 html.low-performance .bento-item,
 html.low-performance section,
 html.low-performance article {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 300px;
+  /* content-visibility disabled - causes content to be hidden */
+  /* contain-intrinsic-size disabled - can hide content */
 }
 
 /* Slow Network Mode - Hide non-essential images */
