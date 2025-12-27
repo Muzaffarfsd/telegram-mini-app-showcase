@@ -17,6 +17,7 @@ import { useRouting, navigate } from "./hooks/useRouting";
 import { useScrollDepthEffect } from "./hooks/useScrollDepthEffect";
 import { useAppInitialization } from "./hooks/useAppInitialization";
 import { useTelegramBackButtonHandler } from "./hooks/useTelegramBackButtonHandler";
+import { useScrollSound } from "./hooks/useScrollSound";
 
 // Retry wrapper for dynamic imports - handles chunk loading failures after deploys
 function lazyWithRetry<T extends { default: any }>(
@@ -135,6 +136,9 @@ function App() {
   
   // Initialize performance mode detection
   const performanceMode = usePerformanceMode();
+  
+  // iOS 26-style scroll sounds
+  useScrollSound({ enabled: true, volume: 0.025 });
   
   // Native Telegram buttons
   useTelegramButtons(route.component as any);
