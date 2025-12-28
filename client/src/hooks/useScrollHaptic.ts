@@ -303,19 +303,10 @@ export function useScrollHaptic(config: ScrollHapticConfig = {}) {
       wasAtTop = isAtTop;
       wasAtBottom = isAtBottom;
       
-      if (now - state.lastHapticTime < (settings.cooldownMs ?? 40)) {
-        return;
-      }
-      
+      // Update position tracking (haptic on regular scroll disabled - only edge bounce active)
       const distanceSinceLastTick = Math.abs(currentScroll - state.lastTickPosition);
-      
       if (distanceSinceLastTick >= (settings.tickThreshold ?? 25)) {
-        const hapticType = determineHapticType();
-        if (hapticType) {
-          triggerHaptic(hapticType);
-          state.lastHapticTime = now;
-          state.lastTickPosition = currentScroll;
-        }
+        state.lastTickPosition = currentScroll;
       }
     };
 
@@ -357,16 +348,9 @@ export function useScrollHaptic(config: ScrollHapticConfig = {}) {
         overscrollAmount = 0;
       }
       
-      // Tick-based haptic on touch scroll (for mobile reliability)
-      const now = performance.now();
-      const state = scrollStateRef.current;
-      
+      // Reset touch distance tracking (haptic on scroll disabled - only edge bounce)
       if (touchScrollDistance >= (settings.tickThreshold ?? 25)) {
-        if (now - state.lastHapticTime >= (settings.cooldownMs ?? 40)) {
-          triggerHaptic('selection');
-          state.lastHapticTime = now;
-          touchScrollDistance = 0;
-        }
+        touchScrollDistance = 0;
       }
     };
 
