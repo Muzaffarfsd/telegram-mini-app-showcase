@@ -313,8 +313,8 @@ export function useTelegram() {
       tg.onEvent('safeAreaChanged', handleSafeAreaChanged);
       tg.onEvent('viewportChanged', handleViewportChanged);
       
-      tg.ready();
-      tg.expand();
+      // Note: ready() and expand() are already called in index.html for instant load
+      // We don't call them again here to avoid duplicate postEvent calls
       
       // CRITICAL FIX: Disable vertical swipes to prevent app collapse on scroll (Bot API 7.7+)
       // This prevents Telegram from interpreting downward scroll as "close app" gesture
