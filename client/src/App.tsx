@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy, useCallback } from "react";
+import { useState, Suspense, lazy, useCallback, useEffect } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,15 +8,9 @@ import { Home, ShoppingCart, Briefcase, Bot, Sun, Moon } from "lucide-react";
 import { useTheme } from "./hooks/useTheme";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
-import { usePerformanceMode } from "./hooks/usePerformanceMode";
-import { m, useSpring } from "framer-motion";
-import * as Sentry from '@sentry/react';
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PageLoadingFallback } from "./components/PageLoadingFallback";
 import { useRouting, navigate } from "./hooks/useRouting";
-import { useScrollDepthEffect } from "./hooks/useScrollDepthEffect";
-import { useAppInitialization } from "./hooks/useAppInitialization";
-import { useTelegramBackButtonHandler } from "./hooks/useTelegramBackButtonHandler";
 import { useScrollHaptic } from "./hooks/useScrollHaptic";
 
 // Retry wrapper for dynamic imports - handles chunk loading failures after deploys
@@ -42,19 +36,23 @@ function lazyWithRetry<T extends { default: any }>(
   );
 }
 
-// Initialize Sentry for error tracking
-if (import.meta.env.VITE_SENTRY_DSN) {
-  Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN,
-    environment: import.meta.env.MODE,
-    tracesSampleRate: import.meta.env.MODE === 'production' ? 0.1 : 1.0,
-  });
-}
+// Sentry init deferred to after first paint
+const initSentry = () => {
+  if (import.meta.env.VITE_SENTRY_DSN) {
+    import('@sentry/react').then(Sentry => {
+      Sentry.init({
+        dsn: import.meta.env.VITE_SENTRY_DSN,
+        environment: import.meta.env.MODE,
+        tracesSampleRate: import.meta.env.MODE === 'production' ? 0.1 : 1.0,
+      });
+    });
+  }
+};
 
-// Eager load providers to prevent blank screen (Suspense fallback={null} + #root:empty CSS loop)
-import { RewardsProvider } from "./contexts/RewardsContext";
-import { XPNotificationProvider } from "./contexts/XPNotificationContext";
-import { LazyMotionProvider } from "./utils/LazyMotionProvider";
+// Lazy load providers - not needed for first paint
+const LazyRewardsProvider = lazy(() => import("./contexts/RewardsContext").then(m => ({ default: m.RewardsProvider })));
+const LazyXPNotificationProvider = lazy(() => import("./contexts/XPNotificationContext").then(m => ({ default: m.XPNotificationProvider })));
+const LazyMotionProvider = lazy(() => import("./utils/LazyMotionProvider").then(m => ({ default: m.LazyMotionProvider })));
 
 // Lazy load ALL pages with retry logic for chunk loading failures after deploys
 const ShowcasePage = lazyWithRetry(() => import("./components/ShowcasePage"));
@@ -77,11 +75,11 @@ const PremiumTasksEarningPage = lazy(() => import("./components/PremiumTasksEarn
 const NotificationsPage = lazyWithRetry(() => import("./pages/notifications"));
 const AnalyticsPage = lazyWithRetry(() => import("./pages/analytics"));
 
-// Global components
-import GlobalSidebar from "./components/GlobalSidebar";
-import { PageTransition } from "./components/PageTransition";
-import { OnboardingTutorial } from "./components/OnboardingTutorial";
-import { OfflineIndicator } from "./components/OfflineIndicator";
+// Global components - lazy loaded for faster first paint
+const GlobalSidebar = lazy(() => import("./components/GlobalSidebar"));
+const OnboardingTutorial = lazy(() => import("./components/OnboardingTutorial").then(m => ({ default: m.OnboardingTutorial })));
+const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
+const PageTransition = lazy(() => import("./components/PageTransition").then(m => ({ default: m.PageTransition })));
 
 const goBack = () => {
   window.history.back();
@@ -126,16 +124,13 @@ const NavButton = ({ onClick, isActive, ariaLabel, testId, children }: NavButton
 
 function App() {
   const [orderData, setOrderData] = useState<any>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
   const { hapticFeedback, user } = useTelegram();
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
   
-  // Custom hooks for cleaner code (replaces 7+ useEffects)
+  // Custom hooks for cleaner code
   const { route } = useRouting();
-  useAppInitialization();
-  
-  // Initialize performance mode detection
-  const performanceMode = usePerformanceMode();
   
   // iOS 26-style scroll haptics (vibration feedback)
   useScrollHaptic({ enabled: true });
@@ -143,16 +138,12 @@ function App() {
   // Native Telegram buttons
   useTelegramButtons(route.component as any);
   
-  // Telegram BackButton handler - uses handleCheckoutBack defined below
-  useTelegramBackButtonHandler({
-    routeComponent: route.component,
-    onCheckoutBack: () => {
-      setOrderData(null);
-      navigate('/constructor');
-      hapticFeedback.light();
-    },
-    hapticFeedback,
-  });
+  // Deferred initialization after first paint
+  useEffect(() => {
+    setIsHydrated(true);
+    // Init Sentry after hydration
+    initSentry();
+  }, []);
 
   // Navigation handlers - memoized for better performance with React.memo children
   const handleNavigate = useCallback((section: string, data?: any) => {
@@ -304,14 +295,12 @@ function App() {
   // Pages that should show the global sidebar (all except demo apps)
   const shouldShowSidebar = !route.component.includes('demo') && route.component !== 'notFound';
 
-  // 3D scroll depth effect - extracted to custom hook
-  const scrollContainerRef = useScrollDepthEffect(shouldShowBottomNav);
-
   return (
     <QueryClientProvider client={queryClient}>
-      <LazyMotionProvider>
-        <RewardsProvider>
-          <XPNotificationProvider>
+      <Suspense fallback={null}>
+        <LazyMotionProvider>
+          <LazyRewardsProvider>
+            <LazyXPNotificationProvider>
               <div className="relative min-h-screen">
                 <div className="floating-elements"></div>
                 
@@ -326,7 +315,7 @@ function App() {
                   </ErrorBoundary>
                 )}
                 
-                <div ref={scrollContainerRef} className="pb-36" data-scroll="main">
+                <div className="pb-36" data-scroll="main">
                   <PageTransition routeKey={`${route.component}-${route.params?.id || ''}`} variant="fade">
                     <ErrorBoundary>
                       <Suspense fallback={<PageLoadingFallback />}>
@@ -350,11 +339,8 @@ function App() {
               {/* Bottom Navigation - Premium Glass */}
               {shouldShowBottomNav && (
                 <ErrorBoundary fallback={null}>
-                  <m.div 
-                    className="fixed bottom-6 left-0 right-0 flex justify-center z-50"
-                    initial={{ y: 100, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  <div 
+                    className="fixed bottom-6 left-0 right-0 flex justify-center z-50 animate-in slide-in-from-bottom-4 duration-300"
                     style={{ isolation: 'isolate' }}
                   >
                   <div className="relative">
@@ -556,21 +542,26 @@ function App() {
                     </button>
                     </nav>
                   </div>
-                  </m.div>
+                  </div>
                 </ErrorBoundary>
               )}
 
           
               <Toaster />
               
-              {/* Offline status indicator */}
-              <OfflineIndicator />
+              {/* Offline status indicator - lazy loaded */}
+              <Suspense fallback={null}>
+                <OfflineIndicator />
+              </Suspense>
               
-              {/* Onboarding tutorial for new users */}
-              <OnboardingTutorial />
-          </XPNotificationProvider>
-        </RewardsProvider>
-      </LazyMotionProvider>
+              {/* Onboarding tutorial for new users - lazy loaded */}
+              <Suspense fallback={null}>
+                <OnboardingTutorial />
+              </Suspense>
+            </LazyXPNotificationProvider>
+          </LazyRewardsProvider>
+        </LazyMotionProvider>
+      </Suspense>
     </QueryClientProvider>
   );
 }
