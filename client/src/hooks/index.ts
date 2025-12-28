@@ -35,7 +35,7 @@ export { useRouting, navigate, type Route } from './useRouting';
 export { useScrollDepthEffect } from './useScrollDepthEffect';
 export { useAppInitialization } from './useAppInitialization';
 export { useTelegramBackButtonHandler } from './useTelegramBackButtonHandler';
-export { useScrollSound } from './useScrollSound';
+export { useScrollHaptic } from './useScrollHaptic';
 export { useTelegram } from './useTelegram';
 export { useTelegramButtons } from './useTelegramButtons';
 export { useTelegramViewport } from './useTelegramViewport';
