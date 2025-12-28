@@ -250,23 +250,43 @@ export function useScrollHaptic(config: ScrollHapticConfig = {}) {
     if (!settings.enabled) return;
 
     let ticking = false;
-    let wasAtTop = window.scrollY <= 0;
+    let wasAtTop = true;
     let wasAtBottom = false;
+    let lastTouchY = 0;
 
-    const updateMaxScroll = () => {
-      return document.documentElement.scrollHeight - window.innerHeight;
+    // Find scrollable container - check for data-scroll="main" or use document
+    const getScrollContainer = (): HTMLElement | Window => {
+      const mainScroll = document.querySelector('[data-scroll="main"]') as HTMLElement;
+      if (mainScroll) return mainScroll;
+      return window;
+    };
+
+    const getScrollPosition = (container: HTMLElement | Window): number => {
+      if (container === window) {
+        return window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+      }
+      return (container as HTMLElement).scrollTop;
+    };
+
+    const getMaxScroll = (container: HTMLElement | Window): number => {
+      if (container === window) {
+        return document.documentElement.scrollHeight - window.innerHeight;
+      }
+      const el = container as HTMLElement;
+      return el.scrollHeight - el.clientHeight;
     };
 
     const handleScrollFrame = () => {
       ticking = false;
       
+      const container = getScrollContainer();
       const now = performance.now();
-      const currentScroll = window.scrollY;
+      const currentScroll = getScrollPosition(container);
       const state = scrollStateRef.current;
       
       calculateScrollMetrics(currentScroll, now);
       
-      const maxScroll = updateMaxScroll();
+      const maxScroll = getMaxScroll(container);
       const isAtTop = currentScroll <= 0;
       const isAtBottom = currentScroll >= maxScroll - 1;
       
@@ -306,11 +326,27 @@ export function useScrollHaptic(config: ScrollHapticConfig = {}) {
       }
     };
 
+    // Touch-based scroll detection for mobile (more reliable in Telegram)
     let overscrollAmount = 0;
+    let touchScrollDistance = 0;
+    
+    const handleTouchStart = (e: TouchEvent) => {
+      lastTouchY = e.touches[0]?.clientY ?? 0;
+      touchScrollDistance = 0;
+    };
+
     const handleTouchMove = (e: TouchEvent) => {
-      const currentScroll = window.scrollY;
-      const maxScroll = updateMaxScroll();
+      const currentTouchY = e.touches[0]?.clientY ?? 0;
+      const deltaY = lastTouchY - currentTouchY;
+      lastTouchY = currentTouchY;
       
+      touchScrollDistance += Math.abs(deltaY);
+      
+      const container = getScrollContainer();
+      const currentScroll = getScrollPosition(container);
+      const maxScroll = getMaxScroll(container);
+      
+      // Edge bounce detection
       if (currentScroll <= 0 || currentScroll >= maxScroll) {
         overscrollAmount = Math.min(overscrollAmount + 2, 50);
         const intensity = overscrollAmount / 50;
@@ -320,20 +356,46 @@ export function useScrollHaptic(config: ScrollHapticConfig = {}) {
       } else {
         overscrollAmount = 0;
       }
+      
+      // Tick-based haptic on touch scroll (for mobile reliability)
+      const now = performance.now();
+      const state = scrollStateRef.current;
+      
+      if (touchScrollDistance >= (settings.tickThreshold ?? 25)) {
+        if (now - state.lastHapticTime >= (settings.cooldownMs ?? 40)) {
+          triggerHaptic('selection');
+          state.lastHapticTime = now;
+          touchScrollDistance = 0;
+        }
+      }
     };
 
     const handleTouchEnd = () => {
       overscrollAmount = 0;
+      touchScrollDistance = 0;
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    // Add listeners to both window and scroll container
+    const container = getScrollContainer();
+    
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+    if (container !== window) {
+      (container as HTMLElement).addEventListener('scroll', handleScroll, { passive: true });
+    }
+    
+    // Touch events for mobile
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('scroll', handleScroll, { capture: true });
+      if (container !== window) {
+        (container as HTMLElement).removeEventListener('scroll', handleScroll);
+      }
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
       if (rafIdRef.current) {
         cancelAnimationFrame(rafIdRef.current);
       }
