@@ -18,7 +18,14 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Design System**: Responsive mobile-first with desktop layout within Telegram (1200px viewport), Apple-style minimalism, full-screen layouts, and an 8px grid.
 - **Navigation**: iOS 26 Liquid Glass bottom navigation with advanced visual effects and Telegram user avatar integration.
 - **Telegram Integration**: Supports Home screen shortcuts, API 2025 (fullscreen, safe area insets, share message, download file), and geolocation tracking. Includes intelligent prefetching for Telegram WebApp Bot API 9.2.
-- **Performance**: Optimized FCP via bundle splitting, lazy loading, static `ShowcaseShell`, and video playback control. Incorporates custom hooks for various functionalities and ErrorBoundary for crash isolation.
+- **Performance**: Optimized FCP (<2s target) via:
+  - Deferred initialization: Sentry, providers, and global components loaded after first paint using `requestIdleCallback`
+  - Lazy providers: `LazyRewardsProvider`, `LazyXPNotificationProvider`, `LazyMotionProvider` wrapped in Suspense
+  - Bundle splitting: Icons, framer-motion, utils, charts in separate chunks (see `vite.config.ts` manualChunks)
+  - No duplicate Telegram SDK calls: `ready()`/`expand()` called once in `index.html`
+  - CSS animations for nav instead of framer-motion to reduce critical JS
+  - iOS 26-style scroll haptics via `useScrollHaptic` hook with Telegram HapticFeedback API
+  - Static `ShowcaseShell`, ErrorBoundary for crash isolation, video playback control
 - **Advanced Interactions**: Voice UI (`VoiceSearch`), WebGL Particle Background, 3D Parallax Cards, Liquid Button Effects, Pull-to-Refresh.
 - **Premium Effects Components** (`client/src/components/effects/`):
   - `GradientMesh` - Animated mesh gradient backgrounds with multiple floating orbs
