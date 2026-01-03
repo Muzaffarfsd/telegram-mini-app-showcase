@@ -72,7 +72,7 @@ const PhotoGallery = lazyWithRetry(() => import("./pages/PhotoGallery"));
 const NotFoundPage = lazyWithRetry(() => import("./pages/NotFound"));
 const ReferralProgram = lazy(() => import("./components/ReferralProgram").then(m => ({ default: m.ReferralProgram })));
 const GamificationHub = lazy(() => import("./components/GamificationHub").then(m => ({ default: m.GamificationHub })));
-const TasksEarningPage = lazy(() => import("./components/TasksEarningPage").then(m => ({ default: m.TasksEarningPage })));
+const EarningPage = lazy(() => import("./components/EarningPage").then(m => ({ default: m.EarningPage })));
 const NotificationsPage = lazyWithRetry(() => import("./pages/notifications"));
 const AnalyticsPage = lazyWithRetry(() => import("./pages/analytics"));
 
@@ -298,7 +298,7 @@ function App() {
               return <GamificationHub />;
             
             case 'earning':
-              return <TasksEarningPage onNavigate={handleNavigate} />;
+              return <EarningPage onNavigate={handleNavigate} />;
             
             case 'notifications':
               return <NotificationsPage />;
