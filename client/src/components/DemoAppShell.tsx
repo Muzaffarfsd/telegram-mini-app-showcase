@@ -6,6 +6,7 @@ import { useTelegram } from "../hooks/useTelegram";
 import { getDemoComponent, isDemoAvailable } from "./demos/DemoRegistry";
 import { LiquidHomeButton } from "./ui/liquid-home-button";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface DemoAppShellProps {
   demoId: string;
@@ -129,6 +130,7 @@ const getTheme = (demoId: string): DemoTheme => {
 const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShellProps) {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const { hapticFeedback } = useTelegram();
+  const { t } = useLanguage();
   
   // Scroll to top when demo opens
   useEffect(() => {
@@ -154,9 +156,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mx-4 text-center">
-          <h3 className="text-lg font-semibold text-white mb-2">Демо не найдено</h3>
+          <h3 className="text-lg font-semibold text-white mb-2">{t('demo.notFound')}</h3>
           <p className="text-sm text-white/50">
-            Приложение временно недоступно
+            {t('demo.appUnavailable')}
           </p>
         </div>
       </div>
@@ -197,9 +199,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       return (
         <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mx-4 text-center">
-            <h3 className="text-lg font-semibold text-white mb-2">Демо недоступно</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('demo.unavailable')}</h3>
             <p className="text-sm text-white/50">
-              Приложение {baseAppType} временно недоступно
+              {t('demo.appTypeUnavailable').replace('{type}', baseAppType)}
             </p>
           </div>
         </div>
@@ -213,9 +215,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       return (
         <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mx-4 text-center">
-            <h3 className="text-lg font-semibold text-white mb-2">Ошибка загрузки</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('demo.loadError')}</h3>
             <p className="text-sm text-white/50">
-              Не удалось загрузить приложение
+              {t('demo.loadErrorDesc')}
             </p>
           </div>
         </div>
@@ -310,7 +312,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                   boxShadow: theme.navShadow,
                 }}
                 role="navigation" 
-                aria-label="Навигация демо"
+                aria-label={t('demo.navigation')}
               >
                 {/* Top highlight line */}
                 <div 
@@ -320,11 +322,11 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                   }}
                 />
               
-                {/* Главная */}
+                {/* Home */}
                 <button
                   onClick={() => handleTabSwitch('home')}
                   className="relative flex items-center justify-center w-12 h-12 rounded-full"
-                  aria-label="Главная"
+                  aria-label={t('nav.home')}
                   data-testid="nav-home"
                 >
                   {activeTab === 'home' && (
@@ -344,11 +346,11 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                   />
                 </button>
                 
-                {/* Каталог */}
+                {/* Catalog */}
                 <button
                   onClick={() => handleTabSwitch('catalog')}
                   className="relative flex items-center justify-center w-12 h-12 rounded-full"
-                  aria-label="Каталог"
+                  aria-label={t('nav.demos')}
                   data-testid="nav-catalog"
                 >
                   {activeTab === 'catalog' && (
@@ -368,11 +370,11 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                   />
                 </button>
                 
-                {/* Корзина */}
+                {/* Cart */}
                 <button
                   onClick={() => handleTabSwitch('cart')}
                   className="relative flex items-center justify-center w-12 h-12 rounded-full"
-                  aria-label="Корзина"
+                  aria-label={t('nav.cart')}
                   data-testid="nav-cart"
                 >
                   {activeTab === 'cart' && (
@@ -392,11 +394,11 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                   />
                 </button>
                 
-                {/* Профиль */}
+                {/* Profile */}
                 <button
                   onClick={() => handleTabSwitch('profile')}
                   className="relative flex items-center justify-center w-12 h-12 rounded-full"
-                  aria-label="Профиль"
+                  aria-label={t('nav.profile')}
                   data-testid="nav-profile"
                 >
                   {activeTab === 'profile' && (

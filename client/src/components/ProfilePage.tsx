@@ -39,6 +39,7 @@ import {
 import { useTelegram } from "../hooks/useTelegram";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/hooks/useTheme";
+import { useLanguage } from "../contexts/LanguageContext";
 import { Copy, Share2, UserPlus } from "lucide-react";
 
 // iOS 26 Design System Palette
@@ -207,9 +208,10 @@ const UserCard = memo(({ profileData, isAvailable, telegramUser, palette }: {
 UserCard.displayName = 'UserCard';
 
 // Memoized Stats Card Component - iOS 26 Style
-const StatsCard = memo(({ stats, palette }: { 
+const StatsCard = memo(({ stats, palette, t }: { 
   stats: { total: number, completed: number, inProgress: number },
-  palette: ProfilePalette 
+  palette: ProfilePalette,
+  t: (key: string) => string
 }) => (
   <div className="ios26-stats-card">
     <div className="grid grid-cols-3 gap-4">
@@ -218,32 +220,52 @@ const StatsCard = memo(({ stats, palette }: {
           <Package className="w-6 h-6 text-system-blue" />
         </div>
         <div className="text-2xl font-semibold text-system-blue">{stats.total}</div>
-        <div className="text-xs mt-1" style={{ color: palette.textTertiary }}>Проектов</div>
+        <div className="text-xs mt-1" style={{ color: palette.textTertiary }}>{t('profilePage.projects')}</div>
       </div>
       <div className="text-center">
         <div className="w-12 h-12 bg-system-green/10 rounded-full flex items-center justify-center mx-auto mb-2">
           <CheckCircle className="w-6 h-6 text-system-green" />
         </div>
         <div className="text-2xl font-semibold text-system-green">{stats.completed}</div>
-        <div className="text-xs mt-1" style={{ color: palette.textTertiary }}>Завершено</div>
+        <div className="text-xs mt-1" style={{ color: palette.textTertiary }}>{t('profilePage.completedCount')}</div>
       </div>
       <div className="text-center">
         <div className="w-12 h-12 bg-system-orange/10 rounded-full flex items-center justify-center mx-auto mb-2">
           <Clock className="w-6 h-6 text-system-orange" />
         </div>
         <div className="text-2xl font-semibold text-system-orange">{stats.inProgress}</div>
-        <div className="text-xs mt-1" style={{ color: palette.textTertiary }}>В работе</div>
+        <div className="text-xs mt-1" style={{ color: palette.textTertiary }}>{t('profilePage.inWork')}</div>
       </div>
     </div>
   </div>
 ));
 StatsCard.displayName = 'StatsCard';
 
+// Helper function to translate status for display
+const getTranslatedStatus = (status: string, t: (key: string) => string): string => {
+  switch (status) {
+    case 'Готово':
+      return t('profilePage.ready');
+    case 'Завершен':
+      return t('profilePage.completed');
+    case 'В разработке':
+    case 'Разработка':
+      return t('profilePage.inProgress');
+    case 'Планирование':
+      return t('profilePage.planning');
+    case 'Оплачено':
+      return t('profilePage.paid');
+    default:
+      return status;
+  }
+};
+
 // Memoized Project Item Component
-const ProjectItem = memo(({ project, isLast, palette }: { 
+const ProjectItem = memo(({ project, isLast, palette, t }: { 
   project: any, 
   isLast: boolean,
-  palette: ProfilePalette 
+  palette: ProfilePalette,
+  t: (key: string) => string
 }) => (
   <div className="p-4" style={{ borderBottom: !isLast ? `1px solid ${palette.divider}` : 'none' }}>
     <div className="flex items-center space-x-3">
@@ -256,7 +278,7 @@ const ProjectItem = memo(({ project, isLast, palette }: {
             project.status === 'В разработке' || project.status === 'Разработка' ? 'text-system-orange' :
             'text-system-blue'
           }`}>
-            {project.status}
+            {getTranslatedStatus(project.status, t)}
           </span>
           <span className="ios-caption2" style={{ color: palette.textQuaternary }}>•</span>
           <span className="ios-caption2 font-medium" style={{ color: palette.textSecondary }}>{project.progress || 0}%</span>
@@ -279,10 +301,11 @@ const ProjectItem = memo(({ project, isLast, palette }: {
 ProjectItem.displayName = 'ProjectItem';
 
 // Virtualized Projects List Component
-const ProjectsVirtualList = memo(({ projects, onNavigateConstructor, palette }: { 
+const ProjectsVirtualList = memo(({ projects, onNavigateConstructor, palette, t }: { 
   projects: any[], 
   onNavigateConstructor: () => void,
-  palette: ProfilePalette
+  palette: ProfilePalette,
+  t: (key: string) => string
 }) => {
   const parentRef = useRef<HTMLDivElement>(null);
   
@@ -296,7 +319,7 @@ const ProjectsVirtualList = memo(({ projects, onNavigateConstructor, palette }: 
   return (
     <section>
       <div className="space-y-3">
-        <div className="ios-list-header font-medium px-2" style={{ color: palette.textSecondary }}>Мои проекты</div>
+        <div className="ios-list-header font-medium px-2" style={{ color: palette.textSecondary }}>{t('profilePage.myProjects')}</div>
         
         <div 
           ref={parentRef}
@@ -340,8 +363,8 @@ const ProjectsVirtualList = memo(({ projects, onNavigateConstructor, palette }: 
                           <Wrench className="w-5 h-5 text-system-blue" />
                         </div>
                         <div className="flex-1">
-                          <div className="ios-body font-bold text-system-blue">Создать новый проект</div>
-                          <div className="ios-footnote" style={{ color: palette.textSecondary }}>Запустите еще одно приложение</div>
+                          <div className="ios-body font-bold text-system-blue">{t('profilePage.createNewProject')}</div>
+                          <div className="ios-footnote" style={{ color: palette.textSecondary }}>{t('profilePage.launchAnotherApp')}</div>
                         </div>
                         <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
                       </div>
@@ -362,7 +385,7 @@ const ProjectsVirtualList = memo(({ projects, onNavigateConstructor, palette }: 
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
                 >
-                  <ProjectItem project={project} isLast={virtualRow.index === projects.length - 1} palette={palette} />
+                  <ProjectItem project={project} isLast={virtualRow.index === projects.length - 1} palette={palette} t={t} />
                 </div>
               );
             })}
@@ -385,6 +408,7 @@ const generateReferralCode = (userId: number | null): string => {
 function ProfilePage({ onNavigate }: ProfilePageProps) {
   const { user, isAvailable, homeScreen, shareApp, inviteFriend, hapticFeedback } = useTelegram();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [userProjects, setUserProjects] = useState<any[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
@@ -395,12 +419,12 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
   // Memoized profile data
   const profileData = useMemo(() => ({
-    name: user ? `${user.first_name}${user.last_name ? ` ${user.last_name}` : ''}` : 'Пользователь',
+    name: user ? `${user.first_name}${user.last_name ? ` ${user.last_name}` : ''}` : t('profilePage.user'),
     username: user?.username ? `@${user.username}` : null,
     telegramId: user?.id || null,
     language: user?.language_code || 'ru',
-    joinedAt: user ? 'Активен в Telegram' : 'Не подключен'
-  }), [user]);
+    joinedAt: user ? t('profilePage.activeInTelegram') : t('profilePage.notConnected')
+  }), [user, t]);
 
   // Generate user's referral code
   const myReferralCode = useMemo(() => generateReferralCode(user?.id || null), [user?.id]);
@@ -410,10 +434,10 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
     navigator.clipboard.writeText(myReferralCode);
     hapticFeedback?.light();
     toast({
-      title: "Код скопирован",
-      description: `Ваш реферальный код: ${myReferralCode}`,
+      title: t('profilePage.codeCopied'),
+      description: `${t('profilePage.yourReferralCodeIs')} ${myReferralCode}`,
     });
-  }, [myReferralCode, hapticFeedback, toast]);
+  }, [myReferralCode, hapticFeedback, toast, t]);
 
   // Invite friend with referral code - uses native Telegram deep link
   const handleInviteFriend = useCallback(() => {
@@ -423,44 +447,44 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
     
     if (result.success) {
       toast({
-        title: "Приглашение отправлено",
-        description: `Ваш реферальный код ${myReferralCode} добавлен в ссылку`,
+        title: t('profilePage.invitationSent'),
+        description: t('profilePage.codeAddedToLink'),
       });
     } else {
       toast({
-        title: "Ошибка",
-        description: "Не удалось открыть Telegram. Попробуйте скопировать код вручную.",
+        title: t('profilePage.error'),
+        description: t('profilePage.telegramOpenError'),
         variant: "destructive",
       });
     }
-  }, [myReferralCode, inviteFriend, toast]);
+  }, [myReferralCode, inviteFriend, toast, t]);
 
   // Share app without referral code
   const handleShareApp = useCallback(() => {
     console.log('[Profile] Share app clicked');
     
-    const result = shareApp('Посмотри WEB4TG - платформа для создания Telegram приложений!');
+    const result = shareApp('Check out WEB4TG - a platform for creating Telegram applications!');
     
     if (result.success) {
       toast({
-        title: "Отправлено",
-        description: "Открываю Telegram для отправки...",
+        title: t('profilePage.sent'),
+        description: t('profilePage.openingTelegram'),
       });
     } else {
       toast({
-        title: "Ошибка",
-        description: "Не удалось открыть Telegram",
+        title: t('profilePage.error'),
+        description: t('profilePage.telegramError'),
         variant: "destructive",
       });
     }
-  }, [shareApp, toast]);
+  }, [shareApp, toast, t]);
 
   // Apply friend's referral code
   const handleApplyReferralCode = useCallback(async () => {
     if (!friendReferralCode.trim()) {
       toast({
-        title: "Введите код",
-        description: "Пожалуйста, введите реферальный код друга",
+        title: t('profilePage.enterCode'),
+        description: t('profilePage.pleaseEnterCode'),
         variant: "destructive",
       });
       return;
@@ -482,28 +506,28 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
       if (response.ok) {
         hapticFeedback?.medium();
         toast({
-          title: "Код применён",
-          description: "Реферальный код успешно активирован!",
+          title: t('profilePage.codeApplied'),
+          description: t('profilePage.codeActivated'),
         });
         setFriendReferralCode('');
       } else {
         const error = await response.json();
         toast({
-          title: "Ошибка",
-          description: error.message || "Не удалось применить код",
+          title: t('profilePage.error'),
+          description: error.message || t('profilePage.applyCodeError'),
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: "Ошибка",
-        description: "Не удалось применить код. Попробуйте позже.",
+        title: t('profilePage.error'),
+        description: t('profilePage.applyCodeLater'),
         variant: "destructive",
       });
     } finally {
       setIsApplyingCode(false);
     }
-  }, [friendReferralCode, user?.id, hapticFeedback, toast]);
+  }, [friendReferralCode, user?.id, hapticFeedback, toast, t]);
 
   // Fetch projects with transition for smooth UI
   useEffect(() => {
@@ -524,7 +548,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           setUserProjects([]);
         }
       } catch (error) {
-        console.log('Проекты не найдены, пользователь новый');
+        console.log('No projects found, user is new');
         setUserProjects([]);
       } finally {
         setIsLoadingProjects(false);
@@ -544,11 +568,11 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
   // Memoized language display
   const languageDisplay = useMemo(() => {
     switch (profileData.language) {
-      case 'ru': return 'Русский';
+      case 'ru': return t('profilePage.russian');
       case 'en': return 'English';
-      default: return profileData.language || 'Русский';
+      default: return profileData.language || t('profilePage.russian');
     }
-  }, [profileData.language]);
+  }, [profileData.language, t]);
 
   // Memoized navigation callbacks
   const handleNavigateConstructor = useCallback(() => onNavigate('constructor'), [onNavigate]);
@@ -800,36 +824,36 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         {/* Statistics */}
         <section className="scroll-fade-in-delay-1">
           <div className="space-y-2">
-            <div className="ios26-header">Статистика активности</div>
+            <div className="ios26-header">{t('profilePage.activityStats')}</div>
             
             {isLoadingProjects ? (
               <div className="ios26-card relative p-6 text-center">
                 <div className="w-8 h-8 border-2 rounded-full animate-spin mx-auto mb-3" style={{ borderColor: palette.divider, borderTopColor: palette.accent }}></div>
-                <div className="text-[13px]" style={{ color: palette.textTertiary }}>Загружаем ваши проекты...</div>
+                <div className="text-[13px]" style={{ color: palette.textTertiary }}>{t('profilePage.loadingProjects')}</div>
               </div>
             ) : userProjects.length > 0 ? (
-              <StatsCard stats={stats} palette={palette} />
+              <StatsCard stats={stats} palette={palette} t={t} />
             ) : (
               <div className="ios26-card relative p-6 text-center">
                 <div className="ios26-stat-icon mx-auto mb-4" style={{ width: '56px', height: '56px' }}>
                   <Package className="w-7 h-7" style={{ color: palette.textTertiary }} />
                 </div>
-                <h3 className="text-[17px] font-semibold mb-2" style={{ color: palette.textPrimary }}>Ваши конкуренты уже в Telegram</h3>
+                <h3 className="text-[17px] font-semibold mb-2" style={{ color: palette.textPrimary }}>{t('profilePage.competitorsInTelegram')}</h3>
                 <p className="text-[13px] mb-5 leading-relaxed" style={{ color: palette.textPrimary }}>
-                  Пока вы думаете — они забирают ваших клиентов. Запустите своё приложение за 7 дней и получайте заявки 24/7.
+                  {t('profilePage.competitorsDescription')}
                 </p>
                 <button 
                   className="ios26-btn-glow w-full mb-3"
                   onClick={handleNavigateConstructor}
                 >
-                  Заказать разработку
+                  {t('profilePage.orderDevelopment')}
                 </button>
                 <button 
                   className="ios26-btn-primary w-full"
                   style={{ background: 'transparent', border: `1px solid ${palette.cardBorder}` }}
                   onClick={handleNavigatePricing}
                 >
-                  Выбрать шаблон
+                  {t('profilePage.chooseTemplate')}
                 </button>
               </div>
             )}
@@ -839,7 +863,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         {/* Telegram Integration */}
         <section className="scroll-fade-in-delay-2">
           <div className="space-y-2">
-            <div className="ios26-header">Интеграция с Telegram</div>
+            <div className="ios26-header">{t('profilePage.telegramIntegration')}</div>
             
             <div className="ios26-card relative">
               <div className="ios26-item">
@@ -848,7 +872,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Send className="w-5 h-5 text-system-blue" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Язык интерфейса</div>
+                    <div className="ios26-title">{t('profilePage.interfaceLanguage')}</div>
                     <div className="ios26-subtitle">{languageDisplay}</div>
                   </div>
                 </div>
@@ -860,7 +884,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Smartphone className="w-5 h-5 text-system-green" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Статус подключения</div>
+                    <div className="ios26-title">{t('profilePage.connectionStatus')}</div>
                     <div className="ios26-subtitle">{profileData.joinedAt}</div>
                   </div>
                   {isAvailable && <CheckCircle className="w-5 h-5 text-system-green" />}
@@ -873,7 +897,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         {/* Referral System Section */}
         <section className="scroll-fade-in-delay-3">
           <div className="space-y-2">
-            <div className="ios26-header">Пригласить друзей</div>
+            <div className="ios26-header">{t('profilePage.inviteFriends')}</div>
             
             <div className="ios26-card relative">
               {/* My Referral Code */}
@@ -883,8 +907,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Gift className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Ваш реферальный код</div>
-                    <div className="ios26-subtitle">Поделитесь с друзьями</div>
+                    <div className="ios26-title">{t('profilePage.yourReferralCode')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.shareWithFriends')}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -913,7 +937,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                   data-testid="button-invite-friend"
                 >
                   <UserPlus className="w-5 h-5" />
-                  Пригласить друга
+                  {t('profilePage.inviteFriend')}
                 </button>
               </div>
               <div className="ios26-divider" />
@@ -925,8 +949,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Users className="w-5 h-5 text-blue-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Код друга</div>
-                    <div className="ios26-subtitle">Введите реферальный код</div>
+                    <div className="ios26-title">{t('profilePage.friendCode')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.enterReferralCode')}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -949,7 +973,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     className="px-4 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white font-semibold rounded-xl transition-colors"
                     data-testid="button-apply-referral"
                   >
-                    {isApplyingCode ? '...' : 'Применить'}
+                    {isApplyingCode ? '...' : t('profilePage.apply')}
                   </button>
                 </div>
               </div>
@@ -968,7 +992,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                   data-testid="button-share-app"
                 >
                   <Share2 className="w-5 h-5" />
-                  Поделиться приложением
+                  {t('profilePage.shareApp')}
                 </button>
               </div>
             </div>
@@ -978,7 +1002,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         {/* Bonuses & Rewards Section */}
         <section className="scroll-fade-in-delay-3">
           <div className="space-y-2">
-            <div className="ios26-header">Бонусы и награды</div>
+            <div className="ios26-header">{t('profilePage.bonusesAndRewards')}</div>
             
             <div className="ios26-card relative">
               <div className="ios26-item cursor-pointer" onClick={handleNavigateReferral}>
@@ -987,8 +1011,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Users className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Реферальная программа</div>
-                    <div className="ios26-subtitle">Приглашайте друзей и зарабатывайте</div>
+                    <div className="ios26-title">{t('profilePage.referralProgram')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.inviteAndEarn')}</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
@@ -1001,8 +1025,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Gift className="w-5 h-5 text-amber-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Цифровые награды</div>
-                    <div className="ios26-subtitle">Достижения, уровни и бонусы</div>
+                    <div className="ios26-title">{t('profilePage.digitalRewards')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.achievementsLevelsBonuses')}</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
@@ -1015,8 +1039,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Coins className="w-5 h-5 text-yellow-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Заработок монет</div>
-                    <div className="ios26-subtitle">Выполняйте задания и зарабатывайте</div>
+                    <div className="ios26-title">{t('profilePage.coinEarning')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.completeTasksEarn')}</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
@@ -1031,13 +1055,14 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             projects={userProjects} 
             onNavigateConstructor={handleNavigateConstructor}
             palette={palette}
+            t={t}
           />
         )}
 
         {/* Smart Features */}
         <section className="scroll-fade-in-delay-4">
           <div className="space-y-2">
-            <div className="ios26-header">Умные функции</div>
+            <div className="ios26-header">{t('profilePage.smartFeatures')}</div>
             
             <div className="ios26-card relative">
               <div className="ios26-item">
@@ -1046,8 +1071,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <CheckCircle className="w-5 h-5 text-system-green" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Автосохранение</div>
-                    <div className="ios26-subtitle">Проекты сохраняются каждые 30 секунд</div>
+                    <div className="ios26-title">{t('profilePage.autoSave')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.autoSaveDesc')}</div>
                   </div>
                   <div 
                     className={`ios-switch ${autoSave ? 'ios-switch-active' : ''} cursor-pointer`}
@@ -1065,8 +1090,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Shield className="w-5 h-5 text-system-blue" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Резервные копии</div>
-                    <div className="ios26-subtitle">Автоматическое резервирование в облако</div>
+                    <div className="ios26-title">{t('profilePage.backupCopies')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.backupDesc')}</div>
                   </div>
                   <div 
                     className={`ios-switch ${backupEnabled ? 'ios-switch-active' : ''} cursor-pointer`}
@@ -1084,8 +1109,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Bell className="w-5 h-5 text-system-purple" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Уведомления о статусе</div>
-                    <div className="ios26-subtitle">Получать обновления о ходе разработки</div>
+                    <div className="ios26-title">{t('profilePage.statusNotifications')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.statusNotificationsDesc')}</div>
                   </div>
                   <div 
                     className={`ios-switch ${notificationsEnabled ? 'ios-switch-active' : ''} cursor-pointer`}
@@ -1103,8 +1128,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Settings className="w-5 h-5 text-system-orange" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Тема оформления</div>
-                    <div className="ios26-subtitle">Темная тема (автоматически)</div>
+                    <div className="ios26-title">{t('profilePage.themeSettings')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.darkThemeAuto')}</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
@@ -1118,20 +1143,20 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     try {
                       homeScreen.add();
                       toast({
-                        title: "Добавление на главный экран",
-                        description: "Следуйте инструкциям браузера для добавления ярлыка приложения",
+                        title: t('profilePage.addingToHomeScreen'),
+                        description: t('profilePage.followBrowserInstructions'),
                       });
                     } catch (error) {
                       toast({
-                        title: "Функция недоступна",
-                        description: "Ваша версия Telegram не поддерживает эту функцию",
+                        title: t('profilePage.featureUnavailable'),
+                        description: t('profilePage.telegramNotSupported'),
                         variant: "destructive",
                       });
                     }
                   } else {
                     toast({
-                      title: "Функция недоступна",
-                      description: "Ваш браузер не поддерживает добавление на главный экран",
+                      title: t('profilePage.featureUnavailable'),
+                      description: t('profilePage.browserNotSupported'),
                       variant: "destructive",
                     });
                   }
@@ -1142,8 +1167,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Smartphone className="w-5 h-5 text-emerald-500" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Добавить на главный экран</div>
-                    <div className="ios26-subtitle">Быстрый доступ к приложению</div>
+                    <div className="ios26-title">{t('profilePage.addToHomeScreen')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.quickAccess')}</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
@@ -1155,7 +1180,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         {/* Support */}
         <section>
           <div className="space-y-2">
-            <div className="ios26-header">Поддержка</div>
+            <div className="ios26-header">{t('profilePage.support')}</div>
             
             <div className="ios26-card relative">
               <div className="ios26-item cursor-pointer" onClick={handleTelegramClick}>
@@ -1164,8 +1189,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <MessageCircle className="w-5 h-5 text-system-blue" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Связаться с нами</div>
-                    <div className="ios26-subtitle">Техподдержка 24/7</div>
+                    <div className="ios26-title">{t('profilePage.contactUs')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.support247')}</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
@@ -1220,8 +1245,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <HelpCircle className="w-5 h-5 text-system-green" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Справка</div>
-                    <div className="ios26-subtitle">FAQ и инструкции</div>
+                    <div className="ios26-title">{t('profilePage.helpCenter')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.faqAndGuides')}</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
@@ -1234,8 +1259,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <Star className="w-5 h-5 text-system-orange" />
                   </div>
                   <div className="flex-1">
-                    <div className="ios26-title">Оставить отзыв</div>
-                    <div className="ios26-subtitle">Оцените наш сервис</div>
+                    <div className="ios26-title">{t('profilePage.leaveReview')}</div>
+                    <div className="ios26-subtitle">{t('profilePage.rateOurService')}</div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/40" />
                 </div>
@@ -1247,7 +1272,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         {/* App Info */}
         <section className="text-center space-y-2 pb-4">
           <div className="ios-footnote text-white/40 font-medium">WEB4TG Platform</div>
-          <div className="ios-footnote text-white/40">Версия 1.0.0</div>
+          <div className="ios-footnote text-white/40">{t('profilePage.version')} 1.0.0</div>
         </section>
       </div>
     </div>

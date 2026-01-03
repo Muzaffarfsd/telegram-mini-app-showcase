@@ -13,41 +13,77 @@ import {
   Code,
   Headphones
 } from "lucide-react";
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface HelpPageProps {
   onBack: () => void;
 }
 
-const faq = [
-  {
-    q: "Сколько времени занимает разработка?",
-    a: "Простой магазин — 5-7 дней. Ресторан с доставкой — 7-10 дней. Сложные проекты — до 14 дней.",
-    icon: Clock
-  },
-  {
-    q: "Какие способы оплаты вы принимаете?",
-    a: "Банковские карты, СБП, электронные кошельки. Оплата поэтапно: 50% аванс, 50% при сдаче.",
-    icon: CreditCard
-  },
-  {
-    q: "Нужен ли мне Telegram Bot Token?",
-    a: "Нет. Мы создаём Mini App, которое работает внутри Telegram без отдельного бота.",
-    icon: Code
-  },
-  {
-    q: "Можно ли вносить изменения после запуска?",
-    a: "Первый месяц — бесплатная поддержка. Мелкие правки — бесплатно. Срочные исправления — 2 часа.",
-    icon: Shield
-  },
-  {
-    q: "Какую поддержку вы предоставляете?",
-    a: "Техподдержка 24/7. Ответ в Telegram — 30 минут. Критические ошибки — 15 минут.",
-    icon: Headphones
-  }
-];
-
 const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState<number | null>(null);
+
+  const faq = [
+    {
+      q: t('help.faqItems.q1'),
+      a: t('help.faqItems.a1'),
+      icon: Clock
+    },
+    {
+      q: t('help.faqItems.q2'),
+      a: t('help.faqItems.a2'),
+      icon: CreditCard
+    },
+    {
+      q: t('help.faqItems.q3'),
+      a: t('help.faqItems.a3'),
+      icon: Code
+    },
+    {
+      q: t('help.faqItems.q4'),
+      a: t('help.faqItems.a4'),
+      icon: Shield
+    },
+    {
+      q: t('help.faqItems.q5'),
+      a: t('help.faqItems.a5'),
+      icon: Headphones
+    }
+  ];
+
+  const contactItems = [
+    { 
+      icon: MessageCircle, 
+      title: t('help.telegram'), 
+      value: '@web4tg_studio',
+      desc: t('help.telegramResponse'),
+      action: () => window.open('https://t.me/web4tgs', '_blank'),
+      primary: true
+    },
+    { 
+      icon: Phone, 
+      title: t('help.phone'), 
+      value: '+7 (999) 999-99-99',
+      desc: t('help.phoneHours'),
+      action: () => window.open('tel:+79999999999', '_blank'),
+      primary: false
+    },
+    { 
+      icon: Mail, 
+      title: t('help.email'), 
+      value: 'hello@web4tg.studio',
+      desc: t('help.forDocuments'),
+      action: () => window.open('mailto:hello@web4tg.studio', '_blank'),
+      primary: false
+    }
+  ];
+
+  const stats = [
+    { value: '30m', label: t('help.responseTime') },
+    { value: '24/7', label: t('help.techSupport') },
+    { value: '100%', label: t('help.qualityGuarantee') },
+    { value: '14', label: t('help.projectDays') }
+  ];
 
   return (
     <div 
@@ -60,7 +96,6 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
     >
       <div className="max-w-md mx-auto">
         
-        {/* HERO */}
         <header className="px-7 pt-8 pb-16">
           <button
             onClick={onBack}
@@ -80,7 +115,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
             data-testid="button-back"
           >
             <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} />
-            Назад
+            {t('help.back')}
           </button>
           
           <p 
@@ -94,7 +129,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
               marginBottom: '24px'
             }}
           >
-            Поддержка
+            {t('help.support')}
           </p>
           
           <h1 
@@ -108,9 +143,9 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
               color: '#FAFAFA'
             }}
           >
-            Мы всегда
+            {t('help.heroTitle1')}
             <br />
-            <span style={{ color: '#A78BFA' }}>на связи.</span>
+            <span style={{ color: '#A78BFA' }}>{t('help.heroTitle2')}</span>
           </h1>
           
           <p 
@@ -125,14 +160,12 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
               maxWidth: '320px'
             }}
           >
-            Ответы на вопросы, техническая помощь и консультации — быстро и без очереди.
+            {t('help.heroDesc')}
           </p>
         </header>
 
-        {/* Hairline */}
         <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
 
-        {/* CONTACT */}
         <section className="px-7 py-12">
           <p style={{
             fontSize: '10px',
@@ -142,36 +175,11 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
             textTransform: 'uppercase',
             marginBottom: '20px'
           }}>
-            Связаться
+            {t('help.contact')}
           </p>
           
           <div className="space-y-3">
-            {[
-              { 
-                icon: MessageCircle, 
-                title: 'Telegram', 
-                value: '@web4tg_studio',
-                desc: 'Ответ за 30 минут',
-                action: () => window.open('https://t.me/web4tgs', '_blank'),
-                primary: true
-              },
-              { 
-                icon: Phone, 
-                title: 'Телефон', 
-                value: '+7 (999) 999-99-99',
-                desc: '10:00 — 19:00 МСК',
-                action: () => window.open('tel:+79999999999', '_blank'),
-                primary: false
-              },
-              { 
-                icon: Mail, 
-                title: 'Email', 
-                value: 'hello@web4tg.studio',
-                desc: 'Для документов',
-                action: () => window.open('mailto:hello@web4tg.studio', '_blank'),
-                primary: false
-              }
-            ].map((item, index) => (
+            {contactItems.map((item, index) => (
               <button
                 key={index}
                 onClick={item.action}
@@ -227,10 +235,8 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
           </div>
         </section>
 
-        {/* Hairline */}
         <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
 
-        {/* FAQ */}
         <section className="px-7 py-12">
           <p style={{
             fontSize: '10px',
@@ -240,7 +246,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
             textTransform: 'uppercase',
             marginBottom: '20px'
           }}>
-            Частые вопросы
+            {t('help.faq')}
           </p>
           
           <div className="space-y-3">
@@ -316,10 +322,8 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
           </div>
         </section>
 
-        {/* Hairline */}
         <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
 
-        {/* STATS */}
         <section className="px-7 py-12">
           <p style={{
             fontSize: '10px',
@@ -329,16 +333,11 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
             textTransform: 'uppercase',
             marginBottom: '20px'
           }}>
-            Наши гарантии
+            {t('help.guarantees')}
           </p>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            {[
-              { value: '30м', label: 'время ответа' },
-              { value: '24/7', label: 'техподдержка' },
-              { value: '100%', label: 'гарантия качества' },
-              { value: '14', label: 'дней на проект' }
-            ].map((stat, index) => (
+            {stats.map((stat, index) => (
               <div 
                 key={index}
                 style={{
@@ -369,7 +368,6 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
           </div>
         </section>
 
-        {/* CTA */}
         <section className="px-7 py-8 pb-16">
           <div 
             style={{
@@ -399,7 +397,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
               color: '#FAFAFA',
               marginBottom: '8px'
             }}>
-              Не нашли ответ?
+              {t('help.notFoundAnswer')}
             </h3>
             
             <p style={{
@@ -408,9 +406,9 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
               marginBottom: '20px',
               lineHeight: '1.5'
             }}>
-              Напишите нам — ответим
+              {t('help.writeUs')}
               <br />
-              в течение 30 минут
+              {t('help.within30min')}
             </p>
             
             <button
@@ -430,7 +428,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
               }}
               data-testid="button-telegram-support"
             >
-              Написать в Telegram
+              {t('help.writeInTelegram')}
               <ArrowRight size={18} />
             </button>
           </div>

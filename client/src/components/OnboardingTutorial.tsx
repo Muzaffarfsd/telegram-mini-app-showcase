@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { X, ChevronRight, ChevronLeft, Sparkles, Gift, Trophy, Zap } from 'lucide-react';
 import { useABTest, EXPERIMENTS } from '@/hooks/useABTest';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ONBOARDING_KEY = 'tma_onboarding_complete';
 const CLOUD_STORAGE_KEY = 'onboarding_v1';
@@ -86,49 +87,49 @@ function setOnboardingComplete(): void {
 
 interface OnboardingStep {
   icon: typeof Sparkles;
-  title: string;
-  description: string;
+  titleKey: string;
+  descKey: string;
   gradient: string;
 }
 
-const allSteps: OnboardingStep[] = [
+const allStepsConfig: OnboardingStep[] = [
   {
     icon: Sparkles,
-    title: 'Добро пожаловать!',
-    description: 'Это витрина Mini App для вашего бизнеса. Здесь вы найдете готовые решения для ресторанов, фитнеса, магазинов и многого другого.',
+    titleKey: 'onboarding.welcome',
+    descKey: 'onboarding.welcomeDesc',
     gradient: 'from-emerald-400/80 to-cyan-400/80',
   },
   {
     icon: Gift,
-    title: 'Бонусная программа',
-    description: 'Приглашайте друзей и получайте монеты! За каждого приглашенного друга вы получите бонус.',
+    titleKey: 'onboarding.bonusProgram',
+    descKey: 'onboarding.bonusProgramDesc',
     gradient: 'from-violet-400/80 to-fuchsia-400/80',
   },
   {
     icon: Trophy,
-    title: 'Достижения',
-    description: 'Выполняйте задания, зарабатывайте XP и открывайте новые уровни. Чем выше уровень - тем больше бонусов!',
+    titleKey: 'onboarding.achievements',
+    descKey: 'onboarding.achievementsDesc',
     gradient: 'from-amber-400/80 to-orange-400/80',
   },
   {
     icon: Zap,
-    title: 'ИИ Агенты',
-    description: 'Узнайте как искусственный интеллект может автоматизировать ваш бизнес и увеличить продажи.',
+    titleKey: 'onboarding.aiAgents',
+    descKey: 'onboarding.aiAgentsDesc',
     gradient: 'from-blue-400/80 to-indigo-400/80',
   },
 ];
 
-const simplifiedSteps: OnboardingStep[] = [
+const simplifiedStepsConfig: OnboardingStep[] = [
   {
     icon: Sparkles,
-    title: 'Добро пожаловать!',
-    description: 'Откройте для себя 18+ готовых Mini App решений для вашего бизнеса: рестораны, фитнес, магазины, AI-агенты и многое другое.',
+    titleKey: 'onboarding.welcome',
+    descKey: 'onboarding.welcomeDescSimple',
     gradient: 'from-emerald-400/80 to-cyan-400/80',
   },
   {
     icon: Zap,
-    title: 'Зарабатывайте бонусы',
-    description: 'Приглашайте друзей, выполняйте задания и получайте монеты. Используйте их для заказа собственного приложения!',
+    titleKey: 'onboarding.earnBonuses',
+    descKey: 'onboarding.earnBonusesDesc',
     gradient: 'from-violet-400/80 to-fuchsia-400/80',
   },
 ];
@@ -138,12 +139,13 @@ interface OnboardingTutorialProps {
 }
 
 export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
+  const { t } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   
   const { variant, isVariantB, trackConversion } = useABTest(EXPERIMENTS.ONBOARDING_FLOW);
   
-  const steps = isVariantB ? simplifiedSteps : allSteps;
+  const stepsConfig = isVariantB ? simplifiedStepsConfig : allStepsConfig;
 
   useEffect(() => {
     let mounted = true;
@@ -159,7 +161,7 @@ export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
   }, []);
 
   const handleNext = () => {
-    if (currentStep < steps.length - 1) {
+    if (currentStep < stepsConfig.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
       handleCompleteAction();
@@ -185,8 +187,8 @@ export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
 
   if (!isVisible) return null;
 
-  const step = steps[currentStep];
-  const Icon = step.icon;
+  const stepConfig = stepsConfig[currentStep];
+  const Icon = stepConfig.icon;
 
   return (
     <AnimatePresence>
@@ -226,14 +228,14 @@ export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255,255,255,0.15)',
             }}
-            aria-label="Закрыть"
+            aria-label={t('onboarding.close')}
             data-testid="button-onboarding-skip"
           >
             <X className="w-4 h-4 text-white/80" />
           </button>
 
           <div 
-            className={`h-44 bg-gradient-to-br ${step.gradient} flex items-center justify-center relative overflow-hidden`}
+            className={`h-44 bg-gradient-to-br ${stepConfig.gradient} flex items-center justify-center relative overflow-hidden`}
           >
             <div 
               className="absolute inset-0"
@@ -274,20 +276,20 @@ export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
                 style={{ color: 'rgba(255,255,255,0.95)' }}
                 data-testid="text-onboarding-title"
               >
-                {step.title}
+                {t(stepConfig.titleKey)}
               </h2>
               <p 
                 className="text-sm leading-relaxed mb-6"
                 style={{ color: 'rgba(255,255,255,0.7)' }}
                 data-testid="text-onboarding-description"
               >
-                {step.description}
+                {t(stepConfig.descKey)}
               </p>
             </m.div>
 
             <div className="flex items-center justify-between gap-3">
               <div className="flex gap-2">
-                {steps.map((_, idx) => (
+                {stepsConfig.map((_, idx) => (
                   <m.div
                     key={idx}
                     animate={{
@@ -321,7 +323,7 @@ export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
                     data-testid="button-onboarding-prev"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    Назад
+                    {t('onboarding.back')}
                   </button>
                 )}
                 <button
@@ -335,7 +337,7 @@ export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
                   }}
                   data-testid="button-onboarding-next"
                 >
-                  {currentStep === steps.length - 1 ? 'Начать' : 'Далее'}
+                  {currentStep === stepsConfig.length - 1 ? t('onboarding.start') : t('onboarding.next')}
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>

@@ -24,44 +24,51 @@ import {
 } from "lucide-react";
 import StickyGlassHeader from "./ui/StickyGlassHeader";
 import { useRewards } from "../contexts/RewardsContext";
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface TasksPageProps {
   onNavigate: (section: string) => void;
 }
 
-const discountTiers = [
-  { coins: 500, discount: 5, label: '5% скидка' },
-  { coins: 1000, discount: 10, label: '10% скидка' },
-  { coins: 2000, discount: 15, label: '15% скидка' },
-  { coins: 3500, discount: 20, label: '20% скидка' },
-  { coins: 5000, discount: 25, label: '25% скидка' }
+const discountTiersBase = [
+  { coins: 500, discount: 5 },
+  { coins: 1000, discount: 10 },
+  { coins: 2000, discount: 15 },
+  { coins: 3500, discount: 20 },
+  { coins: 5000, discount: 25 }
 ];
 
 export default function TasksPage({ onNavigate }: TasksPageProps) {
+  const { t } = useLanguage();
   const { userStats, tasks, completeTask, startTask, verifyTask } = useRewards();
   const [selectedTab, setSelectedTab] = useState<'tasks' | 'rewards'>('tasks');
   const [activeTask, setActiveTask] = useState<string | null>(null);
   const [showExchangeModal, setShowExchangeModal] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState<string>('');
+  
+  const discountTiers = discountTiersBase.map(tier => ({
+    ...tier,
+    label: `${tier.discount}% ${t('tasks.discount')}`
+  }));
 
   const handleTaskClick = async (task: any) => {
     if (task.completed || task.verificationStatus === 'failed') return;
     
     // Check cooldown
     if (task.lastAttempt && Date.now() - task.lastAttempt < 30000) {
-      setVerificationMessage('Слишком частые попытки. Подождите 30 секунд.');
+      setVerificationMessage(t('tasks.tooManyAttempts'));
       return;
     }
     
     // Check attempt limit
     if ((task.attempts || 0) >= 3) {
-      setVerificationMessage('Превышен лимит попыток для этого задания.');
+      setVerificationMessage(t('tasks.attemptLimitReached'));
       return;
     }
     
     setActiveTask(task.id);
     startTask(task.id);
-    setVerificationMessage('Задание началось. Выполните действие и вернитесь сюда...');
+    setVerificationMessage(t('tasks.taskStarted'));
     
     // Open social media link
     window.open(task.url, '_blank');
@@ -72,14 +79,14 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
       setActiveTask(null);
       
       if (success) {
-        setVerificationMessage(`Отлично! Вы получили ${task.coins} монет за выполнение задания.`);
+        setVerificationMessage(t('tasks.taskCompleted').replace('{coins}', String(task.coins)));
       } else {
         const currentTask = tasks.find(t => t.id === task.id);
         if (currentTask?.verificationStatus === 'failed') {
           if ((currentTask.attempts || 0) >= 3) {
-            setVerificationMessage('Задание заблокировано из-за превышения лимита попыток.');
+            setVerificationMessage(t('tasks.taskBlocked'));
           } else {
-            setVerificationMessage('Задание не выполнено. Убедитесь, что провели достаточно времени на странице.');
+            setVerificationMessage(t('tasks.taskNotCompleted'));
           }
         }
       }
@@ -98,9 +105,9 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
           setActiveTask(null);
           
           if (success) {
-            setVerificationMessage(`Отлично! Вы получили ${task.coins} монет за выполнение задания.`);
+            setVerificationMessage(t('tasks.taskCompleted').replace('{coins}', String(task.coins)));
           } else {
-            setVerificationMessage('Задание не выполнено. Проведите больше времени на странице.');
+            setVerificationMessage(t('tasks.spendMoreTime'));
           }
           
           setTimeout(() => setVerificationMessage(''), 5000);
@@ -164,28 +171,28 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
             className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-6"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            <span className="font-medium">Назад</span>
+            <span className="font-medium">{t('tasks.back')}</span>
           </button>
           
           <div className="text-center mb-8">
             <div className="inline-flex items-center bg-green-50 rounded-full px-4 py-2 mb-6">
               <Gift className="w-4 h-4 text-green-600 mr-2" />
-              <span className="text-sm font-medium text-green-600">Заработайте скидку до 25%</span>
+              <span className="text-sm font-medium text-green-600">{t('tasks.earnUpTo25')}</span>
             </div>
             
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Задания за монеты
+              {t('tasks.title')}
             </h1>
             
             <p className="text-lg text-gray-600 mb-6">
-              Выполняйте простые действия в социальных сетях и получайте реальные скидки на разработку
+              {t('tasks.subtitle')}
             </p>
           </div>
         </div>
 
         {/* How it works */}
         <div className="px-6 py-6 bg-gray-50 mx-6 rounded-3xl mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">Как это работает</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">{t('tasks.howItWorks')}</h2>
           
           <div className="space-y-4">
             <div className="flex items-center space-x-4">
@@ -193,8 +200,8 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
                 <Zap className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Выполняйте задания</h3>
-                <p className="text-sm text-gray-600">Лайки, подписки, просмотры в TikTok и Instagram</p>
+                <h3 className="font-semibold text-gray-900">{t('tasks.completeTasks')}</h3>
+                <p className="text-sm text-gray-600">{t('tasks.completeTasksDesc')}</p>
               </div>
             </div>
             
@@ -203,8 +210,8 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
                 <Coins className="w-5 h-5 text-yellow-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Получайте монеты</h3>
-                <p className="text-sm text-gray-600">От 40 до 300 монет за каждое задание</p>
+                <h3 className="font-semibold text-gray-900">{t('tasks.getCoins')}</h3>
+                <p className="text-sm text-gray-600">{t('tasks.getCoinsDesc')}</p>
               </div>
             </div>
             
@@ -213,8 +220,8 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
                 <DollarSign className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Обменивайте на скидки</h3>
-                <p className="text-sm text-gray-600">До 25% скидки на разработку приложений</p>
+                <h3 className="font-semibold text-gray-900">{t('tasks.exchangeForDiscounts')}</h3>
+                <p className="text-sm text-gray-600">{t('tasks.exchangeForDiscountsDesc')}</p>
               </div>
             </div>
           </div>
@@ -224,17 +231,17 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
         <div className="px-6 mb-8">
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl p-6">
             <div className="text-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Ваша статистика</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{t('tasks.yourStats')}</h3>
             </div>
             
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="text-center bg-white rounded-2xl py-4">
                 <div className="text-2xl font-bold text-gray-900">{userStats.totalCoins}</div>
-                <div className="text-sm text-gray-600">Монет заработано</div>
+                <div className="text-sm text-gray-600">{t('tasks.coinsEarned')}</div>
               </div>
               <div className="text-center bg-white rounded-2xl py-4">
                 <div className="text-2xl font-bold text-gray-900">{userStats.tasksCompleted}</div>
-                <div className="text-sm text-gray-600">Заданий выполнено</div>
+                <div className="text-sm text-gray-600">{t('tasks.tasksCompleted')}</div>
               </div>
             </div>
             
@@ -243,7 +250,7 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
               className="w-full bg-black text-white py-3 rounded-2xl font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center"
             >
               <Award className="w-5 h-5 mr-2" />
-              Обменять на скидку
+              {t('tasks.exchangeForDiscount')}
             </button>
           </div>
         </div>
@@ -254,8 +261,8 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
             <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold text-green-800">У вас достаточно монет!</h3>
-                  <p className="text-sm text-green-600">Обменяйте на скидку до {getAvailableDiscount()?.discount}%</p>
+                  <h3 className="font-semibold text-green-800">{t('tasks.enoughCoins')}</h3>
+                  <p className="text-sm text-green-600">{t('tasks.exchangeUpTo').replace('{discount}', String(getAvailableDiscount()?.discount))}</p>
                 </div>
                 <Trophy className="w-8 h-8 text-green-600" />
               </div>
@@ -272,7 +279,7 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
 
         {/* Tasks List */}
         <div className="px-6 space-y-4 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 text-center mb-6">Доступные задания</h2>
+          <h2 className="text-xl font-bold text-gray-900 text-center mb-6">{t('tasks.availableTasks')}</h2>
           
           {tasks.map((task, index) => {
             const isBlocked = task.verificationStatus === 'failed' && (task.attempts || 0) >= 3;
@@ -290,26 +297,26 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
                 <div className="absolute top-4 right-4">
                   {isBlocked && (
                     <div className="bg-red-100 text-red-700 text-xs px-3 py-1 rounded-full font-medium">
-                      Заблокировано
+                      {t('tasks.blocked')}
                     </div>
                   )}
                   
                   {isOnCooldown && !task.completed && (
                     <div className="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full font-medium">
-                      Ожидание
+                      {t('tasks.waiting')}
                     </div>
                   )}
                   
                   {task.verificationStatus === 'verifying' && (
                     <div className="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full font-medium animate-pulse">
-                      Проверка
+                      {t('tasks.verifying')}
                     </div>
                   )}
 
                   {task.completed && (
                     <div className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium flex items-center">
                       <CheckCircle className="w-3 h-3 mr-1" />
-                      Выполнено
+                      {t('tasks.completed')}
                     </div>
                   )}
                   
@@ -345,24 +352,24 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
                     {task.timeLimit && (
                       <span className="flex items-center">
                         <Clock className="w-3 h-3 mr-1" />
-                        {task.timeLimit} мин
+                        {task.timeLimit} {t('tasks.min')}
                       </span>
                     )}
                     {task.minimumTime && !task.completed && (
                       <span className="flex items-center">
                         <Shield className="w-3 h-3 mr-1" />
-                        Мин. {task.minimumTime}с
+                        {t('tasks.minTime').replace('{time}', String(task.minimumTime))}
                       </span>
                     )}
                     {(task.attempts || 0) > 0 && !task.completed && (
                       <span className="flex items-center">
                         <Target className="w-3 h-3 mr-1" />
-                        {task.attempts}/3 попыток
+                        {task.attempts}/3 {t('tasks.attempts')}
                       </span>
                     )}
                     {activeTask === task.id && (
                       <span className="text-blue-600 font-medium animate-pulse">
-                        Выполняется...
+                        {t('tasks.inProgress')}
                       </span>
                     )}
                   </div>
@@ -377,8 +384,8 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl p-6 max-w-sm w-full max-h-[80vh] overflow-y-auto">
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Обменять монеты</h3>
-                <p className="text-gray-600">У вас есть {userStats.totalCoins} монет</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">{t('tasks.exchangeCoins')}</h3>
+                <p className="text-gray-600">{t('tasks.youHaveCoins').replace('{coins}', String(userStats.totalCoins))}</p>
               </div>
               
               <div className="space-y-4 mb-6">
@@ -391,7 +398,7 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="font-bold text-lg">{tier.label}</div>
-                          <div className="text-sm text-gray-600">{tier.coins} монет</div>
+                          <div className="text-sm text-gray-600">{tier.coins} {t('tasks.coins')}</div>
                         </div>
                         <button 
                           disabled={!canAfford}
@@ -399,7 +406,7 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
                             canAfford ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           }`}
                         >
-                          {canAfford ? 'Обменять' : 'Недостаточно'}
+                          {canAfford ? t('tasks.exchange') : t('tasks.notEnough')}
                         </button>
                       </div>
                     </div>
@@ -411,7 +418,7 @@ export default function TasksPage({ onNavigate }: TasksPageProps) {
                 onClick={() => setShowExchangeModal(false)}
                 className="w-full bg-gray-500 text-white py-3 rounded-2xl font-bold hover:bg-gray-600 transition-all"
               >
-                Закрыть
+                {t('tasks.close')}
               </button>
             </div>
           </div>

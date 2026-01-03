@@ -20,6 +20,7 @@ import { ConfirmDrawer } from "../ui/modern-drawer";
 import { useFilter } from "@/hooks/useFilter";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { DemoThemeProvider } from "@/components/shared";
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface RestaurantProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -350,6 +351,7 @@ const collections = [
 ];
 
 const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
+  const { t } = useLanguage();
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);

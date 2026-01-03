@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface FitnessProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -89,6 +90,7 @@ const collections = [
 ];
 
 export default memo(function Fitness({ activeTab }: FitnessProps) {
+  const { t } = useLanguage();
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [favorites, setFavorites] = useState<Set<number>>(new Set([1, 2, 3]));

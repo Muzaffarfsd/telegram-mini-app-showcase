@@ -9,12 +9,14 @@ import {
   TrendingUp,
   Clock
 } from "lucide-react";
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface AIAgentPageProps {
   onNavigate: (path: string) => void;
 }
 
 const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
+  const { t } = useLanguage();
   const [scrollY, setScrollY] = useState(0);
   
   const handleNavigateProcess = useCallback(() => {
@@ -74,7 +76,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
                   textTransform: 'uppercase'
                 }}
               >
-                Для Telegram
+                {t('aiAgent.forTelegram')}
               </span>
             </div>
           </div>
@@ -93,7 +95,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            ИИ агент
+            {t('aiAgent.heroTitle')}
           </h1>
 
           {/* Gradient line */}
@@ -118,9 +120,9 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               letterSpacing: '-0.035em',
             }}
           >
-            Подключите к вашему
+            {t('aiAgent.heroSubtitle1')}
             <br />
-            Telegram-приложению
+            {t('aiAgent.heroSubtitle2')}
           </p>
           
           {/* Value prop */}
@@ -136,7 +138,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            Окупается за полгода
+            {t('aiAgent.valueProp')}
           </p>
           
           {/* CTA */}
@@ -155,7 +157,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               data-testid="button-start-trial"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
-                Попробовать
+                {t('aiAgent.tryButton')}
                 <ArrowRight className="w-4.5 h-4.5 transition-transform group-hover:translate-x-1 duration-300" strokeWidth={2.5} />
               </span>
             </button>
@@ -167,7 +169,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
                 letterSpacing: '0.02em'
               }}
             >
-              Бесплатно 7 дней
+              {t('aiAgent.freeTrial')}
             </p>
           </div>
         </div>
@@ -205,27 +207,27 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               lineHeight: '0.95'
             }}
           >
-            В цифрах
+            {t('aiAgent.inNumbers')}
           </h2>
 
           {/* Stats */}
           <div className="space-y-14">
             <StatCard
               number="192%"
-              label="ROI за год"
-              sublabel="Средний показатель"
+              label={t('aiAgent.roiPerYear')}
+              sublabel={t('aiAgent.averageResult')}
               gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)"
             />
             <StatCard
               number="24/7"
-              label="Всегда на связи"
-              sublabel="Без выходных"
+              label={t('aiAgent.alwaysOnline')}
+              sublabel={t('aiAgent.noWeekends')}
               gradient="linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)"
             />
             <StatCard
               number="< 2s"
-              label="Время ответа"
-              sublabel="Мгновенно"
+              label={t('aiAgent.responseTime')}
+              sublabel={t('aiAgent.instant')}
               gradient="linear-gradient(135deg, #10B981 0%, #059669 100%)"
             />
           </div>
@@ -247,7 +249,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               lineHeight: '0.95'
             }}
           >
-            Возможности
+            {t('aiAgent.capabilities')}
           </h2>
           
           <p 
@@ -258,35 +260,35 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               letterSpacing: '-0.015em'
             }}
           >
-            Всё для успеха
+            {t('aiAgent.everythingForSuccess')}
           </p>
 
           <div className="space-y-10">
             <FeatureBlock
               icon={<Zap className="w-8 h-8" strokeWidth={2} />}
-              title="Мгновенный запуск"
-              description="10 минут — и готово"
+              title={t('aiAgent.instantLaunch')}
+              description={t('aiAgent.tenMinutesReady')}
               gradient="linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)"
             />
             
             <FeatureBlock
               icon={<Shield className="w-8 h-8" strokeWidth={2} />}
-              title="Безопасность"
-              description="Шифрование и GDPR"
+              title={t('aiAgent.security')}
+              description={t('aiAgent.encryptionGdpr')}
               gradient="linear-gradient(135deg, #10B981 0%, #047857 100%)"
             />
             
             <FeatureBlock
               icon={<Globe className="w-8 h-8" strokeWidth={2} />}
-              title="150+ языков"
-              description="Понимает всех"
+              title={t('aiAgent.languages150')}
+              description={t('aiAgent.understandsEveryone')}
               gradient="linear-gradient(135deg, #F59E0B 0%, #D97706 100%)"
             />
             
             <FeatureBlock
               icon={<Brain className="w-8 h-8" strokeWidth={2} />}
-              title="Учится сам"
-              description="Становится умнее"
+              title={t('aiAgent.learnsItself')}
+              description={t('aiAgent.getsBetter')}
               gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)"
             />
           </div>
@@ -308,24 +310,24 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               lineHeight: '0.95'
             }}
           >
-            Почему мы
+            {t('aiAgent.whyUs')}
           </h2>
 
           <div className="space-y-6">
             <BenefitItem 
               icon={<Clock className="w-5.5 h-5.5" strokeWidth={2.5} />}
-              text="Никогда не спит"
-              subtext="24/7 без перерывов"
+              text={t('aiAgent.neverSleeps')}
+              subtext={t('aiAgent.noBreaks247')}
             />
             <BenefitItem 
               icon={<Zap className="w-5.5 h-5.5" strokeWidth={2.5} />}
-              text="Отвечает мгновенно"
-              subtext="Меньше 2 секунд"
+              text={t('aiAgent.respondsInstantly')}
+              subtext={t('aiAgent.lessThan2Seconds')}
             />
             <BenefitItem 
               icon={<TrendingUp className="w-5.5 h-5.5" strokeWidth={2.5} />}
-              text="Окупается быстро"
-              subtext="74% за год"
+              text={t('aiAgent.paysOffQuickly')}
+              subtext={t('aiAgent.percentPerYear')}
             />
           </div>
         </div>
@@ -372,9 +374,9 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               lineHeight: '0.88'
             }}
           >
-            Начните
+            {t('aiAgent.startToday')}
             <br />
-            сегодня
+            {t('aiAgent.today')}
           </h2>
           
           <p 
@@ -387,9 +389,9 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               fontWeight: 500
             }}
           >
-            Сотни компаний уже
+            {t('aiAgent.trustedCompanies')}
             <br />
-            доверились нам
+            {t('aiAgent.trustedCompanies2')}
           </p>
           
           <button
@@ -406,7 +408,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
             data-testid="button-start-cta"
           >
             <span className="relative z-10 flex items-center justify-center gap-2.5">
-              Запустить ИИ
+              {t('aiAgent.launchAi')}
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5 duration-300" strokeWidth={2.5} />
             </span>
           </button>
@@ -418,7 +420,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               letterSpacing: '0.02em'
             }}
           >
-            7 дней бесплатно · Без карты
+            {t('aiAgent.freeTrialNoCard')}
           </p>
         </div>
       </section>

@@ -1,4 +1,5 @@
 import { ChevronLeft } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface BackHeaderProps {
   onBack: () => void;
@@ -6,6 +7,8 @@ interface BackHeaderProps {
 }
 
 export function BackHeader({ onBack, title }: BackHeaderProps) {
+  const { t } = useLanguage();
+  
   return (
     <div 
       className="sticky top-0 z-50 flex items-center gap-3 py-5 bg-background/80 backdrop-blur-xl border-b border-white/10"
@@ -19,11 +22,11 @@ export function BackHeader({ onBack, title }: BackHeaderProps) {
       <button
         onClick={onBack}
         className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors"
-        aria-label="Назад"
+        aria-label={t('common.back')}
         data-testid="button-back"
       >
         <ChevronLeft className="w-5 h-5" />
-        <span className="text-sm font-medium">Назад</span>
+        <span className="text-sm font-medium">{t('common.back')}</span>
       </button>
       {title && (
         <span className="ml-auto text-white/60 text-sm">{title}</span>

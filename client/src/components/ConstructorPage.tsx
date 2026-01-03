@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, memo, useEffect, useRef } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { trackProjectCreation, trackFeatureAdded } from "@/hooks/useGamification";
+import { useLanguage } from '../contexts/LanguageContext';
 import { 
   Wrench,
   Eye,
@@ -46,24 +47,23 @@ interface ConstructorPageProps {
   onNavigate: (section: string, data?: any) => void;
 }
 
-// Animated headlines for payment section - AIDA style
-const paymentHeadlines = [
-  { text: "без рисков", color: "#10B981" },
-  { text: "с гарантией", color: "#A78BFA" },
-  { text: "поэтапно", color: "#FF9F0A" },
-  { text: "прозрачно", color: "#5AC8FA" }
-];
-
 // Payment Section Component with Framer Motion animation
-const PaymentSection = memo(() => {
+const PaymentSection = memo(({ t }: { t: (key: string) => string }) => {
   const [headlineIndex, setHeadlineIndex] = useState(0);
+  
+  const paymentHeadlinesTranslated = useMemo(() => [
+    { text: t('constructor.paymentRotating.noRisks'), color: "#10B981" },
+    { text: t('constructor.paymentRotating.withGuarantee'), color: "#A78BFA" },
+    { text: t('constructor.paymentRotating.stepByStep'), color: "#FF9F0A" },
+    { text: t('constructor.paymentRotating.transparently'), color: "#5AC8FA" }
+  ], [t]);
   
   useEffect(() => {
     const interval = setInterval(() => {
-      setHeadlineIndex((prev) => (prev + 1) % paymentHeadlines.length);
+      setHeadlineIndex((prev) => (prev + 1) % paymentHeadlinesTranslated.length);
     }, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [paymentHeadlinesTranslated]);
   
   return (
     <section className="px-3">
@@ -79,7 +79,7 @@ const PaymentSection = memo(() => {
           marginBottom: '16px'
         }}
       >
-        Оплата приложения
+        {t('constructor.paymentSection')}
       </p>
       
       {/* ATTENTION - Main Heading with Rotating Text */}
@@ -95,7 +95,7 @@ const PaymentSection = memo(() => {
           marginBottom: '4px'
         }}
       >
-        Платите
+        {t('constructor.payHeadline')}
       </h2>
       
       {/* Rotating Text - Same style as ShowcasePage */}
@@ -111,11 +111,11 @@ const PaymentSection = memo(() => {
             style={{ 
               fontSize: '32px', 
               fontWeight: 600, 
-              color: paymentHeadlines[headlineIndex].color,
+              color: paymentHeadlinesTranslated[headlineIndex].color,
               letterSpacing: '-0.035em'
             }}
           >
-            {paymentHeadlines[headlineIndex].text}
+            {paymentHeadlinesTranslated[headlineIndex].text}
           </m.span>
         </AnimatePresence>
       </div>
@@ -133,10 +133,10 @@ const PaymentSection = memo(() => {
           maxWidth: '320px'
         }}
       >
-        Никаких скрытых платежей. Вы точно знаете, за что платите на каждом этапе.
+        {t('constructor.noHiddenFees')}
       </p>
 
-      {/* ЭТАП 1: Предоплата */}
+      {/* STEP 1: Prepayment */}
       <div 
         className="scroll-fade-in"
         style={{
@@ -162,7 +162,7 @@ const PaymentSection = memo(() => {
               fontWeight: 700,
               color: '#10B981'
             }}>1</div>
-            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>Предоплата</span>
+            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('constructor.prepayment')}</span>
           </div>
           <span style={{
             fontSize: '20px',
@@ -171,10 +171,10 @@ const PaymentSection = memo(() => {
           }}>35%</span>
         </div>
         <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px' }}>
-          Оплата перед началом работ. Мы приступаем к разработке вашего приложения.
+          {t('constructor.prepaymentDesc')}
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {['Дизайн интерфейса', 'Структура приложения', 'Первая демо-версия'].map((item, i) => (
+          {[t('constructor.prepaymentItems.interfaceDesign'), t('constructor.prepaymentItems.appStructure'), t('constructor.prepaymentItems.firstDemo')].map((item, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Check size={14} color="#10B981" />
               <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{item}</span>
@@ -183,7 +183,7 @@ const PaymentSection = memo(() => {
         </div>
       </div>
 
-      {/* ЭТАП 2: Оплата после сдачи */}
+      {/* STEP 2: Payment after delivery */}
       <div 
         className="scroll-fade-in"
         style={{
@@ -209,7 +209,7 @@ const PaymentSection = memo(() => {
               fontWeight: 700,
               color: 'var(--accent-primary)'
             }}>2</div>
-            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>После сдачи проекта</span>
+            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('constructor.afterDelivery')}</span>
           </div>
           <span style={{
             fontSize: '20px',
@@ -218,10 +218,10 @@ const PaymentSection = memo(() => {
           }}>65%</span>
         </div>
         <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px' }}>
-          Оплата после полной готовности и вашего одобрения. Тестируете — потом платите.
+          {t('constructor.afterDeliveryDesc')}
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {['Готовое приложение', 'Все правки учтены', 'Публикация в Telegram'].map((item, i) => (
+          {[t('constructor.afterDeliveryItems.readyApp'), t('constructor.afterDeliveryItems.revisionsIncluded'), t('constructor.afterDeliveryItems.telegramPublish')].map((item, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Check size={14} style={{ color: 'var(--accent-primary)' }} />
               <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{item}</span>
@@ -233,7 +233,7 @@ const PaymentSection = memo(() => {
       {/* Hairline */}
       <div style={{ height: '1px', background: 'var(--divider)', margin: '24px 0' }} />
 
-      {/* ЭТАП 3: Ежемесячная подписка */}
+      {/* STEP 3: Monthly subscription */}
       <p 
         style={{
           fontSize: '10px',
@@ -244,7 +244,7 @@ const PaymentSection = memo(() => {
           marginBottom: '12px'
         }}
       >
-        После запуска
+        {t('constructor.afterLaunch')}
       </p>
       
       <div 
@@ -272,11 +272,11 @@ const PaymentSection = memo(() => {
               fontWeight: 700,
               color: '#5AC8FA'
             }}>3</div>
-            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>Ежемесячная подписка</span>
+            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('constructor.monthlySubscription')}</span>
           </div>
         </div>
         <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px' }}>
-          Мы полностью берём на себя техническую часть — серверы, обновления, поддержку.
+          {t('constructor.monthlySubscriptionDesc')}
         </p>
         <div style={{ 
           display: 'grid', 
@@ -285,10 +285,10 @@ const PaymentSection = memo(() => {
           marginBottom: '20px'
         }}>
           {[
-            { text: 'Хостинг', sub: 'серверы 99.9%' },
-            { text: 'Поддержка', sub: 'ответ за 2ч' },
-            { text: 'Обновления', sub: 'бесплатно' },
-            { text: 'Бэкапы', sub: 'ежедневно' }
+            { text: t('constructor.hosting'), sub: t('constructor.hostingDesc') },
+            { text: t('constructor.support'), sub: t('constructor.supportDesc') },
+            { text: t('constructor.updates'), sub: t('constructor.updatesDesc') },
+            { text: t('constructor.backups'), sub: t('constructor.backupsDesc') }
           ].map((feature, index) => (
             <div 
               key={index}
@@ -307,7 +307,7 @@ const PaymentSection = memo(() => {
         
         {/* Pricing Tiers */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {/* Минимальный */}
+          {/* Minimal */}
           <div style={{ 
             padding: '16px', 
             borderRadius: '12px', 
@@ -316,17 +316,17 @@ const PaymentSection = memo(() => {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Минимальный</p>
-                <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '2px' }}>Хостинг + мелкие правки</p>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('constructor.minimalPlan')}</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '2px' }}>{t('constructor.minimalPlanDesc')}</p>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <span style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>9 900</span>
-                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> ₽/мес</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> {t('constructor.perMonth')}</span>
               </div>
             </div>
           </div>
           
-          {/* Стандартный */}
+          {/* Standard */}
           <div style={{ 
             padding: '16px', 
             borderRadius: '12px', 
@@ -345,20 +345,20 @@ const PaymentSection = memo(() => {
               fontWeight: 700,
               color: '#000',
               letterSpacing: '0.05em'
-            }}>ПОПУЛЯРНЫЙ</div>
+            }}>{t('constructor.popular')}</div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Стандартный</p>
-                <p style={{ fontSize: '11px', color: '#5AC8FA', marginTop: '2px' }}>Поддержка + обновления</p>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('constructor.standardPlan')}</p>
+                <p style={{ fontSize: '11px', color: '#5AC8FA', marginTop: '2px' }}>{t('constructor.standardPlanDesc')}</p>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <span style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>14 900</span>
-                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> ₽/мес</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> {t('constructor.perMonth')}</span>
               </div>
             </div>
           </div>
           
-          {/* Премиум */}
+          {/* Premium */}
           <div style={{ 
             padding: '16px', 
             borderRadius: '12px', 
@@ -367,12 +367,12 @@ const PaymentSection = memo(() => {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Премиум</p>
-                <p style={{ fontSize: '11px', color: 'var(--accent-primary)', marginTop: '2px' }}>Приоритет + консультации</p>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('constructor.premiumPlan')}</p>
+                <p style={{ fontSize: '11px', color: 'var(--accent-primary)', marginTop: '2px' }}>{t('constructor.premiumPlanDesc')}</p>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <span style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>24 900</span>
-                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> ₽/мес</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> {t('constructor.perMonth')}</span>
               </div>
             </div>
           </div>
@@ -391,120 +391,127 @@ interface SelectedFeature {
   category: string;
 }
 
-const appTemplates = [
+const appTemplatesBase = [
   {
     id: 'ecommerce-basic',
-    name: 'Интернет-магазин',
+    nameKey: 'constructor.onlineStore',
     icon: ShoppingCart,
-    description: 'Продажа товаров онлайн',
+    descriptionKey: 'constructor.onlineStoreDesc',
     features: ['catalog', 'cart', 'auth', 'payments'],
     estimatedPrice: 150000,
-    developmentTime: '7-10 дней',
+    developmentTimeKey: 'constructor.days710',
     popular: true
   },
   {
     id: 'restaurant',
-    name: 'Ресторан',
+    nameKey: 'constructor.restaurantTemplate',
     icon: Coffee,
-    description: 'Меню и заказы еды',
+    descriptionKey: 'constructor.restaurantTemplateDesc',
     features: ['catalog', 'cart', 'auth', 'booking-system'],
     estimatedPrice: 180000,
-    developmentTime: '10-12 дней',
+    developmentTimeKey: 'constructor.days1012',
     popular: false
   },
   {
     id: 'fitness-center',
-    name: 'Фитнес-клуб',
+    nameKey: 'constructor.fitnessClub',
     icon: Dumbbell,
-    description: 'Тренировки и абонементы',
+    descriptionKey: 'constructor.fitnessClubDesc',
     features: ['booking-system', 'auth', 'subscriptions', 'progress-tracking'],
     estimatedPrice: 200000,
-    developmentTime: '12-15 дней',
+    developmentTimeKey: 'constructor.days1215',
     popular: false
   },
   {
     id: 'services',
-    name: 'Услуги',
+    nameKey: 'constructor.servicesTemplate',
     icon: Settings,
-    description: 'Бронирование услуг',
+    descriptionKey: 'constructor.servicesTemplateDesc',
     features: ['catalog', 'booking-system', 'auth', 'payments'],
     estimatedPrice: 170000,
-    developmentTime: '8-12 дней',
+    developmentTimeKey: 'constructor.days812',
     popular: false
   }
 ];
 
-const availableFeatures = [
-  { id: 'catalog', name: 'Каталог', price: 25000, category: 'Основные', icon: Package, included: true },
-  { id: 'cart', name: 'Корзина', price: 20000, category: 'Основные', icon: ShoppingCart, included: true },
-  { id: 'auth', name: 'Авторизация', price: 15000, category: 'Основные', icon: User, included: true },
-  { id: 'search', name: 'Поиск', price: 20000, category: 'Основные', icon: Zap, included: false },
-  { id: 'favorites', name: 'Избранное', price: 12000, category: 'Основные', icon: Star, included: false },
-  { id: 'reviews', name: 'Отзывы', price: 25000, category: 'Основные', icon: Star, included: false },
+const availableFeaturesBase = [
+  { id: 'catalog', nameKey: 'constructor.catalogFeature', price: 25000, categoryKey: 'constructor.basicFeatures', icon: Package, included: true },
+  { id: 'cart', nameKey: 'constructor.cartFeature', price: 20000, categoryKey: 'constructor.basicFeatures', icon: ShoppingCart, included: true },
+  { id: 'auth', nameKey: 'constructor.authFeature', price: 15000, categoryKey: 'constructor.basicFeatures', icon: User, included: true },
+  { id: 'search', nameKey: 'constructor.searchFeature', price: 20000, categoryKey: 'constructor.basicFeatures', icon: Zap, included: false },
+  { id: 'favorites', nameKey: 'constructor.favoritesFeature', price: 12000, categoryKey: 'constructor.basicFeatures', icon: Star, included: false },
+  { id: 'reviews', nameKey: 'constructor.reviewsFeature', price: 25000, categoryKey: 'constructor.basicFeatures', icon: Star, included: false },
   
-  { id: 'payments', name: 'Платежи', price: 45000, category: 'Платежи', icon: CreditCard, included: false },
-  { id: 'subscriptions', name: 'Подписки', price: 55000, category: 'Платежи', icon: CreditCard, included: false },
-  { id: 'installments', name: 'Рассрочка', price: 35000, category: 'Платежи', icon: CreditCard, included: false },
+  { id: 'payments', nameKey: 'constructor.paymentsFeature', price: 45000, categoryKey: 'constructor.paymentsCategory', icon: CreditCard, included: false },
+  { id: 'subscriptions', nameKey: 'constructor.subscriptionsFeature', price: 55000, categoryKey: 'constructor.paymentsCategory', icon: CreditCard, included: false },
+  { id: 'installments', nameKey: 'constructor.installmentsFeature', price: 35000, categoryKey: 'constructor.paymentsCategory', icon: CreditCard, included: false },
   
-  { id: 'delivery-basic', name: 'Доставка', price: 30000, category: 'Доставка', icon: Truck, included: false },
-  { id: 'pickup-points', name: 'Самовывоз', price: 35000, category: 'Доставка', icon: Package, included: false },
-  { id: 'express-delivery', name: 'Экспресс', price: 25000, category: 'Доставка', icon: Truck, included: false },
+  { id: 'delivery-basic', nameKey: 'constructor.deliveryFeature', price: 30000, categoryKey: 'constructor.deliveryCategory', icon: Truck, included: false },
+  { id: 'pickup-points', nameKey: 'constructor.pickupFeature', price: 35000, categoryKey: 'constructor.deliveryCategory', icon: Package, included: false },
+  { id: 'express-delivery', nameKey: 'constructor.expressFeature', price: 25000, categoryKey: 'constructor.deliveryCategory', icon: Truck, included: false },
   
-  { id: 'push-notifications', name: 'Уведомления', price: 25000, category: 'Коммуникации', icon: Bell, included: false },
-  { id: 'chat-support', name: 'Чат поддержки', price: 45000, category: 'Коммуникации', icon: MessageSquare, included: false },
-  { id: 'video-calls', name: 'Видеозвонки', price: 60000, category: 'Коммуникации', icon: Smartphone, included: false },
+  { id: 'push-notifications', nameKey: 'constructor.notificationsFeature', price: 25000, categoryKey: 'constructor.communicationsCategory', icon: Bell, included: false },
+  { id: 'chat-support', nameKey: 'constructor.chatSupportFeature', price: 45000, categoryKey: 'constructor.communicationsCategory', icon: MessageSquare, included: false },
+  { id: 'video-calls', nameKey: 'constructor.videoCallsFeature', price: 60000, categoryKey: 'constructor.communicationsCategory', icon: Smartphone, included: false },
   
-  { id: 'loyalty-program', name: 'Бонусы', price: 65000, category: 'Маркетинг', icon: Crown, included: false },
-  { id: 'promo-codes', name: 'Промокоды', price: 30000, category: 'Маркетинг', icon: Crown, included: false },
-  { id: 'referral-system', name: 'Рефералы', price: 55000, category: 'Маркетинг', icon: Users, included: false },
+  { id: 'loyalty-program', nameKey: 'constructor.loyaltyFeature', price: 65000, categoryKey: 'constructor.marketingCategory', icon: Crown, included: false },
+  { id: 'promo-codes', nameKey: 'constructor.promoCodesFeature', price: 30000, categoryKey: 'constructor.marketingCategory', icon: Crown, included: false },
+  { id: 'referral-system', nameKey: 'constructor.referralFeature', price: 55000, categoryKey: 'constructor.marketingCategory', icon: Users, included: false },
   
-  { id: 'basic-analytics', name: 'Аналитика', price: 45000, category: 'Управление', icon: BarChart, included: false },
-  { id: 'admin-panel', name: 'Админ панель', price: 75000, category: 'Управление', icon: Settings, included: false },
-  { id: 'crm-system', name: 'CRM', price: 120000, category: 'Управление', icon: Users, included: false },
+  { id: 'basic-analytics', nameKey: 'constructor.analyticsFeature', price: 45000, categoryKey: 'constructor.managementCategory', icon: BarChart, included: false },
+  { id: 'admin-panel', nameKey: 'constructor.adminPanelFeature', price: 75000, categoryKey: 'constructor.managementCategory', icon: Settings, included: false },
+  { id: 'crm-system', nameKey: 'constructor.crmFeature', price: 120000, categoryKey: 'constructor.managementCategory', icon: Users, included: false },
   
-  { id: 'booking-system', name: 'Бронирование', price: 55000, category: 'Бронирование', icon: Calendar, included: false },
-  { id: 'queue-management', name: 'Очереди', price: 45000, category: 'Бронирование', icon: Clock, included: false },
-  { id: 'calendar-sync', name: 'Календарь', price: 30000, category: 'Бронирование', icon: Calendar, included: false },
+  { id: 'booking-system', nameKey: 'constructor.bookingFeature', price: 55000, categoryKey: 'constructor.bookingCategory', icon: Calendar, included: false },
+  { id: 'queue-management', nameKey: 'constructor.queueFeature', price: 45000, categoryKey: 'constructor.bookingCategory', icon: Clock, included: false },
+  { id: 'calendar-sync', nameKey: 'constructor.calendarFeature', price: 30000, categoryKey: 'constructor.bookingCategory', icon: Calendar, included: false },
   
-  { id: 'progress-tracking', name: 'Прогресс', price: 45000, category: 'Управление', icon: BarChart, included: false },
+  { id: 'progress-tracking', nameKey: 'constructor.progressFeature', price: 45000, categoryKey: 'constructor.managementCategory', icon: BarChart, included: false },
   
-  // AI и автоматизация
-  { id: 'ai-chatbot', name: 'AI Чат-бот', price: 49000, category: 'AI и автоматизация', icon: MessageSquare, included: false },
-  { id: 'ai-recommendations', name: 'AI Рекомендации', price: 55000, category: 'AI и автоматизация', icon: Sparkles, included: false },
-  { id: 'auto-responses', name: 'Автоответы', price: 25000, category: 'AI и автоматизация', icon: Zap, included: false },
-  { id: 'smart-search', name: 'Умный поиск', price: 35000, category: 'AI и автоматизация', icon: Zap, included: false },
-  { id: 'voice-assistant', name: 'Голосовой ассистент', price: 75000, category: 'AI и автоматизация', icon: Smartphone, included: false },
+  { id: 'ai-chatbot', nameKey: 'constructor.aiChatbotFeature', price: 49000, categoryKey: 'constructor.aiAutomationCategory', icon: MessageSquare, included: false },
+  { id: 'ai-recommendations', nameKey: 'constructor.aiRecommendationsFeature', price: 55000, categoryKey: 'constructor.aiAutomationCategory', icon: Sparkles, included: false },
+  { id: 'auto-responses', nameKey: 'constructor.autoResponsesFeature', price: 25000, categoryKey: 'constructor.aiAutomationCategory', icon: Zap, included: false },
+  { id: 'smart-search', nameKey: 'constructor.smartSearchFeature', price: 35000, categoryKey: 'constructor.aiAutomationCategory', icon: Zap, included: false },
+  { id: 'voice-assistant', nameKey: 'constructor.voiceAssistantFeature', price: 75000, categoryKey: 'constructor.aiAutomationCategory', icon: Smartphone, included: false },
   
-  // Интеграции
-  { id: 'telegram-bot', name: 'Telegram бот', price: 35000, category: 'Интеграции', icon: MessageSquare, included: false },
-  { id: 'whatsapp-integration', name: 'WhatsApp', price: 45000, category: 'Интеграции', icon: MessageSquare, included: false },
-  { id: 'google-maps', name: 'Google Maps', price: 20000, category: 'Интеграции', icon: Globe, included: false },
-  { id: 'sms-notifications', name: 'SMS уведомления', price: 25000, category: 'Интеграции', icon: Bell, included: false },
-  { id: 'email-marketing', name: 'Email маркетинг', price: 30000, category: 'Интеграции', icon: Bell, included: false },
-  { id: '1c-integration', name: '1С интеграция', price: 85000, category: 'Интеграции', icon: Settings, included: false },
-  { id: 'api-access', name: 'API доступ', price: 55000, category: 'Интеграции', icon: Settings, included: false }
+  { id: 'telegram-bot', nameKey: 'constructor.telegramBotFeature', price: 35000, categoryKey: 'constructor.integrationsCategory', icon: MessageSquare, included: false },
+  { id: 'whatsapp-integration', nameKey: 'constructor.whatsappFeature', price: 45000, categoryKey: 'constructor.integrationsCategory', icon: MessageSquare, included: false },
+  { id: 'google-maps', nameKey: 'constructor.googleMapsFeature', price: 20000, categoryKey: 'constructor.integrationsCategory', icon: Globe, included: false },
+  { id: 'sms-notifications', nameKey: 'constructor.smsFeature', price: 25000, categoryKey: 'constructor.integrationsCategory', icon: Bell, included: false },
+  { id: 'email-marketing', nameKey: 'constructor.emailMarketingFeature', price: 30000, categoryKey: 'constructor.integrationsCategory', icon: Bell, included: false },
+  { id: '1c-integration', nameKey: 'constructor.integration1cFeature', price: 85000, categoryKey: 'constructor.integrationsCategory', icon: Settings, included: false },
+  { id: 'api-access', nameKey: 'constructor.apiAccessFeature', price: 55000, categoryKey: 'constructor.integrationsCategory', icon: Settings, included: false }
 ];
 
-const categories = ['Основные', 'Платежи', 'Доставка', 'Коммуникации', 'Маркетинг', 'Управление', 'Бронирование', 'AI и автоматизация', 'Интеграции'];
+const categoryKeys = [
+  'constructor.basicFeatures',
+  'constructor.paymentsCategory', 
+  'constructor.deliveryCategory',
+  'constructor.communicationsCategory',
+  'constructor.marketingCategory',
+  'constructor.managementCategory',
+  'constructor.bookingCategory',
+  'constructor.aiAutomationCategory',
+  'constructor.integrationsCategory'
+];
 
-// Subscription plans
-const subscriptionPlans = [
+const subscriptionPlansBase = [
   {
     id: 'minimal',
-    name: 'Минимальный',
+    nameKey: 'constructor.minimalPlan',
     price: 9900,
-    description: 'Хостинг + мелкие правки',
-    features: ['Хостинг 99.9%', 'Мелкие правки', 'Email поддержка', 'Ежемесячные бэкапы'],
+    descriptionKey: 'constructor.minimalPlanDesc',
+    featuresKeys: ['constructor.subscriptionFeatures.hosting99', 'constructor.subscriptionFeatures.minorFixes', 'constructor.subscriptionFeatures.emailSupport', 'constructor.subscriptionFeatures.monthlyBackups'],
     color: '#71717A',
     bgColor: 'rgba(113, 113, 122, 0.08)',
     borderColor: 'rgba(113, 113, 122, 0.15)'
   },
   {
     id: 'standard',
-    name: 'Стандартный',
+    nameKey: 'constructor.standardPlan',
     price: 14900,
-    description: 'Поддержка + обновления',
-    features: ['Всё из Минимального', 'Приоритетная поддержка', 'Бесплатные обновления', 'Еженедельные бэкапы', 'Ответ за 2 часа'],
+    descriptionKey: 'constructor.standardPlanDesc',
+    featuresKeys: ['constructor.subscriptionFeatures.allFromMinimal', 'constructor.subscriptionFeatures.prioritySupport', 'constructor.subscriptionFeatures.freeUpdates', 'constructor.subscriptionFeatures.weeklyBackups', 'constructor.subscriptionFeatures.response2h'],
     color: '#5AC8FA',
     bgColor: 'rgba(90, 200, 250, 0.08)',
     borderColor: 'rgba(90, 200, 250, 0.2)',
@@ -512,10 +519,10 @@ const subscriptionPlans = [
   },
   {
     id: 'premium',
-    name: 'Премиум',
+    nameKey: 'constructor.premiumPlan',
     price: 24900,
-    description: 'Приоритет + консультации',
-    features: ['Всё из Стандартного', 'Персональный менеджер', 'Бизнес-консультации', 'Ежедневные бэкапы', 'Приоритетные доработки', 'Аналитические отчёты'],
+    descriptionKey: 'constructor.premiumPlanDesc',
+    featuresKeys: ['constructor.subscriptionFeatures.allFromStandard', 'constructor.subscriptionFeatures.personalManager', 'constructor.subscriptionFeatures.businessConsulting', 'constructor.subscriptionFeatures.dailyBackups', 'constructor.subscriptionFeatures.priorityImprovements', 'constructor.subscriptionFeatures.analyticsReports'],
     color: '#A78BFA',
     bgColor: 'linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(139, 92, 246, 0.08) 100%)',
     borderColor: 'rgba(167, 139, 250, 0.2)'
@@ -523,7 +530,7 @@ const subscriptionPlans = [
 ];
 
 // Memoized Template Card Component
-const TemplateCard = memo(({ template, onSelect }: any) => {
+const TemplateCard = memo(({ template, onSelect, t }: any) => {
   const IconComponent = template.icon;
   return (
     <div
@@ -540,7 +547,7 @@ const TemplateCard = memo(({ template, onSelect }: any) => {
             <span className="ios-headline font-semibold text-white">{template.name}</span>
             {template.popular && (
               <span className="px-2 py-0.5 bg-system-orange/10 rounded-full">
-                <span className="ios-caption2 text-system-orange font-semibold">Популярно</span>
+                <span className="ios-caption2 text-system-orange font-semibold">{t('constructor.popularTag')}</span>
               </span>
             )}
           </div>
@@ -549,7 +556,7 @@ const TemplateCard = memo(({ template, onSelect }: any) => {
             <Clock className="w-3 h-3" />
             <span>{template.developmentTime}</span>
             <span>•</span>
-            <span>от {template.estimatedPrice.toLocaleString()} ₽</span>
+            <span>{t('constructor.from')} {template.estimatedPrice.toLocaleString()} ₽</span>
           </div>
         </div>
         <ChevronRight className="w-5 h-5 text-white/30" />
@@ -560,9 +567,34 @@ const TemplateCard = memo(({ template, onSelect }: any) => {
 TemplateCard.displayName = 'TemplateCard';
 
 function ConstructorPage({ onNavigate }: ConstructorPageProps) {
+  const { t } = useLanguage();
+  
+  // Create translated arrays using useMemo
+  const appTemplates = useMemo(() => appTemplatesBase.map(tpl => ({
+    ...tpl,
+    name: t(tpl.nameKey),
+    description: t(tpl.descriptionKey),
+    developmentTime: t(tpl.developmentTimeKey)
+  })), [t]);
+  
+  const availableFeatures = useMemo(() => availableFeaturesBase.map(f => ({
+    ...f,
+    name: t(f.nameKey),
+    category: t(f.categoryKey)
+  })), [t]);
+  
+  const categories = useMemo(() => categoryKeys.map(key => t(key)), [t]);
+  
+  const subscriptionPlans = useMemo(() => subscriptionPlansBase.map(plan => ({
+    ...plan,
+    name: t(plan.nameKey),
+    description: t(plan.descriptionKey),
+    features: plan.featuresKeys.map(key => t(key))
+  })), [t]);
+  
   const [selectedTemplate, setSelectedTemplate] = useState<typeof appTemplates[0] | null>(null);
   const [selectedFeatures, setSelectedFeatures] = useState<SelectedFeature[]>([]);
-  const [activeCategory, setActiveCategory] = useState('Основные');
+  const [activeCategory, setActiveCategory] = useState(t('constructor.basicFeatures'));
   const [projectName, setProjectName] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedSubscription, setSelectedSubscription] = useState<typeof subscriptionPlans[0]>(subscriptionPlans[1]); // Default to Standard
@@ -570,7 +602,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
   // Memoized select template handler
   const selectTemplate = useCallback((template: typeof appTemplates[0]) => {
     setSelectedTemplate(template);
-    setProjectName(`Мой ${template.name}`);
+    setProjectName(`${t('constructor.myProject')} ${template.name}`);
     
     const templateFeatures = template.features.map(featureId => {
       const feature = availableFeatures.find(f => f.id === featureId);
@@ -587,7 +619,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
     
     setSelectedFeatures(templateFeatures);
     setCurrentStep(2);
-  }, []);
+  }, [t, appTemplates, availableFeatures]);
 
   // Track project creation when user first enters a name
   const hasTrackedProjectRef = useRef(false);
@@ -692,7 +724,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         
         {/* Payment Section - AIDA Style with Animated Text */}
-        <PaymentSection />
+        <PaymentSection t={t} />
 
         {/* Progress Steps */}
         <section className="scroll-fade-in-delay-2">
@@ -709,8 +741,8 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                   )}
                 </div>
                 <div className="flex-1">
-                  <div className="ios-body font-semibold text-white">Выберите тип приложения</div>
-                  <div className="ios-footnote text-white/70">Готовый шаблон под ваш бизнес</div>
+                  <div className="ios-body font-semibold text-white">{t('constructor.selectAppType')}</div>
+                  <div className="ios-footnote text-white/70">{t('constructor.readyTemplateForBusiness')}</div>
                 </div>
                 {currentStep === 1 && <div className="w-2 h-2 bg-system-blue rounded-full" />}
               </div>
@@ -727,8 +759,8 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                   )}
                 </div>
                 <div className="flex-1">
-                  <div className="ios-body font-semibold text-white">Добавьте функции</div>
-                  <div className="ios-footnote text-white/70">Расширьте возможности</div>
+                  <div className="ios-body font-semibold text-white">{t('constructor.addFeatures')}</div>
+                  <div className="ios-footnote text-white/70">{t('constructor.expandCapabilities')}</div>
                 </div>
                 {currentStep === 2 && <div className="w-2 h-2 bg-system-blue rounded-full" />}
               </div>
@@ -741,8 +773,8 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                   <span className="ios-caption2 text-white font-bold">3</span>
                 </div>
                 <div className="flex-1">
-                  <div className="ios-body font-semibold text-white">Оформите заказ</div>
-                  <div className="ios-footnote text-white/70">Запустите разработку</div>
+                  <div className="ios-body font-semibold text-white">{t('constructor.placeOrder')}</div>
+                  <div className="ios-footnote text-white/70">{t('constructor.startDevelopment')}</div>
                 </div>
                 {currentStep === 3 && <div className="w-2 h-2 bg-system-blue rounded-full" />}
               </div>
@@ -754,9 +786,9 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
         {currentStep === 1 && (
           <section className="space-y-6 scroll-fade-in-delay-3">
             <div className="text-center scroll-fade-in">
-              <h2 className="ios-title3 mb-2 text-white">Шаг 1: Выберите тип</h2>
+              <h2 className="ios-title3 mb-2 text-white">{t('constructor.step1Title')}</h2>
               <p className="ios-subheadline text-white/70">
-                Готовые решения для разных сфер бизнеса
+                {t('constructor.step1Desc')}
               </p>
             </div>
 
@@ -766,6 +798,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                   key={template.id}
                   template={template}
                   onSelect={templateHandlers[idx].handler}
+                  t={t}
                 />
               ))}
             </div>
@@ -774,10 +807,9 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               <div className="flex items-start space-x-3">
                 <Info className="w-5 h-5 text-system-blue mt-0.5" />
                 <div>
-                  <div className="ios-body font-semibold text-system-blue">Подсказка</div>
+                  <div className="ios-body font-semibold text-system-blue">{t('constructor.tip')}</div>
                   <div className="ios-footnote text-white/70">
-                    Выберите тип, наиболее близкий к вашему бизнесу. 
-                    Позже можно будет добавить дополнительные функции.
+                    {t('constructor.tipText')}
                   </div>
                 </div>
               </div>
@@ -789,21 +821,21 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
         {currentStep === 2 && selectedTemplate && (
           <section className="space-y-6 scroll-fade-in">
             <div className="text-center scroll-fade-in-delay-1">
-              <h2 className="ios-title3 mb-2 text-white">Шаг 2: Настройте функции</h2>
+              <h2 className="ios-title3 mb-2 text-white">{t('constructor.step2Title')}</h2>
               <p className="ios-subheadline text-white/70">
-                Добавьте нужные возможности для вашего приложения
+                {t('constructor.step2Desc')}
               </p>
             </div>
 
             {/* Project Name */}
             <div className="liquid-glass-card rounded-2xl p-4">
-              <div className="ios-field-label text-white/70">Название проекта</div>
+              <div className="ios-field-label text-white/70">{t('constructor.projectName')}</div>
               <input
                 type="text"
                 className="ios-field w-full mt-1 bg-white/10 text-white border-white/20 focus:border-system-blue"
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
-                placeholder="Введите название"
+                placeholder={t('constructor.enterProjectName')}
                 data-testid="project-name-input"
                 autoComplete="off"
                 autoCorrect="off"
@@ -864,12 +896,12 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                       <div className="flex-1">
                         <div className="ios-body font-semibold text-white">{feature.name}</div>
                         {isIncludedInAny && (
-                          <div className="ios-footnote text-system-green">Включено в шаблон</div>
+                          <div className="ios-footnote text-system-green">{t('constructor.includedInTemplate')}</div>
                         )}
                       </div>
                       <div className="text-right">
                         <div className="ios-body font-semibold text-system-blue">
-                          {isIncludedInAny ? 'Включено' : `+${feature.price.toLocaleString()} ₽`}
+                          {isIncludedInAny ? t('constructor.included') : `+${feature.price.toLocaleString()} ₽`}
                         </div>
                       </div>
                     </div>
@@ -880,7 +912,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
 
             {/* Subscription Plan Selection */}
             <div className="space-y-3">
-              <div className="ios-list-header text-white/70">Тариф подписки</div>
+              <div className="ios-list-header text-white/70">{t('constructor.subscriptionPlan')}</div>
               
               <div className="ios-list">
                 {subscriptionPlans.map((plan) => {
@@ -906,7 +938,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                             <span className="ios-headline font-semibold text-white">{plan.name}</span>
                             {plan.popular && (
                               <span className="px-2 py-0.5 bg-system-blue/15 rounded-full">
-                                <span className="ios-caption2 text-system-blue font-medium">Популярный</span>
+                                <span className="ios-caption2 text-system-blue font-medium">{t('constructor.popularTag')}</span>
                               </span>
                             )}
                           </div>
@@ -916,7 +948,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                         {/* Price */}
                         <div className="text-right">
                           <span className="ios-body font-bold text-white">{plan.price.toLocaleString()}</span>
-                          <span className="ios-footnote text-white/50"> ₽/мес</span>
+                          <span className="ios-footnote text-white/50"> {t('constructor.perMonth')}</span>
                         </div>
                       </div>
                     </div>
@@ -943,14 +975,14 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 className="ios-button-plain flex-1"
                 onClick={() => goToStep(1)}
               >
-                Назад
+                {t('constructor.back')}
               </button>
               <button
                 className="ios-button-filled flex-1"
                 onClick={() => goToStep(3)}
                 disabled={!projectName.trim()}
               >
-                Далее
+                {t('constructor.next')}
               </button>
             </div>
           </section>
@@ -960,9 +992,9 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
         {currentStep === 3 && selectedTemplate && (
           <section className="space-y-6">
             <div className="text-center">
-              <h2 className="ios-title3 mb-2 text-white">Шаг 3: Подтвердите заказ</h2>
+              <h2 className="ios-title3 mb-2 text-white">{t('constructor.step3Title')}</h2>
               <p className="ios-subheadline text-white/70">
-                Проверьте конфигурацию и запустите разработку
+                {t('constructor.step3Desc')}
               </p>
             </div>
 
@@ -971,19 +1003,19 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               <div className="text-center">
                 <h3 className="ios-title3 mb-1 text-white">{projectName}</h3>
                 <p className="ios-footnote text-white/70">
-                  На основе шаблона "{selectedTemplate.name}"
+                  {t('constructor.basedOnTemplate')} "{selectedTemplate.name}"
                 </p>
               </div>
               
               <div className="border-t border-white/20 pt-4">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="ios-body text-white">Базовая стоимость</span>
+                  <span className="ios-body text-white">{t('constructor.baseCost')}</span>
                   <span className="ios-body font-semibold text-white">{selectedTemplate.estimatedPrice.toLocaleString()} ₽</span>
                 </div>
                 
                 {additionalFeaturesPrice > 0 && (
                   <div className="flex justify-between items-center mb-2">
-                    <span className="ios-body text-white">Дополнительные функции</span>
+                    <span className="ios-body text-white">{t('constructor.additionalFeatures')}</span>
                     <span className="ios-body font-semibold text-white">
                       +{additionalFeaturesPrice.toLocaleString()} ₽
                     </span>
@@ -992,7 +1024,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 
                 <div className="border-t border-white/20 pt-2 mt-2">
                   <div className="flex justify-between items-center">
-                    <span className="ios-headline font-bold text-white">Итого разработка</span>
+                    <span className="ios-headline font-bold text-white">{t('constructor.totalDevelopment')}</span>
                     <span className="ios-title3 font-bold text-system-blue">{totalPrice.toLocaleString()} ₽</span>
                   </div>
                 </div>
@@ -1001,9 +1033,9 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               {/* Subscription Plan Summary */}
               <div className="border-t border-white/20 pt-4 mt-2">
                 <div className="flex justify-between items-center">
-                  <span className="ios-body text-white/70">Подписка ({selectedSubscription.name})</span>
+                  <span className="ios-body text-white/70">{t('constructor.subscription')} ({selectedSubscription.name})</span>
                   <span className="ios-body font-semibold text-white">
-                    {selectedSubscription.price.toLocaleString()} ₽/мес
+                    {selectedSubscription.price.toLocaleString()} {t('constructor.perMonth')}
                   </span>
                 </div>
               </div>
@@ -1012,7 +1044,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 <div className="flex items-center space-x-2 justify-center">
                   <Clock className="w-4 h-4 text-system-green" />
                   <span className="ios-footnote text-system-green font-semibold">
-                    Готовность: {selectedTemplate.developmentTime}
+                    {t('constructor.readinessTime')}: {selectedTemplate.developmentTime}
                   </span>
                 </div>
               </div>
@@ -1025,22 +1057,22 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 onClick={handleOrderClick}
                 data-testid="button-order"
               >
-                Заказать за {totalPrice.toLocaleString()} ₽
+                {t('constructor.orderFor')} {totalPrice.toLocaleString()} ₽
               </button>
               
               <button
                 className="ios-button-plain w-full"
                 onClick={() => goToStep(2)}
               >
-                Изменить функции
+                {t('constructor.changeFeatures')}
               </button>
               
               <div className="text-center space-y-1">
                 <p className="ios-footnote text-white/70">
-                  Предоплата 35% • Остальное после сдачи проекта
+                  {t('constructor.prepayment35')}
                 </p>
                 <p className="ios-footnote text-white/50">
-                  + {selectedSubscription.name} подписка {selectedSubscription.price.toLocaleString()} ₽/мес после запуска
+                  + {selectedSubscription.name} {t('constructor.subscriptionAfterLaunch')} {selectedSubscription.price.toLocaleString()} {t('constructor.perMonth')}
                 </p>
               </div>
             </div>
@@ -1055,19 +1087,19 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-3 bg-black/90 backdrop-blur-xl border-white/20">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="ios-footnote text-white/70">Разработка</div>
+                  <div className="ios-footnote text-white/70">{t('constructor.development')}</div>
                   <div className="ios-headline font-bold text-system-blue">
                     {totalPrice.toLocaleString()} ₽
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="ios-footnote text-white/70">Подписка</div>
+                  <div className="ios-footnote text-white/70">{t('constructor.subscription')}</div>
                   <div className="ios-headline font-bold" style={{ color: selectedSubscription.color }}>
-                    {selectedSubscription.price.toLocaleString()} ₽/мес
+                    {selectedSubscription.price.toLocaleString()} {t('constructor.perMonth')}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="ios-footnote text-white/70">Функций</div>
+                  <div className="ios-footnote text-white/70">{t('constructor.featuresCount')}</div>
                   <div className="ios-headline font-bold text-white">
                     {selectedFeatures.length}
                   </div>

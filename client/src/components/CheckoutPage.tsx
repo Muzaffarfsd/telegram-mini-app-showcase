@@ -5,6 +5,7 @@ import { CreditCard, Lock, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTelegram } from "@/hooks/useTelegram";
 import { BackHeader } from "./BackHeader";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
   ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
@@ -28,6 +29,7 @@ const CheckoutForm = ({ totalAmount, projectName, selectedFeatures, onSuccess }:
   const elements = useElements();
   const { toast } = useToast();
   const { user } = useTelegram();
+  const { t } = useLanguage();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +52,7 @@ const CheckoutForm = ({ totalAmount, projectName, selectedFeatures, onSuccess }:
 
       if (error) {
         toast({
-          title: "Ошибка оплаты",
+          title: t('checkout.paymentError'),
           description: error.message,
           variant: "destructive",
         });
@@ -74,8 +76,8 @@ const CheckoutForm = ({ totalAmount, projectName, selectedFeatures, onSuccess }:
           if (createProjectResponse.ok) {
             console.log('Project created successfully');
             toast({
-              title: "Оплата успешна!",
-              description: "Проект создан! Мы начнем разработку в течение 24 часов.",
+              title: t('checkout.paymentSuccess'),
+              description: t('checkout.projectCreated'),
             });
           } else {
             throw new Error('Failed to create project');
@@ -83,8 +85,8 @@ const CheckoutForm = ({ totalAmount, projectName, selectedFeatures, onSuccess }:
         } catch (error) {
           console.error('Error creating project:', error);
           toast({
-            title: "Оплата успешна!",
-            description: "Спасибо за заказ! Мы свяжемся с вами в течение 24 часов.",
+            title: t('checkout.paymentSuccess'),
+            description: t('checkout.thankYouOrder'),
           });
         }
         
@@ -92,8 +94,8 @@ const CheckoutForm = ({ totalAmount, projectName, selectedFeatures, onSuccess }:
       }
     } catch (err) {
       toast({
-        title: "Ошибка",
-        description: "Произошла ошибка при обработке платежа",
+        title: t('common.error'),
+        description: t('checkout.paymentProcessError'),
         variant: "destructive",
       });
     } finally {
@@ -106,7 +108,7 @@ const CheckoutForm = ({ totalAmount, projectName, selectedFeatures, onSuccess }:
       <div className="liquid-glass-card rounded-2xl p-6">
         <div className="flex items-center space-x-2 mb-4">
           <Lock className="w-4 h-4 text-system-green" />
-          <span className="ios-footnote text-system-green font-medium">Безопасная оплата</span>
+          <span className="ios-footnote text-system-green font-medium">{t('checkout.securePayment')}</span>
         </div>
         <PaymentElement />
       </div>
@@ -118,7 +120,7 @@ const CheckoutForm = ({ totalAmount, projectName, selectedFeatures, onSuccess }:
         data-testid="button-pay"
       >
         <CreditCard className="w-4 h-4 mr-2" />
-        {isProcessing ? "Обработка..." : `Оплатить ${totalAmount.toLocaleString()} ₽`}
+        {isProcessing ? t('checkout.processing') : `${t('checkout.pay')} ${totalAmount.toLocaleString()} ₽`}
       </button>
     </form>
   );
@@ -128,6 +130,7 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
   const [clientSecret, setClientSecret] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     // Create PaymentIntent when component mounts
@@ -149,8 +152,8 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
           setClientSecret(data.clientSecret);
         } else {
           toast({
-            title: "Ошибка",
-            description: "Не удалось инициализировать платеж",
+            title: t('common.error'),
+            description: t('checkout.initPaymentError'),
             variant: "destructive",
           });
         }
@@ -158,14 +161,14 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
       })
       .catch(() => {
         toast({
-          title: "Ошибка",
-          description: "Проблема с подключением к серверу",
+          title: t('common.error'),
+          description: t('checkout.connectionError'),
           variant: "destructive",
         });
         setIsLoading(false);
       });
     }
-  }, [totalAmount, projectName, selectedFeatures, toast]);
+  }, [totalAmount, projectName, selectedFeatures, toast, t]);
 
   if (!stripePromise) {
     return (
@@ -175,12 +178,12 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
             <div className="w-16 h-16 mx-auto mb-4 bg-red-500/20 rounded-full flex items-center justify-center">
               <CreditCard className="w-8 h-8 text-red-500" />
             </div>
-            <h2 className="text-xl font-bold mb-2 text-white">Платежи недоступны</h2>
+            <h2 className="text-xl font-bold mb-2 text-white">{t('checkout.paymentsUnavailable')}</h2>
             <p className="text-white/70">
-              Платежная система временно недоступна. Пожалуйста, попробуйте позже или свяжитесь с нами напрямую.
+              {t('checkout.paymentsUnavailableDesc')}
             </p>
             <button className="w-full mt-4 ios-button-filled h-12" onClick={onBack} data-testid="button-back-error">
-              Вернуться назад
+              {t('checkout.goBack')}
             </button>
           </div>
         </div>
@@ -194,7 +197,7 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
         <div className="liquid-glass-card rounded-2xl max-w-md w-full">
           <div className="pt-6 px-6 pb-6 text-center">
             <div className="animate-spin w-8 h-8 border-4 border-system-blue border-t-transparent rounded-full mx-auto mb-4" />
-            <p className="text-white/70">Подготовка к оплате...</p>
+            <p className="text-white/70">{t('checkout.preparingPayment')}</p>
           </div>
         </div>
       </div>
@@ -213,7 +216,7 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
 
   return (
     <div className="checkout-page min-h-screen bg-black text-white pb-80 smooth-scroll-page">
-      <BackHeader onBack={onBack} title="Оплата заказа" />
+      <BackHeader onBack={onBack} title={t('checkout.title')} />
       
       <div className="max-w-md mx-auto p-4">
         {/* Payment Form */}
@@ -240,14 +243,14 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
           <div className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <CheckCircle className="w-5 h-5 text-system-green" />
-              <span className="ios-title3 text-white">Ваш заказ</span>
+              <span className="ios-title3 text-white">{t('checkout.yourOrder')}</span>
             </div>
           </div>
           <div className="px-6 pb-6 space-y-4">
             <div>
               <h3 className="ios-body font-bold text-white">{projectName}</h3>
               <p className="ios-footnote text-white/70">
-                {selectedFeatures.length} {selectedFeatures.length === 1 ? 'функция' : 'функций'}
+                {selectedFeatures.length} {selectedFeatures.length === 1 ? t('checkout.feature') : t('checkout.features')}
               </p>
             </div>
             
@@ -262,11 +265,11 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
             
             <div className="border-t border-white/10 pt-2">
               <div className="flex justify-between ios-body font-bold">
-                <span className="text-white">Итого:</span>
+                <span className="text-white">{t('checkout.total')}</span>
                 <span className="text-system-blue">{totalAmount.toLocaleString()} ₽</span>
               </div>
               <p className="ios-caption2 text-white/70 mt-1">
-                Срок разработки: 3-7 рабочих дней
+                {t('checkout.developmentTime')}
               </p>
             </div>
           </div>

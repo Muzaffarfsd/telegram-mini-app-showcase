@@ -3,6 +3,7 @@ import { Heart } from 'lucide-react';
 import { m } from 'framer-motion';
 import { useFavoritesStore } from '@/stores/favoritesStore';
 import { useHaptic } from '@/hooks/useHaptic';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface FavoriteButtonProps {
   demoId: string;
@@ -17,6 +18,7 @@ export const FavoriteButton = memo(function FavoriteButton({
 }: FavoriteButtonProps) {
   const { isFavorite, toggle, initialize, isInitialized } = useFavoritesStore();
   const haptic = useHaptic();
+  const { t } = useLanguage();
   const isActive = isFavorite(demoId);
   const [isLightTheme, setIsLightTheme] = useState(() => 
     document.documentElement.classList.contains('light')
@@ -67,7 +69,7 @@ export const FavoriteButton = memo(function FavoriteButton({
         backgroundColor: isActive ? 'rgba(239, 68, 68, 0.2)' : inactiveBg,
       }}
       data-testid={`button-favorite-${demoId}`}
-      aria-label={isActive ? 'Удалить из избранного' : 'Добавить в избранное'}
+      aria-label={isActive ? t('favorites.removeFromFavorites') : t('favorites.addToFavorites')}
     >
       <m.div
         animate={{

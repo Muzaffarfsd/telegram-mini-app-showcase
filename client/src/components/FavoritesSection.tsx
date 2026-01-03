@@ -4,6 +4,7 @@ import { m, AnimatePresence } from 'framer-motion';
 import { useFavoritesStore } from '@/stores/favoritesStore';
 import { useHaptic } from '@/hooks/useHaptic';
 import { demoApps } from '@/data/demoApps';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface FavoritesSectionProps {
   onOpenDemo: (demoId: string) => void;
@@ -14,6 +15,13 @@ export const FavoritesSection = memo(function FavoritesSection({
 }: FavoritesSectionProps) {
   const { favorites, isLoading, toggle, initialize, isInitialized } = useFavoritesStore();
   const haptic = useHaptic();
+  const { t } = useLanguage();
+  
+  const getPluralApps = (count: number) => {
+    if (count === 1) return t('favorites.app');
+    if (count >= 2 && count <= 4) return t('favorites.apps2to4');
+    return t('favorites.apps5plus');
+  };
 
   useEffect(() => {
     if (!isInitialized) {
@@ -85,13 +93,13 @@ export const FavoritesSection = memo(function FavoritesSection({
                 className="text-[15px] font-semibold"
                 style={{ color: '#FAFAFA', letterSpacing: '-0.01em' }}
               >
-                Избранное
+                {t('favorites.title')}
               </h2>
               <p 
                 className="text-[12px]"
                 style={{ color: 'rgba(167, 139, 250, 0.8)' }}
               >
-                {favorites.length} {favorites.length === 1 ? 'приложение' : favorites.length < 5 ? 'приложения' : 'приложений'}
+                {favorites.length} {getPluralApps(favorites.length)}
               </p>
             </div>
           </div>

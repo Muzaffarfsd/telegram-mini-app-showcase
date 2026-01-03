@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface TaxiProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -65,6 +66,7 @@ const initialTrips: Trip[] = [
 ];
 
 export default function Taxi({ activeTab }: TaxiProps) {
+  const { t } = useLanguage();
   const [selectedDriver, setSelectedDriver] = useState<typeof drivers[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [trips, setTrips] = useState<Trip[]>(initialTrips);

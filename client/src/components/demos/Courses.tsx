@@ -19,6 +19,7 @@ import { createProductImageErrorHandler } from "@/utils/imageUtils";
 import { useImagePreloader } from "../../hooks/useImagePreloader";
 import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface CoursesProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -65,6 +66,7 @@ const initialEnrolledCourses: EnrolledCourse[] = [
 ];
 
 export default function Courses({ activeTab }: CoursesProps) {
+  const { t } = useLanguage();
   const [selectedCourse, setSelectedCourse] = useState<typeof courses[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>(initialEnrolledCourses);

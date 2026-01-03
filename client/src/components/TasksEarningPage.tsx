@@ -5,6 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useTelegram } from '@/hooks/useTelegram';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Task {
   id: string;
@@ -27,250 +28,69 @@ interface UserBalance {
   currentStreak: number;
 }
 
-const discountTiers = [
-  { coins: 500, discount: 5, label: '5% скидка' },
-  { coins: 1000, discount: 10, label: '10% скидка' },
-  { coins: 2000, discount: 15, label: '15% скидка' },
-  { coins: 3500, discount: 20, label: '20% скидка' },
-  { coins: 5000, discount: 25, label: '25% скидка' }
+const discountTiersBase = [
+  { coins: 500, discount: 5 },
+  { coins: 1000, discount: 10 },
+  { coins: 2000, discount: 15 },
+  { coins: 3500, discount: 20 },
+  { coins: 5000, discount: 25 }
 ];
 
-// Расширенный список заданий - 20 штук
-const allTasks: Task[] = [
-  // TikTok задания
-  {
-    id: 'tiktok_follow',
-    platform: 'tiktok',
-    type: 'follow',
-    title: 'Подписка на TikTok',
-    description: 'Подпишитесь на наш TikTok аккаунт',
-    coins: 150,
-    url: 'https://tiktok.com/@web4tg',
-    completed: false,
-    minimumTime: 5
-  },
-  {
-    id: 'tiktok_like_1',
-    platform: 'tiktok',
-    type: 'like',
-    title: 'Лайк видео о МиниАппах',
-    description: 'Поставьте лайк нашему видео про создание Telegram приложений',
-    coins: 50,
-    url: 'https://tiktok.com/@web4tg',
-    completed: false,
-    minimumTime: 8
-  },
-  {
-    id: 'tiktok_like_2',
-    platform: 'tiktok',
-    type: 'like',
-    title: 'Лайк видео про AI',
-    description: 'Лайкните видео о возможностях искусственного интеллекта',
-    coins: 50,
-    url: 'https://tiktok.com/@web4tg',
-    completed: false,
-    minimumTime: 8
-  },
-  {
-    id: 'tiktok_like_3',
-    platform: 'tiktok',
-    type: 'like',
-    title: 'Лайк туториала',
-    description: 'Поставьте лайк обучающему видео по созданию ботов',
-    coins: 50,
-    url: 'https://tiktok.com/@web4tg',
-    completed: false,
-    minimumTime: 8
-  },
-  {
-    id: 'tiktok_share_1',
-    platform: 'tiktok',
-    type: 'share',
-    title: 'Репост в TikTok',
-    description: 'Поделитесь нашим видео о заработке с ТГ ботами',
-    coins: 100,
-    url: 'https://tiktok.com/@web4tg',
-    completed: false,
-    minimumTime: 10
-  },
-  {
-    id: 'tiktok_comment_1',
-    platform: 'tiktok',
-    type: 'comment',
-    title: 'Комментарий в TikTok',
-    description: 'Оставьте комментарий под любым нашим видео',
-    coins: 75,
-    url: 'https://tiktok.com/@web4tg',
-    completed: false,
-    minimumTime: 15
-  },
-  {
-    id: 'tiktok_comment_2',
-    platform: 'tiktok',
-    type: 'comment',
-    title: 'Второй комментарий TikTok',
-    description: 'Прокомментируйте еще одно наше видео',
-    coins: 75,
-    url: 'https://tiktok.com/@web4tg',
-    completed: false,
-    minimumTime: 15
-  },
-  {
-    id: 'tiktok_view_1',
-    platform: 'tiktok',
-    type: 'view',
-    title: 'Просмотр TikTok',
-    description: 'Досмотрите до конца видео про разработку',
-    coins: 30,
-    url: 'https://tiktok.com/@web4tg',
-    completed: false,
-    minimumTime: 10
-  },
-  {
-    id: 'tiktok_view_2',
-    platform: 'tiktok',
-    type: 'view',
-    title: 'Просмотр лайфхаков',
-    description: 'Посмотрите видео с лайфхаками по Telegram',
-    coins: 30,
-    url: 'https://tiktok.com/@web4tg',
-    completed: false,
-    minimumTime: 10
-  },
-  {
-    id: 'tiktok_view_3',
-    platform: 'tiktok',
-    type: 'view',
-    title: 'Просмотр кейсов',
-    description: 'Изучите наши успешные кейсы в видео',
-    coins: 30,
-    url: 'https://tiktok.com/@web4tg',
-    completed: false,
-    minimumTime: 10
-  },
-  
-  // Instagram задания
-  {
-    id: 'instagram_follow',
-    platform: 'instagram',
-    type: 'follow',
-    title: 'Подписка на Instagram',
-    description: 'Подпишитесь на наш Instagram аккаунт',
-    coins: 120,
-    url: 'https://instagram.com/web4tg',
-    completed: false,
-    minimumTime: 4
-  },
-  {
-    id: 'instagram_like_1',
-    platform: 'instagram',
-    type: 'like',
-    title: 'Лайк поста в Instagram',
-    description: 'Лайкните наш пост про новые функции',
-    coins: 40,
-    url: 'https://instagram.com/web4tg',
-    completed: false,
-    minimumTime: 6
-  },
-  {
-    id: 'instagram_like_2',
-    platform: 'instagram',
-    type: 'like',
-    title: 'Лайк Reels',
-    description: 'Поставьте лайк нашему Reels',
-    coins: 40,
-    url: 'https://instagram.com/web4tg',
-    completed: false,
-    minimumTime: 6
-  },
-  {
-    id: 'instagram_like_3',
-    platform: 'instagram',
-    type: 'like',
-    title: 'Лайк фото проекта',
-    description: 'Лайкните фото одного из наших проектов',
-    coins: 40,
-    url: 'https://instagram.com/web4tg',
-    completed: false,
-    minimumTime: 6
-  },
-  {
-    id: 'instagram_share_1',
-    platform: 'instagram',
-    type: 'share',
-    title: 'Stories репост',
-    description: 'Поделитесь нашим постом в своих Stories',
-    coins: 80,
-    url: 'https://instagram.com/web4tg',
-    completed: false,
-    minimumTime: 8
-  },
-  {
-    id: 'instagram_comment_1',
-    platform: 'instagram',
-    type: 'comment',
-    title: 'Комментарий в Instagram',
-    description: 'Прокомментируйте наш пост',
-    coins: 60,
-    url: 'https://instagram.com/web4tg',
-    completed: false,
-    minimumTime: 12
-  },
-  {
-    id: 'instagram_comment_2',
-    platform: 'instagram',
-    type: 'comment',
-    title: 'Второй комментарий',
-    description: 'Оставьте комментарий под другим постом',
-    coins: 60,
-    url: 'https://instagram.com/web4tg',
-    completed: false,
-    minimumTime: 12
-  },
-  {
-    id: 'instagram_view_1',
-    platform: 'instagram',
-    type: 'view',
-    title: 'Просмотр Instagram Reels',
-    description: 'Посмотрите наш Reels о МиниАппах',
-    coins: 25,
-    url: 'https://instagram.com/web4tg',
-    completed: false,
-    minimumTime: 8
-  },
-  {
-    id: 'instagram_view_2',
-    platform: 'instagram',
-    type: 'view',
-    title: 'Просмотр портфолио',
-    description: 'Посмотрите нашу галерею работ в Stories',
-    coins: 25,
-    url: 'https://instagram.com/web4tg',
-    completed: false,
-    minimumTime: 8
-  },
-  {
-    id: 'instagram_view_3',
-    platform: 'instagram',
-    type: 'view',
-    title: 'Просмотр обзора',
-    description: 'Изучите обзор наших услуг в Reels',
-    coins: 25,
-    url: 'https://instagram.com/web4tg',
-    completed: false,
-    minimumTime: 8
-  }
+const taskIdsToTitleKeys: Record<string, string> = {
+  'tiktok_follow': 'tiktokFollow',
+  'tiktok_like_1': 'tiktokLikeMiniApps',
+  'tiktok_like_2': 'tiktokLikeAI',
+  'tiktok_like_3': 'tiktokLikeTutorial',
+  'tiktok_share_1': 'tiktokShare',
+  'tiktok_comment_1': 'tiktokComment1',
+  'tiktok_comment_2': 'tiktokComment2',
+  'tiktok_view_1': 'tiktokView1',
+  'tiktok_view_2': 'tiktokViewLifehacks',
+  'tiktok_view_3': 'tiktokViewCases',
+  'instagram_follow': 'instagramFollow',
+  'instagram_like_1': 'instagramLikePost',
+  'instagram_like_2': 'instagramLikeReels',
+  'instagram_like_3': 'instagramLikeProject',
+  'instagram_share_1': 'instagramShareStories',
+  'instagram_comment_1': 'instagramComment1',
+  'instagram_comment_2': 'instagramComment2',
+  'instagram_view_1': 'instagramViewReels',
+  'instagram_view_2': 'instagramViewPortfolio',
+  'instagram_view_3': 'instagramViewReview',
+};
+
+const allTasksBase = [
+  { id: 'tiktok_follow', platform: 'tiktok' as const, type: 'follow' as const, coins: 150, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 5 },
+  { id: 'tiktok_like_1', platform: 'tiktok' as const, type: 'like' as const, coins: 50, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 8 },
+  { id: 'tiktok_like_2', platform: 'tiktok' as const, type: 'like' as const, coins: 50, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 8 },
+  { id: 'tiktok_like_3', platform: 'tiktok' as const, type: 'like' as const, coins: 50, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 8 },
+  { id: 'tiktok_share_1', platform: 'tiktok' as const, type: 'share' as const, coins: 100, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 10 },
+  { id: 'tiktok_comment_1', platform: 'tiktok' as const, type: 'comment' as const, coins: 75, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 15 },
+  { id: 'tiktok_comment_2', platform: 'tiktok' as const, type: 'comment' as const, coins: 75, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 15 },
+  { id: 'tiktok_view_1', platform: 'tiktok' as const, type: 'view' as const, coins: 30, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 10 },
+  { id: 'tiktok_view_2', platform: 'tiktok' as const, type: 'view' as const, coins: 30, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 10 },
+  { id: 'tiktok_view_3', platform: 'tiktok' as const, type: 'view' as const, coins: 30, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 10 },
+  { id: 'instagram_follow', platform: 'instagram' as const, type: 'follow' as const, coins: 120, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 4 },
+  { id: 'instagram_like_1', platform: 'instagram' as const, type: 'like' as const, coins: 40, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 6 },
+  { id: 'instagram_like_2', platform: 'instagram' as const, type: 'like' as const, coins: 40, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 6 },
+  { id: 'instagram_like_3', platform: 'instagram' as const, type: 'like' as const, coins: 40, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 6 },
+  { id: 'instagram_share_1', platform: 'instagram' as const, type: 'share' as const, coins: 80, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 8 },
+  { id: 'instagram_comment_1', platform: 'instagram' as const, type: 'comment' as const, coins: 60, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 12 },
+  { id: 'instagram_comment_2', platform: 'instagram' as const, type: 'comment' as const, coins: 60, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 12 },
+  { id: 'instagram_view_1', platform: 'instagram' as const, type: 'view' as const, coins: 25, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 8 },
+  { id: 'instagram_view_2', platform: 'instagram' as const, type: 'view' as const, coins: 25, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 8 },
+  { id: 'instagram_view_3', platform: 'instagram' as const, type: 'view' as const, coins: 25, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 8 },
 ];
 
 interface TasksEarningPageProps {
   onNavigate: (section: string) => void;
 }
 
-// Минималистичная Task Card с черным жидким стеклом
-const MinimalTaskCard = memo(({ task, onTaskClick, isVerifying }: { 
+const MinimalTaskCard = memo(({ task, onTaskClick, isVerifying, t }: { 
   task: Task, 
   onTaskClick: (task: Task) => void,
-  isVerifying: boolean 
+  isVerifying: boolean,
+  t: (key: string) => string
 }) => {
   const getTaskIcon = () => {
     switch (task.type) {
@@ -323,15 +143,15 @@ const MinimalTaskCard = memo(({ task, onTaskClick, isVerifying }: {
           {task.completed ? (
             <Badge variant="outline" className="text-[10px] h-5 bg-emerald-500/20 text-emerald-400 border-emerald-500/50">
               <CheckCircle className="w-2.5 h-2.5 mr-1" />
-              Готово
+              {t('tasks.done')}
             </Badge>
           ) : task.verificationStatus === 'failed' ? (
             <Badge variant="outline" className="text-[10px] h-5 bg-red-500/20 text-red-400 border-red-500/50">
-              Ошибка
+              {t('tasks.error')}
             </Badge>
           ) : isVerifying ? (
             <Badge variant="outline" className="text-[10px] h-5 bg-blue-500/20 text-blue-400 border-blue-500/50">
-              Проверка...
+              {t('tasks.verifyingLabel')}
             </Badge>
           ) : null}
         </div>
@@ -341,7 +161,7 @@ const MinimalTaskCard = memo(({ task, onTaskClick, isVerifying }: {
 });
 MinimalTaskCard.displayName = 'MinimalTaskCard';
 
-// Анимированный прогресс-бар
+// Animated progress bar
 const AnimatedProgressBar = memo(({ value, max, label }: { value: number, max: number, label: string }) => {
   const percentage = Math.min((value / max) * 100, 100);
   
@@ -378,6 +198,7 @@ const AnimatedProgressBar = memo(({ value, max, label }: { value: number, max: n
 AnimatedProgressBar.displayName = 'AnimatedProgressBar';
 
 export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
+  const { t } = useLanguage();
   const { user, initData, hapticFeedback } = useTelegram();
   const [balance, setBalance] = useState<UserBalance>({
     totalCoins: 0,
@@ -385,6 +206,23 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
     tasksCompleted: 0,
     currentStreak: 0
   });
+  
+  const discountTiers = useMemo(() => 
+    discountTiersBase.map(tier => ({
+      ...tier,
+      label: `${tier.discount}% ${t('tasks.discount')}`
+    })), [t]);
+  
+  const allTasks: Task[] = useMemo(() => 
+    allTasksBase.map(task => {
+      const titleKey = taskIdsToTitleKeys[task.id] || '';
+      return {
+        ...task,
+        title: t(`tasks.taskTitles.${titleKey}`),
+        description: t(`tasks.taskDescs.${titleKey}`)
+      };
+    }), [t]);
+  
   const [tasks, setTasks] = useState<Task[]>(allTasks);
   const [loading, setLoading] = useState(true);
   const [verifyingTask, setVerifyingTask] = useState<string | null>(null);
@@ -463,7 +301,7 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
         console.error('Error starting task:', error);
         if (startRes.status === 429) {
           hapticFeedback.heavy();
-          alert(`Подождите ${error.retry_after} секунд.`);
+          alert(t('tasks.waitSeconds').replace('{seconds}', String(error.retry_after)));
         }
         return;
       }
@@ -541,7 +379,7 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white/60">Загрузка...</p>
+          <p className="text-white/60">{t('tasks.loading')}</p>
         </div>
       </div>
     );
@@ -561,7 +399,7 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
           data-testid="button-back"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm">Назад</span>
+          <span className="text-sm">{t('tasks.back')}</span>
         </button>
 
         {/* Header */}
@@ -572,14 +410,14 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
         >
           <h1 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2">
             <Coins className="w-8 h-8 text-amber-400" />
-            Заработок монет
+            {t('tasks.earnCoins')}
           </h1>
           <p className="text-white/60 text-sm">
-            Выполняйте задания и получайте скидки до 25%
+            {t('tasks.earnCoinsDesc')}
           </p>
         </motion.div>
 
-        {/* Balance Card - Минималистичное черное жидкое стекло */}
+        {/* Balance Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -592,7 +430,7 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <div className="text-xs text-white/50 uppercase tracking-wider mb-1">Баланс</div>
+                <div className="text-xs text-white/50 uppercase tracking-wider mb-1">{t('tasks.balance')}</div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-bold text-white">{balance.totalCoins}</span>
                   <Coins className="w-6 h-6 text-amber-400" />
@@ -610,15 +448,15 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
 
             <div className="grid grid-cols-3 gap-2 mb-4">
               <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2.5 border border-white/10 text-center">
-                <div className="text-white/50 text-[10px] mb-0.5">Заработано</div>
+                <div className="text-white/50 text-[10px] mb-0.5">{t('tasks.earned')}</div>
                 <div className="text-white font-bold text-sm">{balance.totalCoins}</div>
               </div>
               <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2.5 border border-white/10 text-center">
-                <div className="text-white/50 text-[10px] mb-0.5">Выполнено</div>
+                <div className="text-white/50 text-[10px] mb-0.5">{t('tasks.completedLabel')}</div>
                 <div className="text-white font-bold text-sm">{balance.tasksCompleted}</div>
               </div>
               <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2.5 border border-white/10 text-center">
-                <div className="text-white/50 text-[10px] mb-0.5">Стрик</div>
+                <div className="text-white/50 text-[10px] mb-0.5">{t('tasks.streak')}</div>
                 <div className="text-white font-bold text-sm">{balance.currentStreak} 🔥</div>
               </div>
             </div>
@@ -629,14 +467,14 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                 <AnimatedProgressBar 
                   value={balance.totalCoins}
                   max={nextTier.coins}
-                  label={`До ${nextTier.label}`}
+                  label={`${t('tasks.until')} ${nextTier.label}`}
                 />
               </div>
             )}
           </div>
         </motion.div>
 
-        {/* How it Works - Минималистично */}
+        {/* How it Works */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -644,7 +482,7 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
         >
           <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-emerald-400" />
-            Как это работает
+            {t('tasks.howItWorks')}
           </h3>
           
           <div className="space-y-2.5">
@@ -653,8 +491,8 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                 <span className="text-sm">⚡</span>
               </div>
               <div>
-                <div className="text-xs font-medium text-white">Выполняйте задания</div>
-                <div className="text-[10px] text-white/50">TikTok и Instagram</div>
+                <div className="text-xs font-medium text-white">{t('tasks.completeTasks')}</div>
+                <div className="text-[10px] text-white/50">{t('tasks.tiktokAndInstagram')}</div>
               </div>
             </div>
             
@@ -663,8 +501,8 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                 <Coins className="w-4 h-4 text-amber-400" />
               </div>
               <div>
-                <div className="text-xs font-medium text-white">Получайте монеты</div>
-                <div className="text-[10px] text-white/50">25-150 за задание</div>
+                <div className="text-xs font-medium text-white">{t('tasks.getCoins')}</div>
+                <div className="text-[10px] text-white/50">{t('tasks.coinsPerTask')}</div>
               </div>
             </div>
             
@@ -673,8 +511,8 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                 <Award className="w-4 h-4 text-emerald-400" />
               </div>
               <div>
-                <div className="text-xs font-medium text-white">Получайте скидки</div>
-                <div className="text-[10px] text-white/50">До 25% на разработку</div>
+                <div className="text-xs font-medium text-white">{t('tasks.exchangeForDiscounts')}</div>
+                <div className="text-[10px] text-white/50">{t('tasks.upTo25Discount')}</div>
               </div>
             </div>
           </div>
@@ -689,7 +527,7 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
           >
             <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
               <span className="text-lg">🎵</span>
-              TikTok задания
+              {t('tasks.tiktokTasks')}
             </h3>
             
             <div className="space-y-2">
@@ -699,6 +537,7 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                   task={task}
                   onTaskClick={handleTaskClick}
                   isVerifying={verifyingTask === task.id}
+                  t={t}
                 />
               ))}
             </div>
@@ -714,7 +553,7 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
           >
             <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
               <span className="text-lg">📷</span>
-              Instagram задания
+              {t('tasks.instagramTasks')}
             </h3>
             
             <div className="space-y-2">
@@ -724,13 +563,14 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                   task={task}
                   onTaskClick={handleTaskClick}
                   isVerifying={verifyingTask === task.id}
+                  t={t}
                 />
               ))}
             </div>
           </motion.div>
         )}
 
-        {/* Discount Tiers - Минималистично */}
+        {/* Discount Tiers */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -738,7 +578,7 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
         >
           <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
             <Award className="w-4 h-4 text-emerald-400" />
-            Скидки
+            {t('tasks.discounts')}
           </h3>
           <div className="space-y-1.5">
             {discountTiers.map((tier, index) => (
@@ -751,7 +591,7 @@ export function TasksEarningPage({ onNavigate }: TasksEarningPageProps) {
                     : 'bg-white/5 border border-white/10'
                 )}
               >
-                <span className="text-white/60">{tier.coins} монет</span>
+                <span className="text-white/60">{tier.coins} {t('tasks.coinsLabel')}</span>
                 <span className={cn(
                   'font-bold',
                   balance.totalCoins >= tier.coins ? 'text-emerald-400' : 'text-white/40'

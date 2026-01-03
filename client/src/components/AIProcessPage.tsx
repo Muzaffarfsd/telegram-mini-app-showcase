@@ -9,16 +9,17 @@ import {
   ArrowRight,
   Zap
 } from "lucide-react";
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface AIProcessPageProps {
   onNavigate: (path: string) => void;
 }
 
 const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
+  const { t } = useLanguage();
   const [scrollY, setScrollY] = useState(0);
   
   const handleGetConsultation = useCallback(() => {
-    // Open Telegram for consultation
     window.open('https://t.me/web4tgs', '_blank');
   }, []);
 
@@ -32,9 +33,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
     <div className="min-h-screen pb-24 overflow-hidden smooth-scroll-page" style={{ paddingTop: '140px', backgroundColor: 'var(--surface)' }}>
       <div className="max-w-md mx-auto">
         
-        {/* Apple-Style Hero with Parallax */}
         <section className="relative px-6 pt-8 pb-16">
-          {/* Dynamic gradient background */}
           <div 
             className="absolute inset-0 opacity-40 pointer-events-none"
             style={{
@@ -45,7 +44,6 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           />
           
           <div className="relative z-10">
-            {/* Badge */}
             <div className="flex justify-center mb-6 scroll-fade-in">
               <div 
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
@@ -64,12 +62,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                     letterSpacing: '0.02em'
                   }}
                 >
-                  ИИ + TELEGRAM
+                  {t('aiProcess.badge')}
                 </span>
               </div>
             </div>
 
-            {/* Hero headline - Apple SF Pro style */}
             <h1 
               className="text-center mb-5 scroll-fade-in-delay-1"
               style={{ 
@@ -81,14 +78,13 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 color: 'var(--text-primary)'
               }}
             >
-              ИИ агент
+              {t('aiProcess.heroTitle1')}
               <br />
-              для вашего
+              {t('aiProcess.heroTitle2')}
               <br />
-              приложения
+              {t('aiProcess.heroTitle3')}
             </h1>
             
-            {/* Subtitle */}
             <p 
               className="text-center mb-3 scroll-fade-in-delay-2"
               style={{
@@ -99,12 +95,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 letterSpacing: '-0.015em'
               }}
             >
-              Подключите умного помощника
+              {t('aiProcess.heroSubtitle1')}
               <br />
-              к вашему Telegram Mini App
+              {t('aiProcess.heroSubtitle2')}
             </p>
 
-            {/* CTA Button */}
             <div className="flex justify-center mb-8 scroll-fade-in-delay-3">
               <a
                 href="https://t.me/web4tgs"
@@ -121,82 +116,79 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 data-testid="button-consultation"
               >
                 <MessageSquare className="w-5 h-5" />
-                Получить консультацию
+                {t('aiProcess.getConsultation')}
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </a>
             </div>
 
-            {/* Stats Row */}
             <div className="flex justify-center gap-8 mb-8 scroll-fade-in-delay-4">
-              <StatBadge number="900M+" label="пользователей" />
-              <StatBadge number="24/7" label="поддержка" />
-              <StatBadge number="100%" label="автоматизация" />
+              <StatBadge number="900M+" label={t('aiProcess.stats.users')} />
+              <StatBadge number="24/7" label={t('aiProcess.stats.support')} />
+              <StatBadge number="100%" label={t('aiProcess.stats.automation')} />
             </div>
           </div>
         </section>
 
-        {/* Process Steps - Premium Cards */}
         <section className="px-6 py-6 space-y-5">
           
           <ProcessStepPremium
             number="1"
-            title="Разработка приложения"
-            description="Создаём Telegram Mini App с современным дизайном и удобной навигацией"
-            duration="7-14 дней"
+            title={t('aiProcess.steps.step1Title')}
+            description={t('aiProcess.steps.step1Desc')}
+            duration={t('aiProcess.steps.step1Duration')}
             accentGradient="linear-gradient(135deg, #007AFF 0%, #0051D5 100%)"
             icon={<Smartphone className="w-6 h-6" />}
             features={[
-              "Адаптивный дизайн",
-              "Быстрая загрузка",
-              "Полная интеграция с Telegram"
+              t('aiProcess.steps.step1Feature1'),
+              t('aiProcess.steps.step1Feature2'),
+              t('aiProcess.steps.step1Feature3')
             ]}
           />
 
           <ProcessStepPremium
             number="2"
-            title="Внедрение ИИ агента"
-            description="Интегрируем умного ассистента с пониманием контекста вашего бизнеса"
-            duration="3-5 дней"
+            title={t('aiProcess.steps.step2Title')}
+            description={t('aiProcess.steps.step2Desc')}
+            duration={t('aiProcess.steps.step2Duration')}
             accentGradient="linear-gradient(135deg, #BF5AF2 0%, #8E2DE2 100%)"
             icon={<Bot className="w-6 h-6" />}
             features={[
-              "Обучение на ваших данных",
-              "150+ языков",
-              "Умная аналитика"
+              t('aiProcess.steps.step2Feature1'),
+              t('aiProcess.steps.step2Feature2'),
+              t('aiProcess.steps.step2Feature3')
             ]}
           />
 
           <ProcessStepPremium
             number="3"
-            title="Настройка и обучение"
-            description="Обучаем систему вашим процессам и оптимизируем работу"
-            duration="2-3 дня"
+            title={t('aiProcess.steps.step3Title')}
+            description={t('aiProcess.steps.step3Desc')}
+            duration={t('aiProcess.steps.step3Duration')}
             accentGradient="linear-gradient(135deg, #FF9F0A 0%, #FF6B00 100%)"
             icon={<Zap className="w-6 h-6" />}
             features={[
-              "Тонкая настройка",
-              "Тестирование сценариев",
-              "Обучение команды"
+              t('aiProcess.steps.step3Feature1'),
+              t('aiProcess.steps.step3Feature2'),
+              t('aiProcess.steps.step3Feature3')
             ]}
           />
 
           <ProcessStepPremium
             number="4"
-            title="Запуск и поддержка"
-            description="Мягкий запуск с мониторингом и бесплатной поддержкой"
-            duration="7 дней"
+            title={t('aiProcess.steps.step4Title')}
+            description={t('aiProcess.steps.step4Desc')}
+            duration={t('aiProcess.steps.step4Duration')}
             accentGradient="linear-gradient(135deg, #34C759 0%, #30D158 100%)"
             icon={<Rocket className="w-6 h-6" />}
             features={[
-              "Постепенный запуск",
-              "Мониторинг 24/7",
-              "Месяц поддержки"
+              t('aiProcess.steps.step4Feature1'),
+              t('aiProcess.steps.step4Feature2'),
+              t('aiProcess.steps.step4Feature3')
             ]}
           />
 
         </section>
 
-        {/* Benefits - Glass Card */}
         <section className="px-6 py-8">
           <h2 
             className="text-center mb-8"
@@ -208,9 +200,9 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               lineHeight: '1.1'
             }}
           >
-            Что вы
+            {t('aiProcess.benefitsTitle1')}
             <br />
-            получите
+            {t('aiProcess.benefitsTitle2')}
           </h2>
           
           <div 
@@ -222,16 +214,15 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               boxShadow: 'var(--glass-shadow-style)'
             }}
           >
-            <BenefitItemPremium text="Telegram Mini App с премиум дизайном" />
-            <BenefitItemPremium text="ИИ агент с глубоким пониманием бизнеса" />
-            <BenefitItemPremium text="Автоматизация поддержки клиентов" />
-            <BenefitItemPremium text="Аналитика и инсайты в реальном времени" />
-            <BenefitItemPremium text="Месяц бесплатной технической поддержки" />
-            <BenefitItemPremium text="Регулярные обновления и улучшения" />
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit1')} />
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit2')} />
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit3')} />
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit4')} />
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit5')} />
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit6')} />
           </div>
         </section>
 
-        {/* Why Telegram - Feature Grid */}
         <section className="px-6 py-8">
           <h2 
             className="text-center mb-8"
@@ -243,31 +234,30 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               lineHeight: '1.1'
             }}
           >
-            Почему
+            {t('aiProcess.whyTelegramTitle1')}
             <br />
-            Telegram?
+            {t('aiProcess.whyTelegramTitle2')}
           </h2>
           
           <div className="space-y-4">
             <WhyFeatureCard
               icon="🌍"
-              title="900M+ активных пользователей"
-              description="Ваши клиенты уже здесь. Не нужно их убеждать установить новое приложение."
+              title={t('aiProcess.whyTelegram.feature1Title')}
+              description={t('aiProcess.whyTelegram.feature1Desc')}
             />
             <WhyFeatureCard
               icon="⚡️"
-              title="Мгновенный доступ"
-              description="Открывается прямо в Telegram. Без установки, без регистрации, без трения."
+              title={t('aiProcess.whyTelegram.feature2Title')}
+              description={t('aiProcess.whyTelegram.feature2Desc')}
             />
             <WhyFeatureCard
               icon="🔔"
-              title="Нативные уведомления"
-              description="100% доставка сообщений. Ваши клиенты всегда в курсе важных событий."
+              title={t('aiProcess.whyTelegram.feature3Title')}
+              description={t('aiProcess.whyTelegram.feature3Desc')}
             />
           </div>
         </section>
 
-        {/* CTA Section - Premium */}
         <section className="px-6 py-12">
           <div 
             className="rounded-[28px] p-8 text-center relative overflow-hidden"
@@ -278,7 +268,6 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               boxShadow: '0 20px 60px rgba(0, 122, 255, 0.2)'
             }}
           >
-            {/* Animated glow */}
             <div 
               className="absolute inset-0 opacity-30"
               style={{
@@ -297,7 +286,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                   marginBottom: '12px'
                 }}
               >
-                Готовы начать?
+                {t('aiProcess.ctaTitle')}
               </h3>
               
               <p 
@@ -308,9 +297,9 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                   marginBottom: '24px'
                 }}
               >
-                Обсудим ваш проект и рассчитаем
+                {t('aiProcess.ctaSubtitle1')}
                 <br />
-                точную стоимость за 15 минут
+                {t('aiProcess.ctaSubtitle2')}
               </p>
 
               <button
@@ -325,7 +314,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 data-testid="button-get-consultation"
               >
                 <span className="flex items-center justify-center gap-2">
-                  Получить консультацию
+                  {t('aiProcess.ctaButton')}
                   <ArrowRight className="w-5 h-5 transition-transform group-active:translate-x-1" />
                 </span>
               </button>
@@ -337,7 +326,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                   letterSpacing: '0.01em'
                 }}
               >
-                Бесплатная консультация · Расчёт стоимости · Без обязательств
+                {t('aiProcess.ctaFooter')}
               </p>
             </div>
           </div>
@@ -350,7 +339,6 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
 AIProcessPage.displayName = 'AIProcessPage';
 
-// Stat Badge Component
 const StatBadge = memo(({ number, label }: { number: string; label: string }) => (
   <div className="text-center">
     <div 
@@ -379,7 +367,6 @@ const StatBadge = memo(({ number, label }: { number: string; label: string }) =>
 ));
 StatBadge.displayName = 'StatBadge';
 
-// Premium Process Step Component
 const ProcessStepPremium = memo(({ 
   number,
   title,
@@ -407,7 +394,6 @@ const ProcessStepPremium = memo(({
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
     }}
   >
-    {/* Gradient accent line */}
     <div 
       className="absolute top-0 left-0 right-0 h-1 opacity-60"
       style={{
@@ -415,7 +401,6 @@ const ProcessStepPremium = memo(({
       }}
     />
 
-    {/* Icon Badge */}
     <div className="flex items-start gap-4 mb-4">
       <div 
         className="flex-shrink-0 flex items-center justify-center rounded-2xl"
@@ -467,7 +452,6 @@ const ProcessStepPremium = memo(({
           {description}
         </p>
 
-        {/* Features list */}
         <div className="space-y-2">
           {features.map((feature, index) => (
             <div key={index} className="flex items-center gap-2">
@@ -490,7 +474,6 @@ const ProcessStepPremium = memo(({
       </div>
     </div>
 
-    {/* Large number background */}
     <div 
       className="absolute -bottom-4 -right-4 opacity-5 select-none pointer-events-none"
       style={{
@@ -506,7 +489,6 @@ const ProcessStepPremium = memo(({
 ));
 ProcessStepPremium.displayName = 'ProcessStepPremium';
 
-// Premium Benefit Item
 const BenefitItemPremium = memo(({ text }: { text: string }) => (
   <div className="flex items-center gap-3 group">
     <div 
@@ -535,7 +517,6 @@ const BenefitItemPremium = memo(({ text }: { text: string }) => (
 ));
 BenefitItemPremium.displayName = 'BenefitItemPremium';
 
-// Why Feature Card
 const WhyFeatureCard = memo(({ 
   icon, 
   title, 

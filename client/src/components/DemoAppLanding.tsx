@@ -2,6 +2,7 @@ import { ArrowLeft, Star, Play, ExternalLink, Share2 } from "lucide-react";
 import { demoApps } from "@/data/demoApps";
 import { useTelegram } from "@/hooks/useTelegram";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface DemoAppLandingProps {
   demoId: string;
@@ -10,6 +11,7 @@ interface DemoAppLandingProps {
 export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
   const { hapticFeedback, shareApp } = useTelegram();
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   // Find the demo app
   const demoApp = demoApps.find(app => app.id === demoId);
@@ -18,15 +20,15 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
     return (
       <div className="min-h-screen bg-system-background flex items-center justify-center">
         <div className="max-w-md mx-auto px-4 text-center">
-          <h2 className="ios-title2 font-bold mb-2">Приложение не найдено</h2>
+          <h2 className="ios-title2 font-bold mb-2">{t('demo.appNotFound')}</h2>
           <p className="ios-body text-secondary-label mb-4">
-            Запрошенное приложение не существует
+            {t('demo.appNotExist')}
           </p>
           <button
             onClick={() => window.location.hash = '/'}
             className="ios-button-filled"
           >
-            На главную
+            {t('demo.goHome')}
           </button>
         </div>
       </div>
@@ -46,10 +48,10 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
   const handleShare = () => {
     console.log('[DemoApp] Share clicked:', demoApp.title);
     hapticFeedback?.medium();
-    shareApp(`Посмотри демо "${demoApp.title}" в Web4TG!`);
+    shareApp(t('demo.shareMessage').replace('{title}', demoApp.title));
     toast({
-      title: "Поделиться",
-      description: "Открываю окно для отправки...",
+      title: t('demo.share'),
+      description: t('demo.shareOpenWindow'),
     });
   };
 
@@ -64,7 +66,7 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
             <button
               onClick={goBack}
               className="ios-button-plain"
-              aria-label="Назад"
+              aria-label={t('common.back')}
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -78,7 +80,7 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
               <button
                 onClick={handleShare}
                 className="p-1 rounded-full hover-elevate active-elevate-2"
-                aria-label="Поделиться"
+                aria-label={t('demo.share')}
                 data-testid="button-share-demo"
               >
                 <Share2 className="w-5 h-5" />
@@ -106,7 +108,7 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
             <div className="relative h-full flex items-center justify-center text-center text-white">
               <div className="max-w-md mx-auto px-4">
                 <h2 className="ios-title1 font-bold mb-2">
-                  {home.hero.title || `Добро пожаловать в ${demoApp.title}`}
+                  {home.hero.title || t('demo.welcomeTo').replace('{title}', demoApp.title)}
                 </h2>
                 <p className="ios-body opacity-90">
                   {home.hero.subtitle || demoApp.description}
@@ -153,7 +155,7 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
       {home?.services && home.services.length > 0 && (
         <section className="pb-8">
           <div className="max-w-md mx-auto px-4">
-            <h3 className="ios-title2 font-bold mb-4">Основные функции</h3>
+            <h3 className="ios-title2 font-bold mb-4">{t('demo.mainFeatures')}</h3>
             <div className="space-y-3">
               {home.services.map((service) => (
                 <div 
@@ -191,24 +193,24 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
         <div className="max-w-md mx-auto px-4">
           <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
             <div className="text-center mb-4">
-              <h3 className="ios-title2 font-bold mb-2">О демо-приложении</h3>
+              <h3 className="ios-title2 font-bold mb-2">{t('demo.aboutDemo')}</h3>
               <p className="ios-body text-secondary-label">
                 {demoApp.description}
               </p>
             </div>
             
             <div className="flex items-center justify-between py-3 border-t border-separator">
-              <span className="ios-body text-secondary-label">Категория</span>
+              <span className="ios-body text-secondary-label">{t('demo.category')}</span>
               <span className="ios-body font-medium">{demoApp.category}</span>
             </div>
             
             <div className="flex items-center justify-between py-3 border-t border-separator">
-              <span className="ios-body text-secondary-label">Разработчик</span>
+              <span className="ios-body text-secondary-label">{t('demo.developer')}</span>
               <span className="ios-body font-medium">{demoApp.creator}</span>
             </div>
             
             <div className="flex items-center justify-between py-3 border-t border-separator">
-              <span className="ios-body text-secondary-label">Лайки</span>
+              <span className="ios-body text-secondary-label">{t('demo.likes')}</span>
               <div className="flex items-center space-x-1">
                 <span className="ios-body font-medium">{demoApp.likes}</span>
                 <Star className="w-4 h-4 text-system-yellow fill-current" />
@@ -227,12 +229,12 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
               className="flex-1 ios-button-filled flex items-center justify-center space-x-2"
             >
               <Play className="w-4 h-4" />
-              <span>Открыть демо</span>
+              <span>{t('demo.openDemo')}</span>
             </button>
             <button
               onClick={() => window.location.hash = '/projects'}
               className="px-4 ios-button-tinted flex items-center justify-center"
-              aria-label="Все проекты"
+              aria-label={t('demo.allProjects')}
             >
               <ExternalLink className="w-4 h-4" />
             </button>

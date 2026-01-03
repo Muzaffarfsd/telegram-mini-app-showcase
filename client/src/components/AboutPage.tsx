@@ -1,10 +1,43 @@
 import { ArrowRight, Zap, Shield, Clock, Users, Code, Rocket } from "lucide-react";
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface AboutPageProps {
   onNavigate: (section: string) => void;
 }
 
 export default function AboutPage({ onNavigate }: AboutPageProps) {
+  const { t } = useLanguage();
+
+  const principles = [
+    { 
+      icon: Shield, 
+      title: t('about.quality'), 
+      desc: t('about.qualityDesc')
+    },
+    { 
+      icon: Clock, 
+      title: t('about.speed'), 
+      desc: t('about.speedDesc')
+    },
+    { 
+      icon: Code, 
+      title: t('about.technology'), 
+      desc: t('about.technologyDesc')
+    },
+    { 
+      icon: Users, 
+      title: t('about.partnership'), 
+      desc: t('about.partnershipDesc')
+    }
+  ];
+
+  const stats = [
+    { value: '50+', label: t('about.projectsLaunched') },
+    { value: '14', label: t('about.averageDays') },
+    { value: '127%', label: t('about.salesGrowth') },
+    { value: '24/7', label: t('about.clientSupport') }
+  ];
+
   return (
     <div 
       className="min-h-screen pb-32 smooth-scroll-page"
@@ -17,7 +50,6 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
     >
       <div className="max-w-md mx-auto">
         
-        {/* HERO SECTION */}
         <header className="px-7 pt-8 pb-16">
           <p 
             className="scroll-fade-in"
@@ -30,7 +62,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               marginBottom: '24px'
             }}
           >
-            О студии
+            {t('about.title')}
           </p>
           
           <h1 
@@ -44,11 +76,11 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               color: 'var(--text-primary)'
             }}
           >
-            Мы создаём
+            {t('about.heroTitle1')}
             <br />
-            <span style={{ color: 'var(--accent-primary)' }}>будущее продаж</span>
+            <span style={{ color: 'var(--accent-primary)' }}>{t('about.heroTitle2')}</span>
             <br />
-            в Telegram.
+            {t('about.heroTitle3')}
           </h1>
           
           <p 
@@ -63,17 +95,15 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               maxWidth: '320px'
             }}
           >
-            Web4TG Studio — команда разработчиков, специализирующихся на премиальных Telegram Mini Apps для бизнеса.
+            {t('about.heroDesc')}
           </p>
         </header>
 
-        {/* Hairline */}
         <div 
           className="mx-7"
           style={{ height: '1px', background: 'var(--divider)' }}
         />
 
-        {/* MISSION SECTION */}
         <section className="px-7 py-12">
           <p 
             style={{
@@ -85,7 +115,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               marginBottom: '16px'
             }}
           >
-            Миссия
+            {t('about.mission')}
           </p>
           
           <div 
@@ -104,12 +134,11 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               lineHeight: '1.5',
               fontStyle: 'italic'
             }}>
-              «Сделать передовые технологии доступными для каждого бизнеса — от локальной кофейни до федеральной сети.»
+              {t('about.missionText')}
             </p>
           </div>
         </section>
 
-        {/* VALUES SECTION */}
         <section className="px-7 py-8">
           <p 
             style={{
@@ -121,32 +150,11 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               marginBottom: '20px'
             }}
           >
-            Наши принципы
+            {t('about.principles')}
           </p>
           
           <div className="space-y-4">
-            {[
-              { 
-                icon: Shield, 
-                title: 'Качество без компромиссов', 
-                desc: 'Каждое приложение проходит 47 проверок перед запуском'
-              },
-              { 
-                icon: Clock, 
-                title: 'Скорость', 
-                desc: 'От идеи до работающего MVP за 14 дней'
-              },
-              { 
-                icon: Code, 
-                title: 'Технологичность', 
-                desc: 'React, TypeScript, современный стек 2025 года'
-              },
-              { 
-                icon: Users, 
-                title: 'Партнёрство', 
-                desc: 'Мы не подрядчики — мы ваши технические партнёры'
-              }
-            ].map((item, index) => (
+            {principles.map((item, index) => (
               <div 
                 key={index}
                 style={{
@@ -193,7 +201,6 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
           </div>
         </section>
 
-        {/* STATS SECTION */}
         <section className="px-7 py-8">
           <p 
             style={{
@@ -205,7 +212,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               marginBottom: '20px'
             }}
           >
-            В цифрах
+            {t('about.inNumbers')}
           </p>
           
           <div 
@@ -215,12 +222,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               gap: '12px'
             }}
           >
-            {[
-              { value: '50+', label: 'проектов запущено' },
-              { value: '14', label: 'дней средний срок' },
-              { value: '127%', label: 'средний рост продаж' },
-              { value: '24/7', label: 'поддержка клиентов' }
-            ].map((stat, index) => (
+            {stats.map((stat, index) => (
               <div 
                 key={index}
                 style={{
@@ -252,7 +254,6 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
           </div>
         </section>
 
-        {/* CTA SECTION */}
         <section className="px-7 py-12">
           <div 
             style={{
@@ -283,7 +284,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               color: 'var(--text-primary)',
               marginBottom: '8px'
             }}>
-              Готовы начать?
+              {t('about.readyToStart')}
             </h3>
             
             <p style={{
@@ -292,9 +293,9 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               marginBottom: '20px',
               lineHeight: '1.5'
             }}>
-              Обсудим ваш проект и подберём
+              {t('about.discussProject')}
               <br />
-              оптимальное решение
+              {t('about.optimalSolution')}
             </p>
             
             <button
@@ -315,13 +316,12 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               }}
               data-testid="button-cta-constructor"
             >
-              Заказать проект
+              {t('about.orderProject')}
               <ArrowRight size={18} />
             </button>
           </div>
         </section>
 
-        {/* CONTACT SECTION */}
         <section className="px-7 py-8 pb-16">
           <p 
             style={{
@@ -333,7 +333,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
               marginBottom: '16px'
             }}
           >
-            Контакты
+            {t('about.contact')}
           </p>
           
           <div 
@@ -385,14 +385,14 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
                 color: 'var(--text-tertiary)',
                 marginBottom: '4px'
               }}>
-                Время работы
+                {t('about.workingHours')}
               </p>
               <p style={{
                 fontSize: '15px',
                 fontWeight: 500,
                 color: 'var(--text-primary)'
               }}>
-                Пн-Пт, 10:00 — 19:00 МСК
+                {t('about.workingHoursValue')}
               </p>
             </div>
           </div>

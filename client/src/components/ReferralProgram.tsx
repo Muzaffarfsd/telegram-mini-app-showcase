@@ -6,6 +6,7 @@ import { BronzeMedal, SilverMedal, GoldMedal, PlatinumMedal } from '@/components
 import { useTelegram } from '@/hooks/useTelegram';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ReferralStats {
   referralCode: string;
@@ -20,8 +21,13 @@ interface ReferralProgramProps {
   className?: string;
 }
 
-// Memoized Tier Level Component
-const TierLevel = memo(({ level, isActive }: { level: any, isActive: boolean }) => {
+interface TierLevelProps {
+  level: { tier: string; referrals: string; commission: string; color: string };
+  isActive: boolean;
+  t: (key: string) => string;
+}
+
+const TierLevel = memo(({ level, isActive, t }: TierLevelProps) => {
   const getTierMedalSmall = useCallback((tier: string) => {
     switch (tier) {
       case 'Bronze':
@@ -57,7 +63,7 @@ const TierLevel = memo(({ level, isActive }: { level: any, isActive: boolean }) 
         </motion.div>
         <div>
           <div className="text-white font-semibold">{level.tier}</div>
-          <div className="text-white/60 text-xs">{level.referrals} рефералов</div>
+          <div className="text-white/60 text-xs">{level.referrals} {t('referral.referrals')}</div>
         </div>
       </div>
       <div className="text-emerald-400 font-bold">
@@ -68,7 +74,6 @@ const TierLevel = memo(({ level, isActive }: { level: any, isActive: boolean }) 
 });
 TierLevel.displayName = 'TierLevel';
 
-// Memoized Stats Card Component
 const StatsCard = memo(({ icon: Icon, value, label, subtext, iconBg, textColor }: {
   icon: any,
   value: string | number,
@@ -99,13 +104,13 @@ const StatsCard = memo(({ icon: Icon, value, label, subtext, iconBg, textColor }
 StatsCard.displayName = 'StatsCard';
 
 export function ReferralProgram({ className = '' }: ReferralProgramProps) {
+  const { t } = useLanguage();
   const { user, initData, shareApp, inviteFriend } = useTelegram();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [showReferralInput, setShowReferralInput] = useState(false);
   const [referralCodeInput, setReferralCodeInput] = useState('');
 
-  // Загрузить статистику из API
   const { data: statsData, isLoading, refetch } = useQuery({
     queryKey: ['/api/referrals/stats', user?.id],
     queryFn: async () => {
@@ -135,7 +140,6 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
     tier: 'Bronze'
   };
 
-  // Проверить, есть ли код в URL (Telegram start parameter)
   useEffect(() => {
     if (!statsData && user?.id) {
       const urlParams = new URLSearchParams(window.location.search);
@@ -147,7 +151,6 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
     }
   }, [statsData, user?.id]);
 
-  // Применить реферальный код
   const applyReferralCode = useCallback(async () => {
     if (!user?.id || !referralCodeInput || !initData) return;
 
@@ -170,25 +173,24 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
       setShowReferralInput(false);
       refetch();
       toast({
-        title: '✅ Реферальный код применен!',
-        description: 'Вы получили приветственный бонус',
+        title: t('referral.codeApplied'),
+        description: t('referral.welcomeBonus'),
       });
     } catch (error) {
       console.error('Error applying referral code:', error);
       toast({
-        title: '❌ Ошибка',
-        description: 'Не удалось применить код',
+        title: t('referral.error'),
+        description: t('referral.applyError'),
         variant: 'destructive',
       });
     }
-  }, [user, referralCodeInput, initData, refetch, toast]);
+  }, [user, referralCodeInput, initData, refetch, toast, t]);
 
-  // Memoized handlers
   const copyReferralCode = useCallback(() => {
     if (!stats.referralCode) {
       toast({
-        title: "Ошибка",
-        description: "Реферальный код не найден",
+        title: t('referral.error'),
+        description: t('referral.codeNotFound'),
         variant: "destructive",
       });
       return;
@@ -199,18 +201,18 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
     setTimeout(() => setCopied(false), 2000);
     
     toast({
-      title: "Код скопирован",
-      description: `Ваш реферальный код: ${stats.referralCode}`,
+      title: t('referral.codeCopied'),
+      description: `${t('referral.yourCodeIs')} ${stats.referralCode}`,
     });
-  }, [stats.referralCode, toast]);
+  }, [stats.referralCode, toast, t]);
 
   const shareReferralLink = useCallback(() => {
     console.log('[Referral] Share link clicked:', stats.referralCode);
     
     if (!stats.referralCode) {
       toast({
-        title: "Ошибка",
-        description: "Реферальный код не найден. Попробуйте обновить страницу.",
+        title: t('referral.error'),
+        description: t('referral.codeNotFound'),
         variant: "destructive",
       });
       return;
@@ -220,19 +222,18 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
     
     if (result.success) {
       toast({
-        title: "Приглашение отправлено",
-        description: `Ваш код ${stats.referralCode} добавлен в ссылку https://t.me/w4tg_bot/w4tg`,
+        title: t('referral.inviteSent'),
+        description: `${stats.referralCode} ${t('referral.codeAddedToLink')} https://t.me/w4tg_bot/w4tg`,
       });
     } else {
       toast({
-        title: "Ошибка",
-        description: "Не удалось открыть Telegram. Скопируйте код вручную.",
+        title: t('referral.error'),
+        description: t('referral.telegramError'),
         variant: "destructive",
       });
     }
-  }, [stats.referralCode, inviteFriend, toast]);
+  }, [stats.referralCode, inviteFriend, toast, t]);
 
-  // Memoized tier color
   const tierColor = useMemo(() => {
     switch (stats.tier) {
       case 'Bronze':
@@ -246,7 +247,6 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
     }
   }, [stats.tier]);
 
-  // Memoized tier benefits
   const benefits = useMemo(() => {
     switch (stats.tier) {
       case 'Bronze':
@@ -260,7 +260,6 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
     }
   }, [stats.tier]);
 
-  // Memoized tier medal
   const tierMedal = useMemo(() => {
     switch (stats.tier) {
       case 'Bronze':
@@ -274,7 +273,6 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
     }
   }, [stats.tier]);
 
-  // Memoized tier levels
   const tierLevels = useMemo(() => [
     { tier: 'Bronze', referrals: '0-9', commission: '10%', color: 'amber-700' },
     { tier: 'Silver', referrals: '10-29', commission: '15%', color: 'gray-400' },
@@ -282,13 +280,12 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
     { tier: 'Platinum', referrals: '100+', commission: '30%', color: 'purple-500' },
   ], []);
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black text-white pb-24 flex items-center justify-center" style={{ paddingTop: '140px' }}>
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-white/60">Загрузка...</div>
+          <div className="text-white/60">{t('referral.loading')}</div>
         </div>
       </div>
     );
@@ -297,7 +294,6 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
   return (
     <div className="min-h-screen bg-black text-white pb-24" style={{ paddingTop: '140px' }}>
       <div className={cn('max-w-md mx-auto px-4 py-6 space-y-6', className)} data-testid="referral-program">
-        {/* Header */}
         <div className="text-center">
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -306,15 +302,14 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
         >
           <Users className="w-6 h-6 text-emerald-400" />
           <h2 className="text-2xl font-bold text-white">
-            Реферальная программа
+            {t('referral.title')}
           </h2>
         </motion.div>
         <p className="text-white/60 text-sm">
-          Приглашайте друзей и зарабатывайте вместе
+          {t('referral.subtitle')}
         </p>
       </div>
 
-      {/* Tier Badge */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -334,7 +329,7 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
             </motion.div>
             <div>
               <div className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-1">
-                Ваш уровень
+                {t('referral.yourLevel')}
               </div>
               <div className="text-2xl font-bold text-white">
                 {stats.tier}
@@ -343,7 +338,7 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
           </div>
           <div className="text-right">
             <div className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-1">
-              Комиссия
+              {t('referral.commission')}
             </div>
             <div className="text-2xl font-bold text-white">
               {benefits.commission}%
@@ -353,17 +348,16 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
 
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="glass-subtle rounded-xl p-3 text-center">
-            <div className="text-white/70 text-xs mb-1">Вы получаете</div>
-            <div className="text-white font-bold">100 🪙</div>
+            <div className="text-white/70 text-xs mb-1">{t('referral.youReceive')}</div>
+            <div className="text-white font-bold">100</div>
           </div>
           <div className="glass-subtle rounded-xl p-3 text-center">
-            <div className="text-white/70 text-xs mb-1">Друг получает</div>
-            <div className="text-white font-bold">50 🪙</div>
+            <div className="text-white/70 text-xs mb-1">{t('referral.friendReceives')}</div>
+            <div className="text-white font-bold">50</div>
           </div>
         </div>
       </motion.div>
 
-      {/* Referral Code */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -372,10 +366,10 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
       >
         <div className="text-center mb-4">
           <h3 className="text-lg font-bold text-white mb-1">
-            Ваш реферальный код
+            {t('referral.yourCode')}
           </h3>
           <p className="text-sm text-white/60">
-            Поделитесь кодом с друзьями
+            {t('referral.shareCode')}
           </p>
         </div>
 
@@ -409,11 +403,10 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
           data-testid="button-share-link"
         >
           <Share2 className="w-5 h-5" />
-          Поделиться ссылкой
+          {t('referral.shareLink')}
         </button>
       </motion.div>
 
-      {/* Stats Grid */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -423,22 +416,21 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
         <StatsCard
           icon={Users}
           value={stats.totalReferrals}
-          label="Всего рефералов"
-          subtext={`${stats.activeReferrals} активных`}
+          label={t('referral.totalReferrals')}
+          subtext={`${stats.activeReferrals} ${t('referral.active')}`}
           iconBg="bg-emerald-500/20"
           textColor="text-emerald-400"
         />
         <StatsCard
           icon={Gift}
-          value={`${stats.totalEarnings.toLocaleString()} 🪙`}
-          label="Всего заработано"
-          subtext={`От ${stats.totalReferrals} рефералов`}
+          value={`${stats.totalEarnings.toLocaleString()}`}
+          label={t('referral.totalEarned')}
+          subtext={`${t('referral.fromReferrals')} ${stats.totalReferrals}`}
           iconBg="bg-amber-500/20"
           textColor="text-amber-400"
         />
       </motion.div>
 
-      {/* How it Works */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -447,7 +439,7 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
       >
         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-emerald-400" />
-          Как это работает
+          {t('referral.howItWorks')}
         </h3>
         
         <div className="space-y-4">
@@ -457,10 +449,10 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
             </div>
             <div>
               <div className="text-white font-semibold mb-1">
-                Поделитесь кодом
+                {t('referral.step1Title')}
               </div>
               <div className="text-white/60 text-sm">
-                Отправьте друзьям ваш уникальный реферальный код
+                {t('referral.step1Desc')}
               </div>
             </div>
           </div>
@@ -471,10 +463,10 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
             </div>
             <div>
               <div className="text-white font-semibold mb-1">
-                Друг регистрируется
+                {t('referral.step2Title')}
               </div>
               <div className="text-white/60 text-sm">
-                Ваш друг вводит код при регистрации и получает 50 🪙
+                {t('referral.step2Desc')} 50
               </div>
             </div>
           </div>
@@ -485,17 +477,16 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
             </div>
             <div>
               <div className="text-white font-semibold mb-1">
-                Получайте вознаграждения
+                {t('referral.step3Title')}
               </div>
               <div className="text-white/60 text-sm">
-                Вы получаете 100 🪙 за каждого друга
+                {t('referral.step3Desc')} 100
               </div>
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Tier Levels */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -503,7 +494,7 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
         className="glass-subtle rounded-2xl p-6"
       >
         <h3 className="text-lg font-bold text-white mb-4">
-          Уровни партнёра
+          {t('referral.partnerLevels')}
         </h3>
         
         <div className="space-y-3">
@@ -512,12 +503,12 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
               key={level.tier}
               level={level}
               isActive={stats.tier === level.tier}
+              t={t}
             />
           ))}
         </div>
       </motion.div>
 
-      {/* Кнопка для ввода реферального кода (для пользователей без кода) */}
       {!statsData?.referredByCode && stats.totalReferrals === 0 && (
         <motion.button
           initial={{ opacity: 0, y: 20 }}
@@ -527,12 +518,11 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
           className="w-full px-6 py-3 rounded-xl font-semibold text-white bg-white/10 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105 active:scale-95"
           data-testid="button-enter-code"
         >
-          Есть реферальный код?
+          {t('referral.haveCode')}
         </motion.button>
       )}
     </div>
 
-    {/* Модальное окно для ввода реферального кода */}
     {showReferralInput && (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <motion.div
@@ -542,7 +532,7 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold text-white">
-              Введите реферальный код
+              {t('referral.enterCode')}
             </h3>
             <button
               onClick={() => setShowReferralInput(false)}
@@ -554,7 +544,7 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
           </div>
 
           <p className="text-white/60 text-sm mb-4">
-            Если у вас есть реферальный код от друга, введите его ниже, чтобы получить приветственный бонус!
+            {t('referral.enterCodeDesc')}
           </p>
 
           <div className="space-y-4">
@@ -573,7 +563,7 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
                 className="flex-1 px-6 py-3 rounded-xl font-semibold text-white bg-white/10 border border-white/20 hover:bg-white/15 transition-all duration-300"
                 data-testid="button-skip"
               >
-                Пропустить
+                {t('referral.skip')}
               </button>
               <button
                 onClick={applyReferralCode}
@@ -581,7 +571,7 @@ export function ReferralProgram({ className = '' }: ReferralProgramProps) {
                 className="flex-1 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 data-testid="button-apply-code"
               >
-                Применить
+                {t('referral.apply')}
               </button>
             </div>
           </div>

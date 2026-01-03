@@ -140,13 +140,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="text-[17px] leading-[1.5]"
                 style={{ color: 'var(--text-tertiary)' }}
               >
-                WB, Ozon, Яндекс Маркет — комиссии от 15 до 25%, штрафы, чужие правила.
+                {t('showcase.heroDescription')}
               </p>
               <p 
                 className="text-[17px] leading-[1.5] mt-3"
                 style={{ color: 'var(--text-tertiary)' }}
               >
-                Хватит кормить посредников — продавайте напрямую через <span style={{ color: 'var(--cta-background)', whiteSpace: 'nowrap' }}>своё приложение</span>.
+                {t('showcase.heroDescription2')} <span style={{ color: 'var(--cta-background)', whiteSpace: 'nowrap' }}>{t('showcase.heroAccent2')}</span>.
               </p>
             </div>
 
@@ -159,7 +159,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 data-testid="cta-primary"
               >
                 <span className="text-[15px] font-semibold" style={{ color: 'var(--cta-foreground)' }}>
-                  Заказать проект
+                  {t('showcase.orderProject')}
                 </span>
                 <ArrowRight className="w-4 h-4" style={{ color: 'var(--cta-foreground)' }} />
               </m.button>
@@ -174,7 +174,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 data-testid="cta-demo"
               >
                 <span className="text-[15px] font-medium" style={{ color: 'var(--cta-secondary-text)' }}>
-                  Открыть приложение
+                  {t('showcase.openApp')}
                 </span>
               </m.button>
             </div>
@@ -191,7 +191,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   <AnimatedCounter value={127} suffix="+" delay={0.3} />
                 </div>
                 <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'var(--text-tertiary)' }}>
-                  клиентов
+                  {t('showcase.clients')}
                 </div>
               </m.div>
               <m.div
@@ -202,10 +202,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 style={{ backgroundColor: 'var(--card-bg)' }}
               >
                 <div className="text-[26px] font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  <AnimatedCounter value={24} suffix="ч" delay={0.4} />
+                  <AnimatedCounter value={24} suffix={t('showcase.hours')} delay={0.4} />
                 </div>
                 <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'var(--text-tertiary)' }}>
-                  до запуска
+                  {t('showcase.toLaunch')}
                 </div>
               </m.div>
               <m.div
@@ -219,7 +219,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   +<AnimatedCounter value={300} suffix="%" delay={0.5} />
                 </div>
                 <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'color-mix(in srgb, var(--cta-background) 60%, transparent)' }}>
-                  к продажам
+                  {t('showcase.toSales')}
                 </div>
               </m.div>
             </div>
@@ -237,7 +237,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               className="text-[13px] font-medium tracking-[0.08em] uppercase transition-colors duration-300"
               style={{ color: 'var(--text-tertiary)' }}
             >
-              Проекты
+              {t('showcase.projectsTitle')}
             </h2>
             <button
               onClick={() => handleNavigate('projects')}
@@ -245,7 +245,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               style={{ color: 'var(--text-tertiary)' }}
               data-testid="view-all"
             >
-              Все <ArrowUpRight className="w-3.5 h-3.5" />
+              {t('showcase.all')} <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
@@ -297,13 +297,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                         Watch Store
                       </h3>
                       <p className="text-[14px] text-white/55">
-                        Премиум часы, каталог, оплата
+                        {t('showcase.watchStoreDesc')}
                       </p>
                     </div>
                     <div className="text-right">
                       <div className="text-[24px] font-bold" style={{ color: 'var(--cta-background)' }}>+340%</div>
                       <div className="text-[11px] uppercase tracking-wider text-white/40">
-                        продажи
+                        {t('showcase.sales')}
                       </div>
                     </div>
                   </div>
@@ -314,7 +314,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                     onClick={(e) => { e.stopPropagation(); handleOpenDemo('luxury-watches'); }}
                     data-testid="btn-open-watches"
                   >
-                    Открыть
+                    {t('showcase.open')}
                   </m.button>
                 </div>
               </div>
@@ -352,7 +352,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   Sneaker Store
                 </div>
                 <div className="text-[12px] mb-2 text-white/50">
-                  Лимитки, предзаказы
+                  {t('showcase.sneakerStoreDesc')}
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="text-[16px] font-bold" style={{ color: 'var(--cta-background)' }}>+280%</div>
@@ -395,10 +395,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <div className="text-[18px] font-semibold mb-0.5 text-white">
-                  Премиум бренд
+                  {t('showcase.premiumBrand')}
                 </div>
                 <div className="text-[12px] mb-2 text-white/50">
-                  Персональный подбор
+                  {t('showcase.personalSelection')}
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="text-[16px] font-bold" style={{ color: 'var(--cta-background)' }}>+195%</div>
@@ -441,10 +441,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <div className="text-[16px] font-semibold mb-0.5 text-white">
-                  Ресторан
+                  {t('showcase.restaurant')}
                 </div>
                 <div className="text-[11px] text-white/50">
-                  Меню, доставка
+                  {t('showcase.menuDelivery')}
                 </div>
               </div>
             </m.div>
@@ -467,10 +467,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <ArrowRight className="w-5 h-5" style={{ color: 'var(--text-primary)' }} />
               </div>
               <div className="text-[14px] font-medium" style={{ color: 'var(--text-secondary)' }}>
-                Все проекты
+                {t('showcase.allProjects')}
               </div>
               <div className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>
-                50+ кейсов
+                {t('showcase.cases')}
               </div>
             </m.div>
           </div>
@@ -487,15 +487,15 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             className="text-[13px] font-medium tracking-[0.08em] uppercase mb-6 transition-colors duration-300"
             style={{ color: 'var(--text-tertiary)' }}
           >
-            Включено
+            {t('showcase.includedTitle')}
           </h2>
           
           <div className="grid grid-cols-2 gap-3">
             {[
-              { title: 'Оплата', desc: 'Stripe, ЮKassa', tonal: 'ios26-tonal-blue', icon: '💳' },
-              { title: 'AI-бот', desc: 'Поддержка 24/7', tonal: 'ios26-tonal-purple', icon: '🤖' },
-              { title: 'Аналитика', desc: 'Realtime', tonal: 'ios26-tonal-green', icon: '📊' },
-              { title: 'CRM', desc: 'Заказы', tonal: 'ios26-tonal-orange', icon: '📋' },
+              { title: t('showcase.payment'), desc: t('showcase.paymentDesc'), tonal: 'ios26-tonal-blue', icon: '💳' },
+              { title: t('showcase.aiBot'), desc: t('showcase.aiBotDesc'), tonal: 'ios26-tonal-purple', icon: '🤖' },
+              { title: t('showcase.analytics'), desc: 'Realtime', tonal: 'ios26-tonal-green', icon: '📊' },
+              { title: t('showcase.crm'), desc: t('showcase.crmDesc'), tonal: 'ios26-tonal-orange', icon: '📋' },
             ].map((item, i) => (
               <div 
                 key={i}
@@ -526,21 +526,21 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
         >
           <div className="grid grid-cols-3 gap-4 mb-12">
             <div className="text-center">
-              <div className="text-[28px] font-semibold mb-0.5 transition-colors duration-300" style={{ color: 'var(--cta-background)' }}>24ч</div>
+              <div className="text-[28px] font-semibold mb-0.5 transition-colors duration-300" style={{ color: 'var(--cta-background)' }}>24{t('showcase.hours')}</div>
               <div className="text-[10px] uppercase tracking-wider transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
-                запуск
+                {t('showcase.launch')}
               </div>
             </div>
             <div className="text-center">
               <div className="text-[28px] font-semibold mb-0.5 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>127+</div>
               <div className="text-[10px] uppercase tracking-wider transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
-                проектов
+                {t('showcase.projects')}
               </div>
             </div>
             <div className="text-center">
               <div className="text-[28px] font-semibold mb-0.5 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>4.9</div>
               <div className="text-[10px] uppercase tracking-wider transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
-                рейтинг
+                {t('showcase.rating')}
               </div>
             </div>
           </div>
@@ -555,10 +555,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-[18px] font-semibold mb-0.5" style={{ color: 'var(--cta-foreground)' }}>
-                  Обсудить проект
+                  {t('showcase.discussProject')}
                 </div>
                 <div className="text-[13px]" style={{ color: 'color-mix(in srgb, var(--cta-foreground) 60%, transparent)' }}>
-                  Бесплатная консультация
+                  {t('showcase.freeConsultation')}
                 </div>
               </div>
               <div 

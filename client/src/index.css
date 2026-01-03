@@ -3,13 +3,8 @@
 @import '@fontsource/inter/latin-400.css';
 @import '@fontsource/inter/latin-600.css';
 @import '@fontsource/inter/latin-700.css';
-/* Premium fonts for English language */
-@import '@fontsource/playfair-display/latin-400.css';
-@import '@fontsource/playfair-display/latin-600.css';
-@import '@fontsource/playfair-display/latin-700.css';
-@import '@fontsource/montserrat/latin-400.css';
-@import '@fontsource/montserrat/latin-500.css';
-@import '@fontsource/montserrat/latin-600.css';
+/* Satoshi - Best Modern Font 2025 (via Fontshare CDN) */
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
 /* Apple Quality Standards */
 @import './styles/apple.css';
 
@@ -17,8 +12,9 @@
 :root {
   --font-heading-ru: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body-ru: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-heading-en: 'Playfair Display', Georgia, serif;
-  --font-body-en: 'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Satoshi - Award-winning modernist sans-serif, best font 2025 */
+  --font-heading-en: 'Satoshi', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body-en: 'Satoshi', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Russian language - Inter for everything */
@@ -35,7 +31,7 @@ html.lang-ru h1, html.lang-ru h2, html.lang-ru h3, html.lang-ru h4, html.lang-ru
   font-family: var(--font-heading-ru);
 }
 
-/* English language - Premium fonts */
+/* English language - Satoshi Premium (Best Font 2025) */
 html.lang-en {
   --font-heading: var(--font-heading-en);
   --font-body: var(--font-body-en);
@@ -43,18 +39,20 @@ html.lang-en {
 
 html.lang-en body {
   font-family: var(--font-body-en);
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
+  font-weight: 400;
 }
 
 html.lang-en h1, html.lang-en h2, html.lang-en h3 {
   font-family: var(--font-heading-en);
-  letter-spacing: -0.02em;
-  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-weight: 700;
 }
 
 html.lang-en h4, html.lang-en h5, html.lang-en h6 {
   font-family: var(--font-body-en);
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 
 @tailwind base;

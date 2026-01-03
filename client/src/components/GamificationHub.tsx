@@ -18,6 +18,7 @@ import {
 } from 'react-icons/gi';
 import { useMemo, memo } from 'react';
 import { useGamification, type DailyTask, type Achievement } from '@/hooks/useGamification';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -118,7 +119,7 @@ const AchievementItem = memo(({ achievement, index, iconMap }: {
 AchievementItem.displayName = 'AchievementItem';
 
 // Memoized Leaderboard Item Component
-const LeaderboardItem = memo(({ entry, position }: { entry: any, position: number }) => {
+const LeaderboardItem = memo(({ entry, position, levelLabel }: { entry: any, position: number, levelLabel: string }) => {
   const getRankMedal = () => {
     if (position === 0) return <GoldMedal className="w-6 h-6" />;
     if (position === 1) return <SilverMedal className="w-6 h-6" />;
@@ -144,7 +145,7 @@ const LeaderboardItem = memo(({ entry, position }: { entry: any, position: numbe
         </div>
         <div>
           <div className="text-white font-semibold">{entry.name}</div>
-          <div className="text-white/60 text-xs">Уровень {entry.level}</div>
+          <div className="text-white/60 text-xs">{levelLabel} {entry.level}</div>
         </div>
       </div>
       <div className="text-right">
@@ -157,6 +158,7 @@ const LeaderboardItem = memo(({ entry, position }: { entry: any, position: numbe
 LeaderboardItem.displayName = 'LeaderboardItem';
 
 export function GamificationHub() {
+  const { t } = useLanguage();
   const { stats, dailyTasks, leaderboard } = useGamification();
 
   // Memoize level progress calculation
@@ -167,7 +169,6 @@ export function GamificationHub() {
 
   // Memoize icon mapping for achievements - Beautiful gaming icons from react-icons/gi
   const iconMap = useMemo<Record<string, React.ReactNode>>(() => {
-    console.log('[GamificationHub] Игровые иконки загружены из react-icons/gi ✅');
     return {
       'compass': <GiTreasureMap className="w-12 h-12 text-amber-400" />,
       'telescope': <GiBinoculars className="w-12 h-12 text-blue-400" />,
@@ -209,7 +210,7 @@ export function GamificationHub() {
               </motion.div>
               <div>
                 <CardTitle className="text-white flex items-center gap-2">
-                  Уровень {stats.level}
+                  {t('gamification.level')} {stats.level}
                 </CardTitle>
                 <CardDescription className="text-white/60">
                   {stats.xp} / {stats.xpToNextLevel} XP
@@ -227,15 +228,15 @@ export function GamificationHub() {
           <div className="grid grid-cols-3 gap-4 mt-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-white">{stats.totalXp}</div>
-              <div className="text-xs text-white/60">Всего XP</div>
+              <div className="text-xs text-white/60">{t('gamification.totalXp')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-white">{stats.streak.best}</div>
-              <div className="text-xs text-white/60">Лучший стрик</div>
+              <div className="text-xs text-white/60">{t('gamification.bestStreak')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-white">{stats.completedTasks}</div>
-              <div className="text-xs text-white/60">Выполнено</div>
+              <div className="text-xs text-white/60">{t('gamification.completed')}</div>
             </div>
           </div>
         </CardContent>
@@ -246,10 +247,10 @@ export function GamificationHub() {
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <GiBullseye className="w-5 h-5 text-emerald-400" />
-            Ежедневные задания
+            {t('gamification.dailyTasks')}
           </CardTitle>
           <CardDescription className="text-white/60">
-            Выполняйте задания и получайте XP
+            {t('gamification.dailyTasksDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -266,10 +267,10 @@ export function GamificationHub() {
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <GiTrophyCup className="w-5 h-5 text-emerald-400" />
-            Достижения
+            {t('gamification.achievementsTitle')}
           </CardTitle>
           <CardDescription className="text-white/60">
-            Разблокируйте награды и бонусы
+            {t('gamification.achievementsDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -291,19 +292,21 @@ export function GamificationHub() {
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <GiPodium className="w-5 h-5 text-emerald-400" />
-            Таблица лидеров
+            {t('gamification.leaderboardTitle')}
           </CardTitle>
           <CardDescription className="text-white/60">
-            Ваша позиция: #{leaderboard.position} из {leaderboard.totalUsers.toLocaleString()}
+            {t('gamification.yourPosition')}: #{leaderboard.position} {t('gamification.outOf')} {leaderboard.totalUsers.toLocaleString()}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {leaderboard.nearbyUsers.map((user: { rank: number; name: string; level: number; xp: number }, index: number) => (
+            {leaderboard.nearbyUsers.map((user: { rank: number; name: string; level: number; xp: number; isCurrentUser?: boolean }, index: number) => {
+              const isCurrentUser = user.isCurrentUser || user.name === t('gamification.you') || user.name === 'You';
+              return (
               <div
                 key={user.rank}
                 className={`flex items-center gap-3 p-3 rounded-lg ${
-                  user.name === 'Вы'
+                  isCurrentUser
                     ? 'bg-emerald-500/20 border border-emerald-500/30'
                     : 'bg-white/5'
                 }`}
@@ -320,19 +323,20 @@ export function GamificationHub() {
                 </div>
                 <div className="flex-1">
                   <div className={`text-sm font-semibold ${
-                    user.name === 'Вы' ? 'text-emerald-300' : 'text-white'
+                    isCurrentUser ? 'text-emerald-300' : 'text-white'
                   }`}>
-                    {user.name}
+                    {isCurrentUser ? t('gamification.you') : user.name}
                   </div>
                   <div className="text-xs text-white/50">
-                    Уровень {user.level} • {user.xp.toLocaleString()} XP
+                    {t('gamification.level')} {user.level} • {user.xp.toLocaleString()} XP
                   </div>
                 </div>
-                {user.name === 'Вы' && (
+                {isCurrentUser && (
                   <GiLaurelCrown className="w-5 h-5 text-emerald-400" />
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>

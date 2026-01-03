@@ -24,6 +24,7 @@ import { Skeleton } from "../ui/skeleton";
 import { useFilter } from "@/hooks/useFilter";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface BeautyProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -334,6 +335,7 @@ const collections = [
 ];
 
 const Beauty = memo(function Beauty({ activeTab }: BeautyProps) {
+  const { t } = useLanguage();
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);

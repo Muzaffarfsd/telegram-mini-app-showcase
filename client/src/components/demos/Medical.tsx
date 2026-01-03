@@ -16,6 +16,7 @@ import {
 import { OptimizedImage } from "../OptimizedImage";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface MedicalProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
@@ -89,6 +90,7 @@ const services: Service[] = [
 const categories = ['Все', 'Терапевт', 'Кардиолог', 'Диагност', 'Стоматолог'];
 
 export default function Medical({ activeTab, onNavigate }: MedicalProps) {
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -255,7 +257,7 @@ export default function Medical({ activeTab, onNavigate }: MedicalProps) {
   const renderCatalogTab = () => (
     <div className="bg-white min-h-screen smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-        <h1 className="ios-title font-bold">Медицинские услуги</h1>
+        <h1 className="ios-title font-bold">{t('demos.medical.medicalServices')}</h1>
       
       {/* Categories */}
       <div className="flex space-x-2 overflow-x-auto pb-2">
@@ -314,13 +316,13 @@ export default function Medical({ activeTab, onNavigate }: MedicalProps) {
   const renderCartTab = () => (
     <div className="bg-white min-h-screen smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-        <h1 className="ios-title font-bold">Записи на прием</h1>
+        <h1 className="ios-title font-bold">{t('demos.medical.appointments')}</h1>
         
         {cartItems.length === 0 ? (
           <div className="text-center py-12">
             <Heart className="w-16 h-16 text-quaternary-label mx-auto mb-4" />
-            <h2 className="ios-title font-semibold text-secondary-label mb-2">Нет записей</h2>
-            <p className="ios-body text-tertiary-label">Выберите медицинскую услугу для записи</p>
+            <h2 className="ios-title font-semibold text-secondary-label mb-2">{t('demos.medical.noAppointments')}</h2>
+            <p className="ios-body text-tertiary-label">{t('demos.medical.selectService')}</p>
           </div>
         ) : (
           <>
@@ -360,11 +362,11 @@ export default function Medical({ activeTab, onNavigate }: MedicalProps) {
             
             <div className="ios-card p-4">
               <div className="flex justify-between items-center">
-                <span className="ios-headline font-semibold">Итого</span>
+                <span className="ios-headline font-semibold">{t('demos.total')}</span>
                 <span className="ios-headline font-bold text-system-blue">${cartTotal}</span>
               </div>
               <button className="w-full bg-system-blue text-white ios-body font-semibold py-3 rounded-xl mt-4">
-                Записаться на прием
+                {t('demos.medical.bookAppointment')}
               </button>
             </div>
           </>
@@ -376,28 +378,28 @@ export default function Medical({ activeTab, onNavigate }: MedicalProps) {
   const renderProfileTab = () => (
     <div className="bg-white min-h-screen smooth-scroll-page">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-        <h1 className="ios-title font-bold">Профиль пациента</h1>
+        <h1 className="ios-title font-bold">{t('demos.medical.patientProfile')}</h1>
         
         <div className="ios-card p-6 text-center">
           <div className="w-20 h-20 bg-system-blue rounded-full flex items-center justify-center mx-auto mb-4">
             <UserCheck className="w-10 h-10 text-white" />
           </div>
           <h2 className="ios-headline font-semibold mb-1">Иван Петров</h2>
-          <p className="ios-footnote text-secondary-label">Постоянный пациент</p>
+          <p className="ios-footnote text-secondary-label">{t('demos.medical.regularPatient')}</p>
         </div>
 
         <div className="space-y-1">
           <div className="ios-list-item">
             <Calendar className="w-5 h-5 text-system-blue" />
-            <span className="ios-body">История приемов</span>
+            <span className="ios-body">{t('demos.medical.appointmentHistory')}</span>
           </div>
           <div className="ios-list-item">
             <Activity className="w-5 h-5 text-system-green" />
-            <span className="ios-body">Медицинская карта</span>
+            <span className="ios-body">{t('demos.medical.medicalCard')}</span>
           </div>
           <div className="ios-list-item">
             <Shield className="w-5 h-5 text-system-orange" />
-            <span className="ios-body">Страховка</span>
+            <span className="ios-body">{t('demos.medical.insurance')}</span>
           </div>
         </div>
       </div>
@@ -449,7 +451,7 @@ export default function Medical({ activeTab, onNavigate }: MedicalProps) {
                 }}
                 className="bg-system-blue text-white px-6 py-2 rounded-xl ios-body font-semibold"
               >
-                Записаться
+                {t('demos.medical.makeAppointment')}
               </button>
             </div>
           </div>

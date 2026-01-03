@@ -3,6 +3,7 @@ import { Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight, Bell, Ba
 import { useTheme } from "@/hooks/useTheme";
 import { SiInstagram, SiTelegram } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface GlobalSidebarProps {
   currentRoute: string;
@@ -16,10 +17,11 @@ interface GlobalSidebarProps {
 interface AnimatedHamburgerIconProps {
   isOpen: boolean;
   onClick: () => void;
+  ariaLabel: string;
 }
 
 const AnimatedHamburgerIcon = memo(forwardRef<HTMLButtonElement, AnimatedHamburgerIconProps>(
-  ({ isOpen, onClick }, ref) => {
+  ({ isOpen, onClick, ariaLabel }, ref) => {
     const [isHovered, setIsHovered] = useState(false);
     const rippleRef = useRef<HTMLSpanElement>(null);
     const rippleTimeoutRef = useRef<number | null>(null);
@@ -61,7 +63,7 @@ const AnimatedHamburgerIcon = memo(forwardRef<HTMLButtonElement, AnimatedHamburg
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className={className}
-        aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
+        aria-label={ariaLabel}
         aria-expanded={isOpen}
         data-testid="button-hamburger"
       >
@@ -84,6 +86,7 @@ AnimatedHamburgerIcon.displayName = 'AnimatedHamburgerIcon';
 
 export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
   const { toggleTheme, isDark } = useTheme();
+  const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pressedItem, setPressedItem] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -185,52 +188,52 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   const menuItems = [
     { 
       icon: Home, 
-      label: 'Главная', 
+      label: t('sidebar.home'), 
       section: '', 
       routes: ['showcase'],
-      description: 'Все возможности',
+      description: t('sidebar.allFeatures'),
     },
     { 
       icon: Sparkles, 
-      label: 'Бизнес приложения', 
+      label: t('sidebar.businessApps'), 
       section: 'projects', 
       routes: ['projects'],
-      description: 'Готовые решения',
+      description: t('sidebar.readySolutions'),
     },
     { 
       icon: Bot, 
-      label: 'ИИ агент для бизнеса', 
+      label: t('sidebar.aiForBusiness'), 
       section: 'ai-process', 
       routes: ['aiProcess', 'aiAgent'],
-      description: 'Автоматизация 24/7',
+      description: t('sidebar.automation247'),
     },
     { 
       icon: Users, 
-      label: 'О студии', 
+      label: t('sidebar.aboutStudio'), 
       section: 'about', 
       routes: ['about'],
-      description: 'Наша команда',
+      description: t('sidebar.ourTeam'),
     },
     { 
       icon: MessageCircle, 
-      label: 'Заказать проект', 
+      label: t('sidebar.orderProject'), 
       section: 'constructor', 
       routes: ['constructor', 'checkout'],
-      description: 'Индивидуальное решение',
+      description: t('sidebar.customSolution'),
     },
     { 
       icon: Bell, 
-      label: 'Push-уведомления', 
+      label: t('sidebar.notifications'), 
       section: 'notifications', 
       routes: ['notifications'],
-      description: 'Тест Telegram Bot API',
+      description: t('sidebar.telegramBotApi'),
     },
     { 
       icon: BarChart3, 
-      label: 'Аналитика', 
+      label: t('sidebar.analytics'), 
       section: 'analytics', 
       routes: ['analytics'],
-      description: 'Бизнес-метрики',
+      description: t('sidebar.businessMetrics'),
     },
   ];
 
@@ -244,12 +247,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     },
     { 
       icon: SiTelegram, 
-      label: 'Telegram канал', 
+      label: t('sidebar.telegramChannel'), 
       url: 'https://t.me/web4_tg',
     },
     { 
       icon: Send, 
-      label: 'Консультация', 
+      label: t('sidebar.consultation'), 
       url: 'https://t.me/web4tgs',
     },
   ];
@@ -1159,7 +1162,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         className={`sidebar-panel global-sidebar-panel ${sidebarOpen ? 'open' : ''}`}
         role="dialog"
         aria-modal="true"
-        aria-label="Главное меню"
+        aria-label={t('sidebar.navigation')}
         style={{
           transform: sidebarOpen 
             ? `translateX(${-swipeOffset}px)` 
@@ -1209,7 +1212,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap'
                 }}>
-                  {user?.first_name || 'Гость'}
+                  {user?.first_name || t('sidebar.guest')}
                 </p>
                 
                 <div style={{ marginTop: '8px' }}>
@@ -1243,7 +1246,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                         fontSize: '11px',
                         color: colors.textMuted
                       }}>
-                        Новичок
+                        {t('sidebar.beginner')}
                       </span>
                     </div>
                     <span style={{
@@ -1266,7 +1269,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               ref={firstFocusableRef}
               isOpen={true}
               onClick={closeSidebar}
-              data-testid="button-close-sidebar"
+              ariaLabel={t('sidebar.closeMenu')}
             />
           </div>
           
@@ -1279,7 +1282,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               textTransform: 'uppercase',
               marginBottom: '12px'
             }}>
-              Статус вашего проекта
+              {t('sidebar.projectStatus')}
             </p>
             
             <div style={{
@@ -1300,7 +1303,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   color: colors.textPrimary,
                   letterSpacing: '-0.01em'
                 }}>
-                  Разработка приложения
+                  {t('sidebar.appDevelopment')}
                 </span>
                 <span style={{
                   fontSize: '13px',
@@ -1334,10 +1337,10 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 gap: '8px'
               }}>
                 {[
-                  { name: 'Бриф', num: 1, active: true },
-                  { name: 'Дизайн', num: 2, active: false },
-                  { name: 'Код', num: 3, active: false },
-                  { name: 'Запуск', num: 4, active: false }
+                  { name: t('sidebar.brief'), num: 1, active: true },
+                  { name: t('sidebar.design'), num: 2, active: false },
+                  { name: t('sidebar.code'), num: 3, active: false },
+                  { name: t('sidebar.launch'), num: 4, active: false }
                 ].map((stage) => (
                   <div key={stage.name} style={{
                     flex: 1,
@@ -1393,7 +1396,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             padding: '0 16px',
             marginBottom: '12px'
           }}>
-            Навигация
+            {t('sidebar.navigation')}
           </p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -1494,7 +1497,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 color: isProfilePressed || isProfileActive ? colors.textPrimary : colors.textSecondary,
                 display: 'block'
               }}>
-                Мой профиль
+                {t('sidebar.myProfile')}
               </span>
               <span style={{
                 fontSize: '11px',
@@ -1502,7 +1505,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 marginTop: '2px',
                 display: 'block'
               }}>
-                Награды и достижения
+                {t('sidebar.rewardsAchievements')}
               </span>
             </div>
             
@@ -1549,7 +1552,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               marginBottom: '8px',
               textTransform: 'uppercase'
             }}>
-              Декабрь 2025
+              {t('sidebar.december2025')}
             </p>
             <p style={{
               fontSize: '28px',
@@ -1558,14 +1561,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               letterSpacing: '-0.03em',
               lineHeight: 1
             }}>
-              3 слота
+              3 {t('sidebar.slotsLeft')}
             </p>
             <p style={{
               fontSize: '13px',
               color: colors.textSecondary,
               marginTop: '6px'
             }}>
-              осталось на этот месяц
+              {t('sidebar.leftThisMonth')}
             </p>
           </div>
         </div>
@@ -1601,7 +1604,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               lineHeight: 1.5,
               marginBottom: '16px'
             }}>
-              ИИ-ассистент для бизнеса: ответы 24/7, рост продаж на 300%
+              {t('sidebar.aiAssistantDesc')}
             </p>
             
             <button
@@ -1617,7 +1620,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 color: '#FFFFFF',
                 letterSpacing: '0.02em'
               }}>
-                Узнать больше
+                {t('sidebar.learnMore')}
               </span>
             </button>
           </div>
@@ -1638,7 +1641,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             textTransform: 'uppercase',
             marginBottom: '12px'
           }}>
-            Связаться с нами
+            {t('sidebar.contactUs')}
           </p>
           
           <div style={{
@@ -1718,6 +1721,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               ref={triggerButtonRef}
               isOpen={false} 
               onClick={() => sidebarOpen ? closeSidebar() : openSidebar()} 
+              ariaLabel={sidebarOpen ? t('sidebar.closeMenu') : t('sidebar.openMenu')}
             />
           </div>
           
@@ -1756,7 +1760,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 ? 'rgba(255,255,255,0.08)'
                 : 'rgba(0,0,0,0.12)',
             }}
-            aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
+            aria-label={isDark ? t('sidebar.enableLightTheme') : t('sidebar.enableDarkTheme')}
           >
             {/* Sun/Moon orb - instant switch */}
             <div style={{
