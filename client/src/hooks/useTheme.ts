@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, startTransition } from 'react';
 
 type Theme = 'dark' | 'light';
 
@@ -16,6 +16,7 @@ function getInitialTheme(): Theme {
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
   
+  // Instant class toggle for immediate visual feedback
   if (theme === 'light') {
     root.classList.add('light');
     root.classList.remove('dark');
@@ -25,7 +26,8 @@ function applyTheme(theme: Theme) {
   }
   root.dataset.theme = theme;
   
-  queueMicrotask(() => {
+  // Defer non-critical operations
+  requestIdleCallback(() => {
     try {
       localStorage.setItem(STORAGE_KEY, theme);
     } catch (e) {}
@@ -39,7 +41,7 @@ function applyTheme(theme: Theme) {
         }
       } catch (e) {}
     }
-  });
+  }, { timeout: 100 });
   
   console.log('[Theme] Applied:', theme);
 }
@@ -80,23 +82,27 @@ export function useTheme() {
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => {
-      const next = prev === 'dark' ? 'light' : 'dark';
-      console.log('[Theme] Toggle:', prev, '->', next);
-      
-      // Dispatch event to sync all useTheme instances
+    const next = theme === 'dark' ? 'light' : 'dark';
+    
+    // Apply theme immediately to DOM for instant visual feedback
+    applyTheme(next);
+    
+    // Update React state with low priority
+    startTransition(() => {
       isInternalUpdate.current = true;
       window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: next } }));
-      
-      return next;
+      setTheme(next);
     });
-  }, []);
+  }, [theme]);
 
   const setThemeValue = useCallback((newTheme: Theme) => {
     if (newTheme !== theme) {
-      isInternalUpdate.current = true;
-      window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
-      setTheme(newTheme);
+      applyTheme(newTheme);
+      startTransition(() => {
+        isInternalUpdate.current = true;
+        window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
+        setTheme(newTheme);
+      });
     }
   }, [theme]);
 
