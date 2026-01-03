@@ -154,14 +154,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               <m.button
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleNavigate('projects')}
-                className="flex items-center gap-3 px-7 py-4 rounded-full transition-colors duration-300"
-                style={{ background: 'var(--cta-background)' }}
+                className="flex items-center justify-center gap-3 rounded-full transition-colors duration-300"
+                style={{ 
+                  background: 'var(--cta-background)',
+                  minWidth: '180px',
+                  height: '52px',
+                  paddingLeft: '24px',
+                  paddingRight: '24px'
+                }}
                 data-testid="cta-primary"
               >
-                <span className="text-[15px] font-semibold" style={{ color: 'var(--cta-foreground)' }}>
+                <span className="text-[15px] font-semibold" style={{ color: 'var(--cta-foreground)', whiteSpace: 'nowrap' }}>
                   {t('showcase.orderProject')}
                 </span>
-                <ArrowRight className="w-4 h-4" style={{ color: 'var(--cta-foreground)' }} />
+                <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-foreground)' }} />
               </m.button>
               
               <m.button
@@ -169,11 +175,17 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 onClick={() => handleOpenDemo('clothing-store')}
                 onMouseEnter={() => preloadDemo('clothing-store')}
                 onTouchStart={() => preloadDemo('clothing-store')}
-                className="flex items-center gap-2 px-6 py-4 rounded-full transition-colors duration-300"
-                style={{ border: '1px solid var(--cta-secondary-border)' }}
+                className="flex items-center justify-center gap-2 rounded-full transition-colors duration-300"
+                style={{ 
+                  border: '1px solid var(--cta-secondary-border)',
+                  minWidth: '140px',
+                  height: '52px',
+                  paddingLeft: '20px',
+                  paddingRight: '20px'
+                }}
                 data-testid="cta-demo"
               >
-                <span className="text-[15px] font-medium" style={{ color: 'var(--cta-secondary-text)' }}>
+                <span className="text-[15px] font-medium" style={{ color: 'var(--cta-secondary-text)', whiteSpace: 'nowrap' }}>
                   {t('showcase.openApp')}
                 </span>
               </m.button>
@@ -185,12 +197,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="p-4 rounded-2xl text-center transition-colors duration-300"
-                style={{ backgroundColor: 'var(--card-bg)' }}
+                style={{ backgroundColor: 'var(--card-bg)', minHeight: '88px' }}
               >
                 <div className="text-[26px] font-semibold" style={{ color: 'var(--text-primary)' }}>
                   <AnimatedCounter value={127} suffix="+" delay={0.3} />
                 </div>
-                <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'var(--text-tertiary)' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-1" style={{ color: 'var(--text-tertiary)', lineHeight: '1.3' }}>
                   {t('showcase.clients')}
                 </div>
               </m.div>
@@ -199,12 +211,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
                 className="p-4 rounded-2xl text-center transition-colors duration-300"
-                style={{ backgroundColor: 'var(--card-bg)' }}
+                style={{ backgroundColor: 'var(--card-bg)', minHeight: '88px' }}
               >
                 <div className="text-[26px] font-semibold" style={{ color: 'var(--text-primary)' }}>
                   <AnimatedCounter value={24} suffix={t('showcase.hours')} delay={0.4} />
                 </div>
-                <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'var(--text-tertiary)' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-1" style={{ color: 'var(--text-tertiary)', lineHeight: '1.3' }}>
                   {t('showcase.toLaunch')}
                 </div>
               </m.div>
@@ -213,12 +225,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
                 className="p-4 rounded-2xl text-center transition-colors duration-300"
-                style={{ backgroundColor: 'color-mix(in srgb, var(--cta-background) 15%, transparent)' }}
+                style={{ backgroundColor: 'color-mix(in srgb, var(--cta-background) 15%, transparent)', minHeight: '88px' }}
               >
                 <div className="text-[26px] font-semibold" style={{ color: 'var(--cta-background)' }}>
                   +<AnimatedCounter value={300} suffix="%" delay={0.5} />
                 </div>
-                <div className="text-[10px] uppercase tracking-wider mt-1" style={{ color: 'color-mix(in srgb, var(--cta-background) 60%, transparent)' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-1" style={{ color: 'color-mix(in srgb, var(--cta-background) 60%, transparent)', lineHeight: '1.3' }}>
                   {t('showcase.toSales')}
                 </div>
               </m.div>

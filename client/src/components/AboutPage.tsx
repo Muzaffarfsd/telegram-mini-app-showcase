@@ -231,7 +231,8 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
                   background: 'var(--card-bg)',
                   border: '1px solid var(--card-border)',
                   boxShadow: 'var(--card-shadow)',
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  minHeight: '100px'
                 }}
               >
                 <p style={{
@@ -243,9 +244,10 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
                   {stat.value}
                 </p>
                 <p style={{
-                  fontSize: '12px',
+                  fontSize: '10px',
                   color: 'var(--text-tertiary)',
-                  marginTop: '4px'
+                  marginTop: '4px',
+                  lineHeight: '1.3'
                 }}>
                   {stat.label}
                 </p>

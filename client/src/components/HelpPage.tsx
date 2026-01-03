@@ -345,7 +345,8 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
                   borderRadius: '14px',
                   background: 'rgba(255, 255, 255, 0.02)',
                   border: '1px solid rgba(255, 255, 255, 0.04)',
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  minHeight: '100px'
                 }}
               >
                 <p style={{
@@ -357,9 +358,10 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
                   {stat.value}
                 </p>
                 <p style={{
-                  fontSize: '12px',
+                  fontSize: '10px',
                   color: '#52525B',
-                  marginTop: '4px'
+                  marginTop: '4px',
+                  lineHeight: '1.3'
                 }}>
                   {stat.label}
                 </p>
