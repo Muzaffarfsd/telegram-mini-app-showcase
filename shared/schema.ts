@@ -82,6 +82,7 @@ export const dailyTasks = pgTable("daily_tasks", {
   taskDate: date("task_date").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
+  uniqueTelegramTaskDate: unique().on(table.telegramId, table.taskId, table.taskDate),
   telegramIdIdx: index("idx_daily_tasks_telegram_id").on(table.telegramId),
   taskIdIdx: index("idx_daily_tasks_task_id").on(table.taskId),
   completedIdx: index("idx_daily_tasks_completed").on(table.completed),

@@ -1,8 +1,11 @@
-const CACHE_VERSION = 'v5';
+const CACHE_VERSION = 'v6';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 const DATA_CACHE = `data-${CACHE_VERSION}`;
 const OFFLINE_PAGE = '/offline.html';
+
+// Navigation Preload support (2026 optimization)
+const NAVIGATION_PRELOAD_SUPPORTED = 'navigationPreload' in self.registration;
 
 const STATIC_ASSETS = [
   '/',
@@ -177,6 +180,12 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
+      // Enable Navigation Preload for faster page loads
+      if (NAVIGATION_PRELOAD_SUPPORTED) {
+        await self.registration.navigationPreload.enable();
+        console.log('[SW] Navigation Preload enabled');
+      }
+      
       const keys = await caches.keys();
       await Promise.all(
         keys
