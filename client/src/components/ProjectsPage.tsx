@@ -2,6 +2,7 @@ import { demoApps } from "../data/demoApps";
 import { ArrowRight } from "lucide-react";
 import { FavoritesSection } from "./FavoritesSection";
 import { FavoriteButton } from "./FavoriteButton";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProjectsPageProps {
   onNavigate: (section: string) => void;
@@ -9,6 +10,7 @@ interface ProjectsPageProps {
 }
 
 export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPageProps) {
+  const { t } = useLanguage();
   const topApps = demoApps; // All 13 apps
 
   return (
@@ -39,7 +41,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               marginBottom: '24px'
             }}
           >
-            Web4TG Studio
+            {t('projectsPage.eyebrow')}
           </p>
           
           {/* Headline */}
@@ -54,14 +56,14 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               color: 'var(--text-primary)'
             }}
           >
-            Премиальные приложения
+            {t('projectsPage.heroLine1')}
             <br />
             <span style={{ color: 'var(--accent-primary)' }}>
-              для Telegram.
+              {t('projectsPage.heroLine2')}
             </span>
             <br />
             <span style={{ color: 'var(--text-primary)' }}>
-              Бизнес-решения нового уровня.
+              {t('projectsPage.heroLine3')}
             </span>
           </h1>
           
@@ -72,7 +74,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           >
             <div className="scroll-icon" />
             <span style={{ fontSize: '15px', color: 'var(--accent-primary)', fontWeight: 500 }}>
-              Смотреть примеры
+              {t('projectsPage.viewExamples')}
             </span>
           </div>
           
@@ -95,17 +97,17 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               color: 'var(--text-secondary)',
               lineHeight: '1.6'
             }}>
-              Через 7 дней у вас будет
+              {t('projectsPage.fomoLine1')}
               <br />
               <span style={{ 
                 color: 'var(--accent-primary)',
                 fontWeight: 600
               }}>
-                своё приложение.
+                {t('projectsPage.fomoLine2')}
               </span>
               <br />
               <span style={{ color: 'var(--text-tertiary)' }}>
-                Или у вашего конкурента.
+                {t('projectsPage.fomoLine3')}
               </span>
             </p>
           </div>
@@ -136,7 +138,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 textTransform: 'uppercase',
                 marginBottom: '12px'
               }}>
-                Не шаблон
+                {t('projectsPage.notTemplate')}
               </p>
               <p style={{
                 fontSize: '14px',
@@ -144,11 +146,11 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 color: 'var(--text-primary)',
                 lineHeight: '1.4'
               }}>
-                Ваш бренд.
+                {t('projectsPage.yourBrand')}
                 <br />
-                <span style={{ color: 'var(--accent-primary)' }}>Ваш стиль.</span>
+                <span style={{ color: 'var(--accent-primary)' }}>{t('projectsPage.yourStyle')}</span>
                 <br />
-                Ваши правила.
+                {t('projectsPage.yourRules')}
               </p>
             </div>
             
@@ -169,7 +171,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 textTransform: 'uppercase',
                 marginBottom: '12px'
               }}>
-                Осталось
+                {t('projectsPage.remaining')}
               </p>
               <p style={{
                 fontSize: '28px',
@@ -177,14 +179,14 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 color: 'var(--text-primary)',
                 letterSpacing: '-0.03em'
               }}>
-                3 слота
+                3 {t('projectsPage.slots')}
               </p>
               <p style={{
                 fontSize: '14px',
                 color: 'var(--text-tertiary)',
                 marginTop: '4px'
               }}>
-                на Декабрь
+                {t('projectsPage.forDecember')}
               </p>
             </div>
           </div>
@@ -217,7 +219,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 textTransform: 'uppercase'
               }}
             >
-              Коллекция приложений
+              {t('projectsPage.appCollection')}
             </p>
             <p 
               style={{
@@ -225,7 +227,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 color: 'var(--text-quaternary)'
               }}
             >
-              {topApps.length} проектов
+              {topApps.length} {t('projectsPage.projectsCount')}
             </p>
           </div>
         </section>
@@ -299,7 +301,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                     }}
                     data-testid={`button-open-${app.id}`}
                   >
-                    <span>Открыть</span>
+                    <span>{t('projectsPage.open')}</span>
                     <ArrowRight 
                       className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5" 
                       strokeWidth={2.5}
@@ -344,7 +346,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                   textTransform: 'uppercase'
                 }}
               >
-                проектов
+                {t('projectsPage.projects')}
               </p>
             </div>
             <div>
@@ -367,7 +369,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                   textTransform: 'uppercase'
                 }}
               >
-                отраслей
+                {t('projectsPage.industries')}
               </p>
             </div>
             <div>
@@ -390,7 +392,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                   textTransform: 'uppercase'
                 }}
               >
-                дней запуск
+                {t('projectsPage.daysToLaunch')}
               </p>
             </div>
           </div>
@@ -421,9 +423,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 marginBottom: '24px'
               }}
             >
-              "Обсудим, как Telegram станет
-              <br />
-              вашим каналом продаж"
+              {t('projectsPage.pullQuote')}
             </p>
 
             {/* CTA Button */}
@@ -441,7 +441,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               }}
               data-testid="button-order-cta"
             >
-              Запросить консультацию
+              {t('projectsPage.requestConsultation')}
               <ArrowRight className="w-4 h-4" />
             </a>
             
@@ -454,7 +454,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                 letterSpacing: '0.01em'
               }}
             >
-              Бесплатно · Ответим в течение часа
+              {t('projectsPage.freeResponse')}
             </p>
           </div>
         </section>
