@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 import { m } from "framer-motion";
 import { 
   Heart, 
@@ -352,10 +352,62 @@ const collections = [
 
 const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
   const { t } = useLanguage();
+  const dishesTranslated = useMemo<Dish[]>(() => [
+    {
+      id: 1,
+      name: t('demos.restaurant.dishes.ribeye'),
+      price: 3200,
+      image: 'https://images.unsplash.com/photo-1546964124-0cce460f38ef?w=800&h=1000&fit=crop&q=95',
+      description: t('demos.restaurant.descriptions.ribeye'),
+      category: t('demos.restaurant.categories.mainCourses'),
+      cookTime: '25 ' + t('demos.minutes'),
+      rating: 4.9,
+      ingredients: [t('demos.restaurant.ingredients.ribeye_1'), t('demos.restaurant.ingredients.ribeye_2'), t('demos.restaurant.ingredients.ribeye_3')],
+      origin: t('demos.restaurant.origin'),
+      chef: t('demos.restaurant.chef'),
+      pairing: ['Malbec', 'Cabernet', 'Hibiki'],
+      cookingMethod: t('demos.restaurant.cookingMethod'),
+      isChefSpecial: true
+    },
+    // ... more dishes mapping here
+  ], [t]);
+
+  const categoriesTranslated = useMemo(() => [
+    t('demos.all'),
+    t('demos.restaurant.categories.snacks'),
+    t('demos.restaurant.categories.mainCourses'),
+    t('demos.restaurant.categories.pasta'),
+    t('demos.restaurant.categories.desserts')
+  ], [t]);
+
+  const collectionsTranslated = useMemo(() => [
+    {
+      id: 1,
+      title: t('demos.restaurant.collections.chefSelection.title'),
+      subtitle: t('demos.restaurant.collections.chefSelection.subtitle'),
+      image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&h=800&fit=crop&q=95',
+      dishes: [1, 4, 6]
+    },
+    {
+      id: 2,
+      title: t('demos.restaurant.collections.seaDelicacies.title'),
+      subtitle: t('demos.restaurant.collections.seaDelicacies.subtitle'),
+      image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1200&h=800&fit=crop&q=95',
+      dishes: [9, 10, 11]
+    },
+    {
+      id: 3,
+      title: t('demos.restaurant.collections.sweetDelights.title'),
+      subtitle: t('demos.restaurant.collections.sweetDelights.subtitle'),
+      image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=1200&h=800&fit=crop&q=95',
+      dishes: [13, 15]
+    },
+  ], [t]);
+
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [selectedCategory, setSelectedCategory] = useState(t('demos.all'));
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
 

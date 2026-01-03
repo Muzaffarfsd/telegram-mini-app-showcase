@@ -797,9 +797,63 @@ export const translations = {
       russian: 'Русский',
     },
     
-    // Demo apps
-    demoApps: {
-      restaurant: 'Ресторан',
+    fitness: {
+      categories: {
+        all: 'Все',
+        cardio: 'Кардио',
+        strength: 'Силовые',
+        yoga: 'Йога',
+        pilates: 'Пилатес',
+        stretching: 'Растяжка',
+        functional: 'Функциональные'
+      },
+      workouts: {
+        hiit: { name: 'HIIT Кардио', desc: 'Интенсивная кардио тренировка' },
+        yoga: { name: 'Йога для начинающих', desc: 'Мягкая йога для гибкости' },
+        strength: { name: 'Силовая тренировка', desc: 'Тренировка всех групп мышц' },
+        pilates: { name: 'Пилатес', desc: 'Укрепление кора и осанки' },
+        boxing: { name: 'Бокс для фитнеса', desc: 'Боксерская тренировка' },
+        stretching: { name: 'Растяжка', desc: 'Глубокая растяжка мышц' },
+        functional: { name: 'Функциональный тренинг', desc: 'Упражнения для повседневной жизни' },
+        tabata: { name: 'Табата', desc: 'Интервальная высокоинтенсивная тренировка' }
+      },
+      trainers: {
+        anna: 'Анна Петрова',
+        maria: 'Мария Иванова',
+        dmitry: 'Дмитрий Соколов',
+        elena: 'Елена Волкова',
+        igor: 'Игорь Петров',
+        olga: 'Ольга Смирнова',
+        sergey: 'Сергей Новиков'
+      },
+      collections: {
+        fatBurn: { title: 'Жиросжигание', subtitle: 'Интенсивные тренировки' },
+        strength: { title: 'Сила и выносливость', subtitle: 'Мощные тренировки' },
+        balance: { title: 'Гибкость и баланс', subtitle: 'Спокойные практики' }
+      },
+      achievements: {
+        first: { title: 'Первая тренировка', desc: 'Завершите свою первую тренировку' },
+        marathon: { title: 'Марафонец', desc: 'Завершите 50 тренировок' },
+        fire: { title: 'Мастер огня', desc: 'Сожгите 20000 калорий' },
+        will: { title: 'Стальная воля', desc: 'Серия из 30 дней' }
+      },
+      minutes_total: 'минут всего',
+      slogan: 'Твой путь к идеальной форме',
+      calories: 'Калорий',
+      workouts_count: 'Тренировок',
+      programs: 'Программы тренировок',
+      popular: 'Популярное',
+      workouts_title: 'Тренировки',
+      trainer: 'Тренер',
+      start_workout: 'Начать тренировку',
+      achievement_tracker: 'Трекер достижений',
+      achievement_desc: 'Завершите эту тренировку и получите +{calories} калорий к статистике',
+      will_desc: 'До достижения "Стальная воля": {days} дней',
+      kcal: 'ккал',
+      min: 'мин',
+      new: 'Новинка'
+    },
+    services_list: {
       beautyСalon: 'Салон красоты',
       medicalClinic: 'Медицинская клиника',
       fitnessClub: 'Фитнес-клуб',
@@ -1962,9 +2016,63 @@ export const translations = {
       russian: 'Russian',
     },
     
-    // Demo apps
-    demoApps: {
-      restaurant: 'Restaurant',
+    fitness: {
+      categories: {
+        all: 'All',
+        cardio: 'Cardio',
+        strength: 'Strength',
+        yoga: 'Yoga',
+        pilates: 'Pilates',
+        stretching: 'Stretching',
+        functional: 'Functional'
+      },
+      workouts: {
+        hiit: { name: 'HIIT Cardio', desc: 'Intensive cardio workout' },
+        yoga: { name: 'Yoga for Beginners', desc: 'Gentle yoga for flexibility' },
+        strength: { name: 'Strength Training', desc: 'Full body workout' },
+        pilates: { name: 'Pilates', desc: 'Core and posture strengthening' },
+        boxing: { name: 'Fitness Boxing', desc: 'Boxing-based workout' },
+        stretching: { name: 'Stretching', desc: 'Deep muscle stretching' },
+        functional: { name: 'Functional Training', desc: 'Daily life movements' },
+        tabata: { name: 'Tabata', desc: 'High-intensity interval training' }
+      },
+      trainers: {
+        anna: 'Anna Petrova',
+        maria: 'Maria Ivanova',
+        dmitry: 'Dmitry Sokolov',
+        elena: 'Elena Volkova',
+        igor: 'Igor Petrov',
+        olga: 'Olga Smirnova',
+        sergey: 'Sergey Novikov'
+      },
+      collections: {
+        fatBurn: { title: 'Fat Burn', subtitle: 'Intensive workouts' },
+        strength: { title: 'Strength & Endurance', subtitle: 'Powerful workouts' },
+        balance: { title: 'Flexibility & Balance', subtitle: 'Calm practices' }
+      },
+      achievements: {
+        first: { title: 'First Workout', desc: 'Complete your first workout' },
+        marathon: { title: 'Marathoner', desc: 'Complete 50 workouts' },
+        fire: { title: 'Fire Master', desc: 'Burn 20000 calories' },
+        will: { title: 'Steel Will', desc: '30-day streak' }
+      },
+      minutes_total: 'minutes total',
+      slogan: 'Your path to perfect shape',
+      calories: 'Calories',
+      workouts_count: 'Workouts',
+      programs: 'Workout Programs',
+      popular: 'Popular',
+      workouts_title: 'Workouts',
+      trainer: 'Trainer',
+      start_workout: 'Start Workout',
+      achievement_tracker: 'Achievement Tracker',
+      achievement_desc: 'Complete this workout and get +{calories} calories to stats',
+      will_desc: 'Until "Steel Will": {days} days',
+      kcal: 'kcal',
+      min: 'min',
+      new: 'New'
+    },
+    services_list: {
       beautyСalon: 'Beauty Salon',
       medicalClinic: 'Medical Clinic',
       fitnessClub: 'Fitness Club',

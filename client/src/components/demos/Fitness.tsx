@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 import { m } from "framer-motion";
 import { 
   Dumbbell, 
@@ -91,8 +91,56 @@ const collections = [
 
 export default memo(function Fitness({ activeTab }: FitnessProps) {
   const { t } = useLanguage();
+  const workoutsTranslated = useMemo<Workout[]>(() => [
+    { id: 1, name: t('fitness.workouts.hiit.name'), duration: 30, calories: 350, image: 'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=800&h=1200&fit=crop&q=90', description: t('fitness.workouts.hiit.desc'), category: t('fitness.categories.cardio'), level: 'Средний' as any, trainer: t('fitness.trainers.anna'), rating: 4.9, isPopular: true },
+    { id: 2, name: t('fitness.workouts.yoga.name'), duration: 45, calories: 180, image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&h=1200&fit=crop&q=90', description: t('fitness.workouts.yoga.desc'), category: t('fitness.categories.yoga'), level: 'Начальный' as any, trainer: t('fitness.trainers.maria'), rating: 4.8, isPopular: true },
+    { id: 3, name: t('fitness.workouts.strength.name'), duration: 60, calories: 420, image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=1200&fit=crop&q=90', description: t('fitness.workouts.strength.desc'), category: t('fitness.categories.strength'), level: 'Продвинутый' as any, trainer: t('fitness.trainers.dmitry'), rating: 5.0, isNew: true, isPopular: true },
+    { id: 4, name: t('fitness.workouts.pilates.name'), duration: 40, calories: 200, image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&h=1200&fit=crop&q=90', description: t('fitness.workouts.pilates.desc'), category: t('fitness.categories.pilates'), level: 'Средний' as any, trainer: t('fitness.trainers.elena'), rating: 4.7, isNew: true },
+    { id: 5, name: t('fitness.workouts.boxing.name'), duration: 45, calories: 500, image: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=800&h=1200&fit=crop&q=90', description: t('fitness.workouts.boxing.desc'), category: t('fitness.categories.cardio'), level: 'Продвинутый' as any, trainer: t('fitness.trainers.igor'), rating: 4.9, isPopular: true },
+    { id: 6, name: t('fitness.workouts.stretching.name'), duration: 25, calories: 100, image: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800&h=1200&fit=crop&q=90', description: t('fitness.workouts.stretching.desc'), category: t('fitness.categories.stretching'), level: 'Начальный' as any, trainer: t('fitness.trainers.olga'), rating: 4.6 },
+    { id: 7, name: t('fitness.workouts.functional.name'), duration: 50, calories: 380, image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=1200&fit=crop&q=90', description: t('fitness.workouts.functional.desc'), category: t('fitness.categories.functional'), level: 'Средний' as any, trainer: t('fitness.trainers.sergey'), rating: 4.8, isNew: true },
+    { id: 8, name: t('fitness.workouts.tabata.name'), duration: 20, calories: 280, image: 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=800&h=1200&fit=crop&q=90', description: t('fitness.workouts.tabata.desc'), category: t('fitness.categories.cardio'), level: 'Продвинутый' as any, trainer: t('fitness.trainers.anna'), rating: 5.0, isPopular: true },
+  ], [t]);
+
+  const categoriesTranslated = useMemo(() => [
+    t('fitness.categories.all'),
+    t('fitness.categories.cardio'),
+    t('fitness.categories.strength'),
+    t('fitness.categories.yoga'),
+    t('fitness.categories.pilates'),
+    t('fitness.categories.stretching'),
+    t('fitness.categories.functional')
+  ], [t]);
+
+  const collectionsTranslated = useMemo(() => [
+    {
+      id: 1,
+      title: t('fitness.collections.fatBurn.title'),
+      subtitle: t('fitness.collections.fatBurn.subtitle'),
+      image: 'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=1200&h=800&fit=crop&q=90',
+      gradient: 'from-orange-600/30 to-red-600/30',
+      workouts: [1, 5, 8]
+    },
+    {
+      id: 2,
+      title: t('fitness.collections.strength.title'),
+      subtitle: t('fitness.collections.strength.subtitle'),
+      image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&h=800&fit=crop&q=90',
+      gradient: 'from-purple-600/30 to-indigo-600/30',
+      workouts: [3, 7]
+    },
+    {
+      id: 3,
+      title: t('fitness.collections.balance.title'),
+      subtitle: t('fitness.collections.balance.subtitle'),
+      image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&h=800&fit=crop&q=90',
+      gradient: 'from-green-600/30 to-emerald-600/30',
+      workouts: [2, 4, 6]
+    },
+  ], [t]);
+
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [selectedCategory, setSelectedCategory] = useState(t('fitness.categories.all'));
   const [favorites, setFavorites] = useState<Set<number>>(new Set([1, 2, 3]));
   
   const [stats, setStats] = useState({
@@ -102,12 +150,12 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
     streak: 12,
   });
 
-  const [achievements] = useState<Achievement[]>([
-    { id: 1, title: 'Первая тренировка', description: 'Завершите свою первую тренировку', icon: '🎯', progress: 1, total: 1, unlocked: true },
-    { id: 2, title: 'Марафонец', description: 'Завершите 50 тренировок', icon: '🏃', progress: 47, total: 50, unlocked: false },
-    { id: 3, title: 'Мастер огня', description: 'Сожгите 20000 калорий', icon: '🔥', progress: 15680, total: 20000, unlocked: false },
-    { id: 4, title: 'Стальная воля', description: 'Серия из 30 дней', icon: '💪', progress: 12, total: 30, unlocked: false },
-  ]);
+  const achievementsTranslated = useMemo<Achievement[]>(() => [
+    { id: 1, title: t('fitness.achievements.first.title'), description: t('fitness.achievements.first.desc'), icon: '🎯', progress: 1, total: 1, unlocked: true },
+    { id: 2, title: t('fitness.achievements.marathon.title'), description: t('fitness.achievements.marathon.desc'), icon: '🏃', progress: 47, total: 50, unlocked: false },
+    { id: 3, title: t('fitness.achievements.fire.title'), description: t('fitness.achievements.fire.desc'), icon: '🔥', progress: 15680, total: 20000, unlocked: false },
+    { id: 4, title: t('fitness.achievements.will.title'), description: t('fitness.achievements.will.desc'), icon: '💪', progress: 12, total: 30, unlocked: false },
+  ], [t]);
 
   useEffect(() => {
     scrollToTop();
@@ -116,8 +164,8 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
     }
   }, [activeTab]);
 
-  const filteredWorkouts = workouts.filter(w => 
-    selectedCategory === 'Все' || w.category === selectedCategory
+  const filteredWorkouts = workoutsTranslated.filter(w => 
+    selectedCategory === t('fitness.categories.all') || w.category === selectedCategory
   );
 
   const toggleFavorite = (workoutId: number) => {
@@ -175,19 +223,19 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
           </div>
         </div>
 
-        <div className="p-4 space-y-6">
+          <div className="p-4 space-y-6">
           <div className="p-4 bg-gradient-to-br from-orange-500/10 to-red-500/10 backdrop-blur-xl rounded-2xl border border-orange-400/30">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Flame className="w-6 h-6 text-orange-500" />
                 <div>
-                  <h3 className="font-bold text-lg">{stats.streak} дней</h3>
-                  <p className="text-sm text-orange-300">Текущая серия</p>
+                  <h3 className="font-bold text-lg">{stats.streak} {t('dailyRewards.days')}</h3>
+                  <p className="text-sm text-orange-300">{t('tasks.streak')}</p>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-2xl font-bold text-orange-600">{stats.totalMinutes}</p>
-                <p className="text-xs text-orange-300">минут всего</p>
+                <p className="text-xs text-orange-300">{t('fitness.minutes_total')}</p>
               </div>
             </div>
             <div className="h-2 bg-orange-900/20 rounded-full overflow-hidden">
@@ -205,7 +253,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
               <TrendingUp className="w-5 h-5 text-white/60" />
             </div>
             <div className="grid gap-3">
-              {collections.map((collection) => (
+              {collectionsTranslated.map((collection) => (
                 <m.div
                   key={collection.id}
                   whileHover={{ scale: 1.02 }}
@@ -222,7 +270,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                       <p className="text-white/80 text-sm">{collection.subtitle}</p>
                     </div>
                     <div className="flex gap-2">
-                      {workouts.filter(w => collection.workouts.includes(w.id)).slice(0, 3).map(workout => (
+                      {workoutsTranslated.filter(w => collection.workouts.includes(w.id)).slice(0, 3).map(workout => (
                         <div key={workout.id} className="w-12 h-12 rounded-lg overflow-hidden border-2 border-white/30">
                           <LazyImage src={workout.image} alt={workout.name} className="w-full h-full object-cover" />
                         </div>
@@ -240,7 +288,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
               <Star className="w-5 h-5 fill-orange-500 text-orange-500" />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              {workouts.filter(w => w.isPopular).map((workout) => (
+              {workoutsTranslated.filter(w => w.isPopular).map((workout) => (
                 <m.div
                   key={workout.id}
                   whileHover={{ scale: 1.02 }}
@@ -369,8 +417,8 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
       <div className="h-full overflow-y-auto smooth-scroll-page">
         <div className="sticky top-0 z-10 bg-[#0A0A0A]/80 backdrop-blur-xl border-b border-white/10 px-4 py-5">
           <h1 className="text-2xl font-bold mb-4">Тренировки</h1>
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
-            {categories.map((category) => (
+              <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
+            {categoriesTranslated.map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
