@@ -51,16 +51,51 @@ function getTranslation(lang: Language, key: string): string {
   return result;
 }
 
+// CIS and Russian-speaking region language codes
+const CIS_LANGUAGES = ['ru', 'uk', 'be', 'kk', 'uz', 'ky', 'tg', 'az', 'hy', 'ka', 'mo', 'tk'];
+
+function detectLanguageFromRegion(): Language {
+  try {
+    // 1. Check Telegram user language
+    const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code?.toLowerCase();
+    if (tgLang) {
+      // If user's Telegram language is from CIS region -> Russian
+      if (CIS_LANGUAGES.some(code => tgLang.startsWith(code))) {
+        return 'ru';
+      }
+      // Otherwise -> English
+      return 'en';
+    }
+    
+    // 2. Fallback to browser language
+    const browserLang = navigator.language?.toLowerCase() || '';
+    if (CIS_LANGUAGES.some(code => browserLang.startsWith(code))) {
+      return 'ru';
+    }
+    
+    // 3. Check timezone for CIS regions
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const cisTimezones = ['Europe/Moscow', 'Europe/Kiev', 'Europe/Minsk', 'Asia/Almaty', 'Asia/Tashkent', 'Asia/Bishkek', 'Asia/Dushanbe', 'Asia/Baku', 'Asia/Yerevan', 'Asia/Tbilisi'];
+    if (cisTimezones.some(tz => timezone.includes(tz.split('/')[1]))) {
+      return 'ru';
+    }
+    
+    // Default: English for non-CIS users
+    return 'en';
+  } catch {
+    return 'ru';
+  }
+}
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     if (typeof window !== 'undefined') {
+      // Check saved preference first
       const saved = localStorage.getItem('app-language');
       if (saved === 'en' || saved === 'ru') return saved;
       
-      try {
-        const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
-        if (tgLang === 'en' || tgLang?.startsWith('en')) return 'en';
-      } catch {}
+      // Auto-detect based on region
+      return detectLanguageFromRegion();
     }
     return 'ru';
   });
