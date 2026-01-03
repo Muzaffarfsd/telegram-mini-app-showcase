@@ -1135,7 +1135,7 @@ export const translations = {
           diagnostician: 'Диагност',
           dentist: 'Стоматолог',
         },
-        services: {
+        services_list: {
           generalExam: 'Общий осмотр',
           cardiogram: 'Кардиограмма',
           ultrasound: 'УЗИ диагностика',
@@ -2540,7 +2540,7 @@ export const translations = {
           diagnostician: 'Diagnostician',
           dentist: 'Dentist',
         },
-        services: {
+        services_list: {
           generalExam: 'General Examination',
           cardiogram: 'Cardiogram',
           ultrasound: 'Ultrasound Diagnostics',
