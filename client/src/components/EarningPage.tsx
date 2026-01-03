@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { 
   Coins, CheckCircle, Users, Gift, ArrowRight,
   Heart, MessageCircle, Eye, UserPlus, Youtube, Send,
@@ -9,6 +9,7 @@ import { useTelegram } from '@/hooks/useTelegram';
 import { useRewards } from '@/contexts/RewardsContext';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TasksEarningPageProps {
   onNavigate: (section: string) => void;
@@ -18,20 +19,20 @@ interface SocialTask {
   id: string;
   platform: 'youtube' | 'telegram' | 'instagram' | 'tiktok' | 'daily';
   type: string;
-  title: string;
-  description: string;
+  titleKey: string;
+  descKey: string;
   coins: number;
   url: string;
   channelUsername?: string;
 }
 
-const dailyTasks: SocialTask[] = [
+const dailyTasksData: SocialTask[] = [
   {
     id: 'daily_visit',
     platform: 'daily',
     type: 'visit',
-    title: 'Ежедневный вход',
-    description: 'Заходи каждый день',
+    titleKey: 'dailyLogin',
+    descKey: 'dailyLoginDesc',
     coins: 10,
     url: ''
   },
@@ -39,8 +40,8 @@ const dailyTasks: SocialTask[] = [
     id: 'daily_view_demos',
     platform: 'daily',
     type: 'view',
-    title: 'Посмотреть 3 демо',
-    description: 'Открой 3 демо-приложения',
+    titleKey: 'viewDemos',
+    descKey: 'viewDemosDesc',
     coins: 25,
     url: ''
   },
@@ -48,371 +49,59 @@ const dailyTasks: SocialTask[] = [
     id: 'daily_share',
     platform: 'daily',
     type: 'share',
-    title: 'Поделиться приложением',
-    description: 'Отправь ссылку другу',
+    titleKey: 'shareApp',
+    descKey: 'shareAppDesc',
     coins: 30,
     url: ''
   }
 ];
 
-const socialTasks: SocialTask[] = [
-  // YouTube Tasks (10 заданий)
-  {
-    id: 'youtube_subscribe',
-    platform: 'youtube',
-    type: 'subscribe',
-    title: 'Подписаться на YouTube',
-    description: 'Подписка на канал WEB4TG',
-    coins: 100,
-    url: 'https://www.youtube.com/@WEB4TG'
-  },
-  {
-    id: 'youtube_bell',
-    platform: 'youtube',
-    type: 'bell',
-    title: 'Включить уведомления',
-    description: 'Нажми на колокольчик',
-    coins: 50,
-    url: 'https://www.youtube.com/@WEB4TG'
-  },
-  {
-    id: 'youtube_like_1',
-    platform: 'youtube',
-    type: 'like',
-    title: 'Лайк видео #1',
-    description: 'Поставь лайк на последнее видео',
-    coins: 30,
-    url: 'https://www.youtube.com/@WEB4TG'
-  },
-  {
-    id: 'youtube_like_2',
-    platform: 'youtube',
-    type: 'like',
-    title: 'Лайк видео #2',
-    description: 'Поставь лайк на второе видео',
-    coins: 30,
-    url: 'https://www.youtube.com/@WEB4TG'
-  },
-  {
-    id: 'youtube_like_3',
-    platform: 'youtube',
-    type: 'like',
-    title: 'Лайк видео #3',
-    description: 'Поставь лайк на третье видео',
-    coins: 30,
-    url: 'https://www.youtube.com/@WEB4TG'
-  },
-  {
-    id: 'youtube_comment_1',
-    platform: 'youtube',
-    type: 'comment',
-    title: 'Комментарий #1',
-    description: 'Напиши комментарий под видео',
-    coins: 50,
-    url: 'https://www.youtube.com/@WEB4TG'
-  },
-  {
-    id: 'youtube_comment_2',
-    platform: 'youtube',
-    type: 'comment',
-    title: 'Комментарий #2',
-    description: 'Напиши ещё один комментарий',
-    coins: 50,
-    url: 'https://www.youtube.com/@WEB4TG'
-  },
-  {
-    id: 'youtube_view_1',
-    platform: 'youtube',
-    type: 'view',
-    title: 'Просмотр видео #1',
-    description: 'Посмотри видео до конца',
-    coins: 40,
-    url: 'https://www.youtube.com/@WEB4TG'
-  },
-  {
-    id: 'youtube_view_2',
-    platform: 'youtube',
-    type: 'view',
-    title: 'Просмотр видео #2',
-    description: 'Посмотри второе видео',
-    coins: 40,
-    url: 'https://www.youtube.com/@WEB4TG'
-  },
-  {
-    id: 'youtube_share',
-    platform: 'youtube',
-    type: 'share',
-    title: 'Поделиться видео',
-    description: 'Отправь видео другу',
-    coins: 60,
-    url: 'https://www.youtube.com/@WEB4TG'
-  },
+const socialTasksData: SocialTask[] = [
+  // YouTube Tasks (10 tasks)
+  { id: 'youtube_subscribe', platform: 'youtube', type: 'subscribe', titleKey: 'ytFollow', descKey: 'ytFollowDesc', coins: 100, url: 'https://www.youtube.com/@WEB4TG' },
+  { id: 'youtube_bell', platform: 'youtube', type: 'bell', titleKey: 'ytBell', descKey: 'ytBellDesc', coins: 50, url: 'https://www.youtube.com/@WEB4TG' },
+  { id: 'youtube_like_1', platform: 'youtube', type: 'like', titleKey: 'ytLike1', descKey: 'ytLikeDesc', coins: 30, url: 'https://www.youtube.com/@WEB4TG' },
+  { id: 'youtube_like_2', platform: 'youtube', type: 'like', titleKey: 'ytLike2', descKey: 'ytLikeDesc', coins: 30, url: 'https://www.youtube.com/@WEB4TG' },
+  { id: 'youtube_like_3', platform: 'youtube', type: 'like', titleKey: 'ytLike3', descKey: 'ytLikeDesc', coins: 30, url: 'https://www.youtube.com/@WEB4TG' },
+  { id: 'youtube_comment_1', platform: 'youtube', type: 'comment', titleKey: 'ytComment1', descKey: 'ytCommentDesc', coins: 50, url: 'https://www.youtube.com/@WEB4TG' },
+  { id: 'youtube_comment_2', platform: 'youtube', type: 'comment', titleKey: 'ytComment2', descKey: 'ytCommentDesc', coins: 50, url: 'https://www.youtube.com/@WEB4TG' },
+  { id: 'youtube_view_1', platform: 'youtube', type: 'view', titleKey: 'ytWatch1', descKey: 'ytWatchDesc', coins: 40, url: 'https://www.youtube.com/@WEB4TG' },
+  { id: 'youtube_view_2', platform: 'youtube', type: 'view', titleKey: 'ytWatch2', descKey: 'ytWatchDesc', coins: 40, url: 'https://www.youtube.com/@WEB4TG' },
+  { id: 'youtube_share', platform: 'youtube', type: 'share', titleKey: 'ytShare', descKey: 'ytShareDesc', coins: 60, url: 'https://www.youtube.com/@WEB4TG' },
   
-  // Telegram Tasks (8 заданий) - с верификацией подписки
-  {
-    id: 'telegram_subscribe',
-    platform: 'telegram',
-    type: 'subscribe',
-    title: 'Подписаться на канал',
-    description: 'Подписка на канал WEB4TG',
-    coins: 100,
-    url: 'https://t.me/web4_tg',
-    channelUsername: 'web4_tg'
-  },
-  {
-    id: 'telegram_read_1',
-    platform: 'telegram',
-    type: 'view',
-    title: 'Прочитать пост #1',
-    description: 'Прочитай последний пост',
-    coins: 20,
-    url: 'https://t.me/web4_tg',
-    channelUsername: 'web4_tg'
-  },
-  {
-    id: 'telegram_read_2',
-    platform: 'telegram',
-    type: 'view',
-    title: 'Прочитать пост #2',
-    description: 'Прочитай второй пост',
-    coins: 20,
-    url: 'https://t.me/web4_tg',
-    channelUsername: 'web4_tg'
-  },
-  {
-    id: 'telegram_read_3',
-    platform: 'telegram',
-    type: 'view',
-    title: 'Прочитать пост #3',
-    description: 'Прочитай третий пост',
-    coins: 20,
-    url: 'https://t.me/web4_tg',
-    channelUsername: 'web4_tg'
-  },
-  {
-    id: 'telegram_reaction_1',
-    platform: 'telegram',
-    type: 'like',
-    title: 'Реакция на пост #1',
-    description: 'Поставь реакцию на пост',
-    coins: 30,
-    url: 'https://t.me/web4_tg',
-    channelUsername: 'web4_tg'
-  },
-  {
-    id: 'telegram_reaction_2',
-    platform: 'telegram',
-    type: 'like',
-    title: 'Реакция на пост #2',
-    description: 'Поставь ещё одну реакцию',
-    coins: 30,
-    url: 'https://t.me/web4_tg',
-    channelUsername: 'web4_tg'
-  },
-  {
-    id: 'telegram_share',
-    platform: 'telegram',
-    type: 'share',
-    title: 'Переслать пост',
-    description: 'Перешли пост другу',
-    coins: 50,
-    url: 'https://t.me/web4_tg',
-    channelUsername: 'web4_tg'
-  },
-  {
-    id: 'telegram_comment',
-    platform: 'telegram',
-    type: 'comment',
-    title: 'Комментарий в канале',
-    description: 'Напиши комментарий под постом',
-    coins: 40,
-    url: 'https://t.me/web4_tg',
-    channelUsername: 'web4_tg'
-  },
+  // Telegram Tasks (8 tasks)
+  { id: 'telegram_subscribe', platform: 'telegram', type: 'subscribe', titleKey: 'tgFollow', descKey: 'tgFollowDesc', coins: 100, url: 'https://t.me/web4_tg', channelUsername: 'web4_tg' },
+  { id: 'telegram_read_1', platform: 'telegram', type: 'view', titleKey: 'tgRead1', descKey: 'tgReadDesc', coins: 20, url: 'https://t.me/web4_tg', channelUsername: 'web4_tg' },
+  { id: 'telegram_read_2', platform: 'telegram', type: 'view', titleKey: 'tgRead2', descKey: 'tgReadDesc', coins: 20, url: 'https://t.me/web4_tg', channelUsername: 'web4_tg' },
+  { id: 'telegram_read_3', platform: 'telegram', type: 'view', titleKey: 'tgRead3', descKey: 'tgReadDesc', coins: 20, url: 'https://t.me/web4_tg', channelUsername: 'web4_tg' },
+  { id: 'telegram_reaction_1', platform: 'telegram', type: 'like', titleKey: 'tgReact1', descKey: 'tgReactDesc', coins: 30, url: 'https://t.me/web4_tg', channelUsername: 'web4_tg' },
+  { id: 'telegram_reaction_2', platform: 'telegram', type: 'like', titleKey: 'tgReact2', descKey: 'tgReactDesc', coins: 30, url: 'https://t.me/web4_tg', channelUsername: 'web4_tg' },
+  { id: 'telegram_share', platform: 'telegram', type: 'share', titleKey: 'tgForward', descKey: 'tgForwardDesc', coins: 50, url: 'https://t.me/web4_tg', channelUsername: 'web4_tg' },
+  { id: 'telegram_comment', platform: 'telegram', type: 'comment', titleKey: 'tgComment', descKey: 'tgCommentDesc', coins: 40, url: 'https://t.me/web4_tg', channelUsername: 'web4_tg' },
   
-  // Instagram Tasks (10 заданий)
-  {
-    id: 'instagram_subscribe',
-    platform: 'instagram',
-    type: 'subscribe',
-    title: 'Подписаться на Instagram',
-    description: 'Подписка на @web4tg',
-    coins: 100,
-    url: 'https://www.instagram.com/web4tg/'
-  },
-  {
-    id: 'instagram_like_1',
-    platform: 'instagram',
-    type: 'like',
-    title: 'Лайк поста #1',
-    description: 'Поставь лайк на последний пост',
-    coins: 25,
-    url: 'https://www.instagram.com/web4tg/'
-  },
-  {
-    id: 'instagram_like_2',
-    platform: 'instagram',
-    type: 'like',
-    title: 'Лайк поста #2',
-    description: 'Поставь лайк на второй пост',
-    coins: 25,
-    url: 'https://www.instagram.com/web4tg/'
-  },
-  {
-    id: 'instagram_like_3',
-    platform: 'instagram',
-    type: 'like',
-    title: 'Лайк поста #3',
-    description: 'Поставь лайк на третий пост',
-    coins: 25,
-    url: 'https://www.instagram.com/web4tg/'
-  },
-  {
-    id: 'instagram_like_reels',
-    platform: 'instagram',
-    type: 'like',
-    title: 'Лайк Reels',
-    description: 'Поставь лайк на Reels',
-    coins: 30,
-    url: 'https://www.instagram.com/web4tg/'
-  },
-  {
-    id: 'instagram_comment_1',
-    platform: 'instagram',
-    type: 'comment',
-    title: 'Комментарий #1',
-    description: 'Напиши комментарий под постом',
-    coins: 50,
-    url: 'https://www.instagram.com/web4tg/'
-  },
-  {
-    id: 'instagram_comment_2',
-    platform: 'instagram',
-    type: 'comment',
-    title: 'Комментарий #2',
-    description: 'Напиши ещё один комментарий',
-    coins: 50,
-    url: 'https://www.instagram.com/web4tg/'
-  },
-  {
-    id: 'instagram_save',
-    platform: 'instagram',
-    type: 'save',
-    title: 'Сохранить пост',
-    description: 'Сохрани пост в коллекцию',
-    coins: 35,
-    url: 'https://www.instagram.com/web4tg/'
-  },
-  {
-    id: 'instagram_story',
-    platform: 'instagram',
-    type: 'share',
-    title: 'Репост в Stories',
-    description: 'Поделись постом в Stories',
-    coins: 70,
-    url: 'https://www.instagram.com/web4tg/'
-  },
-  {
-    id: 'instagram_share',
-    platform: 'instagram',
-    type: 'share',
-    title: 'Отправить другу',
-    description: 'Отправь пост другу в Direct',
-    coins: 40,
-    url: 'https://www.instagram.com/web4tg/'
-  },
+  // Instagram Tasks (10 tasks)
+  { id: 'instagram_subscribe', platform: 'instagram', type: 'subscribe', titleKey: 'igFollow', descKey: 'igFollowDesc', coins: 100, url: 'https://www.instagram.com/web4tg/' },
+  { id: 'instagram_like_1', platform: 'instagram', type: 'like', titleKey: 'igLike1', descKey: 'igLikeDesc', coins: 25, url: 'https://www.instagram.com/web4tg/' },
+  { id: 'instagram_like_2', platform: 'instagram', type: 'like', titleKey: 'igLike2', descKey: 'igLikeDesc', coins: 25, url: 'https://www.instagram.com/web4tg/' },
+  { id: 'instagram_like_3', platform: 'instagram', type: 'like', titleKey: 'igLike3', descKey: 'igLikeDesc', coins: 25, url: 'https://www.instagram.com/web4tg/' },
+  { id: 'instagram_like_reels', platform: 'instagram', type: 'like', titleKey: 'igReels', descKey: 'igReelsDesc', coins: 30, url: 'https://www.instagram.com/web4tg/' },
+  { id: 'instagram_comment_1', platform: 'instagram', type: 'comment', titleKey: 'igComment1', descKey: 'igCommentDesc', coins: 50, url: 'https://www.instagram.com/web4tg/' },
+  { id: 'instagram_comment_2', platform: 'instagram', type: 'comment', titleKey: 'igComment2', descKey: 'igCommentDesc', coins: 50, url: 'https://www.instagram.com/web4tg/' },
+  { id: 'instagram_save', platform: 'instagram', type: 'save', titleKey: 'igSave', descKey: 'igSaveDesc', coins: 35, url: 'https://www.instagram.com/web4tg/' },
+  { id: 'instagram_story', platform: 'instagram', type: 'share', titleKey: 'igStory', descKey: 'igStoryDesc', coins: 70, url: 'https://www.instagram.com/web4tg/' },
+  { id: 'instagram_share', platform: 'instagram', type: 'share', titleKey: 'igDm', descKey: 'igDmDesc', coins: 40, url: 'https://www.instagram.com/web4tg/' },
   
-  // TikTok Tasks (10 заданий)
-  {
-    id: 'tiktok_subscribe',
-    platform: 'tiktok',
-    type: 'subscribe',
-    title: 'Подписаться на TikTok',
-    description: 'Подписка на @web4tg',
-    coins: 100,
-    url: 'https://www.tiktok.com/@web4tg'
-  },
-  {
-    id: 'tiktok_like_1',
-    platform: 'tiktok',
-    type: 'like',
-    title: 'Лайк видео #1',
-    description: 'Поставь лайк на последнее видео',
-    coins: 25,
-    url: 'https://www.tiktok.com/@web4tg'
-  },
-  {
-    id: 'tiktok_like_2',
-    platform: 'tiktok',
-    type: 'like',
-    title: 'Лайк видео #2',
-    description: 'Поставь лайк на второе видео',
-    coins: 25,
-    url: 'https://www.tiktok.com/@web4tg'
-  },
-  {
-    id: 'tiktok_like_3',
-    platform: 'tiktok',
-    type: 'like',
-    title: 'Лайк видео #3',
-    description: 'Поставь лайк на третье видео',
-    coins: 25,
-    url: 'https://www.tiktok.com/@web4tg'
-  },
-  {
-    id: 'tiktok_like_4',
-    platform: 'tiktok',
-    type: 'like',
-    title: 'Лайк видео #4',
-    description: 'Поставь лайк на четвёртое видео',
-    coins: 25,
-    url: 'https://www.tiktok.com/@web4tg'
-  },
-  {
-    id: 'tiktok_comment_1',
-    platform: 'tiktok',
-    type: 'comment',
-    title: 'Комментарий #1',
-    description: 'Напиши комментарий под видео',
-    coins: 50,
-    url: 'https://www.tiktok.com/@web4tg'
-  },
-  {
-    id: 'tiktok_comment_2',
-    platform: 'tiktok',
-    type: 'comment',
-    title: 'Комментарий #2',
-    description: 'Напиши ещё один комментарий',
-    coins: 50,
-    url: 'https://www.tiktok.com/@web4tg'
-  },
-  {
-    id: 'tiktok_view_1',
-    platform: 'tiktok',
-    type: 'view',
-    title: 'Просмотр видео #1',
-    description: 'Посмотри видео до конца',
-    coins: 20,
-    url: 'https://www.tiktok.com/@web4tg'
-  },
-  {
-    id: 'tiktok_view_2',
-    platform: 'tiktok',
-    type: 'view',
-    title: 'Просмотр видео #2',
-    description: 'Посмотри второе видео',
-    coins: 20,
-    url: 'https://www.tiktok.com/@web4tg'
-  },
-  {
-    id: 'tiktok_share',
-    platform: 'tiktok',
-    type: 'share',
-    title: 'Поделиться видео',
-    description: 'Отправь видео другу',
-    coins: 60,
-    url: 'https://www.tiktok.com/@web4tg'
-  }
+  // TikTok Tasks (10 tasks)
+  { id: 'tiktok_subscribe', platform: 'tiktok', type: 'subscribe', titleKey: 'ttFollow', descKey: 'ttFollowDesc', coins: 100, url: 'https://www.tiktok.com/@web4tg' },
+  { id: 'tiktok_like_1', platform: 'tiktok', type: 'like', titleKey: 'ttLike1', descKey: 'ttLikeDesc', coins: 25, url: 'https://www.tiktok.com/@web4tg' },
+  { id: 'tiktok_like_2', platform: 'tiktok', type: 'like', titleKey: 'ttLike2', descKey: 'ttLikeDesc', coins: 25, url: 'https://www.tiktok.com/@web4tg' },
+  { id: 'tiktok_like_3', platform: 'tiktok', type: 'like', titleKey: 'ttLike3', descKey: 'ttLikeDesc', coins: 25, url: 'https://www.tiktok.com/@web4tg' },
+  { id: 'tiktok_like_4', platform: 'tiktok', type: 'like', titleKey: 'ttLike4', descKey: 'ttLikeDesc', coins: 25, url: 'https://www.tiktok.com/@web4tg' },
+  { id: 'tiktok_comment_1', platform: 'tiktok', type: 'comment', titleKey: 'ttComment1', descKey: 'ttCommentDesc', coins: 50, url: 'https://www.tiktok.com/@web4tg' },
+  { id: 'tiktok_comment_2', platform: 'tiktok', type: 'comment', titleKey: 'ttComment2', descKey: 'ttCommentDesc', coins: 50, url: 'https://www.tiktok.com/@web4tg' },
+  { id: 'tiktok_view_1', platform: 'tiktok', type: 'view', titleKey: 'ttWatch1', descKey: 'ttWatchDesc', coins: 20, url: 'https://www.tiktok.com/@web4tg' },
+  { id: 'tiktok_view_2', platform: 'tiktok', type: 'view', titleKey: 'ttWatch2', descKey: 'ttWatchDesc', coins: 20, url: 'https://www.tiktok.com/@web4tg' },
+  { id: 'tiktok_share', platform: 'tiktok', type: 'share', titleKey: 'ttShare', descKey: 'ttShareDesc', coins: 60, url: 'https://www.tiktok.com/@web4tg' }
 ];
 
 const getPlatformIcon = (platform: string) => {
@@ -456,11 +145,25 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
   const { userStats } = useRewards();
   const { toast } = useToast();
   const { isDark } = useTheme();
+  const { t } = useLanguage();
   
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [pendingTasks, setPendingTasks] = useState<Set<string>>(new Set());
   const [streak, setStreak] = useState(0);
   const [timeToReset, setTimeToReset] = useState('');
+  
+  // Tasks with translations
+  const dailyTasks = useMemo(() => dailyTasksData.map(task => ({
+    ...task,
+    title: t(`earning.tasks.${task.titleKey}`),
+    description: t(`earning.tasks.${task.descKey}`)
+  })), [t]);
+  
+  const socialTasks = useMemo(() => socialTasksData.map(task => ({
+    ...task,
+    title: t(`earning.tasks.${task.titleKey}`),
+    description: t(`earning.tasks.${task.descKey}`)
+  })), [t]);
   
   // Theme-aware colors
   const colors = {
@@ -487,7 +190,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       
-      setTimeToReset(`${hours}ч ${minutes}м`);
+      setTimeToReset(`${hours}${t('earning.hours')} ${minutes}${t('earning.minutes')}`);
     };
     
     updateTimer();
@@ -567,18 +270,18 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
             // Different messages for different task types
             if (task.platform === 'telegram' && task.type === 'subscribe') {
               toast({
-                title: 'Подписка подтверждена!',
-                description: `+${task.coins} монет`,
+                title: t('tasks.taskCompletedTitle'),
+                description: `+${task.coins} ${t('earning.coins')}`,
               });
             } else if (task.platform === 'telegram') {
               toast({
-                title: 'Задание принято!',
-                description: `+${task.coins} монет (проверка подписки пройдена)`,
+                title: t('tasks.taskCompletedTitle'),
+                description: `+${task.coins} ${t('earning.coins')}`,
               });
             } else if (task.platform === 'daily') {
               toast({
-                title: 'Ежедневное задание!',
-                description: `+${task.coins} монет`,
+                title: t('tasks.dailyTaskTitle'),
+                description: `+${task.coins} ${t('earning.coins')}`,
               });
               // Update streak from server response
               if (data.streak) {
@@ -586,22 +289,22 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               }
             } else {
               toast({
-                title: 'Задание выполнено!',
-                description: `+${task.coins} монет`,
+                title: t('tasks.taskCompletedTitle'),
+                description: `+${task.coins} ${t('earning.coins')}`,
               });
             }
           } else {
             // Error - task not verified
             if (task.platform === 'telegram') {
               toast({
-                title: 'Сначала подпишись на канал',
-                description: data.error || 'Подпишись на @web4_tg и попробуй снова',
+                title: t('tasks.subscribeFirst'),
+                description: data.error || t('tasks.subscribeFirstDesc'),
                 variant: 'destructive'
               });
             } else {
               toast({
-                title: 'Ошибка',
-                description: data.error || 'Попробуй ещё раз',
+                title: t('tasks.error'),
+                description: data.error || t('tasks.taskNotCompleted'),
                 variant: 'destructive'
               });
             }
@@ -610,16 +313,16 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
           console.error('Task complete error:', error);
           // Fallback for when server is unavailable - don't award coins
           toast({
-            title: 'Ошибка соединения',
-            description: 'Попробуй позже',
+            title: t('tasks.connectionErrorTitle'),
+            description: t('errors.networkError'),
             variant: 'destructive'
           });
         }
       } else {
         // No Telegram auth - cannot verify, show error
         toast({
-          title: 'Требуется авторизация',
-          description: 'Открой приложение через Telegram',
+          title: t('tasks.authRequired'),
+          description: t('errors.unauthorized'),
           variant: 'destructive'
         });
       }
@@ -631,7 +334,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
         return next;
       });
     }, waitTime);
-  }, [completedTasks, pendingTasks, hapticFeedback, toast, initData]);
+  }, [completedTasks, pendingTasks, hapticFeedback, toast, initData, t]);
 
   const totalEarned = Array.from(completedTasks).reduce((sum, taskId) => {
     const task = [...socialTasks, ...dailyTasks].find(t => t.id === taskId);
@@ -781,7 +484,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               marginBottom: '24px'
             }}
           >
-            Заработок монет
+            {t('earning.heroEyebrow')}
           </p>
           
           <h1 
@@ -795,11 +498,11 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               color: colors.textPrimary
             }}
           >
-            Выполняй задания,
+            {t('earning.heroTitle1')}
             <br />
-            <span style={{ color: '#A78BFA' }}>копи монеты</span>
+            <span style={{ color: '#A78BFA' }}>{t('earning.heroTitle2')}</span>
             <br />
-            получай скидку.
+            {t('earning.heroTitle3')}
           </h1>
           
           <p 
@@ -814,7 +517,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               maxWidth: '320px'
             }}
           >
-            Подписывайся, лайкай, комментируй — чем больше заданий выполнишь, тем больше монет получишь. Монеты = скидка на разработку.
+            {t('earning.heroDescription')}
           </p>
         </header>
 
@@ -836,7 +539,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               marginBottom: '16px'
             }}
           >
-            Как это работает
+            {t('earning.howItWorks')}
           </p>
           
           <div 
@@ -856,7 +559,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               lineHeight: '1.5',
               fontStyle: 'italic'
             }}>
-              «Чем активнее ты в наших соцсетях — тем больше монет копишь. Накопленные монеты обмениваются на скидку при заказе разработки Telegram Mini App.»
+              {t('earning.howItWorksQuote')}
             </p>
           </div>
         </section>
@@ -873,7 +576,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               marginBottom: '20px'
             }}
           >
-            Твой прогресс
+            {t('earning.yourProgress')}
           </p>
           
           <div 
@@ -905,7 +608,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
                 color: colors.textMuted,
                 marginTop: '4px'
               }}>
-                монет собрано
+                {t('earning.coinsCollected')}
               </p>
             </div>
             <div 
@@ -933,7 +636,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
                 color: colors.textMuted,
                 marginTop: '4px'
               }}>
-                дней подряд
+                {t('earning.daysInRow')}
               </p>
             </div>
           </div>
@@ -960,7 +663,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               marginTop: '8px',
               textAlign: 'center'
             }}>
-              {completedTasks.size} из {socialTasks.length + dailyTasks.length} заданий выполнено
+              {completedTasks.size} {t('earning.of')} {socialTasks.length + dailyTasks.length} {t('earning.tasksCompletedLower')}
             </p>
           </div>
         </section>
@@ -983,7 +686,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
                 textTransform: 'uppercase'
               }}
             >
-              Ежедневные задания
+              {t('earning.sections.daily')}
             </p>
             <div style={{
               display: 'flex',
@@ -996,7 +699,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
             }}>
               <Clock size={14} color="#FBBF24" />
               <span style={{ fontSize: '12px', fontWeight: 500, color: '#FBBF24' }}>
-                Сброс через {timeToReset}
+                {t('earning.resetIn')} {timeToReset}
               </span>
             </div>
           </div>
@@ -1007,10 +710,11 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
         </section>
 
         {/* SOCIAL TASKS SECTIONS */}
-        {renderTaskSection('telegram', `Telegram — ${platformTasks.telegram.length} заданий (с проверкой)`)}
-        {renderTaskSection('youtube', `YouTube — ${platformTasks.youtube.length} заданий`)}
-        {renderTaskSection('instagram', `Instagram — ${platformTasks.instagram.length} заданий`)}
-        {renderTaskSection('tiktok', `TikTok — ${platformTasks.tiktok.length} заданий`)}
+        {renderTaskSection('telegram', `Telegram — ${platformTasks.telegram.length} ${t('earning.taskWord')} ${t('earning.withVerification')}`)}
+        {renderTaskSection('youtube', `YouTube — ${platformTasks.youtube.length} ${t('earning.taskWord')}`)}
+        {renderTaskSection('instagram', `Instagram — ${platformTasks.instagram.length} ${t('earning.taskWord')}`)}
+        {renderTaskSection('tiktok', `TikTok — ${platformTasks.tiktok.length} ${t('earning.taskWord')}`)}
+
 
         {/* Hairline */}
         <div 
@@ -1030,17 +734,17 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               marginBottom: '20px'
             }}
           >
-            Курс обмена на скидку
+            {t('earning.exchangeRate')}
           </p>
           
           <div className="space-y-3">
             {[
-              { coins: 500, discount: '1%', label: 'Начальный уровень' },
-              { coins: 1000, discount: '2%', label: 'Активный пользователь' },
-              { coins: 1500, discount: '3%', label: 'Продвинутый уровень' },
-              { coins: 2000, discount: '5%', label: 'Эксперт соцсетей' },
-              { coins: 3000, discount: '7%', label: 'Мастер активности' },
-              { coins: 5000, discount: '10%', label: 'Легенда WEB4TG' }
+              { coins: 500, discount: '1%', labelKey: 'tier1' },
+              { coins: 1000, discount: '2%', labelKey: 'tier2' },
+              { coins: 1500, discount: '3%', labelKey: 'tier3' },
+              { coins: 2000, discount: '5%', labelKey: 'tier4' },
+              { coins: 3000, discount: '7%', labelKey: 'tier5' },
+              { coins: 5000, discount: '10%', labelKey: 'tier6' }
             ].map((tier, index) => {
               const currentCoins = (userStats?.totalCoins || 0) + totalEarned;
               const isAchieved = currentCoins >= tier.coins;
@@ -1086,14 +790,14 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
                       color: colors.textPrimary,
                       marginBottom: '4px'
                     }}>
-                      {tier.coins} монет = скидка {tier.discount}
+                      {tier.coins} {t('earning.coinsEquals')} {tier.discount}
                     </p>
                     <p style={{
                       fontSize: '13px',
                       color: colors.textSecondary,
                       lineHeight: '1.4'
                     }}>
-                      {tier.label}
+                      {t(`earning.tiers.${tier.labelKey}`)}
                     </p>
                   </div>
                 </div>
@@ -1108,9 +812,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
             textAlign: 'center',
             lineHeight: '1.5'
           }}>
-            Скидка применяется к заказу разработки
-            <br />
-            Telegram Mini App в нашей студии
+            {t('earning.discountNote')}
           </p>
         </section>
 
@@ -1146,7 +848,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               color: colors.textPrimary,
               marginBottom: '8px'
             }}>
-              Приглашай друзей
+              {t('earning.inviteFriends')}
             </h3>
             
             <p style={{
@@ -1155,9 +857,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               marginBottom: '20px',
               lineHeight: '1.5'
             }}>
-              Получай 100 монет за каждого
-              <br />
-              приглашённого друга
+              {t('earning.inviteBonus')}
             </p>
             
             <button
@@ -1178,7 +878,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               }}
               data-testid="button-referral-program"
             >
-              Пригласить друзей
+              {t('earning.inviteButton')}
               <ArrowRight size={18} />
             </button>
           </div>
@@ -1196,7 +896,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               marginBottom: '16px'
             }}
           >
-            Готовы заказать?
+            {t('earning.readyToOrder')}
           </p>
           
           <div 
@@ -1214,7 +914,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               lineHeight: '1.6',
               marginBottom: '20px'
             }}>
-              Накопил монеты? Используй их при заказе разработки Telegram Mini App. Чем больше монет — тем выше скидка на твой проект.
+              {t('earning.orderDescription')}
             </p>
             
             <button
@@ -1237,7 +937,7 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
               }}
               data-testid="button-order-app"
             >
-              Заказать приложение
+              {t('earning.orderButton')}
               <ArrowRight size={18} />
             </button>
           </div>
