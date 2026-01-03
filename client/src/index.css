@@ -3,8 +3,59 @@
 @import '@fontsource/inter/latin-400.css';
 @import '@fontsource/inter/latin-600.css';
 @import '@fontsource/inter/latin-700.css';
+/* Premium fonts for English language */
+@import '@fontsource/playfair-display/latin-400.css';
+@import '@fontsource/playfair-display/latin-600.css';
+@import '@fontsource/playfair-display/latin-700.css';
+@import '@fontsource/montserrat/latin-400.css';
+@import '@fontsource/montserrat/latin-500.css';
+@import '@fontsource/montserrat/latin-600.css';
 /* Apple Quality Standards */
 @import './styles/apple.css';
+
+/* Language-specific font families */
+:root {
+  --font-heading-ru: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body-ru: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading-en: 'Playfair Display', Georgia, serif;
+  --font-body-en: 'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Russian language - Inter for everything */
+html.lang-ru {
+  --font-heading: var(--font-heading-ru);
+  --font-body: var(--font-body-ru);
+}
+
+html.lang-ru body {
+  font-family: var(--font-body-ru);
+}
+
+html.lang-ru h1, html.lang-ru h2, html.lang-ru h3, html.lang-ru h4, html.lang-ru h5, html.lang-ru h6 {
+  font-family: var(--font-heading-ru);
+}
+
+/* English language - Premium fonts */
+html.lang-en {
+  --font-heading: var(--font-heading-en);
+  --font-body: var(--font-body-en);
+}
+
+html.lang-en body {
+  font-family: var(--font-body-en);
+  letter-spacing: 0.01em;
+}
+
+html.lang-en h1, html.lang-en h2, html.lang-en h3 {
+  font-family: var(--font-heading-en);
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+html.lang-en h4, html.lang-en h5, html.lang-en h6 {
+  font-family: var(--font-body-en);
+  font-weight: 600;
+}
 
 @tailwind base;
 @tailwind components;

@@ -4,7 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { useTelegram } from "./hooks/useTelegram";
 import { useTelegramButtons } from "./hooks/useTelegramButtons";
-import { Home, ShoppingCart, Briefcase, Bot, Sun, Moon } from "lucide-react";
+import { Home, ShoppingCart, Briefcase, Bot, Sun, Moon, Languages } from "lucide-react";
 import { useTheme } from "./hooks/useTheme";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
@@ -12,6 +12,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PageLoadingFallback } from "./components/PageLoadingFallback";
 import { useRouting, navigate } from "./hooks/useRouting";
 import { useScrollHaptic } from "./hooks/useScrollHaptic";
+import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 
 // Retry wrapper for dynamic imports - handles chunk loading failures after deploys
 function lazyWithRetry<T extends { default: any }>(
@@ -118,6 +119,34 @@ const NavButton = ({ onClick, isActive, ariaLabel, testId, children }: NavButton
       
       {/* Icon */}
       {children}
+    </button>
+  );
+};
+
+// Language toggle button component
+const LanguageToggleButton = () => {
+  const { language, setLanguage } = useLanguage();
+  const { hapticFeedback } = useTelegram();
+  
+  const toggleLanguage = () => {
+    setLanguage(language === 'ru' ? 'en' : 'ru');
+    hapticFeedback.light();
+  };
+  
+  return (
+    <button
+      onClick={toggleLanguage}
+      className="relative flex items-center justify-center w-10 h-10 rounded-full nav-button-instant"
+      style={{
+        background: 'rgba(99, 102, 241, 0.15)',
+        border: '1px solid rgba(99, 102, 241, 0.3)',
+      }}
+      aria-label={language === 'ru' ? 'Switch to English' : 'Переключить на русский'}
+      data-testid="button-language-toggle"
+    >
+      <span className="text-xs font-bold text-white/90 uppercase tracking-wide">
+        {language === 'ru' ? 'EN' : 'RU'}
+      </span>
     </button>
   );
 };
@@ -297,6 +326,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
       <Suspense fallback={null}>
         <LazyMotionProvider>
           <LazyRewardsProvider>
@@ -462,6 +492,9 @@ function App() {
                     {/* Разделитель */}
                     <div className="w-px h-8 mx-1" style={{ background: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.2)' }} />
                     
+                    {/* Language Toggle */}
+                    <LanguageToggleButton />
+                    
                     {/* Переключатель темы - яркий и заметный */}
                     <button
                       onClick={() => { toggleTheme(); hapticFeedback.medium(); }}
@@ -562,6 +595,7 @@ function App() {
           </LazyRewardsProvider>
         </LazyMotionProvider>
       </Suspense>
+    </LanguageProvider>
     </QueryClientProvider>
   );
 }
