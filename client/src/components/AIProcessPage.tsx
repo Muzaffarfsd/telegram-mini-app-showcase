@@ -56,20 +56,22 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div className="relative z-10">
             <div className="flex justify-center mb-6 scroll-fade-in">
               <div 
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full"
                 style={{
                   background: 'rgba(0, 122, 255, 0.1)',
                   border: '1px solid rgba(0, 122, 255, 0.2)',
-                  backdropFilter: 'blur(20px)'
+                  backdropFilter: 'blur(20px)',
+                  minWidth: '160px'
                 }}
               >
-                <Sparkles className="w-4 h-4 text-[#007AFF]" />
+                <Sparkles className="w-4 h-4 text-[#007AFF] flex-shrink-0" />
                 <span 
                   style={{
                     fontSize: '13px',
                     fontWeight: 600,
                     color: '#007AFF',
-                    letterSpacing: '0.02em'
+                    letterSpacing: '0.02em',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {t('aiProcess.badge')}
@@ -85,14 +87,17 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 fontWeight: 700,
                 letterSpacing: '-0.05em',
                 lineHeight: '1.05',
-                color: 'var(--text-primary)'
+                color: 'var(--text-primary)',
+                minHeight: '170px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
-              {t('aiProcess.heroTitle1')}
-              <br />
-              {t('aiProcess.heroTitle2')}
-              <br />
-              {t('aiProcess.heroTitle3')}
+              <span>{t('aiProcess.heroTitle1')}</span>
+              <span>{t('aiProcess.heroTitle2')}</span>
+              <span>{t('aiProcess.heroTitle3')}</span>
             </h1>
             
             <p 
@@ -102,12 +107,16 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 lineHeight: '1.42',
                 fontWeight: 400,
                 color: 'var(--text-tertiary)',
-                letterSpacing: '-0.015em'
+                letterSpacing: '-0.015em',
+                minHeight: '56px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
-              {t('aiProcess.heroSubtitle1')}
-              <br />
-              {t('aiProcess.heroSubtitle2')}
+              <span>{t('aiProcess.heroSubtitle1')}</span>
+              <span>{t('aiProcess.heroSubtitle2')}</span>
             </p>
 
             <div className="flex justify-center mb-8 scroll-fade-in-delay-3">
@@ -115,19 +124,21 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 href="https://t.me/web4tgs"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full font-semibold transition-all duration-300 active:scale-[0.97]"
+                className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full font-semibold transition-all duration-300 active:scale-[0.97]"
                 style={{
                   background: 'linear-gradient(135deg, #007AFF 0%, #0051D5 100%)',
                   color: '#FFFFFF',
                   fontSize: '17px',
                   letterSpacing: '-0.01em',
-                  boxShadow: '0 8px 32px rgba(0, 122, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+                  boxShadow: '0 8px 32px rgba(0, 122, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                  minWidth: '280px',
+                  minHeight: '56px'
                 }}
                 data-testid="button-consultation"
               >
-                <MessageSquare className="w-5 h-5" />
-                {t('aiProcess.getConsultation')}
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                <MessageSquare className="w-5 h-5 flex-shrink-0" />
+                <span style={{ whiteSpace: 'nowrap' }}>{t('aiProcess.getConsultation')}</span>
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 flex-shrink-0" />
               </a>
             </div>
 
@@ -350,7 +361,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 AIProcessPage.displayName = 'AIProcessPage';
 
 const StatBadge = memo(({ number, label }: { number: string; label: string }) => (
-  <div className="text-center">
+  <div className="text-center" style={{ minWidth: '80px', flex: '1 1 0' }}>
     <div 
       style={{
         fontSize: '24px',
@@ -358,17 +369,22 @@ const StatBadge = memo(({ number, label }: { number: string; label: string }) =>
         letterSpacing: '-0.03em',
         color: 'var(--text-primary)',
         lineHeight: '1',
-        marginBottom: '4px'
+        marginBottom: '4px',
+        minHeight: '24px'
       }}
     >
       {number}
     </div>
     <div 
       style={{
-        fontSize: '12px',
+        fontSize: '10px',
         color: 'var(--text-quaternary)',
         letterSpacing: '0.02em',
-        textTransform: 'uppercase'
+        textTransform: 'uppercase',
+        minHeight: '14px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
       }}
     >
       {label}
