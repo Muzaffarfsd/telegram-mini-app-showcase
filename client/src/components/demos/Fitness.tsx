@@ -508,20 +508,20 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
 
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="p-4 bg-orange-500/20 backdrop-blur-xl rounded-xl border border-orange-400/30">
-              <p className="text-sm text-white/60 mb-1">Тренировки</p>
+              <p className="text-sm text-white/60 mb-1">{t('demos.fitness.workouts')}</p>
               <p className="text-2xl font-bold text-orange-600">{stats.workoutsCompleted}</p>
             </div>
             <div className="p-4 bg-red-500/20 backdrop-blur-xl rounded-xl border border-red-400/30">
-              <p className="text-sm text-white/60 mb-1">Калорий</p>
-              <p className="text-2xl font-bold text-red-600">{stats.caloriesBurned.toLocaleString('ru-RU')}</p>
+              <p className="text-sm text-white/60 mb-1">{t('demos.fitness.calories')}</p>
+              <p className="text-2xl font-bold text-red-600">{stats.caloriesBurned.toLocaleString(language === 'ru' ? 'ru-RU' : 'en-US')}</p>
             </div>
             <div className="p-4 bg-purple-500/20 backdrop-blur-xl rounded-xl border border-purple-400/30">
-              <p className="text-sm text-white/60 mb-1">Минут</p>
+              <p className="text-sm text-white/60 mb-1">{t('demos.fitness.minutes')}</p>
               <p className="text-2xl font-bold text-purple-600">{stats.totalMinutes}</p>
             </div>
             <div className="p-4 bg-green-500/20 backdrop-blur-xl rounded-xl border border-green-400/30">
-              <p className="text-sm text-white/60 mb-1">Серия</p>
-              <p className="text-2xl font-bold text-green-600">{stats.streak} дней</p>
+              <p className="text-sm text-white/60 mb-1">{t('demos.fitness.streak')}</p>
+              <p className="text-2xl font-bold text-green-600">{stats.streak} {t('demos.fitness.days')}</p>
             </div>
           </div>
         </div>
@@ -530,10 +530,10 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
           <div>
             <h3 className="font-semibold mb-3 flex items-center gap-2">
               <Award className="w-5 h-5 text-orange-600" />
-              Достижения
+              {t('demos.fitness.achievements')}
             </h3>
             <div className="grid gap-3">
-              {achievements.map((achievement) => (
+              {achievementsTranslated.map((achievement) => (
                 <div 
                   key={achievement.id}
                   className={`p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 ${
@@ -548,7 +548,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
                         <h4 className="font-medium">{achievement.title}</h4>
                         {achievement.unlocked && (
                           <span className="text-xs px-2 py-1 bg-green-500/20 text-green-600 rounded-full">
-                            Получено
+                            {t('demos.fitness.achieved')}
                           </span>
                         )}
                       </div>
@@ -574,7 +574,7 @@ export default memo(function Fitness({ activeTab }: FitnessProps) {
           <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-history">
             <div className="flex items-center gap-3">
               <Calendar className="w-5 h-5 text-white/60" />
-              <span className="font-medium">История тренировок</span>
+              <span className="font-medium">{t('demos.fitness.workoutHistory')}</span>
             </div>
             <ChevronLeft className="w-5 h-5 rotate-180 text-white/60" />
           </button>
