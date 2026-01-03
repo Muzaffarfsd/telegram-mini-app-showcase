@@ -56,6 +56,22 @@ export const translations = {
       enableDarkTheme: 'Включить тёмную тему',
     },
     
+    // Errors
+    errors: {
+      generic: 'Произошла ошибка',
+      loadingError: 'Ошибка загрузки данных',
+      technicalDetails: 'Технические детали',
+      tryAgain: 'Попробовать снова',
+      errorRecorded: 'Ошибка зарегистрирована',
+      networkError: 'Ошибка сети',
+      serverError: 'Ошибка сервера',
+      notFound: 'Страница не найдена',
+      unauthorized: 'Требуется авторизация',
+      forbidden: 'Доступ запрещён',
+      timeout: 'Превышено время ожидания',
+      unknown: 'Неизвестная ошибка',
+    },
+    
     // Showcase / Landing
     showcase: {
       heroTitle: 'Приложение,',
@@ -1349,6 +1365,22 @@ export const translations = {
       contactUs: 'Contact us',
       enableLightTheme: 'Enable light theme',
       enableDarkTheme: 'Enable dark theme',
+    },
+    
+    // Errors
+    errors: {
+      generic: 'An error occurred',
+      loadingError: 'Failed to load data',
+      technicalDetails: 'Technical details',
+      tryAgain: 'Try again',
+      errorRecorded: 'Error has been recorded',
+      networkError: 'Network error',
+      serverError: 'Server error',
+      notFound: 'Page not found',
+      unauthorized: 'Authorization required',
+      forbidden: 'Access denied',
+      timeout: 'Request timeout',
+      unknown: 'Unknown error',
     },
     
     // Showcase / Landing
