@@ -532,6 +532,42 @@ export const translations = {
         instagramViewPortfolio: 'Посмотрите нашу галерею работ в Stories',
         instagramViewReview: 'Изучите обзор наших услуг в Reels',
       },
+      
+      // PremiumTasksPage additions
+      dailyTasksTitle: 'Ежедневные задания',
+      resetIn: 'Сброс через {time}',
+      platformTasks: '{platform} — {count} заданий',
+      platformTasksWithVerification: '{platform} — {count} заданий (с проверкой)',
+      exchangeRateTitle: 'Курс обмена на скидку',
+      tierLabel: '{coins} монет = скидка {discount}',
+      discountAppliedTo: 'Скидка применяется к заказу разработки Telegram Mini App в нашей студии',
+      inviteFriendsTitle: 'Приглашай друзей',
+      inviteFriendsDesc: 'Получай 100 монет за каждого приглашённого друга',
+      inviteFriendsBtn: 'Пригласить друзей',
+      readyToOrderTitle: 'Готовы заказать?',
+      readyToOrderDesc: 'Накопил монеты? Используй их при заказе разработки Telegram Mini App. Чем больше монет — тем выше скидка на твой проект.',
+      orderAppBtn: 'Заказать приложение',
+      subscriptionConfirmed: 'Подписка подтверждена!',
+      taskAccepted: 'Задание принято!',
+      taskAcceptedDesc: '+{coins} монет (проверка подписки пройдена)',
+      dailyTaskTitle: 'Ежедневное задание!',
+      taskCompletedTitle: 'Задание выполнено!',
+      subscribeFirst: 'Сначала подпишись на канал',
+      subscribeFirstDesc: 'Подпишись на @web4_tg и попробуй снова',
+      authRequired: 'Требуется авторизация',
+      openInTelegram: 'Открой приложение через Telegram',
+      connectionErrorTitle: 'Ошибка соединения',
+      tryLater: 'Попробуй позже',
+      
+      // Tiers
+      tiers: {
+        starter: 'Начальный уровень',
+        active: 'Активный пользователь',
+        advanced: 'Продвинутый уровень',
+        expert: 'Эксперт соцсетей',
+        master: 'Мастер активности',
+        legend: 'Легенда WEB4TG'
+      }
     },
     
     // Referral
@@ -1937,6 +1973,42 @@ export const translations = {
         instagramViewPortfolio: 'View our work gallery in Stories',
         instagramViewReview: 'Study our services review in Reels',
       },
+      
+      // PremiumTasksPage additions
+      dailyTasksTitle: 'Daily Tasks',
+      resetIn: 'Reset in {time}',
+      platformTasks: '{platform} — {count} tasks',
+      platformTasksWithVerification: '{platform} — {count} tasks (with verification)',
+      exchangeRateTitle: 'Discount Exchange Rate',
+      tierLabel: '{coins} coins = {discount} discount',
+      discountAppliedTo: 'Discount applies to Telegram Mini App development order in our studio',
+      inviteFriendsTitle: 'Invite Friends',
+      inviteFriendsDesc: 'Get 100 coins for each invited friend',
+      inviteFriendsBtn: 'Invite Friends',
+      readyToOrderTitle: 'Ready to order?',
+      readyToOrderDesc: 'Accumulated coins? Use them when ordering Telegram Mini App development. The more coins — the higher the discount on your project.',
+      orderAppBtn: 'Order Application',
+      subscriptionConfirmed: 'Subscription confirmed!',
+      taskAccepted: 'Task accepted!',
+      taskAcceptedDesc: '+{coins} coins (subscription check passed)',
+      dailyTaskTitle: 'Daily Task!',
+      taskCompletedTitle: 'Task completed!',
+      subscribeFirst: 'Subscribe to the channel first',
+      subscribeFirstDesc: 'Subscribe to @web4_tg and try again',
+      authRequired: 'Authorization required',
+      openInTelegram: 'Open the app through Telegram',
+      connectionErrorTitle: 'Connection error',
+      tryLater: 'Try later',
+      
+      // Tiers
+      tiers: {
+        starter: 'Starter level',
+        active: 'Active user',
+        advanced: 'Advanced level',
+        expert: 'Social media expert',
+        master: 'Activity master',
+        legend: 'WEB4TG Legend'
+      }
     },
     
     // Referral
