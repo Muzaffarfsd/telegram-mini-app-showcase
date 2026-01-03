@@ -9,7 +9,7 @@ import {
   ArrowRight,
   Zap
 } from "lucide-react";
-import { useLanguage } from "../lib/LanguageContext";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface AIProcessPageProps {
   onNavigate: (path: string) => void;

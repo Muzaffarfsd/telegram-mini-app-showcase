@@ -2,7 +2,7 @@ import { demoApps } from "../data/demoApps";
 import { ArrowRight } from "lucide-react";
 import { FavoritesSection } from "./FavoritesSection";
 import { FavoriteButton } from "./FavoriteButton";
-import { useLanguage } from "../lib/LanguageContext";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface ProjectsPageProps {
   onNavigate: (section: string) => void;
