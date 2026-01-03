@@ -151,6 +151,12 @@ const LanguageToggleButton = () => {
   );
 };
 
+// Component to sync Telegram buttons with language (must be inside LanguageProvider)
+const TelegramButtonsSync = ({ routeComponent }: { routeComponent: string }) => {
+  useTelegramButtons(routeComponent as any);
+  return null;
+};
+
 function App() {
   const [orderData, setOrderData] = useState<any>(null);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -163,9 +169,6 @@ function App() {
   
   // iOS 26-style scroll haptics (vibration feedback)
   useScrollHaptic({ enabled: true });
-  
-  // Native Telegram buttons
-  useTelegramButtons(route.component as any);
   
   // Deferred initialization after first paint
   useEffect(() => {
@@ -327,6 +330,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
+      {/* Sync Telegram native buttons with language changes */}
+      <TelegramButtonsSync routeComponent={route.component} />
       <Suspense fallback={null}>
         <LazyMotionProvider>
           <LazyRewardsProvider>

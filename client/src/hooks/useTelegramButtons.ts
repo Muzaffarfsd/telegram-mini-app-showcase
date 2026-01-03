@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useTelegram } from './useTelegram';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ButtonConfig {
   mainButton?: {
@@ -27,6 +28,7 @@ export function useTelegramButtons(
   }
 ) {
   const { mainButton, secondaryButton, shareApp, openTelegramLink, hapticFeedback } = useTelegram();
+  const { t, language } = useLanguage();
   const cleanupRef = useRef<(() => void) | null>(null);
 
   const navigate = useCallback((path: string) => {
@@ -54,10 +56,10 @@ export function useTelegramButtons(
   const handleShare = useCallback(() => {
     hapticFeedback.medium();
     const demoText = options?.demoName 
-      ? `Посмотри демо "${options.demoName}" в Web4TG!`
-      : 'Посмотри крутые Mini Apps для бизнеса!';
+      ? (language === 'en' ? `Check out "${options.demoName}" demo in Web4TG!` : `Посмотри демо "${options.demoName}" в Web4TG!`)
+      : (language === 'en' ? 'Check out cool Mini Apps for business!' : 'Посмотри крутые Mini Apps для бизнеса!');
     shareApp(demoText);
-  }, [options?.demoName, shareApp, hapticFeedback]);
+  }, [options?.demoName, shareApp, hapticFeedback, language]);
 
   const handleDownloadPDF = useCallback(() => {
     hapticFeedback.light();
@@ -80,12 +82,12 @@ export function useTelegramButtons(
       case 'projects':
         config = {
           mainButton: {
-            text: 'Заказать проект',
+            text: t('telegramButtons.orderProject'),
             onClick: handleOrderProject,
             color: '#8B5CF6',
           },
           secondaryButton: {
-            text: 'Поделиться',
+            text: t('telegramButtons.share'),
             onClick: handleShare,
           },
         };
@@ -95,12 +97,12 @@ export function useTelegramButtons(
       case 'demoApp':
         config = {
           mainButton: {
-            text: 'Хочу такое же',
+            text: t('telegramButtons.wantSame'),
             onClick: handleOrderProject,
             color: '#10B981',
           },
           secondaryButton: {
-            text: 'Поделиться',
+            text: t('telegramButtons.share'),
             onClick: handleShare,
           },
         };
@@ -109,7 +111,7 @@ export function useTelegramButtons(
       case 'constructor':
         config = {
           mainButton: {
-            text: 'Оформить заказ',
+            text: t('telegramButtons.placeOrder'),
             onClick: () => navigate('/checkout'),
             color: '#8B5CF6',
           },
@@ -123,12 +125,12 @@ export function useTelegramButtons(
       case 'aiProcess':
         config = {
           mainButton: {
-            text: 'Подключить ИИ-агента',
+            text: t('telegramButtons.connectAI'),
             onClick: handleOrderProject,
             color: '#8B5CF6',
           },
           secondaryButton: {
-            text: 'Консультация',
+            text: t('telegramButtons.consultation'),
             onClick: handleConsultation,
           },
         };
@@ -137,12 +139,12 @@ export function useTelegramButtons(
       case 'about':
         config = {
           mainButton: {
-            text: 'Начать проект',
+            text: t('telegramButtons.startProject'),
             onClick: handleOrderProject,
             color: '#8B5CF6',
           },
           secondaryButton: {
-            text: 'Консультация',
+            text: t('telegramButtons.consultation'),
             onClick: handleConsultation,
           },
         };
@@ -151,7 +153,7 @@ export function useTelegramButtons(
       case 'profile':
         config = {
           mainButton: {
-            text: 'Пригласить друга',
+            text: t('telegramButtons.inviteFriend'),
             onClick: handleShare,
             color: '#10B981',
           },
@@ -163,7 +165,7 @@ export function useTelegramButtons(
       case 'earning':
         config = {
           mainButton: {
-            text: 'Пригласить друзей',
+            text: t('telegramButtons.inviteFriends'),
             onClick: handleShare,
             color: '#10B981',
           },
@@ -174,7 +176,7 @@ export function useTelegramButtons(
       case 'review':
         config = {
           mainButton: {
-            text: 'Связаться с нами',
+            text: t('telegramButtons.contactUs'),
             onClick: handleConsultation,
             color: '#8B5CF6',
           },
@@ -212,7 +214,7 @@ export function useTelegramButtons(
         cleanupRef.current = null;
       }
     };
-  }, [currentRoute, mainButton, secondaryButton, handleOrderProject, handleConsultation, handleShare, handleDownloadPDF, navigate]);
+  }, [currentRoute, mainButton, secondaryButton, handleOrderProject, handleConsultation, handleShare, handleDownloadPDF, navigate, language, t]);
 
   return {
     shareApp: handleShare,

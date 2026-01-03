@@ -15,6 +15,20 @@ export const translations = {
       menu: 'Меню',
     },
     
+    // Telegram Native Buttons
+    telegramButtons: {
+      orderProject: 'Заказать проект',
+      share: 'Поделиться',
+      wantSame: 'Хочу такое же',
+      placeOrder: 'Оформить заказ',
+      connectAI: 'Подключить ИИ-агента',
+      consultation: 'Консультация',
+      startProject: 'Начать проект',
+      inviteFriend: 'Пригласить друга',
+      inviteFriends: 'Пригласить друзей',
+      contactUs: 'Связаться с нами',
+    },
+    
     // Sidebar / Hamburger Menu
     sidebar: {
       home: 'Главная',
@@ -1486,6 +1500,20 @@ export const translations = {
     header: {
       title: 'WEB4TG STUDIO',
       menu: 'Menu',
+    },
+    
+    // Telegram Native Buttons
+    telegramButtons: {
+      orderProject: 'Order Project',
+      share: 'Share',
+      wantSame: 'I Want This',
+      placeOrder: 'Place Order',
+      connectAI: 'Connect AI Agent',
+      consultation: 'Consultation',
+      startProject: 'Start Project',
+      inviteFriend: 'Invite Friend',
+      inviteFriends: 'Invite Friends',
+      contactUs: 'Contact Us',
     },
     
     // Sidebar / Hamburger Menu
