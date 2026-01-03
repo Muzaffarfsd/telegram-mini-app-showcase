@@ -607,6 +607,18 @@ export const translations = {
       reward21: '3000 монет + 15% скидка',
       reward30: '5000 монет + VIP статус',
     },
+
+    // Earning Page (original design)
+    earningPage: {
+      sectionTitle: 'Заработок монет',
+      heroLine1: 'Выполняй задания,',
+      heroHighlight: 'копи монеты',
+      heroLine2: 'получай скидку.',
+      description: 'Подписывайся, лайкай, комментируй — чем больше заданий выполнишь, тем больше монет получишь. Монеты = скидка на разработку.',
+      howItWorksTitle: 'Как это работает',
+      howItWorksQuote: '«Чем активнее ты в наших соцсетях — тем больше монет копишь. Накопленные монеты обмениваются на скидку при заказе разработки Telegram Mini App.»',
+      inviteButton: 'Пригласить друзей',
+    },
     
     // Tasks Page
     tasks: {
@@ -1961,6 +1973,18 @@ export const translations = {
       reward14: '2000 coins + 10% discount',
       reward21: '3000 coins + 15% discount',
       reward30: '5000 coins + VIP Status',
+    },
+
+    // Earning Page (original design)
+    earningPage: {
+      sectionTitle: 'Earn Coins',
+      heroLine1: 'Complete tasks,',
+      heroHighlight: 'earn coins',
+      heroLine2: 'get discounts.',
+      description: 'Subscribe, like, comment — the more tasks you complete, the more coins you earn. Coins = discount on development.',
+      howItWorksTitle: 'How it works',
+      howItWorksQuote: '"The more active you are on our social media — the more coins you collect. Accumulated coins are exchanged for a discount when ordering Telegram Mini App development."',
+      inviteButton: 'Invite Friends',
     },
     
     // Tasks Page
