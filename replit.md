@@ -59,6 +59,7 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Virtualization**: `VirtualList` and `VirtualGrid` components for efficient rendering of large lists.
 - **Storage**: Telegram CloudStorage (version 6.9+) with localStorage fallback for onboarding persistence, and Bot API 9.2 storage wrappers (`deviceStorage`, `secureStorage`) with TTL-based caching.
 - **Favorites System**: `FavoriteButton` and `FavoritesSection` integrated with Telegram DeviceStorage.
+- **Internationalization (i18n)**: Bilingual support (Russian/English) via `LanguageContext` and `useLanguage` hook. Premium fonts for English (Playfair Display headings + Montserrat body), Inter for Russian. Language toggle in bottom navigation.
 
 ## Backend Architecture (Development)
 - **Server**: Express.js with TypeScript.
