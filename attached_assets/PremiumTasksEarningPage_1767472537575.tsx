@@ -451,7 +451,7 @@ const getPlatformColor = (platform: string) => {
   }
 };
 
-export function EarningPage({ onNavigate }: TasksEarningPageProps) {
+export function PremiumTasksEarningPage({ onNavigate }: TasksEarningPageProps) {
   const { hapticFeedback, initData, user } = useTelegram();
   const { userStats } = useRewards();
   const { toast } = useToast();
@@ -1248,4 +1248,4 @@ export function EarningPage({ onNavigate }: TasksEarningPageProps) {
   );
 }
 
-export default EarningPage;
+export default PremiumTasksEarningPage;
