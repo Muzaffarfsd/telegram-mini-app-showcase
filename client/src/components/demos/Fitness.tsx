@@ -90,7 +90,7 @@ const collections = [
 ];
 
 export default memo(function Fitness({ activeTab }: FitnessProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const workoutsTranslated = useMemo<Workout[]>(() => [
     { id: 1, name: t('fitness.workouts.hiit.name'), duration: 30, calories: 350, image: 'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=800&h=1200&fit=crop&q=90', description: t('fitness.workouts.hiit.desc'), category: t('fitness.categories.cardio'), level: 'Средний' as any, trainer: t('fitness.trainers.anna'), rating: 4.9, isPopular: true },
     { id: 2, name: t('fitness.workouts.yoga.name'), duration: 45, calories: 180, image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&h=1200&fit=crop&q=90', description: t('fitness.workouts.yoga.desc'), category: t('fitness.categories.yoga'), level: 'Начальный' as any, trainer: t('fitness.trainers.maria'), rating: 4.8, isPopular: true },
