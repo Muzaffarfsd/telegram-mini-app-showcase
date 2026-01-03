@@ -67,7 +67,20 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       }
     }
     
-    return typeof value === 'string' ? value : key;
+    // Final check for the language value
+    if (typeof value !== 'string') {
+      let fallback: any = translations['ru'];
+      for (const fk of keys) {
+        if (fallback && typeof fallback === 'object' && fk in fallback) {
+          fallback = fallback[fk];
+        } else {
+          return key;
+        }
+      }
+      return typeof fallback === 'string' ? fallback : key;
+    }
+
+    return value;
   }, [language]);
 
   return (
