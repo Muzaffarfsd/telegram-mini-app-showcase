@@ -1,14 +1,14 @@
-import { useState, memo } from "react";
+import { useState } from "react";
 import { ArrowRight, Star, Send, CheckCircle, MessageSquare, TrendingUp, Award, MapPin, Building2, Loader2 } from "lucide-react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Review } from "@shared/schema";
 
 interface ReviewPageProps {
   onBack: () => void;
 }
 
-const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
+export default function ReviewPage({ onBack }: ReviewPageProps) {
+  const queryClient = useQueryClient();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [name, setName] = useState("");
@@ -643,6 +643,4 @@ const ReviewPage = memo(function ReviewPage({ onBack }: ReviewPageProps) {
       </div>
     </div>
   );
-});
-
-export default ReviewPage;
+}
