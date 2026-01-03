@@ -1,451 +1,608 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from '@/utils/LazyMotionProvider';
-import { 
-  Coins, CheckCircle, ChevronDown, ChevronUp, Clock, Gift, Users, 
-  Sparkles, ArrowRight, Crown, Star, Zap, Trophy, Target
-} from 'lucide-react';
-import { SiTelegram, SiYoutube, SiInstagram, SiTiktok } from 'react-icons/si';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { Coins, CheckCircle, Heart, Share2, Eye, Users, MessageCircle, ArrowLeft, Sparkles, Award } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useTelegram } from '@/hooks/useTelegram';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface Task {
   id: string;
-  platform: 'telegram' | 'youtube' | 'instagram' | 'tiktok' | 'daily';
-  titleKey: string;
-  descKey: string;
+  platform: 'tiktok' | 'instagram';
+  type: 'like' | 'follow' | 'share' | 'view' | 'comment';
+  title: string;
+  description: string;
   coins: number;
-  url?: string;
+  url: string;
   completed: boolean;
-  type: 'daily' | 'social';
+  verificationStatus?: 'pending' | 'verifying' | 'verified' | 'failed';
+  attempts?: number;
+  minimumTime?: number;
 }
 
-interface EarningPageProps {
+interface UserBalance {
+  totalCoins: number;
+  availableCoins: number;
+  tasksCompleted: number;
+  currentStreak: number;
+}
+
+const discountTiersBase = [
+  { coins: 500, discount: 5 },
+  { coins: 1000, discount: 10 },
+  { coins: 2000, discount: 15 },
+  { coins: 3500, discount: 20 },
+  { coins: 5000, discount: 25 }
+];
+
+const taskIdsToTitleKeys: Record<string, string> = {
+  'tiktok_follow': 'tiktokFollow',
+  'tiktok_like_1': 'tiktokLikeMiniApps',
+  'tiktok_like_2': 'tiktokLikeAI',
+  'tiktok_like_3': 'tiktokLikeTutorial',
+  'tiktok_share_1': 'tiktokShare',
+  'tiktok_comment_1': 'tiktokComment1',
+  'tiktok_comment_2': 'tiktokComment2',
+  'tiktok_view_1': 'tiktokView1',
+  'tiktok_view_2': 'tiktokViewLifehacks',
+  'tiktok_view_3': 'tiktokViewCases',
+  'instagram_follow': 'instagramFollow',
+  'instagram_like_1': 'instagramLikePost',
+  'instagram_like_2': 'instagramLikeReels',
+  'instagram_like_3': 'instagramLikeProject',
+  'instagram_share_1': 'instagramShareStories',
+  'instagram_comment_1': 'instagramComment1',
+  'instagram_comment_2': 'instagramComment2',
+  'instagram_view_1': 'instagramViewReels',
+  'instagram_view_2': 'instagramViewPortfolio',
+  'instagram_view_3': 'instagramViewReview',
+};
+
+const allTasksBase = [
+  { id: 'tiktok_follow', platform: 'tiktok' as const, type: 'follow' as const, coins: 150, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 5 },
+  { id: 'tiktok_like_1', platform: 'tiktok' as const, type: 'like' as const, coins: 50, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 8 },
+  { id: 'tiktok_like_2', platform: 'tiktok' as const, type: 'like' as const, coins: 50, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 8 },
+  { id: 'tiktok_like_3', platform: 'tiktok' as const, type: 'like' as const, coins: 50, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 8 },
+  { id: 'tiktok_share_1', platform: 'tiktok' as const, type: 'share' as const, coins: 100, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 10 },
+  { id: 'tiktok_comment_1', platform: 'tiktok' as const, type: 'comment' as const, coins: 75, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 15 },
+  { id: 'tiktok_comment_2', platform: 'tiktok' as const, type: 'comment' as const, coins: 75, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 15 },
+  { id: 'tiktok_view_1', platform: 'tiktok' as const, type: 'view' as const, coins: 30, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 10 },
+  { id: 'tiktok_view_2', platform: 'tiktok' as const, type: 'view' as const, coins: 30, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 10 },
+  { id: 'tiktok_view_3', platform: 'tiktok' as const, type: 'view' as const, coins: 30, url: 'https://tiktok.com/@web4tg', completed: false, minimumTime: 10 },
+  { id: 'instagram_follow', platform: 'instagram' as const, type: 'follow' as const, coins: 120, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 4 },
+  { id: 'instagram_like_1', platform: 'instagram' as const, type: 'like' as const, coins: 40, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 6 },
+  { id: 'instagram_like_2', platform: 'instagram' as const, type: 'like' as const, coins: 40, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 6 },
+  { id: 'instagram_like_3', platform: 'instagram' as const, type: 'like' as const, coins: 40, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 6 },
+  { id: 'instagram_share_1', platform: 'instagram' as const, type: 'share' as const, coins: 80, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 8 },
+  { id: 'instagram_comment_1', platform: 'instagram' as const, type: 'comment' as const, coins: 60, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 12 },
+  { id: 'instagram_comment_2', platform: 'instagram' as const, type: 'comment' as const, coins: 60, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 12 },
+  { id: 'instagram_view_1', platform: 'instagram' as const, type: 'view' as const, coins: 25, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 8 },
+  { id: 'instagram_view_2', platform: 'instagram' as const, type: 'view' as const, coins: 25, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 8 },
+  { id: 'instagram_view_3', platform: 'instagram' as const, type: 'view' as const, coins: 25, url: 'https://instagram.com/web4tg', completed: false, minimumTime: 8 },
+];
+
+interface TasksEarningPageProps {
   onNavigate: (section: string) => void;
 }
 
-const dailyTasks: Omit<Task, 'completed'>[] = [
-  { id: 'daily_login', platform: 'daily', titleKey: 'dailyLogin', descKey: 'dailyLoginDesc', coins: 10, type: 'daily' },
-  { id: 'daily_demo', platform: 'daily', titleKey: 'viewDemos', descKey: 'viewDemosDesc', coins: 25, type: 'daily' },
-  { id: 'daily_share', platform: 'daily', titleKey: 'shareApp', descKey: 'shareAppDesc', coins: 30, type: 'daily' },
-];
-
-const telegramTasks: Omit<Task, 'completed'>[] = [
-  { id: 'tg_follow', platform: 'telegram', titleKey: 'tgFollow', descKey: 'tgFollowDesc', coins: 100, url: 'https://t.me/web4_tg', type: 'social' },
-  { id: 'tg_read1', platform: 'telegram', titleKey: 'tgRead1', descKey: 'tgReadDesc', coins: 20, url: 'https://t.me/web4_tg', type: 'social' },
-  { id: 'tg_read2', platform: 'telegram', titleKey: 'tgRead2', descKey: 'tgReadDesc', coins: 20, url: 'https://t.me/web4_tg', type: 'social' },
-  { id: 'tg_read3', platform: 'telegram', titleKey: 'tgRead3', descKey: 'tgReadDesc', coins: 20, url: 'https://t.me/web4_tg', type: 'social' },
-  { id: 'tg_react1', platform: 'telegram', titleKey: 'tgReact1', descKey: 'tgReactDesc', coins: 30, url: 'https://t.me/web4_tg', type: 'social' },
-  { id: 'tg_react2', platform: 'telegram', titleKey: 'tgReact2', descKey: 'tgReactDesc', coins: 30, url: 'https://t.me/web4_tg', type: 'social' },
-  { id: 'tg_forward', platform: 'telegram', titleKey: 'tgForward', descKey: 'tgForwardDesc', coins: 50, url: 'https://t.me/web4_tg', type: 'social' },
-  { id: 'tg_comment', platform: 'telegram', titleKey: 'tgComment', descKey: 'tgCommentDesc', coins: 40, url: 'https://t.me/web4_tg', type: 'social' },
-];
-
-const youtubeTasks: Omit<Task, 'completed'>[] = [
-  { id: 'yt_follow', platform: 'youtube', titleKey: 'ytFollow', descKey: 'ytFollowDesc', coins: 100, url: 'https://youtube.com/@web4tg', type: 'social' },
-  { id: 'yt_bell', platform: 'youtube', titleKey: 'ytBell', descKey: 'ytBellDesc', coins: 50, url: 'https://youtube.com/@web4tg', type: 'social' },
-  { id: 'yt_like1', platform: 'youtube', titleKey: 'ytLike1', descKey: 'ytLikeDesc', coins: 30, url: 'https://youtube.com/@web4tg', type: 'social' },
-  { id: 'yt_like2', platform: 'youtube', titleKey: 'ytLike2', descKey: 'ytLikeDesc', coins: 30, url: 'https://youtube.com/@web4tg', type: 'social' },
-  { id: 'yt_like3', platform: 'youtube', titleKey: 'ytLike3', descKey: 'ytLikeDesc', coins: 30, url: 'https://youtube.com/@web4tg', type: 'social' },
-  { id: 'yt_comment1', platform: 'youtube', titleKey: 'ytComment1', descKey: 'ytCommentDesc', coins: 50, url: 'https://youtube.com/@web4tg', type: 'social' },
-  { id: 'yt_comment2', platform: 'youtube', titleKey: 'ytComment2', descKey: 'ytCommentDesc', coins: 50, url: 'https://youtube.com/@web4tg', type: 'social' },
-  { id: 'yt_watch1', platform: 'youtube', titleKey: 'ytWatch1', descKey: 'ytWatchDesc', coins: 40, url: 'https://youtube.com/@web4tg', type: 'social' },
-  { id: 'yt_watch2', platform: 'youtube', titleKey: 'ytWatch2', descKey: 'ytWatchDesc', coins: 40, url: 'https://youtube.com/@web4tg', type: 'social' },
-  { id: 'yt_share', platform: 'youtube', titleKey: 'ytShare', descKey: 'ytShareDesc', coins: 60, url: 'https://youtube.com/@web4tg', type: 'social' },
-];
-
-const instagramTasks: Omit<Task, 'completed'>[] = [
-  { id: 'ig_follow', platform: 'instagram', titleKey: 'igFollow', descKey: 'igFollowDesc', coins: 100, url: 'https://instagram.com/web4tg', type: 'social' },
-  { id: 'ig_like1', platform: 'instagram', titleKey: 'igLike1', descKey: 'igLikeDesc', coins: 25, url: 'https://instagram.com/web4tg', type: 'social' },
-  { id: 'ig_like2', platform: 'instagram', titleKey: 'igLike2', descKey: 'igLikeDesc', coins: 25, url: 'https://instagram.com/web4tg', type: 'social' },
-  { id: 'ig_like3', platform: 'instagram', titleKey: 'igLike3', descKey: 'igLikeDesc', coins: 25, url: 'https://instagram.com/web4tg', type: 'social' },
-  { id: 'ig_reels', platform: 'instagram', titleKey: 'igReels', descKey: 'igReelsDesc', coins: 30, url: 'https://instagram.com/web4tg', type: 'social' },
-  { id: 'ig_comment1', platform: 'instagram', titleKey: 'igComment1', descKey: 'igCommentDesc', coins: 50, url: 'https://instagram.com/web4tg', type: 'social' },
-  { id: 'ig_comment2', platform: 'instagram', titleKey: 'igComment2', descKey: 'igCommentDesc', coins: 50, url: 'https://instagram.com/web4tg', type: 'social' },
-  { id: 'ig_save', platform: 'instagram', titleKey: 'igSave', descKey: 'igSaveDesc', coins: 35, url: 'https://instagram.com/web4tg', type: 'social' },
-  { id: 'ig_story', platform: 'instagram', titleKey: 'igStory', descKey: 'igStoryDesc', coins: 70, url: 'https://instagram.com/web4tg', type: 'social' },
-  { id: 'ig_dm', platform: 'instagram', titleKey: 'igDm', descKey: 'igDmDesc', coins: 40, url: 'https://instagram.com/web4tg', type: 'social' },
-];
-
-const tiktokTasks: Omit<Task, 'completed'>[] = [
-  { id: 'tt_follow', platform: 'tiktok', titleKey: 'ttFollow', descKey: 'ttFollowDesc', coins: 100, url: 'https://tiktok.com/@web4tg', type: 'social' },
-  { id: 'tt_like1', platform: 'tiktok', titleKey: 'ttLike1', descKey: 'ttLikeDesc', coins: 25, url: 'https://tiktok.com/@web4tg', type: 'social' },
-  { id: 'tt_like2', platform: 'tiktok', titleKey: 'ttLike2', descKey: 'ttLikeDesc', coins: 25, url: 'https://tiktok.com/@web4tg', type: 'social' },
-  { id: 'tt_like3', platform: 'tiktok', titleKey: 'ttLike3', descKey: 'ttLikeDesc', coins: 25, url: 'https://tiktok.com/@web4tg', type: 'social' },
-  { id: 'tt_like4', platform: 'tiktok', titleKey: 'ttLike4', descKey: 'ttLikeDesc', coins: 25, url: 'https://tiktok.com/@web4tg', type: 'social' },
-  { id: 'tt_comment1', platform: 'tiktok', titleKey: 'ttComment1', descKey: 'ttCommentDesc', coins: 50, url: 'https://tiktok.com/@web4tg', type: 'social' },
-  { id: 'tt_comment2', platform: 'tiktok', titleKey: 'ttComment2', descKey: 'ttCommentDesc', coins: 50, url: 'https://tiktok.com/@web4tg', type: 'social' },
-  { id: 'tt_watch1', platform: 'tiktok', titleKey: 'ttWatch1', descKey: 'ttWatchDesc', coins: 20, url: 'https://tiktok.com/@web4tg', type: 'social' },
-  { id: 'tt_watch2', platform: 'tiktok', titleKey: 'ttWatch2', descKey: 'ttWatchDesc', coins: 20, url: 'https://tiktok.com/@web4tg', type: 'social' },
-  { id: 'tt_share', platform: 'tiktok', titleKey: 'ttShare', descKey: 'ttShareDesc', coins: 60, url: 'https://tiktok.com/@web4tg', type: 'social' },
-];
-
-const discountTiers = [
-  { coins: 500, discount: 1, levelKey: 'tier1' },
-  { coins: 1000, discount: 2, levelKey: 'tier2' },
-  { coins: 1500, discount: 3, levelKey: 'tier3' },
-  { coins: 2000, discount: 5, levelKey: 'tier4' },
-  { coins: 3000, discount: 7, levelKey: 'tier5' },
-  { coins: 5000, discount: 10, levelKey: 'tier6' },
-];
-
-export function EarningPage({ onNavigate }: EarningPageProps) {
-  const { t } = useLanguage();
-  const [totalCoins, setTotalCoins] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['daily']));
-  const [dailyResetTime, setDailyResetTime] = useState('');
-
-  const allTasks = useMemo(() => {
-    const tasks = [
-      ...dailyTasks,
-      ...telegramTasks,
-      ...youtubeTasks,
-      ...instagramTasks,
-      ...tiktokTasks,
-    ];
-    return tasks.map(task => ({ ...task, completed: completedTasks.has(task.id) }));
-  }, [completedTasks]);
-
-  const totalTasksCount = allTasks.length;
-  const completedCount = completedTasks.size;
-  const progressPercent = (completedCount / totalTasksCount) * 100;
-
-  useEffect(() => {
-    const updateResetTime = () => {
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      const diff = tomorrow.getTime() - now.getTime();
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      setDailyResetTime(`${hours}${t('earning.hours')} ${minutes}${t('earning.minutes')}`);
-    };
-    updateResetTime();
-    const interval = setInterval(updateResetTime, 60000);
-    return () => clearInterval(interval);
-  }, [t]);
-
-  const handleTaskClick = useCallback((task: Task) => {
-    if (task.completed) return;
-    
-    if (task.url) {
-      window.open(task.url, '_blank');
+const MinimalTaskCard = memo(({ task, onTaskClick, isVerifying, t }: { 
+  task: Task, 
+  onTaskClick: (task: Task) => void,
+  isVerifying: boolean,
+  t: (key: string) => string
+}) => {
+  const getTaskIcon = () => {
+    switch (task.type) {
+      case 'like': return <Heart className="w-4 h-4" />;
+      case 'follow': return <Users className="w-4 h-4" />;
+      case 'share': return <Share2 className="w-4 h-4" />;
+      case 'view': return <Eye className="w-4 h-4" />;
+      case 'comment': return <MessageCircle className="w-4 h-4" />;
+      default: return <Sparkles className="w-4 h-4" />;
     }
-    
-    setCompletedTasks(prev => {
-      const next = new Set(prev);
-      next.add(task.id);
-      return next;
-    });
-    setTotalCoins(prev => prev + task.coins);
-  }, []);
-
-  const toggleSection = useCallback((section: string) => {
-    setExpandedSections(prev => {
-      const next = new Set(prev);
-      if (next.has(section)) {
-        next.delete(section);
-      } else {
-        next.add(section);
-      }
-      return next;
-    });
-  }, []);
-
-  const getPlatformIcon = (platform: string) => {
-    switch (platform) {
-      case 'telegram': return <SiTelegram className="w-5 h-5" />;
-      case 'youtube': return <SiYoutube className="w-5 h-5" />;
-      case 'instagram': return <SiInstagram className="w-5 h-5" />;
-      case 'tiktok': return <SiTiktok className="w-5 h-5" />;
-      case 'daily': return <Clock className="w-5 h-5" />;
-      default: return <Sparkles className="w-5 h-5" />;
-    }
-  };
-
-  const getPlatformColor = (platform: string) => {
-    switch (platform) {
-      case 'telegram': return 'text-[#0088cc] bg-[#0088cc]/10 border-[#0088cc]/30';
-      case 'youtube': return 'text-[#FF0000] bg-[#FF0000]/10 border-[#FF0000]/30';
-      case 'instagram': return 'text-[#E4405F] bg-[#E4405F]/10 border-[#E4405F]/30';
-      case 'tiktok': return 'text-foreground bg-foreground/10 border-foreground/30';
-      case 'daily': return 'text-amber-500 bg-amber-500/10 border-amber-500/30';
-      default: return 'text-primary bg-primary/10 border-primary/30';
-    }
-  };
-
-  const renderTaskSection = (
-    sectionKey: string,
-    tasks: Task[],
-    icon: React.ReactNode,
-    colorClass: string
-  ) => {
-    const isExpanded = expandedSections.has(sectionKey);
-    const sectionCompleted = tasks.filter(t => t.completed).length;
-    const sectionTotal = tasks.length;
-
-    return (
-      <div key={sectionKey} className="space-y-2">
-        <button
-          onClick={() => toggleSection(sectionKey)}
-          className={cn(
-            "w-full flex items-center justify-between p-4 rounded-xl transition-all",
-            "bg-card border border-border hover-elevate"
-          )}
-          data-testid={`section-${sectionKey}`}
-        >
-          <div className="flex items-center gap-3">
-            <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center border", colorClass)}>
-              {icon}
-            </div>
-            <div className="text-left">
-              <h3 className="font-semibold text-foreground">
-                {t(`earning.sections.${sectionKey}`)}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {sectionCompleted} / {sectionTotal} {t('earning.tasksCompleted')}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {sectionKey === 'daily' && (
-              <Badge variant="outline" className="text-xs">
-                <Clock className="w-3 h-3 mr-1" />
-                {dailyResetTime}
-              </Badge>
-            )}
-            {isExpanded ? (
-              <ChevronUp className="w-5 h-5 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="w-5 h-5 text-muted-foreground" />
-            )}
-          </div>
-        </button>
-
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden"
-            >
-              <div className="space-y-2 pl-2">
-                {tasks.map(task => (
-                  <motion.div
-                    key={task.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={cn(
-                      "flex items-center justify-between p-3 rounded-lg transition-all cursor-pointer",
-                      "bg-background border border-border",
-                      task.completed 
-                        ? "opacity-60" 
-                        : "hover-elevate active-elevate-2"
-                    )}
-                    onClick={() => handleTaskClick(task)}
-                    data-testid={`task-${task.id}`}
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={cn(
-                        "w-8 h-8 rounded-lg flex items-center justify-center border flex-shrink-0",
-                        task.completed ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-500" : colorClass
-                      )}>
-                        {task.completed ? (
-                          <CheckCircle className="w-4 h-4" />
-                        ) : (
-                          getPlatformIcon(task.platform)
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm text-foreground truncate">
-                          {t(`earning.tasks.${task.titleKey}`)}
-                        </h4>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {t(`earning.tasks.${task.descKey}`)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                      <Coins className="w-4 h-4 text-amber-500" />
-                      <span className="font-bold text-amber-500">+{task.coins}</span>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32">
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
-        
-        <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-          <div className="text-center space-y-2 mb-4">
-            <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">
-              {t('earning.howItWorks')}
-            </p>
-            <p className="text-sm text-muted-foreground italic">
-              {t('earning.howItWorksQuote')}
-            </p>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={cn(
+        'group relative rounded-xl p-4 cursor-pointer transition-all duration-300',
+        'backdrop-blur-xl border',
+        task.completed
+          ? 'bg-emerald-500/10 border-emerald-500/30'
+          : 'bg-black/40 border-white/10 hover:border-white/30 hover:bg-black/60'
+      )}
+      onClick={() => !task.completed && !isVerifying && onTaskClick(task)}
+      data-testid={`task-${task.id}`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className={cn(
+            'w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-all',
+            task.platform === 'tiktok' 
+              ? 'bg-gradient-to-br from-pink-500/20 to-purple-500/20 border border-pink-500/30 text-pink-400'
+              : 'bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-400'
+          )}>
+            {getTaskIcon()}
           </div>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="font-semibold text-foreground mb-4">{t('earning.yourProgress')}</h3>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="text-center p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Coins className="w-5 h-5 text-amber-500" />
-                <span className="text-2xl font-bold text-amber-500">{totalCoins}</span>
-              </div>
-              <p className="text-xs text-muted-foreground">{t('earning.coinsCollected')}</p>
-            </div>
-            <div className="text-center p-3 rounded-lg bg-primary/10 border border-primary/30">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Zap className="w-5 h-5 text-primary" />
-                <span className="text-2xl font-bold text-primary">{streak}</span>
-              </div>
-              <p className="text-xs text-muted-foreground">{t('earning.daysInRow')}</p>
-            </div>
+          
+          <div className="flex-1 min-w-0">
+            <h3 className="text-white font-medium text-sm mb-0.5 truncate">{task.title}</h3>
+            <p className="text-white/50 text-xs truncate">{task.description}</p>
           </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                {completedCount} {t('earning.of')} {totalTasksCount} {t('earning.tasksCompletedLower')}
-              </span>
-              <span className="font-medium text-foreground">{Math.round(progressPercent)}%</span>
-            </div>
-            <Progress value={progressPercent} className="h-2" />
-          </div>
-        </Card>
-
-        <div className="space-y-3">
-          {renderTaskSection(
-            'daily',
-            allTasks.filter(t => t.type === 'daily'),
-            <Clock className="w-5 h-5" />,
-            getPlatformColor('daily')
-          )}
-          {renderTaskSection(
-            'telegram',
-            allTasks.filter(t => t.platform === 'telegram'),
-            <SiTelegram className="w-5 h-5" />,
-            getPlatformColor('telegram')
-          )}
-          {renderTaskSection(
-            'youtube',
-            allTasks.filter(t => t.platform === 'youtube'),
-            <SiYoutube className="w-5 h-5" />,
-            getPlatformColor('youtube')
-          )}
-          {renderTaskSection(
-            'instagram',
-            allTasks.filter(t => t.platform === 'instagram'),
-            <SiInstagram className="w-5 h-5" />,
-            getPlatformColor('instagram')
-          )}
-          {renderTaskSection(
-            'tiktok',
-            allTasks.filter(t => t.platform === 'tiktok'),
-            <SiTiktok className="w-5 h-5" />,
-            getPlatformColor('tiktok')
-          )}
         </div>
+        
+        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+          <div className="flex items-center gap-1">
+            <Coins className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-amber-400 font-bold text-sm">+{task.coins}</span>
+          </div>
+          
+          {task.completed ? (
+            <Badge variant="outline" className="text-[10px] h-5 bg-emerald-500/20 text-emerald-400 border-emerald-500/50">
+              <CheckCircle className="w-2.5 h-2.5 mr-1" />
+              {t('tasks.done')}
+            </Badge>
+          ) : task.verificationStatus === 'failed' ? (
+            <Badge variant="outline" className="text-[10px] h-5 bg-red-500/20 text-red-400 border-red-500/50">
+              {t('tasks.error')}
+            </Badge>
+          ) : isVerifying ? (
+            <Badge variant="outline" className="text-[10px] h-5 bg-blue-500/20 text-blue-400 border-blue-500/50">
+              {t('tasks.verifyingLabel')}
+            </Badge>
+          ) : null}
+        </div>
+      </div>
+    </motion.div>
+  );
+});
+MinimalTaskCard.displayName = 'MinimalTaskCard';
 
-        <Card className="p-6">
-          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Gift className="w-5 h-5 text-primary" />
-            {t('earning.exchangeRate')}
+// Animated progress bar
+const AnimatedProgressBar = memo(({ value, max, label }: { value: number, max: number, label: string }) => {
+  const percentage = Math.min((value / max) * 100, 100);
+  
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-white/60">{label}</span>
+        <span className="text-emerald-400 font-semibold">{value} / {max}</span>
+      </div>
+      
+      <div className="relative h-2 bg-white/5 rounded-full overflow-hidden backdrop-blur-sm">
+        <motion.div
+          className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
+          initial={{ width: 0 }}
+          animate={{ width: `${percentage}%` }}
+          transition={{ duration: 1, ease: "easeOut" }}
+        >
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+            animate={{
+              x: ['-100%', '200%'],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        </motion.div>
+      </div>
+    </div>
+  );
+});
+AnimatedProgressBar.displayName = 'AnimatedProgressBar';
+
+export function EarningPage({ onNavigate }: TasksEarningPageProps) {
+  const { t } = useLanguage();
+  const { user, initData, hapticFeedback } = useTelegram();
+  const [balance, setBalance] = useState<UserBalance>({
+    totalCoins: 0,
+    availableCoins: 0,
+    tasksCompleted: 0,
+    currentStreak: 0
+  });
+  
+  const discountTiers = useMemo(() => 
+    discountTiersBase.map(tier => ({
+      ...tier,
+      label: `${tier.discount}% ${t('tasks.discount')}`
+    })), [t]);
+  
+  const allTasks: Task[] = useMemo(() => 
+    allTasksBase.map(task => {
+      const titleKey = taskIdsToTitleKeys[task.id] || '';
+      return {
+        ...task,
+        title: t(`tasks.taskTitles.${titleKey}`),
+        description: t(`tasks.taskDescs.${titleKey}`)
+      };
+    }), [t]);
+  
+  const [tasks, setTasks] = useState<Task[]>(allTasks);
+  const [loading, setLoading] = useState(true);
+  const [verifyingTask, setVerifyingTask] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!user?.id || !initData) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const balanceRes = await fetch('/api/tasks/balance', {
+          headers: { 'X-Telegram-Init-Data': initData }
+        });
+        const balanceData = await balanceRes.json();
+        setBalance({
+          totalCoins: balanceData.totalCoins || 0,
+          availableCoins: balanceData.availableCoins || 0,
+          tasksCompleted: balanceData.tasksCompleted || 0,
+          currentStreak: balanceData.currentStreak || 0
+        });
+
+        const progressRes = await fetch('/api/tasks/progress', {
+          headers: { 'X-Telegram-Init-Data': initData }
+        });
+        const progressData = await progressRes.json();
+
+        setTasks(prev => prev.map(task => {
+          const progress = progressData.find((p: any) => p.taskId === task.id);
+          if (progress) {
+            return {
+              ...task,
+              completed: progress.completed,
+              verificationStatus: progress.verificationStatus,
+              attempts: progress.attempts
+            };
+          }
+          return task;
+        }));
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, [user?.id, initData]);
+
+  const handleTaskClick = async (task: Task) => {
+    if (!user?.id || !initData || task.completed || task.verificationStatus === 'failed') {
+      hapticFeedback.heavy();
+      return;
+    }
+
+    hapticFeedback.light();
+    
+    try {
+      const startRes = await fetch('/api/tasks/start', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Telegram-Init-Data': initData
+        },
+        body: JSON.stringify({
+          task_id: task.id,
+          platform: task.platform,
+          task_type: task.type,
+          coins_reward: task.coins
+        })
+      });
+
+      if (!startRes.ok) {
+        const error = await startRes.json();
+        console.error('Error starting task:', error);
+        if (startRes.status === 429) {
+          hapticFeedback.heavy();
+          alert(t('tasks.waitSeconds').replace('{seconds}', String(error.retry_after)));
+        }
+        return;
+      }
+
+      setTasks(prev => prev.map(t => 
+        t.id === task.id ? { ...t, verificationStatus: 'verifying' } : t
+      ));
+
+      window.open(task.url, '_blank');
+
+      const minimumTime = task.minimumTime || 5;
+      setVerifyingTask(task.id);
+
+      setTimeout(async () => {
+        try {
+          const verifyRes = await fetch('/api/tasks/verify', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'X-Telegram-Init-Data': initData
+            },
+            body: JSON.stringify({ task_id: task.id })
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.verified) {
+            hapticFeedback.selection();
+            
+            setTasks(prev => prev.map(t =>
+              t.id === task.id ? { ...t, completed: true, verificationStatus: 'verified' } : t
+            ));
+
+            setBalance(prev => ({
+              ...prev,
+              totalCoins: verifyData.new_balance,
+              availableCoins: verifyData.new_balance,
+              tasksCompleted: prev.tasksCompleted + 1
+            }));
+          } else {
+            hapticFeedback.heavy();
+            setTasks(prev => prev.map(t=>
+              t.id === task.id ? { ...t, verificationStatus: 'failed' } : t
+            ));
+          }
+        } catch (error) {
+          console.error('Error verifying task:', error);
+          hapticFeedback.heavy();
+        } finally {
+          setVerifyingTask(null);
+        }
+      }, minimumTime * 1000 + 2000);
+
+    } catch (error) {
+      console.error('Error handling task click:', error);
+      hapticFeedback.heavy();
+    }
+  };
+
+  const tiktokTasks = useMemo(() => tasks.filter(t => t.platform === 'tiktok'), [tasks]);
+  const instagramTasks = useMemo(() => tasks.filter(t => t.platform === 'instagram'), [tasks]);
+  
+  const nextTier = useMemo(() => 
+    discountTiers.find(tier => balance.totalCoins < tier.coins),
+    [balance.totalCoins]
+  );
+  
+  const currentDiscount = useMemo(() => 
+    [...discountTiers].reverse().find(tier => balance.totalCoins >= tier.coins),
+    [balance.totalCoins]
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-white/60">{t('tasks.loading')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-4 pb-24">
+        
+        {/* Back Button */}
+        <button 
+          onClick={() => {
+            hapticFeedback.light();
+            onNavigate('profile');
+          }}
+          className="flex items-center gap-2 text-white/70 hover:text-white transition-colors"
+          data-testid="button-back"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-sm">{t('tasks.back')}</span>
+        </button>
+
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <h1 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+            <Coins className="w-8 h-8 text-amber-400" />
+            {t('tasks.earnCoins')}
+          </h1>
+          <p className="text-white/60 text-sm">
+            {t('tasks.earnCoinsDesc')}
+          </p>
+        </motion.div>
+
+        {/* Balance Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative rounded-2xl overflow-hidden backdrop-blur-xl bg-black/40 border border-white/10 p-6"
+          data-testid="balance-card"
+        >
+          {/* Gradient Glow */}
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
+          
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <div className="text-xs text-white/50 uppercase tracking-wider mb-1">{t('tasks.balance')}</div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-bold text-white">{balance.totalCoins}</span>
+                  <Coins className="w-6 h-6 text-amber-400" />
+                </div>
+              </div>
+              
+              <motion.div
+                className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center"
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+              >
+                <Coins className="w-7 h-7 text-white" />
+              </motion.div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2.5 border border-white/10 text-center">
+                <div className="text-white/50 text-[10px] mb-0.5">{t('tasks.earned')}</div>
+                <div className="text-white font-bold text-sm">{balance.totalCoins}</div>
+              </div>
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2.5 border border-white/10 text-center">
+                <div className="text-white/50 text-[10px] mb-0.5">{t('tasks.completedLabel')}</div>
+                <div className="text-white font-bold text-sm">{balance.tasksCompleted}</div>
+              </div>
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2.5 border border-white/10 text-center">
+                <div className="text-white/50 text-[10px] mb-0.5">{t('tasks.streak')}</div>
+                <div className="text-white font-bold text-sm">{balance.currentStreak} 🔥</div>
+              </div>
+            </div>
+
+            {/* Animated Progress to Next Tier */}
+            {nextTier && (
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+                <AnimatedProgressBar 
+                  value={balance.totalCoins}
+                  max={nextTier.coins}
+                  label={`${t('tasks.until')} ${nextTier.label}`}
+                />
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* How it Works */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-xl p-4"
+        >
+          <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-emerald-400" />
+            {t('tasks.howItWorks')}
           </h3>
-          <div className="space-y-3">
+          
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 border border-blue-500/30">
+                <span className="text-sm">⚡</span>
+              </div>
+              <div>
+                <div className="text-xs font-medium text-white">{t('tasks.completeTasks')}</div>
+                <div className="text-[10px] text-white/50">{t('tasks.tiktokAndInstagram')}</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center flex-shrink-0 border border-amber-500/30">
+                <Coins className="w-4 h-4 text-amber-400" />
+              </div>
+              <div>
+                <div className="text-xs font-medium text-white">{t('tasks.getCoins')}</div>
+                <div className="text-[10px] text-white/50">{t('tasks.coinsPerTask')}</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
+                <Award className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div>
+                <div className="text-xs font-medium text-white">{t('tasks.exchangeForDiscounts')}</div>
+                <div className="text-[10px] text-white/50">{t('tasks.upTo25Discount')}</div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* TikTok Tasks */}
+        {tiktokTasks.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-xl p-4"
+          >
+            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+              <span className="text-lg">🎵</span>
+              {t('tasks.tiktokTasks')}
+            </h3>
+            
+            <div className="space-y-2">
+              {tiktokTasks.map((task) => (
+                <MinimalTaskCard
+                  key={task.id}
+                  task={task}
+                  onTaskClick={handleTaskClick}
+                  isVerifying={verifyingTask === task.id}
+                  t={t}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Instagram Tasks */}
+        {instagramTasks.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-xl p-4"
+          >
+            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+              <span className="text-lg">📷</span>
+              {t('tasks.instagramTasks')}
+            </h3>
+            
+            <div className="space-y-2">
+              {instagramTasks.map((task) => (
+                <MinimalTaskCard
+                  key={task.id}
+                  task={task}
+                  onTaskClick={handleTaskClick}
+                  isVerifying={verifyingTask === task.id}
+                  t={t}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Discount Tiers */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-xl p-4"
+        >
+          <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+            <Award className="w-4 h-4 text-emerald-400" />
+            {t('tasks.discounts')}
+          </h3>
+          <div className="space-y-1.5">
             {discountTiers.map((tier, index) => (
-              <div
-                key={tier.coins}
+              <div 
+                key={index}
                 className={cn(
-                  "flex items-center justify-between p-3 rounded-lg border transition-all",
-                  totalCoins >= tier.coins
-                    ? "bg-emerald-500/10 border-emerald-500/30"
-                    : "bg-muted/50 border-border"
+                  'flex items-center justify-between p-2.5 rounded-lg transition-all text-xs',
+                  balance.totalCoins >= tier.coins 
+                    ? 'bg-emerald-500/20 border border-emerald-500/30' 
+                    : 'bg-white/5 border border-white/10'
                 )}
               >
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center",
-                    totalCoins >= tier.coins ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
-                  )}>
-                    {index + 1}
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">
-                      {tier.coins} {t('earning.coins')} = {t('earning.discountOf')} {tier.discount}%
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {t(`earning.tiers.${tier.levelKey}`)}
-                    </p>
-                  </div>
-                </div>
-                {totalCoins >= tier.coins && (
-                  <CheckCircle className="w-5 h-5 text-emerald-500" />
-                )}
+                <span className="text-white/60">{tier.coins} {t('tasks.coinsLabel')}</span>
+                <span className={cn(
+                  'font-bold',
+                  balance.totalCoins >= tier.coins ? 'text-emerald-400' : 'text-white/40'
+                )}>
+                  {tier.label}
+                  {balance.totalCoins >= tier.coins && ' ✓'}
+                </span>
               </div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            {t('earning.discountNote')}
-          </p>
-        </Card>
-
-        <Card className="p-6 bg-gradient-to-br from-violet-500/10 to-purple-500/10 border-violet-500/30">
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-full bg-violet-500/20 flex items-center justify-center">
-              <Users className="w-8 h-8 text-violet-500" />
-            </div>
-            <div>
-              <h3 className="font-bold text-lg text-foreground">{t('earning.inviteFriends')}</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                {t('earning.inviteBonus')}
-              </p>
-            </div>
-            <Button 
-              className="w-full"
-              onClick={() => {}}
-              data-testid="button-invite-friends"
-            >
-              <Users className="w-4 h-4 mr-2" />
-              {t('earning.inviteButton')}
-            </Button>
-          </div>
-        </Card>
-
-        <Card className="p-6 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30">
-          <div className="text-center space-y-4">
-            <h3 className="font-bold text-lg text-foreground">{t('earning.readyToOrder')}</h3>
-            <p className="text-sm text-muted-foreground">
-              {t('earning.orderDescription')}
-            </p>
-            <Button 
-              variant="default"
-              className="w-full"
-              onClick={() => onNavigate('consultation')}
-              data-testid="button-order-app"
-            >
-              {t('earning.orderButton')}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
-        </Card>
+        </motion.div>
 
       </div>
     </div>
