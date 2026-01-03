@@ -86,9 +86,19 @@ AnimatedHamburgerIcon.displayName = 'AnimatedHamburgerIcon';
 
 export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
   const { toggleTheme, isDark } = useTheme();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pressedItem, setPressedItem] = useState<string | null>(null);
+
+  // Sync Telegram Secondary Button with language changes
+  useEffect(() => {
+    try {
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg?.SecondaryButton) {
+        tg.SecondaryButton.setText(t('actions.share'));
+      }
+    } catch (e) {}
+  }, [language, t]);
   const [isAnimating, setIsAnimating] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);

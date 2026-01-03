@@ -16,8 +16,18 @@ interface AIProcessPageProps {
 }
 
 const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [scrollY, setScrollY] = useState(0);
+
+  // Sync Telegram Main Button with language changes
+  useEffect(() => {
+    try {
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg?.MainButton) {
+        tg.MainButton.setText(t('showcase.orderProject'));
+      }
+    } catch (e) {}
+  }, [language, t]);
   
   const handleGetConsultation = useCallback(() => {
     window.open('https://t.me/web4tgs', '_blank');

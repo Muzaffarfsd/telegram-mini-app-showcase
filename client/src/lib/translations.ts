@@ -1100,7 +1100,7 @@ export const translations = {
           pedicure: 'Педикюр',
           cosmetology: 'Косметология',
         },
-        services: {
+        services_list: {
           classicHaircut: 'Классическая стрижка',
           hairColoring: 'Окрашивание волос',
           balayage: 'Балаяж',
@@ -1179,7 +1179,7 @@ export const translations = {
           flexibilityBalance: 'Гибкость и баланс',
           calmPractices: 'Спокойные практики',
         },
-        workouts: {
+        workouts_list: {
           hiitCardio: 'HIIT Кардио',
           yogaBeginners: 'Йога для начинающих',
           strengthTraining: 'Силовая тренировка',
