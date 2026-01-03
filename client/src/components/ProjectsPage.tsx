@@ -282,7 +282,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
                       whiteSpace: 'nowrap'
                     }}
                   >
-                    {app.description}
+                    {t(`projectsPage.appDescriptions.${app.id}`) || app.description}
                   </p>
                 </div>
                 

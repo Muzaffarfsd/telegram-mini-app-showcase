@@ -99,6 +99,22 @@ export const translations = {
       requestConsultation: 'Запросить консультацию',
       freeResponse: 'Бесплатно · Ответим в течение часа',
       footer: 'Web4TG · Telegram Mini Apps · 2025',
+      // Demo app descriptions for project cards
+      appDescriptions: {
+        'clothing-store': 'Магазин модной одежды и аксессуаров',
+        'electronics': 'Магазин электроники и техники',
+        'beauty': 'Салон красоты и SPA-услуги',
+        'restaurant': 'Ресторан с доставкой',
+        'luxury-watches': 'Магазин элитных часов',
+        'sneaker-store': 'Магазин кроссовок',
+        'luxury-perfume': 'Магазин премиальной парфюмерии',
+        'futuristic-fashion-1': 'Футуристический магазин одежды',
+        'futuristic-fashion-2': 'Минималистичный чёрный магазин',
+        'futuristic-fashion-3': 'Чёрно-белый минималистичный магазин',
+        'futuristic-fashion-4': 'Карточный дизайн с 3D эффектами',
+        'florist': 'Премиальный салон цветов и букетов',
+        'medical': 'Медицинский центр',
+      },
     },
     
     // Showcase / Landing
@@ -1439,6 +1455,22 @@ export const translations = {
       requestConsultation: 'Request Consultation',
       freeResponse: 'Free · We respond within an hour',
       footer: 'Web4TG · Telegram Mini Apps · 2025',
+      // Demo app descriptions for project cards
+      appDescriptions: {
+        'clothing-store': 'Fashion clothing and accessories store',
+        'electronics': 'Electronics and tech store',
+        'beauty': 'Beauty salon and SPA services',
+        'restaurant': 'Restaurant with delivery',
+        'luxury-watches': 'Luxury watch store',
+        'sneaker-store': 'Sneaker store',
+        'luxury-perfume': 'Premium perfume store',
+        'futuristic-fashion-1': 'Futuristic clothing store',
+        'futuristic-fashion-2': 'Minimalist black store',
+        'futuristic-fashion-3': 'Black and white minimalist store',
+        'futuristic-fashion-4': 'Card design with 3D effects',
+        'florist': 'Premium flower and bouquet salon',
+        'medical': 'Medical center',
+      },
     },
     
     // Showcase / Landing
