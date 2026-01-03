@@ -53,8 +53,7 @@ const headlinesEn = [
   "your competitors have",
   "in the market",
   "in your industry", 
-  "in your region",
-  "in your niche"
+  "in your region"
 ];
 
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
