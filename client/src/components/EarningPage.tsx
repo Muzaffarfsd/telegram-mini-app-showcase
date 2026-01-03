@@ -451,5 +451,3 @@ export function EarningPage({ onNavigate }: EarningPageProps) {
     </div>
   );
 }
-
-export default EarningPage;
