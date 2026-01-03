@@ -1,8 +1,155 @@
-import { translations } from "./translations";
-
-export const translations_updated = {
+export const translations = {
   ru: {
-    ...translations.ru,
+    // Navigation
+    nav: {
+      home: 'Главная',
+      demos: 'Демо',
+      constructor: 'Конструктор',
+      cart: 'Корзина',
+      profile: 'Профиль',
+    },
+
+    // Header
+    header: {
+      title: 'WEB4TG STUDIO',
+      menu: 'Меню',
+    },
+
+    // Showcase / Landing
+    showcase: {
+      heroTitle: 'Приложение, которого',
+      heroTitle2: 'у ваших конкурентов',
+      heroAccent: 'ещё нет',
+      heroDescription: 'ВБ, Озон, Яндекс Маркет — комиссии от 15 до 25%, штрафы, чужие правила.',
+      heroDescription2: 'Хватит кормитиь посредников — продавайте напрямую через',
+      heroAccent2: 'своё приложение',
+      orderProject: 'Заказать проект',
+      openApp: 'Открыть приложение',
+
+      // Stats
+      clients: 'клиентов',
+      hours: 'ч',
+      toLaunch: 'до запуска',
+      toSales: 'до продаж',
+      launch: 'запуск',
+      projects: 'проектов',
+      rating: 'рейтинг',
+
+      // Section titles
+      projectsTitle: 'Проекты',
+      all: 'Все',
+      includedTitle: 'В комплекте',
+      open: 'Открыть',
+      allProjects: 'Все проекты',
+      cases: '50+ кейсов',
+
+      // Project cards
+      watchStoreDesc: 'Премиальные часы, каталог, оплата',
+      sales: 'продаж',
+      sneakerStoreDesc: 'Лимитированные серии, предзаказы',
+      premiumBrand: 'Премиум бренд',
+      personalSelection: 'Персональный подбор',
+      restaurant: 'Ресторан',
+      menuDelivery: 'Меню, доставка',
+
+      // Included features
+      payment: 'Оплата',
+      paymentDesc: 'Stripe, YooKassa',
+      aiBot: 'ИИ Бот',
+      aiBotDesc: 'Поддержка 24/7',
+      analytics: 'Аналитика',
+      crm: 'CRM',
+      crmDesc: 'Заказы',
+
+      // CTA
+      discussProject: 'Обсудить проект',
+      freeConsultation: 'Бесплатная консультация',
+
+      // Features
+      featuresTitle: 'Возможности платформы',
+      feature1Title: 'Мгновенный запуск',
+      feature1Desc: 'Ваше приложение готово в течение 24 часов',
+      feature2Title: '0% комиссии',
+      feature2Desc: 'Вся выручка остается у вас',
+      feature3Title: 'ИИ-поддержка',
+      feature3Desc: 'Умный ассистент 24/7',
+      feature4Title: 'Аналитика',
+      feature4Desc: 'Полная статистика продаж',
+
+      // Demo apps
+      demosTitle: 'Демо-приложения',
+      demosSubtitle: 'Посмотрите как это работает',
+      viewAll: 'Смотреть все',
+      tryDemo: 'Попробовать демо',
+
+      // Categories
+      categoryAll: 'Все',
+      categoryFood: 'Еда и напитки',
+      categoryBeauty: 'Красота и здоровье',
+      categoryRetail: 'Магазины',
+      categoryServices: 'Услуги',
+      categoryHealth: 'Медицина',
+      categoryEducation: 'Образование',
+    },
+
+    // AI Agent
+    aiAgent: {
+      title: 'ИИ Ассистент',
+      subtitle: 'Умный помощник для вашего бизнеса',
+      placeholder: 'Задайте вопрос...',
+      send: 'Отправить',
+      thinking: 'Думает...',
+      greeting: 'Здравствуйте! Я ИИ-ассистент WEB4TG. Чем я могу вам помочь?',
+      features: {
+        support: 'Поддержка 24/7',
+        sales: 'Автоматизация продаж',
+        analytics: 'Анализ данных',
+        personalization: 'Персонализация',
+      },
+      // Hero section
+      forTelegram: 'Для Telegram',
+      heroTitle: 'ИИ Агент',
+      heroSubtitle1: 'Подключите к вашему',
+      heroSubtitle2: 'Telegram-приложению',
+      valueProp: 'Окупается за 6 месяцев',
+      tryButton: 'Попробовать',
+      freeTrial: 'Бесплатно на 7 дней',
+      // Stats section
+      inNumbers: 'В цифрах',
+      roiPerYear: 'ROI в год',
+      averageResult: 'Средний результат',
+      alwaysOnline: 'Всегда в сети',
+      noWeekends: '24/7/365',
+      responseTime: 'Время ответа',
+      instant: 'Мгновенно',
+      // Features section
+      capabilities: 'Возможности',
+      everythingForSuccess: 'Все для успеха',
+      instantLaunch: 'Мгновенный старт',
+      tenMinutesReady: 'Готов за 10 минут',
+      security: 'Безопасность',
+      encryptionGdpr: 'Шифрование и GDPR',
+      languages150: '150+ языков',
+      understandsEveryone: 'Понимает каждого',
+      learnsItself: 'Самообучение',
+      getsBetter: 'Становится лучше',
+      // Why us section
+      whyUs: 'Почему мы',
+      neverSleeps: 'Никогда не спит',
+      noBreaks247: 'Работа без перерывов',
+      respondsInstantly: 'Отвечает сразу',
+      lessThan2Seconds: 'Меньше 2 секунд',
+      paysOffQuickly: 'Быстрая окупаемость',
+      percentPerYear: '74% годовых',
+      // CTA section
+      startToday: 'Начните',
+      today: 'сегодня',
+      trustedCompanies: 'Сотни компаний',
+      trustedCompanies2: 'уже доверяют нам',
+      launchAi: 'Запустить ИИ',
+      freeTrialNoCard: '7 дней бесплатно · Без карты',
+    },
+
     // AI Process Page
     aiProcess: {
       badge: 'ИИ + TELEGRAM',
@@ -103,8 +250,158 @@ export const translations_updated = {
       freeNote: 'Бесплатно · Ответим в течение часа',
     },
   },
+
   en: {
-    ...translations.en,
+    // Navigation
+    nav: {
+      home: 'Home',
+      demos: 'Demos',
+      constructor: 'Constructor',
+      cart: 'Cart',
+      profile: 'Profile',
+    },
+
+    // Header
+    header: {
+      title: 'WEB4TG STUDIO',
+      menu: 'Menu',
+    },
+
+    // Showcase / Landing
+    showcase: {
+      heroTitle: 'The Application',
+      heroTitle2: 'Your Competitors',
+      heroAccent: "Don't Have Yet",
+      heroDescription: 'WB, Ozon, Yandex Market — commissions from 15 to 25%, fines, external regulations.',
+      heroDescription2: 'Stop feeding intermediaries — sell directly through',
+      heroAccent2: 'your own app',
+      orderProject: 'Order Project',
+      openApp: 'Open App',
+
+      // Stats
+      clients: 'clients',
+      hours: 'h',
+      toLaunch: 'to launch',
+      toSales: 'to sales',
+      launch: 'launch',
+      projects: 'projects',
+      rating: 'rating',
+
+      // Section titles
+      projectsTitle: 'Projects',
+      all: 'All',
+      includedTitle: 'Included',
+      open: 'Open',
+      allProjects: 'All Projects',
+      cases: '50+ cases',
+
+      // Project cards
+      watchStoreDesc: 'Premium watches, catalog, payments',
+      sales: 'sales',
+      sneakerStoreDesc: 'Limited editions, pre-orders',
+      premiumBrand: 'Premium Brand',
+      personalSelection: 'Personal selection',
+      restaurant: 'Restaurant',
+      menuDelivery: 'Menu, delivery',
+
+      // Included features
+      payment: 'Payment',
+      paymentDesc: 'Stripe, YooKassa',
+      aiBot: 'AI Bot',
+      aiBotDesc: 'Support 24/7',
+      analytics: 'Analytics',
+      crm: 'CRM',
+      crmDesc: 'Orders',
+
+      // CTA
+      discussProject: 'Discuss Project',
+      freeConsultation: 'Free consultation',
+
+      // Features
+      featuresTitle: 'Platform Capabilities',
+      feature1Title: 'Instant Launch',
+      feature1Desc: 'Your application ready within 24 hours',
+      feature2Title: 'Zero Commission',
+      feature2Desc: 'All revenue stays with you',
+      feature3Title: 'AI Support',
+      feature3Desc: 'Intelligent assistant 24/7',
+      feature4Title: 'Analytics',
+      feature4Desc: 'Comprehensive sales statistics',
+
+      // Demo apps
+      demosTitle: 'Demo Applications',
+      demosSubtitle: 'Explore how it works',
+      viewAll: 'View All',
+      tryDemo: 'Try Demo',
+
+      // Categories
+      categoryAll: 'All',
+      categoryFood: 'Food & Dining',
+      categoryBeauty: 'Beauty & Wellness',
+      categoryRetail: 'Retail',
+      categoryServices: 'Services',
+      categoryHealth: 'Healthcare',
+      categoryEducation: 'Education',
+    },
+
+    // AI Agent
+    aiAgent: {
+      title: 'AI Assistant',
+      subtitle: 'Intelligent companion for your business',
+      placeholder: 'Type your question...',
+      send: 'Send',
+      thinking: 'Processing...',
+      greeting: 'Greetings! I am the WEB4TG AI Assistant. How may I assist you today?',
+      features: {
+        support: '24/7 Customer Support',
+        sales: 'Sales Automation',
+        analytics: 'Data Analysis',
+        personalization: 'Personalization',
+      },
+      // Hero section
+      forTelegram: 'For Telegram',
+      heroTitle: 'AI Agent',
+      heroSubtitle1: 'Connect to your',
+      heroSubtitle2: 'Telegram application',
+      valueProp: 'Pays for itself in 6 months',
+      tryButton: 'Try Now',
+      freeTrial: 'Free for 7 days',
+      // Stats section
+      inNumbers: 'In Numbers',
+      roiPerYear: 'Annual ROI',
+      averageResult: 'Average result',
+      alwaysOnline: 'Always Online',
+      noWeekends: '24/7/365',
+      responseTime: 'Response Time',
+      instant: 'Instant',
+      // Features section
+      capabilities: 'Capabilities',
+      everythingForSuccess: 'Everything for success',
+      instantLaunch: 'Instant Launch',
+      tenMinutesReady: 'Ready in 10 minutes',
+      security: 'Security',
+      encryptionGdpr: 'Encryption & GDPR',
+      languages150: '150+ Languages',
+      understandsEveryone: 'Global communication',
+      learnsItself: 'Self-learning',
+      getsBetter: 'Continuously improves',
+      // Why us section
+      whyUs: 'Why Choose Us',
+      neverSleeps: 'Never sleeps',
+      noBreaks247: '24/7 Availability',
+      respondsInstantly: 'Instant Response',
+      lessThan2Seconds: 'Under 2 seconds',
+      paysOffQuickly: 'Rapid ROI',
+      percentPerYear: '74% per annum',
+      // CTA section
+      startToday: 'Start',
+      today: 'Today',
+      trustedCompanies: 'Hundreds of businesses',
+      trustedCompanies2: 'already trust us',
+      launchAi: 'Launch AI',
+      freeTrialNoCard: '7-day Free Trial · No Credit Card Required',
+    },
+
     // AI Process Page
     aiProcess: {
       badge: 'AI + TELEGRAM',
@@ -176,6 +473,7 @@ export const translations_updated = {
       ctaButton: 'Book Consultation',
       ctaFooter: 'Free Consultation · Instant Quote · No Commitment',
     },
+
     // Projects Page
     projects: {
       badge: 'Web4TG Studio',
@@ -204,5 +502,7 @@ export const translations_updated = {
       requestConsultation: 'Request Consultation',
       freeNote: 'Free · Response within an hour',
     },
-  }
-};
+  },
+} as const;
+
+export type TranslationKey = keyof typeof translations.ru;
