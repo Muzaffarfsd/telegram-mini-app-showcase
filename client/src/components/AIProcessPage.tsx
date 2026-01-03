@@ -124,20 +124,20 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 href="https://t.me/web4tgs"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full font-semibold transition-all duration-300 active:scale-[0.97]"
+                className="group relative inline-flex items-center justify-center gap-3 rounded-full font-semibold transition-all duration-300 active:scale-[0.97]"
                 style={{
                   background: 'linear-gradient(135deg, #007AFF 0%, #0051D5 100%)',
                   color: '#FFFFFF',
-                  fontSize: '17px',
+                  fontSize: '16px',
                   letterSpacing: '-0.01em',
                   boxShadow: '0 8px 32px rgba(0, 122, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-                  minWidth: '280px',
-                  minHeight: '56px'
+                  width: '300px',
+                  height: '56px'
                 }}
                 data-testid="button-consultation"
               >
                 <MessageSquare className="w-5 h-5 flex-shrink-0" />
-                <span style={{ whiteSpace: 'nowrap' }}>{t('aiProcess.getConsultation')}</span>
+                <span>{t('aiProcess.getConsultation')}</span>
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 flex-shrink-0" />
               </a>
             </div>
