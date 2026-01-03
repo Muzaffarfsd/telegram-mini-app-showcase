@@ -19,6 +19,7 @@ import {
   Legend,
 } from "recharts";
 import { Users, Activity, TrendingUp, Clock } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type DateRange = "today" | "7days" | "30days";
 
@@ -35,7 +36,7 @@ interface AnalyticsData {
   funnel: { name: string; value: number; fill: string }[];
 }
 
-const NoDataPlaceholder = ({ message = "Нет данных" }: { message?: string }) => (
+const NoDataPlaceholder = ({ message = "No data" }: { message?: string }) => (
   <div className="h-[180px] flex flex-col items-center justify-center" style={{ color: 'var(--text-tertiary)' }}>
     <Activity className="w-8 h-8 mb-2 opacity-50" />
     <p className="text-sm">{message}</p>
@@ -117,9 +118,10 @@ const ChartSkeleton = () => (
 );
 
 export default function AnalyticsPage() {
+  const { t, language } = useLanguage();
   const [dateRange, setDateRange] = useState<DateRange>("7days");
 
-  const { data, isLoading, isError } = useQuery<AnalyticsData>({
+  const { data, isLoading } = useQuery<AnalyticsData>({
     queryKey: ["/api/analytics/dashboard", dateRange],
     queryFn: async () => {
       const response = await fetch(`/api/analytics/dashboard?range=${dateRange}`);
@@ -150,18 +152,26 @@ export default function AnalyticsPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const dateRangeOptions: { value: DateRange; label: string }[] = [
-    { value: "today", label: "Сегодня" },
-    { value: "7days", label: "7 дней" },
-    { value: "30days", label: "30 дней" },
+  const dateRangeOptions: { value: DateRange; labelKey: string }[] = [
+    { value: "today", labelKey: "analyticsPage.dateRange.today" },
+    { value: "7days", labelKey: "analyticsPage.dateRange.days7" },
+    { value: "30days", labelKey: "analyticsPage.dateRange.days30" },
   ];
+
+  const getDateRangeLabel = (range: DateRange) => {
+    switch (range) {
+      case "today": return t("analyticsPage.dateRange.today");
+      case "7days": return t("analyticsPage.dateRange.days7");
+      case "30days": return t("analyticsPage.dateRange.days30");
+    }
+  };
 
   return (
     <div className="analytics-page min-h-screen px-3 pb-32" style={{ paddingTop: '160px' }}>
       <div className="max-w-md mx-auto space-y-4">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }} data-testid="text-analytics-title">
-            Аналитика
+            {t("analyticsPage.title")}
           </h1>
 
           <div className="flex items-center gap-1" data-testid="select-date-range">
@@ -178,7 +188,7 @@ export default function AnalyticsPage() {
                 }
                 data-testid={`button-range-${option.value}`}
               >
-                {option.label}
+                {t(option.labelKey)}
               </Button>
             ))}
           </div>
@@ -186,21 +196,21 @@ export default function AnalyticsPage() {
 
         <div className="grid grid-cols-2 gap-3">
           <StatCard
-            title="Всего пользователей"
+            title={t("analyticsPage.stats.totalUsers")}
             value={stats.totalUsers.toLocaleString()}
             icon={Users}
             trend={{ value: 12.5, positive: true }}
             isLoading={isLoading}
           />
           <StatCard
-            title="Активных сегодня"
+            title={t("analyticsPage.stats.activeToday")}
             value={stats.activeToday.toLocaleString()}
             icon={Activity}
             trend={{ value: 8.3, positive: true }}
             isLoading={isLoading}
           />
           <StatCard
-            title="Конверсия"
+            title={t("analyticsPage.stats.conversion")}
             value={stats.conversionRate}
             suffix="%"
             icon={TrendingUp}
@@ -208,7 +218,7 @@ export default function AnalyticsPage() {
             isLoading={isLoading}
           />
           <StatCard
-            title="Сред. сессия"
+            title={t("analyticsPage.stats.avgSession")}
             value={formatAvgSession(stats.avgSessionMinutes)}
             icon={Clock}
             isLoading={isLoading}
@@ -219,14 +229,14 @@ export default function AnalyticsPage() {
           <Card data-testid="chart-total-users">
             <CardHeader className="pb-2 px-3 pt-3">
               <CardTitle className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Рост пользователей
+                {t("analyticsPage.charts.userGrowth")}
               </CardTitle>
             </CardHeader>
             <CardContent className="px-2 pb-3">
               {isLoading ? (
                 <ChartSkeleton />
               ) : userGrowth.length === 0 ? (
-                <NoDataPlaceholder message="Нет данных о росте" />
+                <NoDataPlaceholder message={t("analyticsPage.charts.noGrowthData")} />
               ) : (
                 <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -248,7 +258,7 @@ export default function AnalyticsPage() {
                       <Line
                         type="monotone"
                         dataKey="users"
-                        name="Пользователи"
+                        name={t("analyticsPage.charts.users")}
                         stroke="#10B981"
                         strokeWidth={2}
                         dot={false}
@@ -264,14 +274,14 @@ export default function AnalyticsPage() {
           <Card data-testid="chart-active-users">
             <CardHeader className="pb-2 px-3 pt-3">
               <CardTitle className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Активность по дням
+                {t("analyticsPage.charts.dailyActivity")}
               </CardTitle>
             </CardHeader>
             <CardContent className="px-2 pb-3">
               {isLoading ? (
                 <ChartSkeleton />
               ) : activeUsers.length === 0 ? (
-                <NoDataPlaceholder message="Нет данных об активности" />
+                <NoDataPlaceholder message={t("analyticsPage.charts.noActivityData")} />
               ) : (
                 <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -293,8 +303,8 @@ export default function AnalyticsPage() {
                       <Legend
                         wrapperStyle={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}
                       />
-                      <Bar dataKey="active" name="Активные" fill="#10B981" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="new" name="Новые" fill="#34D399" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="active" name={t("analyticsPage.charts.active")} fill="#10B981" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="new" name={t("analyticsPage.charts.new")} fill="#34D399" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -305,14 +315,14 @@ export default function AnalyticsPage() {
           <Card data-testid="chart-funnel">
             <CardHeader className="pb-2 px-3 pt-3">
               <CardTitle className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Воронка конверсии
+                {t("analyticsPage.charts.conversionFunnel")}
               </CardTitle>
             </CardHeader>
             <CardContent className="px-2 pb-3">
               {isLoading ? (
                 <ChartSkeleton />
               ) : funnel.length === 0 ? (
-                <NoDataPlaceholder message="Нет данных о конверсии" />
+                <NoDataPlaceholder message={t("analyticsPage.charts.noConversionData")} />
               ) : (
                 <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -334,7 +344,7 @@ export default function AnalyticsPage() {
                         width={80}
                       />
                       <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="value" name="Пользователи" radius={[0, 4, 4, 0]}>
+                      <Bar dataKey="value" name={t("analyticsPage.charts.users")} radius={[0, 4, 4, 0]}>
                         {funnel.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.fill} />
                         ))}
@@ -349,14 +359,14 @@ export default function AnalyticsPage() {
           <Card data-testid="chart-top-demos">
             <CardHeader className="pb-2 px-3 pt-3">
               <CardTitle className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Топ демо
+                {t("analyticsPage.charts.topDemos")}
               </CardTitle>
             </CardHeader>
             <CardContent className="px-2 pb-3">
               {isLoading ? (
                 <ChartSkeleton />
               ) : topDemos.length === 0 ? (
-                <NoDataPlaceholder message="Нет данных о демо" />
+                <NoDataPlaceholder message={t("analyticsPage.charts.noDemoData")} />
               ) : (
                 <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -389,7 +399,7 @@ export default function AnalyticsPage() {
         <Card data-testid="section-insights">
           <CardHeader className="pb-2 px-3 pt-3">
             <CardTitle className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-              Инсайты
+              {t("analyticsPage.insights.title")}
             </CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3">
@@ -402,17 +412,17 @@ export default function AnalyticsPage() {
               ) : (
                 <>
                   <div className="analytics-insight p-3 rounded-lg" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
-                    <p className="text-emerald-400 font-medium text-sm">Рост +12.5%</p>
+                    <p className="text-emerald-400 font-medium text-sm">{t("analyticsPage.insights.growth")} +12.5%</p>
                     <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                      Новых пользователей за {dateRange === "today" ? "сегодня" : dateRange === "7days" ? "7 дней" : "30 дней"}
+                      {t("analyticsPage.insights.newUsersFor")} {getDateRangeLabel(dateRange).toLowerCase()}
                     </p>
                   </div>
                   <div className="analytics-insight p-3 rounded-lg" style={{ background: "rgba(16, 185, 129, 0.1)" }}>
                     <p className="text-emerald-400 font-medium text-sm">
-                      Топ: {topDemos[0]?.name || "Ресторан"}
+                      {t("analyticsPage.insights.top")}: {topDemos[0]?.name || (language === 'ru' ? "Ресторан" : "Restaurant")}
                     </p>
                     <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                      Лидирует по просмотрам
+                      {t("analyticsPage.insights.leadsInViews")}
                     </p>
                   </div>
                 </>
