@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { 
   Coins, CheckCircle, ChevronDown, ChevronUp, Clock, Gift, Users, 
   Sparkles, ArrowRight, Crown, Star, Zap, Trophy, Target
@@ -230,7 +230,7 @@ export function EarningPage({ onNavigate }: EarningPageProps) {
 
         <AnimatePresence>
           {isExpanded && (
-            <motion.div
+            <m.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -239,7 +239,7 @@ export function EarningPage({ onNavigate }: EarningPageProps) {
             >
               <div className="space-y-2 pl-2">
                 {tasks.map(task => (
-                  <motion.div
+                  <m.div
                     key={task.id}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -277,10 +277,10 @@ export function EarningPage({ onNavigate }: EarningPageProps) {
                       <Coins className="w-4 h-4 text-amber-500" />
                       <span className="font-bold text-amber-500">+{task.coins}</span>
                     </div>
-                  </motion.div>
+                  </m.div>
                 ))}
               </div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
