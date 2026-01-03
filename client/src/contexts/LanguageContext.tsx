@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, startTransition } from 'react';
 
 type Language = 'ru' | 'en';
 
@@ -10,8 +10,46 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-// Import translations
 import { translations } from '../lib/translations';
+
+const translationCache = new Map<string, Map<string, string>>();
+
+function getTranslation(lang: Language, key: string): string {
+  let langCache = translationCache.get(lang);
+  if (!langCache) {
+    langCache = new Map();
+    translationCache.set(lang, langCache);
+  }
+  
+  const cached = langCache.get(key);
+  if (cached !== undefined) return cached;
+  
+  const keys = key.split('.');
+  let value: any = translations[lang];
+  
+  for (const k of keys) {
+    if (value && typeof value === 'object' && k in value) {
+      value = value[k];
+    } else {
+      let fallback: any = translations['ru'];
+      for (const fk of keys) {
+        if (fallback && typeof fallback === 'object' && fk in fallback) {
+          fallback = fallback[fk];
+        } else {
+          langCache.set(key, key);
+          return key;
+        }
+      }
+      const result = typeof fallback === 'string' ? fallback : key;
+      langCache.set(key, result);
+      return result;
+    }
+  }
+  
+  const result = typeof value === 'string' ? value : key;
+  langCache.set(key, result);
+  return result;
+}
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
@@ -19,7 +57,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       const saved = localStorage.getItem('app-language');
       if (saved === 'en' || saved === 'ru') return saved;
       
-      // Try to detect from Telegram
       try {
         const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
         if (tgLang === 'en' || tgLang?.startsWith('en')) return 'en';
@@ -28,11 +65,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return 'ru';
   });
 
+  const langRef = useRef(language);
+  langRef.current = language;
+
   useEffect(() => {
     localStorage.setItem('app-language', language);
     document.documentElement.lang = language;
     
-    // Update font based on language
     if (language === 'en') {
       document.documentElement.classList.add('lang-en');
       document.documentElement.classList.remove('lang-ru');
@@ -43,48 +82,23 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [language]);
 
   const setLanguage = useCallback((lang: Language) => {
-    setLanguageState(lang);
+    startTransition(() => {
+      setLanguageState(lang);
+    });
   }, []);
 
   const t = useCallback((key: string): string => {
-    const keys = key.split('.');
-    let value: any = translations[language];
-    
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
-      } else {
-        // Fallback to Russian if key not found
-        let fallback: any = translations['ru'];
-        for (const fk of keys) {
-          if (fallback && typeof fallback === 'object' && fk in fallback) {
-            fallback = fallback[fk];
-          } else {
-            return key; // Return key if not found in fallback
-          }
-        }
-        return typeof fallback === 'string' ? fallback : key;
-      }
-    }
-    
-    // Final check for the language value
-    if (typeof value !== 'string') {
-      let fallback: any = translations['ru'];
-      for (const fk of keys) {
-        if (fallback && typeof fallback === 'object' && fk in fallback) {
-          fallback = fallback[fk];
-        } else {
-          return key;
-        }
-      }
-      return typeof fallback === 'string' ? fallback : key;
-    }
+    return getTranslation(langRef.current, key);
+  }, []);
 
-    return value;
-  }, [language]);
+  const value = useMemo(() => ({ 
+    language, 
+    setLanguage, 
+    t 
+  }), [language, setLanguage, t]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
