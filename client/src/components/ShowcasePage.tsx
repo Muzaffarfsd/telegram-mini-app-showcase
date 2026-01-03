@@ -7,6 +7,7 @@ import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
 import { preloadDemo } from './demos/DemoRegistry';
 import { useViewedDemos } from '../hooks/useTelegramStorage';
 import { FavoriteButton } from './FavoriteButton';
+import { useLanguage } from '../contexts/LanguageContext';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
@@ -40,7 +41,7 @@ function AnimatedCounter({ value, suffix = "", delay = 0 }: { value: number; suf
   return <span ref={ref}>{displayValue}{suffix}</span>;
 }
 
-const headlines = [
+const headlinesRu = [
   "у конкурентов",
   "на рынке",
   "в России", 
@@ -48,9 +49,19 @@ const headlines = [
   "в вашей нише"
 ];
 
+const headlinesEn = [
+  "your competitors have",
+  "in the market",
+  "in your industry", 
+  "in your region",
+  "in your niche"
+];
+
 function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   useTelegram();
   const haptic = useHaptic();
+  const { t, language } = useLanguage();
+  const headlines = language === 'ru' ? headlinesRu : headlinesEn;
   const [headlineIndex, setHeadlineIndex] = useState(0);
   const { videoRef } = useVideoLazyLoad({ threshold: 0.25 });
   const { markAsViewed, viewedCount } = useViewedDemos();
@@ -99,13 +110,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="block text-[44px] leading-[1.02] font-semibold"
                 style={{ color: 'var(--text-primary)', letterSpacing: '-0.035em' }}
               >
-                Приложение,
+                {t('showcase.heroTitle')}
               </span>
               <span 
                 className="block text-[44px] leading-[1.02] font-semibold"
                 style={{ color: 'var(--text-primary)', letterSpacing: '-0.035em' }}
               >
-                которого ещё нет
+                {t('showcase.heroTitle2')}
               </span>
               <div className="h-[54px] overflow-hidden mt-1">
                 <AnimatePresence mode="wait">
