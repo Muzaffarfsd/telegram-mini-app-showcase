@@ -61,10 +61,12 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               style={{
                 background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%)',
                 border: '1px solid rgba(139, 92, 246, 0.4)',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 10px 40px rgba(139, 92, 246, 0.3)'
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 10px 40px rgba(139, 92, 246, 0.3)',
+                minWidth: '140px',
+                justifyContent: 'center'
               }}
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6]" strokeWidth={2.5} />
+              <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6] flex-shrink-0" strokeWidth={2.5} />
               <span 
                 style={{
                   fontSize: '10px',
@@ -73,7 +75,8 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   letterSpacing: '0.12em',
-                  textTransform: 'uppercase'
+                  textTransform: 'uppercase',
+                  whiteSpace: 'nowrap'
                 }}
               >
                 {t('aiAgent.forTelegram')}
@@ -118,11 +121,15 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               fontWeight: 600,
               color: 'rgba(255, 255, 255, 0.82)',
               letterSpacing: '-0.035em',
+              minHeight: '54px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            {t('aiAgent.heroSubtitle1')}
-            <br />
-            {t('aiAgent.heroSubtitle2')}
+            <span>{t('aiAgent.heroSubtitle1')}</span>
+            <span>{t('aiAgent.heroSubtitle2')}</span>
           </p>
           
           {/* Value prop */}
@@ -152,13 +159,15 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
                 background: '#FFFFFF',
                 color: '#000000',
                 boxShadow: '0 12px 48px rgba(255, 255, 255, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15) inset',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                minWidth: '200px',
+                minHeight: '52px'
               }}
               data-testid="button-start-trial"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
                 {t('aiAgent.tryButton')}
-                <ArrowRight className="w-4.5 h-4.5 transition-transform group-hover:translate-x-1 duration-300" strokeWidth={2.5} />
+                <ArrowRight className="w-4.5 h-4.5 transition-transform group-hover:translate-x-1 duration-300 flex-shrink-0" strokeWidth={2.5} />
               </span>
             </button>
             
@@ -166,7 +175,8 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               style={{
                 fontSize: '12px',
                 color: 'rgba(255, 255, 255, 0.38)',
-                letterSpacing: '0.02em'
+                letterSpacing: '0.02em',
+                minHeight: '18px'
               }}
             >
               {t('aiAgent.freeTrial')}
@@ -371,12 +381,16 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               fontWeight: 700,
               letterSpacing: '-0.065em',
               color: '#FFFFFF',
-              lineHeight: '0.88'
+              lineHeight: '0.88',
+              minHeight: '90px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            {t('aiAgent.startToday')}
-            <br />
-            {t('aiAgent.today')}
+            <span>{t('aiAgent.startToday')}</span>
+            <span>{t('aiAgent.today')}</span>
           </h2>
           
           <p 
@@ -386,12 +400,16 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               lineHeight: '1.4',
               color: 'rgba(255, 255, 255, 0.68)',
               letterSpacing: '-0.025em',
-              fontWeight: 500
+              fontWeight: 500,
+              minHeight: '52px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            {t('aiAgent.trustedCompanies')}
-            <br />
-            {t('aiAgent.trustedCompanies2')}
+            <span>{t('aiAgent.trustedCompanies')}</span>
+            <span>{t('aiAgent.trustedCompanies2')}</span>
           </p>
           
           <button
@@ -403,13 +421,14 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
               background: '#FFFFFF',
               color: '#000000',
               boxShadow: '0 20px 60px rgba(255, 255, 255, 0.35)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              minHeight: '56px'
             }}
             data-testid="button-start-cta"
           >
             <span className="relative z-10 flex items-center justify-center gap-2.5">
               {t('aiAgent.launchAi')}
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5 duration-300" strokeWidth={2.5} />
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5 duration-300 flex-shrink-0" strokeWidth={2.5} />
             </span>
           </button>
           
@@ -417,7 +436,8 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
             style={{
               fontSize: '13px',
               color: 'rgba(255, 255, 255, 0.38)',
-              letterSpacing: '0.02em'
+              letterSpacing: '0.02em',
+              minHeight: '20px'
             }}
           >
             {t('aiAgent.freeTrialNoCard')}
@@ -444,14 +464,14 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
 
 AIAgentPage.displayName = 'AIAgentPage';
 
-// Stat Card - Mobile optimized
+// Stat Card - Mobile optimized with stable height
 const StatCard = memo(({ number, label, sublabel, gradient }: { 
   number: string; 
   label: string; 
   sublabel: string;
   gradient: string;
 }) => (
-  <div className="text-center">
+  <div className="text-center" style={{ minHeight: '130px' }}>
     <div 
       className="mb-4"
       style={{
@@ -462,6 +482,7 @@ const StatCard = memo(({ number, label, sublabel, gradient }: {
         background: gradient,
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
+        minHeight: '62px'
       }}
     >
       {number}
@@ -473,7 +494,8 @@ const StatCard = memo(({ number, label, sublabel, gradient }: {
         color: 'rgba(255, 255, 255, 0.75)',
         letterSpacing: '-0.02em',
         fontWeight: 600,
-        marginBottom: '5px'
+        marginBottom: '5px',
+        minHeight: '22px'
       }}
     >
       {label}
@@ -482,7 +504,8 @@ const StatCard = memo(({ number, label, sublabel, gradient }: {
       style={{
         fontSize: '14px',
         color: 'rgba(255, 255, 255, 0.42)',
-        letterSpacing: '-0.01em'
+        letterSpacing: '-0.01em',
+        minHeight: '20px'
       }}
     >
       {sublabel}
@@ -491,7 +514,7 @@ const StatCard = memo(({ number, label, sublabel, gradient }: {
 ));
 StatCard.displayName = 'StatCard';
 
-// Feature Block - Mobile focused
+// Feature Block - Mobile focused with stable height
 const FeatureBlock = memo(({ 
   icon, 
   title, 
@@ -503,10 +526,10 @@ const FeatureBlock = memo(({
   description: string;
   gradient: string;
 }) => (
-  <div className="text-center">
+  <div className="text-center" style={{ minHeight: '180px' }}>
     {/* Icon */}
     <div 
-      className="w-20 h-20 rounded-[24px] flex items-center justify-center mx-auto mb-5"
+      className="w-20 h-20 rounded-[24px] flex items-center justify-center mx-auto mb-5 flex-shrink-0"
       style={{
         background: gradient,
         boxShadow: '0 16px 48px rgba(0, 0, 0, 0.45)'
@@ -525,7 +548,8 @@ const FeatureBlock = memo(({
         fontWeight: 700,
         letterSpacing: '-0.04em',
         color: '#FFFFFF',
-        lineHeight: '1.15'
+        lineHeight: '1.15',
+        minHeight: '26px'
       }}
     >
       {title}
@@ -537,7 +561,8 @@ const FeatureBlock = memo(({
         fontSize: '15px',
         lineHeight: '1.45',
         color: 'rgba(255, 255, 255, 0.58)',
-        letterSpacing: '-0.015em'
+        letterSpacing: '-0.015em',
+        minHeight: '22px'
       }}
     >
       {description}
@@ -546,13 +571,13 @@ const FeatureBlock = memo(({
 ));
 FeatureBlock.displayName = 'FeatureBlock';
 
-// Benefit Item - Compact mobile
+// Benefit Item - Compact mobile with stable height
 const BenefitItem = memo(({ icon, text, subtext }: { 
   icon: React.ReactNode; 
   text: string;
   subtext: string;
 }) => (
-  <div className="flex items-center gap-4 py-4">
+  <div className="flex items-center gap-4 py-4" style={{ minHeight: '72px' }}>
     <div 
       className="flex-shrink-0 w-12 h-12 rounded-[18px] flex items-center justify-center"
       style={{
@@ -564,7 +589,7 @@ const BenefitItem = memo(({ icon, text, subtext }: {
         {icon}
       </div>
     </div>
-    <div className="flex-1">
+    <div className="flex-1" style={{ minWidth: 0 }}>
       <p 
         style={{
           fontSize: '16px',
@@ -572,7 +597,8 @@ const BenefitItem = memo(({ icon, text, subtext }: {
           color: 'rgba(255, 255, 255, 0.88)',
           letterSpacing: '-0.025em',
           fontWeight: 600,
-          marginBottom: '3px'
+          marginBottom: '3px',
+          minHeight: '20px'
         }}
       >
         {text}
@@ -581,7 +607,8 @@ const BenefitItem = memo(({ icon, text, subtext }: {
         style={{
           fontSize: '14px',
           color: 'rgba(255, 255, 255, 0.48)',
-          letterSpacing: '-0.01em'
+          letterSpacing: '-0.01em',
+          minHeight: '18px'
         }}
       >
         {subtext}
