@@ -15,6 +15,26 @@ export const translations = {
       menu: 'Меню',
     },
     
+    // Sidebar / Hamburger Menu
+    sidebar: {
+      home: 'Главная',
+      allFeatures: 'Все возможности',
+      businessApps: 'Бизнес-приложения',
+      readySolutions: 'Готовые решения',
+      aiForBusiness: 'AI для бизнеса',
+      automation247: 'Автоматизация 24/7',
+      aboutStudio: 'О студии',
+      ourTeam: 'Наша команда',
+      orderProject: 'Заказать проект',
+      customSolution: 'Индивидуальное решение',
+      notifications: 'Уведомления',
+      telegramBotApi: 'Telegram Bot API',
+      analytics: 'Аналитика',
+      businessMetrics: 'Метрики бизнеса',
+      telegramChannel: 'Telegram-канал',
+      consultation: 'Консультация',
+    },
+    
     // Showcase / Landing
     showcase: {
       heroTitle: 'Приложение,',
@@ -1267,6 +1287,26 @@ export const translations = {
     header: {
       title: 'WEB4TG STUDIO',
       menu: 'Menu',
+    },
+    
+    // Sidebar / Hamburger Menu
+    sidebar: {
+      home: 'Home',
+      allFeatures: 'All Features',
+      businessApps: 'Business Apps',
+      readySolutions: 'Ready Solutions',
+      aiForBusiness: 'AI for Business',
+      automation247: '24/7 Automation',
+      aboutStudio: 'About Studio',
+      ourTeam: 'Our Team',
+      orderProject: 'Order Project',
+      customSolution: 'Custom Solution',
+      notifications: 'Notifications',
+      telegramBotApi: 'Telegram Bot API',
+      analytics: 'Analytics',
+      businessMetrics: 'Business Metrics',
+      telegramChannel: 'Telegram Channel',
+      consultation: 'Consultation',
     },
     
     // Showcase / Landing
