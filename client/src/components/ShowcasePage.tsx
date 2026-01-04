@@ -149,14 +149,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <m.button
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleNavigate('projects')}
-                className="flex items-center justify-center gap-3 rounded-full transition-colors duration-300"
+                className="flex-1 flex items-center justify-center gap-3 rounded-full transition-colors duration-300"
                 style={{ 
                   background: 'var(--cta-background)',
-                  minWidth: '180px',
                   height: '52px',
                   paddingLeft: '24px',
                   paddingRight: '24px'
@@ -174,10 +173,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 onClick={() => handleOpenDemo('clothing-store')}
                 onMouseEnter={() => preloadDemo('clothing-store')}
                 onTouchStart={() => preloadDemo('clothing-store')}
-                className="flex items-center justify-center gap-2 rounded-full transition-colors duration-300"
+                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-colors duration-300"
                 style={{ 
                   border: '1px solid var(--cta-secondary-border)',
-                  minWidth: '140px',
                   height: '52px',
                   paddingLeft: '20px',
                   paddingRight: '20px'
@@ -195,13 +193,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="p-4 rounded-2xl text-center transition-colors duration-300"
-                style={{ backgroundColor: 'var(--card-bg)', minHeight: '88px' }}
+                className="p-4 rounded-2xl text-center transition-colors duration-300 flex flex-col justify-center"
+                style={{ backgroundColor: 'var(--card-bg)', height: '88px' }}
               >
-                <div className="text-[26px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+                <div className="text-[26px] font-semibold leading-none" style={{ color: 'var(--text-primary)' }}>
                   <AnimatedCounter value={127} suffix="+" delay={0.3} />
                 </div>
-                <div className="text-[9px] uppercase tracking-wider mt-1" style={{ color: 'var(--text-tertiary)', lineHeight: '1.3' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'var(--text-tertiary)', lineHeight: '1.3' }}>
                   {t('showcase.clients')}
                 </div>
               </m.div>
@@ -209,13 +207,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="p-4 rounded-2xl text-center transition-colors duration-300"
-                style={{ backgroundColor: 'var(--card-bg)', minHeight: '88px' }}
+                className="p-4 rounded-2xl text-center transition-colors duration-300 flex flex-col justify-center"
+                style={{ backgroundColor: 'var(--card-bg)', height: '88px' }}
               >
-                <div className="text-[26px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+                <div className="text-[26px] font-semibold leading-none" style={{ color: 'var(--text-primary)' }}>
                   <AnimatedCounter value={24} suffix={t('showcase.hours')} delay={0.4} />
                 </div>
-                <div className="text-[9px] uppercase tracking-wider mt-1" style={{ color: 'var(--text-tertiary)', lineHeight: '1.3' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'var(--text-tertiary)', lineHeight: '1.3' }}>
                   {t('showcase.toLaunch')}
                 </div>
               </m.div>
@@ -223,13 +221,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="p-4 rounded-2xl text-center transition-colors duration-300"
-                style={{ backgroundColor: 'color-mix(in srgb, var(--cta-background) 15%, transparent)', minHeight: '88px' }}
+                className="p-4 rounded-2xl text-center transition-colors duration-300 flex flex-col justify-center"
+                style={{ backgroundColor: 'color-mix(in srgb, var(--cta-background) 15%, transparent)', height: '88px' }}
               >
-                <div className="text-[26px] font-semibold" style={{ color: 'var(--cta-background)' }}>
+                <div className="text-[26px] font-semibold leading-none" style={{ color: 'var(--cta-background)' }}>
                   +<AnimatedCounter value={300} suffix="%" delay={0.5} />
                 </div>
-                <div className="text-[9px] uppercase tracking-wider mt-1" style={{ color: 'color-mix(in srgb, var(--cta-background) 60%, transparent)', lineHeight: '1.3' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'color-mix(in srgb, var(--cta-background) 60%, transparent)', lineHeight: '1.3' }}>
                   {t('showcase.toSales')}
                 </div>
               </m.div>
@@ -510,17 +508,17 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             ].map((item, i) => (
               <div 
                 key={i}
-                className={`p-4 rounded-xl transition-all duration-300 ios26-feature-card ${item.tonal} ios26-luminous`}
+                className={`p-4 rounded-xl transition-all duration-300 ios26-feature-card ${item.tonal} ios26-luminous h-[72px] flex flex-col justify-center`}
                 style={{ 
                   backgroundColor: 'var(--card-bg)',
                   border: '1px solid var(--card-border)',
                   boxShadow: 'var(--card-shadow)'
                 }}
               >
-                <div className="text-[14px] font-medium mb-0.5 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
+                <div className="text-[14px] font-medium leading-tight transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
                   {item.title}
                 </div>
-                <div className="text-[12px] transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
+                <div className="text-[12px] mt-0.5 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
                   {item.desc}
                 </div>
               </div>
@@ -536,21 +534,21 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           style={{ borderColor: 'var(--card-border)' }}
         >
           <div className="grid grid-cols-3 gap-4 mb-12">
-            <div className="text-center">
-              <div className="text-[28px] font-semibold mb-0.5 transition-colors duration-300" style={{ color: 'var(--cta-background)' }}>24{t('showcase.hours')}</div>
-              <div className="text-[10px] uppercase tracking-wider transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
+            <div className="text-center flex flex-col items-center justify-center h-[60px]">
+              <div className="text-[28px] font-semibold leading-none transition-colors duration-300" style={{ color: 'var(--cta-background)' }}>24{t('showcase.hours')}</div>
+              <div className="text-[10px] uppercase tracking-wider mt-1 h-[20px] flex items-center justify-center transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
                 {t('showcase.launch')}
               </div>
             </div>
-            <div className="text-center">
-              <div className="text-[28px] font-semibold mb-0.5 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>127+</div>
-              <div className="text-[10px] uppercase tracking-wider transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
+            <div className="text-center flex flex-col items-center justify-center h-[60px]">
+              <div className="text-[28px] font-semibold leading-none transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>127+</div>
+              <div className="text-[10px] uppercase tracking-wider mt-1 h-[20px] flex items-center justify-center transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
                 {t('showcase.projects')}
               </div>
             </div>
-            <div className="text-center">
-              <div className="text-[28px] font-semibold mb-0.5 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>4.9</div>
-              <div className="text-[10px] uppercase tracking-wider transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
+            <div className="text-center flex flex-col items-center justify-center h-[60px]">
+              <div className="text-[28px] font-semibold leading-none transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>4.9</div>
+              <div className="text-[10px] uppercase tracking-wider mt-1 h-[20px] flex items-center justify-center transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
                 {t('showcase.rating')}
               </div>
             </div>
