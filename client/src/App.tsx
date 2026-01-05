@@ -383,7 +383,7 @@ function App() {
                     <div 
                       className="absolute -inset-2 rounded-[36px] pointer-events-none"
                       style={{
-                        boxShadow: '0 0 40px 5px rgba(16, 185, 129, 0.08)',
+                        boxShadow: isDark ? '0 0 40px 5px rgba(16, 185, 129, 0.08)' : '0 0 30px 5px rgba(16, 185, 129, 0.05)',
                       }}
                     />
                     
@@ -391,7 +391,7 @@ function App() {
                     <div 
                       className="absolute inset-0 rounded-[28px] pointer-events-none"
                       style={{
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+                        boxShadow: isDark ? '0 25px 50px -12px rgba(0, 0, 0, 0.7)' : '0 15px 35px -10px rgba(0, 0, 0, 0.15)',
                         transform: 'translateY(4px)',
                       }}
                     />
@@ -400,11 +400,13 @@ function App() {
                     <nav 
                       className="relative flex items-center gap-1 rounded-[28px] px-3 py-2 gpu-layer"
                       style={{
-                        background: 'rgba(30, 30, 35, 0.85)',
+                        background: isDark ? 'rgba(30, 30, 35, 0.85)' : 'rgba(255, 255, 255, 0.92)',
                         backdropFilter: 'blur(16px)',
                         WebkitBackdropFilter: 'blur(16px)',
-                        border: '1px solid rgba(255, 255, 255, 0.12)',
-                        boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.12), inset 0 -1px 1px rgba(0, 0, 0, 0.15)',
+                        border: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)',
+                        boxShadow: isDark 
+                          ? 'inset 0 1px 1px rgba(255, 255, 255, 0.12), inset 0 -1px 1px rgba(0, 0, 0, 0.15)'
+                          : '0 4px 24px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.8)',
                       }}
                       role="navigation" 
                       aria-label="Главное меню"
@@ -426,7 +428,7 @@ function App() {
                     >
                       <Home
                         className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'showcase' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
+                          route.component === 'showcase' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : isDark ? 'text-white/80' : 'text-slate-600'
                         }`}
                         strokeWidth={route.component === 'showcase' ? 2.5 : 1.75}
                       />
@@ -441,7 +443,7 @@ function App() {
                     >
                       <Bot
                         className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'aiProcess' || route.component === 'aiAgent' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
+                          route.component === 'aiProcess' || route.component === 'aiAgent' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : isDark ? 'text-white/80' : 'text-slate-600'
                         }`}
                         strokeWidth={route.component === 'aiProcess' || route.component === 'aiAgent' ? 2.5 : 1.75}
                       />
@@ -456,7 +458,7 @@ function App() {
                     >
                       <Briefcase
                         className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'projects' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
+                          route.component === 'projects' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : isDark ? 'text-white/80' : 'text-slate-600'
                         }`}
                         strokeWidth={route.component === 'projects' ? 2.5 : 1.75}
                       />
@@ -471,7 +473,7 @@ function App() {
                     >
                       <ShoppingCart
                         className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'constructor' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-white/80'
+                          route.component === 'constructor' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : isDark ? 'text-white/80' : 'text-slate-600'
                         }`}
                         strokeWidth={route.component === 'constructor' ? 2.5 : 1.75}
                       />
