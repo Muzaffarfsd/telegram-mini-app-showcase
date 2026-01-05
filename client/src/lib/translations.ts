@@ -15,6 +15,14 @@ export const translations = {
       menu: 'Меню',
     },
     
+    // Favorites Section
+    favorites: {
+      title: 'Избранное',
+      app: 'приложение',
+      apps2to4: 'приложения',
+      apps5plus: 'приложений',
+    },
+    
     // Telegram Native Buttons
     telegramButtons: {
       orderProject: 'Заказать проект',
@@ -1581,6 +1589,14 @@ export const translations = {
     header: {
       title: 'WEB4TG STUDIO',
       menu: 'Menu',
+    },
+    
+    // Favorites Section
+    favorites: {
+      title: 'Favorites',
+      app: 'app',
+      apps2to4: 'apps',
+      apps5plus: 'apps',
     },
     
     // Telegram Native Buttons
