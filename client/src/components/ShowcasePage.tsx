@@ -17,48 +17,33 @@ interface ShowcasePageProps {
 }
 
 function AnimatedCounter({ value, suffix = "", delay = 0 }: { value: number; suffix?: string; delay?: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
   const [displayValue, setDisplayValue] = useState(0);
-  const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
-    if (hasAnimated) return;
     let cancelled = false;
+    const timeout = setTimeout(() => {
+      if (cancelled) return;
+      const startTime = performance.now();
+      const duration = 800;
+      
+      const animate = (currentTime: number) => {
+        if (cancelled) return;
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        setDisplayValue(Math.round(eased * value));
+        if (progress < 1) requestAnimationFrame(animate);
+      };
+      requestAnimationFrame(animate);
+    }, delay * 1000);
     
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !cancelled) {
-          setHasAnimated(true);
-          const startTime = performance.now() + delay * 1000;
-          const duration = 800;
-          
-          const animate = (currentTime: number) => {
-            if (cancelled) return;
-            const elapsed = currentTime - startTime;
-            if (elapsed < 0) {
-              requestAnimationFrame(animate);
-              return;
-            }
-            const progress = Math.min(elapsed / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setDisplayValue(Math.round(eased * value));
-            if (progress < 1 && !cancelled) requestAnimationFrame(animate);
-          };
-          requestAnimationFrame(animate);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    
-    if (ref.current) observer.observe(ref.current);
     return () => {
       cancelled = true;
-      observer.disconnect();
+      clearTimeout(timeout);
     };
-  }, [value, delay, hasAnimated]);
+  }, [value, delay]);
 
-  return <span ref={ref}>{displayValue}{suffix}</span>;
+  return <span>{displayValue}{suffix}</span>;
 }
 
 const headlinesRu = [
