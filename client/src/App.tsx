@@ -167,8 +167,8 @@ function App() {
   // Custom hooks for cleaner code
   const { route } = useRouting();
   
-  // iOS 26-style scroll haptics (vibration feedback)
-  useScrollHaptic({ enabled: true });
+  // iOS 26-style scroll haptics - disabled for performance, only edge bounce on demand
+  // useScrollHaptic({ enabled: true });
   
   // Deferred initialization after first paint
   useEffect(() => {
@@ -398,11 +398,11 @@ function App() {
                     
                     {/* Main Glass Container */}
                     <nav 
-                      className="relative flex items-center gap-1 rounded-[28px] px-3 py-2"
+                      className="relative flex items-center gap-1 rounded-[28px] px-3 py-2 gpu-layer"
                       style={{
-                        background: 'rgba(30, 30, 35, 0.08)',
-                        backdropFilter: 'blur(60px) saturate(200%) brightness(0.98)',
-                        WebkitBackdropFilter: 'blur(60px) saturate(200%) brightness(0.98)',
+                        background: 'rgba(30, 30, 35, 0.85)',
+                        backdropFilter: 'blur(16px)',
+                        WebkitBackdropFilter: 'blur(16px)',
                         border: '1px solid rgba(255, 255, 255, 0.12)',
                         boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.12), inset 0 -1px 1px rgba(0, 0, 0, 0.15)',
                       }}

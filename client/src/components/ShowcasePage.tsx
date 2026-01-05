@@ -1,6 +1,5 @@
 import { ArrowRight, ArrowUpRight, Play } from "lucide-react";
 import { useCallback, memo, useState, useEffect, useRef } from "react";
-import { m, AnimatePresence, useSpring, useTransform, useInView } from 'framer-motion';
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
 import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
@@ -19,24 +18,45 @@ interface ShowcasePageProps {
 
 function AnimatedCounter({ value, suffix = "", delay = 0 }: { value: number; suffix?: string; delay?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
-  const spring = useSpring(0, { duration: 1500, bounce: 0 });
-  const display = useTransform(spring, (v) => Math.round(v));
   const [displayValue, setDisplayValue] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
-    if (isInView) {
-      const timeout = setTimeout(() => {
-        spring.set(value);
-      }, delay * 1000);
-      return () => clearTimeout(timeout);
-    }
-  }, [isInView, spring, value, delay]);
-
-  useEffect(() => {
-    const unsubscribe = display.on("change", (v) => setDisplayValue(v));
-    return () => unsubscribe();
-  }, [display]);
+    if (hasAnimated) return;
+    let cancelled = false;
+    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !cancelled) {
+          setHasAnimated(true);
+          const startTime = performance.now() + delay * 1000;
+          const duration = 800;
+          
+          const animate = (currentTime: number) => {
+            if (cancelled) return;
+            const elapsed = currentTime - startTime;
+            if (elapsed < 0) {
+              requestAnimationFrame(animate);
+              return;
+            }
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setDisplayValue(Math.round(eased * value));
+            if (progress < 1 && !cancelled) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (ref.current) observer.observe(ref.current);
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
+  }, [value, delay, hasAnimated]);
 
   return <span ref={ref}>{displayValue}{suffix}</span>;
 }
@@ -65,12 +85,41 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const { videoRef } = useVideoLazyLoad({ threshold: 0.25 });
   const { markAsViewed, viewedCount } = useViewedDemos();
   
+  // Optimized headline rotation - pauses when page hidden or reduced motion
   useEffect(() => {
-    const interval = setInterval(() => {
-      setHeadlineIndex((prev) => (prev + 1) % headlines.length);
-    }, 1800);
-    return () => clearInterval(interval);
-  }, []);
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+    
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    
+    const startInterval = () => {
+      if (!intervalId) {
+        intervalId = setInterval(() => {
+          setHeadlineIndex((prev) => (prev + 1) % headlines.length);
+        }, 2500);
+      }
+    };
+    
+    const stopInterval = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+    
+    const handleVisibility = () => {
+      if (document.hidden) stopInterval();
+      else startInterval();
+    };
+    
+    if (!document.hidden) startInterval();
+    document.addEventListener('visibilitychange', handleVisibility);
+    
+    return () => {
+      stopInterval();
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [headlines.length]);
 
     
   const handleOpenDemo = useCallback((demoId: string) => {
@@ -93,17 +142,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
         className="max-w-lg mx-auto px-5"
         style={{ paddingTop: '120px' }}
       >
-        <m.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="min-h-[75vh] flex flex-col justify-start pt-4"
+        <section
+          className="min-h-[75vh] flex flex-col justify-start pt-4 animate-in fade-in duration-500"
         >
-          <m.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-          >
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <h1 className="mb-8">
               <span 
                 className="block text-[44px] leading-[1.02] font-semibold"
@@ -118,19 +160,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 {t('showcase.heroTitle2')}
               </span>
               <div className="h-[54px] overflow-hidden mt-1">
-                <AnimatePresence mode="wait">
-                  <m.span
-                    key={headlineIndex}
-                    initial={{ y: 60, opacity: 0, filter: 'blur(8px)' }}
-                    animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
-                    exit={{ y: -60, opacity: 0, filter: 'blur(8px)' }}
-                    transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-                    className="block text-[44px] leading-[1.02] font-semibold"
-                    style={{ color: 'var(--cta-background)', letterSpacing: '-0.035em' }}
-                  >
-                    {headlines[headlineIndex]}
-                  </m.span>
-                </AnimatePresence>
+                <span
+                  key={headlineIndex}
+                  className="block text-[44px] leading-[1.02] font-semibold animate-in fade-in slide-in-from-bottom-8 duration-500"
+                  style={{ color: 'var(--cta-background)', letterSpacing: '-0.035em' }}
+                >
+                  {headlines[headlineIndex]}
+                </span>
               </div>
             </h1>
 
@@ -150,10 +186,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             </div>
 
             <div className="flex items-center gap-3">
-              <m.button
-                whileTap={{ scale: 0.97 }}
+              <button
                 onClick={() => handleNavigate('projects')}
-                className="flex-1 flex items-center justify-center gap-3 rounded-full transition-colors duration-300"
+                className="flex-1 flex items-center justify-center gap-3 rounded-full transition-all duration-200 active:scale-[0.97]"
                 style={{ 
                   background: 'var(--cta-background)',
                   height: '52px',
@@ -166,14 +201,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   {t('showcase.orderProject')}
                 </span>
                 <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-foreground)' }} />
-              </m.button>
+              </button>
               
-              <m.button
-                whileTap={{ scale: 0.97 }}
+              <button
                 onClick={() => handleOpenDemo('clothing-store')}
                 onMouseEnter={() => preloadDemo('clothing-store')}
                 onTouchStart={() => preloadDemo('clothing-store')}
-                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-colors duration-300"
+                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
                 style={{ 
                   border: '1px solid var(--cta-secondary-border)',
                   height: '52px',
@@ -185,15 +219,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <span className="text-[15px] font-medium" style={{ color: 'var(--cta-secondary-text)', whiteSpace: 'nowrap' }}>
                   {t('showcase.openApp')}
                 </span>
-              </m.button>
+              </button>
             </div>
 
             <div className="grid grid-cols-3 gap-3 mt-12">
-              <m.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="p-4 rounded-2xl text-center transition-colors duration-300 flex flex-col justify-center"
+              <div
+                className="p-4 rounded-2xl text-center transition-colors duration-300 flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500"
                 style={{ backgroundColor: 'var(--card-bg)', height: '88px' }}
               >
                 <div className="text-[26px] font-semibold leading-none" style={{ color: 'var(--text-primary)' }}>
@@ -202,12 +233,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'var(--text-tertiary)', lineHeight: '1.3' }}>
                   {t('showcase.clients')}
                 </div>
-              </m.div>
-              <m.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="p-4 rounded-2xl text-center transition-colors duration-300 flex flex-col justify-center"
+              </div>
+              <div
+                className="p-4 rounded-2xl text-center transition-colors duration-300 flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100"
                 style={{ backgroundColor: 'var(--card-bg)', height: '88px' }}
               >
                 <div className="text-[26px] font-semibold leading-none" style={{ color: 'var(--text-primary)' }}>
@@ -216,12 +244,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'var(--text-tertiary)', lineHeight: '1.3' }}>
                   {t('showcase.toLaunch')}
                 </div>
-              </m.div>
-              <m.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-                className="p-4 rounded-2xl text-center transition-colors duration-300 flex flex-col justify-center"
+              </div>
+              <div
+                className="p-4 rounded-2xl text-center transition-colors duration-300 flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200"
                 style={{ backgroundColor: 'color-mix(in srgb, var(--cta-background) 15%, transparent)', height: '88px' }}
               >
                 <div className="text-[26px] font-semibold leading-none" style={{ color: 'var(--cta-background)' }}>
@@ -230,17 +255,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'color-mix(in srgb, var(--cta-background) 60%, transparent)', lineHeight: '1.3' }}>
                   {t('showcase.toSales')}
                 </div>
-              </m.div>
+              </div>
             </div>
-          </m.div>
-        </m.section>
+          </div>
+        </section>
 
-        <m.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="pb-8"
-        >
+        <section className="pb-8 animate-in fade-in duration-500">
           <div className="flex items-center justify-between mb-6">
             <h2 
               className="text-[13px] font-medium tracking-[0.08em] uppercase transition-colors duration-300"
@@ -259,12 +279,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              whileTap={{ scale: 0.98 }}
-              className="col-span-2 relative rounded-3xl overflow-hidden cursor-pointer group nav-depth-zone transition-colors duration-300"
+            <div
+              className="col-span-2 relative rounded-3xl overflow-hidden cursor-pointer group nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500"
               onClick={() => handleOpenDemo('luxury-watches')}
               onMouseEnter={() => preloadDemo('luxury-watches')}
               onTouchStart={() => preloadDemo('luxury-watches')}
@@ -316,25 +332,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                       </div>
                     </div>
                   </div>
-                  <m.button
-                    whileTap={{ scale: 0.97 }}
-                    className="mt-4 w-full py-3 rounded-xl text-[14px] font-medium transition-colors duration-300"
+                  <button
+                    className="mt-4 w-full py-3 rounded-xl text-[14px] font-medium transition-all duration-200 active:scale-[0.97]"
                     style={{ backgroundColor: 'var(--overlay-medium)', color: 'var(--text-inverted)' }}
                     onClick={(e) => { e.stopPropagation(); handleOpenDemo('luxury-watches'); }}
                     data-testid="btn-open-watches"
                   >
                     {t('showcase.open')}
-                  </m.button>
+                  </button>
                 </div>
               </div>
-            </m.div>
+            </div>
 
-            <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              whileTap={{ scale: 0.98 }}
-              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[3/4] nav-depth-zone transition-colors duration-300"
+            <div
+              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[3/4] nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500 delay-100"
               onClick={() => handleOpenDemo('sneaker-store')}
               onMouseEnter={() => preloadDemo('sneaker-store')}
               onTouchStart={() => preloadDemo('sneaker-store')}
@@ -373,14 +384,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   </div>
                 </div>
               </div>
-            </m.div>
+            </div>
 
-            <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.7 }}
-              whileTap={{ scale: 0.98 }}
-              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[3/4] nav-depth-zone transition-colors duration-300"
+            <div
+              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[3/4] nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500 delay-150"
               onClick={() => handleOpenDemo('luxury-watches')}
               onMouseEnter={() => preloadDemo('luxury-watches')}
               onTouchStart={() => preloadDemo('luxury-watches')}
@@ -419,14 +426,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   </div>
                 </div>
               </div>
-            </m.div>
+            </div>
 
-            <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-              whileTap={{ scale: 0.98 }}
-              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-square nav-depth-zone transition-colors duration-300"
+            <div
+              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-square nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500 delay-200"
               onClick={() => handleOpenDemo('restaurant')}
               onMouseEnter={() => preloadDemo('restaurant')}
               onTouchStart={() => preloadDemo('restaurant')}
@@ -456,14 +459,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   {t('showcase.menuDelivery')}
                 </div>
               </div>
-            </m.div>
+            </div>
 
-            <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.9 }}
-              whileTap={{ scale: 0.98 }}
-              className="rounded-2xl cursor-pointer group aspect-square flex flex-col items-center justify-center nav-depth-zone transition-colors duration-300"
+            <div
+              className="rounded-2xl cursor-pointer group aspect-square flex flex-col items-center justify-center nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500 delay-300"
               onClick={() => handleNavigate('projects')}
               data-testid="bento-all"
               data-depth-zone
@@ -481,15 +480,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               <div className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>
                 {t('showcase.cases')}
               </div>
-            </m.div>
+            </div>
           </div>
-        </m.section>
+        </section>
 
-        <m.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1 }}
-          className="py-12 border-t transition-colors duration-300"
+        <section
+          className="py-12 border-t transition-colors duration-300 animate-in fade-in duration-500"
           style={{ borderColor: 'var(--card-border)' }}
         >
           <h2 
@@ -524,13 +520,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </div>
             ))}
           </div>
-        </m.section>
+        </section>
 
-        <m.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 1.1 }}
-          className="py-12 border-t transition-colors duration-300"
+        <section
+          className="py-12 border-t transition-colors duration-300 animate-in fade-in duration-500"
           style={{ borderColor: 'var(--card-border)' }}
         >
           <div className="grid grid-cols-3 gap-4 mb-12">
@@ -554,9 +547,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             </div>
           </div>
 
-          <m.div
-            whileTap={{ scale: 0.985 }}
-            className="rounded-2xl p-6 cursor-pointer transition-colors duration-300"
+          <div
+            className="rounded-2xl p-6 cursor-pointer transition-all duration-200 active:scale-[0.985]"
             onClick={() => handleNavigate('projects')}
             data-testid="cta-bottom"
             style={{ background: 'var(--cta-background)' }}
@@ -577,8 +569,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <ArrowRight className="w-5 h-5" style={{ color: 'var(--cta-foreground)' }} />
               </div>
             </div>
-          </m.div>
-        </m.section>
+          </div>
+        </section>
 
         <div className="pb-32 pt-4">
           <div className="text-center">
