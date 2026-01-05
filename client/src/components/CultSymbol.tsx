@@ -1,5 +1,3 @@
-import { m } from 'framer-motion';
-
 interface CultSymbolProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   animated?: boolean;
@@ -18,11 +16,8 @@ export function CultSymbol({ size = 'md', animated = true, glowing = true, class
   const { width, height } = sizes[size];
   
   return (
-    <m.div
-      className={`relative ${className}`}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
+    <div
+      className={`relative animate-in fade-in zoom-in duration-500 ${className}`}
     >
       {glowing && (
         <div
@@ -34,20 +29,12 @@ export function CultSymbol({ size = 'md', animated = true, glowing = true, class
         />
       )}
       
-      <m.svg
+      <svg
         width={width}
         height={height}
         viewBox="0 0 100 100"
         fill="none"
-        className="relative z-10"
-        animate={animated ? {
-          rotate: [0, 360],
-        } : undefined}
-        transition={animated ? {
-          duration: 60,
-          repeat: Infinity,
-          ease: 'linear',
-        } : undefined}
+        className={`relative z-10 ${animated ? 'animate-spin-slow' : ''}`}
       >
         <defs>
           <linearGradient id="cultGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -104,8 +91,8 @@ export function CultSymbol({ size = 'md', animated = true, glowing = true, class
         >
           W4TG
         </text>
-      </m.svg>
-    </m.div>
+      </svg>
+    </div>
   );
 }
 
@@ -131,10 +118,8 @@ export function ExclusiveBadge({ type = 'founding' }: { type?: 'founding' | 'eli
   const badge = badges[type];
   
   return (
-    <m.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
+    <div
+      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full animate-in fade-in slide-in-from-bottom-2 duration-300"
       style={{
         background: badge.gradient,
         boxShadow: '0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
@@ -144,7 +129,7 @@ export function ExclusiveBadge({ type = 'founding' }: { type?: 'founding' | 'eli
         <path strokeLinecap="round" strokeLinejoin="round" d={badge.icon} />
       </svg>
       <span className="text-[9px] font-bold tracking-[0.1em] text-white">{badge.label}</span>
-    </m.div>
+    </div>
   );
 }
 
@@ -153,10 +138,8 @@ export function ScarcityIndicator({ spotsLeft = 3, totalSpots = 10 }: { spotsLef
   const isUrgent = spotsLeft <= 3;
   
   return (
-    <m.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="relative rounded-2xl p-4 overflow-hidden"
+    <div
+      className="relative rounded-2xl p-4 overflow-hidden animate-in fade-in zoom-in-95 duration-300"
       style={{
         background: isUrgent 
           ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(185, 28, 28, 0.1) 100%)'
@@ -166,10 +149,8 @@ export function ScarcityIndicator({ spotsLeft = 3, totalSpots = 10 }: { spotsLef
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <m.div
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-2 h-2 rounded-full"
+          <div
+            className="w-2 h-2 rounded-full animate-pulse"
             style={{ background: isUrgent ? '#EF4444' : '#8B5CF6' }}
           />
           <span className="text-xs font-bold tracking-wide" style={{ color: isUrgent ? '#EF4444' : '#A78BFA' }}>
@@ -180,21 +161,17 @@ export function ScarcityIndicator({ spotsLeft = 3, totalSpots = 10 }: { spotsLef
       </div>
       
       <div className="relative h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
-        <m.div
-          initial={{ width: 0 }}
-          animate={{ width: `${percentage}%` }}
-          transition={{ duration: 1, ease: 'easeOut' }}
-          className="absolute left-0 top-0 h-full rounded-full"
+        <div
+          className="absolute left-0 top-0 h-full rounded-full transition-all duration-1000 ease-out"
           style={{
+            width: `${percentage}%`,
             background: isUrgent 
               ? 'linear-gradient(90deg, #EF4444 0%, #DC2626 100%)'
               : 'linear-gradient(90deg, #8B5CF6 0%, #7C3AED 100%)',
           }}
         />
-        <m.div
-          animate={{ x: ['-100%', '200%'] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-0 h-full w-1/3"
+        <div
+          className="absolute top-0 h-full w-1/3 animate-shimmer"
           style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)' }}
         />
       </div>
@@ -204,16 +181,14 @@ export function ScarcityIndicator({ spotsLeft = 3, totalSpots = 10 }: { spotsLef
           Следующий набор через 30 дней
         </p>
       )}
-    </m.div>
+    </div>
   );
 }
 
 export function WaitlistCounter({ count = 47 }: { count?: number }) {
   return (
-    <m.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="flex items-center gap-3 px-4 py-2 rounded-full"
+    <div
+      className="flex items-center gap-3 px-4 py-2 rounded-full animate-in fade-in duration-300"
       style={{
         background: 'rgba(255,255,255,0.05)',
         border: '1px solid rgba(255,255,255,0.1)',
@@ -237,7 +212,7 @@ export function WaitlistCounter({ count = 47 }: { count?: number }) {
         <span className="text-white text-xs font-bold">+{count}</span>
         <span className="text-white/50 text-[10px] ml-1">в очереди</span>
       </div>
-    </m.div>
+    </div>
   );
 }
 

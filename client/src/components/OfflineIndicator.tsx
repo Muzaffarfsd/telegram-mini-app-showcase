@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { m, AnimatePresence } from 'framer-motion';
 import { WifiOff, RefreshCw, Check, AlertCircle } from 'lucide-react';
 import { useOnlineStatus, useOfflineSync } from '@/hooks/useOfflineData';
 
@@ -89,54 +88,48 @@ export function OfflineIndicator() {
 
   const content = getBannerContent();
 
+  if (!showBanner || !content) return null;
+
   return (
-    <AnimatePresence>
-      {showBanner && content && (
-        <m.div
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed top-0 left-0 right-0 z-[100] safe-area-inset-top"
-          data-testid="offline-indicator"
-        >
-          <div 
-            className={`mx-4 mt-2 rounded-2xl bg-gradient-to-r ${content.color} backdrop-blur-xl shadow-lg`}
-            onClick={handleSync}
-            role={pendingSyncCount > 0 && isOnline ? 'button' : undefined}
-            style={{ cursor: pendingSyncCount > 0 && isOnline ? 'pointer' : 'default' }}
-          >
-            <div className="flex items-center gap-3 px-4 py-3">
-              <div className="flex-shrink-0">
-                <content.icon className={`w-5 h-5 ${content.iconColor}`} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate" data-testid="offline-status-text">
-                  {content.text}
-                </p>
-                {content.subtext && (
-                  <p className="text-xs text-white/80 truncate" data-testid="offline-subtext">
-                    {content.subtext}
-                  </p>
-                )}
-              </div>
-              {pendingSyncCount > 0 && isOnline && !isSyncing && (
-                <button
-                  className="flex-shrink-0 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg text-xs font-medium text-white transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSync();
-                  }}
-                  data-testid="sync-button"
-                >
-                  Sync now
-                </button>
-              )}
-            </div>
+    <div
+      className="fixed top-0 left-0 right-0 z-[100] safe-area-inset-top animate-in slide-in-from-top duration-300"
+      data-testid="offline-indicator"
+    >
+      <div 
+        className={`mx-4 mt-2 rounded-2xl bg-gradient-to-r ${content.color} backdrop-blur-md shadow-lg`}
+        onClick={handleSync}
+        role={pendingSyncCount > 0 && isOnline ? 'button' : undefined}
+        style={{ cursor: pendingSyncCount > 0 && isOnline ? 'pointer' : 'default' }}
+      >
+        <div className="flex items-center gap-3 px-4 py-3">
+          <div className="flex-shrink-0">
+            <content.icon className={`w-5 h-5 ${content.iconColor}`} />
           </div>
-        </m.div>
-      )}
-    </AnimatePresence>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-white truncate" data-testid="offline-status-text">
+              {content.text}
+            </p>
+            {content.subtext && (
+              <p className="text-xs text-white/80 truncate" data-testid="offline-subtext">
+                {content.subtext}
+              </p>
+            )}
+          </div>
+          {pendingSyncCount > 0 && isOnline && !isSyncing && (
+            <button
+              className="flex-shrink-0 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg text-xs font-medium text-white transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSync();
+              }}
+              data-testid="sync-button"
+            >
+              Sync now
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -147,11 +140,8 @@ export function OfflineBadge() {
   if (isOnline && pendingSyncCount === 0) return null;
 
   return (
-    <m.div
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      exit={{ scale: 0 }}
-      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium"
+    <div
+      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium animate-in zoom-in duration-200"
       style={{
         background: isOnline ? 'rgba(59, 130, 246, 0.15)' : 'rgba(245, 158, 11, 0.15)',
         color: isOnline ? 'rgb(59, 130, 246)' : 'rgb(245, 158, 11)'
@@ -169,6 +159,6 @@ export function OfflineBadge() {
           <span>Offline</span>
         </>
       )}
-    </m.div>
+    </div>
   );
 }

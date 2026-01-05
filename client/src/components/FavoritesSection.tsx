@@ -1,6 +1,5 @@
 import { memo, useMemo, useEffect } from 'react';
 import { Heart, ArrowUpRight, X } from 'lucide-react';
-import { m, AnimatePresence } from 'framer-motion';
 import { useFavoritesStore } from '@/stores/favoritesStore';
 import { useHaptic } from '@/hooks/useHaptic';
 import { demoApps } from '@/data/demoApps';
@@ -46,18 +45,15 @@ export const FavoritesSection = memo(function FavoritesSection({
   }
 
   return (
-    <m.section
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      className="favorites-section mx-5 mb-6"
+    <section
+      className="favorites-section mx-5 mb-6 animate-in fade-in slide-in-from-top-2 duration-300"
     >
       <div 
         className="relative overflow-hidden rounded-[20px]"
         style={{
           background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.08) 0%, rgba(139, 92, 246, 0.04) 50%, rgba(59, 130, 246, 0.06) 100%)',
-          backdropFilter: 'blur(40px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+          backdropFilter: 'blur(16px) saturate(150%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(150%)',
           border: '1px solid rgba(167, 139, 250, 0.15)',
           boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
         }}
@@ -105,69 +101,61 @@ export const FavoritesSection = memo(function FavoritesSection({
           </div>
 
           <div className="space-y-2">
-            <AnimatePresence mode="popLayout">
-              {favoriteDemos.map((demo) => (
-                <m.div
-                  key={demo!.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.95, x: -10 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, x: 10 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="relative flex items-center gap-3 p-3 rounded-xl cursor-pointer group"
-                  onClick={() => onOpenDemo(demo!.id)}
-                  style={{ 
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
-                  }}
-                  data-testid={`favorite-card-${demo!.id}`}
-                >
-                  <div className="flex-1 min-w-0">
-                    <h3 
-                      className="text-[14px] font-medium truncate"
-                      style={{ color: '#FFFFFF' }}
-                    >
-                      {demo!.title}
-                    </h3>
-                    <p 
-                      className="text-[12px] truncate"
-                      style={{ color: 'rgba(255, 255, 255, 0.45)' }}
-                    >
-                      {demo!.description}
-                    </p>
-                  </div>
+            {favoriteDemos.map((demo, index) => (
+              <div
+                key={demo!.id}
+                className="relative flex items-center gap-3 p-3 rounded-xl cursor-pointer group transition-all duration-200 active:scale-[0.98] animate-in fade-in slide-in-from-left-2"
+                onClick={() => onOpenDemo(demo!.id)}
+                style={{ 
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  animationDelay: `${index * 50}ms`,
+                }}
+                data-testid={`favorite-card-${demo!.id}`}
+              >
+                <div className="flex-1 min-w-0">
+                  <h3 
+                    className="text-[14px] font-medium truncate"
+                    style={{ color: '#FFFFFF' }}
+                  >
+                    {demo!.title}
+                  </h3>
+                  <p 
+                    className="text-[12px] truncate"
+                    style={{ color: 'rgba(255, 255, 255, 0.45)' }}
+                  >
+                    {demo!.description}
+                  </p>
+                </div>
 
-                  <div className="flex items-center gap-2">
-                    <m.button
-                      whileTap={{ scale: 0.9 }}
-                      onClick={(e) => handleRemove(e, demo!.id)}
-                      className="flex items-center justify-center w-7 h-7 rounded-full transition-colors"
-                      style={{
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.15)',
-                      }}
-                      data-testid={`button-remove-favorite-${demo!.id}`}
-                    >
-                      <X className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
-                    </m.button>
-                    
-                    <div 
-                      className="flex items-center justify-center w-7 h-7 rounded-full"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                      }}
-                    >
-                      <ArrowUpRight className="w-3.5 h-3.5" style={{ color: 'rgba(255, 255, 255, 0.7)' }} />
-                    </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => handleRemove(e, demo!.id)}
+                    className="flex items-center justify-center w-7 h-7 rounded-full transition-all duration-200 active:scale-[0.9]"
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.15)',
+                    }}
+                    data-testid={`button-remove-favorite-${demo!.id}`}
+                  >
+                    <X className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
+                  </button>
+                  
+                  <div 
+                    className="flex items-center justify-center w-7 h-7 rounded-full"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                    }}
+                  >
+                    <ArrowUpRight className="w-3.5 h-3.5" style={{ color: 'rgba(255, 255, 255, 0.7)' }} />
                   </div>
-                </m.div>
-              ))}
-            </AnimatePresence>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-    </m.section>
+    </section>
   );
 });
