@@ -208,6 +208,43 @@ export const translations = {
       categoryEducation: 'Образование',
     },
     
+    // About Page
+    about: {
+      title: 'О НАС',
+      heroTitle1: 'Создаём',
+      heroTitle2: 'мини-приложения',
+      heroTitle3: 'для Telegram',
+      heroDesc: 'Мы помогаем бизнесу запускать продажи в Telegram за 24 часа. Никаких комиссий маркетплейсов — только ваш бренд и ваши клиенты.',
+      
+      mission: 'НАША МИССИЯ',
+      missionText: 'Дать каждому бизнесу возможность продавать напрямую клиентам через Telegram, без посредников и комиссий.',
+      
+      principles: 'НАШИ ПРИНЦИПЫ',
+      quality: 'Качество',
+      qualityDesc: 'Каждый проект проходит тщательное тестирование перед запуском',
+      speed: 'Скорость',
+      speedDesc: 'Запускаем приложения за 24 часа, не жертвуя качеством',
+      technology: 'Технологии',
+      technologyDesc: 'Используем современные фреймворки и лучшие практики',
+      partnership: 'Партнёрство',
+      partnershipDesc: 'Работаем вместе с клиентом на каждом этапе',
+      
+      inNumbers: 'В ЦИФРАХ',
+      projectsLaunched: 'запущено проектов',
+      averageDays: 'дней в среднем',
+      salesGrowth: 'рост продаж',
+      clientSupport: 'поддержка',
+      
+      readyToStart: 'Готовы начать?',
+      discussProject: 'Обсудим ваш проект и',
+      optimalSolution: 'найдём оптимальное решение',
+      orderProject: 'Заказать проект',
+      
+      contact: 'КОНТАКТЫ',
+      workingHours: 'Время работы',
+      workingHoursValue: 'Пн-Пт, 10:00 - 19:00 МСК',
+    },
+    
     // AI Agent
     aiAgent: {
       title: 'AI Ассистент',
@@ -1729,6 +1766,43 @@ export const translations = {
       categoryServices: 'Services',
       categoryHealth: 'Healthcare',
       categoryEducation: 'Education',
+    },
+    
+    // About Page
+    about: {
+      title: 'ABOUT US',
+      heroTitle1: 'We Create',
+      heroTitle2: 'Mini Apps',
+      heroTitle3: 'for Telegram',
+      heroDesc: 'We help businesses launch sales on Telegram in 24 hours. No marketplace commissions — just your brand and your customers.',
+      
+      mission: 'OUR MISSION',
+      missionText: 'To give every business the ability to sell directly to customers through Telegram, without intermediaries and commissions.',
+      
+      principles: 'OUR PRINCIPLES',
+      quality: 'Quality',
+      qualityDesc: 'Every project undergoes thorough testing before launch',
+      speed: 'Speed',
+      speedDesc: 'We launch apps in 24 hours without sacrificing quality',
+      technology: 'Technology',
+      technologyDesc: 'We use modern frameworks and best practices',
+      partnership: 'Partnership',
+      partnershipDesc: 'We work together with the client at every stage',
+      
+      inNumbers: 'IN NUMBERS',
+      projectsLaunched: 'projects launched',
+      averageDays: 'days average',
+      salesGrowth: 'sales growth',
+      clientSupport: 'support',
+      
+      readyToStart: 'Ready to Start?',
+      discussProject: "Let's discuss your project and",
+      optimalSolution: 'find the optimal solution',
+      orderProject: 'Order Project',
+      
+      contact: 'CONTACT',
+      workingHours: 'Working Hours',
+      workingHoursValue: 'Mon-Fri, 10:00 AM - 7:00 PM MSK',
     },
     
     // AI Agent
