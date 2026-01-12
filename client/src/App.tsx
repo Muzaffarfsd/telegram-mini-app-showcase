@@ -13,6 +13,7 @@ import { PageLoadingFallback } from "./components/PageLoadingFallback";
 import { useRouting, navigate } from "./hooks/useRouting";
 import { useScrollHaptic } from "./hooks/useScrollHaptic";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
+import { useNavigationTracking } from "./hooks/usePredictivePrefetch";
 
 // Retry wrapper for dynamic imports - handles chunk loading failures after deploys
 function lazyWithRetry<T extends { default: any }>(
@@ -166,9 +167,15 @@ function App() {
   
   // Custom hooks for cleaner code
   const { route } = useRouting();
+  const { trackNavigation } = useNavigationTracking();
   
   // iOS 26-style scroll haptics - disabled for performance, only edge bounce on demand
   // useScrollHaptic({ enabled: true });
+  
+  // Track navigation for predictive prefetching
+  useEffect(() => {
+    trackNavigation(route);
+  }, [route, trackNavigation]);
   
   // Deferred initialization after first paint
   useEffect(() => {
