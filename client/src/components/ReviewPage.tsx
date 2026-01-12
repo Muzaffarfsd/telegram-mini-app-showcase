@@ -15,9 +15,13 @@ export default function ReviewPage({ onBack }: ReviewPageProps) {
   const [company, setCompany] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const { data: reviews = [], isLoading } = useQuery<Review[]>({
+  const { data: reviewsData, isLoading } = useQuery<{ data: Review[]; total: number } | Review[]>({
     queryKey: ['/api/reviews'],
   });
+  
+  const reviews: Review[] = Array.isArray(reviewsData) 
+    ? reviewsData 
+    : (reviewsData?.data || []);
 
   const submitMutation = useMutation({
     mutationFn: async (data: { name: string; company?: string; rating: number; text: string }) => {
