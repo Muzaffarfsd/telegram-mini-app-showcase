@@ -47,9 +47,12 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist"),
     emptyOutDir: true,
-    target: 'es2022',
+    target: 'esnext',
     minify: 'terser',
-    
+    cssCodeSplit: true,
+    modulePreload: {
+      polyfill: true
+    },
     terserOptions: {
       compress: {
         drop_console: true,
