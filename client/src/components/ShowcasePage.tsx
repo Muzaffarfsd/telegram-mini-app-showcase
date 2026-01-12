@@ -170,38 +170,40 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => handleNavigate('projects')}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-full transition-all duration-200 active:scale-[0.97]"
+                className="flex-1 flex items-center justify-center gap-2.5 rounded-full transition-all duration-200 active:scale-[0.97] shadow-lg"
                 style={{ 
                   background: 'var(--cta-background)',
-                  height: '44px',
-                  paddingLeft: '14px',
-                  paddingRight: '14px'
+                  height: '50px',
+                  paddingLeft: '20px',
+                  paddingRight: '18px'
                 }}
                 data-testid="cta-primary"
               >
-                <span className="text-[13px] font-semibold" style={{ color: 'var(--cta-foreground)' }}>
+                <span className="text-[15px] font-semibold" style={{ color: 'var(--cta-foreground)' }}>
                   {t('showcase.orderProject')}
                 </span>
-                <ArrowRight className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--cta-foreground)' }} />
+                <ArrowRight className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--cta-foreground)' }} strokeWidth={2.5} />
               </button>
               
               <button
                 onClick={() => handleOpenDemo('clothing-store')}
                 onMouseEnter={() => preloadDemo('clothing-store')}
                 onTouchStart={() => preloadDemo('clothing-store')}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-full transition-all duration-200 active:scale-[0.97]"
+                className="flex-1 flex items-center justify-center gap-2.5 rounded-full transition-all duration-200 active:scale-[0.97]"
                 style={{ 
-                  border: '1px solid var(--cta-secondary-border)',
-                  height: '44px',
-                  paddingLeft: '14px',
-                  paddingRight: '14px'
+                  border: '1.5px solid var(--cta-secondary-border)',
+                  height: '50px',
+                  paddingLeft: '18px',
+                  paddingRight: '18px',
+                  background: 'rgba(255,255,255,0.03)'
                 }}
                 data-testid="cta-demo"
               >
-                <span className="text-[13px] font-medium" style={{ color: 'var(--cta-secondary-text)' }}>
+                <Play className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-secondary-text)' }} fill="currentColor" />
+                <span className="text-[15px] font-medium" style={{ color: 'var(--cta-secondary-text)' }}>
                   {t('showcase.openApp')}
                 </span>
               </button>
