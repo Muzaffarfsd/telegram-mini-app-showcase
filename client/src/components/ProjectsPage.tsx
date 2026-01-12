@@ -10,79 +10,90 @@ interface ProjectsPageProps {
   onOpenDemo: (demoId: string) => void;
 }
 
-const AppCard = memo(({ app, onOpenDemo, t }: { app: any, onOpenDemo: (id: string) => void, t: any }) => (
-  <div
-    onClick={() => onOpenDemo(app.id)}
-    className="premium-card group gpu-layer"
-    data-testid={`card-app-${app.id}`}
-    style={{
-      position: 'relative',
-      cursor: 'pointer',
-      borderRadius: 'var(--card-radius)',
-      padding: '20px 20px 20px 24px',
-      background: 'var(--card-bg)',
-      backdropFilter: 'blur(24px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-      border: '1px solid var(--card-border)',
-      boxShadow: 'var(--card-shadow)',
-      transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)',
-      contain: 'content'
-    }}
-  >
-    <div className="flex items-center justify-between gap-4">
-      <div className="flex-1 min-w-0">
-        <h3 
-          data-testid={`text-title-${app.id}`}
-          style={{
-            fontSize: '17px',
-            fontWeight: 600,
-            letterSpacing: '-0.02em',
-            color: 'var(--text-primary)',
-            marginBottom: '4px'
-          }}
-        >
-          {app.title}
-        </h3>
-        <p 
-          data-testid={`text-description-${app.id}`}
-          style={{
-            fontSize: '14px',
-            lineHeight: '1.4',
-            color: 'var(--text-tertiary)',
-            letterSpacing: '-0.005em',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          {t(`projectsPage.appDescriptions.${app.id}`) || app.description}
-        </p>
-      </div>
-      
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <FavoriteButton demoId={app.id} size="md" />
-        <button
-          className="open-button flex items-center gap-1.5 px-4 py-2 rounded-full transition-colors duration-200"
-          style={{
-            background: 'var(--button-secondary-bg)',
-            border: '1px solid var(--button-secondary-border)',
-            color: 'var(--button-secondary-text)',
-            fontSize: '13px',
-            fontWeight: 600,
-            letterSpacing: '0.01em',
-          }}
-          data-testid={`button-open-${app.id}`}
-        >
-          <span>{t('projectsPage.open')}</span>
-          <ArrowRight 
-            className="w-3.5 h-3.5" 
-            strokeWidth={2.5}
-          />
-        </button>
+const AppCard = memo(({ app, onOpenDemo, t }: { app: any, onOpenDemo: (id: string) => void, t: any }) => {
+  const handleCardClick = () => {
+    try {
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+      }
+    } catch (e) {}
+    onOpenDemo(app.id);
+  };
+
+  return (
+    <div
+      onClick={handleCardClick}
+      className="premium-card group gpu-layer"
+      data-testid={`card-app-${app.id}`}
+      style={{
+        position: 'relative',
+        cursor: 'pointer',
+        borderRadius: 'var(--card-radius)',
+        padding: '20px 20px 20px 24px',
+        background: 'var(--card-bg)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+        border: '1px solid var(--card-border)',
+        boxShadow: 'var(--card-shadow)',
+        transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)',
+        contain: 'content'
+      }}
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h3 
+            data-testid={`text-title-${app.id}`}
+            style={{
+              fontSize: '17px',
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
+              color: 'var(--text-primary)',
+              marginBottom: '4px'
+            }}
+          >
+            {app.title}
+          </h3>
+          <p 
+            data-testid={`text-description-${app.id}`}
+            style={{
+              fontSize: '14px',
+              lineHeight: '1.4',
+              color: 'var(--text-tertiary)',
+              letterSpacing: '-0.005em',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {t(`projectsPage.appDescriptions.${app.id}`) || app.description}
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <FavoriteButton demoId={app.id} size="md" />
+          <button
+            className="open-button flex items-center gap-1.5 px-4 py-2 rounded-full transition-colors duration-200"
+            style={{
+              background: 'var(--button-secondary-bg)',
+              border: '1px solid var(--button-secondary-border)',
+              color: 'var(--button-secondary-text)',
+              fontSize: '13px',
+              fontWeight: 600,
+              letterSpacing: '0.01em',
+            }}
+            data-testid={`button-open-${app.id}`}
+          >
+            <span>{t('projectsPage.open')}</span>
+            <ArrowRight 
+              className="w-3.5 h-3.5" 
+              strokeWidth={2.5}
+            />
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-));
+  );
+});
 
 AppCard.displayName = 'AppCard';
 
