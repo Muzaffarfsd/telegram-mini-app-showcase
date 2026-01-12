@@ -188,6 +188,9 @@
       tg.ready();
       tg.expand();
       
+      // Optimization for Telegram Mini App performance
+      document.documentElement.style.setProperty('--tg-viewport-height', window.innerHeight + 'px');
+      
       // Force fullscreen repeatedly to ensure it works
       setTimeout(() => tg.expand(), 100);
       setTimeout(() => tg.expand(), 300);

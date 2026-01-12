@@ -175,6 +175,11 @@ function App() {
     setIsHydrated(true);
     // Init Sentry after hydration
     initSentry();
+
+    // Optimization for Telegram Mini App performance
+    if (window.Telegram?.WebApp) {
+      document.body.classList.add('tg-app-optimized');
+    }
   }, []);
 
   // Navigation handlers - memoized for better performance with React.memo children
