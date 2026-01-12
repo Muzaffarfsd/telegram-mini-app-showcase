@@ -78,24 +78,22 @@ export const LazyImage: React.FC<LazyImageProps> = ({
 
   return (
     <div className={`relative overflow-hidden ${className}`} style={style}>
-      {/* Placeholder */}
-      <img
-        ref={imgRef}
-        src={placeholder}
-        alt=""
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-          isLoaded ? 'opacity-0' : 'opacity-100'
+      {/* Skeleton / Placeholder */}
+      <div 
+        className={`absolute inset-0 bg-muted/50 relative overflow-hidden transition-opacity duration-500 ${
+          isLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
-        style={{ filter: 'blur(5px)' }}
-      />
+      >
+        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      </div>
       
       {/* Actual image */}
       {isIntersecting && !hasError && (
         <img
           src={optimizedSrc}
           alt={alt}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
+          className={`w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
+            isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
           }`}
           onLoad={handleLoad}
           onError={handleError}

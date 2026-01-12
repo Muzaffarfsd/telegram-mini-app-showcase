@@ -66,6 +66,12 @@ html.lang-en h4, html.lang-en h5, html.lang-en h6 {
   -ms-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  /* Shimmer Animation */
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
 }
 
 /* === BEST APP 2025 PERFORMANCE OPTIMIZATIONS === */
