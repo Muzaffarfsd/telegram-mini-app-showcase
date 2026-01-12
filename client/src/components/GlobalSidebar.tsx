@@ -1780,12 +1780,46 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               borderRadius: '50%',
               top: '3px',
               left: isDark ? '27px' : '3px',
-              background: isDark ? '#E8E8E8' : '#FFD93D',
+              background: isDark ? '#D4D4D8' : '#FFD93D',
+              boxShadow: isDark 
+                ? 'inset -2px -2px 4px rgba(0,0,0,0.15), inset 1px 1px 2px rgba(255,255,255,0.3)' 
+                : '0 0 8px rgba(255,217,61,0.6)',
             }}>
               {isDark && (
                 <div style={{ position: 'absolute', inset: 0, borderRadius: '50%' }}>
-                  <div style={{ position: 'absolute', width: '5px', height: '5px', background: 'rgba(180,180,180,0.4)', borderRadius: '50%', top: '4px', left: '5px' }} />
-                  <div style={{ position: 'absolute', width: '3px', height: '3px', background: 'rgba(180,180,180,0.3)', borderRadius: '50%', top: '12px', left: '13px' }} />
+                  {/* Large crater */}
+                  <div style={{ 
+                    position: 'absolute', 
+                    width: '7px', 
+                    height: '7px', 
+                    background: 'rgba(120,120,130,0.5)', 
+                    borderRadius: '50%', 
+                    top: '3px', 
+                    left: '4px',
+                    boxShadow: 'inset 1px 1px 2px rgba(0,0,0,0.3)'
+                  }} />
+                  {/* Medium crater */}
+                  <div style={{ 
+                    position: 'absolute', 
+                    width: '5px', 
+                    height: '5px', 
+                    background: 'rgba(130,130,140,0.45)', 
+                    borderRadius: '50%', 
+                    top: '12px', 
+                    left: '12px',
+                    boxShadow: 'inset 1px 1px 1px rgba(0,0,0,0.25)'
+                  }} />
+                  {/* Small crater */}
+                  <div style={{ 
+                    position: 'absolute', 
+                    width: '4px', 
+                    height: '4px', 
+                    background: 'rgba(140,140,150,0.4)', 
+                    borderRadius: '50%', 
+                    top: '8px', 
+                    left: '13px',
+                    boxShadow: 'inset 0.5px 0.5px 1px rgba(0,0,0,0.2)'
+                  }} />
                 </div>
               )}
             </div>
