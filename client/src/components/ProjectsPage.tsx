@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import { demoApps } from "../data/demoApps";
 import { ArrowRight } from "lucide-react";
 import { FavoritesSection } from "./FavoritesSection";
@@ -9,29 +10,99 @@ interface ProjectsPageProps {
   onOpenDemo: (demoId: string) => void;
 }
 
-export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPageProps) {
+const AppCard = memo(({ app, onOpenDemo, t }: { app: any, onOpenDemo: (id: string) => void, t: any }) => (
+  <div
+    onClick={() => onOpenDemo(app.id)}
+    className="premium-card group gpu-layer"
+    data-testid={`card-app-${app.id}`}
+    style={{
+      position: 'relative',
+      cursor: 'pointer',
+      borderRadius: 'var(--card-radius)',
+      padding: '20px 20px 20px 24px',
+      background: 'var(--card-bg)',
+      backdropFilter: 'blur(24px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+      border: '1px solid var(--card-border)',
+      boxShadow: 'var(--card-shadow)',
+      transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)',
+      contain: 'content'
+    }}
+  >
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex-1 min-w-0">
+        <h3 
+          data-testid={`text-title-${app.id}`}
+          style={{
+            fontSize: '17px',
+            fontWeight: 600,
+            letterSpacing: '-0.02em',
+            color: 'var(--text-primary)',
+            marginBottom: '4px'
+          }}
+        >
+          {app.title}
+        </h3>
+        <p 
+          data-testid={`text-description-${app.id}`}
+          style={{
+            fontSize: '14px',
+            lineHeight: '1.4',
+            color: 'var(--text-tertiary)',
+            letterSpacing: '-0.005em',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {t(`projectsPage.appDescriptions.${app.id}`) || app.description}
+        </p>
+      </div>
+      
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <FavoriteButton demoId={app.id} size="md" />
+        <button
+          className="open-button flex items-center gap-1.5 px-4 py-2 rounded-full transition-colors duration-200"
+          style={{
+            background: 'var(--button-secondary-bg)',
+            border: '1px solid var(--button-secondary-border)',
+            color: 'var(--button-secondary-text)',
+            fontSize: '13px',
+            fontWeight: 600,
+            letterSpacing: '0.01em',
+          }}
+          data-testid={`button-open-${app.id}`}
+        >
+          <span>{t('projectsPage.open')}</span>
+          <ArrowRight 
+            className="w-3.5 h-3.5" 
+            strokeWidth={2.5}
+          />
+        </button>
+      </div>
+    </div>
+  </div>
+));
+
+AppCard.displayName = 'AppCard';
+
+export default memo(function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
   const { t } = useLanguage();
-  const topApps = demoApps; // All 13 apps
+  const topApps = useMemo(() => demoApps, []);
 
   return (
     <div 
-      className="min-h-screen pb-32 smooth-scroll-page"
-     
+      className="min-h-screen pb-32 smooth-scroll-page gpu-layer"
       style={{ 
         background: 'var(--surface)',
         color: 'var(--text-secondary)',
-        paddingTop: '140px'
+        paddingTop: '140px',
+        contain: 'layout'
       }}
     >
       <div className="max-w-md mx-auto">
-        
-        {/* ═══════════════════════════════════════════════════════
-            TIER 1: HERO — Authority-Led, Understated
-        ═══════════════════════════════════════════════════════ */}
         <header className="px-7 pt-8 pb-16">
-          {/* Eyebrow */}
           <p 
-            className="scroll-fade-in light:text-black"
             style={{
               fontSize: '11px',
               fontWeight: 500,
@@ -44,9 +115,7 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             {t('projectsPage.eyebrow')}
           </p>
           
-          {/* Headline */}
           <h1 
-            className="scroll-fade-in-delay-1"
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
               fontSize: '28px',
@@ -67,9 +136,8 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             </span>
           </h1>
           
-          {/* Scroll hint */}
           <div 
-            className="scroll-fade-in-delay-2 flex items-center gap-3"
+            className="flex items-center gap-3"
             style={{ marginTop: '28px' }}
           >
             <div className="scroll-icon" />
@@ -78,16 +146,15 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
             </span>
           </div>
           
-          {/* Competitive FOMO Statement */}
           <div 
-            className="scroll-fade-in-delay-3"
             style={{
               marginTop: '36px',
               padding: '24px',
               borderRadius: 'var(--card-radius)',
               background: 'var(--hero-gradient)',
               border: '1px solid var(--hero-border)',
-              boxShadow: 'var(--card-shadow)'
+              boxShadow: 'var(--card-shadow)',
+              contain: 'content'
             }}
           >
             <p style={{
@@ -111,103 +178,17 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               </span>
             </p>
           </div>
-          
-          {/* Exclusivity Block */}
-          <div 
-            className="scroll-fade-in-delay-4"
-            style={{
-              marginTop: '12px',
-              display: 'flex',
-              gap: '12px'
-            }}
-          >
-            {/* Left: What you get */}
-            <div style={{
-              flex: 1,
-              padding: '20px 16px',
-              borderRadius: 'var(--card-radius)',
-              background: 'var(--card-bg)',
-              border: '1px solid var(--card-border)',
-              boxShadow: 'var(--card-shadow)'
-            }}>
-              <p style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '0.08em',
-                color: 'var(--text-tertiary)',
-                textTransform: 'uppercase',
-                marginBottom: '12px'
-              }}>
-                {t('projectsPage.notTemplate')}
-              </p>
-              <p style={{
-                fontSize: '14px',
-                fontWeight: 500,
-                color: 'var(--text-primary)',
-                lineHeight: '1.4'
-              }}>
-                {t('projectsPage.yourBrand')}
-                <br />
-                <span style={{ color: 'var(--accent-primary)' }}>{t('projectsPage.yourStyle')}</span>
-                <br />
-                {t('projectsPage.yourRules')}
-              </p>
-            </div>
-            
-            {/* Right: Availability */}
-            <div style={{
-              flex: 1,
-              padding: '20px 16px',
-              borderRadius: 'var(--card-radius)',
-              background: 'var(--card-bg)',
-              border: '1px solid var(--card-border)',
-              boxShadow: 'var(--card-shadow)'
-            }}>
-              <p style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '0.08em',
-                color: 'var(--text-tertiary)',
-                textTransform: 'uppercase',
-                marginBottom: '12px'
-              }}>
-                {t('projectsPage.remaining')}
-              </p>
-              <p style={{
-                fontSize: '28px',
-                fontWeight: 700,
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.03em'
-              }}>
-                3 {t('projectsPage.slots')}
-              </p>
-              <p style={{
-                fontSize: '14px',
-                color: 'var(--text-tertiary)',
-                marginTop: '4px'
-              }}>
-                {t('projectsPage.forDecember')}
-              </p>
-            </div>
-          </div>
         </header>
 
-        {/* Hairline */}
         <div 
           className="mx-7"
           style={{ height: '1px', background: 'var(--divider)' }}
         />
 
-        {/* ═══════════════════════════════════════════════════════
-            FAVORITES SECTION — Liquid Glass Style
-        ═══════════════════════════════════════════════════════ */}
         <div className="py-6">
           <FavoritesSection onOpenDemo={onOpenDemo} />
         </div>
 
-        {/* ═══════════════════════════════════════════════════════
-            TIER 2: CURATED SHOWCASE INTRO
-        ═══════════════════════════════════════════════════════ */}
         <section className="px-7 py-10">
           <div className="flex items-baseline justify-between">
             <p 
@@ -232,90 +213,12 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════════════
-            APP CARDS — ОРИГИНАЛЬНЫЕ, БЕЗ ИЗМЕНЕНИЙ
-        ═══════════════════════════════════════════════════════ */}
         <div className="px-5 space-y-3">
-          {topApps.map((app, index) => (
-            <div
-              key={app.id}
-              onClick={() => onOpenDemo(app.id)}
-              className={`premium-card group scroll-fade-in-delay-${Math.min(index + 1, 4)}`}
-              data-testid={`card-app-${app.id}`}
-              style={{
-                position: 'relative',
-                cursor: 'pointer',
-                borderRadius: 'var(--card-radius)',
-                padding: '20px 20px 20px 24px',
-                background: 'var(--card-bg)',
-                backdropFilter: 'blur(40px) saturate(180%)',
-                border: '1px solid var(--card-border)',
-                boxShadow: 'var(--card-shadow)',
-                transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                opacity: 0,
-                animationDelay: `${0.05 + index * 0.04}s`,
-              }}
-            >
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <h3 
-                    data-testid={`text-title-${app.id}`}
-                    style={{
-                      fontSize: '17px',
-                      fontWeight: 600,
-                      letterSpacing: '-0.02em',
-                      color: 'var(--text-primary)',
-                      marginBottom: '4px'
-                    }}
-                  >
-                    {app.title}
-                  </h3>
-                  <p 
-                    data-testid={`text-description-${app.id}`}
-                    style={{
-                      fontSize: '14px',
-                      lineHeight: '1.4',
-                      color: 'var(--text-tertiary)',
-                      letterSpacing: '-0.005em',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {t(`projectsPage.appDescriptions.${app.id}`) || app.description}
-                  </p>
-                </div>
-                
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <FavoriteButton demoId={app.id} size="md" />
-                  
-                  <button
-                    className="open-button flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300"
-                    style={{
-                      background: 'var(--button-secondary-bg)',
-                      border: '1px solid var(--button-secondary-border)',
-                      color: 'var(--button-secondary-text)',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      letterSpacing: '0.01em',
-                    }}
-                    data-testid={`button-open-${app.id}`}
-                  >
-                    <span>{t('projectsPage.open')}</span>
-                    <ArrowRight 
-                      className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5" 
-                      strokeWidth={2.5}
-                    />
-                  </button>
-                </div>
-              </div>
-            </div>
+          {topApps.map((app) => (
+            <AppCard key={app.id} app={app} onOpenDemo={onOpenDemo} t={t} />
           ))}
         </div>
 
-        {/* ═══════════════════════════════════════════════════════
-            TIER 3: INSIGHT BAND — Discreet Metrics
-        ═══════════════════════════════════════════════════════ */}
         <section className="px-7 mt-12">
           <div 
             style={{ 
@@ -327,111 +230,31 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
           
           <div className="grid grid-cols-3 gap-6 text-center">
             <div>
-              <p 
-                style={{
-                  fontSize: '20px',
-                  fontWeight: 600,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.02em'
-                }}
-              >
-                50+
-              </p>
-              <p 
-                style={{
-                  fontSize: '11px',
-                  color: 'var(--text-tertiary)',
-                  marginTop: '4px',
-                  letterSpacing: '0.05em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                {t('projectsPage.projects')}
-              </p>
+              <p style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>50+</p>
+              <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{t('projectsPage.projects')}</p>
             </div>
             <div>
-              <p 
-                style={{
-                  fontSize: '20px',
-                  fontWeight: 600,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.02em'
-                }}
-              >
-                6
-              </p>
-              <p 
-                style={{
-                  fontSize: '11px',
-                  color: 'var(--text-tertiary)',
-                  marginTop: '4px',
-                  letterSpacing: '0.05em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                {t('projectsPage.industries')}
-              </p>
+              <p style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>6</p>
+              <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{t('projectsPage.industries')}</p>
             </div>
             <div>
-              <p 
-                style={{
-                  fontSize: '20px',
-                  fontWeight: 600,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.02em'
-                }}
-              >
-                14
-              </p>
-              <p 
-                style={{
-                  fontSize: '11px',
-                  color: 'var(--text-tertiary)',
-                  marginTop: '4px',
-                  letterSpacing: '0.05em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                {t('projectsPage.daysToLaunch')}
-              </p>
+              <p style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>14</p>
+              <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{t('projectsPage.daysToLaunch')}</p>
             </div>
           </div>
-
-          <div 
-            style={{ 
-              height: '1px', 
-              background: 'var(--divider)',
-              marginTop: '32px'
-            }}
-          />
         </section>
 
-        {/* ═══════════════════════════════════════════════════════
-            TIER 4: EXECUTIVE CTA — Refined & Confident
-        ═══════════════════════════════════════════════════════ */}
         <section className="px-7 mt-12">
           <div className="text-center">
-            {/* Pull Quote */}
-            <p 
-              style={{
-                fontFamily: 'Georgia, serif',
-                fontSize: '18px',
-                fontStyle: 'italic',
-                fontWeight: 400,
-                color: 'var(--text-secondary)',
-                lineHeight: '1.5',
-                marginBottom: '24px'
-              }}
-            >
+            <p style={{ fontFamily: 'Georgia, serif', fontSize: '18px', fontStyle: 'italic', fontWeight: 400, color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '24px' }}>
               {t('projectsPage.pullQuote')}
             </p>
 
-            {/* CTA Button */}
             <a
               href="https://t.me/web4tgs"
               target="_blank"
               rel="noopener noreferrer"
-              className="cta-button inline-flex items-center justify-center gap-2.5 w-full py-4 rounded-xl font-medium transition-all duration-300"
+              className="cta-button inline-flex items-center justify-center gap-2.5 w-full py-4 rounded-xl font-medium transition-transform duration-200"
               style={{
                 background: 'var(--button-primary-bg)',
                 color: 'var(--button-primary-text)',
@@ -444,102 +267,26 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
               {t('projectsPage.requestConsultation')}
               <ArrowRight className="w-4 h-4" />
             </a>
-            
-            {/* Micro-copy */}
-            <p 
-              style={{
-                fontSize: '12px',
-                color: 'var(--text-tertiary)',
-                marginTop: '16px',
-                letterSpacing: '0.01em'
-              }}
-            >
-              {t('projectsPage.freeResponse')}
-            </p>
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════════════
-            FOOTER — Minimal Signature
-        ═══════════════════════════════════════════════════════ */}
         <footer className="px-7 mt-16 text-center">
-          <div 
-            style={{ 
-              height: '1px', 
-              background: 'var(--divider)',
-              marginBottom: '24px'
-            }}
-          />
-          <p 
-            style={{
-              fontSize: '10px',
-              letterSpacing: '0.25em',
-              color: 'var(--text-tertiary)',
-              textTransform: 'uppercase'
-            }}
-          >
+          <p style={{ fontSize: '10px', letterSpacing: '0.25em', color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>
             Web4TG · Telegram Mini Apps · 2025
           </p>
         </footer>
-
       </div>
 
       <style>{`
-        .premium-card:hover {
-          background: var(--card-hover);
-          border-color: var(--card-border);
-          box-shadow: var(--card-shadow-hover);
-          transform: translateX(4px);
-        }
-
-        .premium-card:hover .open-button {
-          background: var(--button-primary-bg);
-          color: var(--button-primary-text);
-          border-color: transparent;
-        }
-
         .premium-card:active {
-          transform: translateX(2px);
+          transform: scale(0.98);
           opacity: 0.9;
-        }
-
-        .cta-button:hover {
-          opacity: 0.9;
-          transform: translateY(-1px);
-          box-shadow: var(--card-shadow-hover);
         }
 
         .cta-button:active {
-          transform: translateY(0);
-          box-shadow: none;
+          transform: scale(0.98);
         }
 
-        @keyframes fadeSlideIn {
-          from {
-            opacity: 0;
-            transform: translateY(8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .scroll-fade-in,
-        .scroll-fade-in-delay-1,
-        .scroll-fade-in-delay-2,
-        .scroll-fade-in-delay-3,
-        .scroll-fade-in-delay-4 {
-          animation: fadeSlideIn 0.6s ease-out forwards;
-        }
-
-        .scroll-fade-in { animation-delay: 0.05s; }
-        .scroll-fade-in-delay-1 { animation-delay: 0.1s; }
-        .scroll-fade-in-delay-2 { animation-delay: 0.18s; }
-        .scroll-fade-in-delay-3 { animation-delay: 0.26s; }
-        .scroll-fade-in-delay-4 { animation-delay: 0.34s; }
-
-        /* Scroll icon */
         .scroll-icon {
           width: 20px;
           height: 32px;
@@ -568,4 +315,4 @@ export default function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPagePro
       `}</style>
     </div>
   );
-}
+});
