@@ -303,9 +303,16 @@ export function useScrollHaptic(config: ScrollHapticConfig = {}) {
       wasAtTop = isAtTop;
       wasAtBottom = isAtBottom;
       
-      // Update position tracking (haptic on regular scroll disabled - only edge bounce active)
+      // Scroll tick haptics for premium feel
       const distanceSinceLastTick = Math.abs(currentScroll - state.lastTickPosition);
-      if (distanceSinceLastTick >= (settings.tickThreshold ?? 25)) {
+      const timeSinceLastHaptic = now - state.lastHapticTime;
+      
+      if (distanceSinceLastTick >= (settings.tickThreshold ?? 25) && timeSinceLastHaptic > (settings.cooldownMs ?? 40)) {
+        const hapticType = determineHapticType();
+        if (hapticType && settings.selectionTicks) {
+          triggerHaptic(hapticType);
+          state.lastHapticTime = now;
+        }
         state.lastTickPosition = currentScroll;
       }
     };

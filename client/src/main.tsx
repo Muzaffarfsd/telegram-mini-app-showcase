@@ -2,6 +2,20 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
+// Inject critical CSS before first paint (idempotent)
+const injectCriticalCSS = () => {
+  if (document.getElementById('critical-inline')) return;
+  const style = document.createElement('style');
+  style.id = 'critical-inline';
+  style.textContent = `
+    .gpu-layer{transform:translateZ(0);will-change:transform;backface-visibility:hidden}
+    .instant-tap{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    [data-prefetch]{content-visibility:auto;contain-intrinsic-size:auto 200px}
+  `;
+  document.head.insertBefore(style, document.head.firstChild);
+};
+injectCriticalCSS();
+
 // Render React app IMMEDIATELY - nothing blocks first paint
 createRoot(document.getElementById("root")!).render(<App />);
 
