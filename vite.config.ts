@@ -50,9 +50,6 @@ export default defineConfig({
     target: 'esnext',
     minify: 'terser',
     cssCodeSplit: true,
-    modulePreload: {
-      polyfill: true
-    },
     terserOptions: {
       compress: {
         drop_console: true,
@@ -71,33 +68,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunks - conservative splitting to avoid hydration issues
           if (id.includes('node_modules')) {
-            // ✅ LAZY-LOADED ONLY: These are explicitly lazy loaded and safe to separate
-            
-            // Stripe - only used in CheckoutPage (lazy loaded)
-            if (id.includes('stripe') || id.includes('@stripe')) {
-              return 'stripe-vendor';
-            }
-            
-            // Uppy - file upload, only used in specific pages (lazy loaded)
-            if (id.includes('@uppy') || id.includes('uppy')) {
-              return 'uppy-vendor';
-            }
-            
-            // Charts - recharts depends on React, must stay in vendor chunk
-            // d3 is a pure dependency, can be separated
-            if (id.includes('d3-') && !id.includes('recharts')) {
-              return 'charts-vendor';
-            }
-            // recharts stays in 'vendor' with React (falls through to default)
-            
-            // Framer Motion - loaded via LazyMotionProvider
-            if (id.includes('framer-motion')) {
-              return 'animation-vendor';
-            }
-            
-            // ✅ Pure utilities - no React dependencies, safe to separate
+            if (id.includes('stripe') || id.includes('@stripe')) return 'stripe-vendor';
+            if (id.includes('@uppy') || id.includes('uppy')) return 'uppy-vendor';
+            if (id.includes('d3-') && !id.includes('recharts')) return 'charts-vendor';
+            if (id.includes('framer-motion')) return 'animation-vendor';
             if (
               id.includes('date-fns') ||
               id.includes('zod') ||
@@ -105,56 +80,13 @@ export default defineConfig({
               id.includes('tailwind-merge') ||
               id.includes('class-variance-authority') ||
               id.includes('nanoid')
-            ) {
-              return 'utils-vendor';
-            }
-            
-            // ✅ Icons - pure components, large but lazy loadable
-            if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) {
-              return 'icons-vendor';
-            }
-            
-            // ✅ ALL React-dependent libs stay together to prevent hydration issues
-            // This includes: react, react-dom, radix-ui, tanstack, zustand, wouter, 
-            // swiper, cmdk, hookform, etc.
+            ) return 'utils-vendor';
+            if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) return 'icons-vendor';
             return 'vendor';
           }
-          
-          // ✅ Let Rollup auto-split ShowcasePage into smaller chunks
-          // Don't force entire ShowcasePage into single chunk
-          
-          // Route-based splitting for other pages
-          if (id.includes('/src/components/ProjectsPage')) {
-            return 'projects';
-          }
-          if (id.includes('/src/components/demos/')) {
-            // Group demos by category - more granular splitting
-            if (id.includes('Clothing') || id.includes('Electronics') || id.includes('Fashion') || id.includes('Gadget')) {
-              return 'demos-ecommerce';
-            }
-            if (id.includes('Beauty') || id.includes('Restaurant') || id.includes('Hotel') || id.includes('Medical') || id.includes('Fitness')) {
-              return 'demos-services';
-            }
-            if (id.includes('Rascal') || id.includes('StoreBlack') || id.includes('LabSurvivalist') || id.includes('NikeACG')) {
-              return 'demos-fashion';
-            }
-            if (id.includes('Tea') || id.includes('Florist') || id.includes('Fragrance') || id.includes('Interior')) {
-              return 'demos-lifestyle';
-            }
-            if (id.includes('Banking') || id.includes('Taxi') || id.includes('CarRental') || id.includes('CarWash')) {
-              return 'demos-transport';
-            }
-            if (id.includes('NFT') || id.includes('Emily') || id.includes('Sneaker') || id.includes('Time') || id.includes('Watch')) {
-              return 'demos-premium';
-            }
-            if (id.includes('Courses') || id.includes('Book')) {
-              return 'demos-education';
-            }
-            // Catch-all for remaining demos
-            return 'demos-misc';
-          }
+          if (id.includes('/src/components/ProjectsPage')) return 'projects';
+          if (id.includes('/src/components/demos/')) return 'demos';
         },
-        
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'
@@ -164,7 +96,6 @@ export default defineConfig({
     chunkSizeWarningLimit: 500,
     sourcemap: 'hidden',
     reportCompressedSize: true,
-    cssCodeSplit: true,
     assetsInlineLimit: 4096
   },
   
@@ -176,9 +107,7 @@ export default defineConfig({
       'wouter'
     ],
     exclude: [
-      'framer-motion',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-select'
+      'framer-motion'
     ]
   },
   
