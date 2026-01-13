@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, memo, useRef } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
@@ -254,6 +254,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   const [selectedGender, setSelectedGender] = useState<string>('All');
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
   
   const { toast } = useToast();
   const sidebar = useDemoSidebar();
@@ -336,6 +339,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     setSelectedProduct(product);
     setSelectedSize(product.sizes[0]);
     setSelectedColor(product.colors[0]);
+    setCurrentImageIndex(0);
   };
 
   const addToCart = () => {
@@ -442,12 +446,64 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </button>
         </div>
 
-        <div className="relative h-[60vh]">
-          <LazyImage
-            src={selectedProduct.hoverImage}
-            alt={selectedProduct.name}
-            className="w-full h-full object-cover"
-          />
+        {/* Swipeable Image Gallery */}
+        <div className="relative h-[55vh] mx-4 mt-16 overflow-hidden rounded-[32px]"
+          style={{
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+          }}
+        >
+          <div 
+            className="flex h-full transition-transform duration-300 ease-out"
+            style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+            onTouchStart={(e) => {
+              touchStartX.current = e.touches[0].clientX;
+            }}
+            onTouchMove={(e) => {
+              touchEndX.current = e.touches[0].clientX;
+            }}
+            onTouchEnd={() => {
+              const diff = touchStartX.current - touchEndX.current;
+              const productImages = [selectedProduct.image, selectedProduct.hoverImage];
+              if (Math.abs(diff) > 50) {
+                if (diff > 0 && currentImageIndex < productImages.length - 1) {
+                  setCurrentImageIndex(prev => prev + 1);
+                } else if (diff < 0 && currentImageIndex > 0) {
+                  setCurrentImageIndex(prev => prev - 1);
+                }
+              }
+            }}
+          >
+            {[selectedProduct.image, selectedProduct.hoverImage].map((img, idx) => (
+              <div key={idx} className="min-w-full h-full flex-shrink-0">
+                <LazyImage
+                  src={img}
+                  alt={`${selectedProduct.name} - фото ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+          
+          {/* Dots Indicator */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            {[selectedProduct.image, selectedProduct.hoverImage].map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentImageIndex(idx)}
+                className="transition-all duration-200"
+                style={{
+                  width: currentImageIndex === idx ? '24px' : '8px',
+                  height: '8px',
+                  borderRadius: '4px',
+                  background: currentImageIndex === idx 
+                    ? 'rgba(255,255,255,0.95)' 
+                    : 'rgba(255,255,255,0.4)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                }}
+                data-testid={`gallery-dot-${idx}`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Scrollable content area with extra padding for glass panel */}
