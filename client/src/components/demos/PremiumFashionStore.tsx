@@ -884,9 +884,15 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
             {/* Recommended Products Carousel */}
             {(() => {
-              const recommendedProducts = products.filter(
+              // Get products from same category first
+              const sameCategoryProducts = products.filter(
                 p => p.category === selectedProduct.category && p.id !== selectedProduct.id
-              ).slice(0, 6);
+              );
+              // Add products from other categories to fill up to 8 items
+              const otherProducts = products.filter(
+                p => p.category !== selectedProduct.category && p.id !== selectedProduct.id
+              );
+              const recommendedProducts = [...sameCategoryProducts, ...otherProducts].slice(0, 8);
               
               if (recommendedProducts.length === 0) return null;
               
@@ -896,7 +902,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     className="text-lg font-semibold mb-4"
                     style={{ color: 'rgba(255,255,255,0.9)' }}
                   >
-                    С этим покупают
+                    Рекомендуемые товары
                   </h3>
                   <div 
                     className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-6 px-6"
