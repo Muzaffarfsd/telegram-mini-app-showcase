@@ -1573,7 +1573,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   border: '0.5px solid rgba(255,255,255,0.15)',
                   boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
                   maxHeight: '70vh',
-                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 80px)',
+                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 140px)',
                 }}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -1885,7 +1885,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   border: '0.5px solid rgba(255,255,255,0.15)',
                   boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
                   maxHeight: '70vh',
-                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 80px)',
+                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 140px)',
                 }}
                 onClick={(e) => e.stopPropagation()}
               >
