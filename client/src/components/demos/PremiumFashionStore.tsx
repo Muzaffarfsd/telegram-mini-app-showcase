@@ -582,7 +582,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           <div 
             className="absolute left-0 right-0 z-50 flex items-center justify-between px-4"
             style={{ 
-              top: 'max(12px, env(safe-area-inset-top))',
+              top: 'calc(max(12px, env(safe-area-inset-top)) + 48px)',
             }}
           >
             {/* Back Button - Liquid Glass */}
@@ -1240,8 +1240,11 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
         {/* Fixed Glass Bottom Panel with 3D effect */}
         <div 
-          className="fixed bottom-0 left-0 right-0 z-50"
-          style={{ perspective: '1000px' }}
+          className="fixed left-0 right-0 z-50"
+          style={{ 
+            perspective: '1000px',
+            bottom: 'max(24px, env(safe-area-inset-bottom))',
+          }}
         >
           {/* 3D Shadow layer - creates depth illusion */}
           <div 
