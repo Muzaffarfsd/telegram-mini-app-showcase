@@ -412,159 +412,163 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     });
   };
 
-  // PRODUCT PAGE - iOS 2026 Liquid Glass Design
+  // PRODUCT PAGE - iOS 2026 Liquid Glass Design (Full-bleed Hero)
   if (activeTab === 'catalog' && selectedProduct) {
     const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#1A1A1A';
     const productImages = [selectedProduct.image, selectedProduct.hoverImage];
     
     return (
-      <div className="min-h-screen text-white smooth-scroll-page" style={{ backgroundColor: bgColor }}>
-        {/* iOS 26 Liquid Glass Navigation Bar - Safe Area Aware */}
-        <div 
-          className="sticky top-0 left-0 right-0 z-50 flex items-center justify-between px-5"
-          style={{ 
-            paddingTop: 'max(14px, env(safe-area-inset-top))',
-            paddingBottom: '10px',
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%)',
-          }}
-        >
-          {/* Back Button - Liquid Glass */}
-          <button 
-            onClick={() => setSelectedProduct(null)}
-            className="w-11 h-11 rounded-[16px] flex items-center justify-center active:scale-95 transition-transform"
-            style={{ 
-              background: 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
-              backdropFilter: 'blur(30px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-              border: '0.5px solid rgba(255,255,255,0.5)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -0.5px 0 rgba(0,0,0,0.05)'
-            }}
-            data-testid="button-back"
-          >
-            <ChevronLeft className="w-6 h-6" style={{ color: 'rgba(0,0,0,0.75)' }} strokeWidth={2.5} />
-          </button>
+      <div className="min-h-screen text-white overflow-x-hidden" style={{ backgroundColor: bgColor }}>
+        
+        {/* ===== HERO SECTION: Full-bleed image with floating controls ===== */}
+        <div className="relative" style={{ height: '58vh', minHeight: '400px' }}>
           
-          {/* Product Counter Badge */}
-          <div 
-            className="px-4 py-1.5 rounded-full"
-            style={{
-              background: 'linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.15) 100%)',
-              backdropFilter: 'blur(30px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-              border: '0.5px solid rgba(255,255,255,0.4)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)'
-            }}
-          >
-            <span className="text-xs font-medium" style={{ color: 'rgba(0,0,0,0.6)' }}>
-              {currentImageIndex + 1} / {productImages.length}
-            </span>
-          </div>
-          
-          {/* Favorite Button - Liquid Glass */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleFavorite(selectedProduct.id);
-            }}
-            className="w-11 h-11 rounded-[16px] flex items-center justify-center active:scale-95 transition-transform"
-            style={{ 
-              background: isFavorite(selectedProduct.id) 
-                ? 'linear-gradient(145deg, rgba(255,59,48,0.25) 0%, rgba(255,59,48,0.1) 100%)'
-                : 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
-              backdropFilter: 'blur(30px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-              border: isFavorite(selectedProduct.id) 
-                ? '0.5px solid rgba(255,59,48,0.4)'
-                : '0.5px solid rgba(255,255,255,0.5)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -0.5px 0 rgba(0,0,0,0.05)'
-            }}
-            aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-            data-testid={`button-favorite-${selectedProduct.id}`}
-          >
-            <Heart 
-              className="w-5 h-5"
-              style={{ color: isFavorite(selectedProduct.id) ? '#FF3B30' : 'rgba(0,0,0,0.7)' }}
-              fill={isFavorite(selectedProduct.id) ? '#FF3B30' : 'none'}
-              strokeWidth={2}
-            />
-          </button>
-        </div>
-
-        {/* iOS 26 Premium Image Gallery with Safe Area Padding */}
-        <div 
-          className="relative mx-4 overflow-hidden"
-          style={{
-            height: '52vh',
-            borderRadius: '28px',
-            boxShadow: '0 25px 80px -20px rgba(0,0,0,0.5), 0 10px 30px -10px rgba(0,0,0,0.3)',
-            marginTop: 'max(70px, calc(50px + env(safe-area-inset-top)))'
-          }}
-        >
-          {/* Swipeable Images Container */}
-          <div 
-            className="flex h-full"
-            style={{ 
-              transform: `translateX(-${currentImageIndex * 100}%)`,
-              transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-            }}
-            onTouchStart={(e) => {
-              touchStartX.current = e.touches[0].clientX;
-            }}
-            onTouchMove={(e) => {
-              touchEndX.current = e.touches[0].clientX;
-            }}
-            onTouchEnd={() => {
-              const diff = touchStartX.current - touchEndX.current;
-              if (Math.abs(diff) > 50) {
-                if (diff > 0 && currentImageIndex < productImages.length - 1) {
-                  setCurrentImageIndex(prev => prev + 1);
-                } else if (diff < 0 && currentImageIndex > 0) {
-                  setCurrentImageIndex(prev => prev - 1);
+          {/* Full-bleed Image Gallery */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div 
+              className="flex h-full w-full"
+              style={{ 
+                transform: `translateX(-${currentImageIndex * 100}%)`,
+                transition: 'transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)'
+              }}
+              onTouchStart={(e) => {
+                touchStartX.current = e.touches[0].clientX;
+              }}
+              onTouchMove={(e) => {
+                touchEndX.current = e.touches[0].clientX;
+              }}
+              onTouchEnd={() => {
+                const diff = touchStartX.current - touchEndX.current;
+                if (Math.abs(diff) > 50) {
+                  if (diff > 0 && currentImageIndex < productImages.length - 1) {
+                    setCurrentImageIndex(prev => prev + 1);
+                  } else if (diff < 0 && currentImageIndex > 0) {
+                    setCurrentImageIndex(prev => prev - 1);
+                  }
                 }
-              }
-            }}
-          >
-            {productImages.map((img, idx) => (
-              <div key={idx} className="min-w-full h-full flex-shrink-0 relative">
-                <LazyImage
-                  src={img}
-                  alt={`${selectedProduct.name} - фото ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                />
-                {/* Subtle vignette overlay */}
-                <div 
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.15) 100%)'
-                  }}
-                />
-              </div>
-            ))}
+              }}
+            >
+              {productImages.map((img, idx) => (
+                <div key={idx} className="min-w-full h-full flex-shrink-0 relative">
+                  <LazyImage
+                    src={img}
+                    alt={`${selectedProduct.name} - фото ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+            
+            {/* Top gradient for button visibility */}
+            <div 
+              className="absolute top-0 left-0 right-0 pointer-events-none"
+              style={{
+                height: '120px',
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)'
+              }}
+            />
+            
+            {/* Bottom gradient for content card transition */}
+            <div 
+              className="absolute bottom-0 left-0 right-0 pointer-events-none"
+              style={{
+                height: '100px',
+                background: `linear-gradient(0deg, ${bgColor} 0%, transparent 100%)`
+              }}
+            />
           </div>
           
-          {/* iOS 26 Liquid Glass Dots Indicator */}
+          {/* ===== FLOATING NAV: Positioned ON TOP of image ===== */}
           <div 
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 px-3 py-2 rounded-full"
+            className="absolute left-0 right-0 z-50 flex items-center justify-between px-4"
+            style={{ 
+              top: 'max(12px, env(safe-area-inset-top))',
+            }}
+          >
+            {/* Back Button - Liquid Glass */}
+            <button 
+              onClick={() => setSelectedProduct(null)}
+              className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
+              style={{ 
+                background: 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
+                backdropFilter: 'blur(25px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+                border: '0.5px solid rgba(255,255,255,0.6)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7)'
+              }}
+              data-testid="button-back"
+            >
+              <ChevronLeft className="w-6 h-6" style={{ color: 'rgba(0,0,0,0.8)' }} strokeWidth={2.5} />
+            </button>
+            
+            {/* Photo Counter Badge */}
+            <div 
+              className="px-4 py-1.5 rounded-full"
+              style={{
+                background: 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
+                backdropFilter: 'blur(25px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+                border: '0.5px solid rgba(255,255,255,0.5)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)'
+              }}
+            >
+              <span className="text-xs font-semibold" style={{ color: 'rgba(0,0,0,0.7)' }}>
+                {currentImageIndex + 1} / {productImages.length}
+              </span>
+            </div>
+            
+            {/* Favorite Button - Liquid Glass */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleFavorite(selectedProduct.id);
+              }}
+              className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
+              style={{ 
+                background: isFavorite(selectedProduct.id) 
+                  ? 'linear-gradient(145deg, rgba(255,59,48,0.35) 0%, rgba(255,59,48,0.15) 100%)'
+                  : 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
+                backdropFilter: 'blur(25px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+                border: isFavorite(selectedProduct.id) 
+                  ? '0.5px solid rgba(255,59,48,0.5)'
+                  : '0.5px solid rgba(255,255,255,0.6)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7)'
+              }}
+              aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+              data-testid={`button-favorite-${selectedProduct.id}`}
+            >
+              <Heart 
+                className="w-5 h-5"
+                style={{ color: isFavorite(selectedProduct.id) ? '#FF3B30' : 'rgba(0,0,0,0.75)' }}
+                fill={isFavorite(selectedProduct.id) ? '#FF3B30' : 'none'}
+                strokeWidth={2}
+              />
+            </button>
+          </div>
+          
+          {/* Dots Indicator - Bottom of hero */}
+          <div 
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2 px-3 py-2 rounded-full"
             style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 100%)',
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 100%)',
               backdropFilter: 'blur(20px) saturate(180%)',
               WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              border: '0.5px solid rgba(255,255,255,0.4)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4)'
+              border: '0.5px solid rgba(255,255,255,0.5)',
             }}
           >
             {productImages.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentImageIndex(idx)}
+                className="transition-all duration-300"
                 style={{
-                  width: currentImageIndex === idx ? '20px' : '6px',
-                  height: '6px',
-                  borderRadius: '3px',
+                  width: currentImageIndex === idx ? '20px' : '7px',
+                  height: '7px',
+                  borderRadius: '4px',
                   background: currentImageIndex === idx 
-                    ? 'rgba(0,0,0,0.7)' 
-                    : 'rgba(0,0,0,0.25)',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                    ? 'rgba(0,0,0,0.8)' 
+                    : 'rgba(0,0,0,0.3)',
                 }}
                 data-testid={`gallery-dot-${idx}`}
               />
@@ -572,8 +576,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </div>
         </div>
 
-        {/* iOS 26 Liquid Glass Content Card */}
-        <div className="relative pb-48 -mt-4">
+        {/* ===== CONTENT SHEET: Slides up over hero ===== */}
+        <div className="relative pb-44" style={{ marginTop: '-28px' }}>
           <div 
             className="relative rounded-t-[32px] p-6 space-y-5"
             style={{
