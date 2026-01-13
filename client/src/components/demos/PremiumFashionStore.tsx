@@ -400,25 +400,44 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     
     return (
       <div className="min-h-screen text-white smooth-scroll-page" style={{ backgroundColor: bgColor }}>
-        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4" style={{ paddingTop: '16px' }}>
+          {/* iOS Liquid Glass Back Button */}
           <button 
             onClick={() => setSelectedProduct(null)}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            className="w-12 h-12 rounded-[22px] flex items-center justify-center"
+            style={{ 
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.25) 100%)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.4)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.05)'
+            }}
             data-testid="button-back"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-7 h-7" style={{ color: 'rgba(0,0,0,0.7)' }} strokeWidth={2.5} />
           </button>
+          {/* iOS Liquid Glass Favorite Button */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleToggleFavorite(selectedProduct.id);
             }}
-            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
+            className="w-12 h-12 rounded-[22px] flex items-center justify-center"
+            style={{ 
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.25) 100%)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.4)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.05)'
+            }}
             aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
             data-testid={`button-favorite-${selectedProduct.id}`}
           >
             <Heart 
-              className={`w-5 h-5 ${isFavorite(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
+              className="w-6 h-6"
+              style={{ color: isFavorite(selectedProduct.id) ? '#FF3B30' : 'rgba(0,0,0,0.7)' }}
+              fill={isFavorite(selectedProduct.id) ? '#FF3B30' : 'none'}
+              strokeWidth={2}
             />
           </button>
         </div>
