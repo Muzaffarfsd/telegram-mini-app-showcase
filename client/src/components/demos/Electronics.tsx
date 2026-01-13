@@ -243,6 +243,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showStickyHeader, setShowStickyHeader] = useState(false);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const sidebar = useDemoSidebar();
   const { toast } = useToast();
   
@@ -1106,19 +1107,43 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 </div>
               </div>
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleToggleFavorite(product.id);
-                }}
-                aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                className="absolute top-4 right-4 w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
-                data-testid={`button-favorite-${product.id}`}
-              >
-                <Heart 
-                  className={`w-5 h-5 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
-                />
-              </button>
+              {/* Quick Actions - Quick View & Favorite */}
+              <div className="absolute top-4 right-4 flex gap-2">
+                {/* Quick View Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setQuickViewProduct(product);
+                  }}
+                  aria-label="Быстрый просмотр"
+                  className="w-11 h-11 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                  style={{
+                    background: 'linear-gradient(145deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%)',
+                    backdropFilter: 'blur(20px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                  }}
+                  data-testid={`button-quickview-home-${product.id}`}
+                >
+                  <Eye className="w-5 h-5 text-white" />
+                </button>
+
+                {/* Favorite Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleFavorite(product.id);
+                  }}
+                  aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                  className="w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
+                  data-testid={`button-favorite-${product.id}`}
+                >
+                  <Heart 
+                    className={`w-5 h-5 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
+                  />
+                </button>
+              </div>
 
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <div className="flex items-end justify-between">
@@ -1154,6 +1179,171 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
         </div>
 
         <div className="h-8"></div>
+        
+        {/* ===== QUICK VIEW MODAL for HOME PAGE ===== */}
+        <AnimatePresence>
+          {quickViewProduct && (
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[100] flex items-end justify-center"
+              style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+              onClick={() => setQuickViewProduct(null)}
+            >
+              <m.div
+                initial={{ opacity: 0, y: 100, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 100, scale: 0.95 }}
+                transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
+                  backdropFilter: 'blur(30px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                  border: '0.5px solid rgba(255,255,255,0.15)',
+                  boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
+                  maxHeight: '75vh',
+                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 140px)',
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Drag Handle */}
+                <div className="flex justify-center pt-3 pb-2">
+                  <div 
+                    className="w-10 h-1 rounded-full"
+                    style={{ background: 'rgba(255,255,255,0.3)' }}
+                  />
+                </div>
+                
+                {/* Close Button */}
+                <button
+                  onClick={() => setQuickViewProduct(null)}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10"
+                  style={{
+                    background: 'rgba(255,255,255,0.15)',
+                    backdropFilter: 'blur(10px)',
+                  }}
+                  data-testid="button-close-quickview-home"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+                
+                <div className="px-6 pb-8 overflow-y-auto" style={{ maxHeight: 'calc(75vh - 60px)' }}>
+                  {/* Product Image */}
+                  <div 
+                    className="relative aspect-[4/3] rounded-3xl overflow-hidden mb-5"
+                    style={{ background: 'rgba(255,255,255,0.05)' }}
+                  >
+                    <LazyImage
+                      src={quickViewProduct.image}
+                      alt={quickViewProduct.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {quickViewProduct.isNew && (
+                      <div 
+                        className="absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-bold"
+                        style={{ background: 'var(--theme-primary)', color: '#000' }}
+                      >
+                        NEW
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Product Info */}
+                  <div className="text-center mb-5">
+                    <p className="text-xs font-medium uppercase mb-2" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
+                      {quickViewProduct.brand}
+                    </p>
+                    <h3 className="text-xl font-bold mb-2" style={{ color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.02em' }}>
+                      {quickViewProduct.name}
+                    </h3>
+                    <div className="flex items-center justify-center gap-3">
+                      <p className="text-2xl font-bold" style={{ color: 'rgba(255,255,255,0.95)', fontFeatureSettings: "'tnum'" }}>
+                        {formatPrice(quickViewProduct.price)}
+                      </p>
+                      {quickViewProduct.oldPrice && (
+                        <p className="text-base line-through" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                          {formatPrice(quickViewProduct.oldPrice)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Specs - First 3 */}
+                  <div className="mb-6">
+                    <p className="text-xs font-medium uppercase mb-3 text-center" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
+                      Характеристики
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {quickViewProduct.specs.slice(0, 3).map((spec, idx) => (
+                        <div
+                          key={idx}
+                          className="px-3 py-2 rounded-xl text-xs font-medium"
+                          style={{
+                            background: 'rgba(255,255,255,0.1)',
+                            color: 'rgba(255,255,255,0.8)',
+                            border: '0.5px solid rgba(255,255,255,0.15)',
+                          }}
+                        >
+                          {spec}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Add to Cart Button */}
+                  <button
+                    onClick={() => {
+                      addToCartHook({
+                        id: String(quickViewProduct.id),
+                        name: quickViewProduct.name,
+                        price: quickViewProduct.price,
+                        quantity: 1,
+                        image: quickViewProduct.image,
+                        size: 'Standard',
+                        color: 'Default'
+                      });
+                      toast({
+                        title: 'Добавлено в корзину',
+                        description: quickViewProduct.name,
+                        duration: 2000,
+                      });
+                      setQuickViewProduct(null);
+                    }}
+                    className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] mb-3"
+                    style={{
+                      background: 'var(--theme-primary)',
+                      color: '#000',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.3), 0 0 30px rgba(var(--theme-primary-rgb, 0,212,255), 0.2)',
+                    }}
+                    data-testid="button-quickview-home-add-to-cart"
+                  >
+                    Добавить в корзину
+                  </button>
+                  
+                  {/* View Full Details */}
+                  <button
+                    onClick={() => {
+                      openProduct(quickViewProduct);
+                      setQuickViewProduct(null);
+                    }}
+                    className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-[0.98]"
+                    style={{
+                      background: 'rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.9)',
+                      border: '0.5px solid rgba(255,255,255,0.2)',
+                    }}
+                    data-testid="button-quickview-home-details"
+                  >
+                    Подробнее о товаре
+                  </button>
+                </div>
+              </m.div>
+            </m.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
@@ -1209,19 +1399,39 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                     onLoadComplete={() => handleImageLoad(product.id)}
                   />
                   
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleToggleFavorite(product.id);
-                    }}
-                    aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
-                    data-testid={`button-favorite-catalog-${product.id}`}
-                  >
-                    <Heart 
-                      className={`w-4 h-4 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
-                    />
-                  </button>
+                  {/* Quick Actions */}
+                  <div className="absolute top-2 right-2 flex gap-1.5">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setQuickViewProduct(product);
+                      }}
+                      aria-label="Быстрый просмотр"
+                      className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                      style={{
+                        background: 'linear-gradient(145deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%)',
+                        backdropFilter: 'blur(20px) saturate(180%)',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                      }}
+                      data-testid={`button-quickview-catalog-${product.id}`}
+                    >
+                      <Eye className="w-4 h-4 text-white" />
+                    </button>
+                    
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleFavorite(product.id);
+                      }}
+                      aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                      className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
+                      data-testid={`button-favorite-catalog-${product.id}`}
+                    >
+                      <Heart 
+                        className={`w-4 h-4 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
+                      />
+                    </button>
+                  </div>
 
                   {product.isNew && (
                     <div className="absolute top-2 left-2 px-2 py-1 bg-[var(--theme-primary)] text-black text-xs font-bold rounded-full">
@@ -1244,6 +1454,171 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             ))}
           </div>
         </div>
+        
+        {/* ===== QUICK VIEW MODAL for CATALOG PAGE ===== */}
+        <AnimatePresence>
+          {quickViewProduct && (
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[100] flex items-end justify-center"
+              style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+              onClick={() => setQuickViewProduct(null)}
+            >
+              <m.div
+                initial={{ opacity: 0, y: 100, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 100, scale: 0.95 }}
+                transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
+                  backdropFilter: 'blur(30px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                  border: '0.5px solid rgba(255,255,255,0.15)',
+                  boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
+                  maxHeight: '75vh',
+                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 140px)',
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Drag Handle */}
+                <div className="flex justify-center pt-3 pb-2">
+                  <div 
+                    className="w-10 h-1 rounded-full"
+                    style={{ background: 'rgba(255,255,255,0.3)' }}
+                  />
+                </div>
+                
+                {/* Close Button */}
+                <button
+                  onClick={() => setQuickViewProduct(null)}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10"
+                  style={{
+                    background: 'rgba(255,255,255,0.15)',
+                    backdropFilter: 'blur(10px)',
+                  }}
+                  data-testid="button-close-quickview-catalog"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+                
+                <div className="px-6 pb-8 overflow-y-auto" style={{ maxHeight: 'calc(75vh - 60px)' }}>
+                  {/* Product Image */}
+                  <div 
+                    className="relative aspect-[4/3] rounded-3xl overflow-hidden mb-5"
+                    style={{ background: 'rgba(255,255,255,0.05)' }}
+                  >
+                    <LazyImage
+                      src={quickViewProduct.image}
+                      alt={quickViewProduct.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {quickViewProduct.isNew && (
+                      <div 
+                        className="absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-bold"
+                        style={{ background: 'var(--theme-primary)', color: '#000' }}
+                      >
+                        NEW
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Product Info */}
+                  <div className="text-center mb-5">
+                    <p className="text-xs font-medium uppercase mb-2" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
+                      {quickViewProduct.brand}
+                    </p>
+                    <h3 className="text-xl font-bold mb-2" style={{ color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.02em' }}>
+                      {quickViewProduct.name}
+                    </h3>
+                    <div className="flex items-center justify-center gap-3">
+                      <p className="text-2xl font-bold" style={{ color: 'rgba(255,255,255,0.95)', fontFeatureSettings: "'tnum'" }}>
+                        {formatPrice(quickViewProduct.price)}
+                      </p>
+                      {quickViewProduct.oldPrice && (
+                        <p className="text-base line-through" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                          {formatPrice(quickViewProduct.oldPrice)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Specs - First 3 */}
+                  <div className="mb-6">
+                    <p className="text-xs font-medium uppercase mb-3 text-center" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
+                      Характеристики
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {quickViewProduct.specs.slice(0, 3).map((spec, idx) => (
+                        <div
+                          key={idx}
+                          className="px-3 py-2 rounded-xl text-xs font-medium"
+                          style={{
+                            background: 'rgba(255,255,255,0.1)',
+                            color: 'rgba(255,255,255,0.8)',
+                            border: '0.5px solid rgba(255,255,255,0.15)',
+                          }}
+                        >
+                          {spec}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Add to Cart Button */}
+                  <button
+                    onClick={() => {
+                      addToCartHook({
+                        id: String(quickViewProduct.id),
+                        name: quickViewProduct.name,
+                        price: quickViewProduct.price,
+                        quantity: 1,
+                        image: quickViewProduct.image,
+                        size: 'Standard',
+                        color: 'Default'
+                      });
+                      toast({
+                        title: 'Добавлено в корзину',
+                        description: quickViewProduct.name,
+                        duration: 2000,
+                      });
+                      setQuickViewProduct(null);
+                    }}
+                    className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] mb-3"
+                    style={{
+                      background: 'var(--theme-primary)',
+                      color: '#000',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.3), 0 0 30px rgba(var(--theme-primary-rgb, 0,212,255), 0.2)',
+                    }}
+                    data-testid="button-quickview-catalog-add-to-cart"
+                  >
+                    Добавить в корзину
+                  </button>
+                  
+                  {/* View Full Details */}
+                  <button
+                    onClick={() => {
+                      openProduct(quickViewProduct);
+                      setQuickViewProduct(null);
+                    }}
+                    className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-[0.98]"
+                    style={{
+                      background: 'rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.9)',
+                      border: '0.5px solid rgba(255,255,255,0.2)',
+                    }}
+                    data-testid="button-quickview-catalog-details"
+                  >
+                    Подробнее о товаре
+                  </button>
+                </div>
+              </m.div>
+            </m.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
