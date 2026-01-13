@@ -905,10 +905,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     Рекомендуемые товары
                   </h3>
                   <div 
-                    className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-6 px-6"
+                    className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-6 px-6"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                   >
-                    {recommendedProducts.map((product) => (
+                    {recommendedProducts.map((product, index) => (
                       <div
                         key={product.id}
                         onClick={() => {
@@ -919,35 +919,147 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           setActiveProductTab('description');
                           scrollToTop();
                         }}
-                        className="flex-shrink-0 w-36 snap-start cursor-pointer active:scale-95 transition-transform"
+                        className="flex-shrink-0 snap-start cursor-pointer active:scale-[0.97] transition-all duration-200"
+                        style={{ 
+                          width: '140px',
+                          animationDelay: `${index * 50}ms`
+                        }}
                         data-testid={`recommended-product-${product.id}`}
                       >
+                        {/* iOS 2026 Liquid Glass Card */}
                         <div 
-                          className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2"
+                          className="relative rounded-[20px] overflow-hidden"
                           style={{
-                            background: 'rgba(255,255,255,0.1)',
-                            border: '0.5px solid rgba(255,255,255,0.15)',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                            background: 'linear-gradient(165deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%)',
+                            backdropFilter: 'blur(20px) saturate(180%)',
+                            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                            border: '0.5px solid rgba(255,255,255,0.25)',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)'
                           }}
                         >
-                          <LazyImage
-                            src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                          />
+                          {/* Product Image */}
+                          <div className="relative aspect-[3/4] overflow-hidden">
+                            <LazyImage
+                              src={product.image}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                            />
+                            
+                            {/* Gradient overlay for text readability */}
+                            <div 
+                              className="absolute inset-0 pointer-events-none"
+                              style={{
+                                background: 'linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.4) 100%)'
+                              }}
+                            />
+                            
+                            {/* Discount Badge */}
+                            {product.oldPrice && (
+                              <div 
+                                className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold"
+                                style={{
+                                  background: 'linear-gradient(135deg, rgba(255,59,48,0.9) 0%, rgba(255,45,85,0.9) 100%)',
+                                  color: 'white',
+                                  boxShadow: '0 2px 8px rgba(255,59,48,0.4)'
+                                }}
+                              >
+                                -{Math.round((1 - product.price / product.oldPrice) * 100)}%
+                              </div>
+                            )}
+                            
+                            {/* Quick Add Button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addToCartPersistent({
+                                  id: String(product.id),
+                                  name: product.name,
+                                  price: product.price,
+                                  size: product.sizes[0],
+                                  image: product.image,
+                                  color: product.colors[0]
+                                });
+                                toast({
+                                  title: 'Добавлено в корзину',
+                                  description: product.name,
+                                  duration: 2000,
+                                });
+                              }}
+                              className="absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+                              style={{
+                                background: 'linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
+                                backdropFilter: 'blur(10px)',
+                                WebkitBackdropFilter: 'blur(10px)',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,1)'
+                              }}
+                              data-testid={`quick-add-${product.id}`}
+                            >
+                              <Plus className="w-4 h-4" style={{ color: 'rgba(0,0,0,0.8)' }} strokeWidth={2.5} />
+                            </button>
+                          </div>
+                          
+                          {/* Product Info - Glass Footer */}
+                          <div 
+                            className="p-3"
+                            style={{
+                              background: 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+                              borderTop: '0.5px solid rgba(255,255,255,0.15)'
+                            }}
+                          >
+                            {/* Brand */}
+                            <p 
+                              className="text-[10px] font-medium uppercase tracking-wider mb-0.5"
+                              style={{ color: 'rgba(255,255,255,0.5)' }}
+                            >
+                              {product.brand}
+                            </p>
+                            
+                            {/* Name */}
+                            <p 
+                              className="text-xs font-semibold truncate mb-1.5"
+                              style={{ color: 'rgba(255,255,255,0.95)' }}
+                            >
+                              {product.name}
+                            </p>
+                            
+                            {/* Rating */}
+                            <div className="flex items-center gap-1 mb-1.5">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star 
+                                  key={star} 
+                                  className="w-2.5 h-2.5" 
+                                  fill={star <= Math.round(product.rating) ? '#FFD700' : 'transparent'}
+                                  stroke={star <= Math.round(product.rating) ? '#FFD700' : 'rgba(255,255,255,0.25)'}
+                                  strokeWidth={1.5}
+                                />
+                              ))}
+                              <span 
+                                className="text-[10px] ml-0.5"
+                                style={{ color: 'rgba(255,255,255,0.5)' }}
+                              >
+                                {product.rating}
+                              </span>
+                            </div>
+                            
+                            {/* Price */}
+                            <div className="flex items-center gap-2">
+                              <p 
+                                className="text-sm font-bold"
+                                style={{ color: 'rgba(255,255,255,1)' }}
+                              >
+                                {formatPrice(product.price)}
+                              </p>
+                              {product.oldPrice && (
+                                <p 
+                                  className="text-[10px] line-through"
+                                  style={{ color: 'rgba(255,255,255,0.4)' }}
+                                >
+                                  {formatPrice(product.oldPrice)}
+                                </p>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <p 
-                          className="text-xs font-medium truncate mb-1"
-                          style={{ color: 'rgba(255,255,255,0.85)' }}
-                        >
-                          {product.name}
-                        </p>
-                        <p 
-                          className="text-sm font-bold"
-                          style={{ color: 'rgba(255,255,255,0.95)' }}
-                        >
-                          {formatPrice(product.price)}
-                        </p>
                       </div>
                     ))}
                   </div>
