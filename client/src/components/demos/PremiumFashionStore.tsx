@@ -490,13 +490,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </button>
         </div>
 
-        {/* iOS 26 Premium Image Gallery */}
+        {/* iOS 26 Premium Image Gallery with Safe Area Padding */}
         <div 
           className="relative mx-4 overflow-hidden"
           style={{
             height: '52vh',
             borderRadius: '28px',
-            boxShadow: '0 25px 80px -20px rgba(0,0,0,0.5), 0 10px 30px -10px rgba(0,0,0,0.3)'
+            boxShadow: '0 25px 80px -20px rgba(0,0,0,0.5), 0 10px 30px -10px rgba(0,0,0,0.3)',
+            marginTop: 'max(70px, calc(50px + env(safe-area-inset-top)))'
           }}
         >
           {/* Swipeable Images Container */}
@@ -711,6 +712,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   background: 'rgba(255,255,255,0.1)',
                   maxWidth: '100%'
                 }}
+                role="tablist"
               >
                 {[
                   { key: 'description', label: 'Описание' },
@@ -731,6 +733,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         : 'none'
                     }}
                     data-testid={`tab-${tab.key}`}
+                    role="tab"
+                    aria-selected={activeProductTab === tab.key}
+                    aria-controls={`panel-${tab.key}`}
                   >
                     {tab.label}
                   </button>
@@ -742,7 +747,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             <div className="min-h-[200px]">
               {/* Description Tab */}
               {activeProductTab === 'description' && (
-                <div className="space-y-4 transition-opacity duration-300">
+                <div id="panel-description" className="space-y-4 transition-opacity duration-300">
                   <p 
                     className="text-[15px] leading-relaxed"
                     style={{ color: 'rgba(255,255,255,0.8)' }}
@@ -772,7 +777,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
               {/* Characteristics Tab */}
               {activeProductTab === 'characteristics' && (
-                <div className="space-y-3 transition-opacity duration-300">
+                <div id="panel-characteristics" className="space-y-3 transition-opacity duration-300">
                   {[
                     { label: 'Бренд', value: selectedProduct.brand },
                     { label: 'Категория', value: selectedProduct.category },
@@ -825,7 +830,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
               {/* Reviews Tab */}
               {activeProductTab === 'reviews' && (
-                <div className="space-y-4 transition-opacity duration-300">
+                <div id="panel-reviews" className="space-y-4 transition-opacity duration-300">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className="flex items-center">
@@ -911,7 +916,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2"
                           style={{
                             background: 'rgba(255,255,255,0.1)',
-                            border: '0.5px solid rgba(255,255,255,0.15)'
+                            border: '0.5px solid rgba(255,255,255,0.15)',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                           }}
                         >
                           <LazyImage
