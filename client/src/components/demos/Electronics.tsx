@@ -571,43 +571,6 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               />
             </button>
           </div>
-          
-          <div 
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2"
-            data-testid="stock-indicator"
-          >
-            <span className="relative flex h-2.5 w-2.5">
-              <span 
-                className="absolute inline-flex h-full w-full rounded-full opacity-75"
-                style={{
-                  backgroundColor: selectedProduct.inStock > 10 ? '#34C759' : selectedProduct.inStock > 5 ? '#FF9500' : '#FF3B30',
-                  animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite'
-                }}
-              />
-              <span 
-                className="relative inline-flex rounded-full h-2.5 w-2.5"
-                style={{
-                  backgroundColor: selectedProduct.inStock > 10 ? '#34C759' : selectedProduct.inStock > 5 ? '#FF9500' : '#FF3B30'
-                }}
-              />
-            </span>
-            <span 
-              className="text-[13px] font-medium px-3 py-1 rounded-full"
-              style={{ 
-                color: selectedProduct.inStock > 10 ? '#34C759' : selectedProduct.inStock > 5 ? '#FF9500' : '#FF3B30',
-                background: 'rgba(0,0,0,0.5)',
-                backdropFilter: 'blur(10px)',
-                letterSpacing: '-0.01em'
-              }}
-            >
-              {selectedProduct.inStock > 10 
-                ? 'В наличии' 
-                : selectedProduct.inStock > 5 
-                  ? `Осталось ${selectedProduct.inStock} шт`
-                  : `Мало! Только ${selectedProduct.inStock} шт`
-              }
-            </span>
-          </div>
         </div>
 
         <div className="relative" style={{ paddingBottom: '180px', marginTop: '-28px' }}>

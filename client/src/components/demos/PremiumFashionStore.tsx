@@ -743,47 +743,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   Скидка {Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100)}%
                 </div>
               )}
-              
-              {/* Stock Availability Indicator with Pulse */}
-              <div 
-                className="flex items-center justify-center gap-2 mt-4"
-                data-testid="stock-indicator"
-              >
-                <span 
-                  className="relative flex h-2.5 w-2.5"
-                  style={{
-                    animation: selectedProduct.inStock <= 5 ? 'none' : undefined
-                  }}
-                >
-                  <span 
-                    className="absolute inline-flex h-full w-full rounded-full opacity-75"
-                    style={{
-                      backgroundColor: selectedProduct.inStock > 10 ? '#34C759' : selectedProduct.inStock > 5 ? '#FF9500' : '#FF3B30',
-                      animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite'
-                    }}
-                  />
-                  <span 
-                    className="relative inline-flex rounded-full h-2.5 w-2.5"
-                    style={{
-                      backgroundColor: selectedProduct.inStock > 10 ? '#34C759' : selectedProduct.inStock > 5 ? '#FF9500' : '#FF3B30'
-                    }}
-                  />
-                </span>
-                <span 
-                  className="text-[13px] font-medium"
-                  style={{ 
-                    color: selectedProduct.inStock > 10 ? '#34C759' : selectedProduct.inStock > 5 ? '#FF9500' : '#FF3B30',
-                    letterSpacing: '-0.01em'
-                  }}
-                >
-                  {selectedProduct.inStock > 10 
-                    ? 'В наличии' 
-                    : selectedProduct.inStock > 5 
-                      ? `Осталось ${selectedProduct.inStock} шт`
-                      : `Мало! Только ${selectedProduct.inStock} шт`
-                  }
-                </span>
-              </div>
             </div>
 
             {/* Color Selection - iOS Style */}
@@ -985,7 +944,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     { label: 'Состав', value: selectedProduct.composition },
                     { label: 'Посадка', value: fitTranslations[selectedProduct.fit] },
                     { label: 'Рейтинг', value: `${selectedProduct.rating}/5` },
-                    { label: 'В наличии', value: `${selectedProduct.inStock} шт` },
                   ].map((item, idx) => (
                     <div 
                       key={idx}
@@ -1531,14 +1489,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 {/* Price */}
                 <div className="mt-3">
                   <p className="text-lg font-bold">{formatPrice(product.price)}</p>
-                  {product.inStock < 10 && (
-                    <UrgencyIndicator 
-                      type="stock"
-                      value={product.inStock}
-                      variant="badge"
-                      className="mt-2"
-                    />
-                  )}
                 </div>
               </div>
             </m.div>
@@ -1846,14 +1796,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       <p className="text-xs text-white/40 line-through">{formatPrice(product.oldPrice)}</p>
                     )}
                   </div>
-                  {product.inStock < 10 && (
-                    <UrgencyIndicator 
-                      type="stock"
-                      value={product.inStock}
-                      variant="badge"
-                      className="mt-1"
-                    />
-                  )}
                 </div>
               </m.div>
             ))}
