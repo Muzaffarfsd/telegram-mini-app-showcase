@@ -255,8 +255,22 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [activeProductTab, setActiveProductTab] = useState<'description' | 'characteristics' | 'reviews'>('description');
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  
+  const mockReviews = [
+    { name: 'Анна М.', rating: 5, text: 'Отличное качество! Ткань очень приятная, размер подошёл идеально.', date: '2 дня назад' },
+    { name: 'Дмитрий К.', rating: 4, text: 'Хорошая вещь за свои деньги. Доставка быстрая.', date: '5 дней назад' },
+    { name: 'Елена В.', rating: 5, text: 'Покупаю уже второй раз. Качество на высоте!', date: '1 неделю назад' },
+    { name: 'Михаил С.', rating: 5, text: 'Супер! Рекомендую всем.', date: '2 недели назад' },
+  ];
+  
+  const fitTranslations: Record<string, string> = {
+    regular: 'Обычная',
+    relaxed: 'Свободная',
+    slim: 'Приталенная'
+  };
   
   const { toast } = useToast();
   const sidebar = useDemoSidebar();
@@ -405,12 +419,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     
     return (
       <div className="min-h-screen text-white smooth-scroll-page" style={{ backgroundColor: bgColor }}>
-        {/* iOS 26 Liquid Glass Navigation Bar */}
+        {/* iOS 26 Liquid Glass Navigation Bar - Safe Area Aware */}
         <div 
-          className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5"
+          className="sticky top-0 left-0 right-0 z-50 flex items-center justify-between px-5"
           style={{ 
-            paddingTop: '14px',
+            paddingTop: 'max(14px, env(safe-area-inset-top))',
             paddingBottom: '10px',
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%)',
           }}
         >
           {/* Back Button - Liquid Glass */}
@@ -419,8 +434,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             className="w-11 h-11 rounded-[16px] flex items-center justify-center active:scale-95 transition-transform"
             style={{ 
               background: 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
-              backdropFilter: 'blur(50px) saturate(200%) brightness(1.1)',
-              WebkitBackdropFilter: 'blur(50px) saturate(200%) brightness(1.1)',
+              backdropFilter: 'blur(30px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
               border: '0.5px solid rgba(255,255,255,0.5)',
               boxShadow: '0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -0.5px 0 rgba(0,0,0,0.05)'
             }}
@@ -434,8 +449,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             className="px-4 py-1.5 rounded-full"
             style={{
               background: 'linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.15) 100%)',
-              backdropFilter: 'blur(50px) saturate(200%)',
-              WebkitBackdropFilter: 'blur(50px) saturate(200%)',
+              backdropFilter: 'blur(30px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
               border: '0.5px solid rgba(255,255,255,0.4)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)'
             }}
@@ -456,8 +471,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               background: isFavorite(selectedProduct.id) 
                 ? 'linear-gradient(145deg, rgba(255,59,48,0.25) 0%, rgba(255,59,48,0.1) 100%)'
                 : 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
-              backdropFilter: 'blur(50px) saturate(200%) brightness(1.1)',
-              WebkitBackdropFilter: 'blur(50px) saturate(200%) brightness(1.1)',
+              backdropFilter: 'blur(30px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
               border: isFavorite(selectedProduct.id) 
                 ? '0.5px solid rgba(255,59,48,0.4)'
                 : '0.5px solid rgba(255,255,255,0.5)',
@@ -479,7 +494,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         <div 
           className="relative mx-4 overflow-hidden"
           style={{
-            marginTop: '70px',
             height: '52vh',
             borderRadius: '28px',
             boxShadow: '0 25px 80px -20px rgba(0,0,0,0.5), 0 10px 30px -10px rgba(0,0,0,0.3)'
@@ -532,8 +546,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 px-3 py-2 rounded-full"
             style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 100%)',
-              backdropFilter: 'blur(30px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
               border: '0.5px solid rgba(255,255,255,0.4)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4)'
             }}
@@ -563,8 +577,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             className="relative rounded-t-[32px] p-6 space-y-5"
             style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.08) 100%)',
-              backdropFilter: 'blur(60px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(60px) saturate(180%)',
+              backdropFilter: 'blur(30px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
               borderTop: '0.5px solid rgba(255,255,255,0.4)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)'
             }}
@@ -609,14 +623,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 </div>
               )}
             </div>
-
-            {/* Description */}
-            <p 
-              className="text-[15px] text-center leading-relaxed"
-              style={{ color: 'rgba(255,255,255,0.7)' }}
-            >
-              {selectedProduct.description}
-            </p>
 
             {/* Color Selection - iOS Style */}
             <div className="space-y-3">
@@ -696,6 +702,242 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 ))}
               </div>
             </div>
+
+            {/* iOS Segmented Control for Content Tabs */}
+            <div className="pt-4">
+              <div 
+                className="flex items-center p-1 rounded-2xl mx-auto"
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  maxWidth: '100%'
+                }}
+              >
+                {[
+                  { key: 'description', label: 'Описание' },
+                  { key: 'characteristics', label: 'Характеристики' },
+                  { key: 'reviews', label: 'Отзывы' }
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveProductTab(tab.key as typeof activeProductTab)}
+                    className="flex-1 py-2.5 px-3 rounded-xl font-medium text-sm transition-all duration-300"
+                    style={{
+                      background: activeProductTab === tab.key 
+                        ? 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)'
+                        : 'transparent',
+                      color: activeProductTab === tab.key ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.6)',
+                      boxShadow: activeProductTab === tab.key 
+                        ? '0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5)'
+                        : 'none'
+                    }}
+                    data-testid={`tab-${tab.key}`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tab Content Panels */}
+            <div className="min-h-[200px]">
+              {/* Description Tab */}
+              {activeProductTab === 'description' && (
+                <div className="space-y-4 transition-opacity duration-300">
+                  <p 
+                    className="text-[15px] leading-relaxed"
+                    style={{ color: 'rgba(255,255,255,0.8)' }}
+                  >
+                    {selectedProduct.description}
+                  </p>
+                  
+                  <div 
+                    className="p-4 rounded-2xl space-y-3"
+                    style={{
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '0.5px solid rgba(255,255,255,0.15)'
+                    }}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span style={{ color: 'rgba(255,255,255,0.5)' }} className="text-sm">Состав</span>
+                      <span style={{ color: 'rgba(255,255,255,0.9)' }} className="text-sm font-medium">{selectedProduct.composition}</span>
+                    </div>
+                    <div className="h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                    <div className="flex justify-between items-center">
+                      <span style={{ color: 'rgba(255,255,255,0.5)' }} className="text-sm">Посадка</span>
+                      <span style={{ color: 'rgba(255,255,255,0.9)' }} className="text-sm font-medium">{fitTranslations[selectedProduct.fit]}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Characteristics Tab */}
+              {activeProductTab === 'characteristics' && (
+                <div className="space-y-3 transition-opacity duration-300">
+                  {[
+                    { label: 'Бренд', value: selectedProduct.brand },
+                    { label: 'Категория', value: selectedProduct.category },
+                    { label: 'Состав', value: selectedProduct.composition },
+                    { label: 'Посадка', value: fitTranslations[selectedProduct.fit] },
+                    { label: 'Рейтинг', value: `${selectedProduct.rating}/5` },
+                    { label: 'В наличии', value: `${selectedProduct.inStock} шт` },
+                  ].map((item, idx) => (
+                    <div 
+                      key={idx}
+                      className="flex justify-between items-center p-3 rounded-xl"
+                      style={{
+                        background: 'rgba(255,255,255,0.08)',
+                        border: '0.5px solid rgba(255,255,255,0.1)'
+                      }}
+                    >
+                      <span style={{ color: 'rgba(255,255,255,0.5)' }} className="text-sm">{item.label}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.9)' }} className="text-sm font-medium">{item.value}</span>
+                    </div>
+                  ))}
+                  
+                  {/* Size Chart */}
+                  <div 
+                    className="p-4 rounded-xl mt-4"
+                    style={{
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '0.5px solid rgba(255,255,255,0.1)'
+                    }}
+                  >
+                    <p style={{ color: 'rgba(255,255,255,0.7)' }} className="text-sm font-medium mb-3">Размерная сетка (см)</p>
+                    <div className="space-y-2">
+                      {Object.entries(selectedProduct.sizeChart).map(([size, measurements]) => (
+                        <div key={size} className="flex justify-between items-center">
+                          <span 
+                            className="text-sm font-semibold px-2 py-1 rounded-lg"
+                            style={{ 
+                              background: 'rgba(255,255,255,0.15)',
+                              color: 'rgba(255,255,255,0.9)'
+                            }}
+                          >
+                            {size}
+                          </span>
+                          <span style={{ color: 'rgba(255,255,255,0.6)' }} className="text-xs">{measurements}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Reviews Tab */}
+              {activeProductTab === 'reviews' && (
+                <div className="space-y-4 transition-opacity duration-300">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star 
+                            key={star} 
+                            className="w-4 h-4" 
+                            fill={star <= Math.round(selectedProduct.rating) ? '#FFD700' : 'transparent'}
+                            stroke={star <= Math.round(selectedProduct.rating) ? '#FFD700' : 'rgba(255,255,255,0.3)'}
+                          />
+                        ))}
+                      </div>
+                      <span style={{ color: 'rgba(255,255,255,0.9)' }} className="text-sm font-semibold">{selectedProduct.rating}</span>
+                    </div>
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }} className="text-xs">{mockReviews.length} отзывов</span>
+                  </div>
+                  
+                  {mockReviews.map((review, idx) => (
+                    <div 
+                      key={idx}
+                      className="p-4 rounded-2xl"
+                      style={{
+                        background: 'rgba(255,255,255,0.08)',
+                        border: '0.5px solid rgba(255,255,255,0.1)'
+                      }}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span style={{ color: 'rgba(255,255,255,0.9)' }} className="text-sm font-semibold">{review.name}</span>
+                        <span style={{ color: 'rgba(255,255,255,0.4)' }} className="text-xs">{review.date}</span>
+                      </div>
+                      <div className="flex items-center gap-1 mb-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star 
+                            key={star} 
+                            className="w-3 h-3" 
+                            fill={star <= review.rating ? '#FFD700' : 'transparent'}
+                            stroke={star <= review.rating ? '#FFD700' : 'rgba(255,255,255,0.3)'}
+                          />
+                        ))}
+                      </div>
+                      <p style={{ color: 'rgba(255,255,255,0.7)' }} className="text-sm leading-relaxed">{review.text}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Recommended Products Carousel */}
+            {(() => {
+              const recommendedProducts = products.filter(
+                p => p.category === selectedProduct.category && p.id !== selectedProduct.id
+              ).slice(0, 6);
+              
+              if (recommendedProducts.length === 0) return null;
+              
+              return (
+                <div className="pt-6">
+                  <h3 
+                    className="text-lg font-semibold mb-4"
+                    style={{ color: 'rgba(255,255,255,0.9)' }}
+                  >
+                    С этим покупают
+                  </h3>
+                  <div 
+                    className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-6 px-6"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
+                    {recommendedProducts.map((product) => (
+                      <div
+                        key={product.id}
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setSelectedSize(product.sizes[0]);
+                          setSelectedColor(product.colors[0]);
+                          setCurrentImageIndex(0);
+                          setActiveProductTab('description');
+                          scrollToTop();
+                        }}
+                        className="flex-shrink-0 w-36 snap-start cursor-pointer active:scale-95 transition-transform"
+                        data-testid={`recommended-product-${product.id}`}
+                      >
+                        <div 
+                          className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2"
+                          style={{
+                            background: 'rgba(255,255,255,0.1)',
+                            border: '0.5px solid rgba(255,255,255,0.15)'
+                          }}
+                        >
+                          <LazyImage
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <p 
+                          className="text-xs font-medium truncate mb-1"
+                          style={{ color: 'rgba(255,255,255,0.85)' }}
+                        >
+                          {product.name}
+                        </p>
+                        <p 
+                          className="text-sm font-bold"
+                          style={{ color: 'rgba(255,255,255,0.95)' }}
+                        >
+                          {formatPrice(product.price)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -716,12 +958,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           
           {/* Glass panel */}
           <div 
-            className="relative rounded-t-3xl border-t border-white/20 p-6 pb-8"
+            className="relative rounded-t-3xl border-t border-white/20 p-6"
             style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              backdropFilter: 'blur(30px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
               boxShadow: '0 -10px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+              paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
             }}
           >
             {/* Subtle inner glow */}
@@ -751,9 +994,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               variant="default"
               onConfirm={addToCart}
             />
-            
-            {/* Safe area padding */}
-            <div className="h-[env(safe-area-inset-bottom)]" />
           </div>
         </div>
       </div>
