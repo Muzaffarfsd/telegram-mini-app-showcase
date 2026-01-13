@@ -398,47 +398,76 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     });
   };
 
-  // PRODUCT PAGE
+  // PRODUCT PAGE - iOS 2026 Liquid Glass Design
   if (activeTab === 'catalog' && selectedProduct) {
     const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#1A1A1A';
+    const productImages = [selectedProduct.image, selectedProduct.hoverImage];
     
     return (
       <div className="min-h-screen text-white smooth-scroll-page" style={{ backgroundColor: bgColor }}>
-        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4" style={{ paddingTop: '16px' }}>
-          {/* iOS Liquid Glass Back Button */}
+        {/* iOS 26 Liquid Glass Navigation Bar */}
+        <div 
+          className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5"
+          style={{ 
+            paddingTop: '14px',
+            paddingBottom: '10px',
+          }}
+        >
+          {/* Back Button - Liquid Glass */}
           <button 
             onClick={() => setSelectedProduct(null)}
-            className="w-12 h-12 rounded-[22px] flex items-center justify-center"
+            className="w-11 h-11 rounded-[16px] flex items-center justify-center active:scale-95 transition-transform"
             style={{ 
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.25) 100%)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-              border: '1px solid rgba(255,255,255,0.4)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.05)'
+              background: 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
+              backdropFilter: 'blur(50px) saturate(200%) brightness(1.1)',
+              WebkitBackdropFilter: 'blur(50px) saturate(200%) brightness(1.1)',
+              border: '0.5px solid rgba(255,255,255,0.5)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -0.5px 0 rgba(0,0,0,0.05)'
             }}
             data-testid="button-back"
           >
-            <ChevronLeft className="w-7 h-7" style={{ color: 'rgba(0,0,0,0.7)' }} strokeWidth={2.5} />
+            <ChevronLeft className="w-6 h-6" style={{ color: 'rgba(0,0,0,0.75)' }} strokeWidth={2.5} />
           </button>
-          {/* iOS Liquid Glass Favorite Button */}
+          
+          {/* Product Counter Badge */}
+          <div 
+            className="px-4 py-1.5 rounded-full"
+            style={{
+              background: 'linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.15) 100%)',
+              backdropFilter: 'blur(50px) saturate(200%)',
+              WebkitBackdropFilter: 'blur(50px) saturate(200%)',
+              border: '0.5px solid rgba(255,255,255,0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)'
+            }}
+          >
+            <span className="text-xs font-medium" style={{ color: 'rgba(0,0,0,0.6)' }}>
+              {currentImageIndex + 1} / {productImages.length}
+            </span>
+          </div>
+          
+          {/* Favorite Button - Liquid Glass */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleToggleFavorite(selectedProduct.id);
             }}
-            className="w-12 h-12 rounded-[22px] flex items-center justify-center"
+            className="w-11 h-11 rounded-[16px] flex items-center justify-center active:scale-95 transition-transform"
             style={{ 
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.25) 100%)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-              border: '1px solid rgba(255,255,255,0.4)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.05)'
+              background: isFavorite(selectedProduct.id) 
+                ? 'linear-gradient(145deg, rgba(255,59,48,0.25) 0%, rgba(255,59,48,0.1) 100%)'
+                : 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
+              backdropFilter: 'blur(50px) saturate(200%) brightness(1.1)',
+              WebkitBackdropFilter: 'blur(50px) saturate(200%) brightness(1.1)',
+              border: isFavorite(selectedProduct.id) 
+                ? '0.5px solid rgba(255,59,48,0.4)'
+                : '0.5px solid rgba(255,255,255,0.5)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -0.5px 0 rgba(0,0,0,0.05)'
             }}
             aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
             data-testid={`button-favorite-${selectedProduct.id}`}
           >
             <Heart 
-              className="w-6 h-6"
+              className="w-5 h-5"
               style={{ color: isFavorite(selectedProduct.id) ? '#FF3B30' : 'rgba(0,0,0,0.7)' }}
               fill={isFavorite(selectedProduct.id) ? '#FF3B30' : 'none'}
               strokeWidth={2}
@@ -446,15 +475,23 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </button>
         </div>
 
-        {/* Swipeable Image Gallery */}
-        <div className="relative h-[55vh] mx-4 mt-16 overflow-hidden rounded-[32px]"
+        {/* iOS 26 Premium Image Gallery */}
+        <div 
+          className="relative mx-4 overflow-hidden"
           style={{
-            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            marginTop: '70px',
+            height: '52vh',
+            borderRadius: '28px',
+            boxShadow: '0 25px 80px -20px rgba(0,0,0,0.5), 0 10px 30px -10px rgba(0,0,0,0.3)'
           }}
         >
+          {/* Swipeable Images Container */}
           <div 
-            className="flex h-full transition-transform duration-300 ease-out"
-            style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+            className="flex h-full"
+            style={{ 
+              transform: `translateX(-${currentImageIndex * 100}%)`,
+              transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+            }}
             onTouchStart={(e) => {
               touchStartX.current = e.touches[0].clientX;
             }}
@@ -463,7 +500,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             }}
             onTouchEnd={() => {
               const diff = touchStartX.current - touchEndX.current;
-              const productImages = [selectedProduct.image, selectedProduct.hoverImage];
               if (Math.abs(diff) > 50) {
                 if (diff > 0 && currentImageIndex < productImages.length - 1) {
                   setCurrentImageIndex(prev => prev + 1);
@@ -473,32 +509,47 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               }
             }}
           >
-            {[selectedProduct.image, selectedProduct.hoverImage].map((img, idx) => (
-              <div key={idx} className="min-w-full h-full flex-shrink-0">
+            {productImages.map((img, idx) => (
+              <div key={idx} className="min-w-full h-full flex-shrink-0 relative">
                 <LazyImage
                   src={img}
                   alt={`${selectedProduct.name} - фото ${idx + 1}`}
                   className="w-full h-full object-cover"
                 />
+                {/* Subtle vignette overlay */}
+                <div 
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.15) 100%)'
+                  }}
+                />
               </div>
             ))}
           </div>
           
-          {/* Dots Indicator */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            {[selectedProduct.image, selectedProduct.hoverImage].map((_, idx) => (
+          {/* iOS 26 Liquid Glass Dots Indicator */}
+          <div 
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 px-3 py-2 rounded-full"
+            style={{
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 100%)',
+              backdropFilter: 'blur(30px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+              border: '0.5px solid rgba(255,255,255,0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4)'
+            }}
+          >
+            {productImages.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentImageIndex(idx)}
-                className="transition-all duration-200"
                 style={{
-                  width: currentImageIndex === idx ? '24px' : '8px',
-                  height: '8px',
-                  borderRadius: '4px',
+                  width: currentImageIndex === idx ? '20px' : '6px',
+                  height: '6px',
+                  borderRadius: '3px',
                   background: currentImageIndex === idx 
-                    ? 'rgba(255,255,255,0.95)' 
-                    : 'rgba(255,255,255,0.4)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                    ? 'rgba(0,0,0,0.7)' 
+                    : 'rgba(0,0,0,0.25)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
                 data-testid={`gallery-dot-${idx}`}
               />
@@ -506,53 +557,138 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </div>
         </div>
 
-        {/* Scrollable content area with extra padding for glass panel */}
-        <div className="relative pb-56">
-          {/* Main content card */}
-          <div className="bg-white/10 backdrop-blur-xl rounded-t-3xl p-6 space-y-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-2">{selectedProduct.name}</h2>
+        {/* iOS 26 Liquid Glass Content Card */}
+        <div className="relative pb-48 -mt-4">
+          <div 
+            className="relative rounded-t-[32px] p-6 space-y-5"
+            style={{
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.08) 100%)',
+              backdropFilter: 'blur(60px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(60px) saturate(180%)',
+              borderTop: '0.5px solid rgba(255,255,255,0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)'
+            }}
+          >
+            {/* Product Title & Price */}
+            <div className="text-center pt-2">
+              <h2 
+                className="text-[22px] font-semibold mb-3 tracking-tight"
+                style={{ 
+                  color: 'rgba(255,255,255,0.95)',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                }}
+              >
+                {selectedProduct.name}
+              </h2>
               <div className="flex items-center justify-center gap-3">
-                <p className="text-3xl font-bold">{formatPrice(selectedProduct.price)}</p>
+                <p 
+                  className="text-[28px] font-bold tracking-tight"
+                  style={{ color: 'rgba(255,255,255,0.98)' }}
+                >
+                  {formatPrice(selectedProduct.price)}
+                </p>
                 {selectedProduct.oldPrice && (
-                  <p className="text-xl text-white/50 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
+                  <p 
+                    className="text-lg line-through"
+                    style={{ color: 'rgba(255,255,255,0.4)' }}
+                  >
+                    {formatPrice(selectedProduct.oldPrice)}
+                  </p>
                 )}
               </div>
+              {selectedProduct.oldPrice && (
+                <div 
+                  className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(52,199,89,0.3) 0%, rgba(52,199,89,0.15) 100%)',
+                    color: '#34C759',
+                    border: '0.5px solid rgba(52,199,89,0.4)'
+                  }}
+                >
+                  Скидка {Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100)}%
+                </div>
+              )}
             </div>
 
-            <p className="text-sm text-white/80 text-center">{selectedProduct.description}</p>
+            {/* Description */}
+            <p 
+              className="text-[15px] text-center leading-relaxed"
+              style={{ color: 'rgba(255,255,255,0.7)' }}
+            >
+              {selectedProduct.description}
+            </p>
 
-            <div>
-              <p className="text-sm mb-3 text-white/80 text-center">Выберите цвет:</p>
+            {/* Color Selection - iOS Style */}
+            <div className="space-y-3">
+              <p 
+                className="text-[13px] font-medium text-center uppercase tracking-wider"
+                style={{ color: 'rgba(255,255,255,0.5)' }}
+              >
+                Цвет: {selectedColor}
+              </p>
               <div className="flex items-center justify-center gap-3">
                 {selectedProduct.colors.map((color, idx) => (
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    className={`w-10 h-10 rounded-full border-2 transition-all ${
-                      selectedColor === color
-                        ? 'border-white scale-110'
-                        : 'border-white/30'
-                    }`}
-                    style={{ backgroundColor: selectedProduct.colorHex[idx] }}
+                    className="relative transition-all duration-200 active:scale-95"
+                    style={{
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '50%',
+                      backgroundColor: selectedProduct.colorHex[idx],
+                      border: selectedColor === color 
+                        ? '2.5px solid rgba(255,255,255,0.9)'
+                        : '1.5px solid rgba(255,255,255,0.25)',
+                      boxShadow: selectedColor === color 
+                        ? '0 0 0 3px rgba(255,255,255,0.2), inset 0 2px 4px rgba(255,255,255,0.3)'
+                        : 'inset 0 2px 4px rgba(255,255,255,0.2)',
+                      transform: selectedColor === color ? 'scale(1.15)' : 'scale(1)'
+                    }}
                     data-testid={`button-color-${color}`}
-                  />
+                  >
+                    {selectedColor === color && (
+                      <div 
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 50%)'
+                        }}
+                      />
+                    )}
+                  </button>
                 ))}
               </div>
             </div>
 
-            <div>
-              <p className="text-sm mb-3 text-white/80 text-center">Выберите размер:</p>
-              <div className="flex items-center justify-center gap-3">
+            {/* Size Selection - iOS Segmented Control Style */}
+            <div className="space-y-3">
+              <p 
+                className="text-[13px] font-medium text-center uppercase tracking-wider"
+                style={{ color: 'rgba(255,255,255,0.5)' }}
+              >
+                Размер: {selectedSize}
+              </p>
+              <div 
+                className="flex items-center justify-center gap-2 p-1.5 rounded-2xl mx-auto"
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  maxWidth: 'fit-content'
+                }}
+              >
                 {selectedProduct.sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`w-12 h-12 rounded-full font-semibold transition-all ${
-                      selectedSize === size
-                        ? 'bg-[var(--theme-primary)] text-black'
-                        : 'bg-white/20 text-white hover:bg-white/30'
-                    }`}
+                    className="relative px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95"
+                    style={{
+                      background: selectedSize === size 
+                        ? 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)'
+                        : 'transparent',
+                      color: selectedSize === size ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.7)',
+                      boxShadow: selectedSize === size 
+                        ? '0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5)'
+                        : 'none'
+                    }}
                     data-testid={`button-size-${size}`}
                   >
                     {size}
