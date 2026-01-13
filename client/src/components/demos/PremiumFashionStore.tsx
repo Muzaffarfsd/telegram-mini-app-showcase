@@ -523,33 +523,31 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         {/* ===== HERO SECTION: Full-bleed image with floating controls ===== */}
         <div className="relative" style={{ height: '58vh', minHeight: '400px' }}>
           
-          {/* Full-bleed Image Gallery */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div 
-              className="flex h-full w-full"
-              style={{ 
-                transform: `translateX(-${currentImageIndex * 100}%)`,
-                transition: 'transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)'
-              }}
-              onTouchStart={(e) => {
-                touchStartX.current = e.touches[0].clientX;
-              }}
-              onTouchMove={(e) => {
-                touchEndX.current = e.touches[0].clientX;
-              }}
-              onTouchEnd={() => {
-                const diff = touchStartX.current - touchEndX.current;
-                if (Math.abs(diff) > 50) {
-                  if (diff > 0 && currentImageIndex < productImages.length - 1) {
-                    setCurrentImageIndex(prev => prev + 1);
-                  } else if (diff < 0 && currentImageIndex > 0) {
-                    setCurrentImageIndex(prev => prev - 1);
-                  }
-                }
-              }}
-            >
+          {/* Full-bleed Image Gallery - iOS-style snap scroll */}
+          <div 
+            className="absolute inset-0 overflow-x-auto overflow-y-hidden scrollbar-hide"
+            style={{ 
+              scrollSnapType: 'x mandatory',
+              WebkitOverflowScrolling: 'touch',
+              scrollBehavior: 'smooth',
+            }}
+            onScroll={(e) => {
+              const container = e.currentTarget;
+              const scrollLeft = container.scrollLeft;
+              const width = container.offsetWidth;
+              const newIndex = Math.round(scrollLeft / width);
+              if (newIndex !== currentImageIndex && newIndex >= 0 && newIndex < productImages.length) {
+                setCurrentImageIndex(newIndex);
+              }
+            }}
+          >
+            <div className="flex h-full w-full">
               {productImages.map((img, idx) => (
-                <div key={idx} className="min-w-full h-full flex-shrink-0 relative">
+                <div 
+                  key={idx} 
+                  className="min-w-full h-full flex-shrink-0 relative"
+                  style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
+                >
                   <LazyImage
                     src={img}
                     alt={`${selectedProduct.name} - фото ${idx + 1}`}
@@ -578,7 +576,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             />
           </div>
           
-          {/* ===== FLOATING NAV: Positioned ON TOP of image ===== */}
+          {/* ===== FLOATING NAV: Back & Favorite buttons lower ===== */}
           <div 
             className="absolute left-0 right-0 z-50 flex items-center justify-between px-4"
             style={{ 
@@ -601,7 +599,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               <ChevronLeft className="w-6 h-6" style={{ color: 'rgba(0,0,0,0.8)' }} strokeWidth={2.5} />
             </button>
             
-            {/* Photo Counter Badge */}
+            {/* Photo Counter Badge - Center */}
             <div 
               className="px-4 py-1.5 rounded-full"
               style={{
@@ -1243,7 +1241,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           className="fixed left-0 right-0 z-50"
           style={{ 
             perspective: '1000px',
-            bottom: 'max(24px, env(safe-area-inset-bottom))',
+            bottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 56px)',
           }}
         >
           {/* 3D Shadow layer - creates depth illusion */}
@@ -1465,20 +1463,45 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 </div>
               </div>
 
-              {/* Favorite */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleToggleFavorite(product.id);
-                }}
-                aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
-                data-testid={`button-favorite-${product.id}`}
-              >
-                <Heart 
-                  className={`w-5 h-5 ${isFavorite(product.id) ? 'fill-white text-white' : 'text-white'}`}
-                />
-              </button>
+              {/* Quick Actions - Favorite & Quick View */}
+              <div className="absolute top-4 right-4 flex gap-2">
+                {/* Quick View Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setQuickViewProduct(product);
+                    setQuickViewSize(product.sizes[0]);
+                    setQuickViewColor(product.colors[0]);
+                  }}
+                  aria-label="Быстрый просмотр"
+                  className="w-11 h-11 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                  style={{
+                    background: 'linear-gradient(145deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%)',
+                    backdropFilter: 'blur(20px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                  }}
+                  data-testid={`button-quickview-home-${product.id}`}
+                >
+                  <Eye className="w-5 h-5 text-white" />
+                </button>
+                
+                {/* Favorite */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleFavorite(product.id);
+                  }}
+                  aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                  className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
+                  data-testid={`button-favorite-${product.id}`}
+                >
+                  <Heart 
+                    className={`w-5 h-5 ${isFavorite(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                  />
+                </button>
+              </div>
 
               {/* Content */}
               <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -1524,6 +1547,191 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
         {/* Bottom Spacer */}
         <div className="h-8"></div>
+        
+        {/* ===== QUICK VIEW MODAL for HOME PAGE ===== */}
+        <AnimatePresence>
+          {quickViewProduct && (
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[100] flex items-end justify-center"
+              style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+              onClick={() => setQuickViewProduct(null)}
+            >
+              <m.div
+                initial={{ opacity: 0, y: 100, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 100, scale: 0.95 }}
+                transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
+                  backdropFilter: 'blur(30px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                  border: '0.5px solid rgba(255,255,255,0.15)',
+                  boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
+                  maxHeight: '70vh',
+                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 80px)',
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Drag Handle */}
+                <div className="flex justify-center pt-3 pb-2">
+                  <div 
+                    className="w-10 h-1 rounded-full"
+                    style={{ background: 'rgba(255,255,255,0.3)' }}
+                  />
+                </div>
+                
+                {/* Close Button */}
+                <button
+                  onClick={() => setQuickViewProduct(null)}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10"
+                  style={{
+                    background: 'rgba(255,255,255,0.15)',
+                    backdropFilter: 'blur(10px)',
+                  }}
+                  data-testid="button-close-quickview-home"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+                
+                <div className="px-6 pb-8 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 60px)' }}>
+                  {/* Product Image */}
+                  <div 
+                    className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-5"
+                    style={{ background: 'rgba(255,255,255,0.05)' }}
+                  >
+                    <LazyImage
+                      src={quickViewProduct.image}
+                      alt={quickViewProduct.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {quickViewProduct.isNew && (
+                      <div 
+                        className="absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-bold"
+                        style={{ background: 'var(--theme-primary)', color: '#000' }}
+                      >
+                        NEW
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Product Info */}
+                  <div className="text-center mb-5">
+                    <h3 className="text-xl font-bold mb-2" style={{ color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.02em' }}>
+                      {quickViewProduct.name}
+                    </h3>
+                    <div className="flex items-center justify-center gap-3">
+                      <p className="text-2xl font-bold" style={{ color: 'rgba(255,255,255,0.95)', fontFeatureSettings: "'tnum'" }}>
+                        {formatPrice(quickViewProduct.price)}
+                      </p>
+                      {quickViewProduct.oldPrice && (
+                        <p className="text-base line-through" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                          {formatPrice(quickViewProduct.oldPrice)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Color Selection */}
+                  <div className="mb-5">
+                    <p className="text-xs font-medium uppercase mb-3 text-center" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
+                      Цвет: {quickViewColor}
+                    </p>
+                    <div className="flex justify-center gap-2.5">
+                      {quickViewProduct.colors.map((color, idx) => (
+                        <button
+                          key={color}
+                          onClick={() => setQuickViewColor(color)}
+                          className="relative w-9 h-9 rounded-full transition-transform active:scale-95"
+                          style={{
+                            background: quickViewProduct.colorHex[idx],
+                            border: quickViewColor === color ? '2.5px solid var(--theme-primary)' : '2px solid rgba(255,255,255,0.2)',
+                            boxShadow: quickViewColor === color ? '0 0 12px rgba(var(--theme-primary-rgb, 205,255,56), 0.4)' : 'none',
+                          }}
+                          data-testid={`quickview-home-color-${color}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Size Selection */}
+                  <div className="mb-6">
+                    <p className="text-xs font-medium uppercase mb-3 text-center" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
+                      Размер
+                    </p>
+                    <div className="flex justify-center gap-2 flex-wrap">
+                      {quickViewProduct.sizes.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => setQuickViewSize(size)}
+                          className="min-w-[48px] px-4 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
+                          style={{
+                            background: quickViewSize === size ? 'var(--theme-primary)' : 'rgba(255,255,255,0.1)',
+                            color: quickViewSize === size ? '#000' : 'rgba(255,255,255,0.8)',
+                            border: quickViewSize === size ? 'none' : '0.5px solid rgba(255,255,255,0.15)',
+                          }}
+                          data-testid={`quickview-home-size-${size}`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Add to Cart Button */}
+                  <button
+                    onClick={() => {
+                      addToCartPersistent({
+                        id: String(quickViewProduct.id),
+                        name: quickViewProduct.name,
+                        price: quickViewProduct.price,
+                        size: quickViewSize,
+                        image: quickViewProduct.image,
+                        color: quickViewColor,
+                      });
+                      toast({
+                        title: 'Добавлено в корзину',
+                        description: `${quickViewProduct.name} • ${quickViewColor} • ${quickViewSize}`,
+                        duration: 2000,
+                      });
+                      setQuickViewProduct(null);
+                    }}
+                    className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98]"
+                    style={{
+                      background: 'var(--theme-primary)',
+                      color: '#000',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.3), 0 0 30px rgba(var(--theme-primary-rgb, 205,255,56), 0.2)',
+                    }}
+                    data-testid="button-quickview-home-add-to-cart"
+                  >
+                    Добавить в корзину
+                  </button>
+                  
+                  {/* View Full Details */}
+                  <button
+                    onClick={() => {
+                      openProduct(quickViewProduct);
+                      setQuickViewProduct(null);
+                    }}
+                    className="w-full py-3 mt-3 rounded-xl text-sm font-medium transition-all"
+                    style={{
+                      background: 'rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.8)',
+                      border: '0.5px solid rgba(255,255,255,0.15)',
+                    }}
+                    data-testid="button-quickview-home-details"
+                  >
+                    Подробнее о товаре
+                  </button>
+                </div>
+              </m.div>
+            </m.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
@@ -1607,13 +1815,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         setQuickViewColor(product.colors[0]);
                       }}
                       aria-label="Быстрый просмотр"
-                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
+                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
                       style={{
-                        background: 'linear-gradient(145deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 100%)',
+                        background: 'linear-gradient(145deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%)',
                         backdropFilter: 'blur(20px) saturate(180%)',
                         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                        border: '0.5px solid rgba(255,255,255,0.4)',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
                       }}
                       data-testid={`button-quickview-${product.id}`}
                     >
@@ -1676,8 +1884,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   WebkitBackdropFilter: 'blur(30px) saturate(180%)',
                   border: '0.5px solid rgba(255,255,255,0.15)',
                   boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
-                  maxHeight: '85vh',
-                  paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
+                  maxHeight: '70vh',
+                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 80px)',
                 }}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -1702,7 +1910,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <X className="w-4 h-4 text-white" />
                 </button>
                 
-                <div className="px-6 pb-6 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 60px)' }}>
+                <div className="px-6 pb-8 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 60px)' }}>
                   {/* Product Image */}
                   <div 
                     className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-5"
