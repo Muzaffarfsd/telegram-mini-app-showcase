@@ -578,10 +578,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         </div>
 
         {/* ===== CONTENT SHEET: Slides up over hero ===== */}
-        <div className="relative pb-44" style={{ marginTop: '-28px' }}>
+        <div className="relative" style={{ paddingBottom: '176px', marginTop: '-28px' }}>
           <div 
-            className="relative rounded-t-[32px] p-6 space-y-5"
+            className="relative rounded-t-[32px]"
             style={{
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
               background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.08) 100%)',
               backdropFilter: 'blur(30px) saturate(180%)',
               WebkitBackdropFilter: 'blur(30px) saturate(180%)',
@@ -592,25 +596,37 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             {/* Product Title & Price */}
             <div className="text-center pt-2">
               <h2 
-                className="text-[22px] font-semibold mb-3 tracking-tight"
+                className="text-[22px] font-semibold mb-4 tracking-tight"
                 style={{ 
                   color: 'rgba(255,255,255,0.95)',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                  textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.2,
+                  textRendering: 'optimizeLegibility',
+                  fontFeatureSettings: "'ss01'"
                 }}
               >
                 {selectedProduct.name}
               </h2>
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center justify-center gap-2">
                 <p 
                   className="text-[28px] font-bold tracking-tight"
-                  style={{ color: 'rgba(255,255,255,0.98)' }}
+                  style={{ 
+                    color: 'rgba(255,255,255,0.98)',
+                    fontFeatureSettings: "'tnum'",
+                    letterSpacing: '-0.01em'
+                  }}
                 >
                   {formatPrice(selectedProduct.price)}
                 </p>
                 {selectedProduct.oldPrice && (
                   <p 
                     className="text-lg line-through"
-                    style={{ color: 'rgba(255,255,255,0.4)' }}
+                    style={{ 
+                      color: 'rgba(255,255,255,0.4)',
+                      fontFeatureSettings: "'tnum'",
+                      marginLeft: '8px'
+                    }}
                   >
                     {formatPrice(selectedProduct.oldPrice)}
                   </p>
@@ -618,11 +634,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               </div>
               {selectedProduct.oldPrice && (
                 <div 
-                  className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium"
+                  className="inline-block mt-3 px-3 py-1 rounded-full text-xs font-medium"
                   style={{
                     background: 'linear-gradient(135deg, rgba(52,199,89,0.3) 0%, rgba(52,199,89,0.15) 100%)',
                     color: '#34C759',
-                    border: '0.5px solid rgba(52,199,89,0.4)'
+                    border: '0.5px solid rgba(52,199,89,0.4)',
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase'
                   }}
                 >
                   Скидка {Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100)}%
@@ -631,14 +649,18 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             </div>
 
             {/* Color Selection - iOS Style */}
-            <div className="space-y-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <p 
-                className="text-[13px] font-medium text-center uppercase tracking-wider"
-                style={{ color: 'rgba(255,255,255,0.5)' }}
+                className="text-[13px] font-medium text-center uppercase"
+                style={{ 
+                  color: 'rgba(255,255,255,0.5)',
+                  letterSpacing: '0.05em',
+                  textRendering: 'optimizeLegibility'
+                }}
               >
                 Цвет: {selectedColor}
               </p>
-              <div className="flex items-center justify-center gap-3">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
                 {selectedProduct.colors.map((color, idx) => (
                   <button
                     key={color}
@@ -673,33 +695,41 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             </div>
 
             {/* Size Selection - iOS Segmented Control Style */}
-            <div className="space-y-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <p 
-                className="text-[13px] font-medium text-center uppercase tracking-wider"
-                style={{ color: 'rgba(255,255,255,0.5)' }}
+                className="text-[13px] font-medium text-center uppercase"
+                style={{ 
+                  color: 'rgba(255,255,255,0.5)',
+                  letterSpacing: '0.05em',
+                  textRendering: 'optimizeLegibility'
+                }}
               >
                 Размер: {selectedSize}
               </p>
               <div 
-                className="flex items-center justify-center gap-2 p-1.5 rounded-2xl mx-auto"
+                className="flex items-center justify-center rounded-2xl mx-auto"
                 style={{
                   background: 'rgba(255,255,255,0.1)',
-                  maxWidth: 'fit-content'
+                  maxWidth: 'fit-content',
+                  padding: '6px',
+                  gap: '8px'
                 }}
               >
                 {selectedProduct.sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className="relative px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95"
+                    className="relative rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95"
                     style={{
+                      padding: '10px 16px',
                       background: selectedSize === size 
                         ? 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)'
                         : 'transparent',
                       color: selectedSize === size ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.7)',
                       boxShadow: selectedSize === size 
                         ? '0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5)'
-                        : 'none'
+                        : 'none',
+                      letterSpacing: '-0.01em'
                     }}
                     data-testid={`button-size-${size}`}
                   >
@@ -710,12 +740,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             </div>
 
             {/* iOS Segmented Control for Content Tabs */}
-            <div className="pt-4">
+            <div style={{ paddingTop: '16px' }}>
               <div 
-                className="flex items-center p-1 rounded-2xl mx-auto"
+                className="flex items-center rounded-2xl mx-auto"
                 style={{
                   background: 'rgba(255,255,255,0.1)',
-                  maxWidth: '100%'
+                  maxWidth: '100%',
+                  padding: '4px'
                 }}
                 role="tablist"
               >
@@ -727,15 +758,18 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <button
                     key={tab.key}
                     onClick={() => setActiveProductTab(tab.key as typeof activeProductTab)}
-                    className="flex-1 py-2.5 px-3 rounded-xl font-medium text-sm transition-all duration-300"
+                    className="flex-1 rounded-xl font-medium text-sm transition-all duration-300"
                     style={{
+                      padding: '10px 12px',
                       background: activeProductTab === tab.key 
                         ? 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)'
                         : 'transparent',
                       color: activeProductTab === tab.key ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.6)',
                       boxShadow: activeProductTab === tab.key 
                         ? '0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5)'
-                        : 'none'
+                        : 'none',
+                      letterSpacing: '0.05em',
+                      textRendering: 'optimizeLegibility'
                     }}
                     data-testid={`tab-${tab.key}`}
                     role="tab"
@@ -749,32 +783,56 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             </div>
 
             {/* Tab Content Panels */}
-            <div className="min-h-[200px]">
+            <div style={{ minHeight: '200px' }}>
               {/* Description Tab */}
               {activeProductTab === 'description' && (
-                <div id="panel-description" className="space-y-4 transition-opacity duration-300">
+                <div id="panel-description" style={{ display: 'flex', flexDirection: 'column', gap: '16px', opacity: 1, transition: 'opacity 300ms' }}>
                   <p 
-                    className="text-[15px] leading-relaxed"
-                    style={{ color: 'rgba(255,255,255,0.8)' }}
+                    className="text-[15px]"
+                    style={{ 
+                      color: 'rgba(255,255,255,0.8)',
+                      lineHeight: 1.6,
+                      letterSpacing: '-0.01em',
+                      textRendering: 'optimizeLegibility'
+                    }}
                   >
                     {selectedProduct.description}
                   </p>
                   
                   <div 
-                    className="p-4 rounded-2xl space-y-3"
+                    className="rounded-2xl"
                     style={{
                       background: 'rgba(255,255,255,0.08)',
-                      border: '0.5px solid rgba(255,255,255,0.15)'
+                      border: '0.5px solid rgba(255,255,255,0.15)',
+                      padding: '16px'
                     }}
                   >
-                    <div className="flex justify-between items-center">
-                      <span style={{ color: 'rgba(255,255,255,0.5)' }} className="text-sm">Состав</span>
-                      <span style={{ color: 'rgba(255,255,255,0.9)' }} className="text-sm font-medium">{selectedProduct.composition}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>Состав</span>
+                      <span style={{ 
+                        color: 'rgba(255,255,255,0.9)',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        letterSpacing: '-0.01em'
+                      }}>
+                        {selectedProduct.composition}
+                      </span>
                     </div>
-                    <div className="h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
-                    <div className="flex justify-between items-center">
-                      <span style={{ color: 'rgba(255,255,255,0.5)' }} className="text-sm">Посадка</span>
-                      <span style={{ color: 'rgba(255,255,255,0.9)' }} className="text-sm font-medium">{fitTranslations[selectedProduct.fit]}</span>
+                    <div style={{ 
+                      height: '1px', 
+                      background: 'rgba(255,255,255,0.1)',
+                      margin: '12px 0'
+                    }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>Посадка</span>
+                      <span style={{ 
+                        color: 'rgba(255,255,255,0.9)',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        letterSpacing: '-0.01em'
+                      }}>
+                        {fitTranslations[selectedProduct.fit]}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -782,7 +840,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
               {/* Characteristics Tab */}
               {activeProductTab === 'characteristics' && (
-                <div id="panel-characteristics" className="space-y-3 transition-opacity duration-300">
+                <div id="panel-characteristics" style={{ display: 'flex', flexDirection: 'column', gap: '12px', opacity: 1, transition: 'opacity 300ms' }}>
                   {[
                     { label: 'Бренд', value: selectedProduct.brand },
                     { label: 'Категория', value: selectedProduct.category },
@@ -793,39 +851,70 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   ].map((item, idx) => (
                     <div 
                       key={idx}
-                      className="flex justify-between items-center p-3 rounded-xl"
                       style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '12px',
+                        borderRadius: '12px',
                         background: 'rgba(255,255,255,0.08)',
                         border: '0.5px solid rgba(255,255,255,0.1)'
                       }}
                     >
-                      <span style={{ color: 'rgba(255,255,255,0.5)' }} className="text-sm">{item.label}</span>
-                      <span style={{ color: 'rgba(255,255,255,0.9)' }} className="text-sm font-medium">{item.value}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>{item.label}</span>
+                      <span style={{ 
+                        color: 'rgba(255,255,255,0.9)', 
+                        fontSize: '14px', 
+                        fontWeight: 500,
+                        letterSpacing: '-0.01em'
+                      }}>
+                        {item.value}
+                      </span>
                     </div>
                   ))}
                   
                   {/* Size Chart */}
                   <div 
-                    className="p-4 rounded-xl mt-4"
                     style={{
+                      padding: '16px',
+                      borderRadius: '12px',
                       background: 'rgba(255,255,255,0.08)',
-                      border: '0.5px solid rgba(255,255,255,0.1)'
+                      border: '0.5px solid rgba(255,255,255,0.1)',
+                      marginTop: '16px'
                     }}
                   >
-                    <p style={{ color: 'rgba(255,255,255,0.7)' }} className="text-sm font-medium mb-3">Размерная сетка (см)</p>
-                    <div className="space-y-2">
+                    <p style={{ 
+                      color: 'rgba(255,255,255,0.7)',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      marginBottom: '12px',
+                      letterSpacing: '0.05em'
+                    }}>
+                      Размерная сетка (см)
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {Object.entries(selectedProduct.sizeChart).map(([size, measurements]) => (
-                        <div key={size} className="flex justify-between items-center">
+                        <div key={size} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span 
-                            className="text-sm font-semibold px-2 py-1 rounded-lg"
                             style={{ 
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              padding: '8px 8px',
+                              borderRadius: '8px',
                               background: 'rgba(255,255,255,0.15)',
-                              color: 'rgba(255,255,255,0.9)'
+                              color: 'rgba(255,255,255,0.9)',
+                              letterSpacing: '-0.01em'
                             }}
                           >
                             {size}
                           </span>
-                          <span style={{ color: 'rgba(255,255,255,0.6)' }} className="text-xs">{measurements}</span>
+                          <span style={{ 
+                            color: 'rgba(255,255,255,0.6)',
+                            fontSize: '12px',
+                            letterSpacing: '-0.01em'
+                          }}>
+                            {measurements}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -835,10 +924,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
               {/* Reviews Tab */}
               {activeProductTab === 'reviews' && (
-                <div id="panel-reviews" className="space-y-4 transition-opacity duration-300">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center">
+                <div id="panel-reviews" style={{ display: 'flex', flexDirection: 'column', gap: '16px', opacity: 1, transition: 'opacity 300ms' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star 
                             key={star} 
@@ -848,25 +937,52 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           />
                         ))}
                       </div>
-                      <span style={{ color: 'rgba(255,255,255,0.9)' }} className="text-sm font-semibold">{selectedProduct.rating}</span>
+                      <span style={{ 
+                        color: 'rgba(255,255,255,0.9)',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        letterSpacing: '-0.01em'
+                      }}>
+                        {selectedProduct.rating}
+                      </span>
                     </div>
-                    <span style={{ color: 'rgba(255,255,255,0.5)' }} className="text-xs">{mockReviews.length} отзывов</span>
+                    <span style={{ 
+                      color: 'rgba(255,255,255,0.5)',
+                      fontSize: '12px',
+                      letterSpacing: '-0.01em'
+                    }}>
+                      {mockReviews.length} отзывов
+                    </span>
                   </div>
                   
                   {mockReviews.map((review, idx) => (
                     <div 
                       key={idx}
-                      className="p-4 rounded-2xl"
                       style={{
+                        padding: '16px',
+                        borderRadius: '16px',
                         background: 'rgba(255,255,255,0.08)',
                         border: '0.5px solid rgba(255,255,255,0.1)'
                       }}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <span style={{ color: 'rgba(255,255,255,0.9)' }} className="text-sm font-semibold">{review.name}</span>
-                        <span style={{ color: 'rgba(255,255,255,0.4)' }} className="text-xs">{review.date}</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <span style={{ 
+                          color: 'rgba(255,255,255,0.9)',
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          letterSpacing: '-0.01em'
+                        }}>
+                          {review.name}
+                        </span>
+                        <span style={{ 
+                          color: 'rgba(255,255,255,0.4)',
+                          fontSize: '12px',
+                          letterSpacing: '-0.01em'
+                        }}>
+                          {review.date}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1 mb-2">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star 
                             key={star} 
@@ -876,7 +992,15 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           />
                         ))}
                       </div>
-                      <p style={{ color: 'rgba(255,255,255,0.7)' }} className="text-sm leading-relaxed">{review.text}</p>
+                      <p style={{ 
+                        color: 'rgba(255,255,255,0.7)',
+                        fontSize: '14px',
+                        lineHeight: 1.6,
+                        letterSpacing: '-0.01em',
+                        textRendering: 'optimizeLegibility'
+                      }}>
+                        {review.text}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -898,10 +1022,16 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               if (recommendedProducts.length === 0) return null;
               
               return (
-                <div className="pt-6">
+                <div style={{ paddingTop: '24px' }}>
                   <h3 
-                    className="text-lg font-semibold mb-4"
-                    style={{ color: 'rgba(255,255,255,0.9)' }}
+                    className="text-lg font-semibold"
+                    style={{ 
+                      color: 'rgba(255,255,255,0.9)',
+                      marginBottom: '16px',
+                      letterSpacing: '-0.02em',
+                      lineHeight: 1.2,
+                      textRendering: 'optimizeLegibility'
+                    }}
                   >
                     Рекомендуемые товары
                   </h3>
@@ -940,14 +1070,22 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         
                         {/* Minimal Info */}
                         <p 
-                          className="text-[11px] font-medium truncate mb-1"
-                          style={{ color: 'rgba(255,255,255,0.7)' }}
+                          className="text-[11px] font-medium truncate"
+                          style={{ 
+                            color: 'rgba(255,255,255,0.7)',
+                            marginBottom: '4px',
+                            letterSpacing: '-0.01em'
+                          }}
                         >
                           {product.name}
                         </p>
                         <p 
                           className="text-[13px] font-semibold"
-                          style={{ color: 'rgba(255,255,255,0.95)' }}
+                          style={{ 
+                            color: 'rgba(255,255,255,0.95)',
+                            fontFeatureSettings: "'tnum'",
+                            letterSpacing: '-0.01em'
+                          }}
                         >
                           {formatPrice(product.price)}
                         </p>
