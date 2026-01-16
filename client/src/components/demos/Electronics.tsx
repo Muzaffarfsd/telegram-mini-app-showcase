@@ -621,23 +621,6 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               />
             </button>
           </div>
-          
-          {/* NEW Badge in top left corner */}
-          {selectedProduct.isNew && (
-            <div 
-              className="absolute left-4 px-3 py-1.5 rounded-full z-40"
-              style={{
-                top: 'calc(max(16px, env(safe-area-inset-top)) + 72px)',
-                background: 'linear-gradient(135deg, rgba(52,199,89,0.3) 0%, rgba(52,199,89,0.15) 100%)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                border: '0.5px solid rgba(52,199,89,0.4)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2)'
-              }}
-            >
-              <span className="text-[10px] font-bold" style={{ color: '#34C759', letterSpacing: '0.1em' }}>NEW</span>
-            </div>
-          )}
         </div>
 
         {/* CONTENT SHEET */}
@@ -1299,7 +1282,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 <LazyImage
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   onLoadComplete={() => handleImageLoad(product.id)}
                   priority={idx < 2}
                 />
@@ -1449,14 +1432,6 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                       alt={quickViewProduct.name}
                       className="w-full h-full object-cover"
                     />
-                    {quickViewProduct.isNew && (
-                      <div 
-                        className="absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-bold"
-                        style={{ background: 'var(--theme-primary)', color: '#000' }}
-                      >
-                        NEW
-                      </div>
-                    )}
                   </div>
                   
                   {/* Product Info */}
@@ -1596,14 +1571,14 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 key={product.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openProduct(product)}
-                className={`relative cursor-pointer scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
+                className={`relative cursor-pointer rounded-3xl overflow-hidden scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
                 data-testid={`product-card-${product.id}`}
               >
-                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
+                <div className="relative aspect-[3/4] overflow-hidden mb-3">
                   <LazyImage
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full"
+                    className="w-full h-full object-cover"
                     onLoadComplete={() => handleImageLoad(product.id)}
                   />
                   
@@ -1641,11 +1616,6 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                     </button>
                   </div>
 
-                  {product.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-[var(--theme-primary)] text-black text-xs font-bold rounded-full">
-                      NEW
-                    </div>
-                  )}
                 </div>
 
                 <div>
@@ -1724,14 +1694,6 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                       alt={quickViewProduct.name}
                       className="w-full h-full object-cover"
                     />
-                    {quickViewProduct.isNew && (
-                      <div 
-                        className="absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-bold"
-                        style={{ background: 'var(--theme-primary)', color: '#000' }}
-                      >
-                        NEW
-                      </div>
-                    )}
                   </div>
                   
                   {/* Product Info */}

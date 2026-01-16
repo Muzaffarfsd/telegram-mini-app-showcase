@@ -316,7 +316,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
     { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
     { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: 'var(--theme-primary)' },
-    { icon: <Tag className="w-5 h-5" />, label: 'Акции', badge: 'NEW', badgeColor: '#EF4444' },
+    { icon: <Tag className="w-5 h-5" />, label: 'Акции' },
     { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
     { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
   ];
@@ -1416,7 +1416,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               <div className="absolute top-4 left-4">
                 <div className="px-3 py-1 bg-white/20 backdrop-blur-xl rounded-full">
                   <span className="text-xs font-semibold text-white">
-                    {product.isNew ? 'New' : product.category}
+                    {product.category}
                   </span>
                 </div>
               </div>
@@ -1559,14 +1559,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       alt={quickViewProduct.name}
                       className="w-full h-full object-cover"
                     />
-                    {quickViewProduct.isNew && (
-                      <div 
-                        className="absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-bold"
-                        style={{ background: 'var(--theme-primary)', color: '#000' }}
-                      >
-                        NEW
-                      </div>
-                    )}
                   </div>
                   
                   {/* Product Info */}
@@ -1728,10 +1720,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 key={product.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => openProduct(product)}
-                className={`relative cursor-pointer scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
+                className={`relative cursor-pointer rounded-3xl overflow-hidden scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
                 data-testid={`product-card-${product.id}`}
               >
-                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
+                <div className="relative aspect-[3/4] overflow-hidden mb-3">
                   <LazyImage
                     src={product.image}
                     alt={product.name}
@@ -1778,13 +1770,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       <Eye className="w-4 h-4 text-white" />
                     </button>
                   </div>
-
-                  {/* Badge */}
-                  {product.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-[var(--theme-primary)] text-black text-xs font-bold rounded-full">
-                      NEW
-                    </div>
-                  )}
                 </div>
 
                 {/* Product Info */}
@@ -1865,17 +1850,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       alt={quickViewProduct.name}
                       className="w-full h-full object-cover"
                     />
-                    {quickViewProduct.isNew && (
-                      <div 
-                        className="absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-bold"
-                        style={{
-                          background: 'var(--theme-primary)',
-                          color: '#000',
-                        }}
-                      >
-                        NEW
-                      </div>
-                    )}
                   </div>
                   
                   {/* Product Info */}
