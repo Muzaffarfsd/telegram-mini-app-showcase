@@ -1194,19 +1194,19 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </div>
         </div>
 
-        {/* STICKY Bottom Panel - липкая выше навбара */}
+        {/* STICKY Bottom Panel - липкая выше навбара, ограничена шириной приложения */}
         <div 
-          className="fixed left-0 right-0 z-[90]"
+          className="sticky z-[90]"
           style={{
             bottom: '90px',
+            marginTop: '-100px',
             padding: '12px 16px',
-            maxWidth: '100%',
           }}
         >
           <div 
             className="rounded-2xl p-3 flex items-center gap-4"
             style={{
-              background: 'rgba(0,0,0,0.75)',
+              background: 'rgba(0,0,0,0.85)',
               backdropFilter: 'blur(30px) saturate(180%)',
               WebkitBackdropFilter: 'blur(30px) saturate(180%)',
               border: '0.5px solid rgba(255,255,255,0.15)',
