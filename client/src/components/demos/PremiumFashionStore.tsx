@@ -1212,34 +1212,45 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             }}
           />
           
-          {/* Glass panel */}
+          {/* Glass panel - как в Электронике */}
           <div 
-            className="relative rounded-t-3xl border-t border-white/20 p-6"
+            className="relative rounded-2xl mx-4 p-3 flex items-center gap-4"
             style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%)',
+              background: 'rgba(0,0,0,0.75)',
               backdropFilter: 'blur(30px) saturate(180%)',
               WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-              boxShadow: '0 -10px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
-              paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
+              border: '0.5px solid rgba(255,255,255,0.15)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)'
             }}
           >
-            {/* Subtle inner glow */}
-            <div 
-              className="absolute inset-0 rounded-t-3xl pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.1) 0%, transparent 60%)',
-              }}
-            />
+            <div className="flex flex-col">
+              <span 
+                className="text-[10px] font-medium"
+                style={{ color: 'rgba(255,255,255,0.5)' }}
+              >
+                Итого
+              </span>
+              <span 
+                className="text-lg font-bold"
+                style={{ color: 'rgba(255,255,255,0.98)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
+              >
+                {formatPrice(selectedProduct.price)}
+              </span>
+            </div>
             
             <ConfirmDrawer
               trigger={
                 <button
-                  className="relative w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all shadow-lg"
+                  className="flex-1 py-4 rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all duration-300 active:scale-98"
                   style={{
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.3), 0 0 40px rgba(var(--theme-primary-rgb, 255,255,255), 0.15)',
+                    background: 'var(--theme-primary)',
+                    color: '#000',
+                    letterSpacing: '-0.01em',
+                    boxShadow: '0 4px 16px rgba(var(--theme-primary-rgb, 99,102,241),0.4)'
                   }}
                   data-testid="button-buy-now"
                 >
+                  <ShoppingBag className="w-5 h-5" />
                   Добавить в корзину
                 </button>
               }
