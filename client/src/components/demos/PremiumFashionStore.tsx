@@ -1478,17 +1478,18 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       e.stopPropagation();
                       openProduct(product);
                     }}
-                    aria-label="Добавить в корзину"
-                    className="w-14 h-14 rounded-full bg-[var(--theme-primary)] flex items-center justify-center hover:bg-[var(--theme-accent)] transition-all hover:scale-110"
+                    className="px-4 py-2.5 rounded-full flex items-center gap-2 transition-all active:scale-95"
+                    style={{
+                      background: 'var(--theme-primary)',
+                      boxShadow: '0 4px 16px rgba(var(--theme-primary-rgb, 99,102,241), 0.4)'
+                    }}
                     data-testid={`button-add-to-cart-${product.id}`}
                   >
-                    <ShoppingBag className="w-6 h-6 text-black" />
+                    <ShoppingBag className="w-5 h-5 text-black" />
+                    <span className="text-sm font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      {formatPrice(product.price)}
+                    </span>
                   </button>
-                </div>
-
-                {/* Price */}
-                <div className="mt-3">
-                  <p className="text-lg font-bold">{formatPrice(product.price)}</p>
                 </div>
               </div>
             </m.div>

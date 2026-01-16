@@ -392,7 +392,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
   // PRODUCT PAGE - iOS 2026 Premium Modular Design
   if (activeTab === 'catalog' && selectedProduct) {
     const bgColor = '#000000';
-    const recommendedProducts = products.filter(p => p.category === selectedProduct.category && p.id !== selectedProduct.id).slice(0, 4);
+    const recommendedProducts = products.filter(p => p.category === selectedProduct.category && p.id !== selectedProduct.id).slice(0, 8);
     const productImages = [selectedProduct.image, selectedProduct.hoverImage];
     
     const glassCard = {
@@ -579,38 +579,35 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             }}
           />
 
-          {/* Image Counter Badge - ВВЕРХУ справа */}
+          {/* iOS-style Page Dots in glass container */}
           <div 
-            className="absolute z-40 px-3 py-1.5 rounded-full"
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2 px-3 py-2 rounded-full"
             style={{
-              top: 'calc(max(16px, env(safe-area-inset-top)) + 16px)',
-              right: '80px',
-              background: 'rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(10px)',
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 100%)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '0.5px solid rgba(255,255,255,0.5)',
             }}
           >
-            <span className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.9)' }}>
-              {currentImageIndex + 1} / {productImages.length}
-            </span>
-          </div>
-
-          {/* iOS-style Page Dots - внизу hero */}
-          <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-40">
             {productImages.map((_, idx) => (
-              <div 
+              <button
                 key={idx}
-                className="h-[7px] rounded-full transition-all duration-300"
+                onClick={() => setCurrentImageIndex(idx)}
+                className="transition-all duration-300"
                 style={{
                   width: currentImageIndex === idx ? '20px' : '7px',
+                  height: '7px',
+                  borderRadius: '4px',
                   background: currentImageIndex === idx 
-                    ? 'rgba(255,255,255,0.95)' 
-                    : 'rgba(255,255,255,0.4)',
+                    ? 'rgba(0,0,0,0.8)' 
+                    : 'rgba(0,0,0,0.3)',
                 }}
+                data-testid={`gallery-dot-${idx}`}
               />
             ))}
           </div>
           
-          {/* Floating Glass Navigation Bar */}
+          {/* Floating Glass Navigation Bar - Radiance style */}
           <div 
             className="absolute left-4 right-4 z-50 flex items-center justify-between"
             style={{ top: 'calc(max(16px, env(safe-area-inset-top)) + 8px)' }}
@@ -618,35 +615,32 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             {/* Back Button */}
             <button 
               onClick={() => setSelectedProduct(null)}
-              className="w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300"
+              className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
               style={{ 
-                background: 'rgba(255,255,255,0.15)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                border: '0.5px solid rgba(255,255,255,0.2)',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)'
+                background: 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
+                backdropFilter: 'blur(25px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+                border: '0.5px solid rgba(255,255,255,0.6)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7)'
               }}
               data-testid="button-back"
             >
-              <ChevronLeft className="w-6 h-6" style={{ color: 'rgba(255,255,255,0.95)' }} strokeWidth={2.5} />
+              <ChevronLeft className="w-6 h-6" style={{ color: 'rgba(0,0,0,0.8)' }} strokeWidth={2.5} />
             </button>
             
-            {/* Brand Badge */}
+            {/* Image Counter Pill */}
             <div 
-              className="px-4 py-2 rounded-full"
+              className="px-4 py-1.5 rounded-full"
               style={{
-                background: 'rgba(255,255,255,0.12)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                border: '0.5px solid rgba(255,255,255,0.2)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15)'
+                background: 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
+                backdropFilter: 'blur(25px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+                border: '0.5px solid rgba(255,255,255,0.5)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)'
               }}
             >
-              <span 
-                className="text-xs font-bold tracking-wide"
-                style={{ color: 'rgba(255,255,255,0.9)', letterSpacing: '0.08em' }}
-              >
-                {selectedProduct.brand}
+              <span className="text-xs font-semibold" style={{ color: 'rgba(0,0,0,0.7)' }}>
+                {currentImageIndex + 1} / {productImages.length}
               </span>
             </div>
             
@@ -656,24 +650,24 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 e.stopPropagation();
                 handleToggleFavorite(selectedProduct.id);
               }}
-              className="w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300"
+              className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
               style={{ 
                 background: isFavorite(String(selectedProduct.id)) 
-                  ? 'rgba(255,59,48,0.25)' 
-                  : 'rgba(255,255,255,0.15)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  ? 'linear-gradient(145deg, rgba(255,59,48,0.35) 0%, rgba(255,59,48,0.15) 100%)'
+                  : 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
+                backdropFilter: 'blur(25px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
                 border: isFavorite(String(selectedProduct.id)) 
-                  ? '0.5px solid rgba(255,59,48,0.4)'
-                  : '0.5px solid rgba(255,255,255,0.2)',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)'
+                  ? '0.5px solid rgba(255,59,48,0.5)'
+                  : '0.5px solid rgba(255,255,255,0.6)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7)'
               }}
               aria-label={isFavorite(String(selectedProduct.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
               data-testid={`button-favorite-${selectedProduct.id}`}
             >
               <Heart 
                 className="w-5 h-5"
-                style={{ color: isFavorite(String(selectedProduct.id)) ? '#FF3B30' : 'rgba(255,255,255,0.9)' }}
+                style={{ color: isFavorite(String(selectedProduct.id)) ? '#FF3B30' : 'rgba(0,0,0,0.75)' }}
                 fill={isFavorite(String(selectedProduct.id)) ? '#FF3B30' : 'none'}
                 strokeWidth={2}
               />
