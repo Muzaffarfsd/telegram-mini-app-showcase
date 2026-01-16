@@ -244,6 +244,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const sidebar = useDemoSidebar();
   const { toast } = useToast();
   
@@ -336,6 +337,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
     scrollToTop();
     onTabChange?.('catalog');
     setSelectedProduct(product);
+    setCurrentImageIndex(0);
   };
 
   const addToCart = () => {
@@ -399,6 +401,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
   if (activeTab === 'catalog' && selectedProduct) {
     const bgColor = '#000000';
     const recommendedProducts = products.filter(p => p.category === selectedProduct.category && p.id !== selectedProduct.id).slice(0, 4);
+    const productImages = [selectedProduct.image, selectedProduct.hoverImage];
     
     const glassCard = {
       background: 'rgba(255,255,255,0.06)',
@@ -523,15 +526,40 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
         
         {/* HERO SECTION - 70vh */}
         <div className="relative" style={{ height: '70vh', minHeight: '480px' }}>
-          {/* Product Image - Full Screen */}
-          <div className="absolute inset-0">
-            <LazyImage
-              src={selectedProduct.image}
-              alt={selectedProduct.name}
-              className="w-full h-full"
-              style={{ objectFit: 'cover' }}
-              priority
-            />
+          {/* Full-bleed Image Gallery - iOS-style snap scroll */}
+          <div 
+            className="absolute inset-0 overflow-x-auto overflow-y-hidden scrollbar-hide"
+            style={{ 
+              scrollSnapType: 'x mandatory',
+              WebkitOverflowScrolling: 'touch',
+              scrollBehavior: 'smooth',
+            }}
+            onScroll={(e) => {
+              const container = e.currentTarget;
+              const scrollLeft = container.scrollLeft;
+              const width = container.offsetWidth;
+              const newIndex = Math.round(scrollLeft / width);
+              if (newIndex !== currentImageIndex && newIndex >= 0 && newIndex < productImages.length) {
+                setCurrentImageIndex(newIndex);
+              }
+            }}
+          >
+            <div className="flex h-full w-full">
+              {productImages.map((img, idx) => (
+                <div 
+                  key={idx} 
+                  className="min-w-full h-full flex-shrink-0 relative"
+                  style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
+                >
+                  <LazyImage
+                    src={img}
+                    alt={`${selectedProduct.name} - фото ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                    priority={idx === 0}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
           
           {/* Top Gradient */}
@@ -551,6 +579,38 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               background: `linear-gradient(0deg, ${bgColor} 0%, ${bgColor}cc 40%, transparent 100%)`
             }}
           />
+
+          {/* Image Counter Badge */}
+          <div 
+            className="absolute z-40 px-3 py-1.5 rounded-full"
+            style={{
+              bottom: '24px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: 'rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(10px)',
+            }}
+          >
+            <span className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.9)' }}>
+              {currentImageIndex + 1} / {productImages.length}
+            </span>
+          </div>
+
+          {/* iOS-style Page Dots */}
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-40">
+            {productImages.map((_, idx) => (
+              <div 
+                key={idx}
+                className="h-[7px] rounded-full transition-all duration-300"
+                style={{
+                  width: currentImageIndex === idx ? '20px' : '7px',
+                  background: currentImageIndex === idx 
+                    ? 'rgba(255,255,255,0.95)' 
+                    : 'rgba(255,255,255,0.4)',
+                }}
+              />
+            ))}
+          </div>
           
           {/* Floating Glass Navigation Bar */}
           <div 
