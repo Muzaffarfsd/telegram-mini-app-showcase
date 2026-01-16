@@ -523,13 +523,13 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
         
         {/* HERO SECTION - 70vh */}
         <div className="relative" style={{ height: '70vh', minHeight: '480px' }}>
-          {/* Product Image */}
-          <div className="absolute inset-0 flex items-center justify-center p-8">
+          {/* Product Image - Full Screen */}
+          <div className="absolute inset-0">
             <LazyImage
               src={selectedProduct.image}
               alt={selectedProduct.name}
               className="w-full h-full"
-              style={{ objectFit: 'contain' }}
+              style={{ objectFit: 'cover' }}
               priority
             />
           </div>
