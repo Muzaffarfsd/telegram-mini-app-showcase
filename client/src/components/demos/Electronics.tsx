@@ -248,14 +248,6 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
   const sidebar = useDemoSidebar();
   const { toast } = useToast();
   
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowStickyHeader(window.scrollY > 300);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  
   // Persistent hooks
   const { 
     cartItems, 
@@ -448,7 +440,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
     const reviewCount = Math.floor(selectedProduct.rating * 50 + selectedProduct.id * 17);
     
     return (
-      <div className="min-h-screen text-white overflow-x-hidden relative" style={{ backgroundColor: bgColor }}>
+      <div className="h-screen text-white overflow-hidden relative flex flex-col" style={{ backgroundColor: bgColor }}>
         
         {/* FLOATING STICKY HEADER */}
         <AnimatePresence>
@@ -524,6 +516,13 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           )}
         </AnimatePresence>
         
+        {/* SCROLLABLE CONTENT CONTAINER */}
+        <div 
+          className="flex-1 overflow-y-auto" 
+          style={{ paddingBottom: '180px' }}
+          onScroll={(e) => setShowStickyHeader(e.currentTarget.scrollTop > 300)}
+        >
+        
         {/* HERO SECTION - 70vh */}
         <div className="relative" style={{ height: '70vh', minHeight: '480px' }}>
           {/* Full-bleed Image Gallery - iOS-style snap scroll */}
@@ -580,13 +579,12 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             }}
           />
 
-          {/* Image Counter Badge */}
+          {/* Image Counter Badge - ВВЕРХУ справа */}
           <div 
             className="absolute z-40 px-3 py-1.5 rounded-full"
             style={{
-              bottom: '24px',
-              left: '50%',
-              transform: 'translateX(-50%)',
+              top: 'calc(max(16px, env(safe-area-inset-top)) + 16px)',
+              right: '80px',
               background: 'rgba(0,0,0,0.5)',
               backdropFilter: 'blur(10px)',
             }}
@@ -596,8 +594,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             </span>
           </div>
 
-          {/* iOS-style Page Dots */}
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-40">
+          {/* iOS-style Page Dots - внизу hero */}
+          <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-40">
             {productImages.map((_, idx) => (
               <div 
                 key={idx}
@@ -1072,14 +1070,16 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             )}
           </div>
         </div>
+        
+        </div>
+        {/* END SCROLLABLE CONTENT CONTAINER */}
 
-        {/* STICKY BOTTOM PANEL - выше нижней панели навигации */}
+        {/* FIXED BOTTOM PANEL - выше нижней панели навигации */}
         <div 
-          className="sticky left-0 right-0 z-[90]"
+          className="absolute left-0 right-0 z-[90]"
           style={{
             bottom: '90px',
             padding: '12px 16px',
-            marginTop: '-80px',
           }}
         >
           <div 
