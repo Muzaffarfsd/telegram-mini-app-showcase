@@ -432,7 +432,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     const productImages = [selectedProduct.image, selectedProduct.hoverImage];
     
     return (
-      <div className="h-screen text-white overflow-hidden relative flex flex-col" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white overflow-x-hidden relative" style={{ backgroundColor: bgColor }}>
         
         {/* ===== STICKY GLASS HEADER: Shows on scroll past hero ===== */}
         <AnimatePresence>
@@ -519,13 +519,6 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             </m.div>
           )}
         </AnimatePresence>
-        
-        {/* SCROLLABLE CONTENT CONTAINER */}
-        <div 
-          className="flex-1 overflow-y-auto" 
-          style={{ paddingBottom: '180px' }}
-          onScroll={(e) => setShowStickyHeader(e.currentTarget.scrollTop > 300)}
-        >
         
         {/* ===== HERO SECTION: Full-bleed image with floating controls ===== */}
         <div className="relative" style={{ height: '58vh', minHeight: '400px' }}>
@@ -1200,10 +1193,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             })()}
           </div>
         </div>
-        </div>
-        {/* END SCROLLABLE CONTENT CONTAINER */}
 
-        {/* ABSOLUTE Bottom Panel - внутри контейнера приложения */}
+        {/* FIXED Bottom Panel - ограничен шириной приложения */}
         <div 
           className="absolute left-0 right-0 z-[90]"
           style={{
