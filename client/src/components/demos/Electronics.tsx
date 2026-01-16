@@ -448,7 +448,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
     const reviewCount = Math.floor(selectedProduct.rating * 50 + selectedProduct.id * 17);
     
     return (
-      <div className="min-h-screen text-white overflow-x-hidden" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white overflow-x-hidden relative" style={{ backgroundColor: bgColor }}>
         
         {/* FLOATING STICKY HEADER */}
         <AnimatePresence>
@@ -1073,12 +1073,13 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           </div>
         </div>
 
-        {/* FIXED BOTTOM PANEL */}
+        {/* STICKY BOTTOM PANEL */}
         <div 
-          className="fixed left-0 right-0 z-[90]"
+          className="sticky left-0 right-0 z-[90]"
           style={{
-            bottom: 'calc(16px + env(safe-area-inset-bottom))',
+            bottom: '16px',
             padding: '12px 16px',
+            marginTop: '-80px',
           }}
         >
           <div 
