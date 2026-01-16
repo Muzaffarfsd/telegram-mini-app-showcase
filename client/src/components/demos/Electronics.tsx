@@ -1077,7 +1077,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
         <div 
           className="fixed left-0 right-0 z-[90]"
           style={{
-            bottom: 'calc(80px + env(safe-area-inset-bottom))',
+            bottom: 'calc(16px + env(safe-area-inset-bottom))',
             padding: '12px 16px',
           }}
         >
