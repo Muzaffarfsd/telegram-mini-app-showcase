@@ -1194,12 +1194,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </div>
         </div>
 
-        {/* FIXED Bottom Panel - ограничен шириной приложения */}
+        {/* STICKY Bottom Panel - липкая выше навбара */}
         <div 
-          className="absolute left-0 right-0 z-[90]"
+          className="fixed left-0 right-0 z-[90]"
           style={{
             bottom: '90px',
             padding: '12px 16px',
+            maxWidth: '100%',
           }}
         >
           <div 
