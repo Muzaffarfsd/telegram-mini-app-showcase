@@ -1073,11 +1073,11 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           </div>
         </div>
 
-        {/* STICKY BOTTOM PANEL */}
+        {/* STICKY BOTTOM PANEL - выше нижней панели навигации */}
         <div 
           className="sticky left-0 right-0 z-[90]"
           style={{
-            bottom: '16px',
+            bottom: '90px',
             padding: '12px 16px',
             marginTop: '-80px',
           }}
