@@ -432,7 +432,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     const productImages = [selectedProduct.image, selectedProduct.hoverImage];
     
     return (
-      <div className="min-h-screen text-white overflow-x-hidden" style={{ backgroundColor: bgColor }}>
+      <div className="h-screen text-white overflow-hidden relative flex flex-col" style={{ backgroundColor: bgColor }}>
         
         {/* ===== STICKY GLASS HEADER: Shows on scroll past hero ===== */}
         <AnimatePresence>
@@ -519,6 +519,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             </m.div>
           )}
         </AnimatePresence>
+        
+        {/* SCROLLABLE CONTENT CONTAINER */}
+        <div 
+          className="flex-1 overflow-y-auto" 
+          style={{ paddingBottom: '180px' }}
+          onScroll={(e) => setShowStickyHeader(e.currentTarget.scrollTop > 300)}
+        >
         
         {/* ===== HERO SECTION: Full-bleed image with floating controls ===== */}
         <div className="relative" style={{ height: '58vh', minHeight: '400px' }}>
@@ -1193,28 +1200,19 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             })()}
           </div>
         </div>
+        </div>
+        {/* END SCROLLABLE CONTENT CONTAINER */}
 
-        {/* Fixed Glass Bottom Panel with 3D effect */}
+        {/* ABSOLUTE Bottom Panel - внутри контейнера приложения */}
         <div 
-          className="fixed left-0 right-0 z-50"
-          style={{ 
-            perspective: '1000px',
-            bottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 56px)',
+          className="absolute left-0 right-0 z-[90]"
+          style={{
+            bottom: '90px',
+            padding: '12px 16px',
           }}
         >
-          {/* 3D Shadow layer - creates depth illusion */}
           <div 
-            className="absolute -top-8 left-0 right-0 h-16 pointer-events-none"
-            style={{
-              background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
-              transform: 'rotateX(45deg)',
-              transformOrigin: 'bottom center',
-            }}
-          />
-          
-          {/* Glass panel - как в Электронике */}
-          <div 
-            className="relative rounded-2xl mx-4 p-3 flex items-center gap-4"
+            className="rounded-2xl p-3 flex items-center gap-4"
             style={{
               background: 'rgba(0,0,0,0.75)',
               backdropFilter: 'blur(30px) saturate(180%)',
