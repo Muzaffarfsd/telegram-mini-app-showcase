@@ -1,11 +1,25 @@
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 const DATA_CACHE = `data-${CACHE_VERSION}`;
+const API_CACHE = `api-${CACHE_VERSION}`;
 const OFFLINE_PAGE = '/offline.html';
 
 // Navigation Preload support (2026 optimization)
 const NAVIGATION_PRELOAD_SUPPORTED = 'navigationPreload' in self.registration;
+
+// API endpoints that should be cached with stale-while-revalidate
+const CACHEABLE_API_ENDPOINTS = [
+  '/api/reviews',
+  '/api/leaderboard',
+  '/api/achievements',
+  '/api/daily-tasks',
+  '/api/user/stats',
+  '/api/categories'
+];
+
+// API cache TTL in milliseconds (5 minutes)
+const API_CACHE_TTL = 5 * 60 * 1000;
 
 const STATIC_ASSETS = [
   '/',
@@ -214,7 +228,13 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirstWithOffline(request));
+    // Use stale-while-revalidate for cacheable endpoints (faster UX)
+    const isCacheableEndpoint = CACHEABLE_API_ENDPOINTS.some(ep => url.pathname.startsWith(ep));
+    if (isCacheableEndpoint && request.method === 'GET') {
+      event.respondWith(staleWhileRevalidateAPI(request));
+    } else {
+      event.respondWith(networkFirstWithOffline(request));
+    }
     return;
   }
   
@@ -360,6 +380,64 @@ async function staleWhileRevalidate(request) {
   if (offlinePage) return offlinePage;
   
   return new Response('Offline', { status: 503 });
+}
+
+// Stale-while-revalidate for API endpoints with TTL
+async function staleWhileRevalidateAPI(request) {
+  const cache = await caches.open(API_CACHE);
+  const cached = await cache.match(request);
+  
+  // Check if cached response is still fresh (within TTL)
+  let isFresh = false;
+  if (cached) {
+    const cachedTime = cached.headers.get('X-Cached-Time');
+    if (cachedTime) {
+      const age = Date.now() - parseInt(cachedTime, 10);
+      isFresh = age < API_CACHE_TTL;
+    }
+  }
+  
+  // Start network fetch in background
+  const fetchPromise = fetch(request).then(response => {
+    if (response.ok) {
+      // Clone and add cache timestamp
+      const clonedResponse = response.clone();
+      const headers = new Headers(clonedResponse.headers);
+      headers.set('X-Cached-Time', Date.now().toString());
+      
+      const cachedResponse = new Response(clonedResponse.body, {
+        status: clonedResponse.status,
+        statusText: clonedResponse.statusText,
+        headers: headers
+      });
+      
+      cache.put(request, cachedResponse);
+    }
+    return response;
+  }).catch(() => null);
+  
+  // Return cached immediately if available (stale-while-revalidate)
+  if (cached) {
+    // If stale, we already started revalidation above
+    return cached;
+  }
+  
+  // No cache, wait for network
+  const response = await fetchPromise;
+  if (response) return response;
+  
+  // Network failed, return error
+  return new Response(
+    JSON.stringify({ 
+      error: 'offline', 
+      message: 'No cached data available',
+      timestamp: Date.now()
+    }),
+    { 
+      status: 503, 
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
 }
 
 self.addEventListener('sync', (event) => {

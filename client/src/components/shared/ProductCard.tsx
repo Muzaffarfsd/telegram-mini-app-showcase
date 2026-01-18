@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Heart, ShoppingCart } from 'lucide-react';
-import { LazyImage } from '../LazyImage';
+import { LazyImage } from './LazyImage';
 
 export interface Product {
   id: string;
