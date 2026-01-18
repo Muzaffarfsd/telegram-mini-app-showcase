@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, startTransition } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
 type Language = 'ru' | 'en';
+let lastAppliedLanguage: Language | null = null;
 
 interface LanguageContextType {
   language: Language;
@@ -117,20 +118,34 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [language]);
 
   const setLanguage = useCallback((lang: Language) => {
-    // Apply DOM changes immediately for instant visual feedback
+    // Skip if already applied
+    if (lastAppliedLanguage === lang) return;
+    lastAppliedLanguage = lang;
+    
+    const root = document.documentElement;
+    
+    // Disable all transitions for instant switch
+    root.classList.add('no-theme-transition');
+    
+    // Apply DOM changes immediately
     localStorage.setItem('app-language', lang);
-    document.documentElement.lang = lang;
+    root.lang = lang;
     if (lang === 'en') {
-      document.documentElement.classList.add('lang-en');
-      document.documentElement.classList.remove('lang-ru');
+      root.classList.add('lang-en');
+      root.classList.remove('lang-ru');
     } else {
-      document.documentElement.classList.add('lang-ru');
-      document.documentElement.classList.remove('lang-en');
+      root.classList.add('lang-ru');
+      root.classList.remove('lang-en');
     }
     
-    // Update React state with low priority
-    startTransition(() => {
-      setLanguageState(lang);
+    // Update React state synchronously for instant text update
+    setLanguageState(lang);
+    
+    // Re-enable transitions after paint
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        root.classList.remove('no-theme-transition');
+      });
     });
   }, []);
 
