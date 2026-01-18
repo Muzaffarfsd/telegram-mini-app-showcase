@@ -2,11 +2,15 @@
 
 This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional demo applications across various business sectors. It highlights the potential of AI agents for 24/7 support, sales automation, personalization, and analytics within a Telegram environment. The platform offers an interactive experience for users to explore diverse business scenarios and serves as an "app within an app."
 
-## 2026 Q1 Updates
+## 2026 Q1 Updates (January 2026)
+- **React 19.2**: New `<Activity>` component, `useEffectEvent` hook, improved DevTools performance tracking
+- **framer-motion 12**: Rebranded to `motion`, new animation APIs
+- **drizzle-orm 0.45.1**: Latest stable with improved query performance
+- **lucide-react 0.562**: Latest icon set with new icons
 - **Dependencies**: Stripe 20.x, optimized bundle with ES2022 target
 - **Database**: Unique composite indexes on `dailyTasks` and `tasksProgress` to prevent duplicates
 - **PWA**: Service Worker v6 with Navigation Preload for faster page loads
-- **Build**: Vite target upgraded to ES2022 for modern Telegram WebView v117+
+- **Build**: Vite 5.4 with ES2022 target for modern Telegram WebView v117+
 - **Internationalization**: Automatic language detection based on Telegram user region (CIS -> Russian, others -> English)
 
 # User Preferences
@@ -18,7 +22,7 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 # System Architecture
 
 ## Frontend Architecture
-- **Frameworks**: React 19 with TypeScript, Vite.
+- **Frameworks**: React 19.2 with TypeScript, Vite 5.4, framer-motion 12.
 - **Styling**: Tailwind CSS with a 2025 premium design system, supporting global dark theme, glassmorphism, neumorphism, gradients, and micro-interactions.
 - **UI Components**: Shadcn/ui (Radix UI), Lucide React, Phosphor Icons.
 - **State Management**: React Query for server state, Zustand for client state.
