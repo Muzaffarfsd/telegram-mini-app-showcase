@@ -32,7 +32,8 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Performance**: Optimized FCP (<2s target) via:
   - Deferred initialization: Sentry, providers, and global components loaded after first paint using `requestIdleCallback`
   - Lazy providers: `LazyRewardsProvider`, `LazyXPNotificationProvider`, `LazyMotionProvider` wrapped in Suspense
-  - Bundle splitting: Icons, framer-motion, utils, charts in separate chunks (see `vite.config.ts` manualChunks)
+  - Bundle splitting: 12 separate vendor chunks (react, query, radix, charts, animation, swiper, stripe, uppy, utils, icons, effects, demos)
+  - `LazyImage` component with IntersectionObserver (500px rootMargin), Unsplash auto-optimization, shimmer skeleton
   - No duplicate Telegram SDK calls: `ready()`/`expand()` called once in `index.html`
   - CSS animations for nav instead of framer-motion to reduce critical JS
   - iOS 26-style scroll haptics via `useScrollHaptic` hook with Telegram HapticFeedback API
