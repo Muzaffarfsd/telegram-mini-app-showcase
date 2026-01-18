@@ -8,6 +8,9 @@ import { useViewedDemos } from '../hooks/useTelegramStorage';
 import { FavoriteButton } from './FavoriteButton';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Stories, type Story } from './Stories';
+import { usePullToRefresh } from '../hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from './PullToRefreshIndicator';
+import { useQueryClient } from '@tanstack/react-query';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
@@ -102,6 +105,18 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const [headlineIndex, setHeadlineIndex] = useState(0);
   const { videoRef } = useVideoLazyLoad({ threshold: 0.25 });
   const { markAsViewed, viewedCount } = useViewedDemos();
+  const queryClient = useQueryClient();
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries();
+    await new Promise(resolve => setTimeout(resolve, 600));
+  }, [queryClient]);
+
+  const { pullDistance, isRefreshing, progress, shouldShowIndicator } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 70,
+    maxPullDistance: 100
+  });
   
   // Optimized headline rotation - pauses when page hidden or reduced motion
   useEffect(() => {
@@ -156,6 +171,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
       className="min-h-screen transition-colors duration-300 showcase-page"
       style={{ backgroundColor: 'var(--surface)' }}
     >
+      <PullToRefreshIndicator
+        pullDistance={pullDistance}
+        isRefreshing={isRefreshing}
+        shouldShow={shouldShowIndicator}
+        progress={progress}
+      />
       <div 
         className="max-w-lg mx-auto px-5"
         style={{ paddingTop: '120px' }}
