@@ -183,7 +183,15 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 }}
                 data-testid="cta-primary"
               >
-                <span className="text-[15px] font-semibold" style={{ color: 'var(--cta-foreground)' }}>
+                <span 
+                  className="text-[15px]" 
+                  style={{ 
+                    color: 'var(--cta-foreground)', 
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                    fontWeight: 500,
+                    letterSpacing: '0.01em'
+                  }}
+                >
                   {t('showcase.orderProject')}
                 </span>
                 <ArrowRight className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--cta-foreground)' }} strokeWidth={2.5} />
@@ -205,7 +213,15 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 data-testid="cta-demo"
               >
                 <Play className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-secondary-text)' }} fill="currentColor" />
-                <span className="text-[15px] font-medium" style={{ color: 'var(--cta-secondary-text)' }}>
+                <span 
+                  className="text-[15px]" 
+                  style={{ 
+                    color: 'var(--cta-secondary-text)',
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                    fontWeight: 500,
+                    letterSpacing: '0.01em'
+                  }}
+                >
                   {t('showcase.openApp')}
                 </span>
               </button>
