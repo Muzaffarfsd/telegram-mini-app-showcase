@@ -85,8 +85,8 @@ export default defineConfig({
             if (id.includes('stripe') || id.includes('@stripe')) return 'stripe-vendor';
             if (id.includes('@uppy') || id.includes('uppy')) return 'uppy-vendor';
             
-            // Charts - heavy, separate chunk
-            if (id.includes('recharts') || id.includes('d3-')) return 'charts-vendor';
+            // Charts - heavy, separate chunk. Keep in generic vendor if issues persist.
+            if (id.includes('recharts') || id.includes('d3-')) return 'vendor';
             
             // Animation - loaded lazily via LazyMotionProvider (precise match)
             if (id.includes('framer-motion')) return 'animation-vendor';
