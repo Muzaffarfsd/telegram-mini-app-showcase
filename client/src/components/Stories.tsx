@@ -287,30 +287,47 @@ const StoryViewer = memo(({
     }
   }, [activeIndex]);
 
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  
+  const handleDrag = (_: any, info: any) => {
+    const y = Math.max(0, info.offset.y);
+    setDragY(y);
+    if (y > 0 && !isDragging) setIsDragging(true);
+  };
+  
   const handleDragEnd = (_: any, info: any) => {
-    if (info.offset.y > 80 || info.velocity.y > 500) {
+    setIsDragging(false);
+    if (info.offset.y > 100 || info.velocity.y > 400) {
       onClose();
+    } else {
+      setDragY(0);
     }
   };
+
+  const bgOpacity = Math.max(0.3, 1 - dragY / 300);
+  const scale = Math.max(0.9, 1 - dragY / 1500);
 
   return (
     <m.div
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      animate={{ opacity: bgOpacity }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
       className="fixed inset-0 z-[1000] bg-black flex items-center justify-center"
     >
       <m.div
         drag="y"
-        dragConstraints={{ top: 0, bottom: 0 }}
-        dragElastic={0.3}
+        dragConstraints={{ top: 0, bottom: 300 }}
+        dragElastic={{ top: 0, bottom: 0.6 }}
+        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         initial={{ y: '100%' }}
-        animate={{ y: 0 }}
+        animate={{ y: 0, scale: isDragging ? scale : 1 }}
         exit={{ y: '100%' }}
-        transition={{ type: 'tween', duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+        transition={{ type: 'tween', duration: isDragging ? 0 : 0.25, ease: [0.32, 0.72, 0, 1] }}
         className="relative w-full h-[100dvh] max-w-md bg-black overflow-hidden touch-pan-y will-change-transform"
+        style={{ borderRadius: isDragging ? 24 : 0 }}
       >
         <div className="absolute inset-0">
           {story.video ? (
