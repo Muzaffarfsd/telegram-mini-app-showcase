@@ -188,7 +188,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   style={{ 
                     color: 'var(--cta-foreground)', 
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                    fontWeight: 500,
+                    fontWeight: 600,
                     letterSpacing: '0.01em'
                   }}
                 >
@@ -218,7 +218,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   style={{ 
                     color: 'var(--cta-secondary-text)',
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                    fontWeight: 500,
+                    fontWeight: 600,
                     letterSpacing: '0.01em'
                   }}
                 >
