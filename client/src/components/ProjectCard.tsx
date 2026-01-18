@@ -39,13 +39,24 @@ export default function ProjectCard({
     const rect = cardRef.current.getBoundingClientRect();
     mouseX.set(e.clientX - rect.left);
     mouseY.set(e.clientY - rect.top);
+
+    // Add 3D tilt effect
+    const xPct = (e.clientX - rect.left) / rect.width - 0.5;
+    const yPct = (e.clientY - rect.top) / rect.height - 0.5;
+    cardRef.current.style.transform = `perspective(1000px) rotateX(${yPct * -10}deg) rotateY(${xPct * 10}deg) scale3d(1.02, 1.02, 1.02)`;
+  };
+
+  const handleMouseLeave = () => {
+    if (!cardRef.current) return;
+    cardRef.current.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
   };
 
   return (
     <button
       ref={cardRef}
       onMouseMove={handleMouseMove}
-      className="group relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-system-blue/30 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-system-blue/20 shadow-sm hover:shadow-lg w-full"
+      onMouseLeave={handleMouseLeave}
+      className="group relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-system-blue/30 transition-all duration-500 ease-out focus:outline-none focus:ring-4 focus:ring-system-blue/20 shadow-sm hover:shadow-2xl w-full"
       onClick={handleClick}
       data-testid={`card-demo-${id}`}
       aria-label={`Open ${title} demo - ${description}`}

@@ -80,6 +80,18 @@ export const Stories = memo(function Stories({ stories, onOpenDemo }: StoriesPro
 
   const handleOpen = (index: number) => {
     haptic.medium();
+    // Intelligent prefetching for next/prev stories
+    const nextIdx = (index + 1) % stories.length;
+    const prevIdx = (index - 1 + stories.length) % stories.length;
+    [stories[index], stories[nextIdx], stories[prevIdx]].forEach(s => {
+      if (s.video) {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = s.video;
+        document.head.appendChild(link);
+      }
+    });
+
     setActiveStoryIndex(index);
     setProgress(0);
   };
