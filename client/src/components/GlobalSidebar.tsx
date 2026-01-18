@@ -375,8 +375,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   // Edge swipe to open handlers
   const handleEdgeTouchStart = useCallback((e: TouchEvent) => {
     const touch = e.touches[0];
-    // Activate if touch starts within 80px of left edge (larger zone for easier access)
-    if (touch.clientX <= 80 && !sidebarOpen) {
+    // Activate if touch starts within 25px of left edge (smaller zone to avoid conflicts)
+    if (touch.clientX <= 25 && !sidebarOpen) {
       isSwipingToOpen.current = true;
       edgeSwipeStartX.current = touch.clientX;
       edgeSwipeStartY.current = touch.clientY;
@@ -391,13 +391,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     const diffX = touch.clientX - edgeSwipeStartX.current;
     const diffY = touch.clientY - edgeSwipeStartY.current;
     
-    // Determine swipe direction on first significant movement
-    if (swipeDirection.current === null && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
-      swipeDirection.current = Math.abs(diffX) > Math.abs(diffY) ? 'horizontal' : 'vertical';
+    // Determine swipe direction on first significant movement (stronger threshold)
+    if (swipeDirection.current === null && (Math.abs(diffX) > 20 || Math.abs(diffY) > 20)) {
+      // Require horizontal movement to be 2x vertical to be considered horizontal swipe
+      swipeDirection.current = Math.abs(diffX) > Math.abs(diffY) * 2 ? 'horizontal' : 'vertical';
     }
     
-    // Only process horizontal swipes
-    if (swipeDirection.current === 'horizontal' && diffX > 0) {
+    // Only process clear horizontal swipes (diffX > 30 to avoid accidental triggers)
+    if (swipeDirection.current === 'horizontal' && diffX > 30) {
       // Prevent scrolling while swiping to open
       e.preventDefault();
       const sidebarWidth = Math.min(320, window.innerWidth - 48);
