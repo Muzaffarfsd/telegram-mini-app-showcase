@@ -12,6 +12,11 @@ This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional dem
 - **PWA**: Service Worker v7 with Navigation Preload and stale-while-revalidate API caching (5min TTL)
 - **Build**: Vite 5.4 with ES2022 target for modern Telegram WebView v117+
 - **Internationalization**: Automatic language detection based on Telegram user region (CIS -> Russian, others -> English)
+- **Activity API**: `useActivity` hook and `<Activity>` component for preserving state during navigation
+- **Share API**: `ShareButton` component with Telegram `shareMessage()` integration and haptic feedback
+- **View Transitions**: CSS View Transitions API for smooth page transitions (progressive enhancement)
+- **INP Optimization**: `useTransition` in filters for non-blocking category changes
+- **Performance Detection**: `usePerformanceClass` hook for adaptive animations based on device capability
 
 # User Preferences
 
@@ -98,3 +103,21 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Database**: @neondatabase/serverless (PostgreSQL with Drizzle ORM).
 - **Monitoring**: Sentry, Pino.
 - **Caching**: Upstash Redis.
+
+# Telegram Mini App Configuration
+
+## Custom Loading Screen (BotFather)
+To configure a branded loading screen for the Mini App:
+1. Open @BotFather in Telegram
+2. Send `/mybots` and select your bot
+3. Go to `Bot Settings` → `Configure Mini App`
+4. Set custom icon (256x256 PNG) and brand colors for light/dark themes
+5. The loading screen appears while the Mini App loads
+
+## Bot API 9.2 Features Used
+- `shareMessage()` - Share content to Telegram chats
+- `downloadFile()` - Native file download popup
+- `requestFullscreen()` - Fullscreen mode for immersive experience
+- `DeviceStorage` / `SecureStorage` - Persistent local storage
+- `BiometricManager` - Biometric authentication
+- `HapticFeedback` - Tactile feedback for interactions

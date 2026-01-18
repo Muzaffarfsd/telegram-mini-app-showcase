@@ -207,3 +207,30 @@ class HapticManager {
 }
 
 export const haptic = new HapticManager();
+
+export interface ShareMessageOptions {
+  text: string;
+  parseMode?: 'HTML' | 'Markdown';
+}
+
+export async function shareMessage(options: ShareMessageOptions): Promise<boolean> {
+  const tg = window.Telegram?.WebApp;
+  if (!tg || typeof (tg as any).shareMessage !== 'function') {
+    console.warn('[Telegram] shareMessage not supported');
+    return false;
+  }
+  
+  try {
+    haptic.medium();
+    await (tg as any).shareMessage(options);
+    return true;
+  } catch (error) {
+    console.error('[Telegram] shareMessage failed:', error);
+    return false;
+  }
+}
+
+export function isShareMessageSupported(): boolean {
+  const tg = window.Telegram?.WebApp;
+  return !!(tg && typeof (tg as any).shareMessage === 'function');
+}

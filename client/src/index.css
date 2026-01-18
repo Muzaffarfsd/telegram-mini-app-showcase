@@ -76,7 +76,42 @@ html.lang-en h4, html.lang-en h5, html.lang-en h6 {
 
 /* === BEST APP 2025 PERFORMANCE OPTIMIZATIONS === */
 
-/* Page transitions disabled for instant navigation */
+/* === VIEW TRANSITIONS API (2026) === */
+/* Progressive enhancement for smooth page transitions */
+@supports (view-transition-name: none) {
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root) {
+      animation: fade-out 0.15s ease-out forwards;
+    }
+    
+    ::view-transition-new(root) {
+      animation: fade-in 0.15s ease-in forwards;
+    }
+    
+    @keyframes fade-out {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.98); }
+    }
+    
+    @keyframes fade-in {
+      from { opacity: 0; transform: scale(1.02); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Named transitions for specific elements */
+    .view-transition-card {
+      view-transition-name: card;
+    }
+    
+    .view-transition-header {
+      view-transition-name: header;
+    }
+    
+    .view-transition-nav {
+      view-transition-name: nav;
+    }
+  }
+}
 
 /* ========================================
    CSS PAINT CONTAINMENT

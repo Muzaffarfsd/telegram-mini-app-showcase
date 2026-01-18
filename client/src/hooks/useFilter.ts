@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect, useTransition } from 'react';
 
 interface UseFilterOptions<T> {
   items: T[];
@@ -31,6 +31,7 @@ export function useFilter<T extends Record<string, any>>({
 }: UseFilterOptions<T>) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isPending, startTransition] = useTransition();
   
   const debouncedSearchQuery = useDebounce(searchQuery, debounceMs);
 
@@ -105,7 +106,9 @@ export function useFilter<T extends Record<string, any>>({
   }, []);
 
   const handleCategoryChange = useCallback((category: string) => {
-    setSelectedCategory(category);
+    startTransition(() => {
+      setSelectedCategory(category);
+    });
   }, []);
 
   const resetFilters = useCallback(() => {
@@ -131,5 +134,6 @@ export function useFilter<T extends Record<string, any>>({
     filterCounts,
     hasActiveFilters,
     isSearching,
+    isPending,
   };
 }

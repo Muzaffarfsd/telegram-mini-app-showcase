@@ -86,3 +86,20 @@ export {
   useCartAnnouncer,
   useFilterAnnouncer,
 } from './useAriaLive';
+
+export {
+  useActivity,
+  useActivityState,
+  useActivityEffect,
+  useActivityCallback,
+  useActivityMemo,
+  type ActivityMode,
+} from './useActivity';
+
+export {
+  usePerformanceClass,
+  useAdaptiveAnimationDuration,
+  useAdaptiveDebounce,
+  useAdaptiveImageQuality,
+  type PerformanceClass,
+} from './usePerformanceClass';
