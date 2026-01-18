@@ -9,7 +9,7 @@ This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional dem
 - **lucide-react 0.562**: Latest icon set with new icons
 - **Dependencies**: Stripe 20.x, optimized bundle with ES2022 target
 - **Database**: Unique composite indexes on `dailyTasks` and `tasksProgress` to prevent duplicates
-- **PWA**: Service Worker v6 with Navigation Preload for faster page loads
+- **PWA**: Service Worker v7 with Navigation Preload and stale-while-revalidate API caching (5min TTL)
 - **Build**: Vite 5.4 with ES2022 target for modern Telegram WebView v117+
 - **Internationalization**: Automatic language detection based on Telegram user region (CIS -> Russian, others -> English)
 
@@ -52,7 +52,7 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
   - `StickyBlurHeader/CollapsibleHeader` - Headers with glassmorphism blur effects
 - **AI/Gamification**: `AIAssistant` for contextual chat, `PersonalizedRecommendations` (ML-driven), and a gamification system with achievements, XP, daily tasks, and leaderboards.
 - **Accessibility**: WCAG 2.1 AA compliance with ARIA labels and keyboard navigation.
-- **PWA Infrastructure**: Service Worker v6 with Navigation Preload, offline-first strategy, multi-tier caching, background sync, and push notifications. Includes `OfflineIndicator` and IndexedDB storage for offline data persistence.
+- **PWA Infrastructure**: Service Worker v7 with Navigation Preload, offline-first strategy, multi-tier caching (static, dynamic, data, API), stale-while-revalidate API caching with 5min TTL, background sync, and push notifications. Includes `OfflineIndicator` and IndexedDB storage for offline data persistence.
 - **Theming**: Dark/light theme toggle (`useTheme` hook) with localStorage persistence and Telegram WebApp color synchronization. Implements an iOS 26-inspired "Air & Glass" light theme and a premium OLED-optimized dark theme with 20+ effects:
   - OLED Black foundation with 5 surface depth levels (surface-1 to surface-5)
   - Premium card styles with gradient backgrounds and luminous borders
