@@ -397,33 +397,42 @@ async function staleWhileRevalidateAPI(request) {
     }
   }
   
-  // Start network fetch in background
-  const fetchPromise = fetch(request).then(response => {
-    if (response.ok) {
-      // Clone and add cache timestamp
-      const clonedResponse = response.clone();
-      const headers = new Headers(clonedResponse.headers);
-      headers.set('X-Cached-Time', Date.now().toString());
-      
-      const cachedResponse = new Response(clonedResponse.body, {
-        status: clonedResponse.status,
-        statusText: clonedResponse.statusText,
-        headers: headers
-      });
-      
-      cache.put(request, cachedResponse);
+  // Helper to fetch and cache response
+  const fetchAndCache = async () => {
+    try {
+      const response = await fetch(request);
+      if (response.ok) {
+        const clonedResponse = response.clone();
+        const headers = new Headers(clonedResponse.headers);
+        headers.set('X-Cached-Time', Date.now().toString());
+        
+        const cachedResponse = new Response(clonedResponse.body, {
+          status: clonedResponse.status,
+          statusText: clonedResponse.statusText,
+          headers: headers
+        });
+        
+        cache.put(request, cachedResponse);
+      }
+      return response;
+    } catch {
+      return null;
     }
-    return response;
-  }).catch(() => null);
+  };
   
-  // Return cached immediately if available (stale-while-revalidate)
-  if (cached) {
-    // If stale, we already started revalidation above
+  // If cache is fresh, return it immediately
+  if (cached && isFresh) {
+    return cached;
+  }
+  
+  // If cache exists but is stale, return stale and revalidate in background
+  if (cached && !isFresh) {
+    fetchAndCache(); // Fire and forget background revalidation
     return cached;
   }
   
   // No cache, wait for network
-  const response = await fetchPromise;
+  const response = await fetchAndCache();
   if (response) return response;
   
   // Network failed, return error
