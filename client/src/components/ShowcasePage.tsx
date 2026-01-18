@@ -151,7 +151,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   style={{ 
                     color: 'var(--cta-background)', 
                     letterSpacing: '-0.035em',
-                    textShadow: '0 0 30px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.3)'
+                    textShadow: '0 4px 8px rgba(16, 185, 129, 0.15), 0 8px 24px rgba(16, 185, 129, 0.12), 0 16px 48px rgba(16, 185, 129, 0.08), 0 24px 80px rgba(16, 185, 129, 0.05)'
                   }}
                 >
                   {headlines[headlineIndex]}
