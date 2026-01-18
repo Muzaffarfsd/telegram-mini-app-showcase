@@ -1,5 +1,4 @@
-import { useState, useRef, useCallback, memo } from 'react';
-import { m, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useCallback, memo, useEffect } from 'react';
 import { X, Camera, Video, Upload, Loader2, ImagePlus, Hash, MapPin, Link2, ChevronDown, Store, Smartphone, Sparkles, UtensilsCrossed, Dumbbell, Home, Plane, GraduationCap, Car, PawPrint, Stethoscope, Flower2, Brush, Package, PartyPopper, Scale, Wallet, Bot, Lightbulb, Star, BarChart3, Handshake, Rocket, Trophy, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -174,24 +173,42 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
 
   const isValid = title.trim().length > 0 && selectedFile !== null;
 
+  const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsAnimating(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsVisible(true));
+      });
+    } else {
+      setIsVisible(false);
+      const timer = setTimeout(() => setIsAnimating(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  if (!isOpen && !isAnimating) return null;
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <m.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-xl flex items-end justify-center"
-          onClick={handleClose}
-        >
-          <m.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-full max-w-lg bg-white/80 dark:bg-black/70 backdrop-blur-2xl border-t border-white/30 dark:border-white/10 rounded-t-3xl overflow-hidden shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
+    <div
+      className={`fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-end justify-center transition-opacity duration-300 ease-out will-change-[opacity] ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}
+      onClick={handleClose}
+      style={{ transform: 'translateZ(0)' }}
+    >
+      <div
+        className={`w-full max-w-lg bg-white/80 dark:bg-black/70 backdrop-blur-xl border-t border-white/30 dark:border-white/10 rounded-t-3xl overflow-hidden shadow-2xl transition-transform duration-300 will-change-transform ${
+          isVisible ? 'translate-y-0' : 'translate-y-full'
+        }`}
+        style={{ 
+          transitionTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)',
+          transform: isVisible ? 'translateY(0) translateZ(0)' : 'translateY(100%) translateZ(0)'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
             <div className="flex items-center justify-between p-4 border-b border-white/20 dark:border-white/10">
               <h2 
                 className="text-lg font-bold text-primary"
@@ -462,11 +479,9 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
               {isUploading && (
                 <div className="space-y-2">
                   <div className="h-1 bg-white/30 dark:bg-white/10 backdrop-blur-sm rounded-full overflow-hidden">
-                    <m.div 
-                      className="h-full bg-gradient-to-r from-system-blue to-system-purple"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${uploadProgress}%` }}
-                      transition={{ duration: 0.3 }}
+                    <div 
+                      className="h-full bg-gradient-to-r from-system-blue to-system-purple transition-[width] duration-300 ease-out"
+                      style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
                   <p className="text-xs text-label-secondary text-center">
@@ -498,9 +513,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                   : 'Story will appear after moderator review'}
               </p>
             </div>
-          </m.div>
-        </m.div>
-      )}
-    </AnimatePresence>
+      </div>
+    </div>
   );
 });
