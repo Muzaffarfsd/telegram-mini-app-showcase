@@ -173,12 +173,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => handleNavigate('projects')}
-                className="flex-1 flex items-center justify-center gap-2.5 rounded-full transition-all duration-200 active:scale-[0.97] shadow-lg"
+                className="flex-1 flex items-center justify-center gap-2.5 rounded-full transition-all duration-200 active:scale-[0.97]"
                 style={{ 
                   background: 'var(--cta-background)',
                   height: '50px',
                   paddingLeft: '20px',
-                  paddingRight: '18px'
+                  paddingRight: '18px',
+                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
                 }}
                 data-testid="cta-primary"
               >
@@ -198,7 +199,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   height: '50px',
                   paddingLeft: '18px',
                   paddingRight: '18px',
-                  background: 'rgba(255,255,255,0.03)'
+                  background: 'rgba(255,255,255,0.03)',
+                  boxShadow: '0 8px 24px rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
                 }}
                 data-testid="cta-demo"
               >
