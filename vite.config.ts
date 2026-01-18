@@ -69,51 +69,19 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // React core + Radix UI in same chunk to ensure React loads first
-            // Radix depends on React.forwardRef, must be bundled together
+            // Bundle react and react-dom together to ensure same instance and avoid useLayoutEffect error
             if (
               id.includes('/node_modules/react/') || 
               id.includes('/node_modules/react-dom/') || 
               id.includes('/node_modules/scheduler/') ||
               id.includes('@radix-ui')
-            ) return 'react-vendor';
+            ) return 'vendor-react';
             
-            // Icons - must come before generic checks
-            if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) return 'icons-vendor';
-            
-            // Payment & Upload - rarely used, load on demand
-            if (id.includes('stripe') || id.includes('@stripe')) return 'stripe-vendor';
-            if (id.includes('@uppy') || id.includes('uppy')) return 'uppy-vendor';
-            
-            // Charts - heavy, separate chunk. Keep in generic vendor if issues persist.
-            if (id.includes('recharts') || id.includes('d3-')) return 'vendor';
-            
-            // Animation - loaded lazily via LazyMotionProvider (precise match)
-            if (id.includes('framer-motion')) return 'animation-vendor';
-            
-            // React Query - core data fetching
-            if (id.includes('@tanstack/react-query')) return 'query-vendor';
-            
-            // Swiper - carousels
-            if (id.includes('swiper')) return 'swiper-vendor';
-            
-            // Utils - small, frequently used
-            if (
-              id.includes('date-fns') ||
-              id.includes('zod') ||
-              id.includes('clsx') ||
-              id.includes('tailwind-merge') ||
-              id.includes('class-variance-authority') ||
-              id.includes('nanoid') ||
-              id.includes('zustand')
-            ) return 'utils-vendor';
+            // Icons
+            if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) return 'vendor-icons';
             
             return 'vendor';
           }
-          // App-specific chunks (not vendor)
-          if (id.includes('/src/components/ProjectsPage')) return 'projects';
-          if (id.includes('/src/components/demos/')) return 'demos';
-          if (id.includes('/src/components/effects/')) return 'effects';
         },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
