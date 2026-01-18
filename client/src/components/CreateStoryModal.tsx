@@ -189,10 +189,10 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-full max-w-lg bg-surface-elevated rounded-t-3xl overflow-hidden"
+            className="w-full max-w-lg bg-white/80 dark:bg-black/70 backdrop-blur-2xl border-t border-white/30 dark:border-white/10 rounded-t-3xl overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-4 border-b border-separator">
+            <div className="flex items-center justify-between p-4 border-b border-white/20 dark:border-white/10">
               <h2 
                 className="text-lg font-bold text-primary"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
@@ -202,7 +202,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
               <button
                 data-testid="button-close-create-story"
                 onClick={handleClose}
-                className="w-8 h-8 rounded-full bg-fill-tertiary flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 flex items-center justify-center"
               >
                 <X className="w-4 h-4 text-label-secondary" />
               </button>
@@ -221,7 +221,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                 <button
                   data-testid="button-select-media"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full aspect-[9/16] max-h-[300px] rounded-2xl border-2 border-dashed border-separator flex flex-col items-center justify-center gap-3 bg-fill-tertiary/30 hover:bg-fill-tertiary/50 transition-colors"
+                  className="w-full aspect-[9/16] max-h-[300px] rounded-2xl border-2 border-dashed border-white/30 dark:border-white/10 flex flex-col items-center justify-center gap-3 bg-white/30 dark:bg-white/5 backdrop-blur-xl hover:bg-white/40 dark:hover:bg-white/10 transition-colors"
                 >
                   <div className="w-16 h-16 rounded-full bg-system-blue/10 flex items-center justify-center">
                     <ImagePlus className="w-8 h-8 text-system-blue" />
@@ -285,7 +285,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder={language === 'ru' ? 'Название вашего сторис' : 'Your story title'}
                   maxLength={100}
-                  className="bg-fill-tertiary border-0"
+                  className="bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 placeholder:text-foreground/40"
                 />
               </div>
               
@@ -303,7 +303,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                   placeholder={language === 'ru' ? 'Расскажите подробнее...' : 'Tell us more...'}
                   maxLength={500}
                   rows={2}
-                  className="bg-fill-tertiary border-0 resize-none"
+                  className="bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 placeholder:text-foreground/40 resize-none"
                 />
               </div>
 
@@ -324,7 +324,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddHashtag())}
                     placeholder={language === 'ru' ? '#бизнес' : '#business'}
                     maxLength={30}
-                    className="bg-fill-tertiary border-0 flex-1"
+                    className="bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 placeholder:text-foreground/40 flex-1"
                   />
                   <Button
                     data-testid="button-add-hashtag"
@@ -345,7 +345,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                         key={tag}
                         data-testid={`button-remove-hashtag-${tag}`}
                         onClick={() => handleRemoveHashtag(tag)}
-                        className="px-2 py-1 rounded-full bg-system-blue/10 text-system-blue text-xs font-medium flex items-center gap-1 hover:bg-system-blue/20 transition-colors"
+                        className="px-2 py-1 rounded-full bg-system-blue/20 dark:bg-system-blue/30 backdrop-blur-sm border border-system-blue/30 text-system-blue text-xs font-medium flex items-center gap-1 hover:bg-system-blue/30 dark:hover:bg-system-blue/40 transition-colors"
                       >
                         #{tag}
                         <X className="w-3 h-3" />
@@ -370,7 +370,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder={language === 'ru' ? 'Москва' : 'Moscow'}
                     maxLength={100}
-                    className="bg-fill-tertiary border-0"
+                    className="bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 placeholder:text-foreground/40"
                   />
                 </div>
 
@@ -387,7 +387,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                       data-testid="button-select-demo"
                       type="button"
                       onClick={() => setShowDemoSelector(!showDemoSelector)}
-                      className="w-full h-9 px-3 rounded-lg bg-fill-tertiary text-left text-sm flex items-center justify-between"
+                      className="w-full h-9 px-3 rounded-lg bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 text-left text-sm flex items-center justify-between"
                     >
                       <span className={linkedDemoId ? 'text-primary' : 'text-label-tertiary'}>
                         {linkedDemoId 
@@ -397,11 +397,11 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                       <ChevronDown className="w-4 h-4 text-label-tertiary" />
                     </button>
                     {showDemoSelector && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-surface-elevated rounded-xl shadow-xl border border-separator z-50 max-h-48 overflow-y-auto">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white/80 dark:bg-black/80 backdrop-blur-2xl rounded-xl shadow-xl border border-white/30 dark:border-white/10 z-50 max-h-48 overflow-y-auto">
                         <button
                           data-testid="button-demo-none"
                           onClick={() => { setLinkedDemoId(null); setShowDemoSelector(false); haptic.light(); }}
-                          className="w-full px-3 py-2 text-left text-sm text-label-secondary hover:bg-fill-tertiary"
+                          className="w-full px-3 py-2 text-left text-sm text-label-secondary hover:bg-white/30 dark:hover:bg-white/10 transition-colors"
                         >
                           {language === 'ru' ? 'Без привязки' : 'No link'}
                         </button>
@@ -412,8 +412,8 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                               key={demo.id}
                               data-testid={`button-demo-${demo.id}`}
                               onClick={() => { setLinkedDemoId(demo.id); setShowDemoSelector(false); haptic.light(); }}
-                              className={`w-full px-3 py-2 text-left text-sm hover:bg-fill-tertiary flex items-center gap-2 ${
-                                linkedDemoId === demo.id ? 'bg-system-blue/10 text-system-blue' : 'text-primary'
+                              className={`w-full px-3 py-2 text-left text-sm hover:bg-white/30 dark:hover:bg-white/10 transition-colors flex items-center gap-2 ${
+                                linkedDemoId === demo.id ? 'bg-system-blue/20 text-system-blue' : 'text-primary'
                               }`}
                             >
                               <DemoIcon className="w-4 h-4" />
@@ -447,8 +447,8 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                         }}
                         className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                           category === cat.id
-                            ? `bg-gradient-to-r ${cat.color} text-white shadow-lg`
-                            : 'bg-fill-tertiary text-label-primary hover:bg-fill-secondary'
+                            ? `bg-gradient-to-r ${cat.color} text-white shadow-lg backdrop-blur-xl`
+                            : 'bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 text-label-primary hover:bg-white/70 dark:hover:bg-white/20'
                         }`}
                       >
                         <CatIcon className="w-4 h-4" />
@@ -461,7 +461,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
               
               {isUploading && (
                 <div className="space-y-2">
-                  <div className="h-1 bg-fill-tertiary rounded-full overflow-hidden">
+                  <div className="h-1 bg-white/30 dark:bg-white/10 backdrop-blur-sm rounded-full overflow-hidden">
                     <m.div 
                       className="h-full bg-gradient-to-r from-system-blue to-system-purple"
                       initial={{ width: 0 }}
