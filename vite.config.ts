@@ -67,24 +67,7 @@ export default defineConfig({
     
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            // DO NOT chunk React core libraries to avoid multiple instances and createContext errors
-            if (
-              id.includes('/node_modules/react/') || 
-              id.includes('/node_modules/react-dom/') || 
-              id.includes('/node_modules/scheduler/')
-            ) return null;
-            
-            // Icons
-            if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) return 'vendor-icons';
-            
-            // UI components
-            if (id.includes('@radix-ui')) return 'vendor-ui';
-            
-            return 'vendor';
-          }
-        },
+        manualChunks: undefined,
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'

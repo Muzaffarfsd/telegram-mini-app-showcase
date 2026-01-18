@@ -174,8 +174,10 @@ function App() {
   
   // Track navigation for predictive prefetching
   useEffect(() => {
-    trackNavigation(route.component);
-  }, [route.component, trackNavigation]);
+    if (route && route.component) {
+      trackNavigation(route.component);
+    }
+  }, [route?.component, trackNavigation]);
   
   // Deferred initialization after first paint
   useEffect(() => {
