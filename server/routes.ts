@@ -4,7 +4,7 @@ import crypto from "crypto";
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { db } from "./db";
-import { photos, insertPhotoSchema, users, referrals, gamificationStats, dailyTasks, tasksProgress, userCoinsBalance, reviews, insertReviewSchema, analyticsEvents, userStories, insertUserStorySchema } from "../shared/schema";
+import { photos, insertPhotoSchema, users, referrals, gamificationStats, dailyTasks, tasksProgress, userCoinsBalance, reviews, insertReviewSchema, analyticsEvents, userStories, insertUserStorySchema, storyReactions, insertStoryReactionSchema } from "../shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { desc, eq, and, sql, count } from "drizzle-orm";
 import { getCached, setCache, invalidateCache, cacheKeys, CACHE_TTL } from './redis';
@@ -1593,6 +1593,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     mediaUrl: z.string().url().or(z.string().startsWith('https://storage.googleapis.com/')),
     thumbnailUrl: z.string().url().optional().nullable(),
     category: z.enum(['my-business', 'idea', 'review', 'before-after', 'looking-for', 'lifehack', 'achievement', 'question']).default('my-business'),
+    hashtags: z.array(z.string().max(30)).max(10).optional().default([]),
+    linkedDemoId: z.string().max(100).optional().nullable(),
+    location: z.string().max(100).optional().nullable(),
   });
 
   // Create a new user story
@@ -1606,7 +1609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return validationError(res, 'Validation failed', { errors: validationResult.error.errors });
       }
       
-      const { title, description, mediaType, mediaUrl, thumbnailUrl, category } = validationResult.data;
+      const { title, description, mediaType, mediaUrl, thumbnailUrl, category, hashtags, linkedDemoId, location } = validationResult.data;
       
       const objectStorageService = new ObjectStorageService();
       
@@ -1621,6 +1624,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { owner: String(telegramId), visibility: "public" }
       );
       
+      // Sanitize hashtags
+      const sanitizedHashtags = hashtags?.map((tag: string) => tag.replace(/[^a-zA-Zа-яА-Я0-9_]/g, '').toLowerCase()).filter(Boolean) || [];
+      
       const storyData = {
         telegramId,
         title: sanitizeHtmlString(title),
@@ -1629,6 +1635,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         mediaUrl: normalizedMediaUrl,
         thumbnailUrl: thumbnailUrl || null,
         category,
+        hashtags: sanitizedHashtags,
+        linkedDemoId: linkedDemoId || null,
+        location: location ? sanitizeHtmlString(location) : null,
         isActive: true,
         isApproved: false, // Stories need moderation
       };
@@ -1722,6 +1731,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error deleting story:', error);
       res.status(500).json({ error: 'Failed to delete story' });
+    }
+  });
+
+  // ============ STORY REACTIONS API ============
+  
+  const reactionTypes = ['like', 'fire', 'clap', 'heart_eyes', 'rocket'] as const;
+  const reactionCountFields = {
+    like: userStories.likesCount,
+    fire: userStories.fireCount,
+    clap: userStories.clapCount,
+    heart_eyes: userStories.heartEyesCount,
+    rocket: userStories.rocketCount,
+  } as const;
+
+  // Get user's reactions for a story
+  app.get("/api/user-stories/:id/reactions", optionalTelegramAuthMiddleware, async (req: any, res) => {
+    try {
+      const storyId = parseInt(req.params.id);
+      const telegramId = req.telegramUser?.id;
+      
+      // Get story with reaction counts
+      const [story] = await db.select({
+        id: userStories.id,
+        likesCount: userStories.likesCount,
+        fireCount: userStories.fireCount,
+        clapCount: userStories.clapCount,
+        heartEyesCount: userStories.heartEyesCount,
+        rocketCount: userStories.rocketCount,
+      })
+        .from(userStories)
+        .where(eq(userStories.id, storyId))
+        .limit(1);
+      
+      if (!story) {
+        return res.status(404).json({ error: 'Story not found' });
+      }
+      
+      // Get user's own reactions if authenticated
+      let userReactions: string[] = [];
+      if (telegramId) {
+        const reactions = await db.select({ reactionType: storyReactions.reactionType })
+          .from(storyReactions)
+          .where(and(
+            eq(storyReactions.storyId, storyId),
+            eq(storyReactions.telegramId, telegramId)
+          ));
+        userReactions = reactions.map(r => r.reactionType);
+      }
+      
+      res.json({
+        counts: {
+          like: story.likesCount,
+          fire: story.fireCount,
+          clap: story.clapCount,
+          heart_eyes: story.heartEyesCount,
+          rocket: story.rocketCount,
+        },
+        userReactions,
+      });
+    } catch (error) {
+      console.error('Error fetching reactions:', error);
+      res.status(500).json({ error: 'Failed to fetch reactions' });
+    }
+  });
+
+  // Toggle a reaction on a story
+  app.post("/api/user-stories/:id/reactions", verifyTelegramUser, async (req: any, res) => {
+    try {
+      const storyId = parseInt(req.params.id);
+      const telegramId = req.telegramUser.id;
+      
+      const reactionSchema = z.object({
+        reactionType: z.enum(reactionTypes),
+      });
+      
+      const validationResult = reactionSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return validationError(res, 'Invalid reaction type');
+      }
+      
+      const { reactionType } = validationResult.data;
+      
+      // Check if story exists
+      const [story] = await db.select({ id: userStories.id })
+        .from(userStories)
+        .where(eq(userStories.id, storyId))
+        .limit(1);
+      
+      if (!story) {
+        return res.status(404).json({ error: 'Story not found' });
+      }
+      
+      // Check if user already has this reaction
+      const [existingReaction] = await db.select()
+        .from(storyReactions)
+        .where(and(
+          eq(storyReactions.storyId, storyId),
+          eq(storyReactions.telegramId, telegramId),
+          eq(storyReactions.reactionType, reactionType)
+        ))
+        .limit(1);
+      
+      const countField = reactionCountFields[reactionType];
+      
+      if (existingReaction) {
+        // Remove reaction
+        await db.delete(storyReactions)
+          .where(eq(storyReactions.id, existingReaction.id));
+        
+        // Decrement count
+        await db.update(userStories)
+          .set({ [reactionType === 'like' ? 'likesCount' : `${reactionType}Count`]: sql`GREATEST(${countField} - 1, 0)` })
+          .where(eq(userStories.id, storyId));
+        
+        res.json({ success: true, action: 'removed', reactionType });
+      } else {
+        // Add reaction
+        await db.insert(storyReactions).values({
+          storyId,
+          telegramId,
+          reactionType,
+        });
+        
+        // Increment count
+        await db.update(userStories)
+          .set({ [reactionType === 'like' ? 'likesCount' : `${reactionType}Count`]: sql`${countField} + 1` })
+          .where(eq(userStories.id, storyId));
+        
+        res.json({ success: true, action: 'added', reactionType });
+      }
+    } catch (error) {
+      console.error('Error toggling reaction:', error);
+      res.status(500).json({ error: 'Failed to toggle reaction' });
     }
   });
 

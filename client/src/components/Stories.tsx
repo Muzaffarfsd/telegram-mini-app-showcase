@@ -1,9 +1,11 @@
 import { memo, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, Plus } from 'lucide-react';
+import { X, ChevronRight, Plus, Eye, Share2, Heart, Flame, HandMetal, Sparkles, Rocket } from 'lucide-react';
 import { useHaptic } from '@/hooks/useHaptic';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { CreateStoryModal } from './CreateStoryModal';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 export interface Story {
   id: string;
@@ -13,7 +15,128 @@ export interface Story {
   video?: string;
   demoId: string;
   color?: string;
+  viewCount?: number;
+  likesCount?: number;
+  fireCount?: number;
+  clapCount?: number;
+  heartEyesCount?: number;
+  rocketCount?: number;
+  hashtags?: string[];
+  location?: string;
+  linkedDemoId?: string;
 }
+
+const reactionConfig = [
+  { type: 'like', icon: Heart, label: 'Like', color: 'text-pink-500', bgColor: 'bg-pink-500/20' },
+  { type: 'fire', icon: Flame, label: 'Fire', color: 'text-orange-500', bgColor: 'bg-orange-500/20' },
+  { type: 'clap', icon: HandMetal, label: 'Clap', color: 'text-yellow-500', bgColor: 'bg-yellow-500/20' },
+  { type: 'heart_eyes', icon: Sparkles, label: 'Love', color: 'text-purple-500', bgColor: 'bg-purple-500/20' },
+  { type: 'rocket', icon: Rocket, label: 'Rocket', color: 'text-blue-500', bgColor: 'bg-blue-500/20' },
+] as const;
+
+interface ReactionCounts {
+  like: number;
+  fire: number;
+  clap: number;
+  heart_eyes: number;
+  rocket: number;
+}
+
+const StoryReactions = memo(({ storyId }: { storyId: string }) => {
+  const haptic = useHaptic();
+  const queryClient = useQueryClient();
+  const [animatingReaction, setAnimatingReaction] = useState<string | null>(null);
+
+  const { data: reactionData, isLoading, isError } = useQuery<{ counts: ReactionCounts; userReactions: string[] }>({
+    queryKey: [`/api/user-stories/${storyId}/reactions`],
+    staleTime: 30000,
+  });
+
+  const queryKey = `/api/user-stories/${storyId}/reactions`;
+  
+  const reactionMutation = useMutation({
+    mutationFn: async (reactionType: string) => {
+      const res = await apiRequest('POST', `/api/user-stories/${storyId}/reactions`, { reactionType });
+      return res.json();
+    },
+    onMutate: async (reactionType) => {
+      await queryClient.cancelQueries({ queryKey: [queryKey] });
+      
+      const prev = queryClient.getQueryData<{ counts: ReactionCounts; userReactions: string[] }>([queryKey]);
+      
+      if (prev) {
+        const isRemoving = prev.userReactions.includes(reactionType);
+        queryClient.setQueryData([queryKey], {
+          counts: {
+            ...prev.counts,
+            [reactionType]: Math.max(0, prev.counts[reactionType as keyof ReactionCounts] + (isRemoving ? -1 : 1)),
+          },
+          userReactions: isRemoving 
+            ? prev.userReactions.filter(r => r !== reactionType)
+            : [...prev.userReactions, reactionType],
+        });
+      }
+      return { prev };
+    },
+    onError: (_, __, context) => {
+      if (context?.prev) {
+        queryClient.setQueryData([queryKey], context.prev);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
+    },
+  });
+
+  const handleReaction = useCallback((type: string) => {
+    haptic.medium();
+    setAnimatingReaction(type);
+    reactionMutation.mutate(type);
+    setTimeout(() => setAnimatingReaction(null), 300);
+  }, [haptic, reactionMutation]);
+
+  const userReactions = reactionData?.userReactions || [];
+  const counts = reactionData?.counts || { like: 0, fire: 0, clap: 0, heart_eyes: 0, rocket: 0 };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-1.5">
+        {reactionConfig.map(({ type }) => (
+          <div key={type} className="w-10 h-8 rounded-full bg-white/10 animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  if (isError) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center gap-1.5" data-testid="story-reactions-container">
+      {reactionConfig.map(({ type, icon: Icon, color, bgColor }) => {
+        const isActive = userReactions.includes(type);
+        const isAnimating = animatingReaction === type;
+        const count = counts[type as keyof ReactionCounts] || 0;
+        
+        return (
+          <button
+            key={type}
+            data-testid={`button-reaction-${type}`}
+            onClick={(e) => { e.stopPropagation(); handleReaction(type); }}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full transition-all duration-200 ${
+              isActive ? bgColor : 'bg-white/10'
+            } ${isAnimating ? 'scale-110' : 'scale-100'} active:scale-90`}
+          >
+            <Icon className={`w-4 h-4 transition-colors ${isActive ? color : 'text-white/70'}`} fill={isActive ? 'currentColor' : 'none'} />
+            {count > 0 && <span className={`text-xs font-medium ${isActive ? color : 'text-white/70'}`} data-testid={`text-reaction-count-${type}`}>{count}</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+});
+StoryReactions.displayName = 'StoryReactions';
 
 interface StoriesProps {
   stories: Story[];
@@ -25,6 +148,7 @@ const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window
 const StoryAvatar = memo(({ story, onClick }: { story: Story; onClick: () => void }) => {
   return (
     <button
+      data-testid={`button-story-avatar-${story.id}`}
       onClick={onClick}
       className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer touch-manipulation"
     >
@@ -56,6 +180,7 @@ const AddStoryButton = memo(({ onClick }: { onClick: () => void }) => {
   
   return (
     <button
+      data-testid="button-add-story"
       onClick={() => {
         haptic.medium();
         onClick();
@@ -234,6 +359,7 @@ const StoryViewer = memo(({
             </div>
           </div>
           <button 
+            data-testid="button-close-story"
             onClick={onClose}
             className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white active:scale-90 transition-transform"
           >
@@ -251,8 +377,38 @@ const StoryViewer = memo(({
           <div className="flex-1" onClick={(e) => { e.stopPropagation(); onNext(); }} />
         </div>
 
-        <div className="absolute bottom-8 left-3 right-3 z-30">
+        <div className="absolute bottom-8 left-3 right-3 z-30 space-y-3">
+          <div className="flex items-center justify-between">
+            <StoryReactions storyId={story.id} />
+            <div className="flex items-center gap-2">
+              {story.viewCount !== undefined && (
+                <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/10 text-white/70 text-xs">
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>{story.viewCount}</span>
+                </div>
+              )}
+              <button 
+                data-testid="button-share-story"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  try {
+                    if (typeof window !== 'undefined' && window.Telegram?.WebApp?.shareMessage) {
+                      window.Telegram.WebApp.shareMessage(story.title);
+                    } else if (navigator.share) {
+                      navigator.share({ title: story.title, text: story.subtitle });
+                    }
+                  } catch {
+                    console.log('Share not available');
+                  }
+                }}
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 active:scale-90 transition-transform"
+              >
+                <Share2 className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
           <button
+            data-testid="button-try-demo"
             onClick={(e) => {
               e.stopPropagation();
               onClose();

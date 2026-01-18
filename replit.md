@@ -17,7 +17,13 @@ This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional dem
 - **View Transitions**: CSS View Transitions API for smooth page transitions (progressive enhancement)
 - **INP Optimization**: `useTransition` in filters for non-blocking category changes
 - **Performance Detection**: `usePerformanceClass` hook for adaptive animations based on device capability
-- **User-Generated Stories**: Users can create and upload stories with 8 content types: My Business, App Idea, Review, Before/After, Looking For Partner, Lifehack, Achievement, Question. Stories require moderation before public display
+- **User-Generated Stories**: Users can create and upload stories with 8 content types: My Business, App Idea, Review, Before/After, Looking For Partner, Lifehack, Achievement, Question. Stories require moderation before public display. Features include:
+  - **Reactions System**: 5 reaction types (like, fire, clap, heart_eyes, rocket) with optimistic UI updates
+  - **Hashtags**: Up to 10 hashtags per story for discoverability
+  - **Demo Linking**: Stories can be linked to specific demo applications
+  - **Location Tags**: Optional city/location tagging
+  - **View Counter**: Tracks story view counts
+  - **Share Integration**: Telegram shareMessage() API integration
 
 # User Preferences
 

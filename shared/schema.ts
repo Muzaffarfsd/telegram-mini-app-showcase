@@ -158,9 +158,16 @@ export const userStories = pgTable("user_stories", {
   mediaType: varchar("media_type", { length: 20 }).notNull().default("image"), // "image" | "video"
   mediaUrl: varchar("media_url", { length: 500 }).notNull(),
   thumbnailUrl: varchar("thumbnail_url", { length: 500 }),
-  category: varchar("category", { length: 50 }).default("general"),
+  category: varchar("category", { length: 50 }).default("my-business"),
+  hashtags: text("hashtags").array().default([]),
+  linkedDemoId: varchar("linked_demo_id", { length: 100 }),
+  location: varchar("location", { length: 100 }),
   viewCount: integer("view_count").default(0).notNull(),
   likesCount: integer("likes_count").default(0).notNull(),
+  fireCount: integer("fire_count").default(0).notNull(),
+  clapCount: integer("clap_count").default(0).notNull(),
+  heartEyesCount: integer("heart_eyes_count").default(0).notNull(),
+  rocketCount: integer("rocket_count").default(0).notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   isApproved: boolean("is_approved").default(false).notNull(),
   expiresAt: timestamp("expires_at"),
@@ -171,6 +178,20 @@ export const userStories = pgTable("user_stories", {
   isApprovedIdx: index("idx_user_stories_is_approved").on(table.isApproved),
   categoryIdx: index("idx_user_stories_category").on(table.category),
   createdAtIdx: index("idx_user_stories_created_at").on(table.createdAt),
+  linkedDemoIdx: index("idx_user_stories_linked_demo").on(table.linkedDemoId),
+}));
+
+// Таблица реакций на сторис
+export const storyReactions = pgTable("story_reactions", {
+  id: serial("id").primaryKey(),
+  storyId: integer("story_id").notNull().references(() => userStories.id, { onDelete: "cascade" }),
+  telegramId: bigint("telegram_id", { mode: "number" }).notNull(),
+  reactionType: varchar("reaction_type", { length: 20 }).notNull(), // "like" | "fire" | "clap" | "heart_eyes" | "rocket"
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  storyIdIdx: index("idx_story_reactions_story_id").on(table.storyId),
+  telegramIdIdx: index("idx_story_reactions_telegram_id").on(table.telegramId),
+  uniqueReaction: unique().on(table.storyId, table.telegramId, table.reactionType),
 }));
 
 // Таблица для хранения метаданных фотографий
@@ -227,7 +248,16 @@ export const insertUserStorySchema = createInsertSchema(userStories).omit({
   createdAt: true,
   viewCount: true,
   likesCount: true,
+  fireCount: true,
+  clapCount: true,
+  heartEyesCount: true,
+  rocketCount: true,
   isApproved: true,
+});
+
+export const insertStoryReactionSchema = createInsertSchema(storyReactions).omit({
+  id: true,
+  createdAt: true,
 });
 
 export const insertReviewSchema = createInsertSchema(reviews).omit({
@@ -255,6 +285,8 @@ export type Photo = typeof photos.$inferSelect;
 export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
 export type UserStory = typeof userStories.$inferSelect;
 export type InsertUserStory = z.infer<typeof insertUserStorySchema>;
+export type StoryReaction = typeof storyReactions.$inferSelect;
+export type InsertStoryReaction = z.infer<typeof insertStoryReactionSchema>;
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
 
