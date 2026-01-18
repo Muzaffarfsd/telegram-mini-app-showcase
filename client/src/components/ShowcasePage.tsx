@@ -144,14 +144,23 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               >
                 {t('showcase.heroTitle2')}
               </span>
-              <div className="h-[54px] overflow-hidden mt-1">
+              <div className="h-[54px] overflow-visible mt-1 relative">
+                <div 
+                  key={`glow-${headlineIndex}`}
+                  className="absolute inset-0 animate-in fade-in duration-700"
+                  style={{
+                    background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.1) 40%, transparent 70%)',
+                    filter: 'blur(20px)',
+                    transform: 'translateY(4px) scale(1.2)',
+                    pointerEvents: 'none'
+                  }}
+                />
                 <span
                   key={headlineIndex}
-                  className="block text-[44px] leading-[1.02] font-semibold animate-in fade-in slide-in-from-bottom-8 duration-500"
+                  className="block text-[44px] leading-[1.02] font-semibold animate-in fade-in slide-in-from-bottom-8 duration-500 relative"
                   style={{ 
                     color: 'var(--cta-background)', 
-                    letterSpacing: '-0.035em',
-                    textShadow: '0 4px 8px rgba(16, 185, 129, 0.15), 0 8px 24px rgba(16, 185, 129, 0.12), 0 16px 48px rgba(16, 185, 129, 0.08), 0 24px 80px rgba(16, 185, 129, 0.05)'
+                    letterSpacing: '-0.035em'
                   }}
                 >
                   {headlines[headlineIndex]}
