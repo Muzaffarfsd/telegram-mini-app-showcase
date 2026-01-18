@@ -1,5 +1,7 @@
 import { ArrowRight, Star, Heart } from "lucide-react";
 import { useHaptic } from "@/hooks/useHaptic";
+import { useRef } from "react";
+import { m, useMotionValue, useMotionTemplate } from "framer-motion";
 
 interface ProjectCardProps {
   id: string;
@@ -23,19 +25,44 @@ export default function ProjectCard({
   onClick 
 }: ProjectCardProps) {
   const haptic = useHaptic();
+  const cardRef = useRef<HTMLButtonElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
 
   const handleClick = () => {
     haptic.light();
     onClick();
   };
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    mouseX.set(e.clientX - rect.left);
+    mouseY.set(e.clientY - rect.top);
+  };
+
   return (
     <button
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
       className="group relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-system-blue/30 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-system-blue/20 shadow-sm hover:shadow-lg w-full"
       onClick={handleClick}
       data-testid={`card-demo-${id}`}
       aria-label={`Open ${title} demo - ${description}`}
     >
+      {/* Spotlight Effect */}
+      <m.div
+        className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{
+          background: useMotionTemplate`
+            radial-gradient(
+              650px circle at ${mouseX}px ${mouseY}px,
+              rgba(36, 129, 204, 0.15),
+              transparent 80%
+            )
+          `,
+        }}
+      />
       <div className="flex items-center p-4 space-x-4">
         {/* Project Image */}
         <div className="relative flex-shrink-0">
