@@ -1,7 +1,6 @@
-"use client"
-
 import * as React from "react"
 import { Drawer as DrawerPrimitive } from "vaul"
+import { useHaptic } from "@/hooks/useHaptic"
 
 import { cn } from "@/lib/utils"
 
@@ -16,7 +15,26 @@ const Drawer = ({
 )
 Drawer.displayName = "Drawer"
 
-const DrawerTrigger = DrawerPrimitive.Trigger
+const DrawerTrigger = React.forwardRef<
+  React.ElementRef<typeof DrawerPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Trigger>
+>(({ onClick, ...props }, ref) => {
+  const haptic = useHaptic();
+  
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    haptic.medium();
+    onClick?.(e);
+  };
+
+  return (
+    <DrawerPrimitive.Trigger
+      ref={ref}
+      onClick={handleClick}
+      {...props}
+    />
+  );
+})
+DrawerTrigger.displayName = "DrawerTrigger"
 
 const DrawerPortal = DrawerPrimitive.Portal
 
