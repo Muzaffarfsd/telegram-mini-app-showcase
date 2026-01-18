@@ -17,6 +17,7 @@ This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional dem
 - **View Transitions**: CSS View Transitions API for smooth page transitions (progressive enhancement)
 - **INP Optimization**: `useTransition` in filters for non-blocking category changes
 - **Performance Detection**: `usePerformanceClass` hook for adaptive animations based on device capability
+- **User-Generated Stories**: Users can create and upload their own stories with image/video content, requiring moderation before public display
 
 # User Preferences
 
@@ -81,7 +82,7 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 ## Backend Architecture (Development)
 - **Server**: Express.js with TypeScript.
 - **Database**: PostgreSQL with Drizzle ORM (@neondatabase/serverless), optimized schema with 25+ indexes.
-- **APIs**: Telegram webhook, Stripe payment processing, photo management, referral program, Gamification API.
+- **APIs**: Telegram webhook, Stripe payment processing, photo management, referral program, Gamification API, User Stories API (CRUD with moderation).
 - **Storage**: Replit Object Storage for photos using presigned URLs.
 - **Security**: Telegram authentication validation (HMAC-SHA256), Redis-based CSRF tokens (1-hour TTL), XSS sanitization, 4-tier rate limiting, Redis for distributed limiting.
 - **Caching**: Upstash Redis for CSRF tokens, leaderboard caching, and session management.

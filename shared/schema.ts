@@ -149,6 +149,30 @@ export const analyticsEvents = pgTable("analytics_events", {
   createdAtIdx: index("idx_analytics_events_created_at").on(table.createdAt),
 }));
 
+// Таблица пользовательских сторис
+export const userStories = pgTable("user_stories", {
+  id: serial("id").primaryKey(),
+  telegramId: bigint("telegram_id", { mode: "number" }).notNull().references(() => users.telegramId, { onDelete: "cascade" }),
+  title: varchar("title", { length: 100 }).notNull(),
+  description: text("description"),
+  mediaType: varchar("media_type", { length: 20 }).notNull().default("image"), // "image" | "video"
+  mediaUrl: varchar("media_url", { length: 500 }).notNull(),
+  thumbnailUrl: varchar("thumbnail_url", { length: 500 }),
+  category: varchar("category", { length: 50 }).default("general"),
+  viewCount: integer("view_count").default(0).notNull(),
+  likesCount: integer("likes_count").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  isApproved: boolean("is_approved").default(false).notNull(),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  telegramIdIdx: index("idx_user_stories_telegram_id").on(table.telegramId),
+  isActiveIdx: index("idx_user_stories_is_active").on(table.isActive),
+  isApprovedIdx: index("idx_user_stories_is_approved").on(table.isApproved),
+  categoryIdx: index("idx_user_stories_category").on(table.category),
+  createdAtIdx: index("idx_user_stories_created_at").on(table.createdAt),
+}));
+
 // Таблица для хранения метаданных фотографий
 export const photos = pgTable("photos", {
   id: serial("id").primaryKey(),
@@ -198,6 +222,14 @@ export const insertPhotoSchema = createInsertSchema(photos).omit({
   uploadedAt: true,
 });
 
+export const insertUserStorySchema = createInsertSchema(userStories).omit({
+  id: true,
+  createdAt: true,
+  viewCount: true,
+  likesCount: true,
+  isApproved: true,
+});
+
 export const insertReviewSchema = createInsertSchema(reviews).omit({
   id: true,
   createdAt: true,
@@ -221,6 +253,8 @@ export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
 export type Photo = typeof photos.$inferSelect;
 export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
+export type UserStory = typeof userStories.$inferSelect;
+export type InsertUserStory = z.infer<typeof insertUserStorySchema>;
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
 

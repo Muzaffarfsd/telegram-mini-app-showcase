@@ -1,7 +1,9 @@
 import { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { m, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
-import { X, ChevronRight, ChevronLeft } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, Plus } from 'lucide-react';
 import { useHaptic } from '@/hooks/useHaptic';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { CreateStoryModal } from './CreateStoryModal';
 
 export interface Story {
   id: string;
@@ -72,10 +74,39 @@ const StoryAvatar = memo(({ story, index, onClick }: { story: Story; index: numb
 });
 StoryAvatar.displayName = 'StoryAvatar';
 
+const AddStoryButton = memo(({ onClick }: { onClick: () => void }) => {
+  const { language } = useLanguage();
+  const haptic = useHaptic();
+  
+  return (
+    <button
+      onClick={() => {
+        haptic.medium();
+        onClick();
+      }}
+      className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer"
+    >
+      <div className="relative p-[3px] rounded-full bg-gradient-to-tr from-system-blue/30 via-system-purple/30 to-system-pink/30 group-hover:from-system-blue group-hover:via-system-purple group-hover:to-system-pink group-active:scale-90 transition-all duration-200">
+        <div className="w-16 h-16 rounded-full border-2 border-dashed border-separator bg-fill-tertiary/50 flex items-center justify-center group-hover:border-solid group-hover:border-system-blue/50 transition-all">
+          <Plus className="w-6 h-6 text-label-secondary group-hover:text-system-blue transition-colors" />
+        </div>
+      </div>
+      <span 
+        className="text-[11px] text-label-secondary font-semibold transition-colors group-hover:text-system-blue"
+        style={{ fontFamily: 'Montserrat, sans-serif' }}
+      >
+        {language === 'ru' ? 'Создать' : 'Create'}
+      </span>
+    </button>
+  );
+});
+AddStoryButton.displayName = 'AddStoryButton';
+
 export const Stories = memo(function Stories({ stories, onOpenDemo }: StoriesProps) {
   const [activeStoryIndex, setActiveStoryIndex] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const haptic = useHaptic();
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -153,6 +184,7 @@ export const Stories = memo(function Stories({ stories, onOpenDemo }: StoriesPro
   return (
     <div className="mb-10">
       <div className="flex gap-5 overflow-x-auto pb-4 px-1 no-scrollbar mask-fade-right">
+        <AddStoryButton onClick={() => setIsCreateModalOpen(true)} />
         {stories.map((story, index) => (
           <StoryAvatar 
             key={story.id} 
@@ -162,6 +194,11 @@ export const Stories = memo(function Stories({ stories, onOpenDemo }: StoriesPro
           />
         ))}
       </div>
+      
+      <CreateStoryModal 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+      />
 
       <AnimatePresence>
         {activeStoryIndex !== null && activeStory && (
