@@ -169,8 +169,8 @@ function App() {
   const { route } = useRouting();
   const { trackNavigation } = useNavigationTracking();
   
-  // iOS 26-style scroll haptics - disabled to avoid haptics on normal scrolling
-  useScrollHaptic({ enabled: false, edgeBounce: false, selectionTicks: false });
+  // iOS 26-style scroll haptics - only edge bounce (top/bottom collision)
+  useScrollHaptic({ enabled: true, edgeBounce: true, selectionTicks: false });
   
   // Track navigation for predictive prefetching
   useEffect(() => {
