@@ -15,12 +15,14 @@ interface CreateStoryModalProps {
 }
 
 const categories = [
-  { id: 'general', label: { en: 'General', ru: 'Общее' } },
-  { id: 'fashion', label: { en: 'Fashion', ru: 'Мода' } },
-  { id: 'food', label: { en: 'Food', ru: 'Еда' } },
-  { id: 'fitness', label: { en: 'Fitness', ru: 'Фитнес' } },
-  { id: 'realestate', label: { en: 'Real Estate', ru: 'Недвижимость' } },
-  { id: 'ai', label: { en: 'AI & Tech', ru: 'AI и Технологии' } },
+  { id: 'my-business', label: { en: 'My Business', ru: 'Мой бизнес' }, icon: '🏪', color: 'from-emerald-500 to-teal-500' },
+  { id: 'idea', label: { en: 'App Idea', ru: 'Идея приложения' }, icon: '💡', color: 'from-amber-500 to-orange-500' },
+  { id: 'review', label: { en: 'Review', ru: 'Отзыв' }, icon: '⭐', color: 'from-yellow-500 to-amber-500' },
+  { id: 'before-after', label: { en: 'Before/After', ru: 'До/После' }, icon: '📊', color: 'from-blue-500 to-indigo-500' },
+  { id: 'looking-for', label: { en: 'Looking For', ru: 'Ищу партнёра' }, icon: '🤝', color: 'from-purple-500 to-pink-500' },
+  { id: 'lifehack', label: { en: 'Lifehack', ru: 'Лайфхак' }, icon: '🚀', color: 'from-cyan-500 to-blue-500' },
+  { id: 'achievement', label: { en: 'Achievement', ru: 'Достижение' }, icon: '🏆', color: 'from-yellow-400 to-orange-500' },
+  { id: 'question', label: { en: 'Question', ru: 'Вопрос' }, icon: '❓', color: 'from-pink-500 to-rose-500' },
 ];
 
 export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose }: CreateStoryModalProps) {
@@ -31,7 +33,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
   
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('general');
+  const [category, setCategory] = useState('my-business');
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -252,14 +254,14 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label 
                   className="text-xs font-medium text-label-secondary"
                   style={{ fontFamily: 'Montserrat, sans-serif' }}
                 >
-                  {language === 'ru' ? 'Категория' : 'Category'}
+                  {language === 'ru' ? 'Тип контента' : 'Content Type'}
                 </label>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {categories.map((cat) => (
                     <button
                       key={cat.id}
@@ -267,13 +269,14 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
                         setCategory(cat.id);
                         haptic.selection();
                       }}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                         category === cat.id
-                          ? 'bg-system-blue text-white'
-                          : 'bg-fill-tertiary text-label-secondary hover:bg-fill-secondary'
+                          ? `bg-gradient-to-r ${cat.color} text-white shadow-lg`
+                          : 'bg-fill-tertiary text-label-primary hover:bg-fill-secondary'
                       }`}
                     >
-                      {cat.label[language as 'en' | 'ru']}
+                      <span className="text-base">{cat.icon}</span>
+                      <span className="truncate">{cat.label[language as 'en' | 'ru']}</span>
                     </button>
                   ))}
                 </div>

@@ -1592,7 +1592,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     mediaType: z.enum(['image', 'video']),
     mediaUrl: z.string().url().or(z.string().startsWith('https://storage.googleapis.com/')),
     thumbnailUrl: z.string().url().optional().nullable(),
-    category: z.enum(['general', 'fashion', 'food', 'fitness', 'realestate', 'ai']).default('general'),
+    category: z.enum(['my-business', 'idea', 'review', 'before-after', 'looking-for', 'lifehack', 'achievement', 'question']).default('my-business'),
   });
 
   // Create a new user story
@@ -1655,7 +1655,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updateSchema = z.object({
         title: z.string().min(1).max(100).optional(),
         description: z.string().max(500).optional().nullable(),
-        category: z.enum(['general', 'fashion', 'food', 'fitness', 'realestate', 'ai']).optional(),
+        category: z.enum(['my-business', 'idea', 'review', 'before-after', 'looking-for', 'lifehack', 'achievement', 'question']).optional(),
       });
       
       const validationResult = updateSchema.safeParse(req.body);
