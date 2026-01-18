@@ -148,7 +148,11 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <span
                   key={headlineIndex}
                   className="block text-[44px] leading-[1.02] font-semibold animate-in fade-in slide-in-from-bottom-8 duration-500"
-                  style={{ color: 'var(--cta-background)', letterSpacing: '-0.035em' }}
+                  style={{ 
+                    color: 'var(--cta-background)', 
+                    letterSpacing: '-0.035em',
+                    textShadow: '0 0 30px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.3)'
+                  }}
                 >
                   {headlines[headlineIndex]}
                 </span>
