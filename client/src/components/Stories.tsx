@@ -61,7 +61,10 @@ const StoryAvatar = memo(({ story, index, onClick }: { story: Story; index: numb
           <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
         </div>
       </div>
-      <span className="text-[11px] text-label-secondary font-semibold max-w-[72px] truncate transition-colors group-hover:text-system-blue">
+      <span 
+        className="text-[11px] text-label-secondary font-semibold max-w-[72px] truncate transition-colors group-hover:text-system-blue"
+        style={{ fontFamily: 'Montserrat, sans-serif' }}
+      >
         {story.title}
       </span>
     </m.div>

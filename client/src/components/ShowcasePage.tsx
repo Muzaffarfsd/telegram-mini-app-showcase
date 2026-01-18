@@ -280,7 +280,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 <div className="flex flex-col gap-1">
                   <h2 
                     className="text-[19px] font-bold tracking-tight leading-tight"
-                    style={{ color: 'var(--text-primary)' }}
+                    style={{ 
+                      color: 'var(--text-primary)',
+                      fontFamily: 'Montserrat, sans-serif'
+                    }}
                   >
                     {language === 'ru' ? 'Быстрый обзор демо' : 'Quick Demo Overview'}
                   </h2>
