@@ -545,7 +545,7 @@ input, textarea {
   --quaternary-system-fill: rgba(255, 255, 255, 0.04);
   
   /* === SEMANTIC TOKENS (Dark Theme) === */
-  --surface: #0f0f11;
+  --surface: #000000;  /* Match --background for consistent footer */
   --surface-elevated: #1a1a1e;
   --text-primary: #FFFFFF;
   --text-secondary: rgba(255, 255, 255, 0.7);
@@ -786,7 +786,7 @@ input, textarea {
   /* === SEMANTIC THEME TOKENS (for components) === */
   
   /* Surface colors */
-  --surface: #0f0f11;
+  --surface: #000000;  /* Match --background for consistent footer */
   --surface-elevated: #1a1a1e;
   --surface-overlay: rgba(0, 0, 0, 0.6);
   

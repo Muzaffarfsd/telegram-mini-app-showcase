@@ -74,10 +74,10 @@ export function initTelegramWebApp() {
     tg.requestFullscreen();
   }
   
-  // Make header and bottom bar match background
-  const bgColor = '#0A0A0B';
+  // Make header and bottom bar match background - use pure black for OLED
+  const bgColor = '#000000';
   if (typeof (tg as any).setHeaderColor === 'function') {
-    (tg as any).setHeaderColor('bg_color');
+    (tg as any).setHeaderColor(bgColor);
   }
   if (typeof (tg as any).setBackgroundColor === 'function') {
     (tg as any).setBackgroundColor(bgColor);

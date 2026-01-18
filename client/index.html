@@ -222,6 +222,20 @@
       tg.ready();
       tg.expand();
       
+      // CRITICAL: Set bottom bar color immediately to match dark theme
+      // This prevents the white flash in the footer area
+      try {
+        if (typeof tg.setBottomBarColor === 'function') {
+          tg.setBottomBarColor('#000000');
+        }
+        if (typeof tg.setBackgroundColor === 'function') {
+          tg.setBackgroundColor('#000000');
+        }
+        if (typeof tg.setHeaderColor === 'function') {
+          tg.setHeaderColor('#000000');
+        }
+      } catch(e) {}
+      
       // Optimization for Telegram Mini App performance
       document.documentElement.style.setProperty('--tg-viewport-height', window.innerHeight + 'px');
       
