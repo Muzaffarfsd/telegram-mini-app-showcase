@@ -34,10 +34,16 @@ function applyTheme(theme: Theme) {
     
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp as any;
+      const bgColor = theme === 'dark' ? '#000000' : '#F2F4F6';
       try {
         if (typeof tg.setHeaderColor === 'function') {
-          tg.setHeaderColor(theme === 'dark' ? '#000000' : '#F2F4F6');
-          tg.setBackgroundColor(theme === 'dark' ? '#000000' : '#F2F4F6');
+          tg.setHeaderColor(bgColor);
+        }
+        if (typeof tg.setBackgroundColor === 'function') {
+          tg.setBackgroundColor(bgColor);
+        }
+        if (typeof tg.setBottomBarColor === 'function') {
+          tg.setBottomBarColor(bgColor);
         }
       } catch (e) {}
     }

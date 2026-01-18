@@ -74,12 +74,16 @@ export function initTelegramWebApp() {
     tg.requestFullscreen();
   }
   
-  // Make header transparent/invisible by matching background
+  // Make header and bottom bar match background
+  const bgColor = '#0A0A0B';
   if (typeof (tg as any).setHeaderColor === 'function') {
     (tg as any).setHeaderColor('bg_color');
   }
   if (typeof (tg as any).setBackgroundColor === 'function') {
-    (tg as any).setBackgroundColor('#0A0A0B');
+    (tg as any).setBackgroundColor(bgColor);
+  }
+  if (typeof (tg as any).setBottomBarColor === 'function') {
+    (tg as any).setBottomBarColor(bgColor);
   }
   
   // Disable vertical swipes to prevent accidental close
