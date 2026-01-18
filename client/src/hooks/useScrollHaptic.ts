@@ -62,7 +62,11 @@ export function useScrollHaptic(config: ScrollHapticConfig = {}) {
 
   const isTelegramAvailable = useCallback((): boolean => {
     try {
-      return !!(window.Telegram?.WebApp?.HapticFeedback);
+      const webApp = window.Telegram?.WebApp;
+      if (!webApp?.HapticFeedback) return false;
+      // HapticFeedback requires version 6.1+
+      const version = parseFloat((webApp as any).version || '0');
+      return version >= 6.1;
     } catch {
       return false;
     }
@@ -359,14 +363,21 @@ export function useScrollHaptic(config: ScrollHapticConfig = {}) {
       const currentScroll = getScrollPosition(container);
       const maxScroll = getMaxScroll(container);
       
-      // Edge bounce detection
-      if (currentScroll <= 0 || currentScroll >= maxScroll) {
-        overscrollAmount = Math.min(overscrollAmount + 2, 50);
-        const intensity = overscrollAmount / 50;
-        if (overscrollAmount % 15 === 0) {
-          triggerRubberBand(intensity);
+      // Detect pulling at top (scrolling up when at top)
+      const isPullingAtTop = currentScroll <= 0 && deltaY < -5;
+      // Detect pulling at bottom (scrolling down when at bottom)  
+      const isPullingAtBottom = currentScroll >= maxScroll - 2 && deltaY > 5;
+      
+      // Edge bounce detection - trigger immediately on overscroll attempt
+      if (isPullingAtTop || isPullingAtBottom) {
+        overscrollAmount = Math.min(overscrollAmount + 3, 50);
+        // Trigger haptic on first overscroll detection
+        if (overscrollAmount === 3) {
+          triggerEdgeBounce(isPullingAtTop ? 'top' : 'bottom');
+        } else if (overscrollAmount % 20 === 0) {
+          triggerRubberBand(overscrollAmount / 50);
         }
-      } else {
+      } else if (currentScroll > 0 && currentScroll < maxScroll - 2) {
         overscrollAmount = 0;
       }
       
