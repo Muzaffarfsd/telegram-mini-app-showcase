@@ -1,6 +1,6 @@
-import { memo, useState, useEffect, useCallback, useRef } from 'react';
-import { m, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
-import { X, ChevronRight, ChevronLeft, Plus } from 'lucide-react';
+import { memo, useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { m, AnimatePresence } from 'framer-motion';
+import { X, ChevronRight, Plus } from 'lucide-react';
 import { useHaptic } from '@/hooks/useHaptic';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { CreateStoryModal } from './CreateStoryModal';
@@ -20,56 +20,32 @@ interface StoriesProps {
   onOpenDemo: (demoId: string) => void;
 }
 
-const StoryAvatar = memo(({ story, index, onClick }: { story: Story; index: number; onClick: () => void }) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  
-  const mouseX = useSpring(x, { stiffness: 500, damping: 30 });
-  const mouseY = useSpring(y, { stiffness: 500, damping: 30 });
-  
-  const rotateX = useTransform(mouseY, [-30, 30], [15, -15]);
-  const rotateY = useTransform(mouseX, [-30, 30], [-15, 15]);
+const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    x.set(e.clientX - centerX);
-    y.set(e.clientY - centerY);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
+const StoryAvatar = memo(({ story, onClick }: { story: Story; onClick: () => void }) => {
   return (
-    <m.div
-      style={{ rotateX, rotateY, perspective: 1000 }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer"
+    <button
       onClick={onClick}
+      className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer touch-manipulation"
     >
-      <div className="relative p-[3px] rounded-full bg-gradient-to-tr from-system-blue via-system-purple to-system-pink group-active:scale-90 transition-transform duration-200 shadow-lg shadow-system-blue/10">
-        <div className="w-16 h-16 rounded-full border-2 border-background overflow-hidden bg-surface-elevated relative">
-          <m.img 
+      <div className="relative p-[3px] rounded-full bg-gradient-to-tr from-system-blue via-system-purple to-system-pink active:scale-90 transition-transform duration-150 will-change-transform">
+        <div className="w-16 h-16 rounded-full border-2 border-background overflow-hidden bg-surface-elevated">
+          <img 
             src={story.image} 
             alt={story.title} 
             className="w-full h-full object-cover"
-            whileHover={{ scale: 1.1 }}
-            transition={{ type: "spring", stiffness: 300 }}
+            loading="lazy"
+            decoding="async"
           />
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
         </div>
       </div>
       <span 
-        className="text-[11px] text-label-secondary font-semibold max-w-[72px] truncate transition-colors group-hover:text-system-blue"
+        className="text-[11px] text-label-secondary font-semibold max-w-[72px] truncate"
         style={{ fontFamily: 'Montserrat, sans-serif' }}
       >
         {story.title}
       </span>
-    </m.div>
+    </button>
   );
 });
 StoryAvatar.displayName = 'StoryAvatar';
@@ -84,15 +60,15 @@ const AddStoryButton = memo(({ onClick }: { onClick: () => void }) => {
         haptic.medium();
         onClick();
       }}
-      className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer"
+      className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer touch-manipulation"
     >
-      <div className="relative p-[3px] rounded-full bg-gradient-to-tr from-system-blue/30 via-system-purple/30 to-system-pink/30 group-hover:from-system-blue group-hover:via-system-purple group-hover:to-system-pink group-active:scale-90 transition-all duration-200">
-        <div className="w-16 h-16 rounded-full border-2 border-dashed border-separator bg-fill-tertiary/50 flex items-center justify-center group-hover:border-solid group-hover:border-system-blue/50 transition-all">
-          <Plus className="w-6 h-6 text-label-secondary group-hover:text-system-blue transition-colors" />
+      <div className="relative p-[3px] rounded-full bg-gradient-to-tr from-system-blue/30 via-system-purple/30 to-system-pink/30 active:scale-90 transition-transform duration-150 will-change-transform">
+        <div className="w-16 h-16 rounded-full border-2 border-dashed border-separator bg-fill-tertiary/50 flex items-center justify-center">
+          <Plus className="w-6 h-6 text-label-secondary" />
         </div>
       </div>
       <span 
-        className="text-[11px] text-label-secondary font-semibold transition-colors group-hover:text-system-blue"
+        className="text-[11px] text-label-secondary font-semibold"
         style={{ fontFamily: 'Montserrat, sans-serif' }}
       >
         {language === 'ru' ? 'Создать' : 'Create'}
@@ -102,38 +78,231 @@ const AddStoryButton = memo(({ onClick }: { onClick: () => void }) => {
 });
 AddStoryButton.displayName = 'AddStoryButton';
 
+const ProgressBar = memo(({ 
+  isActive, 
+  isCompleted, 
+  duration,
+  isPaused 
+}: { 
+  isActive: boolean; 
+  isCompleted: boolean; 
+  duration: number;
+  isPaused: boolean;
+}) => {
+  const progressRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (!progressRef.current) return;
+    
+    if (isActive && !isPaused) {
+      progressRef.current.style.transition = `width ${duration}ms linear`;
+      progressRef.current.style.width = '100%';
+    } else if (isCompleted) {
+      progressRef.current.style.transition = 'none';
+      progressRef.current.style.width = '100%';
+    } else {
+      progressRef.current.style.transition = 'none';
+      progressRef.current.style.width = '0%';
+    }
+  }, [isActive, isCompleted, duration, isPaused]);
+  
+  return (
+    <div className="h-0.5 flex-1 bg-white/20 rounded-full overflow-hidden">
+      <div 
+        ref={progressRef}
+        className="h-full bg-white rounded-full will-change-[width]"
+        style={{ width: isCompleted ? '100%' : '0%' }}
+      />
+    </div>
+  );
+});
+ProgressBar.displayName = 'ProgressBar';
+
+const StoryViewer = memo(({ 
+  story, 
+  stories,
+  activeIndex,
+  onClose, 
+  onNext, 
+  onPrev,
+  onOpenDemo,
+  isPaused,
+  setIsPaused
+}: { 
+  story: Story;
+  stories: Story[];
+  activeIndex: number;
+  onClose: () => void;
+  onNext: () => void;
+  onPrev: () => void;
+  onOpenDemo: (demoId: string) => void;
+  isPaused: boolean;
+  setIsPaused: (v: boolean) => void;
+}) => {
+  const duration = story.video ? 10000 : 5000;
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  useEffect(() => {
+    if (isPaused) return;
+    
+    timerRef.current = setTimeout(() => {
+      onNext();
+    }, duration);
+    
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [activeIndex, isPaused, duration, onNext]);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [activeIndex]);
+
+  const handleDragEnd = (_: any, info: any) => {
+    if (info.offset.y > 80 || info.velocity.y > 500) {
+      onClose();
+    }
+  };
+
+  return (
+    <m.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      className="fixed inset-0 z-[1000] bg-black flex items-center justify-center"
+    >
+      <m.div
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={0.3}
+        onDragEnd={handleDragEnd}
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'tween', duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+        className="relative w-full h-[100dvh] max-w-md bg-black overflow-hidden touch-pan-y will-change-transform"
+      >
+        <div className="absolute inset-0">
+          {story.video ? (
+            <video
+              ref={videoRef}
+              src={story.video}
+              poster={story.image}
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              className="w-full h-full object-cover"
+              onEnded={onNext}
+            />
+          ) : (
+            <img 
+              src={story.image} 
+              alt="" 
+              className="w-full h-full object-cover"
+              loading="eager"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70 pointer-events-none" />
+        </div>
+
+        <div className="absolute top-3 left-3 right-3 z-30 flex gap-1">
+          {stories.map((_, i) => (
+            <ProgressBar 
+              key={i}
+              isActive={i === activeIndex}
+              isCompleted={i < activeIndex}
+              duration={duration}
+              isPaused={isPaused}
+            />
+          ))}
+        </div>
+
+        <div className="absolute top-7 left-3 right-3 z-30 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-full border border-white/30 overflow-hidden">
+              <img src={story.image} alt="" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-sm">{story.title}</h3>
+              <p className="text-white/50 text-[10px] uppercase tracking-wider">{story.subtitle}</p>
+            </div>
+          </div>
+          <button 
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white active:scale-90 transition-transform"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div 
+          className="absolute inset-0 z-20 flex"
+          onPointerDown={() => setIsPaused(true)}
+          onPointerUp={() => setIsPaused(false)}
+          onPointerLeave={() => setIsPaused(false)}
+        >
+          <div className="w-[30%]" onClick={(e) => { e.stopPropagation(); onPrev(); }} />
+          <div className="flex-1" onClick={(e) => { e.stopPropagation(); onNext(); }} />
+        </div>
+
+        <div className="absolute bottom-8 left-3 right-3 z-30">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+              onOpenDemo(story.demoId);
+            }}
+            className="w-full h-12 rounded-xl bg-white text-black font-semibold flex items-center justify-center gap-2 active:scale-[0.97] transition-transform will-change-transform"
+          >
+            <span className="text-sm">Попробовать демо</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </m.div>
+    </m.div>
+  );
+});
+StoryViewer.displayName = 'StoryViewer';
+
 export const Stories = memo(function Stories({ stories, onOpenDemo }: StoriesProps) {
   const [activeStoryIndex, setActiveStoryIndex] = useState<number | null>(null);
-  const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const haptic = useHaptic();
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   const activeStory = activeStoryIndex !== null ? stories[activeStoryIndex] : null;
 
-  const handleOpen = (index: number) => {
+  const handleOpen = useCallback((index: number) => {
     haptic.medium();
-    // Intelligent prefetching for next/prev stories
-    const nextIdx = (index + 1) % stories.length;
-    const prevIdx = (index - 1 + stories.length) % stories.length;
-    [stories[index], stories[nextIdx], stories[prevIdx]].forEach(s => {
+    
+    const preloadMedia = (s: Story) => {
       if (s.video) {
-        const link = document.createElement('link');
-        link.rel = 'prefetch';
-        link.href = s.video;
-        document.head.appendChild(link);
+        const video = document.createElement('video');
+        video.preload = 'auto';
+        video.src = s.video;
+      } else {
+        const img = new Image();
+        img.src = s.image;
       }
-    });
-
+    };
+    
+    preloadMedia(stories[index]);
+    if (stories[index + 1]) preloadMedia(stories[index + 1]);
+    if (stories[index - 1]) preloadMedia(stories[index - 1]);
+    
     setActiveStoryIndex(index);
-    setProgress(0);
-  };
+    setIsPaused(false);
+  }, [haptic, stories]);
 
   const handleClose = useCallback(() => {
     haptic.light();
     setActiveStoryIndex(null);
-    setProgress(0);
     setIsPaused(false);
   }, [haptic]);
 
@@ -141,7 +310,7 @@ export const Stories = memo(function Stories({ stories, onOpenDemo }: StoriesPro
     if (activeStoryIndex === null) return;
     if (activeStoryIndex < stories.length - 1) {
       setActiveStoryIndex(activeStoryIndex + 1);
-      setProgress(0);
+      setIsPaused(false);
     } else {
       handleClose();
     }
@@ -151,45 +320,18 @@ export const Stories = memo(function Stories({ stories, onOpenDemo }: StoriesPro
     if (activeStoryIndex === null) return;
     if (activeStoryIndex > 0) {
       setActiveStoryIndex(activeStoryIndex - 1);
-      setProgress(0);
+      setIsPaused(false);
     }
   }, [activeStoryIndex]);
 
-  useEffect(() => {
-    if (activeStoryIndex === null || isPaused) return;
-
-    const duration = activeStory?.video ? 10000 : 5000; 
-    const interval = 30;
-    const step = (interval / duration) * 100;
-
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          nextStory();
-          return 0;
-        }
-        return prev + step;
-      });
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [activeStoryIndex, nextStory, isPaused, activeStory?.video]);
-
-  const handleDragEnd = (e: any, info: any) => {
-    if (info.offset.y > 100) {
-      handleClose();
-    }
-  };
-
   return (
     <div className="mb-10">
-      <div className="flex gap-5 overflow-x-auto pb-4 px-1 no-scrollbar mask-fade-right">
+      <div className="flex gap-4 overflow-x-auto pb-4 px-1 no-scrollbar mask-fade-right">
         <AddStoryButton onClick={() => setIsCreateModalOpen(true)} />
         {stories.map((story, index) => (
           <StoryAvatar 
             key={story.id} 
             story={story} 
-            index={index} 
             onClick={() => handleOpen(index)} 
           />
         ))}
@@ -200,134 +342,20 @@ export const Stories = memo(function Stories({ stories, onOpenDemo }: StoriesPro
         onClose={() => setIsCreateModalOpen(false)} 
       />
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {activeStoryIndex !== null && activeStory && (
-          <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-2xl flex items-center justify-center"
-          >
-            <m.div
-              drag="y"
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={0.7}
-              onDragEnd={handleDragEnd}
-              initial={{ y: "100%", borderRadius: 0 }}
-              animate={{ y: 0, borderRadius: "24px" }}
-              exit={{ y: "100%", borderRadius: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="relative w-full h-[100dvh] sm:h-[85vh] max-w-md bg-surface overflow-hidden shadow-2xl touch-none"
-            >
-              {/* Intelligent Background Blur */}
-              <div 
-                className="absolute inset-0 opacity-40 scale-110 blur-3xl saturate-200 pointer-events-none"
-                style={{ 
-                  backgroundImage: `url(${activeStory.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
-              />
-
-              {/* Progress Bars */}
-              <div className="absolute top-4 left-4 right-4 z-30 flex gap-1.5">
-                {stories.map((_, i) => (
-                  <div key={i} className="h-1 flex-1 bg-white/10 rounded-full overflow-hidden backdrop-blur-md">
-                    <m.div
-                      className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]"
-                      initial={{ width: i < activeStoryIndex ? "100%" : "0%" }}
-                      animate={{ 
-                        width: i === activeStoryIndex ? `${progress}%` : (i < activeStoryIndex ? "100%" : "0%") 
-                      }}
-                      transition={{ duration: 0.1, ease: "linear" }}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* Header */}
-              <div className="absolute top-8 left-4 right-4 z-30 flex items-center justify-between">
-                <m.div 
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  className="flex items-center gap-3"
-                >
-                  <div className="w-10 h-10 rounded-full border-2 border-white/20 p-[2px]">
-                    <img src={activeStory.image} alt="" className="w-full h-full rounded-full object-cover" />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-bold text-sm tracking-tight">{activeStory.title}</h3>
-                    <p className="text-white/60 text-[10px] uppercase tracking-widest">{activeStory.subtitle}</p>
-                  </div>
-                </m.div>
-                <button 
-                  onClick={handleClose}
-                  className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center text-white border border-white/10 active:scale-90 transition-transform"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Main Content Container */}
-              <div 
-                className="absolute inset-0 flex items-center justify-center"
-                onPointerDown={() => setIsPaused(true)}
-                onPointerUp={() => setIsPaused(false)}
-              >
-                <AnimatePresence mode="wait">
-                  <m.div
-                    key={activeStory.id}
-                    initial={{ scale: 1.1, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.9, opacity: 0 }}
-                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full h-full relative"
-                  >
-                    {activeStory.video ? (
-                      <video
-                        ref={videoRef}
-                        src={activeStory.video}
-                        autoPlay
-                        muted
-                        playsInline
-                        className="w-full h-full object-cover"
-                        onEnded={nextStory}
-                      />
-                    ) : (
-                      <img src={activeStory.image} alt="" className="w-full h-full object-cover" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
-                  </m.div>
-                </AnimatePresence>
-              </div>
-
-              {/* Interaction Zones */}
-              <div className="absolute inset-0 z-20 flex">
-                <div className="w-[30%] cursor-pointer" onClick={(e) => { e.stopPropagation(); prevStory(); }} />
-                <div className="flex-1 cursor-pointer" onClick={(e) => { e.stopPropagation(); nextStory(); }} />
-              </div>
-
-              {/* Footer CTA */}
-              <div className="absolute bottom-10 left-4 right-4 z-30">
-                <m.button
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleClose();
-                    onOpenDemo(activeStory.demoId);
-                  }}
-                  className="w-full h-14 rounded-2xl bg-white text-black font-bold flex items-center justify-center gap-3 active:scale-[0.96] transition-all shadow-2xl shadow-white/10"
-                >
-                  <span className="text-sm">Попробовать демо</span>
-                  <div className="w-6 h-6 rounded-full bg-black/5 flex items-center justify-center">
-                    <ChevronRight className="w-4 h-4" />
-                  </div>
-                </m.button>
-              </div>
-            </m.div>
-          </m.div>
+          <StoryViewer
+            key={activeStoryIndex}
+            story={activeStory}
+            stories={stories}
+            activeIndex={activeStoryIndex}
+            onClose={handleClose}
+            onNext={nextStory}
+            onPrev={prevStory}
+            onOpenDemo={onOpenDemo}
+            isPaused={isPaused}
+            setIsPaused={setIsPaused}
+          />
         )}
       </AnimatePresence>
     </div>
