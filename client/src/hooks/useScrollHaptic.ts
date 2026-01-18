@@ -119,15 +119,30 @@ export function useScrollHaptic(config: ScrollHapticConfig = {}) {
     try {
       if (isTelegramAvailable() && window.Telegram?.WebApp?.HapticFeedback) {
         const haptic = window.Telegram.WebApp.HapticFeedback;
+        
+        // Premium iOS-style cascade: heavy → medium → light fade
+        // Creates expensive "thunk" feeling like hitting a physical boundary
         haptic.impactOccurred('heavy');
+        
+        setTimeout(() => {
+          haptic.impactOccurred('heavy');
+        }, 20);
+        
         setTimeout(() => {
           haptic.impactOccurred('medium');
-        }, 25);
+        }, 50);
+        
         setTimeout(() => {
           haptic.impactOccurred('light');
-        }, 60);
+        }, 85);
+        
+        setTimeout(() => {
+          haptic.impactOccurred('light');
+        }, 120);
+        
       } else if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-        navigator.vibrate([12, 20, 8, 15, 4]);
+        // Premium pattern: strong hit → decay ripples
+        navigator.vibrate([18, 12, 14, 15, 10, 18, 6, 20, 3]);
       }
     } catch (error) {
       // Silent fail
