@@ -387,7 +387,7 @@ const StoryViewer = memo(({
           ))}
         </div>
 
-        <div className="absolute top-7 left-3 right-3 z-30 flex items-center justify-between">
+        <div className="absolute top-12 left-3 right-3 z-30 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-full border border-white/30 overflow-hidden">
               <img src={story.image} alt="" className="w-full h-full object-cover" />
@@ -440,15 +440,29 @@ const StoryViewer = memo(({
                 data-testid="button-share-story"
                 onClick={(e) => {
                   e.stopPropagation();
-                  try {
-                    if (typeof window !== 'undefined' && window.Telegram?.WebApp?.shareMessage) {
-                      window.Telegram.WebApp.shareMessage(story.title);
-                    } else if (navigator.share) {
-                      navigator.share({ title: story.title, text: story.subtitle });
-                    }
-                  } catch {
-                    console.log('Share not available');
+                  const shareText = `${story.title} - ${story.subtitle}`;
+                  const shareUrl = window.location.href;
+                  const tg = window.Telegram?.WebApp;
+                  
+                  // Haptic feedback first
+                  tg?.HapticFeedback?.impactOccurred?.('light');
+                  
+                  // Method 1: Telegram openTelegramLink (works in real TG)
+                  if (tg?.openTelegramLink) {
+                    const shareLink = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+                    tg.openTelegramLink(shareLink);
+                    return;
                   }
+                  
+                  // Method 2: Web Share API
+                  if (navigator.share) {
+                    navigator.share({ title: story.title, text: shareText, url: shareUrl }).catch(() => {});
+                    return;
+                  }
+                  
+                  // Method 3: Open in new tab (fallback for test env)
+                  const shareLink = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+                  window.open(shareLink, '_blank');
                 }}
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 active:scale-90 transition-transform"
               >
