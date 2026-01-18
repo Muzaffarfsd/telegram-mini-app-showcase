@@ -237,6 +237,15 @@ body {
   /* NOTE: backface-visibility removed - not needed on modern browsers */
 }
 
+/* INSTANT THEME SWITCHING - disable all transitions during theme toggle */
+.no-theme-transition,
+.no-theme-transition *,
+.no-theme-transition *::before,
+.no-theme-transition *::after {
+  transition: none !important;
+  animation-duration: 0s !important;
+}
+
 /* Global touch optimizations */
 * {
   /* Remove tap highlight for cleaner touch experience */

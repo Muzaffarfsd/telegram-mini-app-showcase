@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useRef, startTransition } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 type Theme = 'dark' | 'light';
 
 const STORAGE_KEY = 'app-theme';
+let lastAppliedTheme: Theme | null = null;
 
 function getInitialTheme(): Theme {
   if (typeof window === 'undefined') return 'dark';
@@ -13,10 +14,19 @@ function getInitialTheme(): Theme {
   return 'dark';
 }
 
-function applyTheme(theme: Theme) {
+function applyTheme(theme: Theme, skipTransitions = false) {
+  // Skip if already applied (prevents duplicate work)
+  if (lastAppliedTheme === theme) return;
+  lastAppliedTheme = theme;
+  
   const root = document.documentElement;
   
-  // Instant class toggle for immediate visual feedback
+  // Disable transitions for instant switch
+  if (skipTransitions) {
+    root.classList.add('no-theme-transition');
+  }
+  
+  // Instant class toggle
   if (theme === 'light') {
     root.classList.add('light');
     root.classList.remove('dark');
@@ -25,6 +35,15 @@ function applyTheme(theme: Theme) {
     root.classList.add('dark');
   }
   root.dataset.theme = theme;
+  
+  // Re-enable transitions after paint
+  if (skipTransitions) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        root.classList.remove('no-theme-transition');
+      });
+    });
+  }
   
   // Defer non-critical operations
   requestIdleCallback(() => {
@@ -48,17 +67,16 @@ function applyTheme(theme: Theme) {
       } catch (e) {}
     }
   }, { timeout: 100 });
-  
-  console.log('[Theme] Applied:', theme);
 }
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const isInternalUpdate = useRef(false);
 
+  // Apply theme only on initial mount (not on every state change)
   useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
+    applyTheme(theme, false);
+  }, []);
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -66,6 +84,7 @@ export function useTheme() {
         const newTheme = e.newValue as Theme;
         if ((newTheme === 'light' || newTheme === 'dark') && newTheme !== theme) {
           isInternalUpdate.current = true;
+          applyTheme(newTheme, true);
           setTheme(newTheme);
         }
       }
@@ -90,25 +109,21 @@ export function useTheme() {
   const toggleTheme = useCallback(() => {
     const next = theme === 'dark' ? 'light' : 'dark';
     
-    // Apply theme immediately to DOM for instant visual feedback
-    applyTheme(next);
+    // Apply theme immediately with transitions disabled
+    applyTheme(next, true);
     
-    // Update React state with low priority
-    startTransition(() => {
-      isInternalUpdate.current = true;
-      window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: next } }));
-      setTheme(next);
-    });
+    // Update React state synchronously (no startTransition)
+    isInternalUpdate.current = true;
+    window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: next } }));
+    setTheme(next);
   }, [theme]);
 
   const setThemeValue = useCallback((newTheme: Theme) => {
     if (newTheme !== theme) {
-      applyTheme(newTheme);
-      startTransition(() => {
-        isInternalUpdate.current = true;
-        window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
-        setTheme(newTheme);
-      });
+      applyTheme(newTheme, true);
+      isInternalUpdate.current = true;
+      window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
+      setTheme(newTheme);
     }
   }, [theme]);
 
