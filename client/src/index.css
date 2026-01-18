@@ -179,6 +179,9 @@ html {
   overflow: hidden; /* CRITICAL: Prevent app collapse */
   overscroll-behavior: none;
   
+  /* CRITICAL: Set background color on html to prevent different colored areas */
+  background-color: var(--background);
+  
   /* Fast touch response */
   touch-action: manipulation;
   
