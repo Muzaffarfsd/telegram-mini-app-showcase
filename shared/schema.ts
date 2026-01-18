@@ -203,10 +203,6 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
   createdAt: true,
   isApproved: true,
   isFeatured: true,
-}).extend({
-  rating: z.number().min(1).max(5),
-  text: z.string().min(10).max(500),
-  name: z.string().min(2).max(100),
 });
 
 // ============================================
