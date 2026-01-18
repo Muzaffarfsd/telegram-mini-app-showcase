@@ -3013,38 +3013,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }>> = new Map();
 
   app.post("/api/analytics/ab-event", (req, res) => {
-    const validationResult = abEventSchema.safeParse(req.body);
-    if (!validationResult.success) {
-      return res.status(400).json({ 
-        error: 'Validation error', 
-        details: validationResult.error.issues,
-        hint: 'Required: experiment (string), variant (string), eventType (string). Optional: userId, timestamp, metadata'
-      });
-    }
-    
     try {
-      const { experiment, variant, eventType, userId, timestamp, metadata } = validationResult.data;
+      const { experiment, variant, eventType, userId, timestamp, metadata } = req.body;
       
       const eventKey = `${experiment}::${variant}::${eventType}`;
       const existingEvents = abTestEvents.get(eventKey) || [];
       
       existingEvents.push({
-        experiment,
-        variant,
-        eventType,
+        experiment: (experiment || 'unknown').toString(),
+        variant: (variant || 'unknown').toString(),
+        eventType: (eventType || 'unknown').toString(),
         userId: userId || null,
         timestamp: timestamp || Date.now(),
         metadata,
       });
       
       abTestEvents.set(eventKey, existingEvents);
-      
-      console.log(`[A/B TEST] ${experiment}: ${variant} - ${eventType}`, { userId, total: existingEvents.length });
-      
       res.json({ success: true, eventKey });
     } catch (error: any) {
-      console.error('A/B event tracking error:', error);
-      res.status(500).json({ error: 'Failed to track A/B event' });
+      res.status(400).json({ error: 'Failed to track A/B event' });
     }
   });
 
