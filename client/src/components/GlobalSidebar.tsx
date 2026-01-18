@@ -1527,62 +1527,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </button>
         </nav>
         
-        <div style={{
-          margin: '0 16px 16px',
-          padding: '20px',
-          borderRadius: '16px',
-          background: isDark 
-            ? 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.06) 100%)'
-            : 'linear-gradient(135deg, rgba(0,122,255,0.08) 0%, rgba(88,86,214,0.04) 100%)',
-          border: isDark 
-            ? '1px solid rgba(139, 92, 246, 0.12)'
-            : '1px solid rgba(0, 122, 255, 0.15)',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-20px',
-            right: '-20px',
-            width: '80px',
-            height: '80px',
-            borderRadius: '50%',
-            background: isDark 
-              ? 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)'
-              : 'radial-gradient(circle, rgba(0,122,255,0.15) 0%, transparent 70%)',
-            filter: 'blur(20px)'
-          }} />
-          
-          <div style={{ position: 'relative' }}>
-            <p style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              letterSpacing: '0.05em',
-              color: colors.accent,
-              marginBottom: '8px',
-              textTransform: 'uppercase'
-            }}>
-              {t('sidebar.december2025')}
-            </p>
-            <p style={{
-              fontSize: '28px',
-              fontWeight: 700,
-              color: colors.textPrimary,
-              letterSpacing: '-0.03em',
-              lineHeight: 1
-            }}>
-              3 {t('sidebar.slotsLeft')}
-            </p>
-            <p style={{
-              fontSize: '13px',
-              color: colors.textSecondary,
-              marginTop: '6px'
-            }}>
-              {t('sidebar.leftThisMonth')}
-            </p>
-          </div>
-        </div>
-        
         <div style={{ 
           padding: '16px 20px',
           marginTop: 'auto'
