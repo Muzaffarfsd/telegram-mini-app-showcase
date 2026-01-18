@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback, memo, useEffect } from 'react';
-import { X, Camera, Video, Upload, Loader2, ImagePlus, Hash, MapPin, Link2, ChevronDown, Store, Smartphone, Sparkles, UtensilsCrossed, Dumbbell, Home, Plane, GraduationCap, Car, PawPrint, Stethoscope, Flower2, Brush, Package, PartyPopper, Scale, Wallet, Bot, Lightbulb, Star, BarChart3, Handshake, Rocket, Trophy, HelpCircle } from 'lucide-react';
+import { useState, useRef, useCallback, memo, useEffect, useMemo } from 'react';
+import { X, Camera, Video, ImagePlus, Hash, MapPin, Link2, ChevronDown, Store, Smartphone, Sparkles, UtensilsCrossed, Dumbbell, Home, Plane, GraduationCap, Car, PawPrint, Stethoscope, Flower2, Brush, Package, PartyPopper, Scale, Wallet, Bot, Lightbulb, Star, BarChart3, Handshake, Rocket, Trophy, HelpCircle, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,7 +8,25 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 
-const demoOptions = [
+interface CreateStoryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+type DemoOption = {
+  id: string;
+  title: { en: string; ru: string };
+  Icon: LucideIcon;
+};
+
+type Category = {
+  id: string;
+  label: { en: string; ru: string };
+  Icon: LucideIcon;
+  color: string;
+};
+
+const DEMO_OPTIONS: DemoOption[] = [
   { id: 'clothing-store', title: { en: 'Fashion Store', ru: 'Магазин одежды' }, Icon: Store },
   { id: 'electronics', title: { en: 'Electronics', ru: 'Электроника' }, Icon: Smartphone },
   { id: 'beauty', title: { en: 'Beauty Salon', ru: 'Салон красоты' }, Icon: Sparkles },
@@ -29,12 +47,7 @@ const demoOptions = [
   { id: 'ai-agent', title: { en: 'AI Agent', ru: 'AI Агент' }, Icon: Bot },
 ];
 
-interface CreateStoryModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-const categories = [
+const CATEGORIES: Category[] = [
   { id: 'my-business', label: { en: 'My Business', ru: 'Мой бизнес' }, Icon: Store, color: 'from-emerald-500 to-teal-500' },
   { id: 'idea', label: { en: 'App Idea', ru: 'Идея приложения' }, Icon: Lightbulb, color: 'from-amber-500 to-orange-500' },
   { id: 'review', label: { en: 'Review', ru: 'Отзыв' }, Icon: Star, color: 'from-yellow-500 to-amber-500' },
@@ -44,6 +57,60 @@ const categories = [
   { id: 'achievement', label: { en: 'Achievement', ru: 'Достижение' }, Icon: Trophy, color: 'from-yellow-400 to-orange-500' },
   { id: 'question', label: { en: 'Question', ru: 'Вопрос' }, Icon: HelpCircle, color: 'from-pink-500 to-rose-500' },
 ];
+
+const CategoryButton = memo(function CategoryButton({ 
+  cat, 
+  isSelected, 
+  language, 
+  onSelect 
+}: { 
+  cat: Category; 
+  isSelected: boolean; 
+  language: string; 
+  onSelect: () => void;
+}) {
+  const CatIcon = cat.Icon;
+  return (
+    <button
+      data-testid={`button-category-${cat.id}`}
+      onClick={onSelect}
+      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium ${
+        isSelected
+          ? `bg-gradient-to-r ${cat.color} text-white shadow-md`
+          : 'bg-secondary text-foreground'
+      }`}
+    >
+      <CatIcon className="w-4 h-4" />
+      <span className="truncate">{cat.label[language as 'en' | 'ru']}</span>
+    </button>
+  );
+});
+
+const DemoItem = memo(function DemoItem({
+  demo,
+  isSelected,
+  language,
+  onSelect,
+}: {
+  demo: DemoOption;
+  isSelected: boolean;
+  language: string;
+  onSelect: () => void;
+}) {
+  const DemoIcon = demo.Icon;
+  return (
+    <button
+      data-testid={`button-demo-${demo.id}`}
+      onClick={onSelect}
+      className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 ${
+        isSelected ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-secondary'
+      }`}
+    >
+      <DemoIcon className="w-4 h-4" />
+      <span className="truncate">{demo.title[language as 'en' | 'ru']}</span>
+    </button>
+  );
+});
 
 export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose }: CreateStoryModalProps) {
   const { language } = useLanguage();
@@ -64,6 +131,8 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
   const [linkedDemoId, setLinkedDemoId] = useState<string | null>(null);
   const [location, setLocation] = useState('');
   const [showDemoSelector, setShowDemoSelector] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const resetForm = useCallback(() => {
     setTitle('');
@@ -107,12 +176,19 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
     
     haptic.light();
     setSelectedFile(file);
-    
-    const isVideo = file.type.startsWith('video/');
-    setMediaType(isVideo ? 'video' : 'image');
-    
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
+    setMediaType(file.type.startsWith('video/') ? 'video' : 'image');
+    setPreviewUrl(URL.createObjectURL(file));
+  }, [haptic]);
+
+  const handleCategorySelect = useCallback((catId: string) => {
+    setCategory(catId);
+    haptic.selection();
+  }, [haptic]);
+
+  const handleDemoSelect = useCallback((demoId: string | null) => {
+    setLinkedDemoId(demoId);
+    setShowDemoSelector(false);
+    haptic.light();
   }, [haptic]);
 
   const createStoryMutation = useMutation({
@@ -130,9 +206,7 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
       await fetch(uploadURL, {
         method: 'PUT',
         body: selectedFile,
-        headers: {
-          'Content-Type': selectedFile.type,
-        },
+        headers: { 'Content-Type': selectedFile.type },
       });
       
       setUploadProgress(70);
@@ -149,7 +223,6 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
       });
       
       setUploadProgress(100);
-      
       return storyResponse.json();
     },
     onSuccess: () => {
@@ -173,18 +246,20 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
 
   const isValid = title.trim().length > 0 && selectedFile !== null;
 
-  const [isVisible, setIsVisible] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const selectedDemoTitle = useMemo(() => {
+    if (!linkedDemoId) return null;
+    const demo = DEMO_OPTIONS.find(d => d.id === linkedDemoId);
+    return demo?.title?.[language as 'en' | 'ru']?.slice(0, 15) || linkedDemoId;
+  }, [linkedDemoId, language]);
 
   useEffect(() => {
     if (isOpen) {
       setIsAnimating(true);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setIsVisible(true));
-      });
+      const raf = requestAnimationFrame(() => setIsVisible(true));
+      return () => cancelAnimationFrame(raf);
     } else {
       setIsVisible(false);
-      const timer = setTimeout(() => setIsAnimating(false), 300);
+      const timer = setTimeout(() => setIsAnimating(false), 200);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -193,326 +268,253 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
 
   return (
     <div
-      className={`fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-end justify-center transition-opacity duration-300 ease-out will-change-[opacity] ${
+      className={`fixed inset-0 z-[1000] bg-black/70 flex items-end justify-center ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
+      style={{ transition: 'opacity 150ms ease-out' }}
       onClick={handleClose}
-      style={{ transform: 'translateZ(0)' }}
     >
       <div
-        className={`w-full max-w-lg bg-white/80 dark:bg-black/70 backdrop-blur-xl border-t border-white/30 dark:border-white/10 rounded-t-3xl overflow-hidden shadow-2xl transition-transform duration-300 will-change-transform ${
-          isVisible ? 'translate-y-0' : 'translate-y-full'
-        }`}
+        className="w-full max-w-lg bg-background border-t border-border rounded-t-2xl overflow-hidden shadow-2xl"
         style={{ 
-          transitionTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)',
-          transform: isVisible ? 'translateY(0) translateZ(0)' : 'translateY(100%) translateZ(0)'
+          transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 200ms cubic-bezier(0.32, 0.72, 0, 1)'
         }}
         onClick={(e) => e.stopPropagation()}
       >
-            <div className="flex items-center justify-between p-4 border-b border-white/20 dark:border-white/10">
-              <h2 
-                className="text-lg font-bold text-primary"
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
-              >
-                {language === 'ru' ? 'Создать сторис' : 'Create Story'}
-              </h2>
-              <button
-                data-testid="button-close-create-story"
-                onClick={handleClose}
-                className="w-8 h-8 rounded-full bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 flex items-center justify-center"
-              >
-                <X className="w-4 h-4 text-label-secondary" />
-              </button>
-            </div>
-            
-            <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,video/*"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              
-              {!previewUrl ? (
-                <button
-                  data-testid="button-select-media"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full aspect-[9/16] max-h-[300px] rounded-2xl border-2 border-dashed border-white/30 dark:border-white/10 flex flex-col items-center justify-center gap-3 bg-white/30 dark:bg-white/5 backdrop-blur-xl hover:bg-white/40 dark:hover:bg-white/10 transition-colors"
-                >
-                  <div className="w-16 h-16 rounded-full bg-system-blue/10 flex items-center justify-center">
-                    <ImagePlus className="w-8 h-8 text-system-blue" />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-primary" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                      {language === 'ru' ? 'Добавить фото или видео' : 'Add photo or video'}
-                    </p>
-                    <p className="text-xs text-label-secondary mt-1">
-                      {language === 'ru' ? 'Нажмите для выбора' : 'Tap to select'}
-                    </p>
-                  </div>
-                </button>
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            {language === 'ru' ? 'Создать сторис' : 'Create Story'}
+          </h2>
+          <button
+            data-testid="button-close-create-story"
+            onClick={handleClose}
+            className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center"
+          >
+            <X className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </div>
+        
+        <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto overscroll-contain">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          
+          {!previewUrl ? (
+            <button
+              data-testid="button-select-media"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full aspect-[9/16] max-h-[250px] rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-3 bg-secondary/50"
+            >
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                <ImagePlus className="w-7 h-7 text-primary" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                  {language === 'ru' ? 'Добавить фото или видео' : 'Add photo or video'}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'ru' ? 'Нажмите для выбора' : 'Tap to select'}
+                </p>
+              </div>
+            </button>
+          ) : (
+            <div className="relative w-full aspect-[9/16] max-h-[250px] rounded-xl overflow-hidden bg-black">
+              {mediaType === 'video' ? (
+                <video src={previewUrl} className="w-full h-full object-cover" controls />
               ) : (
-                <div className="relative w-full aspect-[9/16] max-h-[300px] rounded-2xl overflow-hidden bg-black">
-                  {mediaType === 'video' ? (
-                    <video 
-                      src={previewUrl} 
-                      className="w-full h-full object-cover"
-                      controls
-                    />
-                  ) : (
-                    <img 
-                      src={previewUrl} 
-                      alt="Preview" 
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                  <button
-                    data-testid="button-remove-preview"
-                    onClick={() => {
-                      setSelectedFile(null);
-                      setPreviewUrl(null);
-                      haptic.light();
-                    }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center"
-                  >
-                    <X className="w-4 h-4 text-white" />
-                  </button>
-                  <div className="absolute bottom-2 left-2 px-2 py-1 rounded-full bg-black/50 backdrop-blur-sm flex items-center gap-1">
-                    {mediaType === 'video' ? (
-                      <Video className="w-3 h-3 text-white" />
-                    ) : (
-                      <Camera className="w-3 h-3 text-white" />
-                    )}
-                    <span className="text-xs text-white capitalize">{mediaType}</span>
-                  </div>
-                </div>
+                <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" loading="eager" />
               )}
-              
-              <div className="space-y-2">
-                <label 
-                  className="text-xs font-medium text-label-secondary"
-                  style={{ fontFamily: 'Montserrat, sans-serif' }}
-                >
-                  {language === 'ru' ? 'Заголовок' : 'Title'}
-                </label>
-                <Input
-                  data-testid="input-story-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder={language === 'ru' ? 'Название вашего сторис' : 'Your story title'}
-                  maxLength={100}
-                  className="bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 placeholder:text-foreground/40"
-                />
+              <button
+                data-testid="button-remove-preview"
+                onClick={() => { setSelectedFile(null); setPreviewUrl(null); haptic.light(); }}
+                className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+              <div className="absolute bottom-2 left-2 px-2 py-1 rounded-full bg-black/50 flex items-center gap-1">
+                {mediaType === 'video' ? <Video className="w-3 h-3 text-white" /> : <Camera className="w-3 h-3 text-white" />}
+                <span className="text-xs text-white capitalize">{mediaType}</span>
               </div>
-              
-              <div className="space-y-2">
-                <label 
-                  className="text-xs font-medium text-label-secondary"
-                  style={{ fontFamily: 'Montserrat, sans-serif' }}
-                >
-                  {language === 'ru' ? 'Описание (опционально)' : 'Description (optional)'}
-                </label>
-                <Textarea
-                  data-testid="input-story-description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder={language === 'ru' ? 'Расскажите подробнее...' : 'Tell us more...'}
-                  maxLength={500}
-                  rows={2}
-                  className="bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 placeholder:text-foreground/40 resize-none"
-                />
-              </div>
+            </div>
+          )}
+          
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              {language === 'ru' ? 'Заголовок' : 'Title'}
+            </label>
+            <Input
+              data-testid="input-story-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={language === 'ru' ? 'Название вашего сторис' : 'Your story title'}
+              maxLength={100}
+            />
+          </div>
+          
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              {language === 'ru' ? 'Описание (опционально)' : 'Description (optional)'}
+            </label>
+            <Textarea
+              data-testid="input-story-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={language === 'ru' ? 'Расскажите подробнее...' : 'Tell us more...'}
+              maxLength={500}
+              rows={2}
+              className="resize-none"
+            />
+          </div>
 
-              <div className="space-y-2">
-                <label 
-                  className="text-xs font-medium text-label-secondary flex items-center gap-1"
-                  style={{ fontFamily: 'Montserrat, sans-serif' }}
-                >
-                  <Hash className="w-3 h-3" />
-                  {language === 'ru' ? 'Хэштеги' : 'Hashtags'}
-                  <span className="text-label-tertiary">({hashtags.length}/10)</span>
-                </label>
-                <div className="flex gap-2">
-                  <Input
-                    data-testid="input-hashtag"
-                    value={hashtagInput}
-                    onChange={(e) => setHashtagInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddHashtag())}
-                    placeholder={language === 'ru' ? '#бизнес' : '#business'}
-                    maxLength={30}
-                    className="bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 placeholder:text-foreground/40 flex-1"
-                  />
-                  <Button
-                    data-testid="button-add-hashtag"
-                    type="button"
-                    onClick={handleAddHashtag}
-                    disabled={!hashtagInput.trim() || hashtags.length >= 10}
-                    size="sm"
-                    variant="secondary"
-                    className="shrink-0"
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground flex items-center gap-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              <Hash className="w-3 h-3" />
+              {language === 'ru' ? 'Хэштеги' : 'Hashtags'}
+              <span className="opacity-60">({hashtags.length}/10)</span>
+            </label>
+            <div className="flex gap-2">
+              <Input
+                data-testid="input-hashtag"
+                value={hashtagInput}
+                onChange={(e) => setHashtagInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddHashtag())}
+                placeholder={language === 'ru' ? '#бизнес' : '#business'}
+                maxLength={30}
+                className="flex-1"
+              />
+              <Button
+                data-testid="button-add-hashtag"
+                type="button"
+                onClick={handleAddHashtag}
+                disabled={!hashtagInput.trim() || hashtags.length >= 10}
+                size="sm"
+                variant="secondary"
+              >
+                +
+              </Button>
+            </div>
+            {hashtags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {hashtags.map(tag => (
+                  <button
+                    key={tag}
+                    data-testid={`button-remove-hashtag-${tag}`}
+                    onClick={() => handleRemoveHashtag(tag)}
+                    className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center gap-1"
                   >
-                    +
-                  </Button>
-                </div>
-                {hashtags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {hashtags.map(tag => (
-                      <button
-                        key={tag}
-                        data-testid={`button-remove-hashtag-${tag}`}
-                        onClick={() => handleRemoveHashtag(tag)}
-                        className="px-2 py-1 rounded-full bg-system-blue/20 dark:bg-system-blue/30 backdrop-blur-sm border border-system-blue/30 text-system-blue text-xs font-medium flex items-center gap-1 hover:bg-system-blue/30 dark:hover:bg-system-blue/40 transition-colors"
-                      >
-                        #{tag}
-                        <X className="w-3 h-3" />
-                      </button>
+                    #{tag}
+                    <X className="w-3 h-3" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground flex items-center gap-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                <MapPin className="w-3 h-3" />
+                {language === 'ru' ? 'Город' : 'Location'}
+              </label>
+              <Input
+                data-testid="input-location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder={language === 'ru' ? 'Москва' : 'Moscow'}
+                maxLength={100}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground flex items-center gap-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                <Link2 className="w-3 h-3" />
+                {language === 'ru' ? 'Связать с демо' : 'Link to demo'}
+              </label>
+              <div className="relative">
+                <button
+                  data-testid="button-select-demo"
+                  type="button"
+                  onClick={() => setShowDemoSelector(!showDemoSelector)}
+                  className="w-full h-9 px-3 rounded-lg bg-secondary border border-border text-left text-sm flex items-center justify-between"
+                >
+                  <span className={linkedDemoId ? 'text-foreground' : 'text-muted-foreground'}>
+                    {selectedDemoTitle || (language === 'ru' ? 'Выбрать' : 'Select')}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </button>
+                {showDemoSelector && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-background rounded-xl shadow-xl border border-border z-50 max-h-48 overflow-y-auto overscroll-contain">
+                    <button
+                      data-testid="button-demo-none"
+                      onClick={() => handleDemoSelect(null)}
+                      className="w-full px-3 py-2 text-left text-sm text-muted-foreground hover:bg-secondary"
+                    >
+                      {language === 'ru' ? 'Без привязки' : 'No link'}
+                    </button>
+                    {DEMO_OPTIONS.map(demo => (
+                      <DemoItem
+                        key={demo.id}
+                        demo={demo}
+                        isSelected={linkedDemoId === demo.id}
+                        language={language}
+                        onSelect={() => handleDemoSelect(demo.id)}
+                      />
                     ))}
                   </div>
                 )}
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <label 
-                    className="text-xs font-medium text-label-secondary flex items-center gap-1"
-                    style={{ fontFamily: 'Montserrat, sans-serif' }}
-                  >
-                    <MapPin className="w-3 h-3" />
-                    {language === 'ru' ? 'Город' : 'Location'}
-                  </label>
-                  <Input
-                    data-testid="input-location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder={language === 'ru' ? 'Москва' : 'Moscow'}
-                    maxLength={100}
-                    className="bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 placeholder:text-foreground/40"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label 
-                    className="text-xs font-medium text-label-secondary flex items-center gap-1"
-                    style={{ fontFamily: 'Montserrat, sans-serif' }}
-                  >
-                    <Link2 className="w-3 h-3" />
-                    {language === 'ru' ? 'Связать с демо' : 'Link to demo'}
-                  </label>
-                  <div className="relative">
-                    <button
-                      data-testid="button-select-demo"
-                      type="button"
-                      onClick={() => setShowDemoSelector(!showDemoSelector)}
-                      className="w-full h-9 px-3 rounded-lg bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 text-left text-sm flex items-center justify-between"
-                    >
-                      <span className={linkedDemoId ? 'text-primary' : 'text-label-tertiary'}>
-                        {linkedDemoId 
-                          ? demoOptions.find(d => d.id === linkedDemoId)?.title?.[language as 'en' | 'ru']?.slice(0, 15) || linkedDemoId
-                          : (language === 'ru' ? 'Выбрать' : 'Select')}
-                      </span>
-                      <ChevronDown className="w-4 h-4 text-label-tertiary" />
-                    </button>
-                    {showDemoSelector && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white/80 dark:bg-black/80 backdrop-blur-2xl rounded-xl shadow-xl border border-white/30 dark:border-white/10 z-50 max-h-48 overflow-y-auto">
-                        <button
-                          data-testid="button-demo-none"
-                          onClick={() => { setLinkedDemoId(null); setShowDemoSelector(false); haptic.light(); }}
-                          className="w-full px-3 py-2 text-left text-sm text-label-secondary hover:bg-white/30 dark:hover:bg-white/10 transition-colors"
-                        >
-                          {language === 'ru' ? 'Без привязки' : 'No link'}
-                        </button>
-                        {demoOptions.map(demo => {
-                          const DemoIcon = demo.Icon;
-                          return (
-                            <button
-                              key={demo.id}
-                              data-testid={`button-demo-${demo.id}`}
-                              onClick={() => { setLinkedDemoId(demo.id); setShowDemoSelector(false); haptic.light(); }}
-                              className={`w-full px-3 py-2 text-left text-sm hover:bg-white/30 dark:hover:bg-white/10 transition-colors flex items-center gap-2 ${
-                                linkedDemoId === demo.id ? 'bg-system-blue/20 text-system-blue' : 'text-primary'
-                              }`}
-                            >
-                              <DemoIcon className="w-4 h-4" />
-                              <span className="truncate">{demo.title[language as 'en' | 'ru']}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <label 
-                  className="text-xs font-medium text-label-secondary"
-                  style={{ fontFamily: 'Montserrat, sans-serif' }}
-                >
-                  {language === 'ru' ? 'Тип контента' : 'Content Type'}
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {categories.map((cat) => {
-                    const CatIcon = cat.Icon;
-                    return (
-                      <button
-                        key={cat.id}
-                        data-testid={`button-category-${cat.id}`}
-                        onClick={() => {
-                          setCategory(cat.id);
-                          haptic.selection();
-                        }}
-                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                          category === cat.id
-                            ? `bg-gradient-to-r ${cat.color} text-white shadow-lg backdrop-blur-xl`
-                            : 'bg-white/60 dark:bg-white/15 backdrop-blur-xl border border-white/20 dark:border-white/10 text-label-primary hover:bg-white/70 dark:hover:bg-white/20'
-                        }`}
-                      >
-                        <CatIcon className="w-4 h-4" />
-                        <span className="truncate">{cat.label[language as 'en' | 'ru']}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              
-              {isUploading && (
-                <div className="space-y-2">
-                  <div className="h-1 bg-white/30 dark:bg-white/10 backdrop-blur-sm rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-system-blue to-system-purple transition-[width] duration-300 ease-out"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-label-secondary text-center">
-                    {language === 'ru' ? 'Загрузка...' : 'Uploading...'} {uploadProgress}%
-                  </p>
-                </div>
-              )}
             </div>
-            
-            <div className="p-4 border-t border-separator">
-              <Button
-                data-testid="button-publish-story"
-                onClick={handleSubmit}
-                disabled={!isValid || isUploading}
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-system-blue to-system-purple text-white font-semibold disabled:opacity-50"
-              >
-                {isUploading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    <Upload className="w-5 h-5 mr-2" />
-                    {language === 'ru' ? 'Опубликовать' : 'Publish'}
-                  </>
-                )}
-              </Button>
-              <p className="text-xs text-label-tertiary text-center mt-2">
-                {language === 'ru' 
-                  ? 'Сторис появится после проверки модератором'
-                  : 'Story will appear after moderator review'}
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              {language === 'ru' ? 'Тип контента' : 'Content Type'}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {CATEGORIES.map((cat) => (
+                <CategoryButton
+                  key={cat.id}
+                  cat={cat}
+                  isSelected={category === cat.id}
+                  language={language}
+                  onSelect={() => handleCategorySelect(cat.id)}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {isUploading && (
+            <div className="space-y-2">
+              <div className="h-1 bg-secondary rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary"
+                  style={{ width: `${uploadProgress}%`, transition: 'width 200ms ease-out' }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                {language === 'ru' ? 'Загрузка...' : 'Uploading...'} {uploadProgress}%
               </p>
             </div>
+          )}
+        </div>
+        
+        <div className="p-4 border-t border-border">
+          <Button
+            data-testid="button-submit-story"
+            onClick={handleSubmit}
+            disabled={!isValid || isUploading}
+            className="w-full"
+          >
+            {isUploading 
+              ? (language === 'ru' ? 'Загрузка...' : 'Uploading...') 
+              : (language === 'ru' ? 'Опубликовать' : 'Publish')}
+          </Button>
+        </div>
       </div>
     </div>
   );
