@@ -183,43 +183,44 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => handleNavigate('projects')}
-                className="flex-1 flex items-center justify-center gap-2.5 rounded-full transition-all duration-200 active:scale-[0.97]"
+                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
                 style={{ 
                   background: 'var(--cta-background)',
-                  height: '50px',
-                  paddingLeft: '20px',
-                  paddingRight: '18px',
+                  height: '48px',
+                  paddingLeft: '14px',
+                  paddingRight: '12px',
                   boxShadow: '0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
                 }}
                 data-testid="cta-primary"
               >
                 <span 
-                  className="text-[15px]" 
+                  className="text-[13px]" 
                   style={{ 
                     color: 'var(--cta-foreground)', 
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
                     fontWeight: 600,
-                    letterSpacing: '0.01em'
+                    letterSpacing: '0.01em',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {t('showcase.orderProject')}
                 </span>
-                <ArrowRight className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--cta-foreground)' }} strokeWidth={2.5} />
+                <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-foreground)' }} strokeWidth={2.5} />
               </button>
               
               <button
                 onClick={() => handleOpenDemo('clothing-store')}
                 onMouseEnter={() => preloadDemo('clothing-store')}
                 onTouchStart={() => preloadDemo('clothing-store')}
-                className="flex-1 flex items-center justify-center gap-2.5 rounded-full transition-all duration-200 active:scale-[0.97]"
+                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
                 style={{ 
                   border: '1.5px solid var(--cta-secondary-border)',
-                  height: '50px',
-                  paddingLeft: '18px',
-                  paddingRight: '18px',
+                  height: '48px',
+                  paddingLeft: '12px',
+                  paddingRight: '14px',
                   background: 'rgba(255,255,255,0.03)',
                   boxShadow: '0 8px 24px rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
                 }}
@@ -227,12 +228,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               >
                 <Play className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-secondary-text)' }} fill="currentColor" />
                 <span 
-                  className="text-[15px]" 
+                  className="text-[13px]" 
                   style={{ 
                     color: 'var(--cta-secondary-text)',
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
                     fontWeight: 600,
-                    letterSpacing: '0.01em'
+                    letterSpacing: '0.01em',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {t('showcase.openApp')}
