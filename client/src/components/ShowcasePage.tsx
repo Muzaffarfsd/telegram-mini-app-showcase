@@ -1,15 +1,3 @@
-import { ArrowRight, ArrowUpRight, Play } from "lucide-react";
-import { useCallback, memo, useState, useEffect, useRef } from "react";
-import { useTelegram } from '../hooks/useTelegram';
-import { useHaptic } from '../hooks/useHaptic';
-import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
-import { preloadDemo } from './demos/DemoRegistry';
-import { useViewedDemos } from '../hooks/useTelegramStorage';
-import { FavoriteButton } from './FavoriteButton';
-import { useLanguage } from '../contexts/LanguageContext';
-import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
-import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
-import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
 
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
@@ -183,66 +171,6 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleNavigate('projects')}
-                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
-                style={{ 
-                  background: 'var(--cta-background)',
-                  height: '48px',
-                  paddingLeft: '14px',
-                  paddingRight: '12px',
-                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
-                }}
-                data-testid="cta-primary"
-              >
-                <span 
-                  className="text-[13px]" 
-                  style={{ 
-                    color: 'var(--cta-foreground)', 
-                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                    fontWeight: 600,
-                    letterSpacing: '0.01em',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {t('showcase.orderProject')}
-                </span>
-                <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-foreground)' }} strokeWidth={2.5} />
-              </button>
-              
-              <button
-                onClick={() => handleOpenDemo('clothing-store')}
-                onMouseEnter={() => preloadDemo('clothing-store')}
-                onTouchStart={() => preloadDemo('clothing-store')}
-                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
-                style={{ 
-                  border: '1.5px solid var(--cta-secondary-border)',
-                  height: '48px',
-                  paddingLeft: '12px',
-                  paddingRight: '14px',
-                  background: 'rgba(255,255,255,0.03)',
-                  boxShadow: '0 8px 24px rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
-                }}
-                data-testid="cta-demo"
-              >
-                <Play className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-secondary-text)' }} fill="currentColor" />
-                <span 
-                  className="text-[13px]" 
-                  style={{ 
-                    color: 'var(--cta-secondary-text)',
-                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                    fontWeight: 600,
-                    letterSpacing: '0.01em',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {t('showcase.openApp')}
-                </span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3 mt-12">
               <div
                 className="p-4 rounded-2xl text-center transition-colors duration-300 flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500"
                 style={{ backgroundColor: 'var(--card-bg)', height: '88px' }}
