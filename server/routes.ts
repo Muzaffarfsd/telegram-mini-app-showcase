@@ -2753,13 +2753,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const reviewData = validationResult.data;
       
       const [newReview] = await db.insert(reviews).values({
-        name: reviewData.name,
-        company: reviewData.company || null,
-        logoUrl: reviewData.logoUrl || null,
-        rating: reviewData.rating,
-        text: reviewData.text,
-        location: reviewData.location || null,
-        telegramId: reviewData.telegramId || null,
+        name: reviewData.name as string,
+        company: (reviewData.company as string) || null,
+        logoUrl: (reviewData.logoUrl as string) || null,
+        rating: reviewData.rating as number,
+        text: reviewData.text as string,
+        location: (reviewData.location as string) || null,
+        telegramId: (reviewData.telegramId as number) || null,
         isApproved: false, // New reviews need moderation
         isFeatured: false,
       }).returning();
