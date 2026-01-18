@@ -276,13 +276,16 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             </div>
 
             <div className="mt-12">
-              <div className="flex items-center justify-between mb-4">
-                <h2 
-                  className="text-[13px] font-medium tracking-[0.08em] uppercase transition-colors duration-300"
-                  style={{ color: 'var(--text-tertiary)' }}
-                >
-                  {language === 'ru' ? 'Быстрый обзор демо' : 'Quick Demo Overview'}
-                </h2>
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex flex-col gap-1">
+                  <h2 
+                    className="text-[19px] font-bold tracking-tight leading-tight"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {language === 'ru' ? 'Быстрый обзор демо' : 'Quick Demo Overview'}
+                  </h2>
+                  <div className="h-1 w-12 bg-gradient-to-r from-system-blue to-system-purple rounded-full" />
+                </div>
               </div>
               <Stories stories={demoStories} onOpenDemo={handleOpenDemo} />
             </div>
