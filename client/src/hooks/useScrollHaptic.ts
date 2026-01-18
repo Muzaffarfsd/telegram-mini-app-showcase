@@ -17,7 +17,7 @@ const defaultConfig: ScrollHapticConfig = {
   momentumThreshold: 80,
   cooldownMs: 40,
   edgeBounce: true,
-  selectionTicks: true,
+  selectionTicks: false,
 };
 
 type HapticIntensity = 'selection' | 'light' | 'medium' | 'heavy' | 'rigid' | 'soft';
