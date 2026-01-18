@@ -1,3 +1,48 @@
+import { ArrowRight, ArrowUpRight, Play } from "lucide-react";
+import { useCallback, memo, useState, useEffect, useRef } from "react";
+import { useTelegram } from '../hooks/useTelegram';
+import { useHaptic } from '../hooks/useHaptic';
+import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
+import { preloadDemo } from './demos/DemoRegistry';
+import { useViewedDemos } from '../hooks/useTelegramStorage';
+import { FavoriteButton } from './FavoriteButton';
+import { useLanguage } from '../contexts/LanguageContext';
+import { Stories, type Story } from './Stories';
+import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
+import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
+import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
+
+const demoStories: Story[] = [
+  {
+    id: 'story-1',
+    title: 'Radiance',
+    subtitle: 'Digital Fashion Store',
+    image: '/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg',
+    demoId: 'clothing-store'
+  },
+  {
+    id: 'story-2',
+    title: 'TimeElite',
+    subtitle: 'Luxury Watches',
+    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80',
+    video: '/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4',
+    demoId: 'luxury-watches'
+  },
+  {
+    id: 'story-3',
+    title: 'SneakerVault',
+    subtitle: 'Rare Drops',
+    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80',
+    demoId: 'sneaker-store'
+  },
+  {
+    id: 'story-4',
+    title: 'GlowSpa',
+    subtitle: 'Premium Beauty',
+    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80',
+    demoId: 'beauty'
+  }
+];
 
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
@@ -171,6 +216,70 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </p>
             </div>
 
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleNavigate('projects')}
+                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
+                style={{ 
+                  background: 'var(--cta-background)',
+                  height: '48px',
+                  paddingLeft: '14px',
+                  paddingRight: '12px',
+                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+                }}
+                data-testid="cta-primary"
+              >
+                <span 
+                  className="text-[13px]" 
+                  style={{ 
+                    color: 'var(--cta-foreground)', 
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                    fontWeight: 600,
+                    letterSpacing: '0.01em',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {t('showcase.orderProject')}
+                </span>
+                <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-foreground)' }} strokeWidth={2.5} />
+              </button>
+              
+              <button
+                onClick={() => handleOpenDemo('clothing-store')}
+                onMouseEnter={() => preloadDemo('clothing-store')}
+                onTouchStart={() => preloadDemo('clothing-store')}
+                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
+                style={{ 
+                  border: '1.5px solid var(--cta-secondary-border)',
+                  height: '48px',
+                  paddingLeft: '12px',
+                  paddingRight: '14px',
+                  background: 'rgba(255,255,255,0.03)',
+                  boxShadow: '0 8px 24px rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
+                }}
+                data-testid="cta-demo"
+              >
+                <Play className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-secondary-text)' }} fill="currentColor" />
+                <span 
+                  className="text-[13px]" 
+                  style={{ 
+                    color: 'var(--cta-secondary-text)',
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                    fontWeight: 600,
+                    letterSpacing: '0.01em',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {t('showcase.openApp')}
+                </span>
+              </button>
+            </div>
+
+            <div className="mt-12">
+              <Stories stories={demoStories} onOpenDemo={handleOpenDemo} />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
               <div
                 className="p-4 rounded-2xl text-center transition-colors duration-300 flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500"
                 style={{ backgroundColor: 'var(--card-bg)', height: '88px' }}
@@ -336,9 +445,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
             <div
               className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[3/4] nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500 delay-150"
-              onClick={() => handleOpenDemo('luxury-watches')}
-              onMouseEnter={() => preloadDemo('luxury-watches')}
-              onTouchStart={() => preloadDemo('luxury-watches')}
+              onClick={() => handleOpenDemo('clothing-store')}
+              onMouseEnter={() => preloadDemo('clothing-store')}
+              onTouchStart={() => preloadDemo('clothing-store')}
               data-testid="bento-luxury"
               data-depth-zone
               style={{ backgroundColor: 'var(--surface-elevated)' }}
@@ -511,25 +620,14 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 </div>
               </div>
               <div 
-                className="w-11 h-11 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: 'color-mix(in srgb, var(--cta-foreground) 15%, transparent)' }}
+                className="w-12 h-12 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: 'var(--overlay-strong)' }}
               >
-                <ArrowRight className="w-5 h-5" style={{ color: 'var(--cta-foreground)' }} />
+                <ArrowRight className="w-6 h-6" style={{ color: 'var(--cta-foreground)' }} />
               </div>
             </div>
           </div>
         </section>
-
-        <div className="pb-32 pt-4">
-          <div className="text-center">
-            <div 
-              className="text-[10px] font-medium tracking-[0.2em] uppercase transition-colors duration-300 light:text-black"
-              style={{ color: 'var(--text-quaternary)' }}
-            >
-              WEB4TG
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
