@@ -69,16 +69,18 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // Bundle react and react-dom together to ensure same instance and avoid useLayoutEffect error
+            // DO NOT chunk React core libraries to avoid multiple instances and createContext errors
             if (
               id.includes('/node_modules/react/') || 
               id.includes('/node_modules/react-dom/') || 
-              id.includes('/node_modules/scheduler/') ||
-              id.includes('@radix-ui')
-            ) return 'vendor-react';
+              id.includes('/node_modules/scheduler/')
+            ) return null;
             
             // Icons
             if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) return 'vendor-icons';
+            
+            // UI components
+            if (id.includes('@radix-ui')) return 'vendor-ui';
             
             return 'vendor';
           }
