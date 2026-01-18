@@ -217,8 +217,8 @@ const notificationInteractiveSchema = z.object({
 // Analytics schemas
 const abEventSchema = z.object({
   experiment: z.string().min(1).max(100),
-  variant: z.enum(['A', 'B']),
-  eventType: z.enum(['exposure', 'conversion']),
+  variant: z.string().min(1).max(100),
+  eventType: z.string().min(1).max(100),
   userId: z.string().optional(),
   timestamp: z.number().optional(),
   metadata: z.record(z.unknown()).optional(),
