@@ -169,8 +169,8 @@ function App() {
   const { route } = useRouting();
   const { trackNavigation } = useNavigationTracking();
   
-  // iOS 26-style scroll haptics - only edge bounce (top/bottom collision)
-  useScrollHaptic({ enabled: true, edgeBounce: true, selectionTicks: false });
+  // Scroll haptics hook available for manual edge bounce triggers (auto-detection removed to prevent conflicts)
+  useScrollHaptic();
   
   // Track navigation for predictive prefetching
   useEffect(() => {
