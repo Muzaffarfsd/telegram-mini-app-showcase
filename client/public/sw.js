@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v8';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 const DATA_CACHE = `data-${CACHE_VERSION}`;
@@ -15,18 +15,28 @@ const CACHEABLE_API_ENDPOINTS = [
   '/api/achievements',
   '/api/daily-tasks',
   '/api/user/stats',
-  '/api/categories'
+  '/api/categories',
+  '/api/demos' // Added demos endpoint for better offline support
 ];
 
-// API cache TTL in milliseconds (5 minutes)
-const API_CACHE_TTL = 5 * 60 * 1000;
+// API cache TTL in milliseconds (1 hour for static content, 5 min for dynamic)
+const API_CACHE_TTL = 60 * 60 * 1000; 
 
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/offline.html',
   '/manifest.json',
-  '/favicon.png'
+  '/favicon.png',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png'
+];
+
+// Priority assets for instant load
+const PRIORITY_ASSETS = [
+  '/assets/vendor',
+  '/assets/main',
+  '/index.css'
 ];
 
 const CRITICAL_ASSETS = [
@@ -172,6 +182,7 @@ self.addEventListener('install', (event) => {
       const cache = await caches.open(STATIC_CACHE);
       await cache.addAll(STATIC_ASSETS);
       
+      // Pre-cache primary entry points
       try {
         const response = await fetch('/');
         const html = await response.text();
@@ -180,7 +191,8 @@ self.addEventListener('install', (event) => {
         const additionalAssets = [...new Set([...assetMatches].map(m => m[0]))];
         
         if (additionalAssets.length > 0) {
-          await cache.addAll(additionalAssets.slice(0, 20));
+          // Pre-cache more aggressively for 2026 performance
+          await cache.addAll(additionalAssets.slice(0, 50));
         }
       } catch (e) {
         console.log('Could not pre-cache additional assets:', e);
@@ -227,8 +239,37 @@ self.addEventListener('fetch', (event) => {
   
   if (request.method !== 'GET') return;
   
+  // Navigation request optimization
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      (async () => {
+        try {
+          // Try navigation preload if available
+          const preloadResponse = await event.preloadResponse;
+          if (preloadResponse) return preloadResponse;
+          
+          // Try network first but with short timeout for instant feel
+          const networkResponse = await Promise.race([
+            fetch(request),
+            new Promise<null>((_, reject) => setTimeout(() => reject(), 3000))
+          ]);
+          
+          if (networkResponse && networkResponse.ok) {
+            const cache = await caches.open(STATIC_CACHE);
+            cache.put(request, networkResponse.clone());
+            return networkResponse;
+          }
+          throw new Error('Network failed or slow');
+        } catch (e) {
+          const cached = await caches.match('/');
+          return cached || caches.match(OFFLINE_PAGE) || new Response('Offline', { status: 503 });
+        }
+      })()
+    );
+    return;
+  }
+
   if (url.pathname.startsWith('/api/')) {
-    // Use stale-while-revalidate for cacheable endpoints (faster UX)
     const isCacheableEndpoint = CACHEABLE_API_ENDPOINTS.some(ep => url.pathname.startsWith(ep));
     if (isCacheableEndpoint && request.method === 'GET') {
       event.respondWith(staleWhileRevalidateAPI(request));
@@ -448,6 +489,94 @@ async function staleWhileRevalidateAPI(request) {
     }
   );
 }
+
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'background-sync') {
+    event.waitUntil(processSyncQueue());
+  }
+});
+
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {};
+  
+  const options = {
+    body: data.body || 'New notification',
+    icon: data.icon || '/favicon.png',
+    badge: data.badge || '/favicon.png',
+    vibrate: [100, 50, 100],
+    data: {
+      url: data.url || '/',
+      dateOfArrival: Date.now(),
+    },
+    actions: data.actions || [
+      { action: 'open', title: 'Open' },
+      { action: 'close', title: 'Close' }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'WEB4TG', options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  if (event.action === 'close') return;
+  
+  const urlToOpen = event.notification.data?.url || '/';
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(clientList => {
+        for (const client of clientList) {
+          if (client.url.includes(urlToOpen) && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        return clients.openWindow(urlToOpen);
+      })
+  );
+});
+
+self.addEventListener('message', async (event) => {
+  if (event.data === 'skipWaiting') {
+    self.skipWaiting();
+  }
+  
+  if (event.data?.type === 'CACHE_URLS') {
+    const urls = event.data.urls;
+    const cache = await caches.open(DYNAMIC_CACHE);
+    await cache.addAll(urls);
+  }
+  
+  if (event.data?.type === 'CACHE_DEMO_DATA') {
+    const { demoId, data } = event.data;
+    const cache = await caches.open(DATA_CACHE);
+    const response = new Response(JSON.stringify(data), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    await cache.put(`/api/demos/${demoId}`, response);
+  }
+  
+  if (event.data?.type === 'GET_SYNC_STATUS') {
+    const count = await getPendingSyncCount();
+    event.source.postMessage({ type: 'SYNC_STATUS', pendingCount: count });
+  }
+  
+  if (event.data?.type === 'TRIGGER_SYNC') {
+    await processSyncQueue();
+  }
+  
+  if (event.data?.type === 'CHECK_ONLINE') {
+    try {
+      const response = await fetch('/api/health', { method: 'HEAD' });
+      event.source.postMessage({ type: 'ONLINE_STATUS', online: response.ok });
+    } catch {
+      event.source.postMessage({ type: 'ONLINE_STATUS', online: false });
+    }
+  }
+});
 
 self.addEventListener('sync', (event) => {
   if (event.tag === 'background-sync') {
