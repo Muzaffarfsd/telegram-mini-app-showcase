@@ -117,6 +117,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [language]);
 
   const setLanguage = useCallback((lang: Language) => {
+    // Apply DOM changes immediately for instant visual feedback
+    localStorage.setItem('app-language', lang);
+    document.documentElement.lang = lang;
+    if (lang === 'en') {
+      document.documentElement.classList.add('lang-en');
+      document.documentElement.classList.remove('lang-ru');
+    } else {
+      document.documentElement.classList.add('lang-ru');
+      document.documentElement.classList.remove('lang-en');
+    }
+    
+    // Update React state with low priority
     startTransition(() => {
       setLanguageState(lang);
     });
