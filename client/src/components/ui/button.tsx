@@ -57,8 +57,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button"
     
     const handleClick = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-      // Button haptic disabled as per user request
-      // triggerButtonHaptic();
+      triggerButtonHaptic();
       onClick?.(e);
     }, [onClick]);
     
