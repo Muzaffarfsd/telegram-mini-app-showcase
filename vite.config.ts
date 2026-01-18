@@ -69,6 +69,12 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
+            // React core - must be first and precise to avoid matching react-icons etc
+            if (id.includes('/node_modules/react/') || id.includes('/node_modules/react-dom/') || id.includes('/node_modules/scheduler/')) return 'react-vendor';
+            
+            // Icons - must come before generic checks
+            if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) return 'icons-vendor';
+            
             // Payment & Upload - rarely used, load on demand
             if (id.includes('stripe') || id.includes('@stripe')) return 'stripe-vendor';
             if (id.includes('@uppy') || id.includes('uppy')) return 'uppy-vendor';
@@ -76,8 +82,8 @@ export default defineConfig({
             // Charts - heavy, separate chunk
             if (id.includes('recharts') || id.includes('d3-')) return 'charts-vendor';
             
-            // Animation - loaded lazily via LazyMotionProvider
-            if (id.includes('framer-motion') || id.includes('motion')) return 'animation-vendor';
+            // Animation - loaded lazily via LazyMotionProvider (precise match)
+            if (id.includes('framer-motion')) return 'animation-vendor';
             
             // React Query - core data fetching
             if (id.includes('@tanstack/react-query')) return 'query-vendor';
@@ -99,15 +105,9 @@ export default defineConfig({
               id.includes('zustand')
             ) return 'utils-vendor';
             
-            // Icons - large but tree-shakeable
-            if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) return 'icons-vendor';
-            
-            // React core - shared across all
-            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) return 'react-vendor';
-            
             return 'vendor';
           }
-          // App-specific chunks
+          // App-specific chunks (not vendor)
           if (id.includes('/src/components/ProjectsPage')) return 'projects';
           if (id.includes('/src/components/demos/')) return 'demos';
           if (id.includes('/src/components/effects/')) return 'effects';
