@@ -69,23 +69,48 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
+            // Payment & Upload - rarely used, load on demand
             if (id.includes('stripe') || id.includes('@stripe')) return 'stripe-vendor';
             if (id.includes('@uppy') || id.includes('uppy')) return 'uppy-vendor';
-            if (id.includes('d3-') && !id.includes('recharts')) return 'charts-vendor';
-            if (id.includes('framer-motion')) return 'animation-vendor';
+            
+            // Charts - heavy, separate chunk
+            if (id.includes('recharts') || id.includes('d3-')) return 'charts-vendor';
+            
+            // Animation - loaded lazily via LazyMotionProvider
+            if (id.includes('framer-motion') || id.includes('motion')) return 'animation-vendor';
+            
+            // React Query - core data fetching
+            if (id.includes('@tanstack/react-query')) return 'query-vendor';
+            
+            // Radix UI - UI primitives
+            if (id.includes('@radix-ui')) return 'radix-vendor';
+            
+            // Swiper - carousels
+            if (id.includes('swiper')) return 'swiper-vendor';
+            
+            // Utils - small, frequently used
             if (
               id.includes('date-fns') ||
               id.includes('zod') ||
               id.includes('clsx') ||
               id.includes('tailwind-merge') ||
               id.includes('class-variance-authority') ||
-              id.includes('nanoid')
+              id.includes('nanoid') ||
+              id.includes('zustand')
             ) return 'utils-vendor';
+            
+            // Icons - large but tree-shakeable
             if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) return 'icons-vendor';
+            
+            // React core - shared across all
+            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) return 'react-vendor';
+            
             return 'vendor';
           }
+          // App-specific chunks
           if (id.includes('/src/components/ProjectsPage')) return 'projects';
           if (id.includes('/src/components/demos/')) return 'demos';
+          if (id.includes('/src/components/effects/')) return 'effects';
         },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
