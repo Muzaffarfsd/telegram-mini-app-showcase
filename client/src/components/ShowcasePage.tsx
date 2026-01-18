@@ -275,40 +275,16 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </button>
             </div>
 
-            <div className="mt-12 bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10 relative overflow-hidden group">
-              {/* Background Glow */}
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-system-blue/10 blur-[80px] rounded-full" />
-              <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-system-purple/10 blur-[80px] rounded-full" />
-
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-system-blue to-system-purple flex items-center justify-center shadow-lg shadow-system-blue/20">
-                    <Play className="w-5 h-5 text-white fill-current" />
-                  </div>
-                  <div>
-                    <h2 
-                      className="text-[17px] font-bold tracking-tight leading-tight"
-                      style={{ color: 'var(--text-primary)' }}
-                    >
-                      {language === 'ru' ? 'Быстрый обзор демо' : 'Quick Demo Overview'}
-                    </h2>
-                    <p className="text-[12px] text-system-blue font-medium mt-0.5 opacity-80">
-                      {language === 'ru' ? 'Посмотрите ключевые функции за 15 секунд' : 'See key features in 15 seconds'}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="relative">
-                  <Stories stories={demoStories} onOpenDemo={handleOpenDemo} />
-                  
-                  {/* Visual Instruction Overlay (visible only first time or subtle hint) */}
-                  <div className="absolute -right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <div className="flex flex-col items-center gap-1 animate-bounce">
-                      <ArrowRight className="w-4 h-4 text-system-blue opacity-50" />
-                    </div>
-                  </div>
-                </div>
+            <div className="mt-12">
+              <div className="flex items-center justify-between mb-4">
+                <h2 
+                  className="text-[13px] font-medium tracking-[0.08em] uppercase transition-colors duration-300"
+                  style={{ color: 'var(--text-tertiary)' }}
+                >
+                  {language === 'ru' ? 'Быстрый обзор демо' : 'Quick Demo Overview'}
+                </h2>
               </div>
+              <Stories stories={demoStories} onOpenDemo={handleOpenDemo} />
             </div>
 
             <div className="grid grid-cols-3 gap-3">
