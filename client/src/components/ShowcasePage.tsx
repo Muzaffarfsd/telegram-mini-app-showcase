@@ -352,7 +352,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           </div>
         </section>
 
-        <section className="pb-8 animate-in fade-in duration-500">
+        <section className="pb-8 pt-4 animate-in fade-in duration-500">
           <div className="flex items-center justify-between mb-6">
             <h2 
               className="text-[13px] font-medium tracking-[0.08em] uppercase transition-colors duration-300"
