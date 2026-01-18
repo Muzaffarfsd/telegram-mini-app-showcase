@@ -255,8 +255,10 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
   useEffect(() => {
     if (isOpen) {
       setIsAnimating(true);
-      const raf = requestAnimationFrame(() => setIsVisible(true));
-      return () => cancelAnimationFrame(raf);
+      // Use double RAF to ensure DOM is ready before animating
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsVisible(true));
+      });
     } else {
       setIsVisible(false);
       const timer = setTimeout(() => setIsAnimating(false), 200);
@@ -264,21 +266,25 @@ export const CreateStoryModal = memo(function CreateStoryModal({ isOpen, onClose
     }
   }, [isOpen]);
 
-  if (!isOpen && !isAnimating) return null;
+  // Don't render anything until we're ready
+  if (!isAnimating) return null;
 
   return (
     <div
-      className={`fixed inset-0 z-[1000] bg-black/70 flex items-end justify-center ${
-        isVisible ? 'opacity-100' : 'opacity-0'
-      }`}
-      style={{ transition: 'opacity 150ms ease-out' }}
+      className="fixed inset-0 z-[1000] flex items-end justify-center"
+      style={{ 
+        backgroundColor: isVisible ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0)',
+        transition: 'background-color 150ms ease-out',
+        pointerEvents: isVisible ? 'auto' : 'none'
+      }}
       onClick={handleClose}
     >
       <div
         className="w-full max-w-lg bg-background border-t border-border rounded-t-2xl overflow-hidden shadow-2xl"
         style={{ 
           transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'transform 200ms cubic-bezier(0.32, 0.72, 0, 1)'
+          transition: 'transform 200ms cubic-bezier(0.32, 0.72, 0, 1)',
+          willChange: 'transform'
         }}
         onClick={(e) => e.stopPropagation()}
       >
