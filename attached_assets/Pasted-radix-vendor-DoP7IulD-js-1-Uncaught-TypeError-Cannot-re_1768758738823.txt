@@ -1,0 +1,19 @@
+radix-vendor-DoP7IulD.js:1 Uncaught TypeError: Cannot read properties of undefined (reading 'forwardRef')
+    at P (radix-vendor-DoP7IulD.js:1:4045)
+    at radix-vendor-DoP7IulD.js:1:5114
+    at radix-vendor-DoP7IulD.js:1:5507
+    at Array.reduce (<anonymous>)
+    at radix-vendor-DoP7IulD.js:1:5071
+P @ radix-vendor-DoP7IulD.js:1
+(anonymous) @ radix-vendor-DoP7IulD.js:1
+(anonymous) @ radix-vendor-DoP7IulD.js:1
+(anonymous) @ radix-vendor-DoP7IulD.js:1
+(index):1 Clear-Site-Data header on 'https://w4tg.up.railway.app/showcase-hero.webp': Unrecognized type: "executionContexts".
+(index):1 Clear-Site-Data header on 'https://w4tg.up.railway.app/showcase-hero.webp': Cleared data types: "cache", "cookies", "storage". Clearing channel IDs and HTTP authentication cache is currently not supported, as it breaks active network connections.
+(index):1 Clear-Site-Data header on 'https://w4tg.up.railway.app/projects': Unrecognized type: "executionContexts".
+(index):1 Clear-Site-Data header on 'https://w4tg.up.railway.app/projects': Cleared data types: "cache", "cookies", "storage". Clearing channel IDs and HTTP authentication cache is currently not supported, as it breaks active network connections.
+(index):1 Clear-Site-Data header on 'https://w4tg.up.railway.app/analytics': Unrecognized type: "executionContexts".
+(index):1 Clear-Site-Data header on 'https://w4tg.up.railway.app/analytics': Cleared data types: "cache", "cookies", "storage". Clearing channel IDs and HTTP authentication cache is currently not supported, as it breaks active network connections.
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_expand 
+(index):1 The resource https://w4tg.up.railway.app/showcase-hero.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+(index):1 The resource https://w4tg.up.railway.app/showcase-hero.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.

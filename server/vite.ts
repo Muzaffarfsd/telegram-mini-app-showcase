@@ -106,8 +106,8 @@ export function serveStatic(app: Express) {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    // CRITICAL: Force clear ALL client-side storage including Service Workers
-    res.setHeader('Clear-Site-Data', '"cache", "cookies", "storage", "executionContexts"');
+    // Clear client-side cache (executionContexts not supported by browsers)
+    res.setHeader('Clear-Site-Data', '"cache", "storage"');
     // Add Vary headers for proper caching across different networks
     res.setHeader('Vary', 'Accept-Encoding, Origin, Accept-Language, User-Agent, X-Forwarded-For');
     // Force content-type and disable any proxy caching

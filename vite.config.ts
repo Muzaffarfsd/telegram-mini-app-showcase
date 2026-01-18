@@ -69,8 +69,14 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // React core - must be first and precise to avoid matching react-icons etc
-            if (id.includes('/node_modules/react/') || id.includes('/node_modules/react-dom/') || id.includes('/node_modules/scheduler/')) return 'react-vendor';
+            // React core + Radix UI in same chunk to ensure React loads first
+            // Radix depends on React.forwardRef, must be bundled together
+            if (
+              id.includes('/node_modules/react/') || 
+              id.includes('/node_modules/react-dom/') || 
+              id.includes('/node_modules/scheduler/') ||
+              id.includes('@radix-ui')
+            ) return 'react-vendor';
             
             // Icons - must come before generic checks
             if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('phosphor-react')) return 'icons-vendor';
@@ -87,9 +93,6 @@ export default defineConfig({
             
             // React Query - core data fetching
             if (id.includes('@tanstack/react-query')) return 'query-vendor';
-            
-            // Radix UI - UI primitives
-            if (id.includes('@radix-ui')) return 'radix-vendor';
             
             // Swiper - carousels
             if (id.includes('swiper')) return 'swiper-vendor';
