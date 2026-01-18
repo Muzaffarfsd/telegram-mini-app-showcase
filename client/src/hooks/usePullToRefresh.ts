@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface PullToRefreshOptions {
   onRefresh: () => Promise<void> | void;
@@ -16,10 +16,19 @@ export function usePullToRefresh({
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const startY = useRef(0);
-  const containerRef = useRef<HTMLElement | null>(null);
+  const currentPullDistance = useRef(0);
+  const isRefreshingRef = useRef(false);
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    currentPullDistance.current = pullDistance;
+  }, [pullDistance]);
 
   useEffect(() => {
-    // Only activate on touch-capable devices
+    isRefreshingRef.current = isRefreshing;
+  }, [isRefreshing]);
+
+  useEffect(() => {
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     
     if (!enabled || !isTouchDevice) {
@@ -27,63 +36,66 @@ export function usePullToRefresh({
     }
 
     const handleTouchStart = (e: TouchEvent) => {
-      // Only activate pull-to-refresh when scrolled to top
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      if (scrollTop === 0 && !isRefreshing) {
+      // Check scroll position - use multiple methods for compatibility
+      const scrollTop = Math.max(
+        window.scrollY,
+        document.documentElement.scrollTop,
+        document.body.scrollTop
+      );
+      
+      if (scrollTop <= 1 && !isRefreshingRef.current) {
         startY.current = e.touches[0].clientY;
       }
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (startY.current === 0 || isRefreshing) return;
+      if (startY.current === 0 || isRefreshingRef.current) return;
 
       const currentY = e.touches[0].clientY;
       const distance = currentY - startY.current;
 
-      // Only pull down and only prevent if actively pulling
-      if (distance > threshold * 0.3) {
-        // Only prevent default when actually engaging the gesture
+      // Only pull down
+      if (distance > 10) {
         e.preventDefault();
 
         // Apply elastic resistance
         const elasticDistance = Math.min(
-          distance * 0.5,
+          distance * 0.4,
           maxPullDistance
         );
+        currentPullDistance.current = elasticDistance;
         setPullDistance(elasticDistance);
       }
     };
 
     const handleTouchEnd = async () => {
-      if (pullDistance > threshold && !isRefreshing) {
+      const distance = currentPullDistance.current;
+      
+      if (distance > threshold && !isRefreshingRef.current) {
+        isRefreshingRef.current = true;
         setIsRefreshing(true);
-        setPullDistance(threshold); // Keep indicator visible during refresh
-
-        // Haptic feedback
-        if (window.navigator.vibrate) {
-          window.navigator.vibrate(20);
-        }
+        setPullDistance(threshold);
 
         try {
           await onRefresh();
         } finally {
-          // Reset after refresh
           setTimeout(() => {
+            isRefreshingRef.current = false;
             setIsRefreshing(false);
             setPullDistance(0);
-          }, 500);
+            currentPullDistance.current = 0;
+          }, 400);
         }
       } else {
-        // Reset if didn't reach threshold
         setPullDistance(0);
+        currentPullDistance.current = 0;
       }
 
       startY.current = 0;
     };
 
-    // Use passive listeners where possible
     document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false }); // Can't be passive - needs preventDefault
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
@@ -91,7 +103,7 @@ export function usePullToRefresh({
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [enabled, isRefreshing, pullDistance, threshold, maxPullDistance, onRefresh]);
+  }, [enabled, threshold, maxPullDistance, onRefresh]);
 
   const progress = Math.min(pullDistance / threshold, 1);
   const shouldShowIndicator = pullDistance > 0 || isRefreshing;
@@ -100,7 +112,6 @@ export function usePullToRefresh({
     pullDistance,
     isRefreshing,
     progress,
-    shouldShowIndicator,
-    containerRef
+    shouldShowIndicator
   };
 }

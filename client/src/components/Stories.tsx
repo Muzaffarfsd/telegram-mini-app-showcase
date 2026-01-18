@@ -267,6 +267,7 @@ const StoryViewer = memo(({
   const duration = story.video ? 10000 : 5000;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     if (isPaused) return;
@@ -289,45 +290,66 @@ const StoryViewer = memo(({
 
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  
-  const handleDrag = (_: any, info: any) => {
-    const y = Math.max(0, info.offset.y);
-    setDragY(y);
-    if (y > 0 && !isDragging) setIsDragging(true);
-  };
-  
-  const handleDragEnd = (_: any, info: any) => {
-    setIsDragging(false);
-    if (info.offset.y > 100 || info.velocity.y > 400) {
-      onClose();
+  const [isVisible, setIsVisible] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const touchStartY = useRef(0);
+  const touchStartTime = useRef(0);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setIsVisible(true));
+  }, []);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartTime.current = Date.now();
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - touchStartY.current;
+    
+    if (deltaY > 0) {
+      setIsDragging(true);
+      setDragY(deltaY);
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    const velocity = dragY / ((Date.now() - touchStartTime.current) / 1000);
+    
+    if (dragY > 100 || velocity > 400) {
+      setIsClosing(true);
+      setDragY(window.innerHeight);
+      setTimeout(onClose, 200);
     } else {
       setDragY(0);
     }
-  };
+    setIsDragging(false);
+  }, [dragY, onClose]);
 
   const bgOpacity = Math.max(0.3, 1 - dragY / 300);
   const scale = Math.max(0.9, 1 - dragY / 1500);
+  const translateY = isVisible && !isClosing ? dragY : (isClosing ? window.innerHeight : window.innerHeight);
 
   return (
-    <m.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: bgOpacity }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.15 }}
+    <div
       className="fixed inset-0 z-[1000] bg-black flex items-center justify-center"
+      style={{ 
+        opacity: isVisible ? bgOpacity : 0,
+        transition: isDragging ? 'none' : 'opacity 150ms ease-out'
+      }}
     >
-      <m.div
-        drag="y"
-        dragConstraints={{ top: 0, bottom: 300 }}
-        dragElastic={{ top: 0, bottom: 0.6 }}
-        onDrag={handleDrag}
-        onDragEnd={handleDragEnd}
-        initial={{ y: '100%' }}
-        animate={{ y: 0, scale: isDragging ? scale : 1 }}
-        exit={{ y: '100%' }}
-        transition={{ type: 'tween', duration: isDragging ? 0 : 0.25, ease: [0.32, 0.72, 0, 1] }}
-        className="relative w-full h-[100dvh] max-w-md bg-black overflow-hidden touch-pan-y will-change-transform"
-        style={{ borderRadius: isDragging ? 24 : 0 }}
+      <div
+        ref={containerRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className="relative w-full h-[100dvh] max-w-md bg-black overflow-hidden"
+        style={{ 
+          transform: `translateY(${isVisible ? translateY : window.innerHeight}px) scale(${isDragging ? scale : 1})`,
+          transition: isDragging ? 'none' : 'transform 200ms cubic-bezier(0.32, 0.72, 0, 1)',
+          borderRadius: isDragging ? 24 : 0
+        }}
       >
         <div className="absolute inset-0">
           {story.video ? (
@@ -385,13 +407,23 @@ const StoryViewer = memo(({
         </div>
 
         <div 
-          className="absolute inset-0 z-20 flex"
+          className="absolute inset-0 z-20 flex pointer-events-none"
           onPointerDown={() => setIsPaused(true)}
           onPointerUp={() => setIsPaused(false)}
           onPointerLeave={() => setIsPaused(false)}
         >
-          <div className="w-[30%]" onClick={(e) => { e.stopPropagation(); onPrev(); }} />
-          <div className="flex-1" onClick={(e) => { e.stopPropagation(); onNext(); }} />
+          <div 
+            className="w-[30%] pointer-events-auto" 
+            onClick={(e) => { e.stopPropagation(); onPrev(); }}
+            onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setIsPaused(false)}
+          />
+          <div 
+            className="flex-1 pointer-events-auto" 
+            onClick={(e) => { e.stopPropagation(); onNext(); }}
+            onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setIsPaused(false)}
+          />
         </div>
 
         <div className="absolute bottom-8 left-3 right-3 z-30 space-y-3">
@@ -437,8 +469,8 @@ const StoryViewer = memo(({
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
-      </m.div>
-    </m.div>
+      </div>
+    </div>
   );
 });
 StoryViewer.displayName = 'StoryViewer';
