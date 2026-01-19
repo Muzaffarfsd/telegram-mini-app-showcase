@@ -188,13 +188,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             <h1 className="mb-8">
               <span 
                 className="block text-[44px] leading-[1.02] font-semibold"
-                style={{ color: 'var(--text-primary)', letterSpacing: '-0.035em' }}
+                style={{ color: 'var(--text-primary)', letterSpacing: '-0.035em', fontFamily: 'Montserrat, sans-serif' }}
               >
                 {t('showcase.heroTitle')}
               </span>
               <span 
                 className="block text-[44px] leading-[1.02] font-semibold"
-                style={{ color: 'var(--text-primary)', letterSpacing: '-0.035em' }}
+                style={{ color: 'var(--text-primary)', letterSpacing: '-0.035em', fontFamily: 'Montserrat, sans-serif' }}
               >
                 {t('showcase.heroTitle2')}
               </span>
@@ -214,7 +214,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   className="block text-[44px] leading-[1.02] font-semibold animate-in fade-in slide-in-from-bottom-8 duration-500 relative"
                   style={{ 
                     color: 'var(--cta-background)', 
-                    letterSpacing: '-0.035em'
+                    letterSpacing: '-0.035em',
+                    fontFamily: 'Montserrat, sans-serif'
                   }}
                 >
                   {headlines[headlineIndex]}
