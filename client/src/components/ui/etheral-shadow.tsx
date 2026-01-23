@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useId, useEffect, CSSProperties } from 'react';
+import { useRef, useId, useEffect, CSSProperties, useState } from 'react';
 import { animate, useMotionValue, AnimationPlaybackControls } from 'framer-motion';
 
 interface AnimationConfig {
@@ -45,6 +45,28 @@ const useInstanceId = (): string => {
     return instanceId;
 };
 
+const useIsMobile = () => {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkIsMobile = () => {
+            const userAgent = navigator.userAgent;
+            const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const isSmallScreen = window.innerWidth <= 768;
+            
+            setIsMobile(mobileRegex.test(userAgent) || (isTouchDevice && isSmallScreen));
+        };
+
+        checkIsMobile();
+        window.addEventListener('resize', checkIsMobile);
+        
+        return () => window.removeEventListener('resize', checkIsMobile);
+    }, []);
+
+    return isMobile;
+};
+
 export function EtheralShadow({
     sizing = 'fill',
     color = 'rgba(128, 128, 128, 1)',
@@ -55,7 +77,8 @@ export function EtheralShadow({
     children
 }: ShadowOverlayProps) {
     const id = useInstanceId();
-    const animationEnabled = animation && animation.scale > 0;
+    const isMobile = useIsMobile();
+    const animationEnabled = animation && animation.scale > 0 && !isMobile;
     const feColorMatrixRef = useRef<SVGFEColorMatrixElement>(null);
     const hueRotateMotionValue = useMotionValue(180);
     const hueRotateAnimation = useRef<AnimationPlaybackControls | null>(null);
@@ -90,6 +113,44 @@ export function EtheralShadow({
             };
         }
     }, [animationEnabled, animationDuration, hueRotateMotionValue]);
+
+    if (isMobile) {
+        return (
+            <div
+                className={className}
+                style={{
+                    overflow: "hidden",
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    pointerEvents: "none",
+                    ...style
+                }}
+            >
+                <div
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        background: `radial-gradient(ellipse 80% 50% at 50% 0%, ${color} 0%, transparent 70%)`,
+                        opacity: 0.6
+                    }}
+                />
+                {children && (
+                    <div
+                        style={{
+                            position: "relative",
+                            zIndex: 10,
+                            width: "100%",
+                            height: "100%"
+                        }}
+                    >
+                        {children}
+                    </div>
+                )}
+            </div>
+        );
+    }
 
     return (
         <div
