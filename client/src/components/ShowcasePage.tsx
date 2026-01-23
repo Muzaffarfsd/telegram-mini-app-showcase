@@ -230,16 +230,16 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
             <div className="mb-10 max-w-[340px]">
               <p 
-                className="text-[17px] leading-[1.5]"
-                style={{ color: 'rgba(255,255,255,0.7)', textShadow: '0 1px 10px rgba(0,0,0,0.5)' }}
+                className="text-[17px] leading-[1.5] font-medium"
+                style={{ color: '#ffffff', textShadow: '0 0 20px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9)' }}
               >
                 {t('showcase.heroDescription')}
               </p>
               <p 
                 className="text-[17px] leading-[1.5] mt-3"
-                style={{ color: 'rgba(255,255,255,0.7)', textShadow: '0 1px 10px rgba(0,0,0,0.5)' }}
+                style={{ color: 'rgba(255,255,255,0.85)', textShadow: '0 0 20px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9)' }}
               >
-                {t('showcase.heroDescription2')} <span style={{ color: '#10b981', whiteSpace: 'nowrap' }}>{t('showcase.heroAccent2')}</span>.
+                {t('showcase.heroDescription2')} <span style={{ color: '#10b981', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('showcase.heroAccent2')}</span>.
               </p>
             </div>
 
