@@ -11,7 +11,6 @@ import { Stories, type Story } from './Stories';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from './PullToRefreshIndicator';
 import { useQueryClient } from '@tanstack/react-query';
-import { GlowSearch } from './GlowSearch';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
@@ -296,13 +295,6 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   {t('showcase.openApp')}
                 </span>
               </button>
-            </div>
-
-            <div className="mt-10 flex justify-center">
-              <GlowSearch 
-                placeholder={language === 'ru' ? 'Поиск демо...' : 'Search demos...'} 
-                onSearch={(query) => console.log('Search:', query)}
-              />
             </div>
 
             <div className="mt-12">
