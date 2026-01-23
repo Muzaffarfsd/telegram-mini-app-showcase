@@ -246,55 +246,58 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleNavigate('projects')}
-                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
+                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97] backdrop-blur-2xl"
                 style={{ 
-                  background: 'var(--cta-background)',
+                  background: 'rgba(16, 185, 129, 0.25)',
                   height: '48px',
                   paddingLeft: '14px',
                   paddingRight: '12px',
-                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+                  border: '1px solid rgba(16, 185, 129, 0.4)',
+                  boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
                 }}
                 data-testid="cta-primary"
               >
                 <span 
                   className="text-[13px]" 
                   style={{ 
-                    color: 'var(--cta-foreground)', 
+                    color: '#ffffff', 
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
                     fontWeight: 600,
                     letterSpacing: '0.01em',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.3)'
                   }}
                 >
                   {t('showcase.orderProject')}
                 </span>
-                <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-foreground)' }} strokeWidth={2.5} />
+                <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: '#ffffff' }} strokeWidth={2.5} />
               </button>
               
               <button
                 onClick={() => handleOpenDemo('clothing-store')}
                 onMouseEnter={() => preloadDemo('clothing-store')}
                 onTouchStart={() => preloadDemo('clothing-store')}
-                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
+                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97] backdrop-blur-2xl"
                 style={{ 
-                  border: '1.5px solid var(--cta-secondary-border)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
                   height: '48px',
                   paddingLeft: '12px',
                   paddingRight: '14px',
-                  background: 'rgba(255,255,255,0.03)',
-                  boxShadow: '0 8px 24px rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.2)'
                 }}
                 data-testid="cta-demo"
               >
-                <Play className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cta-secondary-text)' }} fill="currentColor" />
+                <Play className="w-4 h-4 flex-shrink-0" style={{ color: '#ffffff' }} fill="currentColor" />
                 <span 
                   className="text-[13px]" 
                   style={{ 
-                    color: 'var(--cta-secondary-text)',
+                    color: '#ffffff',
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
                     fontWeight: 600,
                     letterSpacing: '0.01em',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.3)'
                   }}
                 >
                   {t('showcase.openApp')}
