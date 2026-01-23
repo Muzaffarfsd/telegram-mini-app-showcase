@@ -193,13 +193,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             <h1 className="mb-8">
               <span 
                 className="block text-[44px] leading-[1.02] font-semibold"
-                style={{ color: 'var(--text-primary)', letterSpacing: '-0.035em', fontFamily: 'Montserrat, sans-serif' }}
+                style={{ color: '#ffffff', letterSpacing: '-0.035em', fontFamily: 'Montserrat, sans-serif', textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}
               >
                 {t('showcase.heroTitle')}
               </span>
               <span 
                 className="block text-[44px] leading-[1.02] font-semibold"
-                style={{ color: 'var(--text-primary)', letterSpacing: '-0.035em', fontFamily: 'Montserrat, sans-serif' }}
+                style={{ color: '#ffffff', letterSpacing: '-0.035em', fontFamily: 'Montserrat, sans-serif', textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}
               >
                 {t('showcase.heroTitle2')}
               </span>
@@ -231,15 +231,15 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             <div className="mb-10 max-w-[340px]">
               <p 
                 className="text-[17px] leading-[1.5]"
-                style={{ color: 'var(--text-tertiary)' }}
+                style={{ color: 'rgba(255,255,255,0.7)', textShadow: '0 1px 10px rgba(0,0,0,0.5)' }}
               >
                 {t('showcase.heroDescription')}
               </p>
               <p 
                 className="text-[17px] leading-[1.5] mt-3"
-                style={{ color: 'var(--text-tertiary)' }}
+                style={{ color: 'rgba(255,255,255,0.7)', textShadow: '0 1px 10px rgba(0,0,0,0.5)' }}
               >
-                {t('showcase.heroDescription2')} <span style={{ color: 'var(--cta-background)', whiteSpace: 'nowrap' }}>{t('showcase.heroAccent2')}</span>.
+                {t('showcase.heroDescription2')} <span style={{ color: '#10b981', whiteSpace: 'nowrap' }}>{t('showcase.heroAccent2')}</span>.
               </p>
             </div>
 
@@ -322,35 +322,35 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
             <div className="grid grid-cols-3 gap-3">
               <div
-                className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500"
-                style={{ backgroundColor: 'var(--card-bg)', height: '88px' }}
+                className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 backdrop-blur-xl"
+                style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', height: '88px', border: '1px solid rgba(255,255,255,0.1)' }}
               >
-                <div className="text-[26px] font-semibold leading-none" style={{ color: 'var(--text-primary)' }}>
+                <div className="text-[26px] font-semibold leading-none" style={{ color: '#ffffff' }}>
                   <AnimatedCounter value={127} suffix="+" delay={0.3} />
                 </div>
-                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'var(--text-tertiary)', lineHeight: '1.3' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: '1.3' }}>
                   {t('showcase.clients')}
                 </div>
               </div>
               <div
-                className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100"
-                style={{ backgroundColor: 'var(--card-bg)', height: '88px' }}
+                className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 backdrop-blur-xl"
+                style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', height: '88px', border: '1px solid rgba(255,255,255,0.1)' }}
               >
-                <div className="text-[26px] font-semibold leading-none" style={{ color: 'var(--text-primary)' }}>
+                <div className="text-[26px] font-semibold leading-none" style={{ color: '#ffffff' }}>
                   <AnimatedCounter value={24} suffix={t('showcase.hours')} delay={0.4} />
                 </div>
-                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'var(--text-tertiary)', lineHeight: '1.3' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: '1.3' }}>
                   {t('showcase.toLaunch')}
                 </div>
               </div>
               <div
-                className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200"
-                style={{ backgroundColor: 'color-mix(in srgb, var(--cta-background) 15%, transparent)', height: '88px' }}
+                className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200 backdrop-blur-xl"
+                style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', height: '88px', border: '1px solid rgba(16, 185, 129, 0.3)' }}
               >
-                <div className="text-[26px] font-semibold leading-none" style={{ color: 'var(--cta-background)' }}>
+                <div className="text-[26px] font-semibold leading-none" style={{ color: '#10b981' }}>
                   +<AnimatedCounter value={300} suffix="%" delay={0.5} />
                 </div>
-                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'color-mix(in srgb, var(--cta-background) 60%, transparent)', lineHeight: '1.3' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'rgba(16, 185, 129, 0.8)', lineHeight: '1.3' }}>
                   {t('showcase.toSales')}
                 </div>
               </div>
@@ -362,14 +362,14 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
           <div className="flex items-center justify-between mb-6">
             <h2 
               className="text-[13px] font-medium tracking-[0.08em] uppercase"
-              style={{ color: 'var(--text-tertiary)' }}
+              style={{ color: 'rgba(255,255,255,0.6)', textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}
             >
               {t('showcase.projectsTitle')}
             </h2>
             <button
               onClick={() => handleNavigate('projects')}
               className="text-[13px] font-medium flex items-center gap-1"
-              style={{ color: 'var(--text-tertiary)' }}
+              style={{ color: 'rgba(255,255,255,0.6)', textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}
               data-testid="view-all"
             >
               {t('showcase.all')} <ArrowUpRight className="w-3.5 h-3.5" />
