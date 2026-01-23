@@ -5,9 +5,9 @@ export function HamsterLoader() {
         .wheel-and-hamster {
           --dur: 1s;
           position: relative;
-          width: 12em;
-          height: 12em;
-          font-size: 14px;
+          width: 8em;
+          height: 8em;
+          font-size: 10px;
         }
 
         .wheel,
