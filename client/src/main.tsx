@@ -19,6 +19,12 @@ injectCriticalCSS();
 // Render React app IMMEDIATELY - nothing blocks first paint
 createRoot(document.getElementById("root")!).render(<App />);
 
+// Hide initial hamster loader after React mounts
+const initialLoader = document.getElementById('initial-loader');
+if (initialLoader) {
+  initialLoader.classList.add('hidden');
+}
+
 // ALL initialization deferred to after first paint via requestIdleCallback
 if (typeof window !== 'undefined') {
   const deferredInit = () => {
