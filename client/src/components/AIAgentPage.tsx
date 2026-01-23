@@ -10,6 +10,8 @@ import {
   Clock
 } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
+import { SplineScene } from './ui/spline-scene';
+import { Spotlight } from './ui/spotlight';
 
 interface AIAgentPageProps {
   onNavigate: (path: string) => void;
@@ -36,6 +38,11 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           HERO - Full screen with 3D Robot
           =============================================== */}
       <section className="relative min-h-screen flex items-center justify-center px-5 overflow-hidden">
+        <Spotlight
+          className="-top-40 left-0 md:left-60 md:-top-20"
+          fill="#8B5CF6"
+        />
+        
         {/* Parallax backgrounds - optimized for mobile */}
         <div 
           className="absolute inset-0 opacity-30"
@@ -53,16 +60,14 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           }}
         />
         
-        {/* Animated Robot Illustration - CSS-based for instant render */}
-        <div className="absolute inset-0 pointer-events-none z-0 opacity-30 md:opacity-50 flex items-center justify-center">
-          <div 
-            className="w-64 h-64 md:w-96 md:h-96 rounded-full"
-            style={{
-              background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(59, 130, 246, 0.2) 50%, transparent 70%)',
-              filter: 'blur(40px)',
-              animation: 'pulse 4s ease-in-out infinite'
-            }}
-          />
+        {/* 3D Robot Spline Scene */}
+        <div className="absolute inset-0 z-0 pointer-events-none md:pointer-events-auto">
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-full md:w-[60%] h-[400px] md:h-[600px]">
+            <SplineScene 
+              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+              className="w-full h-full"
+            />
+          </div>
         </div>
         
         <div className="relative z-10 text-center w-full md:flex-1 md:text-left md:pl-8">
