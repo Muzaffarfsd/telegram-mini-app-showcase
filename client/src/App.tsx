@@ -67,7 +67,7 @@ const CheckoutPage = lazyWithRetry(() => import("./components/CheckoutPage"));
 const DemoAppShell = lazyWithRetry(() => import("./components/DemoAppShell"));
 const HelpPage = lazyWithRetry(() => import("./components/HelpPage"));
 const ReviewPage = lazyWithRetry(() => import("./components/ReviewPage"));
-import AIAgentPage from "./components/AIAgentPage";
+const AIAgentPage = lazyWithRetry(() => import("./components/AIAgentPage"));
 const AIProcessPage = lazyWithRetry(() => import("./components/AIProcessPage"));
 const PhotoGallery = lazyWithRetry(() => import("./pages/PhotoGallery"));
 const NotFoundPage = lazyWithRetry(() => import("./pages/NotFound"));

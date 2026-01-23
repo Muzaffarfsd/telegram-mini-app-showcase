@@ -10,7 +10,6 @@ import {
   Clock
 } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
-import { Spotlight } from './ui/spotlight';
 
 interface AIAgentPageProps {
   onNavigate: (path: string) => void;
@@ -37,11 +36,6 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           HERO - Full screen with 3D Robot
           =============================================== */}
       <section className="relative min-h-screen flex items-center justify-center px-5 overflow-hidden">
-        <Spotlight
-          className="-top-40 left-0 md:left-60 md:-top-20"
-          fill="white"
-        />
-        
         {/* Parallax backgrounds - optimized for mobile */}
         <div 
           className="absolute inset-0 opacity-30"
