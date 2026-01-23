@@ -11,6 +11,7 @@ import { Stories, type Story } from './Stories';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from './PullToRefreshIndicator';
 import { useQueryClient } from '@tanstack/react-query';
+import { EtheralShadow } from './ui/etheral-shadow';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
@@ -171,6 +172,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
       className="min-h-screen showcase-page"
       style={{ backgroundColor: 'var(--surface)' }}
     >
+      <EtheralShadow
+        color="rgba(16, 185, 129, 0.15)"
+        animation={{ scale: 60, speed: 30 }}
+        noise={{ opacity: 0.3, scale: 1.5 }}
+        sizing="fill"
+        style={{ zIndex: 0 }}
+      />
       <PullToRefreshIndicator
         pullDistance={pullDistance}
         isRefreshing={isRefreshing}
