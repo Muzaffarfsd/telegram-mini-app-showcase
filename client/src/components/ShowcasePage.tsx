@@ -258,19 +258,19 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 data-testid="cta-primary"
               >
                 <span 
-                  className="text-[13px]" 
+                  className="text-[14px]" 
                   style={{ 
                     color: '#ffffff', 
-                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                    fontWeight: 600,
-                    letterSpacing: '0.01em',
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontWeight: 700,
+                    letterSpacing: '0.02em',
                     whiteSpace: 'nowrap',
-                    textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                    textShadow: '0 0 10px rgba(16, 185, 129, 0.8), 0 2px 4px rgba(0,0,0,0.5)'
                   }}
                 >
                   {t('showcase.orderProject')}
                 </span>
-                <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: '#ffffff' }} strokeWidth={2.5} />
+                <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: '#ffffff', filter: 'drop-shadow(0 0 4px rgba(16, 185, 129, 0.8))' }} strokeWidth={2.5} />
               </button>
               
               <button
@@ -279,25 +279,25 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 onTouchStart={() => preloadDemo('clothing-store')}
                 className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97] backdrop-blur-2xl"
                 style={{ 
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
                   height: '48px',
                   paddingLeft: '12px',
                   paddingRight: '14px',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.2)'
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.3)'
                 }}
                 data-testid="cta-demo"
               >
-                <Play className="w-4 h-4 flex-shrink-0" style={{ color: '#ffffff' }} fill="currentColor" />
+                <Play className="w-4 h-4 flex-shrink-0" style={{ color: '#ffffff', filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.5))' }} fill="currentColor" />
                 <span 
-                  className="text-[13px]" 
+                  className="text-[14px]" 
                   style={{ 
                     color: '#ffffff',
-                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                    fontWeight: 600,
-                    letterSpacing: '0.01em',
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontWeight: 700,
+                    letterSpacing: '0.02em',
                     whiteSpace: 'nowrap',
-                    textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                    textShadow: '0 0 10px rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.5)'
                   }}
                 >
                   {t('showcase.openApp')}
