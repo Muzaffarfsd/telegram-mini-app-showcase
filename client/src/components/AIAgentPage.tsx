@@ -10,7 +10,6 @@ import {
   Clock
 } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
-import { SplineScene } from './ui/spline-scene';
 import { Spotlight } from './ui/spotlight';
 
 interface AIAgentPageProps {
@@ -60,11 +59,15 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           }}
         />
         
-        {/* 3D Robot Scene - positioned behind text on mobile, side by side on desktop */}
-        <div className="absolute inset-0 md:relative md:flex-1 md:h-[500px] pointer-events-none md:pointer-events-auto z-0 md:z-10 opacity-40 md:opacity-100">
-          <SplineScene 
-            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-            className="w-full h-full"
+        {/* Animated Robot Illustration - CSS-based for instant render */}
+        <div className="absolute inset-0 pointer-events-none z-0 opacity-30 md:opacity-50 flex items-center justify-center">
+          <div 
+            className="w-64 h-64 md:w-96 md:h-96 rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(59, 130, 246, 0.2) 50%, transparent 70%)',
+              filter: 'blur(40px)',
+              animation: 'pulse 4s ease-in-out infinite'
+            }}
           />
         </div>
         
