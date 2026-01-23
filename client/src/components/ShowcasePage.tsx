@@ -11,6 +11,7 @@ import { Stories, type Story } from './Stories';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from './PullToRefreshIndicator';
 import { useQueryClient } from '@tanstack/react-query';
+import { TubesBackground } from './ui/neon-flow';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
@@ -171,14 +172,18 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
       className="min-h-screen showcase-page"
       style={{ backgroundColor: 'var(--surface)' }}
     >
-            <PullToRefreshIndicator
+      <TubesBackground 
+        className="fixed inset-0 z-0" 
+        enableClickInteraction={true}
+      />
+      <PullToRefreshIndicator
         pullDistance={pullDistance}
         isRefreshing={isRefreshing}
         shouldShow={shouldShowIndicator}
         progress={progress}
       />
       <div 
-        className="max-w-lg mx-auto px-5"
+        className="max-w-lg mx-auto px-5 relative z-10"
         style={{ paddingTop: '120px' }}
       >
         <section
