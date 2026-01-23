@@ -10,6 +10,8 @@ import {
   Clock
 } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
+import { SplineScene } from './ui/spline-scene';
+import { Spotlight } from './ui/spotlight';
 
 interface AIAgentPageProps {
   onNavigate: (path: string) => void;
@@ -33,9 +35,14 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
     <div className="ai-agent-page min-h-screen bg-[#000000] overflow-hidden smooth-scroll-page" style={{ paddingTop: '140px' }}>
       
       {/* ===============================================
-          HERO - Full screen dramatic intro
+          HERO - Full screen with 3D Robot
           =============================================== */}
-      <section className="relative min-h-screen flex items-center justify-center px-5">
+      <section className="relative min-h-screen flex items-center justify-center px-5 overflow-hidden">
+        <Spotlight
+          className="-top-40 left-0 md:left-60 md:-top-20"
+          fill="white"
+        />
+        
         {/* Parallax backgrounds - optimized for mobile */}
         <div 
           className="absolute inset-0 opacity-30"
@@ -53,7 +60,15 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           }}
         />
         
-        <div className="relative z-10 text-center w-full">
+        {/* 3D Robot Scene - positioned behind text on mobile, side by side on desktop */}
+        <div className="absolute inset-0 md:relative md:flex-1 md:h-[500px] pointer-events-none md:pointer-events-auto z-0 md:z-10 opacity-40 md:opacity-100">
+          <SplineScene 
+            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            className="w-full h-full"
+          />
+        </div>
+        
+        <div className="relative z-10 text-center w-full md:flex-1 md:text-left md:pl-8">
           {/* Badge */}
           <div className="flex justify-center mb-8 scroll-fade-in">
             <div 

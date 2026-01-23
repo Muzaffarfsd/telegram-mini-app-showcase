@@ -240,6 +240,10 @@ export default {
           from: { width: "0%" },
           to: { width: "100%" },
         },
+        "spotlight": {
+          "0%": { opacity: "0", transform: "translate(-72%, -62%) scale(0.5)" },
+          "100%": { opacity: "1", transform: "translate(-50%, -40%) scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -273,6 +277,7 @@ export default {
         "flip": "flip 0.6s ease-in-out",
         "heartbeat": "heartbeat 1.5s ease-in-out infinite",
         "progress": "progress var(--duration, 3s) ease-out forwards",
+        "spotlight": "spotlight 2s ease 0.75s 1 forwards",
       },
       transitionTimingFunction: {
         "apple": "cubic-bezier(0.25, 0.1, 0.25, 1)",
