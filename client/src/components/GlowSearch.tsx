@@ -32,13 +32,13 @@ export function GlowSearch({ onSearch, onFilterClick, placeholder }: GlowSearchP
         .glow-search-wrapper .grid {
           height: 800px;
           width: 800px;
-          background-image: linear-gradient(to right, #0f0f10 1px, transparent 1px),
-            linear-gradient(to bottom, #0f0f10 1px, transparent 1px);
+          background-image: linear-gradient(to right, rgba(60, 40, 90, 0.4) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(60, 40, 90, 0.4) 1px, transparent 1px);
           background-size: 1rem 1rem;
           background-position: center center;
           position: absolute;
           z-index: -1;
-          filter: blur(1px);
+          filter: blur(0.5px);
         }
         
         .glow-search-wrapper .white,
