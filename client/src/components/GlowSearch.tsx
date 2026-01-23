@@ -18,17 +18,32 @@ export function GlowSearch({ placeholder = "Search...", onSearch, onFilterClick 
   return (
     <>
       <style>{`
+        .gs-wrapper {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          padding: 40px 20px;
+          max-width: 400px;
+          margin: 0 auto;
+        }
+        
         .gs-grid {
-          height: 800px;
-          width: 800px;
-          background-image: linear-gradient(to right, #0f0f10 1px, transparent 1px),
-            linear-gradient(to bottom, #0f0f10 1px, transparent 1px);
+          height: 200px;
+          width: 400px;
+          background-image: linear-gradient(to right, rgba(40, 40, 45, 0.6) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(40, 40, 45, 0.6) 1px, transparent 1px);
           background-size: 1rem 1rem;
           background-position: center center;
           position: absolute;
-          z-index: -1;
+          z-index: 0;
           filter: blur(1px);
           pointer-events: none;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
         }
         
         .gs-white,
@@ -40,8 +55,8 @@ export function GlowSearch({ placeholder = "Search...", onSearch, onFilterClick 
           height: 100%;
           width: 100%;
           position: absolute;
-          overflow: hidden;
-          z-index: -1;
+          overflow: visible;
+          z-index: 1;
           border-radius: 12px;
           filter: blur(3px);
         }
@@ -62,6 +77,8 @@ export function GlowSearch({ placeholder = "Search...", onSearch, onFilterClick 
           display: flex;
           align-items: center;
           justify-content: center;
+          position: relative;
+          z-index: 1;
         }
         
         .gs-input::placeholder {
@@ -337,6 +354,7 @@ export function GlowSearch({ placeholder = "Search...", onSearch, onFilterClick 
         
         .gs-main {
           position: relative;
+          z-index: 2;
         }
         
         .gs-search-icon {
@@ -347,8 +365,9 @@ export function GlowSearch({ placeholder = "Search...", onSearch, onFilterClick 
         }
       `}</style>
       
-      <div className="gs-grid"></div>
-      <div className="gs-poda" data-testid="glow-search">
+      <div className="gs-wrapper">
+        <div className="gs-grid"></div>
+        <div className="gs-poda" data-testid="glow-search">
         <div className="gs-glow"></div>
         <div className="gs-darkBorderBg"></div>
         <div className="gs-darkBorderBg"></div>
@@ -423,6 +442,7 @@ export function GlowSearch({ placeholder = "Search...", onSearch, onFilterClick 
               </defs>
             </svg>
           </div>
+        </div>
         </div>
       </div>
     </>
