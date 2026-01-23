@@ -132,8 +132,7 @@ export function EtheralShadow({
                     style={{
                         position: "absolute",
                         inset: 0,
-                        background: `radial-gradient(ellipse 80% 50% at 50% 0%, ${color} 0%, transparent 70%)`,
-                        opacity: 0.6
+                        background: `radial-gradient(ellipse 120% 80% at 50% -20%, ${color} 0%, ${color.replace(/[\d.]+\)$/, '0.5)')} 40%, transparent 80%)`,
                     }}
                 />
                 {children && (
