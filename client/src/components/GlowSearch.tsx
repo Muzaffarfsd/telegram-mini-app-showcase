@@ -18,6 +18,19 @@ export function GlowSearch({ placeholder = "Search...", onSearch, onFilterClick 
   return (
     <>
       <style>{`
+        .glow-search-grid {
+          height: 200px;
+          width: 400px;
+          background-image: linear-gradient(to right, #0f0f10 1px, transparent 1px),
+            linear-gradient(to bottom, #0f0f10 1px, transparent 1px);
+          background-size: 1rem 1rem;
+          background-position: center center;
+          position: absolute;
+          z-index: -2;
+          filter: blur(1px);
+          pointer-events: none;
+        }
+        
         .glow-search-container {
           display: flex;
           align-items: center;
@@ -219,7 +232,7 @@ export function GlowSearch({ placeholder = "Search...", onSearch, onFilterClick 
           max-width: 354px;
         }
         
-        .glow-search-glow:before {
+        .glow-search-glow::before {
           content: "";
           z-index: -2;
           text-align: center;
@@ -312,8 +325,28 @@ export function GlowSearch({ placeholder = "Search...", onSearch, onFilterClick 
             transform: translate(-50%, -50%) rotate(450deg);
           }
         }
+        
+        @keyframes glow-search-leftright {
+          0% {
+            transform: translate(0px, 0px);
+            opacity: 1;
+          }
+          49% {
+            transform: translate(250px, 0px);
+            opacity: 0;
+          }
+          80% {
+            transform: translate(-40px, 0px);
+            opacity: 0;
+          }
+          100% {
+            transform: translate(0px, 0px);
+            opacity: 1;
+          }
+        }
       `}</style>
       
+      <div className="glow-search-grid"></div>
       <div className="glow-search-container" data-testid="glow-search">
         <div className="glow-search-glow"></div>
         <div className="glow-search-darkBorderBg"></div>
@@ -326,6 +359,7 @@ export function GlowSearch({ placeholder = "Search...", onSearch, onFilterClick 
           <input 
             placeholder={placeholder}
             type="text" 
+            name="text"
             className="glow-search-input"
             value={query}
             onChange={handleChange}
@@ -366,6 +400,7 @@ export function GlowSearch({ placeholder = "Search...", onSearch, onFilterClick 
               strokeLinecap="round"
               height="24"
               fill="none"
+              className="feather feather-search"
             >
               <circle stroke="url(#glow-search-gradient)" r="8" cy="11" cx="11"></circle>
               <line
