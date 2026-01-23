@@ -317,13 +317,13 @@ export const NeonLoader: FC = () => {
     <div className="w-full h-full min-h-screen bg-gradient-to-b from-neutral-950 to-green-950">
       <Canvas
         camera={cameraConfig}
-        dpr={isMobile ? 0.75 : 1}
+        dpr={Math.min(window.devicePixelRatio, isMobile ? 2 : 2)}
         frameloop="always"
         gl={{ 
           alpha: true,
-          antialias: false,
+          antialias: !isMobile,
           powerPreference: "high-performance",
-          precision: isMobile ? "mediump" : "highp"
+          precision: "highp"
         }}
       >
         <AnimationController animationState={animationState} />
