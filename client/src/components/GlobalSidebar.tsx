@@ -1673,7 +1673,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       </div>
 
       <div className="top-bar">
-        <div className="max-w-md mx-auto px-5 pt-20 pb-1 flex items-end justify-between gap-4" style={{ position: 'relative', zIndex: 2 }}>
+        <div className="max-w-md mx-auto px-5 pt-14 pb-1 flex items-end justify-between gap-4" style={{ position: 'relative', zIndex: 2 }}>
           <div className="w-[52px]">
             <AnimatedHamburgerIcon 
               ref={triggerButtonRef}

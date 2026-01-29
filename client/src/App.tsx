@@ -395,7 +395,7 @@ function App() {
                   <div className="relative">
                     {/* Subtle outer glow */}
                     <div 
-                      className="absolute -inset-2 rounded-[36px] pointer-events-none"
+                      className="absolute -inset-2 rounded-[32px] pointer-events-none"
                       style={{
                         boxShadow: isDark ? '0 0 40px 5px rgba(16, 185, 129, 0.08)' : '0 0 30px 5px rgba(16, 185, 129, 0.05)',
                       }}
@@ -403,7 +403,7 @@ function App() {
                     
                     {/* Deep shadow */}
                     <div 
-                      className="absolute inset-0 rounded-[28px] pointer-events-none"
+                      className="absolute inset-0 rounded-[24px] pointer-events-none"
                       style={{
                         boxShadow: isDark ? '0 25px 50px -12px rgba(0, 0, 0, 0.7)' : '0 15px 35px -10px rgba(0, 0, 0, 0.15)',
                         transform: 'translateY(4px)',
@@ -412,7 +412,7 @@ function App() {
                     
                     {/* Main Glass Container */}
                     <nav 
-                      className="relative flex items-center gap-1 rounded-[28px] px-3 py-2 gpu-layer"
+                      className="relative flex items-center gap-0.5 rounded-[24px] px-2 py-1.5 gpu-layer"
                       style={{
                         background: isDark ? 'rgba(30, 30, 35, 0.85)' : 'rgba(255, 255, 255, 0.92)',
                         backdropFilter: 'blur(16px)',
