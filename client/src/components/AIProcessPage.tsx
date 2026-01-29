@@ -61,28 +61,23 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
         startY: touch.clientY,
         startTime: Date.now(),
         decided: false,
-        isScrolling: false,
+        isScrolling: true,
       };
-      spline.style.pointerEvents = 'auto';
+      spline.style.pointerEvents = 'none';
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
       const deltaX = Math.abs(touch.clientX - touchState.current.startX);
       const deltaY = Math.abs(touch.clientY - touchState.current.startY);
-      const elapsed = Date.now() - touchState.current.startTime;
-      const velocityY = deltaY / Math.max(elapsed, 1);
 
-      if (!touchState.current.decided && (deltaX > 8 || deltaY > 8)) {
-        const isVerticalDominant = deltaY > deltaX * 1.2;
-        const isFastEnough = velocityY > 0.2;
+      if (!touchState.current.decided && (deltaX > 12 || deltaY > 12)) {
+        const isHorizontalDominant = deltaX > deltaY * 1.5;
         
         touchState.current.decided = true;
-        touchState.current.isScrolling = isVerticalDominant && isFastEnough;
-
-        if (touchState.current.isScrolling) {
-          spline.style.pointerEvents = 'none';
-        } else {
+        
+        if (isHorizontalDominant) {
+          touchState.current.isScrolling = false;
           spline.style.pointerEvents = 'auto';
         }
       }
@@ -90,8 +85,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
     const handleTouchEnd = () => {
       touchState.current.decided = false;
-      touchState.current.isScrolling = false;
-      spline.style.pointerEvents = 'auto';
+      touchState.current.isScrolling = true;
+      spline.style.pointerEvents = 'none';
     };
 
     container.addEventListener('touchstart', handleTouchStart, { passive: true });
@@ -109,8 +104,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
   return (
     <div ref={containerRef} className="relative min-h-screen overflow-y-auto" style={{ backgroundColor: '#000000', WebkitOverflowScrolling: 'touch' }}>
-      {/* Spline 3D Background - interactive with smart touch */}
-      <div ref={splineRef} className="fixed inset-0 z-0">
+      {/* Spline 3D Background - starts inactive, activates on horizontal touch */}
+      <div ref={splineRef} className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 flex items-center justify-center">
           <SplineScene 
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
@@ -119,9 +114,9 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
         </div>
       </div>
       
-      {/* Content layer */}
+      {/* Content layer - scrollable */}
       <div 
-        className="relative z-10 min-h-screen pb-24 pointer-events-none [&_button]:pointer-events-auto [&_a]:pointer-events-auto [&_.interactive]:pointer-events-auto"
+        className="relative z-10 min-h-screen pb-24"
         style={{ paddingTop: '140px' }}
       >
         <div className="max-w-md mx-auto">
