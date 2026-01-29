@@ -195,7 +195,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               {/* Premium Frosted Header Card */}
               <div 
-                className="rounded-[36px] p-8 mb-6 relative overflow-hidden"
+                className="rounded-[28px] sm:rounded-[36px] p-6 sm:p-8 mb-5 sm:mb-6 relative overflow-hidden"
                 style={{
                   background: isDark ? 'rgba(100,100,110,0.32)' : 'rgba(255,255,255,0.75)',
                   backdropFilter: 'blur(60px) saturate(200%)',
@@ -216,7 +216,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 
                 <h1 className="relative">
                   <span 
-                    className="block text-[38px] leading-[1.12] font-semibold"
+                    className="block text-[32px] sm:text-[38px] leading-[1.12] font-semibold"
                     style={{ 
                       color: isDark ? '#ffffff' : '#1d1d1f', 
                       letterSpacing: '-0.03em', 
@@ -226,7 +226,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     {t('showcase.heroTitle')}
                   </span>
                   <span 
-                    className="block text-[38px] leading-[1.12] font-semibold mt-1"
+                    className="block text-[32px] sm:text-[38px] leading-[1.12] font-semibold mt-1"
                     style={{ 
                       color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(29,29,31,0.75)', 
                       letterSpacing: '-0.03em', 
@@ -235,10 +235,10 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   >
                     {t('showcase.heroTitle2')}
                   </span>
-                  <div className="h-[48px] overflow-visible mt-2">
+                  <div className="h-[42px] sm:h-[48px] overflow-visible mt-2">
                     <span
                       key={headlineIndex}
-                      className="block text-[38px] leading-[1.12] font-bold animate-premium-reveal"
+                      className="block text-[32px] sm:text-[38px] leading-[1.12] font-bold animate-premium-reveal"
                       style={{ 
                         color: isDark ? '#34d399' : '#059669',
                         letterSpacing: '-0.03em',
@@ -253,7 +253,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
               {/* Premium Frosted Description Card */}
               <div 
-                className="rounded-[20px] px-6 py-5 mb-10 w-full relative overflow-hidden"
+                className="rounded-[16px] sm:rounded-[20px] px-5 sm:px-6 py-4 sm:py-5 mb-8 sm:mb-10 w-full relative overflow-hidden"
                 style={{
                   background: isDark ? 'rgba(100,100,110,0.22)' : 'rgba(255,255,255,0.65)',
                   backdropFilter: 'blur(50px) saturate(180%)',
@@ -271,13 +271,13 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 />
                 
                 <p 
-                  className="text-[15px] leading-[1.6] font-medium relative"
+                  className="text-[14px] sm:text-[15px] leading-[1.6] font-medium relative"
                   style={{ color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(29,29,31,0.9)' }}
                 >
                   {t('showcase.heroDescription')}
                 </p>
                 <p 
-                  className="text-[15px] leading-[1.6] mt-2.5 relative"
+                  className="text-[14px] sm:text-[15px] leading-[1.6] mt-2 sm:mt-2.5 relative"
                   style={{ color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(29,29,31,0.55)' }}
                 >
                   {t('showcase.heroDescription2')} <span style={{ color: isDark ? '#34d399' : '#059669', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('showcase.heroAccent2')}</span>.
