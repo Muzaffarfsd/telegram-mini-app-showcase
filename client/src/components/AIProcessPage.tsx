@@ -106,7 +106,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
     <div ref={containerRef} className="relative min-h-screen overflow-y-auto" style={{ backgroundColor: '#000000', WebkitOverflowScrolling: 'touch' }}>
       {/* Spline 3D Background - starts inactive, activates on horizontal touch */}
       <div ref={splineRef} className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center" style={{ paddingTop: '80px' }}>
           <SplineScene 
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
             className="w-full h-full"
