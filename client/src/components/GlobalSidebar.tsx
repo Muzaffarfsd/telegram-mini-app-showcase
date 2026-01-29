@@ -1071,7 +1071,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           top: 0;
           left: 0;
           right: 0;
-          height: 95px;
           z-index: 90;
           background: rgba(0, 0, 0, 0.05);
           backdrop-filter: blur(60px) saturate(200%) brightness(0.98);
