@@ -135,18 +135,14 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   }, [haptic, onNavigate]);
 
   const handleInteraction = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    // Only process if double-click on desktop or single touch on mobile
-    if ('touches' in e && e.touches.length > 1) return;
-
     const target = e.target as HTMLElement;
-    const isInteractive = target.closest('button') || target.closest('a') || target.closest('.nav-depth-zone') || target.closest('input') || target.closest('textarea');
+    const isInteractive = target.closest('button') || target.closest('a') || target.closest('.nav-depth-zone');
     if (isInteractive) return;
 
     const now = Date.now();
-    const DOUBLE_TAP_DELAY = 350;
+    const DOUBLE_TAP_DELAY = 400; // Increased window for TG
     
     if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-      console.log('Double tap/click detected, rotating color');
       setTubeColorVersion(prev => prev + 1);
       haptic.medium();
       lastTapRef.current = 0;
@@ -161,18 +157,21 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
       style={{ backgroundColor: '#000000' }}
     >
       <div 
-        className="fixed inset-0 z-0 pointer-events-auto"
+        className="fixed inset-0 z-0 bg-transparent"
+        style={{ touchAction: 'none' }}
         onDoubleClick={handleInteraction}
-        onTouchStart={handleInteraction}
+        onTouchStart={(e) => {
+          if (e.touches.length === 1) handleInteraction(e);
+        }}
       >
         <TubesBackground 
-          className="w-full h-full" 
+          className="w-full h-full pointer-events-none" 
           enableClickInteraction={false}
           tubeColorVersion={tubeColorVersion}
         />
       </div>
       
-      <div className="relative z-10">
+      <div className="relative z-10 pointer-events-none">
         <PullToRefreshIndicator
           pullDistance={pullDistance}
           isRefreshing={isRefreshing}
@@ -180,7 +179,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           progress={progress}
         />
         
-        <div className="max-w-lg mx-auto px-5" style={{ paddingTop: '100px' }}>
+        <div className="max-w-lg mx-auto px-5 pointer-events-auto" style={{ paddingTop: '100px' }}>
           <section className="min-h-[75vh] flex flex-col justify-start pt-4 animate-in fade-in duration-500">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               <h1 className="mb-8">
