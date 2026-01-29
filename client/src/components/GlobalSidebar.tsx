@@ -463,12 +463,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         
         /* Hamburger Button - Main Container */
         .hamburger-btn {
-          width: 52px;
-          height: 52px;
+          width: 44px;
+          height: 44px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 18px;
+          border-radius: 14px;
           background: rgba(255, 255, 255, 0.08);
           backdrop-filter: blur(24px) saturate(200%);
           -webkit-backdrop-filter: blur(24px) saturate(200%);
@@ -584,8 +584,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         
         /* Hamburger Icon Container */
         .hamburger-icon {
-          width: 22px;
-          height: 16px;
+          width: 18px;
+          height: 13px;
           position: relative;
           display: flex;
           flex-direction: column;
@@ -598,9 +598,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         /* Hamburger Lines - GPU Optimized */
         .hamburger-line {
           display: block;
-          height: 2.5px;
+          height: 2px;
           background: linear-gradient(90deg, rgba(255,255,255,0.9) 0%, #fff 50%, rgba(255,255,255,0.9) 100%);
-          border-radius: 3px;
+          border-radius: 2px;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
           transition: transform 0.35s cubic-bezier(0.68, -0.6, 0.32, 1.6),
                       opacity 0.25s ease,
@@ -632,7 +632,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         
         /* Open State - X Transform */
         .hamburger-line.line-1.open {
-          transform: translate3d(0, 6.75px, 0) rotate(45deg);
+          transform: translate3d(0, 5.5px, 0) rotate(45deg);
           width: 100%;
           background: linear-gradient(90deg, #A78BFA 0%, #C4B5FD 50%, #A78BFA 100%);
           box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
@@ -644,7 +644,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         
         .hamburger-line.line-3.open {
-          transform: translate3d(0, -6.75px, 0) rotate(-45deg);
+          transform: translate3d(0, -5.5px, 0) rotate(-45deg);
           width: 100%;
           background: linear-gradient(90deg, #A78BFA 0%, #C4B5FD 50%, #A78BFA 100%);
           box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
@@ -1670,8 +1670,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       </div>
 
       <div className="top-bar">
-        <div className="max-w-md mx-auto px-5 pt-16 pb-4 flex items-center justify-between gap-4" style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{ marginTop: '8px' }}>
+        <div className="max-w-md mx-auto px-5 pt-10 pb-4 flex items-center justify-between gap-4" style={{ position: 'relative', zIndex: 2 }}>
+          <div style={{ marginTop: '0px' }}>
             <AnimatedHamburgerIcon 
               ref={triggerButtonRef}
               isOpen={false} 

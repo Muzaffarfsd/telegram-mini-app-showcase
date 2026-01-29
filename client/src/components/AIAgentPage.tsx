@@ -25,7 +25,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
   }, [onNavigate]);
 
   return (
-    <div className="ai-agent-page min-h-screen bg-[#000000] overflow-y-auto overflow-x-hidden" style={{ paddingTop: '140px', WebkitOverflowScrolling: 'touch' }}>
+    <div className="ai-agent-page min-h-screen bg-[#000000] overflow-y-auto overflow-x-hidden" style={{ paddingTop: '100px', WebkitOverflowScrolling: 'touch' }}>
       <section className="relative min-h-screen flex items-center justify-center px-5 overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20 pointer-events-none" fill="#8B5CF6" />
         
