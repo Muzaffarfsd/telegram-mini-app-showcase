@@ -1,4 +1,4 @@
-import { memo, useCallback, useState, useEffect } from "react";
+import { memo, useCallback, useState, useEffect, useRef } from "react";
 import { 
   Check,
   MessageSquare,
@@ -19,6 +19,15 @@ interface AIProcessPageProps {
 const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   const { t, language } = useLanguage();
   const [scrollY, setScrollY] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const splineRef = useRef<HTMLDivElement>(null);
+  const touchState = useRef({
+    startX: 0,
+    startY: 0,
+    startTime: 0,
+    decided: false,
+    isScrolling: false,
+  });
 
   // Sync Telegram Main Button with language changes
   useEffect(() => {
@@ -40,10 +49,68 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const container = containerRef.current;
+    const spline = splineRef.current;
+    if (!container || !spline) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      touchState.current = {
+        startX: touch.clientX,
+        startY: touch.clientY,
+        startTime: Date.now(),
+        decided: false,
+        isScrolling: false,
+      };
+      spline.style.pointerEvents = 'auto';
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      const deltaX = Math.abs(touch.clientX - touchState.current.startX);
+      const deltaY = Math.abs(touch.clientY - touchState.current.startY);
+      const elapsed = Date.now() - touchState.current.startTime;
+      const velocityY = deltaY / Math.max(elapsed, 1);
+
+      if (!touchState.current.decided && (deltaX > 8 || deltaY > 8)) {
+        const isVerticalDominant = deltaY > deltaX * 1.2;
+        const isFastEnough = velocityY > 0.2;
+        
+        touchState.current.decided = true;
+        touchState.current.isScrolling = isVerticalDominant && isFastEnough;
+
+        if (touchState.current.isScrolling) {
+          spline.style.pointerEvents = 'none';
+        } else {
+          spline.style.pointerEvents = 'auto';
+        }
+      }
+    };
+
+    const handleTouchEnd = () => {
+      touchState.current.decided = false;
+      touchState.current.isScrolling = false;
+      spline.style.pointerEvents = 'auto';
+    };
+
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchmove', handleTouchMove, { passive: true });
+    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+    container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', handleTouchEnd);
+      container.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, []);
+
   return (
-    <div className="relative min-h-screen" style={{ backgroundColor: '#000000' }}>
-      {/* Spline 3D Background - fixed, interactive on desktop */}
-      <div className="fixed inset-0 z-0 pointer-events-auto md:pointer-events-auto touch-none">
+    <div ref={containerRef} className="relative min-h-screen overflow-y-auto" style={{ backgroundColor: '#000000', WebkitOverflowScrolling: 'touch' }}>
+      {/* Spline 3D Background - interactive with smart touch */}
+      <div ref={splineRef} className="fixed inset-0 z-0">
         <div className="absolute inset-0 flex items-center justify-center">
           <SplineScene 
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
@@ -52,13 +119,10 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
         </div>
       </div>
       
-      {/* Scrollable content overlay */}
+      {/* Content layer */}
       <div 
-        className="relative z-10 min-h-screen pb-24 overflow-y-auto"
-        style={{ 
-          paddingTop: '140px',
-          WebkitOverflowScrolling: 'touch'
-        }}
+        className="relative z-10 min-h-screen pb-24 pointer-events-none [&_button]:pointer-events-auto [&_a]:pointer-events-auto [&_.interactive]:pointer-events-auto"
+        style={{ paddingTop: '140px' }}
       >
         <div className="max-w-md mx-auto">
         
