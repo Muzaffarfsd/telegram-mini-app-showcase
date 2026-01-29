@@ -42,7 +42,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
   return (
     <div className="ai-agent-page min-h-screen bg-[#000000] overflow-hidden smooth-scroll-page" style={{ paddingTop: '140px' }}>
       <motion.div 
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8B5CF6] to-[#3B82F6] z-[100] origin-left"
+        className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#8B5CF6] via-[#10B981] to-[#3B82F6] z-[100] origin-left"
         style={{ scaleX: smoothProgress }}
       />
 
@@ -76,31 +76,29 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
         
         <div className="relative z-10 text-center w-full md:flex-1 md:text-left md:pl-8">
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8, type: "spring" }}
             className="flex justify-center mb-8"
           >
             <div 
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full backdrop-blur-3xl"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-full backdrop-blur-3xl"
               style={{
-                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%)',
-                border: '1px solid rgba(139, 92, 246, 0.4)',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 10px 40px rgba(139, 92, 246, 0.3)',
-                minWidth: '140px',
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(59, 130, 246, 0.2) 100%)',
+                border: '1px solid rgba(139, 92, 246, 0.5)',
+                boxShadow: '0 10px 40px rgba(139, 92, 246, 0.4)',
+                minWidth: '160px',
                 justifyContent: 'center'
               }}
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6] flex-shrink-0" strokeWidth={2.5} />
+              <Sparkles className="w-4 h-4 text-[#8B5CF6] animate-pulse" />
               <span 
                 style={{
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  letterSpacing: '0.12em',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  color: '#FFFFFF',
+                  letterSpacing: '0.15em',
                   textTransform: 'uppercase',
                   whiteSpace: 'nowrap'
                 }}
@@ -111,18 +109,18 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           </motion.div>
 
           <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="mb-4 px-3"
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-6 px-3"
             style={{ 
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: 'clamp(48px, 18vw, 72px)',
-              fontWeight: 800,
-              letterSpacing: '-0.07em',
-              lineHeight: '0.88',
-              background: 'linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 30%, rgba(255, 255, 255, 0.35) 100%)',
+              fontSize: 'clamp(52px, 20vw, 84px)',
+              fontWeight: 900,
+              letterSpacing: '-0.08em',
+              lineHeight: '0.82',
+              background: 'linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.4) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}
@@ -131,123 +129,81 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           </motion.h1>
 
           <motion.div 
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
+            initial={{ width: 0 }}
+            whileInView={{ width: "120px" }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex justify-center mb-5"
-          >
-            <div 
-              className="h-1.5 w-20 rounded-full"
-              style={{
-                background: 'linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%)',
-                boxShadow: '0 0 20px rgba(139, 92, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.5)'
-              }}
-            />
-          </motion.div>
-          
-          <motion.p 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mb-3 px-5"
-            style={{
-              fontSize: '21px',
-              lineHeight: '1.25',
-              fontWeight: 600,
-              color: 'rgba(255, 255, 255, 0.82)',
-              letterSpacing: '-0.035em',
-              minHeight: '54px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <span>{t('aiAgent.heroSubtitle1')}</span>
-            <span>{t('aiAgent.heroSubtitle2')}</span>
-          </motion.p>
-          
-          <motion.p 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="mb-12 px-5"
-            style={{
-              fontSize: '18px',
-              lineHeight: '1.35',
-              fontWeight: 700,
-              letterSpacing: '-0.025em',
-              background: 'linear-gradient(90deg, #10B981 0%, #34D399 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            {t('aiAgent.valueProp')}
-          </motion.p>
+            transition={{ duration: 1, delay: 0.5 }}
+            className="h-2 bg-gradient-to-r from-[#8B5CF6] to-[#3B82F6] rounded-full mx-auto mb-8 shadow-[0_0_20px_rgba(139,92,246,0.8)]"
+          />
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="flex flex-col items-center gap-3.5 px-5"
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="mb-12"
           >
-            <button
-              onClick={handleNavigateProcess}
-              className="w-full max-w-[280px] group relative py-4 rounded-full font-semibold active:scale-[0.96]"
+            <p 
+              className="px-5 text-center"
               style={{
-                fontSize: '16px',
-                letterSpacing: '-0.015em',
-                background: '#FFFFFF',
-                color: '#000000',
-                boxShadow: '0 12px 48px rgba(255, 255, 255, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15) inset',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                minWidth: '200px',
-                minHeight: '52px'
+                fontSize: '24px',
+                lineHeight: '1.2',
+                fontWeight: 700,
+                color: 'rgba(255, 255, 255, 0.9)',
+                letterSpacing: '-0.04em',
               }}
             >
-              <span className="relative z-10 flex items-center justify-center gap-2">
+              <span>{t('aiAgent.heroSubtitle1')}</span>
+              <br />
+              <span className="bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">{t('aiAgent.heroSubtitle2')}</span>
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="flex flex-col items-center gap-5 px-5"
+          >
+            <motion.button
+              onClick={handleNavigateProcess}
+              whileHover={{ scale: 1.05, boxShadow: "0 20px 60px rgba(255, 255, 255, 0.4)" }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full max-w-[300px] group relative py-5 rounded-2xl font-black uppercase tracking-tighter"
+              style={{
+                fontSize: '18px',
+                background: '#FFFFFF',
+                color: '#000000',
+                boxShadow: '0 15px 50px rgba(255, 255, 255, 0.3)',
+                transition: 'box-shadow 0.3s ease'
+              }}
+            >
+              <span className="relative z-10 flex items-center justify-center gap-3">
                 {t('aiAgent.tryButton')}
-                <ArrowRight className="w-4.5 h-4.5 transition-transform group-hover:translate-x-1 duration-300 flex-shrink-0" strokeWidth={2.5} />
+                <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-2 duration-500" strokeWidth={3} />
               </span>
-            </button>
+            </motion.button>
             
-            <p style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.38)', letterSpacing: '0.02em', minHeight: '18px' }}>
+            <p style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.4)', fontWeight: 600, letterSpacing: '0.05em' }}>
               {t('aiAgent.freeTrial')}
             </p>
           </motion.div>
         </div>
-
-        <div 
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          style={{ opacity: Math.max(0, 1 - scrollY / 400) }}
-        >
-          <div 
-            className="w-1 h-12 rounded-full"
-            style={{
-              background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%)',
-              animation: 'bounce 2.5s ease-in-out infinite'
-            }}
-          />
-        </div>
       </section>
 
-      <section className="relative py-20 px-5">
+      <section className="relative py-32 px-5">
         <div className="max-w-xs mx-auto">
           <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false }}
-            className="text-center mb-16"
-            style={{ fontSize: '36px', fontWeight: 700, letterSpacing: '-0.055em', color: '#FFFFFF', lineHeight: '0.95' }}
+            viewport={{ once: false, margin: "-100px" }}
+            className="text-center mb-24 text-[42px] font-black tracking-tighter text-white uppercase"
           >
             {t('aiAgent.inNumbers')}
           </motion.h2>
 
-          <div className="space-y-14">
+          <div className="space-y-24">
             <StatCard number="192%" label={t('aiAgent.roiPerYear')} sublabel={t('aiAgent.averageResult')} gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)" />
             <StatCard number="24/7" label={t('aiAgent.alwaysOnline')} sublabel={t('aiAgent.noWeekends')} gradient="linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)" />
             <StatCard number="< 2s" label={t('aiAgent.responseTime')} sublabel={t('aiAgent.instant')} gradient="linear-gradient(135deg, #10B981 0%, #059669 100%)" />
@@ -255,14 +211,13 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
         </div>
       </section>
 
-      <section className="py-20 px-5">
+      <section className="py-32 px-5 bg-gradient-to-b from-black via-neutral-900/20 to-black">
         <div className="max-w-xs mx-auto">
           <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: false }}
-            className="text-center mb-4"
-            style={{ fontSize: '36px', fontWeight: 700, letterSpacing: '-0.055em', color: '#FFFFFF', lineHeight: '0.95' }}
+            className="text-center mb-6 text-[42px] font-black tracking-tighter text-white uppercase"
           >
             {t('aiAgent.capabilities')}
           </motion.h2>
@@ -270,98 +225,64 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           <motion.p 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: false }}
-            className="text-center mb-16"
-            style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.48)', letterSpacing: '-0.015em' }}
+            className="text-center mb-20 text-[18px] text-white/40 font-medium"
           >
             {t('aiAgent.everythingForSuccess')}
           </motion.p>
 
-          <div className="space-y-10">
-            <FeatureBlock icon={<Zap className="w-8 h-8" strokeWidth={2} />} title={t('aiAgent.instantLaunch')} description={t('aiAgent.tenMinutesReady')} gradient="linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)" />
-            <FeatureBlock icon={<Shield className="w-8 h-8" strokeWidth={2} />} title={t('aiAgent.security')} description={t('aiAgent.encryptionGdpr')} gradient="linear-gradient(135deg, #10B981 0%, #047857 100%)" />
-            <FeatureBlock icon={<Globe className="w-8 h-8" strokeWidth={2} />} title={t('aiAgent.languages150')} description={t('aiAgent.understandsEveryone')} gradient="linear-gradient(135deg, #F59E0B 0%, #D97706 100%)" />
-            <FeatureBlock icon={<Brain className="w-8 h-8" strokeWidth={2} />} title={t('aiAgent.learnsItself')} description={t('aiAgent.getsBetter')} gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)" />
+          <div className="space-y-16">
+            <FeatureBlock icon={<Zap className="w-10 h-10" strokeWidth={2.5} />} title={t('aiAgent.instantLaunch')} description={t('aiAgent.tenMinutesReady')} gradient="linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)" />
+            <FeatureBlock icon={<Shield className="w-10 h-10" strokeWidth={2.5} />} title={t('aiAgent.security')} description={t('aiAgent.encryptionGdpr')} gradient="linear-gradient(135deg, #10B981 0%, #047857 100%)" />
+            <FeatureBlock icon={<Globe className="w-10 h-10" strokeWidth={2.5} />} title={t('aiAgent.languages150')} description={t('aiAgent.understandsEveryone')} gradient="linear-gradient(135deg, #F59E0B 0%, #D97706 100%)" />
+            <FeatureBlock icon={<Brain className="w-10 h-10" strokeWidth={2.5} />} title={t('aiAgent.learnsItself')} description={t('aiAgent.getsBetter')} gradient="linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)" />
           </div>
         </div>
       </section>
 
-      <section className="py-20 px-5">
+      <section className="py-32 px-5">
         <div className="max-w-xs mx-auto">
           <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false }}
-            className="text-center mb-16"
-            style={{ fontSize: '36px', fontWeight: 700, letterSpacing: '-0.055em', color: '#FFFFFF', lineHeight: '0.95' }}
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            className="text-center mb-20 text-[42px] font-black tracking-tighter text-white uppercase"
           >
             {t('aiAgent.whyUs')}
           </motion.h2>
 
-          <div className="space-y-6">
-            <BenefitItem icon={<Clock className="w-5.5 h-5.5" strokeWidth={2.5} />} text={t('aiAgent.neverSleeps')} subtext={t('aiAgent.noBreaks247')} />
-            <BenefitItem icon={<Zap className="w-5.5 h-5.5" strokeWidth={2.5} />} text={t('aiAgent.respondsInstantly')} subtext={t('aiAgent.lessThan2Seconds')} />
-            <BenefitItem icon={<TrendingUp className="w-5.5 h-5.5" strokeWidth={2.5} />} text={t('aiAgent.paysOffQuickly')} subtext={t('aiAgent.percentPerYear')} />
+          <div className="space-y-8">
+            <BenefitItem icon={<Clock className="w-7 h-7" strokeWidth={3} />} text={t('aiAgent.neverSleeps')} subtext={t('aiAgent.noBreaks247')} />
+            <BenefitItem icon={<Zap className="w-7 h-7" strokeWidth={3} />} text={t('aiAgent.respondsInstantly')} subtext={t('aiAgent.lessThan2Seconds')} />
+            <BenefitItem icon={<TrendingUp className="w-7 h-7" strokeWidth={3} />} text={t('aiAgent.paysOffQuickly')} subtext={t('aiAgent.percentPerYear')} />
           </div>
         </div>
       </section>
 
-      <section className="relative py-28 px-5 pb-32">
-        <div className="absolute inset-0 opacity-40" style={{ background: 'radial-gradient(ellipse 140% 80% at 50% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 90%)' }} />
-        <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full opacity-30" style={{ background: 'radial-gradient(circle, rgba(139, 92, 246, 0.9) 0%, transparent 70%)', filter: 'blur(50px)', animation: 'float 9s ease-in-out infinite' }} />
-        <div className="absolute bottom-1/3 right-1/4 w-32 h-32 rounded-full opacity-30" style={{ background: 'radial-gradient(circle, rgba(59, 130, 246, 0.9) 0%, transparent 70%)', filter: 'blur(50px)', animation: 'float 11s ease-in-out infinite reverse' }} />
+      <section className="relative py-40 px-5 overflow-hidden">
+        <div className="absolute inset-0 bg-emerald-500/5 blur-[120px]" />
         
         <div className="relative z-10 text-center max-w-xs mx-auto">
           <motion.h2 
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: false }}
-            className="mb-6"
-            style={{ fontSize: '48px', fontWeight: 700, letterSpacing: '-0.065em', color: '#FFFFFF', lineHeight: '0.88', minHeight: '90px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+            initial={{ opacity: 0, y: 100 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            className="mb-8 text-[56px] font-black tracking-[ -0.1em] text-white leading-none uppercase"
           >
-            <span>{t('aiAgent.startToday')}</span>
-            <span>{t('aiAgent.today')}</span>
+            {t('aiAgent.startToday')}
           </motion.h2>
-          
-          <motion.p 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: false }}
-            className="mb-12"
-            style={{ fontSize: '18px', lineHeight: '1.4', color: 'rgba(255, 255, 255, 0.68)', letterSpacing: '-0.025em', fontWeight: 500, minHeight: '52px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <span>{t('aiAgent.trustedCompanies')}</span>
-            <span>{t('aiAgent.trustedCompanies2')}</span>
-          </motion.p>
           
           <motion.button
             onClick={handleNavigateProcess}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full group relative py-4.5 rounded-full font-semibold mb-4"
-            style={{ fontSize: '17px', letterSpacing: '-0.02em', background: '#FFFFFF', color: '#000000', boxShadow: '0 20px 60px rgba(255, 255, 255, 0.35)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', minHeight: '56px' }}
+            whileHover={{ scale: 1.1, rotate: [0, -1, 1, 0] }}
+            className="w-full py-6 bg-white text-black font-black text-xl rounded-3xl shadow-[0_30px_100px_rgba(255,255,255,0.5)] active:scale-95 transition-all"
           >
-            <span className="relative z-10 flex items-center justify-center gap-2.5">
-              {t('aiAgent.launchAi')}
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5 duration-300 flex-shrink-0" strokeWidth={2.5} />
-            </span>
+            {t('aiAgent.launchAi')}
           </motion.button>
-          
-          <p style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.38)', letterSpacing: '0.02em', minHeight: '20px' }}>
-            {t('aiAgent.freeTrialNoCard')}
-          </p>
         </div>
       </section>
 
       <style>{`
         @keyframes bounce {
           0%, 100% { transform: translateY(0); opacity: 0.4; }
-          50% { transform: translateY(-14px); opacity: 0.2; }
-        }
-        @keyframes float {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-20px, -25px) scale(1.08); }
-          66% { transform: translate(20px, -15px) scale(0.92); }
+          50% { transform: translateY(-20px); opacity: 0.1; }
         }
       `}</style>
     </div>
@@ -377,41 +298,17 @@ const StatCard = memo(({ number, label, sublabel, gradient }: {
   gradient: string;
 }) => (
   <motion.div 
-    initial={{ opacity: 0, scale: 0.6, y: 80 }}
-    whileInView={{ opacity: 1, scale: 1, y: 0 }}
-    viewport={{ once: false, margin: "-10%" }}
-    transition={{ 
-      duration: 1.2, 
-      ease: [0.16, 1, 0.3, 1],
-      type: "spring",
-      damping: 15,
-      stiffness: 60
-    }}
-    className="text-center" 
-    style={{ minHeight: '130px' }}
+    initial={{ opacity: 0, scale: 0.5, y: 100, rotateX: 30 }}
+    whileInView={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
+    viewport={{ once: false, margin: "-20%" }}
+    transition={{ type: "spring", damping: 12, stiffness: 50 }}
+    className="text-center p-8 rounded-[40px] bg-white/5 border border-white/10 backdrop-blur-xl"
   >
-    <div 
-      className="mb-4"
-      style={{
-        fontSize: '74px',
-        fontWeight: 900,
-        letterSpacing: '-0.08em',
-        lineHeight: '0.9',
-        background: gradient,
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        minHeight: '62px',
-        filter: 'drop-shadow(0 0 30px rgba(139, 92, 246, 0.4))'
-      }}
-    >
+    <div className="mb-4 text-[88px] font-black tracking-tighter leading-none bg-clip-text text-transparent" style={{ backgroundImage: gradient }}>
       {number}
     </div>
-    <p style={{ fontSize: '19px', lineHeight: '1.3', color: 'rgba(255, 255, 255, 0.95)', letterSpacing: '-0.02em', fontWeight: 700, marginBottom: '5px', minHeight: '22px' }}>
-      {label}
-    </p>
-    <p style={{ fontSize: '15px', color: 'rgba(255, 255, 255, 0.55)', letterSpacing: '-0.01em', minHeight: '20px' }}>
-      {sublabel}
-    </p>
+    <p className="text-xl font-bold text-white mb-2 uppercase tracking-tight">{label}</p>
+    <p className="text-white/40 text-sm font-medium">{sublabel}</p>
   </motion.div>
 ));
 
@@ -422,30 +319,20 @@ const FeatureBlock = memo(({ icon, title, description, gradient }: {
   gradient: string;
 }) => (
   <motion.div 
-    initial={{ opacity: 0, x: -80, rotateY: -35 }}
+    initial={{ opacity: 0, x: -100, rotateY: -40 }}
     whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
-    viewport={{ once: false, margin: "-10%" }}
-    transition={{ 
-      duration: 1.1, 
-      ease: [0.16, 1, 0.3, 1]
-    }}
-    style={{ perspective: "1200px", minHeight: '180px' }}
-    className="text-center" 
+    viewport={{ once: false, margin: "-15%" }}
+    className="text-center group"
   >
     <motion.div 
-      whileHover={{ scale: 1.2, rotateZ: 8, y: -10 }}
-      transition={{ type: "spring", stiffness: 400, damping: 10 }}
-      className="w-24 h-24 rounded-[32px] flex items-center justify-center mx-auto mb-6 flex-shrink-0"
-      style={{ background: gradient, boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7), inset 0 2px 2px rgba(255,255,255,0.25)' }}
+      whileHover={{ scale: 1.2, rotate: 10 }}
+      className="w-28 h-28 rounded-[40px] flex items-center justify-center mx-auto mb-8 shadow-2xl"
+      style={{ background: gradient }}
     >
-      <div style={{ color: 'white', filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.6))' }}>{icon}</div>
+      <div className="text-white drop-shadow-lg">{icon}</div>
     </motion.div>
-    <h3 style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.04em', color: '#FFFFFF', lineHeight: '1.15', minHeight: '26px' }} className="mb-3">
-      {title}
-    </h3>
-    <p style={{ fontSize: '17px', lineHeight: '1.5', color: 'rgba(255, 255, 255, 0.7)', letterSpacing: '-0.015em', minHeight: '22px', maxWidth: '300px', margin: '0 auto' }}>
-      {description}
-    </p>
+    <h3 className="text-3xl font-black text-white mb-4 tracking-tighter uppercase">{title}</h3>
+    <p className="text-white/60 text-lg leading-relaxed">{description}</p>
   </motion.div>
 ));
 
@@ -455,28 +342,16 @@ const BenefitItem = memo(({ icon, text, subtext }: {
   subtext: string;
 }) => (
   <motion.div 
-    initial={{ opacity: 0, y: 15 }}
+    initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: false }}
-    transition={{ duration: 0.5 }}
-    className="flex items-center gap-4 py-4" 
-    style={{ minHeight: '72px' }}
+    className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/5"
   >
-    <motion.div 
-      whileInView={{ rotate: [0, -10, 10, 0] }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="flex-shrink-0 w-12 h-12 rounded-[18px] flex items-center justify-center"
-      style={{ background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%)', border: '1px solid rgba(52, 199, 89, 0.35)' }}
-    >
-      <div style={{ color: '#34C759' }}>{icon}</div>
-    </motion.div>
-    <div className="flex-1" style={{ minWidth: 0 }}>
-      <p style={{ fontSize: '16px', lineHeight: '1.25', color: 'rgba(255, 255, 255, 0.88)', letterSpacing: '-0.025em', fontWeight: 600, marginBottom: '3px', minHeight: '20px' }}>
-        {text}
-      </p>
-      <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.48)', letterSpacing: '-0.01em', minHeight: '18px' }}>
-        {subtext}
-      </p>
+    <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 border border-emerald-500/30">
+      {icon}
+    </div>
+    <div className="text-left">
+      <p className="text-xl font-black text-white leading-tight mb-1">{text}</p>
+      <p className="text-white/40 font-medium">{subtext}</p>
     </div>
   </motion.div>
 ));
