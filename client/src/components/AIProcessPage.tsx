@@ -169,15 +169,15 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
         {/* Main content section - cards below robot */}
         <section className="relative px-5 pt-4 pb-16">
-          {/* Compact info card */}
+          {/* Compact info card - glass */}
           <div 
             className="rounded-[24px] px-5 py-4 mb-5 relative overflow-hidden"
             style={{
-              background: 'rgba(20,20,25,0.85)',
-              backdropFilter: 'blur(40px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(150%)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 16px 32px -8px rgba(0,0,0,0.5)'
+              background: 'rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
             }}
           >
             <p 
@@ -215,37 +215,43 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
             </a>
           </div>
 
-          {/* Stats row - compact */}
+          {/* Stats row - glass */}
           <div className="grid grid-cols-3 gap-2 mb-6">
             <div
               className="p-3 rounded-xl text-center"
               style={{ 
-                background: 'rgba(20,20,25,0.8)', 
-                border: '1px solid rgba(255, 255, 255, 0.08)'
+                background: 'rgba(255,255,255,0.06)', 
+                backdropFilter: 'blur(30px)',
+                WebkitBackdropFilter: 'blur(30px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)'
               }}
             >
               <span className="text-[18px] font-bold text-white block">900M+</span>
-              <span className="text-[10px] text-gray-500">{t('aiProcess.stats.users')}</span>
+              <span className="text-[10px] text-white/50">{t('aiProcess.stats.users')}</span>
             </div>
             <div
               className="p-3 rounded-xl text-center"
               style={{ 
-                background: 'rgba(20,20,25,0.8)', 
-                border: '1px solid rgba(255, 255, 255, 0.08)'
+                background: 'rgba(255,255,255,0.06)', 
+                backdropFilter: 'blur(30px)',
+                WebkitBackdropFilter: 'blur(30px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)'
               }}
             >
               <span className="text-[18px] font-bold text-white block">24/7</span>
-              <span className="text-[10px] text-gray-500">{t('aiProcess.stats.support')}</span>
+              <span className="text-[10px] text-white/50">{t('aiProcess.stats.support')}</span>
             </div>
             <div
               className="p-3 rounded-xl text-center"
               style={{ 
-                background: 'rgba(20,20,25,0.8)', 
-                border: '1px solid rgba(255, 255, 255, 0.08)'
+                background: 'rgba(255,255,255,0.06)', 
+                backdropFilter: 'blur(30px)',
+                WebkitBackdropFilter: 'blur(30px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)'
               }}
             >
               <span className="text-[18px] font-bold text-white block">100%</span>
-              <span className="text-[10px] text-gray-500">{t('aiProcess.stats.automation')}</span>
+              <span className="text-[10px] text-white/50">{t('aiProcess.stats.automation')}</span>
             </div>
           </div>
         </section>
@@ -329,10 +335,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[28px] p-8 space-y-5"
             style={{
-              background: 'var(--card-bg)',
+              background: 'rgba(255,255,255,0.06)',
               backdropFilter: 'blur(40px) saturate(180%)',
-              border: '1px solid var(--card-border)',
-              boxShadow: 'var(--glass-shadow-style)'
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)'
             }}
           >
             <BenefitItemPremium text={t('aiProcess.benefits.benefit1')} />
@@ -383,10 +390,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[28px] p-8 text-center relative overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, rgba(0, 122, 255, 0.15) 0%, rgba(88, 86, 214, 0.15) 100%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(0, 122, 255, 0.3)',
-              boxShadow: '0 20px 60px rgba(0, 122, 255, 0.2)'
+              background: 'rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)'
             }}
           >
             <div 
@@ -514,10 +522,11 @@ const ProcessStepPremium = memo(({
   <div 
     className="rounded-[24px] p-6 relative overflow-hidden group interactive-smooth active:scale-[0.98]"
     style={{
-      background: 'var(--card-bg)',
-      backdropFilter: 'blur(20px)',
-      border: '1px solid var(--card-border)',
-      boxShadow: 'var(--glass-shadow-style)',
+      background: 'rgba(255,255,255,0.06)',
+      backdropFilter: 'blur(40px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+      border: '1px solid rgba(255,255,255,0.12)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
     }}
   >
@@ -656,9 +665,11 @@ const WhyFeatureCard = memo(({
   <div 
     className="rounded-[20px] p-5 interactive-smooth active:scale-[0.98]"
     style={{
-      background: 'var(--card-bg)',
-      backdropFilter: 'blur(10px)',
-      border: '1px solid var(--card-border)',
+      background: 'rgba(255,255,255,0.06)',
+      backdropFilter: 'blur(40px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+      border: '1px solid rgba(255,255,255,0.12)',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
       transition: 'all 0.3s ease'
     }}
   >
