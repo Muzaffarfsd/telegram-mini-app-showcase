@@ -129,61 +129,101 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
         {/* Main content section - cards below robot */}
         <section className="relative px-5 pt-4 pb-16">
-          {/* Compact info card - glass */}
+          {/* iOS 2026 Hero Card */}
           <div 
-            className="rounded-[24px] px-5 py-4 mb-5 relative overflow-hidden"
+            className="rounded-[28px] px-6 py-6 mb-5 relative overflow-hidden"
             style={{
-              background: 'rgba(255,255,255,0.015)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.05)',
-              boxShadow: 'none'
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)'
             }}
           >
-            {/* Title first - single line centered */}
-            <h1 
-              className="mb-4 text-center text-[24px] leading-[1.2] font-bold"
-              style={{ 
-                letterSpacing: '-0.02em', 
-                fontFamily: 'Montserrat, sans-serif'
+            {/* Subtle glow accent */}
+            <div 
+              className="absolute -top-20 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full pointer-events-none"
+              style={{
+                background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)'
               }}
-            >
-              <span style={{ color: '#ffffff' }}>{t('aiProcess.heroTitle1')} {t('aiProcess.heroTitle2')} </span>
-              <span style={{ color: '#34d399' }}>{t('aiProcess.heroTitle3')}</span>
+            />
+            
+            {/* Badge */}
+            <div className="flex justify-center mb-4">
+              <span 
+                className="px-3 py-1 rounded-full text-[11px] font-semibold tracking-wider"
+                style={{
+                  background: 'rgba(139,92,246,0.15)',
+                  color: 'rgba(167,139,250,1)',
+                  border: '1px solid rgba(139,92,246,0.2)'
+                }}
+              >
+                AI POWERED
+              </span>
+            </div>
+            
+            {/* Title - iOS 2026 style */}
+            <h1 className="text-center mb-3">
+              <span 
+                className="block text-[28px] leading-[1.15] font-bold tracking-tight"
+                style={{ 
+                  color: '#ffffff', 
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+                }}
+              >
+                {t('aiProcess.heroTitle1')}
+              </span>
+              <span 
+                className="block text-[28px] leading-[1.15] font-bold tracking-tight"
+                style={{ 
+                  background: 'linear-gradient(135deg, #a78bfa 0%, #c084fc 50%, #e879f9 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+                }}
+              >
+                {t('aiProcess.heroTitle2')} {t('aiProcess.heroTitle3')}
+              </span>
             </h1>
             
-            {/* Subtitle below title */}
+            {/* Subtitle - refined */}
             <p 
-              className="text-[14px] leading-[1.5] font-medium"
-              style={{ color: 'rgba(255,255,255,0.9)' }}
+              className="text-center text-[15px] leading-[1.5] font-medium"
+              style={{ color: 'rgba(255,255,255,0.8)' }}
             >
               {t('aiProcess.heroSubtitle1')}
             </p>
             <p 
-              className="text-[13px] leading-[1.5] mt-2"
-              style={{ color: 'rgba(255,255,255,0.5)' }}
+              className="text-center text-[14px] leading-[1.5] mt-1.5"
+              style={{ color: 'rgba(255,255,255,0.45)' }}
             >
               {t('aiProcess.heroSubtitle2')}
             </p>
           </div>
 
-          {/* CTA Button */}
+          {/* CTA Button - iOS 2026 */}
           <div className="flex items-center gap-2 mb-5">
             <a
               href="https://t.me/web4tgs"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
+              className="flex-1 flex items-center justify-center gap-2.5 rounded-2xl transition-all duration-200 active:scale-[0.97]"
               style={{ 
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 100%)',
-                height: '52px',
-                paddingLeft: '16px',
-                paddingRight: '14px',
-                boxShadow: '0 8px 24px -4px rgba(16, 185, 129, 0.4)'
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #c026d3 100%)',
+                height: '56px',
+                paddingLeft: '20px',
+                paddingRight: '18px',
+                boxShadow: '0 12px 32px -8px rgba(139, 92, 246, 0.5), inset 0 1px 0 rgba(255,255,255,0.2)'
               }}
             >
-              <MessageSquare className="w-5 h-5 text-white flex-shrink-0" />
-              <span className="text-[15px] font-bold text-white">{t('aiProcess.getConsultation')}</span>
+              <Sparkles className="w-5 h-5 text-white flex-shrink-0" />
+              <span 
+                className="text-[16px] font-semibold text-white"
+                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}
+              >
+                {t('aiProcess.getConsultation')}
+              </span>
               <ArrowRight className="w-5 h-5 text-white flex-shrink-0" />
             </a>
           </div>
