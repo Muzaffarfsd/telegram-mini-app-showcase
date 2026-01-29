@@ -10,6 +10,7 @@ import {
   Zap
 } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
+import { SparklesCore } from './ui/sparkles';
 
 interface AIProcessPageProps {
   onNavigate: (path: string) => void;
@@ -40,8 +41,21 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen pb-24 overflow-hidden smooth-scroll-page" style={{ paddingTop: '140px', backgroundColor: 'var(--surface)' }}>
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen pb-24 overflow-hidden smooth-scroll-page relative" style={{ paddingTop: '140px', backgroundColor: '#000000' }}>
+      {/* Background Sparkles */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <SparklesCore
+          id="tsparticlesprocess"
+          background="transparent"
+          minSize={0.6}
+          maxSize={2.0}
+          particleDensity={120}
+          className="w-full h-full"
+          particleColor="#FFFFFF"
+        />
+      </div>
+      
+      <div className="max-w-md mx-auto relative z-10">
         
         <section className="relative px-6 pt-8 pb-16">
           <div 
