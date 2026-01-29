@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
 import { SplineScene } from './ui/spline-scene';
-import { Spotlight } from './ui/spotlight';
 
 interface AIProcessPageProps {
   onNavigate: (path: string) => void;
@@ -44,9 +43,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   return (
     <div className="min-h-screen pb-24 overflow-hidden smooth-scroll-page relative" style={{ paddingTop: '140px', backgroundColor: '#000000' }}>
       {/* Spline 3D Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="#8B5CF6" />
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-full h-[600px] opacity-70">
+      <div className="fixed inset-0 z-0">
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-full h-[600px]">
           <SplineScene 
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
             className="w-full h-full"
