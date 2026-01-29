@@ -40,17 +40,17 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
   }, []);
 
   return (
-    <div className="ai-agent-page min-h-screen bg-[#000000] overflow-hidden smooth-scroll-page" style={{ paddingTop: '140px' }}>
+    <div className="ai-agent-page min-h-screen bg-[#000000] overflow-y-auto overflow-x-hidden" style={{ paddingTop: '140px', WebkitOverflowScrolling: 'touch' }}>
       <motion.div 
         className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#8B5CF6] via-[#10B981] to-[#3B82F6] z-[100] origin-left"
         style={{ scaleX: smoothProgress }}
       />
 
       <section className="relative min-h-screen flex items-center justify-center px-5 overflow-hidden">
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="#8B5CF6" />
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20 pointer-events-none" fill="#8B5CF6" />
         
         <div 
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 opacity-30 pointer-events-none"
           style={{
             background: 'radial-gradient(ellipse 180% 100% at 50% -15%, rgba(59, 130, 246, 0.4) 0%, rgba(139, 92, 246, 0.35) 40%, transparent 100%)',
             transform: `translateY(${scrollY * 0.5}px)`,
@@ -58,7 +58,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
         />
         
         <div 
-          className="absolute inset-0 opacity-20"
+          className="absolute inset-0 opacity-20 pointer-events-none"
           style={{
             background: 'radial-gradient(circle at 15% 90%, rgba(139, 92, 246, 0.4) 0%, transparent 50%), radial-gradient(circle at 85% 10%, rgba(59, 130, 246, 0.4) 0%, transparent 50%)',
             transform: `translateY(${scrollY * 0.3}px)`,
@@ -176,7 +176,10 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
                 background: '#FFFFFF',
                 color: '#000000',
                 boxShadow: '0 15px 50px rgba(255, 255, 255, 0.3)',
-                transition: 'box-shadow 0.3s ease'
+                transition: 'box-shadow 0.3s ease',
+                position: 'relative',
+                zIndex: 50,
+                pointerEvents: 'auto'
               }}
             >
               <span className="relative z-10 flex items-center justify-center gap-3">
@@ -300,9 +303,9 @@ const StatCard = memo(({ number, label, sublabel, gradient }: {
   <motion.div 
     initial={{ opacity: 0, scale: 0.5, y: 100, rotateX: 30 }}
     whileInView={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
-    viewport={{ once: false, margin: "-20%" }}
+    viewport={{ once: false, margin: "-10%" }}
     transition={{ type: "spring", damping: 12, stiffness: 50 }}
-    className="text-center p-8 rounded-[40px] bg-white/5 border border-white/10 backdrop-blur-xl"
+    className="text-center p-8 rounded-[40px] bg-white/5 border border-white/10 backdrop-blur-xl mb-12"
   >
     <div className="mb-4 text-[88px] font-black tracking-tighter leading-none bg-clip-text text-transparent" style={{ backgroundImage: gradient }}>
       {number}
@@ -321,8 +324,8 @@ const FeatureBlock = memo(({ icon, title, description, gradient }: {
   <motion.div 
     initial={{ opacity: 0, x: -100, rotateY: -40 }}
     whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
-    viewport={{ once: false, margin: "-15%" }}
-    className="text-center group"
+    viewport={{ once: false, margin: "-10%" }}
+    className="text-center group mb-16"
   >
     <motion.div 
       whileHover={{ scale: 1.2, rotate: 10 }}
@@ -332,7 +335,7 @@ const FeatureBlock = memo(({ icon, title, description, gradient }: {
       <div className="text-white drop-shadow-lg">{icon}</div>
     </motion.div>
     <h3 className="text-3xl font-black text-white mb-4 tracking-tighter uppercase">{title}</h3>
-    <p className="text-white/60 text-lg leading-relaxed">{description}</p>
+    <p className="text-white/60 text-lg leading-relaxed px-4">{description}</p>
   </motion.div>
 ));
 
@@ -344,7 +347,8 @@ const BenefitItem = memo(({ icon, text, subtext }: {
   <motion.div 
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
-    className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/5"
+    viewport={{ once: false, margin: "-5%" }}
+    className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/5 mb-6"
   >
     <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 border border-emerald-500/30">
       {icon}
