@@ -199,13 +199,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   }}
                 />
                 
-                {/* Accent line left */}
-                <div 
-                  className="absolute left-0 top-6 bottom-6 w-[3px] rounded-full"
-                  style={{ background: 'linear-gradient(180deg, #34d399 0%, #10b981 100%)' }}
-                />
-                
-                <h1 className="relative pl-4">
+                <h1 className="relative">
                   <span 
                     className="block text-[38px] leading-[1.12] font-semibold"
                     style={{ 
