@@ -44,32 +44,7 @@ export function PremiumGreenLoader() {
         />
       </div>
       
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-center space-y-2"
-      >
-        <span className="text-lg font-medium bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent tracking-widest uppercase">
-          Загрузка
-        </span>
-        <div className="flex gap-1">
-          {[0, 1, 2].map((i) => (
-            <motion.div
-              key={i}
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.5, 1, 0.5],
-              }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                delay: i * 0.2,
-              }}
-              className="h-1.5 w-1.5 rounded-full bg-emerald-500"
-            />
-          ))}
-        </div>
-      </motion.div>
+      {/* Текст удален по просьбе пользователя */}
     </div>
   );
 }
