@@ -180,54 +180,72 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
         <div className="max-w-lg mx-auto px-5" style={{ paddingTop: '100px' }}>
           <section className="min-h-[75vh] flex flex-col justify-start pt-4 animate-in fade-in duration-500">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <h1 className="mb-8">
-                <span 
-                  className="block text-[44px] leading-[1.02] font-semibold"
-                  style={{ color: '#ffffff', letterSpacing: '-0.035em', fontFamily: 'Montserrat, sans-serif', textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}
-                >
-                  {t('showcase.heroTitle')}
-                </span>
-                <span 
-                  className="block text-[44px] leading-[1.02] font-semibold"
-                  style={{ color: '#ffffff', letterSpacing: '-0.035em', fontFamily: 'Montserrat, sans-serif', textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}
-                >
-                  {t('showcase.heroTitle2')}
-                </span>
-                <div className="h-[54px] overflow-visible mt-1 relative">
-                  <div 
-                    key={`glow-${headlineIndex}`}
-                    className="absolute inset-0 animate-in fade-in duration-700"
-                    style={{
-                      background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.1) 40%, transparent 70%)',
-                      filter: 'blur(20px)',
-                      transform: 'translateY(4px) scale(1.2)',
-                      pointerEvents: 'none'
-                    }}
-                  />
-                  <span
-                    key={headlineIndex}
-                    className="block text-[44px] leading-[1.02] font-semibold animate-in fade-in slide-in-from-bottom-8 duration-500 relative"
-                    style={{ 
-                      color: 'var(--cta-background)', 
-                      letterSpacing: '-0.035em',
-                      fontFamily: 'Montserrat, sans-serif'
-                    }}
+              {/* iOS 2026 Glass Header Block */}
+              <div 
+                className="rounded-[28px] p-6 mb-8 backdrop-blur-2xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 100%)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
+                }}
+              >
+                <h1>
+                  <span 
+                    className="block text-[44px] leading-[1.02] font-semibold"
+                    style={{ color: '#ffffff', letterSpacing: '-0.035em', fontFamily: 'Montserrat, sans-serif' }}
                   >
-                    {headlines[headlineIndex]}
+                    {t('showcase.heroTitle')}
                   </span>
-                </div>
-              </h1>
+                  <span 
+                    className="block text-[44px] leading-[1.02] font-semibold"
+                    style={{ color: '#ffffff', letterSpacing: '-0.035em', fontFamily: 'Montserrat, sans-serif' }}
+                  >
+                    {t('showcase.heroTitle2')}
+                  </span>
+                  <div className="h-[54px] overflow-visible mt-1 relative">
+                    <div 
+                      key={`glow-${headlineIndex}`}
+                      className="absolute inset-0 animate-in fade-in duration-700"
+                      style={{
+                        background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.1) 40%, transparent 70%)',
+                        filter: 'blur(20px)',
+                        transform: 'translateY(4px) scale(1.2)',
+                        pointerEvents: 'none'
+                      }}
+                    />
+                    <span
+                      key={headlineIndex}
+                      className="block text-[44px] leading-[1.02] font-semibold animate-in fade-in slide-in-from-bottom-8 duration-500 relative"
+                      style={{ 
+                        color: 'var(--cta-background)', 
+                        letterSpacing: '-0.035em',
+                        fontFamily: 'Montserrat, sans-serif'
+                      }}
+                    >
+                      {headlines[headlineIndex]}
+                    </span>
+                  </div>
+                </h1>
+              </div>
 
-              <div className="mb-10 max-w-[340px]">
+              {/* iOS 2026 Glass Description Block */}
+              <div 
+                className="rounded-[20px] px-5 py-4 mb-10 max-w-[340px] backdrop-blur-xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15)'
+                }}
+              >
                 <p 
                   className="text-[17px] leading-[1.5] font-medium"
-                  style={{ color: '#ffffff', textShadow: '0 0 20px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9)' }}
+                  style={{ color: '#ffffff' }}
                 >
                   {t('showcase.heroDescription')}
                 </p>
                 <p 
                   className="text-[17px] leading-[1.5] mt-3"
-                  style={{ color: 'rgba(255,255,255,0.85)', textShadow: '0 0 20px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9)' }}
+                  style={{ color: 'rgba(255,255,255,0.85)' }}
                 >
                   {t('showcase.heroDescription2')} <span style={{ color: '#10b981', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('showcase.heroAccent2')}</span>.
                 </p>
