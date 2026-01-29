@@ -12,6 +12,7 @@ import {
 import { useLanguage } from '../contexts/LanguageContext';
 import { SplineScene } from './ui/spline-scene';
 import { Spotlight } from './ui/spotlight';
+import { SparklesCore } from './ui/sparkles';
 
 interface AIAgentPageProps {
   onNavigate: (path: string) => void;
@@ -25,7 +26,20 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
   }, [onNavigate]);
 
   return (
-    <div className="ai-agent-page min-h-screen bg-[#000000] overflow-y-auto overflow-x-hidden" style={{ paddingTop: '100px', WebkitOverflowScrolling: 'touch' }}>
+    <div className="ai-agent-page min-h-screen bg-[#000000] overflow-y-auto overflow-x-hidden relative" style={{ paddingTop: '100px', WebkitOverflowScrolling: 'touch' }}>
+      {/* Background Sparkles */}
+      <div className="fixed inset-0 z-0">
+        <SparklesCore
+          id="tsparticlesfullpage"
+          background="transparent"
+          minSize={0.6}
+          maxSize={1.4}
+          particleDensity={100}
+          className="w-full h-full"
+          particleColor="#FFFFFF"
+        />
+      </div>
+
       <section className="relative min-h-screen flex items-center justify-center px-5 overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20 pointer-events-none" fill="#8B5CF6" />
         
@@ -154,7 +168,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
         </div>
       </section>
 
-      <section className="py-32 px-5 bg-neutral-900/20">
+      <section className="relative py-32 px-5 bg-neutral-900/20">
         <div className="max-w-xs mx-auto">
           <h2 className="text-center mb-6 text-[42px] font-black tracking-tighter text-white uppercase">
             {t('aiAgent.capabilities')}
@@ -173,7 +187,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
         </div>
       </section>
 
-      <section className="py-32 px-5">
+      <section className="relative py-32 px-5">
         <div className="max-w-xs mx-auto">
           <h2 className="text-center mb-20 text-[42px] font-black tracking-tighter text-white uppercase">
             {t('aiAgent.whyUs')}
@@ -191,7 +205,7 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
         <div className="absolute inset-0 bg-emerald-500/5 blur-[120px]" />
         
         <div className="relative z-10 text-center max-w-xs mx-auto">
-          <h2 className="mb-8 text-[56px] font-black tracking-[ -0.1em] text-white leading-none uppercase">
+          <h2 className="mb-8 text-[56px] font-black tracking-[-0.1em] text-white leading-none uppercase">
             {t('aiAgent.startToday')}
           </h2>
           
