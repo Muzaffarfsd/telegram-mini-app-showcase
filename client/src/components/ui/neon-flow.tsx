@@ -11,16 +11,28 @@ interface TubesBackgroundProps {
   children?: React.ReactNode;
   className?: string;
   enableClickInteraction?: boolean;
+  tubeColorVersion?: number;
 }
 
 export function TubesBackground({ 
   children, 
   className,
-  enableClickInteraction = true 
+  enableClickInteraction = true,
+  tubeColorVersion = 0
 }: TubesBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const tubesRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (isLoaded && tubesRef.current && tubesRef.current.tubes) {
+      const colors = randomColors(3);
+      const lightsColors = randomColors(4);
+      
+      tubesRef.current.tubes.setColors(colors);
+      tubesRef.current.tubes.setLightsColors(lightsColors);
+    }
+  }, [isLoaded, tubeColorVersion]);
 
   useEffect(() => {
     let mounted = true;
@@ -79,8 +91,10 @@ export function TubesBackground({
     const colors = randomColors(3);
     const lightsColors = randomColors(4);
     
-    tubesRef.current.tubes.setColors(colors);
-    tubesRef.current.tubes.setLightsColors(lightsColors);
+    if (tubesRef.current.tubes) {
+      tubesRef.current.tubes.setColors(colors);
+      tubesRef.current.tubes.setLightsColors(lightsColors);
+    }
   };
 
   return (

@@ -195,13 +195,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     <div 
       className="min-h-screen showcase-page"
       style={{ backgroundColor: 'var(--surface)' }}
-      onTouchStart={handleDoubleTap}
-      onClick={handleDoubleTap}
+      onDoubleClick={handleDoubleTap}
+      onTouchEnd={(e) => {
+        const now = Date.now();
+        const DOUBLE_TAP_DELAY = 300;
+        if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+          handleDoubleTap(e as any);
+        }
+        lastTapRef.current = now;
+      }}
     >
       <TubesBackground 
         className="fixed inset-0 z-0" 
-        enableClickInteraction={true}
-        key={`tubes-${tubeColorVersion}`}
+        enableClickInteraction={false}
+        tubeColorVersion={tubeColorVersion}
       />
       <PullToRefreshIndicator
         pullDistance={pullDistance}
