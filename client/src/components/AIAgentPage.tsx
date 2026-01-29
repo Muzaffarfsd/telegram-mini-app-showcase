@@ -1,4 +1,5 @@
 import { memo, useCallback, useState, useEffect } from "react";
+import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
 import { 
   Sparkles, 
   ArrowRight,
@@ -19,6 +20,15 @@ interface AIAgentPageProps {
 
 const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
   const { t } = useLanguage();
+  const { scrollYProgress } = useScroll();
+  
+  // Spring smooth scroll progress for 2026 feel
+  const smoothProgress = useSpring(scrollYProgress, {
+    staggerChildren: 0.1,
+    damping: 25,
+    stiffness: 100
+  });
+
   const [scrollY, setScrollY] = useState(0);
   
   const handleNavigateProcess = useCallback(() => {
@@ -33,7 +43,12 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
 
   return (
     <div className="ai-agent-page min-h-screen bg-[#000000] overflow-hidden smooth-scroll-page" style={{ paddingTop: '140px' }}>
-      
+      {/* Progress Bar 2026 style */}
+      <motion.div 
+        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8B5CF6] to-[#3B82F6] z-[100] origin-left"
+        style={{ scaleX: smoothProgress }}
+      />
+
       {/* ===============================================
           HERO - Full screen with 3D Robot
           =============================================== */}
@@ -72,7 +87,13 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
         
         <div className="relative z-10 text-center w-full md:flex-1 md:text-left md:pl-8">
           {/* Badge */}
-          <div className="flex justify-center mb-8 scroll-fade-in">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="flex justify-center mb-8 scroll-fade-in"
+          >
             <div 
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full backdrop-blur-3xl"
               style={{
@@ -102,7 +123,11 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
           </div>
 
           {/* Main headline - Mobile optimized */}
-          <h1 
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.1 }}
             className="mb-4 px-3 scroll-fade-in-delay-1"
             style={{ 
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
@@ -488,7 +513,15 @@ const StatCard = memo(({ number, label, sublabel, gradient }: {
   sublabel: string;
   gradient: string;
 }) => (
-  <div className="text-center" style={{ minHeight: '130px' }}>
+  <motion.div 
+    initial={{ opacity: 0, scale: 0.9, y: 30 }}
+    whileInView={{ opacity: 1, scale: 1, y: 0 }}
+    viewport={{ once: false, margin: "-50px" }}
+    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+    whileHover={{ y: -5 }}
+    className="text-center" 
+    style={{ minHeight: '130px' }}
+  >
     <div 
       className="mb-4"
       style={{
@@ -543,9 +576,17 @@ const FeatureBlock = memo(({
   description: string;
   gradient: string;
 }) => (
-  <div className="text-center" style={{ minHeight: '180px' }}>
+  <motion.div 
+    initial={{ opacity: 0, x: -20 }}
+    whileInView={{ opacity: 1, x: 0 }}
+    viewport={{ once: false, margin: "-50px" }}
+    transition={{ duration: 0.6, ease: "easeOut" }}
+    className="text-center" 
+    style={{ minHeight: '180px' }}
+  >
     {/* Icon */}
-    <div 
+    <motion.div 
+      whileHover={{ scale: 1.1, rotate: 5 }}
       className="w-20 h-20 rounded-[24px] flex items-center justify-center mx-auto mb-5 flex-shrink-0"
       style={{
         background: gradient,
@@ -594,8 +635,17 @@ const BenefitItem = memo(({ icon, text, subtext }: {
   text: string;
   subtext: string;
 }) => (
-  <div className="flex items-center gap-4 py-4" style={{ minHeight: '72px' }}>
-    <div 
+  <motion.div 
+    initial={{ opacity: 0, opacity: 0, y: 15 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: false }}
+    transition={{ duration: 0.5 }}
+    className="flex items-center gap-4 py-4" 
+    style={{ minHeight: '72px' }}
+  >
+    <motion.div 
+      whileInView={{ rotate: [0, -10, 10, 0] }}
+      transition={{ duration: 0.5, delay: 0.2 }}
       className="flex-shrink-0 w-12 h-12 rounded-[18px] flex items-center justify-center"
       style={{
         background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%)',
