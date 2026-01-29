@@ -324,25 +324,7 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
               </button>
             </div>
 
-            <div className="mt-12">
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex flex-col gap-1">
-                  <h2 
-                    className="text-[19px] font-bold tracking-tight leading-tight"
-                    style={{ 
-                      color: 'var(--text-primary)',
-                      fontFamily: 'Montserrat, sans-serif'
-                    }}
-                  >
-                    {language === 'ru' ? 'Быстрый обзор демо' : 'Quick Demo Overview'}
-                  </h2>
-                  <div className="h-1 w-12 bg-gradient-to-r from-system-blue to-system-purple rounded-full" />
-                </div>
-              </div>
-              <Stories stories={demoStories} onOpenDemo={handleOpenDemo} />
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-3 mt-12">
               <div
                 className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 backdrop-blur-xl"
                 style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', height: '88px', border: '1px solid rgba(255,255,255,0.1)' }}
