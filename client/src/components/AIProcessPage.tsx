@@ -140,38 +140,16 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               boxShadow: 'none'
             }}
           >
-            {/* Title first */}
-            <h1 className="mb-4">
-              <span 
-                className="block text-[32px] leading-[1.1] font-bold"
-                style={{ 
-                  color: '#ffffff', 
-                  letterSpacing: '-0.03em', 
-                  fontFamily: 'Montserrat, sans-serif'
-                }}
-              >
-                {t('aiProcess.heroTitle1')}
-              </span>
-              <span 
-                className="block text-[32px] leading-[1.1] font-bold"
-                style={{ 
-                  color: '#ffffff', 
-                  letterSpacing: '-0.03em', 
-                  fontFamily: 'Montserrat, sans-serif'
-                }}
-              >
-                {t('aiProcess.heroTitle2')}
-              </span>
-              <span 
-                className="block text-[32px] leading-[1.1] font-bold mt-1"
-                style={{ 
-                  color: '#34d399',
-                  letterSpacing: '-0.03em',
-                  fontFamily: 'Montserrat, sans-serif'
-                }}
-              >
-                {t('aiProcess.heroTitle3')}
-              </span>
+            {/* Title first - single line centered */}
+            <h1 
+              className="mb-4 text-center text-[24px] leading-[1.2] font-bold"
+              style={{ 
+                letterSpacing: '-0.02em', 
+                fontFamily: 'Montserrat, sans-serif'
+              }}
+            >
+              <span style={{ color: '#ffffff' }}>{t('aiProcess.heroTitle1')} {t('aiProcess.heroTitle2')} </span>
+              <span style={{ color: '#34d399' }}>{t('aiProcess.heroTitle3')}</span>
             </h1>
             
             {/* Subtitle below title */}
