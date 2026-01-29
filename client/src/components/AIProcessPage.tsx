@@ -133,11 +133,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[28px] px-6 py-6 mb-5 relative overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)'
+              background: 'rgba(255,255,255,0.015)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.05)',
+              boxShadow: 'none'
             }}
           >
             {/* Subtle glow accent */}
@@ -202,7 +202,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
             </p>
           </div>
 
-          {/* CTA Button - iOS 2026 */}
+          {/* CTA Button - glass style */}
           <div className="flex items-center gap-2 mb-5">
             <a
               href="https://t.me/web4tgs"
@@ -210,21 +210,24 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-2.5 rounded-2xl transition-all duration-200 active:scale-[0.97]"
               style={{ 
-                background: 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #c026d3 100%)',
+                background: 'rgba(139, 92, 246, 0.15)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
                 height: '56px',
                 paddingLeft: '20px',
                 paddingRight: '18px',
-                boxShadow: '0 12px 32px -8px rgba(139, 92, 246, 0.5), inset 0 1px 0 rgba(255,255,255,0.2)'
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                boxShadow: 'none'
               }}
             >
-              <Sparkles className="w-5 h-5 text-white flex-shrink-0" />
+              <MessageSquare className="w-5 h-5 text-violet-400 flex-shrink-0" />
               <span 
                 className="text-[16px] font-semibold text-white"
                 style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}
               >
                 {t('aiProcess.getConsultation')}
               </span>
-              <ArrowRight className="w-5 h-5 text-white flex-shrink-0" />
+              <ArrowRight className="w-5 h-5 text-violet-400 flex-shrink-0" />
             </a>
           </div>
 
