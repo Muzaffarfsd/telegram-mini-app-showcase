@@ -42,23 +42,17 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
   return (
     <div className="min-h-screen pb-24 overflow-y-auto overflow-x-hidden relative" style={{ paddingTop: '140px', backgroundColor: '#000000', WebkitOverflowScrolling: 'touch' }}>
-      {/* Spline 3D Background - interactive zone at top */}
-      <div className="fixed top-0 left-0 right-0 h-[350px] z-0">
-        <SplineScene 
-          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-          className="w-full h-full"
-        />
+      {/* Spline 3D Background - full screen centered */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <SplineScene 
+            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            className="w-full h-full"
+          />
+        </div>
       </div>
       
-      {/* Gradient overlay below Spline for smooth transition */}
-      <div 
-        className="fixed top-[300px] left-0 right-0 h-[100px] z-[1] pointer-events-none"
-        style={{
-          background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,1) 100%)'
-        }}
-      />
-      
-      <div className="max-w-md mx-auto relative z-10">
+      <div className="max-w-md mx-auto relative z-10 pointer-events-none [&_button]:pointer-events-auto [&_a]:pointer-events-auto">
         
         <section className="relative px-5 pt-4 pb-16">
           {/* Premium Frosted Header Card */}
