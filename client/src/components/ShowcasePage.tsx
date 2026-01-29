@@ -80,11 +80,11 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   const lastTapRef = useRef<number>(0);
   const [tubeColorVersion, setTubeColorVersion] = useState(0);
 
-  // Auto-change tube colors every 0.4 seconds
+  // Auto-change tube colors every 0.7 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setTubeColorVersion(prev => prev + 1);
-    }, 400);
+    }, 700);
     return () => clearInterval(interval);
   }, []);
 
