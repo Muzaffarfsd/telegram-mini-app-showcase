@@ -111,7 +111,7 @@ html.lang-en h4, html.lang-en h5, html.lang-en h6 {
 }
 
 .animate-premium-reveal {
-  animation: premium-reveal 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation: premium-reveal 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
 
 @supports (view-transition-name: none) {
