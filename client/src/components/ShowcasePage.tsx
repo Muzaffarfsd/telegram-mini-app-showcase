@@ -11,6 +11,7 @@ import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from './PullToRefreshIndicator';
 import { useQueryClient } from '@tanstack/react-query';
 import { TubesBackground } from './ui/neon-flow';
+import { useTheme } from '../hooks/useTheme';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
@@ -69,6 +70,8 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   useTelegram();
   const haptic = useHaptic();
   const { t, language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const headlines = language === 'ru' ? headlinesRu : headlinesEn;
   const [headlineIndex, setHeadlineIndex] = useState(0);
   const { videoRef } = useVideoLazyLoad({ threshold: 0.25 });
@@ -155,7 +158,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   return (
     <div 
       className="min-h-screen showcase-page select-none overflow-x-hidden relative"
-      style={{ backgroundColor: '#000000' }}
+      style={{ backgroundColor: isDark ? '#000000' : '#f5f5f7' }}
       onDoubleClick={handleInteraction}
       onTouchStart={(e) => {
         if (e.touches.length === 1) handleInteraction(e);
@@ -184,11 +187,13 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               <div 
                 className="rounded-[36px] p-8 mb-6 relative overflow-hidden"
                 style={{
-                  background: 'rgba(100,100,110,0.32)',
+                  background: isDark ? 'rgba(100,100,110,0.32)' : 'rgba(255,255,255,0.75)',
                   backdropFilter: 'blur(60px) saturate(200%)',
                   WebkitBackdropFilter: 'blur(60px) saturate(200%)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  boxShadow: '0 24px 48px -12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)'
+                  border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.08)',
+                  boxShadow: isDark 
+                    ? '0 24px 48px -12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' 
+                    : '0 24px 48px -12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8)'
                 }}
               >
                 {/* Noise texture */}
@@ -203,7 +208,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   <span 
                     className="block text-[38px] leading-[1.12] font-semibold"
                     style={{ 
-                      color: '#ffffff', 
+                      color: isDark ? '#ffffff' : '#1d1d1f', 
                       letterSpacing: '-0.03em', 
                       fontFamily: 'Montserrat, sans-serif'
                     }}
@@ -213,7 +218,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   <span 
                     className="block text-[38px] leading-[1.12] font-semibold mt-1"
                     style={{ 
-                      color: 'rgba(255,255,255,0.85)', 
+                      color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(29,29,31,0.75)', 
                       letterSpacing: '-0.03em', 
                       fontFamily: 'Montserrat, sans-serif'
                     }}
@@ -225,7 +230,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                       key={headlineIndex}
                       className="block text-[38px] leading-[1.12] font-bold animate-premium-reveal"
                       style={{ 
-                        color: '#34d399',
+                        color: isDark ? '#34d399' : '#059669',
                         letterSpacing: '-0.03em',
                         fontFamily: 'Montserrat, sans-serif'
                       }}
@@ -240,11 +245,11 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               <div 
                 className="rounded-[20px] px-6 py-5 mb-10 w-full relative overflow-hidden"
                 style={{
-                  background: 'rgba(100,100,110,0.22)',
+                  background: isDark ? 'rgba(100,100,110,0.22)' : 'rgba(255,255,255,0.65)',
                   backdropFilter: 'blur(50px) saturate(180%)',
                   WebkitBackdropFilter: 'blur(50px) saturate(180%)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  boxShadow: '0 16px 32px -8px rgba(0,0,0,0.35)'
+                  border: isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.06)',
+                  boxShadow: isDark ? '0 16px 32px -8px rgba(0,0,0,0.35)' : '0 16px 32px -8px rgba(0,0,0,0.08)'
                 }}
               >
                 {/* Noise texture */}
@@ -257,15 +262,15 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 
                 <p 
                   className="text-[15px] leading-[1.6] font-medium relative"
-                  style={{ color: 'rgba(255,255,255,0.95)' }}
+                  style={{ color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(29,29,31,0.9)' }}
                 >
                   {t('showcase.heroDescription')}
                 </p>
                 <p 
                   className="text-[15px] leading-[1.6] mt-2.5 relative"
-                  style={{ color: 'rgba(255,255,255,0.6)' }}
+                  style={{ color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(29,29,31,0.55)' }}
                 >
-                  {t('showcase.heroDescription2')} <span style={{ color: '#34d399', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('showcase.heroAccent2')}</span>.
+                  {t('showcase.heroDescription2')} <span style={{ color: isDark ? '#34d399' : '#059669', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('showcase.heroAccent2')}</span>.
                 </p>
               </div>
 
@@ -274,12 +279,14 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   onClick={() => handleNavigate('projects')}
                   className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97] backdrop-blur-2xl"
                   style={{ 
-                    background: 'rgba(16, 185, 129, 0.25)',
+                    background: isDark ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.9)',
                     height: '48px',
                     paddingLeft: '14px',
                     paddingRight: '12px',
-                    border: '1px solid rgba(16, 185, 129, 0.4)',
-                    boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
+                    border: isDark ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(16, 185, 129, 1)',
+                    boxShadow: isDark 
+                      ? '0 8px 32px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
+                      : '0 8px 32px rgba(16, 185, 129, 0.4), inset 0 1px 0 rgba(255,255,255,0.3)'
                   }}
                 >
                   <span className="text-[14px] text-white font-bold tracking-wide">{t('showcase.orderProject')}</span>
@@ -290,50 +297,64 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   onClick={() => handleOpenDemo('clothing-store')}
                   className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97] backdrop-blur-2xl"
                   style={{ 
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    border: isDark ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(0, 0, 0, 0.15)',
                     height: '48px',
                     paddingLeft: '12px',
                     paddingRight: '14px',
-                    background: 'rgba(255, 255, 255, 0.15)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.3)'
+                    background: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.9)',
+                    boxShadow: isDark 
+                      ? 'inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.3)'
+                      : '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)'
                   }}
                 >
-                  <Play className="w-4 h-4 text-white" fill="currentColor" />
-                  <span className="text-[14px] text-white font-bold tracking-wide">{t('showcase.openApp')}</span>
+                  <Play className={`w-4 h-4 ${isDark ? 'text-white' : 'text-gray-800'}`} fill="currentColor" />
+                  <span className={`text-[14px] font-bold tracking-wide ${isDark ? 'text-white' : 'text-gray-800'}`}>{t('showcase.openApp')}</span>
                 </button>
               </div>
 
               <div className="grid grid-cols-3 gap-3 mt-12">
                 <div
                   className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 backdrop-blur-xl"
-                  style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', height: '88px', border: '1px solid rgba(255,255,255,0.1)' }}
+                  style={{ 
+                    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.8)', 
+                    height: '88px', 
+                    border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)' 
+                  }}
                 >
-                  <div className="text-[26px] font-semibold leading-none text-white">
+                  <div className={`text-[26px] font-semibold leading-none ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     <AnimatedCounter value={127} suffix="+" delay={0.3} />
                   </div>
-                  <div className="text-[9px] uppercase tracking-wider mt-2 text-white/60">
+                  <div className={`text-[9px] uppercase tracking-wider mt-2 ${isDark ? 'text-white/60' : 'text-gray-500'}`}>
                     {t('showcase.clients')}
                   </div>
                 </div>
                 <div
                   className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 backdrop-blur-xl"
-                  style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', height: '88px', border: '1px solid rgba(255,255,255,0.1)' }}
+                  style={{ 
+                    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.8)', 
+                    height: '88px', 
+                    border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)' 
+                  }}
                 >
-                  <div className="text-[26px] font-semibold leading-none text-white">
+                  <div className={`text-[26px] font-semibold leading-none ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     <AnimatedCounter value={24} suffix={t('showcase.hours')} delay={0.4} />
                   </div>
-                  <div className="text-[9px] uppercase tracking-wider mt-2 text-white/60">
+                  <div className={`text-[9px] uppercase tracking-wider mt-2 ${isDark ? 'text-white/60' : 'text-gray-500'}`}>
                     {t('showcase.toLaunch')}
                   </div>
                 </div>
                 <div
                   className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200 backdrop-blur-xl"
-                  style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', height: '88px', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+                  style={{ 
+                    backgroundColor: isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.15)', 
+                    height: '88px', 
+                    border: '1px solid rgba(16, 185, 129, 0.3)' 
+                  }}
                 >
-                  <div className="text-[26px] font-semibold leading-none text-[#10b981]">
+                  <div className={`text-[26px] font-semibold leading-none ${isDark ? 'text-[#10b981]' : 'text-emerald-600'}`}>
                     +<AnimatedCounter value={300} suffix="%" delay={0.5} />
                   </div>
-                  <div className="text-[9px] uppercase tracking-wider mt-2 text-[#10b981]/80">
+                  <div className={`text-[9px] uppercase tracking-wider mt-2 ${isDark ? 'text-[#10b981]/80' : 'text-emerald-600/70'}`}>
                     {t('showcase.toSales')}
                   </div>
                 </div>
@@ -343,12 +364,12 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
           <section className="pb-8 pt-4 animate-in fade-in duration-500">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[13px] font-medium tracking-[0.08em] uppercase text-white/60">
+              <h2 className={`text-[13px] font-medium tracking-[0.08em] uppercase ${isDark ? 'text-white/60' : 'text-gray-500'}`}>
                 {t('showcase.projectsTitle')}
               </h2>
               <button
                 onClick={() => handleNavigate('projects')}
-                className="text-[13px] font-medium flex items-center gap-1 text-white/60"
+                className={`text-[13px] font-medium flex items-center gap-1 ${isDark ? 'text-white/60' : 'text-gray-500'}`}
               >
                 {t('showcase.all')} <ArrowUpRight className="w-3.5 h-3.5" />
               </button>
