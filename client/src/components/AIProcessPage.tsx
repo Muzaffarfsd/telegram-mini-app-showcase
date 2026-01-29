@@ -117,151 +117,135 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
       {/* Content layer - scrollable */}
       <div 
         className="relative z-10 min-h-screen pb-24"
-        style={{ paddingTop: '140px' }}
+        style={{ paddingTop: '100px' }}
       >
         <div className="max-w-md mx-auto">
         
-        <section className="relative px-5 pt-4 pb-16">
-          {/* Premium Frosted Header Card */}
-          <div 
-            className="rounded-[36px] p-8 mb-6 relative overflow-hidden"
-            style={{
-              background: 'rgba(100,100,110,0.32)',
-              backdropFilter: 'blur(60px) saturate(200%)',
-              WebkitBackdropFilter: 'blur(60px) saturate(200%)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              boxShadow: '0 24px 48px -12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)'
-            }}
-          >
-            {/* Noise texture */}
-            <div 
-              className="absolute inset-0 opacity-[0.035] pointer-events-none"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-              }}
-            />
-            
-            <h1 className="relative">
+        {/* Hero section - robot visible */}
+        <section className="relative px-5 pt-0 pb-4">
+          {/* Compact title - positioned at top, robot visible below */}
+          <div className="text-center mb-4">
+            <h1>
               <span 
-                className="block text-[38px] leading-[1.12] font-semibold"
+                className="block text-[32px] leading-[1.1] font-bold"
                 style={{ 
                   color: '#ffffff', 
                   letterSpacing: '-0.03em', 
-                  fontFamily: 'Montserrat, sans-serif'
+                  fontFamily: 'Montserrat, sans-serif',
+                  textShadow: '0 2px 20px rgba(0,0,0,0.8)'
                 }}
               >
                 {t('aiProcess.heroTitle1')}
               </span>
               <span 
-                className="block text-[38px] leading-[1.12] font-semibold mt-1"
-                style={{ 
-                  color: 'rgba(255,255,255,0.85)', 
-                  letterSpacing: '-0.03em', 
-                  fontFamily: 'Montserrat, sans-serif'
-                }}
-              >
-                {t('aiProcess.heroTitle2')}
-              </span>
-              <span 
-                className="block text-[38px] leading-[1.12] font-bold mt-2"
+                className="block text-[32px] leading-[1.1] font-bold"
                 style={{ 
                   color: '#34d399',
                   letterSpacing: '-0.03em',
-                  fontFamily: 'Montserrat, sans-serif'
+                  fontFamily: 'Montserrat, sans-serif',
+                  textShadow: '0 2px 20px rgba(52,211,153,0.3)'
                 }}
               >
                 {t('aiProcess.heroTitle3')}
               </span>
             </h1>
           </div>
+          
+          {/* Robot viewing area - empty space for robot */}
+          <div className="h-[280px] relative flex items-end justify-center">
+            {/* Hint to interact */}
+            <div 
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full"
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.15)'
+              }}
+            >
+              <span className="text-[12px] text-white/60">{language === 'ru' ? '← Проведи для взаимодействия →' : '← Swipe to interact →'}</span>
+            </div>
+          </div>
+        </section>
 
-          {/* Premium Frosted Description Card */}
+        {/* Main content section - cards below robot */}
+        <section className="relative px-5 pt-4 pb-16">
+          {/* Compact info card */}
           <div 
-            className="rounded-[20px] px-6 py-5 mb-10 w-full relative overflow-hidden"
+            className="rounded-[24px] px-5 py-4 mb-5 relative overflow-hidden"
             style={{
-              background: 'rgba(100,100,110,0.22)',
-              backdropFilter: 'blur(50px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(50px) saturate(180%)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              boxShadow: '0 16px 32px -8px rgba(0,0,0,0.35)'
+              background: 'rgba(20,20,25,0.85)',
+              backdropFilter: 'blur(40px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(150%)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 16px 32px -8px rgba(0,0,0,0.5)'
             }}
           >
-            {/* Noise texture */}
-            <div 
-              className="absolute inset-0 opacity-[0.03] pointer-events-none"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-              }}
-            />
-            
             <p 
-              className="text-[15px] leading-[1.6] font-medium relative"
-              style={{ color: 'rgba(255,255,255,0.95)' }}
+              className="text-[14px] leading-[1.5] font-medium"
+              style={{ color: 'rgba(255,255,255,0.9)' }}
             >
               {t('aiProcess.heroSubtitle1')}
             </p>
             <p 
-              className="text-[15px] leading-[1.6] mt-2.5 relative"
-              style={{ color: 'rgba(255,255,255,0.6)' }}
+              className="text-[13px] leading-[1.5] mt-2"
+              style={{ color: 'rgba(255,255,255,0.5)' }}
             >
               {t('aiProcess.heroSubtitle2')}
             </p>
           </div>
 
-          <div className="flex items-center gap-2 mb-8">
+          {/* CTA Button */}
+          <div className="flex items-center gap-2 mb-5">
             <a
               href="https://t.me/web4tgs"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97] backdrop-blur-2xl"
+              className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
               style={{ 
-                background: 'rgba(16, 185, 129, 0.25)',
-                height: '48px',
-                paddingLeft: '14px',
-                paddingRight: '12px',
-                border: '1px solid rgba(16, 185, 129, 0.4)',
-                boxShadow: '0 8px 24px -6px rgba(16, 185, 129, 0.3)'
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 100%)',
+                height: '52px',
+                paddingLeft: '16px',
+                paddingRight: '14px',
+                boxShadow: '0 8px 24px -4px rgba(16, 185, 129, 0.4)'
               }}
             >
-              <MessageSquare className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <span className="text-[14px] font-bold tracking-wide text-white">{t('aiProcess.getConsultation')}</span>
-              <ArrowRight className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <MessageSquare className="w-5 h-5 text-white flex-shrink-0" />
+              <span className="text-[15px] font-bold text-white">{t('aiProcess.getConsultation')}</span>
+              <ArrowRight className="w-5 h-5 text-white flex-shrink-0" />
             </a>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          {/* Stats row - compact */}
+          <div className="grid grid-cols-3 gap-2 mb-6">
             <div
-              className="p-4 rounded-2xl text-center flex flex-col justify-center backdrop-blur-xl"
+              className="p-3 rounded-xl text-center"
               style={{ 
-                backgroundColor: 'rgba(0, 0, 0, 0.7)', 
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                minHeight: '90px'
+                background: 'rgba(20,20,25,0.8)', 
+                border: '1px solid rgba(255, 255, 255, 0.08)'
               }}
             >
-              <span className="text-[22px] font-bold text-white">900M+</span>
-              <span className="text-[11px] text-gray-400 mt-1">{t('aiProcess.stats.users')}</span>
+              <span className="text-[18px] font-bold text-white block">900M+</span>
+              <span className="text-[10px] text-gray-500">{t('aiProcess.stats.users')}</span>
             </div>
             <div
-              className="p-4 rounded-2xl text-center flex flex-col justify-center backdrop-blur-xl"
+              className="p-3 rounded-xl text-center"
               style={{ 
-                backgroundColor: 'rgba(0, 0, 0, 0.7)', 
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                minHeight: '90px'
+                background: 'rgba(20,20,25,0.8)', 
+                border: '1px solid rgba(255, 255, 255, 0.08)'
               }}
             >
-              <span className="text-[22px] font-bold text-white">24/7</span>
-              <span className="text-[11px] text-gray-400 mt-1">{t('aiProcess.stats.support')}</span>
+              <span className="text-[18px] font-bold text-white block">24/7</span>
+              <span className="text-[10px] text-gray-500">{t('aiProcess.stats.support')}</span>
             </div>
             <div
-              className="p-4 rounded-2xl text-center flex flex-col justify-center backdrop-blur-xl"
+              className="p-3 rounded-xl text-center"
               style={{ 
-                backgroundColor: 'rgba(0, 0, 0, 0.7)', 
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                minHeight: '90px'
+                background: 'rgba(20,20,25,0.8)', 
+                border: '1px solid rgba(255, 255, 255, 0.08)'
               }}
             >
-              <span className="text-[22px] font-bold text-white">100%</span>
-              <span className="text-[11px] text-gray-400 mt-1">{t('aiProcess.stats.automation')}</span>
+              <span className="text-[18px] font-bold text-white block">100%</span>
+              <span className="text-[10px] text-gray-500">{t('aiProcess.stats.automation')}</span>
             </div>
           </div>
         </section>
