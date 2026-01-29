@@ -180,42 +180,54 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
         <div className="max-w-lg mx-auto px-5" style={{ paddingTop: '100px' }}>
           <section className="min-h-[75vh] flex flex-col justify-start pt-4 animate-in fade-in duration-500">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              {/* iOS 2026 Clean Glass Header */}
+              {/* Frosted Card Header */}
               <div 
-                className="rounded-[24px] p-6 mb-8 backdrop-blur-xl"
+                className="rounded-[32px] p-7 mb-8 relative overflow-hidden"
                 style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.12)'
+                  background: 'rgba(120,120,130,0.25)',
+                  backdropFilter: 'blur(40px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05)'
                 }}
               >
-                <h1>
+                {/* Noise texture overlay */}
+                <div 
+                  className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'repeat'
+                  }}
+                />
+                
+                <h1 className="relative">
                   <span 
-                    className="block text-[42px] leading-[1.05] font-bold"
+                    className="block text-[40px] leading-[1.08] font-semibold"
                     style={{ 
                       color: '#ffffff', 
-                      letterSpacing: '-0.04em', 
+                      letterSpacing: '-0.035em', 
                       fontFamily: 'Montserrat, sans-serif'
                     }}
                   >
                     {t('showcase.heroTitle')}
                   </span>
                   <span 
-                    className="block text-[42px] leading-[1.05] font-bold"
+                    className="block text-[40px] leading-[1.08] font-semibold"
                     style={{ 
                       color: '#ffffff', 
-                      letterSpacing: '-0.04em', 
+                      letterSpacing: '-0.035em', 
                       fontFamily: 'Montserrat, sans-serif'
                     }}
                   >
                     {t('showcase.heroTitle2')}
                   </span>
-                  <div className="h-[52px] overflow-visible mt-2">
+                  <div className="h-[50px] overflow-visible mt-2">
                     <span
                       key={headlineIndex}
-                      className="block text-[42px] leading-[1.05] font-bold animate-in fade-in slide-in-from-bottom-6 duration-500"
+                      className="block text-[40px] leading-[1.08] font-semibold animate-in fade-in slide-in-from-bottom-6 duration-500"
                       style={{ 
-                        color: '#10b981',
-                        letterSpacing: '-0.04em',
+                        color: '#34d399',
+                        letterSpacing: '-0.035em',
                         fontFamily: 'Montserrat, sans-serif'
                       }}
                     >
@@ -225,25 +237,37 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 </h1>
               </div>
 
-              {/* iOS 2026 Clean Description Block */}
+              {/* Frosted Card Description */}
               <div 
-                className="rounded-[20px] px-5 py-4 mb-10 max-w-[340px] backdrop-blur-xl"
+                className="rounded-[24px] px-6 py-5 mb-10 max-w-[340px] relative overflow-hidden"
                 style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)'
+                  background: 'rgba(120,120,130,0.2)',
+                  backdropFilter: 'blur(40px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05)'
                 }}
               >
+                {/* Noise texture overlay */}
+                <div 
+                  className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'repeat'
+                  }}
+                />
+                
                 <p 
-                  className="text-[16px] leading-[1.6] font-medium"
-                  style={{ color: 'rgba(255,255,255,0.9)' }}
+                  className="text-[16px] leading-[1.55] font-medium relative"
+                  style={{ color: 'rgba(255,255,255,0.92)' }}
                 >
                   {t('showcase.heroDescription')}
                 </p>
                 <p 
-                  className="text-[16px] leading-[1.6] mt-3"
-                  style={{ color: 'rgba(255,255,255,0.6)' }}
+                  className="text-[16px] leading-[1.55] mt-3 relative"
+                  style={{ color: 'rgba(255,255,255,0.65)' }}
                 >
-                  {t('showcase.heroDescription2')} <span style={{ color: '#10b981', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('showcase.heroAccent2')}</span>.
+                  {t('showcase.heroDescription2')} <span style={{ color: '#34d399', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('showcase.heroAccent2')}</span>.
                 </p>
               </div>
 
