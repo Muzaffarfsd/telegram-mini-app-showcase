@@ -239,7 +239,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
               {/* Frosted Card Description */}
               <div 
-                className="rounded-[24px] px-6 py-5 mb-10 max-w-[340px] relative overflow-hidden"
+                className="rounded-[24px] px-6 py-5 mb-10 w-full relative overflow-hidden"
                 style={{
                   background: 'rgba(120,120,130,0.2)',
                   backdropFilter: 'blur(40px) saturate(180%)',
