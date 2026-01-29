@@ -142,7 +142,7 @@ export const translations = {
     // Showcase / Landing
     showcase: {
       heroTitle: 'Приложение,',
-      heroTitle2: 'которого ещё нет',
+      heroTitle2: 'которого ещё\u00A0нет',
       heroAccent: 'у конкурентов',
       heroDescription: 'WB, Ozon, Яндекс Маркет — комиссии от 15 до 25%, штрафы, чужие правила.',
       heroDescription2: 'Хватит кормить посредников — продавайте напрямую через',
