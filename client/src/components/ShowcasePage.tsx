@@ -173,6 +173,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 300;
     
+    // Check if the click target is the background div
+    const isBackground = (e.target as HTMLElement).classList.contains('showcase-page');
+    if (!isBackground) return;
+
     if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
       // Double tap detected
       setTubeColorVersion(prev => prev + 1);
