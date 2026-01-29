@@ -78,6 +78,24 @@ html.lang-en h4, html.lang-en h5, html.lang-en h6 {
 
 /* === VIEW TRANSITIONS API (2026) === */
 /* Progressive enhancement for smooth page transitions */
+/* Blur-in animation for text reveal */
+@keyframes blur-in {
+  0% {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateY(8px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-blur-in {
+  animation: blur-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @supports (view-transition-name: none) {
   @media (prefers-reduced-motion: no-preference) {
     ::view-transition-old(root) {
