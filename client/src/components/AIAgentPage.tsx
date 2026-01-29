@@ -28,14 +28,14 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
   return (
     <div className="ai-agent-page min-h-screen bg-[#000000] overflow-y-auto overflow-x-hidden relative" style={{ paddingTop: '100px', WebkitOverflowScrolling: 'touch' }}>
       {/* Background Sparkles */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <SparklesCore
           id="tsparticlesfullpage"
           background="transparent"
           minSize={0.6}
-          maxSize={1.4}
-          particleDensity={100}
-          className="w-full h-full"
+          maxSize={2.0}
+          particleDensity={150}
+          className="w-full h-full opacity-50"
           particleColor="#FFFFFF"
         />
       </div>

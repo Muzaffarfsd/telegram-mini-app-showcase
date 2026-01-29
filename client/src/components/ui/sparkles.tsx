@@ -43,10 +43,11 @@ export const SparklesCore = (props: ParticlesProps) => {
 
   const particlesLoaded = async (container?: Container) => {
     if (container) {
+      console.log("Particles loaded successfully");
       controls.start({
         opacity: 1,
         transition: {
-          duration: 1,
+          duration: 1.5,
         },
       });
     }
@@ -54,7 +55,11 @@ export const SparklesCore = (props: ParticlesProps) => {
 
   const generatedId = useId();
   return (
-    <motion.div animate={controls} className={cn("opacity-0", className)}>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={controls} 
+      className={cn("w-full h-full", className)}
+    >
       {init && (
         <Particles
           id={id || generatedId}
@@ -78,7 +83,7 @@ export const SparklesCore = (props: ParticlesProps) => {
                   mode: "push",
                 },
                 onHover: {
-                  enable: false,
+                  enable: true,
                   mode: "repulse",
                 },
                 resize: true as any,
@@ -88,7 +93,7 @@ export const SparklesCore = (props: ParticlesProps) => {
                   quantity: 4,
                 },
                 repulse: {
-                  distance: 200,
+                  distance: 150,
                   duration: 0.4,
                 },
               },
@@ -110,29 +115,29 @@ export const SparklesCore = (props: ParticlesProps) => {
                 outModes: {
                   default: "out",
                 },
-                random: false,
+                random: true,
                 speed: {
                   min: 0.1,
-                  max: 1,
+                  max: 0.5,
                 },
                 straight: false,
               },
               number: {
                 density: {
                   enable: true,
-                  width: 400,
-                  height: 400,
+                  width: 800,
+                  height: 800,
                 },
-                value: particleDensity || 120,
+                value: particleDensity || 200,
               },
               opacity: {
                 value: {
                   min: 0.1,
-                  max: 1,
+                  max: 0.8,
                 },
                 animation: {
                   enable: true,
-                  speed: speed || 4,
+                  speed: speed || 2,
                   sync: false,
                   startValue: "random",
                 },
@@ -142,8 +147,8 @@ export const SparklesCore = (props: ParticlesProps) => {
               },
               size: {
                 value: {
-                  min: minSize || 1,
-                  max: maxSize || 3,
+                  min: minSize || 0.8,
+                  max: maxSize || 2.5,
                 },
               },
             },
