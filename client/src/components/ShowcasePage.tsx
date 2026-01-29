@@ -180,54 +180,59 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
         <div className="max-w-lg mx-auto px-5" style={{ paddingTop: '100px' }}>
           <section className="min-h-[75vh] flex flex-col justify-start pt-4 animate-in fade-in duration-500">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              {/* Frosted Card Header */}
+              {/* Premium Frosted Header Card */}
               <div 
-                className="rounded-[32px] p-7 mb-8 relative overflow-hidden"
+                className="rounded-[36px] p-8 mb-6 relative overflow-hidden"
                 style={{
-                  background: 'rgba(120,120,130,0.25)',
-                  backdropFilter: 'blur(40px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                  border: '1px solid rgba(255,255,255,0.18)',
-                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05)'
+                  background: 'rgba(100,100,110,0.32)',
+                  backdropFilter: 'blur(60px) saturate(200%)',
+                  WebkitBackdropFilter: 'blur(60px) saturate(200%)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  boxShadow: '0 24px 48px -12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)'
                 }}
               >
-                {/* Noise texture overlay */}
+                {/* Noise texture */}
                 <div 
-                  className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay"
+                  className="absolute inset-0 opacity-[0.035] pointer-events-none"
                   style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-                    backgroundRepeat: 'repeat'
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
                   }}
                 />
                 
-                <h1 className="relative">
+                {/* Accent line left */}
+                <div 
+                  className="absolute left-0 top-6 bottom-6 w-[3px] rounded-full"
+                  style={{ background: 'linear-gradient(180deg, #34d399 0%, #10b981 100%)' }}
+                />
+                
+                <h1 className="relative pl-4">
                   <span 
-                    className="block text-[40px] leading-[1.08] font-semibold"
+                    className="block text-[38px] leading-[1.12] font-semibold"
                     style={{ 
                       color: '#ffffff', 
-                      letterSpacing: '-0.035em', 
+                      letterSpacing: '-0.03em', 
                       fontFamily: 'Montserrat, sans-serif'
                     }}
                   >
                     {t('showcase.heroTitle')}
                   </span>
                   <span 
-                    className="block text-[40px] leading-[1.08] font-semibold"
+                    className="block text-[38px] leading-[1.12] font-semibold mt-1"
                     style={{ 
-                      color: '#ffffff', 
-                      letterSpacing: '-0.035em', 
+                      color: 'rgba(255,255,255,0.85)', 
+                      letterSpacing: '-0.03em', 
                       fontFamily: 'Montserrat, sans-serif'
                     }}
                   >
                     {t('showcase.heroTitle2')}
                   </span>
-                  <div className="h-[50px] overflow-visible mt-2">
+                  <div className="h-[48px] overflow-visible mt-2">
                     <span
                       key={headlineIndex}
-                      className="block text-[40px] leading-[1.08] font-semibold animate-in fade-in slide-in-from-bottom-6 duration-500"
+                      className="block text-[38px] leading-[1.12] font-bold animate-in fade-in slide-in-from-bottom-4 duration-400"
                       style={{ 
                         color: '#34d399',
-                        letterSpacing: '-0.035em',
+                        letterSpacing: '-0.03em',
                         fontFamily: 'Montserrat, sans-serif'
                       }}
                     >
@@ -237,35 +242,34 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 </h1>
               </div>
 
-              {/* Frosted Card Description */}
+              {/* Premium Frosted Description Card */}
               <div 
-                className="rounded-[24px] px-6 py-5 mb-10 w-full relative overflow-hidden"
+                className="rounded-[20px] px-6 py-5 mb-10 w-full relative overflow-hidden"
                 style={{
-                  background: 'rgba(120,120,130,0.2)',
-                  backdropFilter: 'blur(40px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05)'
+                  background: 'rgba(100,100,110,0.22)',
+                  backdropFilter: 'blur(50px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(50px) saturate(180%)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  boxShadow: '0 16px 32px -8px rgba(0,0,0,0.35)'
                 }}
               >
-                {/* Noise texture overlay */}
+                {/* Noise texture */}
                 <div 
-                  className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay"
+                  className="absolute inset-0 opacity-[0.03] pointer-events-none"
                   style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-                    backgroundRepeat: 'repeat'
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
                   }}
                 />
                 
                 <p 
-                  className="text-[16px] leading-[1.55] font-medium relative"
-                  style={{ color: 'rgba(255,255,255,0.92)' }}
+                  className="text-[15px] leading-[1.6] font-medium relative"
+                  style={{ color: 'rgba(255,255,255,0.95)' }}
                 >
                   {t('showcase.heroDescription')}
                 </p>
                 <p 
-                  className="text-[16px] leading-[1.55] mt-3 relative"
-                  style={{ color: 'rgba(255,255,255,0.65)' }}
+                  className="text-[15px] leading-[1.6] mt-2.5 relative"
+                  style={{ color: 'rgba(255,255,255,0.6)' }}
                 >
                   {t('showcase.heroDescription2')} <span style={{ color: '#34d399', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('showcase.heroAccent2')}</span>.
                 </p>
