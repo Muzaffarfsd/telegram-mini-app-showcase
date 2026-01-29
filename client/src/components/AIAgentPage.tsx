@@ -10,9 +10,8 @@ import {
   Clock
 } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
-import { SplineScene } from './ui/spline-scene';
 import { Spotlight } from './ui/spotlight';
-import { SparklesCore } from './ui/sparkles';
+import { Entropy } from './ui/entropy';
 
 interface AIAgentPageProps {
   onNavigate: (path: string) => void;
@@ -27,44 +26,13 @@ const AIAgentPage = memo(({ onNavigate }: AIAgentPageProps) => {
 
   return (
     <div className="ai-agent-page min-h-screen bg-[#000000] overflow-y-auto overflow-x-hidden relative" style={{ paddingTop: '100px', WebkitOverflowScrolling: 'touch' }}>
-      {/* Background Sparkles */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <SparklesCore
-          id="tsparticlesfullpage"
-          background="transparent"
-          minSize={0.6}
-          maxSize={2.0}
-          particleDensity={150}
-          className="w-full h-full opacity-50"
-          particleColor="#FFFFFF"
-        />
+      {/* Entropy Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none flex items-center justify-center">
+        <Entropy size={Math.min(window.innerWidth, window.innerHeight) * 0.9} className="opacity-60" />
       </div>
 
       <section className="relative min-h-screen flex items-center justify-center px-5 overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20 pointer-events-none" fill="#8B5CF6" />
-        
-        <div 
-          className="absolute inset-0 opacity-30 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse 180% 100% at 50% -15%, rgba(59, 130, 246, 0.4) 0%, rgba(139, 92, 246, 0.35) 40%, transparent 100%)',
-          }}
-        />
-        
-        <div 
-          className="absolute inset-0 opacity-20 pointer-events-none"
-          style={{
-            background: 'radial-gradient(circle at 15% 90%, rgba(139, 92, 246, 0.4) 0%, transparent 50%), radial-gradient(circle at 85% 10%, rgba(59, 130, 246, 0.4) 0%, transparent 50%)',
-          }}
-        />
-        
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-full md:w-[60%] h-[400px] md:h-[600px]">
-            <SplineScene 
-              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-              className="w-full h-full"
-            />
-          </div>
-        </div>
         
         <div className="relative z-10 text-center w-full">
           <div className="flex justify-center mb-8">
