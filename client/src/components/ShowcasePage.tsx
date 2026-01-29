@@ -77,16 +77,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   const { videoRef } = useVideoLazyLoad({ threshold: 0.25 });
   const { markAsViewed } = useViewedDemos();
   const queryClient = useQueryClient();
-  const lastTapRef = useRef<number>(0);
-  const [tubeColorVersion, setTubeColorVersion] = useState(0);
-
-  // Auto-change tube colors every 1.5 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTubeColorVersion(prev => prev + 1);
-    }, 1500);
-    return () => clearInterval(interval);
-  }, []);
+  
 
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries();
@@ -145,39 +136,16 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
     onNavigate(section);
   }, [haptic, onNavigate]);
 
-  const handleInteraction = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const isInteractive = target.closest('button') || target.closest('a') || target.closest('.nav-depth-zone');
-    if (isInteractive) return;
-
-    const now = Date.now();
-    const DOUBLE_TAP_DELAY = 400;
-    
-    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-      console.log('Action: Change Background Color - detected double tap');
-      setTubeColorVersion(prev => prev + 1);
-      haptic.medium();
-      lastTapRef.current = 0;
-    } else {
-      lastTapRef.current = now;
-    }
-  }, [haptic]);
-
   return (
     <div 
       className="min-h-screen showcase-page select-none overflow-x-hidden relative"
       style={{ backgroundColor: isDark ? '#000000' : '#f5f5f7' }}
-      onDoubleClick={handleInteraction}
-      onTouchStart={(e) => {
-        if (e.touches.length === 1) handleInteraction(e);
-      }}
     >
       {isDark && (
         <div className="fixed inset-0 z-0 pointer-events-none">
           <TubesBackground 
             className="w-full h-full" 
             enableClickInteraction={false}
-            tubeColorVersion={tubeColorVersion}
           />
         </div>
       )}
@@ -195,7 +163,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               {/* Premium Frosted Header Card */}
               <div 
-                className="rounded-[28px] sm:rounded-[36px] p-6 sm:p-8 mb-5 sm:mb-6 relative overflow-hidden"
+                className="rounded-[36px] p-8 mb-6 relative overflow-hidden"
                 style={{
                   background: isDark ? 'rgba(100,100,110,0.32)' : 'rgba(255,255,255,0.75)',
                   backdropFilter: 'blur(60px) saturate(200%)',
@@ -216,7 +184,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 
                 <h1 className="relative">
                   <span 
-                    className="block text-[32px] sm:text-[38px] leading-[1.12] font-semibold"
+                    className="block text-[38px] leading-[1.12] font-semibold"
                     style={{ 
                       color: isDark ? '#ffffff' : '#1d1d1f', 
                       letterSpacing: '-0.03em', 
@@ -226,7 +194,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     {t('showcase.heroTitle')}
                   </span>
                   <span 
-                    className="block text-[32px] sm:text-[38px] leading-[1.12] font-semibold mt-1"
+                    className="block text-[38px] leading-[1.12] font-semibold mt-1"
                     style={{ 
                       color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(29,29,31,0.75)', 
                       letterSpacing: '-0.03em', 
@@ -235,10 +203,10 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   >
                     {t('showcase.heroTitle2')}
                   </span>
-                  <div className="h-[42px] sm:h-[48px] overflow-visible mt-2">
+                  <div className="h-[48px] overflow-visible mt-2">
                     <span
                       key={headlineIndex}
-                      className="block text-[32px] sm:text-[38px] leading-[1.12] font-bold animate-premium-reveal"
+                      className="block text-[38px] leading-[1.12] font-bold animate-premium-reveal"
                       style={{ 
                         color: isDark ? '#34d399' : '#059669',
                         letterSpacing: '-0.03em',
@@ -253,7 +221,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
               {/* Premium Frosted Description Card */}
               <div 
-                className="rounded-[16px] sm:rounded-[20px] px-5 sm:px-6 py-4 sm:py-5 mb-8 sm:mb-10 w-full relative overflow-hidden"
+                className="rounded-[20px] px-6 py-5 mb-10 w-full relative overflow-hidden"
                 style={{
                   background: isDark ? 'rgba(100,100,110,0.22)' : 'rgba(255,255,255,0.65)',
                   backdropFilter: 'blur(50px) saturate(180%)',
@@ -271,13 +239,13 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 />
                 
                 <p 
-                  className="text-[14px] sm:text-[15px] leading-[1.6] font-medium relative"
+                  className="text-[15px] leading-[1.6] font-medium relative"
                   style={{ color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(29,29,31,0.9)' }}
                 >
                   {t('showcase.heroDescription')}
                 </p>
                 <p 
-                  className="text-[14px] sm:text-[15px] leading-[1.6] mt-2 sm:mt-2.5 relative"
+                  className="text-[15px] leading-[1.6] mt-2.5 relative"
                   style={{ color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(29,29,31,0.55)' }}
                 >
                   {t('showcase.heroDescription2')} <span style={{ color: isDark ? '#34d399' : '#059669', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('showcase.heroAccent2')}</span>.
