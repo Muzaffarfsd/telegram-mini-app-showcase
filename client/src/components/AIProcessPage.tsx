@@ -52,7 +52,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
         </div>
       </div>
       
-      <div className="max-w-md mx-auto relative z-10">
+      <div className="max-w-md mx-auto relative z-10 pointer-events-none [&_button]:pointer-events-auto [&_a]:pointer-events-auto">
         
         <section className="relative px-6 pt-8 pb-16">
           <div 
