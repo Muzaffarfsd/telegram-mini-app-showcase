@@ -41,9 +41,17 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen pb-24 overflow-y-auto overflow-x-hidden relative" style={{ paddingTop: '140px', backgroundColor: '#000000', WebkitOverflowScrolling: 'touch' }}>
-      {/* Spline 3D Background - full screen centered */}
-      <div className="fixed inset-0 z-0">
+    <div 
+      className="min-h-screen pb-24 overflow-y-auto overflow-x-hidden relative"
+      style={{ 
+        paddingTop: '140px', 
+        backgroundColor: '#000000', 
+        WebkitOverflowScrolling: 'touch',
+        touchAction: 'pan-y'
+      }}
+    >
+      {/* Spline 3D Background - full screen centered, receives non-scroll touches */}
+      <div className="fixed inset-0 z-0" style={{ touchAction: 'none' }}>
         <div className="absolute inset-0 flex items-center justify-center">
           <SplineScene 
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
@@ -52,7 +60,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
         </div>
       </div>
       
-      <div className="max-w-md mx-auto relative z-10 pointer-events-none [&_button]:pointer-events-auto [&_a]:pointer-events-auto">
+      {/* Content layer - allows scroll through, buttons clickable */}
+      <div 
+        className="max-w-md mx-auto relative z-10 pointer-events-none [&_button]:pointer-events-auto [&_a]:pointer-events-auto"
+        style={{ touchAction: 'pan-y' }}
+      >
         
         <section className="relative px-5 pt-4 pb-16">
           {/* Premium Frosted Header Card */}
