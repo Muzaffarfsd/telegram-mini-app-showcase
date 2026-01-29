@@ -1674,7 +1674,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
       <div className="top-bar">
         <div className="max-w-md mx-auto px-5 pt-16 pb-1 flex items-end justify-between gap-4" style={{ position: 'relative', zIndex: 2 }}>
-          <div>
+          <div className="w-[52px]">
             <AnimatedHamburgerIcon 
               ref={triggerButtonRef}
               isOpen={false} 
@@ -1683,7 +1683,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             />
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
             <p style={{
               fontSize: '13px',
               fontWeight: 600,
