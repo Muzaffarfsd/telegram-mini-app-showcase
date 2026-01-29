@@ -107,6 +107,8 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   const { videoRef } = useVideoLazyLoad({ threshold: 0.25 });
   const { markAsViewed, viewedCount } = useViewedDemos();
   const queryClient = useQueryClient();
+  const lastTapRef = useRef<number>(0);
+  const [tubeColorVersion, setTubeColorVersion] = useState(0);
 
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries();
@@ -167,14 +169,31 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     onNavigate(section);
   }, [haptic, onNavigate]);
 
+  const handleDoubleTap = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+    
+    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      // Double tap detected
+      setTubeColorVersion(prev => prev + 1);
+      haptic.medium();
+      lastTapRef.current = 0; // Reset
+    } else {
+      lastTapRef.current = now;
+    }
+  }, [haptic]);
+
   return (
     <div 
       className="min-h-screen showcase-page"
       style={{ backgroundColor: 'var(--surface)' }}
+      onTouchStart={handleDoubleTap}
+      onClick={handleDoubleTap}
     >
       <TubesBackground 
         className="fixed inset-0 z-0" 
         enableClickInteraction={true}
+        key={`tubes-${tubeColorVersion}`}
       />
       <PullToRefreshIndicator
         pullDistance={pullDistance}
