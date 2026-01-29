@@ -164,13 +164,15 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
         if (e.touches.length === 1) handleInteraction(e);
       }}
     >
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <TubesBackground 
-          className="w-full h-full" 
-          enableClickInteraction={false}
-          tubeColorVersion={tubeColorVersion}
-        />
-      </div>
+      {isDark && (
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <TubesBackground 
+            className="w-full h-full" 
+            enableClickInteraction={false}
+            tubeColorVersion={tubeColorVersion}
+          />
+        </div>
+      )}
       
       <div className="relative z-10">
         <PullToRefreshIndicator
