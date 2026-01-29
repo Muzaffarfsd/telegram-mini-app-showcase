@@ -94,9 +94,11 @@ export function TubesBackground({
         style={{ touchAction: 'none' }}
       />
       
-      <div className="relative z-10 w-full h-full pointer-events-none">
-        <div className="pointer-events-auto">
-          {children}
+      <div className="relative z-10 w-full h-full">
+        <div className="w-full h-full pointer-events-none">
+          <div className="pointer-events-auto">
+            {children}
+          </div>
         </div>
       </div>
     </div>
