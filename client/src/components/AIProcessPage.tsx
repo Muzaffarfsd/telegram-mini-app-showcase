@@ -173,11 +173,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[24px] px-5 py-4 mb-5 relative overflow-hidden"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              backdropFilter: 'blur(30px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(150%)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+              background: 'rgba(255,255,255,0.015)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.05)',
+              boxShadow: 'none'
             }}
           >
             <p 
@@ -220,10 +220,10 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
             <div
               className="p-3 rounded-xl text-center"
               style={{ 
-                background: 'rgba(255,255,255,0.02)', 
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.06)'
+                background: 'rgba(255,255,255,0.01)', 
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.04)'
               }}
             >
               <span className="text-[18px] font-bold text-white block">900M+</span>
@@ -232,10 +232,10 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
             <div
               className="p-3 rounded-xl text-center"
               style={{ 
-                background: 'rgba(255,255,255,0.02)', 
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.06)'
+                background: 'rgba(255,255,255,0.01)', 
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.04)'
               }}
             >
               <span className="text-[18px] font-bold text-white block">24/7</span>
@@ -244,10 +244,10 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
             <div
               className="p-3 rounded-xl text-center"
               style={{ 
-                background: 'rgba(255,255,255,0.02)', 
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.06)'
+                background: 'rgba(255,255,255,0.01)', 
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.04)'
               }}
             >
               <span className="text-[18px] font-bold text-white block">100%</span>
@@ -335,11 +335,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[28px] p-8 space-y-5"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              backdropFilter: 'blur(30px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(150%)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+              background: 'rgba(255,255,255,0.015)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.05)',
+              boxShadow: 'none'
             }}
           >
             <BenefitItemPremium text={t('aiProcess.benefits.benefit1')} />
@@ -390,11 +390,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[28px] p-8 text-center relative overflow-hidden"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              backdropFilter: 'blur(30px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(150%)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+              background: 'rgba(255,255,255,0.02)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              boxShadow: 'none'
             }}
           >
             <div 
@@ -522,11 +522,11 @@ const ProcessStepPremium = memo(({
   <div 
     className="rounded-[24px] p-6 relative overflow-hidden group interactive-smooth active:scale-[0.98]"
     style={{
-      background: 'rgba(255,255,255,0.03)',
-      backdropFilter: 'blur(30px) saturate(150%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(150%)',
-      border: '1px solid rgba(255,255,255,0.08)',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+      background: 'rgba(255,255,255,0.015)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255,255,255,0.05)',
+      boxShadow: 'none',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
     }}
   >
@@ -665,11 +665,11 @@ const WhyFeatureCard = memo(({
   <div 
     className="rounded-[20px] p-5 interactive-smooth active:scale-[0.98]"
     style={{
-      background: 'rgba(255,255,255,0.03)',
-      backdropFilter: 'blur(30px) saturate(150%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(150%)',
-      border: '1px solid rgba(255,255,255,0.08)',
-      boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+      background: 'rgba(255,255,255,0.015)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255,255,255,0.05)',
+      boxShadow: 'none',
       transition: 'all 0.3s ease'
     }}
   >
