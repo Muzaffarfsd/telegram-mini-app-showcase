@@ -140,21 +140,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               boxShadow: 'none'
             }}
           >
-            <p 
-              className="text-[14px] leading-[1.5] font-medium"
-              style={{ color: 'rgba(255,255,255,0.9)' }}
-            >
-              {t('aiProcess.heroSubtitle1')}
-            </p>
-            <p 
-              className="text-[13px] leading-[1.5] mt-2"
-              style={{ color: 'rgba(255,255,255,0.5)' }}
-            >
-              {t('aiProcess.heroSubtitle2')}
-            </p>
-            
-            {/* Title below subtitle */}
-            <h1 className="mt-4">
+            {/* Title first */}
+            <h1 className="mb-4">
               <span 
                 className="block text-[32px] leading-[1.1] font-bold"
                 style={{ 
@@ -176,6 +163,20 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 {t('aiProcess.heroTitle3')}
               </span>
             </h1>
+            
+            {/* Subtitle below title */}
+            <p 
+              className="text-[14px] leading-[1.5] font-medium"
+              style={{ color: 'rgba(255,255,255,0.9)' }}
+            >
+              {t('aiProcess.heroSubtitle1')}
+            </p>
+            <p 
+              className="text-[13px] leading-[1.5] mt-2"
+              style={{ color: 'rgba(255,255,255,0.5)' }}
+            >
+              {t('aiProcess.heroSubtitle2')}
+            </p>
           </div>
 
           {/* CTA Button */}
