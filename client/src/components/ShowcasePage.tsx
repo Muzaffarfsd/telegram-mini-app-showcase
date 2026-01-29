@@ -173,8 +173,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 300;
     
-    // Check if the click target is the background div
-    const isBackground = (e.target as HTMLElement).classList.contains('showcase-page');
+    // Check if the click target is the background div or the TubesBackground
+    const target = e.target as HTMLElement;
+    const isBackground = target.classList.contains('showcase-page') || 
+                        target.closest('.tubes-container') ||
+                        target.tagName.toLowerCase() === 'canvas';
+    
     if (!isBackground) return;
 
     if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {

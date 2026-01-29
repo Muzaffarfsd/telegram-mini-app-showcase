@@ -38,11 +38,11 @@ export function TubesBackground({
 
         const app = TubesCursor(canvasRef.current, {
           tubes: {
-            count: 4,
-            radius: 0.15,
+            count: 6,
+            radius: 0.12,
             colors: ["#10b981", "#059669", "#34d399"],
             lights: {
-              intensity: 250,
+              intensity: 350,
               colors: ["#10b981", "#22c55e", "#00ff88"]
             }
           }
@@ -85,7 +85,7 @@ export function TubesBackground({
 
   return (
     <div 
-      className={cn("relative w-full h-full overflow-hidden", className)}
+      className={cn("relative w-full h-full overflow-hidden tubes-container", className)}
       onClick={handleClick}
     >
       <canvas 
