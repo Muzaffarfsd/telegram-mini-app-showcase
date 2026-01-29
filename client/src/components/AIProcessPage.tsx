@@ -153,6 +153,16 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 {t('aiProcess.heroTitle1')}
               </span>
               <span 
+                className="block text-[32px] leading-[1.1] font-bold"
+                style={{ 
+                  color: '#ffffff', 
+                  letterSpacing: '-0.03em', 
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
+              >
+                {t('aiProcess.heroTitle2')}
+              </span>
+              <span 
                 className="block text-[32px] leading-[1.1] font-bold mt-1"
                 style={{ 
                   color: '#34d399',
