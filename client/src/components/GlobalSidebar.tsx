@@ -658,12 +658,15 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           position: fixed;
           inset: 0;
           z-index: 100;
-          background: rgba(0, 0, 0, 0.6);
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(12px) saturate(180%);
+          -webkit-backdrop-filter: blur(12px) saturate(180%);
           opacity: 0;
           pointer-events: none;
-          transition: opacity 0.2s ease;
+          transition: opacity 0.25s ease;
           transform: translate3d(0, 0, 0);
           will-change: opacity;
+          touch-action: none;
         }
         
         .sidebar-overlay.open {
@@ -1670,7 +1673,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       </div>
 
       <div className="top-bar">
-        <div className="max-w-md mx-auto px-5 pt-14 pb-0 flex items-end justify-between gap-4" style={{ position: 'relative', zIndex: 2 }}>
+        <div className="max-w-md mx-auto px-5 pt-16 pb-1 flex items-end justify-between gap-4" style={{ position: 'relative', zIndex: 2 }}>
           <div>
             <AnimatedHamburgerIcon 
               ref={triggerButtonRef}
