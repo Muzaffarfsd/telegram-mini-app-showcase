@@ -377,33 +377,39 @@ const StatCard = memo(({ number, label, sublabel, gradient }: {
   gradient: string;
 }) => (
   <motion.div 
-    initial={{ opacity: 0, scale: 0.9, y: 30 }}
+    initial={{ opacity: 0, scale: 0.6, y: 80 }}
     whileInView={{ opacity: 1, scale: 1, y: 0 }}
-    viewport={{ once: false, margin: "-50px" }}
-    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-    whileHover={{ y: -5 }}
+    viewport={{ once: false, margin: "-10%" }}
+    transition={{ 
+      duration: 1.2, 
+      ease: [0.16, 1, 0.3, 1],
+      type: "spring",
+      damping: 15,
+      stiffness: 60
+    }}
     className="text-center" 
     style={{ minHeight: '130px' }}
   >
     <div 
       className="mb-4"
       style={{
-        fontSize: '68px',
-        fontWeight: 800,
-        letterSpacing: '-0.065em',
+        fontSize: '74px',
+        fontWeight: 900,
+        letterSpacing: '-0.08em',
         lineHeight: '0.9',
         background: gradient,
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
-        minHeight: '62px'
+        minHeight: '62px',
+        filter: 'drop-shadow(0 0 30px rgba(139, 92, 246, 0.4))'
       }}
     >
       {number}
     </div>
-    <p style={{ fontSize: '17px', lineHeight: '1.3', color: 'rgba(255, 255, 255, 0.75)', letterSpacing: '-0.02em', fontWeight: 600, marginBottom: '5px', minHeight: '22px' }}>
+    <p style={{ fontSize: '19px', lineHeight: '1.3', color: 'rgba(255, 255, 255, 0.95)', letterSpacing: '-0.02em', fontWeight: 700, marginBottom: '5px', minHeight: '22px' }}>
       {label}
     </p>
-    <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.42)', letterSpacing: '-0.01em', minHeight: '20px' }}>
+    <p style={{ fontSize: '15px', color: 'rgba(255, 255, 255, 0.55)', letterSpacing: '-0.01em', minHeight: '20px' }}>
       {sublabel}
     </p>
   </motion.div>
@@ -416,24 +422,28 @@ const FeatureBlock = memo(({ icon, title, description, gradient }: {
   gradient: string;
 }) => (
   <motion.div 
-    initial={{ opacity: 0, x: -20 }}
-    whileInView={{ opacity: 1, x: 0 }}
-    viewport={{ once: false, margin: "-50px" }}
-    transition={{ duration: 0.6, ease: "easeOut" }}
+    initial={{ opacity: 0, x: -80, rotateY: -35 }}
+    whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
+    viewport={{ once: false, margin: "-10%" }}
+    transition={{ 
+      duration: 1.1, 
+      ease: [0.16, 1, 0.3, 1]
+    }}
+    style={{ perspective: "1200px", minHeight: '180px' }}
     className="text-center" 
-    style={{ minHeight: '180px' }}
   >
     <motion.div 
-      whileHover={{ scale: 1.1, rotate: 5 }}
-      className="w-20 h-20 rounded-[24px] flex items-center justify-center mx-auto mb-5 flex-shrink-0"
-      style={{ background: gradient, boxShadow: '0 16px 48px rgba(0, 0, 0, 0.45)' }}
+      whileHover={{ scale: 1.2, rotateZ: 8, y: -10 }}
+      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+      className="w-24 h-24 rounded-[32px] flex items-center justify-center mx-auto mb-6 flex-shrink-0"
+      style={{ background: gradient, boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7), inset 0 2px 2px rgba(255,255,255,0.25)' }}
     >
-      <div style={{ color: 'white' }}>{icon}</div>
+      <div style={{ color: 'white', filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.6))' }}>{icon}</div>
     </motion.div>
-    <h3 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.04em', color: '#FFFFFF', lineHeight: '1.15', minHeight: '26px' }} className="mb-2.5">
+    <h3 style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.04em', color: '#FFFFFF', lineHeight: '1.15', minHeight: '26px' }} className="mb-3">
       {title}
     </h3>
-    <p style={{ fontSize: '15px', lineHeight: '1.45', color: 'rgba(255, 255, 255, 0.58)', letterSpacing: '-0.015em', minHeight: '22px' }}>
+    <p style={{ fontSize: '17px', lineHeight: '1.5', color: 'rgba(255, 255, 255, 0.7)', letterSpacing: '-0.015em', minHeight: '22px', maxWidth: '300px', margin: '0 auto' }}>
       {description}
     </p>
   </motion.div>
