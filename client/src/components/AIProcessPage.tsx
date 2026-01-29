@@ -54,109 +54,147 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
       
       <div className="max-w-md mx-auto relative z-10 pointer-events-none [&_button]:pointer-events-auto [&_a]:pointer-events-auto">
         
-        <section className="relative px-6 pt-8 pb-16">
+        <section className="relative px-5 pt-4 pb-16">
+          {/* Premium Frosted Header Card */}
           <div 
-            className="absolute inset-0 opacity-40 pointer-events-none"
+            className="rounded-[36px] p-8 mb-6 relative overflow-hidden"
             style={{
-              background: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 122, 255, 0.2) 0%, transparent 60%)',
-              transform: `translateY(${scrollY * 0.3}px)`,
-              transition: 'transform 0.1s ease-out'
+              background: 'rgba(100,100,110,0.32)',
+              backdropFilter: 'blur(60px) saturate(200%)',
+              WebkitBackdropFilter: 'blur(60px) saturate(200%)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              boxShadow: '0 24px 48px -12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)'
             }}
-          />
-          
-          <div className="relative z-10">
-            <div className="flex justify-center mb-6 scroll-fade-in">
-              <div 
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full"
-                style={{
-                  background: 'rgba(0, 122, 255, 0.1)',
-                  border: '1px solid rgba(0, 122, 255, 0.2)',
-                  backdropFilter: 'blur(20px)',
-                  minWidth: '160px'
+          >
+            {/* Noise texture */}
+            <div 
+              className="absolute inset-0 opacity-[0.035] pointer-events-none"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
+              }}
+            />
+            
+            <h1 className="relative">
+              <span 
+                className="block text-[38px] leading-[1.12] font-semibold"
+                style={{ 
+                  color: '#ffffff', 
+                  letterSpacing: '-0.03em', 
+                  fontFamily: 'Montserrat, sans-serif'
                 }}
               >
-                <Sparkles className="w-4 h-4 text-[#007AFF] flex-shrink-0" />
-                <span 
-                  style={{
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    color: '#007AFF',
-                    letterSpacing: '0.02em',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {t('aiProcess.badge')}
-                </span>
-              </div>
-            </div>
-
-            <h1 
-              className="text-center mb-5 scroll-fade-in-delay-1"
-              style={{ 
-                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                fontSize: 'clamp(40px, 11vw, 52px)',
-                fontWeight: 700,
-                letterSpacing: '-0.05em',
-                lineHeight: '1.05',
-                color: 'var(--text-primary)',
-                minHeight: '170px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <span>{t('aiProcess.heroTitle1')}</span>
-              <span>{t('aiProcess.heroTitle2')}</span>
-              <span>{t('aiProcess.heroTitle3')}</span>
+                {t('aiProcess.heroTitle1')}
+              </span>
+              <span 
+                className="block text-[38px] leading-[1.12] font-semibold mt-1"
+                style={{ 
+                  color: 'rgba(255,255,255,0.85)', 
+                  letterSpacing: '-0.03em', 
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
+              >
+                {t('aiProcess.heroTitle2')}
+              </span>
+              <span 
+                className="block text-[38px] leading-[1.12] font-bold mt-2"
+                style={{ 
+                  color: '#34d399',
+                  letterSpacing: '-0.03em',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
+              >
+                {t('aiProcess.heroTitle3')}
+              </span>
             </h1>
+          </div>
+
+          {/* Premium Frosted Description Card */}
+          <div 
+            className="rounded-[20px] px-6 py-5 mb-10 w-full relative overflow-hidden"
+            style={{
+              background: 'rgba(100,100,110,0.22)',
+              backdropFilter: 'blur(50px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(50px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              boxShadow: '0 16px 32px -8px rgba(0,0,0,0.35)'
+            }}
+          >
+            {/* Noise texture */}
+            <div 
+              className="absolute inset-0 opacity-[0.03] pointer-events-none"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
+              }}
+            />
             
             <p 
-              className="text-center mb-3 scroll-fade-in-delay-2"
-              style={{
-                fontSize: '19px',
-                lineHeight: '1.42',
-                fontWeight: 400,
-                color: 'var(--text-tertiary)',
-                letterSpacing: '-0.015em',
-                minHeight: '56px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center'
+              className="text-[15px] leading-[1.6] font-medium relative"
+              style={{ color: 'rgba(255,255,255,0.95)' }}
+            >
+              {t('aiProcess.heroSubtitle1')}
+            </p>
+            <p 
+              className="text-[15px] leading-[1.6] mt-2.5 relative"
+              style={{ color: 'rgba(255,255,255,0.6)' }}
+            >
+              {t('aiProcess.heroSubtitle2')}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 mb-8">
+            <a
+              href="https://t.me/web4tgs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97] backdrop-blur-2xl"
+              style={{ 
+                background: 'rgba(16, 185, 129, 0.25)',
+                height: '48px',
+                paddingLeft: '14px',
+                paddingRight: '12px',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                boxShadow: '0 8px 24px -6px rgba(16, 185, 129, 0.3)'
               }}
             >
-              <span>{t('aiProcess.heroSubtitle1')}</span>
-              <span>{t('aiProcess.heroSubtitle2')}</span>
-            </p>
+              <MessageSquare className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <span className="text-[14px] font-bold tracking-wide text-white">{t('aiProcess.getConsultation')}</span>
+              <ArrowRight className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            </a>
+          </div>
 
-            <div className="flex justify-center mb-8 scroll-fade-in-delay-3">
-              <a
-                href="https://t.me/web4tgs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative inline-flex items-center justify-center gap-3 rounded-full font-semibold transition-all duration-300 active:scale-[0.97]"
-                style={{
-                  background: 'linear-gradient(135deg, #007AFF 0%, #0051D5 100%)',
-                  color: '#FFFFFF',
-                  fontSize: '16px',
-                  letterSpacing: '-0.01em',
-                  boxShadow: '0 8px 32px rgba(0, 122, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-                  width: '300px',
-                  height: '56px'
-                }}
-                data-testid="button-consultation"
-              >
-                <MessageSquare className="w-5 h-5 flex-shrink-0" />
-                <span>{t('aiProcess.getConsultation')}</span>
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 flex-shrink-0" />
-              </a>
+          <div className="grid grid-cols-3 gap-3">
+            <div
+              className="p-4 rounded-2xl text-center flex flex-col justify-center backdrop-blur-xl"
+              style={{ 
+                backgroundColor: 'rgba(0, 0, 0, 0.7)', 
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                minHeight: '90px'
+              }}
+            >
+              <span className="text-[22px] font-bold text-white">900M+</span>
+              <span className="text-[11px] text-gray-400 mt-1">{t('aiProcess.stats.users')}</span>
             </div>
-
-            <div className="flex justify-center gap-8 mb-8 scroll-fade-in-delay-4">
-              <StatBadge number="900M+" label={t('aiProcess.stats.users')} />
-              <StatBadge number="24/7" label={t('aiProcess.stats.support')} />
-              <StatBadge number="100%" label={t('aiProcess.stats.automation')} />
+            <div
+              className="p-4 rounded-2xl text-center flex flex-col justify-center backdrop-blur-xl"
+              style={{ 
+                backgroundColor: 'rgba(0, 0, 0, 0.7)', 
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                minHeight: '90px'
+              }}
+            >
+              <span className="text-[22px] font-bold text-white">24/7</span>
+              <span className="text-[11px] text-gray-400 mt-1">{t('aiProcess.stats.support')}</span>
+            </div>
+            <div
+              className="p-4 rounded-2xl text-center flex flex-col justify-center backdrop-blur-xl"
+              style={{ 
+                backgroundColor: 'rgba(0, 0, 0, 0.7)', 
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                minHeight: '90px'
+              }}
+            >
+              <span className="text-[22px] font-bold text-white">100%</span>
+              <span className="text-[11px] text-gray-400 mt-1">{t('aiProcess.stats.automation')}</span>
             </div>
           </div>
         </section>
