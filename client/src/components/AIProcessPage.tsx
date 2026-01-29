@@ -123,48 +123,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
         
         {/* Hero section - robot visible */}
         <section className="relative px-5 pt-0 pb-4">
-          {/* Compact title - positioned at top, robot visible below */}
-          <div className="text-center mb-4">
-            <h1>
-              <span 
-                className="block text-[32px] leading-[1.1] font-bold"
-                style={{ 
-                  color: '#ffffff', 
-                  letterSpacing: '-0.03em', 
-                  fontFamily: 'Montserrat, sans-serif',
-                  textShadow: '0 2px 20px rgba(0,0,0,0.8)'
-                }}
-              >
-                {t('aiProcess.heroTitle1')}
-              </span>
-              <span 
-                className="block text-[32px] leading-[1.1] font-bold"
-                style={{ 
-                  color: '#34d399',
-                  letterSpacing: '-0.03em',
-                  fontFamily: 'Montserrat, sans-serif',
-                  textShadow: '0 2px 20px rgba(52,211,153,0.3)'
-                }}
-              >
-                {t('aiProcess.heroTitle3')}
-              </span>
-            </h1>
-          </div>
-          
           {/* Robot viewing area - empty space for robot */}
-          <div className="h-[280px] relative flex items-end justify-center">
-            {/* Hint to interact */}
-            <div 
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full"
-              style={{
-                background: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255,255,255,0.15)'
-              }}
-            >
-              <span className="text-[12px] text-white/60">{language === 'ru' ? '← Проведи для взаимодействия →' : '← Swipe to interact →'}</span>
-            </div>
-          </div>
+          <div className="h-[320px]" />
         </section>
 
         {/* Main content section - cards below robot */}
@@ -192,6 +152,30 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
             >
               {t('aiProcess.heroSubtitle2')}
             </p>
+            
+            {/* Title below subtitle */}
+            <h1 className="mt-4">
+              <span 
+                className="block text-[32px] leading-[1.1] font-bold"
+                style={{ 
+                  color: '#ffffff', 
+                  letterSpacing: '-0.03em', 
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
+              >
+                {t('aiProcess.heroTitle1')}
+              </span>
+              <span 
+                className="block text-[32px] leading-[1.1] font-bold mt-1"
+                style={{ 
+                  color: '#34d399',
+                  letterSpacing: '-0.03em',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
+              >
+                {t('aiProcess.heroTitle3')}
+              </span>
+            </h1>
           </div>
 
           {/* CTA Button */}
