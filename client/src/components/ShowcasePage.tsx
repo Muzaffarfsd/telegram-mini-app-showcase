@@ -140,9 +140,10 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
     if (isInteractive) return;
 
     const now = Date.now();
-    const DOUBLE_TAP_DELAY = 400; // Increased window for TG
+    const DOUBLE_TAP_DELAY = 400;
     
     if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      console.log('Action: Change Background Color - detected double tap');
       setTubeColorVersion(prev => prev + 1);
       haptic.medium();
       lastTapRef.current = 0;
@@ -155,23 +156,20 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
     <div 
       className="min-h-screen showcase-page select-none overflow-x-hidden relative"
       style={{ backgroundColor: '#000000' }}
+      onDoubleClick={handleInteraction}
+      onTouchStart={(e) => {
+        if (e.touches.length === 1) handleInteraction(e);
+      }}
     >
-      <div 
-        className="fixed inset-0 z-0 bg-transparent"
-        style={{ touchAction: 'none' }}
-        onDoubleClick={handleInteraction}
-        onTouchStart={(e) => {
-          if (e.touches.length === 1) handleInteraction(e);
-        }}
-      >
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <TubesBackground 
-          className="w-full h-full pointer-events-none" 
+          className="w-full h-full" 
           enableClickInteraction={false}
           tubeColorVersion={tubeColorVersion}
         />
       </div>
       
-      <div className="relative z-10 pointer-events-none">
+      <div className="relative z-10">
         <PullToRefreshIndicator
           pullDistance={pullDistance}
           isRefreshing={isRefreshing}
@@ -179,7 +177,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           progress={progress}
         />
         
-        <div className="max-w-lg mx-auto px-5 pointer-events-auto" style={{ paddingTop: '100px' }}>
+        <div className="max-w-lg mx-auto px-5" style={{ paddingTop: '100px' }}>
           <section className="min-h-[75vh] flex flex-col justify-start pt-4 animate-in fade-in duration-500">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               <h1 className="mb-8">
