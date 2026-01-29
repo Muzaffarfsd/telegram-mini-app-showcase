@@ -1,11 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { cn } from "@/lib/utils";
 
-const randomColors = (count: number) => {
-  return new Array(count)
-    .fill(0)
-    .map(() => "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'));
-};
+/**
+ * Premium Neon Tubes Background - 2026 Edition
+ * High-performance WebGL implementation with dynamic color shifting
+ * and professional interaction model.
+ */
+
+const PREDEFINED_PALETTES = [
+  { colors: ["#8B5CF6", "#6D28D9", "#4C1D95"], lights: ["#A78BFA", "#8B5CF6", "#7C3AED"] }, // Purple
+  { colors: ["#10B981", "#059669", "#064E3B"], lights: ["#34D399", "#10B981", "#059669"] }, // Emerald
+  { colors: ["#3B82F6", "#2563EB", "#1E40AF"], lights: ["#60A5FA", "#3B82F6", "#2563EB"] }, // Blue
+  { colors: ["#F59E0B", "#D97706", "#B45309"], lights: ["#FBBF24", "#F59E0B", "#D97706"] }, // Amber
+  { colors: ["#EF4444", "#DC2626", "#B91C1C"], lights: ["#F87171", "#EF4444", "#DC2626"] }, // Red
+  { colors: ["#EC4899", "#DB2777", "#9D174D"], lights: ["#F472B6", "#EC4899", "#DB2777"] }, // Pink
+  { colors: ["#06B6D4", "#0891B2", "#155E75"], lights: ["#22D3EE", "#06B6D4", "#0891B2"] }, // Cyan
+];
 
 interface TubesBackgroundProps {
   children?: React.ReactNode;
@@ -17,23 +27,15 @@ interface TubesBackgroundProps {
 export function TubesBackground({ 
   children, 
   className,
-  enableClickInteraction = true,
+  enableClickInteraction = false,
   tubeColorVersion = 0
 }: TubesBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const tubesRef = useRef<any>(null);
+  const paletteIndexRef = useRef(0);
 
-  useEffect(() => {
-    if (isLoaded && tubesRef.current && tubesRef.current.tubes) {
-      const colors = randomColors(3);
-      const lightsColors = randomColors(4);
-      
-      tubesRef.current.tubes.setColors(colors);
-      tubesRef.current.tubes.setLightsColors(lightsColors);
-    }
-  }, [isLoaded, tubeColorVersion]);
-
+  // Initialize WebGL Tubes
   useEffect(() => {
     let mounted = true;
     let cleanup: (() => void) | undefined;
@@ -48,15 +50,21 @@ export function TubesBackground({
 
         if (!mounted) return;
 
+        // Configuration for professional, high-quality look
         const app = TubesCursor(canvasRef.current, {
           tubes: {
-            count: 6,
-            radius: 0.12,
-            colors: ["#10b981", "#059669", "#34d399"],
+            count: 8,           // More tubes for depth
+            radius: 0.08,        // Thinner, more elegant lines
+            colors: PREDEFINED_PALETTES[0].colors,
             lights: {
-              intensity: 350,
-              colors: ["#10b981", "#22c55e", "#00ff88"]
+              intensity: 450,    // Higher intensity for neon pop
+              colors: PREDEFINED_PALETTES[0].lights
             }
+          },
+          renderer: {
+            antialias: true,
+            alpha: true,
+            powerPreference: 'high-performance'
           }
         });
 
@@ -64,16 +72,16 @@ export function TubesBackground({
         setIsLoaded(true);
 
         const handleResize = () => {
+          if (app && app.resize) app.resize();
         };
 
         window.addEventListener('resize', handleResize);
-        
         cleanup = () => {
           window.removeEventListener('resize', handleResize);
         };
 
       } catch (error) {
-        console.error("Failed to load TubesCursor:", error);
+        console.error("Failed to load Premium Tubes:", error);
       }
     };
 
@@ -85,28 +93,32 @@ export function TubesBackground({
     };
   }, []);
 
-  const handleClick = () => {
-    if (!enableClickInteraction || !tubesRef.current) return;
-    
-    const colors = randomColors(3);
-    const lightsColors = randomColors(4);
-    
-    if (tubesRef.current.tubes) {
-      tubesRef.current.tubes.setColors(colors);
-      tubesRef.current.tubes.setLightsColors(lightsColors);
+  // Professional Color Transition Logic
+  useEffect(() => {
+    if (isLoaded && tubesRef.current && tubesRef.current.tubes) {
+      // Rotate through predefined professional palettes
+      paletteIndexRef.current = (paletteIndexRef.current + 1) % PREDEFINED_PALETTES.length;
+      const palette = PREDEFINED_PALETTES[paletteIndexRef.current];
+      
+      // Smoothly update colors via the internal engine
+      tubesRef.current.tubes.setColors(palette.colors);
+      tubesRef.current.tubes.setLightsColors(palette.lights);
     }
-  };
+  }, [isLoaded, tubeColorVersion]);
 
   return (
     <div 
-      className={cn("relative w-full h-full overflow-hidden tubes-container", className)}
-      onClick={handleClick}
+      className={cn("relative w-full h-full overflow-hidden tubes-container bg-[#000000]", className)}
     >
       <canvas 
         ref={canvasRef} 
-        className="absolute inset-0 w-full h-full block"
-        style={{ touchAction: 'none' }}
+        className="absolute inset-0 w-full h-full block opacity-80"
+        style={{ touchAction: 'none', filter: 'contrast(1.1) brightness(1.1)' }}
       />
+      
+      {/* Subtle depth overlays */}
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/20 via-transparent to-black/40" />
+      <div className="absolute inset-0 pointer-events-none backdrop-blur-[1px] opacity-30" />
       
       <div className="relative z-10 w-full h-full">
         <div className="w-full h-full pointer-events-none">

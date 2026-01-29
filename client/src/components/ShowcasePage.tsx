@@ -1,5 +1,5 @@
 import { ArrowRight, ArrowUpRight, Play } from "lucide-react";
-import { useCallback, memo, useState, useEffect, useRef } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
 import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
@@ -7,7 +7,6 @@ import { preloadDemo } from './demos/DemoRegistry';
 import { useViewedDemos } from '../hooks/useTelegramStorage';
 import { FavoriteButton } from './FavoriteButton';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Stories, type Story } from './Stories';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from './PullToRefreshIndicator';
 import { useQueryClient } from '@tanstack/react-query';
@@ -15,38 +14,6 @@ import { TubesBackground } from './ui/neon-flow';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
-
-const demoStories: Story[] = [
-  {
-    id: 'story-1',
-    title: 'Radiance',
-    subtitle: 'Digital Fashion Store',
-    image: '/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg',
-    demoId: 'clothing-store'
-  },
-  {
-    id: 'story-2',
-    title: 'TimeElite',
-    subtitle: 'Luxury Watches',
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80',
-    video: '/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4',
-    demoId: 'luxury-watches'
-  },
-  {
-    id: 'story-3',
-    title: 'SneakerVault',
-    subtitle: 'Rare Drops',
-    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80',
-    demoId: 'sneaker-store'
-  },
-  {
-    id: 'story-4',
-    title: 'GlowSpa',
-    subtitle: 'Premium Beauty',
-    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80',
-    demoId: 'beauty'
-  }
-];
 
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
@@ -98,14 +65,14 @@ const headlinesEn = [
   "in your region"
 ];
 
-function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
+export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   useTelegram();
   const haptic = useHaptic();
   const { t, language } = useLanguage();
   const headlines = language === 'ru' ? headlinesRu : headlinesEn;
   const [headlineIndex, setHeadlineIndex] = useState(0);
   const { videoRef } = useVideoLazyLoad({ threshold: 0.25 });
-  const { markAsViewed, viewedCount } = useViewedDemos();
+  const { markAsViewed } = useViewedDemos();
   const queryClient = useQueryClient();
   const lastTapRef = useRef<number>(0);
   const [tubeColorVersion, setTubeColorVersion] = useState(0);
@@ -121,7 +88,6 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     maxPullDistance: 100
   });
   
-  // Optimized headline rotation - pauses when page hidden or reduced motion
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
@@ -157,7 +123,6 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     };
   }, [headlines.length]);
 
-    
   const handleOpenDemo = useCallback((demoId: string) => {
     haptic.light();
     markAsViewed(demoId);
@@ -169,23 +134,18 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     onNavigate(section);
   }, [haptic, onNavigate]);
 
-  const handleDoubleTap = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+  const handleInteraction = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const isInteractive = target.closest('button') || target.closest('a') || target.closest('.nav-depth-zone');
+    if (isInteractive) return;
+
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 300;
     
-    // Check if we are clicking on interactive elements
-    const target = e.target as HTMLElement;
-    const isInteractive = target.closest('button') || 
-                        target.closest('a') || 
-                        target.closest('.nav-depth-zone');
-    
-    if (isInteractive) return;
-
     if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-      // Double tap detected
       setTubeColorVersion(prev => prev + 1);
       haptic.medium();
-      lastTapRef.current = 0; // Reset
+      lastTapRef.current = 0;
     } else {
       lastTapRef.current = now;
     }
@@ -193,16 +153,11 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
   return (
     <div 
-      className="min-h-screen showcase-page"
-      style={{ backgroundColor: 'var(--surface)' }}
-      onDoubleClick={handleDoubleTap}
-      onTouchEnd={(e) => {
-        const now = Date.now();
-        const DOUBLE_TAP_DELAY = 300;
-        if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-          handleDoubleTap(e as any);
-        }
-        lastTapRef.current = now;
+      className="min-h-screen showcase-page select-none"
+      style={{ backgroundColor: '#000000' }}
+      onDoubleClick={handleInteraction}
+      onTouchStart={(e) => {
+        if (e.touches.length === 1) handleInteraction(e);
       }}
     >
       <TubesBackground 
@@ -210,19 +165,16 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
         enableClickInteraction={false}
         tubeColorVersion={tubeColorVersion}
       />
+      
       <PullToRefreshIndicator
         pullDistance={pullDistance}
         isRefreshing={isRefreshing}
         shouldShow={shouldShowIndicator}
         progress={progress}
       />
-      <div 
-        className="max-w-lg mx-auto px-5 relative z-10"
-        style={{ paddingTop: '120px' }}
-      >
-        <section
-          className="min-h-[75vh] flex flex-col justify-start pt-4 animate-in fade-in duration-500"
-        >
+      
+      <div className="max-w-lg mx-auto px-5 relative z-10" style={{ paddingTop: '100px' }}>
+        <section className="min-h-[75vh] flex flex-col justify-start pt-4 animate-in fade-in duration-500">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <h1 className="mb-8">
               <span 
@@ -289,28 +241,13 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   border: '1px solid rgba(16, 185, 129, 0.4)',
                   boxShadow: '0 8px 32px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
                 }}
-                data-testid="cta-primary"
               >
-                <span 
-                  className="text-[14px]" 
-                  style={{ 
-                    color: '#ffffff', 
-                    fontFamily: 'Montserrat, sans-serif',
-                    fontWeight: 700,
-                    letterSpacing: '0.02em',
-                    whiteSpace: 'nowrap',
-                    textShadow: '0 0 10px rgba(16, 185, 129, 0.8), 0 2px 4px rgba(0,0,0,0.5)'
-                  }}
-                >
-                  {t('showcase.orderProject')}
-                </span>
-                <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: '#ffffff', filter: 'drop-shadow(0 0 4px rgba(16, 185, 129, 0.8))' }} strokeWidth={2.5} />
+                <span className="text-[14px] text-white font-bold tracking-wide">{t('showcase.orderProject')}</span>
+                <ArrowRight className="w-4 h-4 text-white" strokeWidth={2.5} />
               </button>
               
               <button
                 onClick={() => handleOpenDemo('clothing-store')}
-                onMouseEnter={() => preloadDemo('clothing-store')}
-                onTouchStart={() => preloadDemo('clothing-store')}
                 className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97] backdrop-blur-2xl"
                 style={{ 
                   border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -320,22 +257,9 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   background: 'rgba(255, 255, 255, 0.15)',
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.3)'
                 }}
-                data-testid="cta-demo"
               >
-                <Play className="w-4 h-4 flex-shrink-0" style={{ color: '#ffffff', filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.5))' }} fill="currentColor" />
-                <span 
-                  className="text-[14px]" 
-                  style={{ 
-                    color: '#ffffff',
-                    fontFamily: 'Montserrat, sans-serif',
-                    fontWeight: 700,
-                    letterSpacing: '0.02em',
-                    whiteSpace: 'nowrap',
-                    textShadow: '0 0 10px rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.5)'
-                  }}
-                >
-                  {t('showcase.openApp')}
-                </span>
+                <Play className="w-4 h-4 text-white" fill="currentColor" />
+                <span className="text-[14px] text-white font-bold tracking-wide">{t('showcase.openApp')}</span>
               </button>
             </div>
 
@@ -344,10 +268,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 backdrop-blur-xl"
                 style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', height: '88px', border: '1px solid rgba(255,255,255,0.1)' }}
               >
-                <div className="text-[26px] font-semibold leading-none" style={{ color: '#ffffff' }}>
+                <div className="text-[26px] font-semibold leading-none text-white">
                   <AnimatedCounter value={127} suffix="+" delay={0.3} />
                 </div>
-                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: '1.3' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-2 text-white/60">
                   {t('showcase.clients')}
                 </div>
               </div>
@@ -355,10 +279,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 backdrop-blur-xl"
                 style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', height: '88px', border: '1px solid rgba(255,255,255,0.1)' }}
               >
-                <div className="text-[26px] font-semibold leading-none" style={{ color: '#ffffff' }}>
+                <div className="text-[26px] font-semibold leading-none text-white">
                   <AnimatedCounter value={24} suffix={t('showcase.hours')} delay={0.4} />
                 </div>
-                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'rgba(255,255,255,0.6)', lineHeight: '1.3' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-2 text-white/60">
                   {t('showcase.toLaunch')}
                 </div>
               </div>
@@ -366,10 +290,10 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                 className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200 backdrop-blur-xl"
                 style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', height: '88px', border: '1px solid rgba(16, 185, 129, 0.3)' }}
               >
-                <div className="text-[26px] font-semibold leading-none" style={{ color: '#10b981' }}>
+                <div className="text-[26px] font-semibold leading-none text-[#10b981]">
                   +<AnimatedCounter value={300} suffix="%" delay={0.5} />
                 </div>
-                <div className="text-[9px] uppercase tracking-wider mt-2 h-[24px] flex items-center justify-center" style={{ color: 'rgba(16, 185, 129, 0.8)', lineHeight: '1.3' }}>
+                <div className="text-[9px] uppercase tracking-wider mt-2 text-[#10b981]/80">
                   {t('showcase.toSales')}
                 </div>
               </div>
@@ -379,17 +303,12 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
 
         <section className="pb-8 pt-4 animate-in fade-in duration-500">
           <div className="flex items-center justify-between mb-6">
-            <h2 
-              className="text-[13px] font-medium tracking-[0.08em] uppercase"
-              style={{ color: 'rgba(255,255,255,0.6)', textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}
-            >
+            <h2 className="text-[13px] font-medium tracking-[0.08em] uppercase text-white/60">
               {t('showcase.projectsTitle')}
             </h2>
             <button
               onClick={() => handleNavigate('projects')}
-              className="text-[13px] font-medium flex items-center gap-1"
-              style={{ color: 'rgba(255,255,255,0.6)', textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}
-              data-testid="view-all"
+              className="text-[13px] font-medium flex items-center gap-1 text-white/60"
             >
               {t('showcase.all')} <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
@@ -399,11 +318,6 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             <div
               className="col-span-2 relative rounded-3xl overflow-hidden cursor-pointer group nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500"
               onClick={() => handleOpenDemo('luxury-watches')}
-              onMouseEnter={() => preloadDemo('luxury-watches')}
-              onTouchStart={() => preloadDemo('luxury-watches')}
-              data-testid="bento-main"
-              data-depth-zone
-              style={{ backgroundColor: 'var(--surface-elevated)' }}
             >
               <div className="relative h-[280px] overflow-hidden">
                 <video
@@ -413,50 +327,23 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
                   muted
                   playsInline
                   autoPlay
-                  preload="metadata"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ filter: 'brightness(0.6)' }}
+                  className="absolute inset-0 w-full h-full object-cover brightness-[0.6]"
                 />
-                <div 
-                  className="absolute inset-0"
-                  style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.95) 100%)' }}
-                />
-                
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
                 <div className="absolute top-5 right-5 flex items-center gap-2">
                   <FavoriteButton demoId="luxury-watches" size="md" />
-                  <div 
-                    className="flex items-center justify-center w-10 h-10 rounded-full"
-                    style={{ backgroundColor: 'var(--overlay-strong)' }}
-                  >
-                    <Play className="w-4 h-4" style={{ color: 'var(--text-inverted)', fill: 'var(--text-inverted)' }} />
-                  </div>
                 </div>
-                
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <div className="flex items-end justify-between">
                     <div>
-                      <h3 className="text-[22px] font-semibold mb-1 text-white">
-                        Watch Store
-                      </h3>
-                      <p className="text-[14px] text-white/55">
-                        {t('showcase.watchStoreDesc')}
-                      </p>
+                      <h3 className="text-[22px] font-semibold mb-1 text-white">Watch Store</h3>
+                      <p className="text-[14px] text-white/55">{t('showcase.watchStoreDesc')}</p>
                     </div>
                     <div className="text-right">
-                      <div className="text-[24px] font-bold" style={{ color: 'var(--cta-background)' }}>+340%</div>
-                      <div className="text-[11px] uppercase tracking-wider text-white/40">
-                        {t('showcase.sales')}
-                      </div>
+                      <div className="text-[24px] font-bold text-[#10b981]">+340%</div>
+                      <div className="text-[11px] uppercase tracking-wider text-white/40">{t('showcase.sales')}</div>
                     </div>
                   </div>
-                  <button
-                    className="mt-4 w-full py-3 rounded-xl text-[14px] font-medium transition-all duration-200 active:scale-[0.97]"
-                    style={{ backgroundColor: 'var(--overlay-medium)', color: 'var(--text-inverted)' }}
-                    onClick={(e) => { e.stopPropagation(); handleOpenDemo('luxury-watches'); }}
-                    data-testid="btn-open-watches"
-                  >
-                    {t('showcase.open')}
-                  </button>
                 </div>
               </div>
             </div>
@@ -464,41 +351,20 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             <div
               className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[3/4] nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500 delay-100"
               onClick={() => handleOpenDemo('sneaker-store')}
-              onMouseEnter={() => preloadDemo('sneaker-store')}
-              onTouchStart={() => preloadDemo('sneaker-store')}
-              data-testid="bento-sneaker"
-              data-depth-zone
-              style={{ backgroundColor: 'var(--surface-elevated)' }}
             >
               <img
                 src={nikeGreenImage}
                 alt="Sneaker Store"
                 loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                style={{ filter: 'brightness(0.65)' }}
+                className="absolute inset-0 w-full h-full object-cover brightness-[0.65] transition-transform duration-500 group-hover:scale-105"
               />
-              <div 
-                className="absolute inset-0"
-                style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.95) 100%)' }}
-              />
-              <div className="absolute top-3 right-3">
-                <FavoriteButton demoId="sneaker-store" size="sm" />
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-4">
-                <div className="text-[18px] font-semibold mb-0.5 text-white">
-                  Sneaker Store
-                </div>
-                <div className="text-[12px] mb-2 text-white/50">
-                  {t('showcase.sneakerStoreDesc')}
-                </div>
+                <div className="text-[18px] font-semibold mb-0.5 text-white">Sneaker Store</div>
+                <div className="text-[12px] mb-2 text-white/50">{t('showcase.sneakerStoreDesc')}</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-[16px] font-bold" style={{ color: 'var(--cta-background)' }}>+280%</div>
-                  <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: 'var(--overlay-medium)' }}
-                  >
-                    <ArrowUpRight className="w-4 h-4 text-white" />
-                  </div>
+                  <div className="text-[16px] font-bold text-[#10b981]">+280%</div>
+                  <ArrowUpRight className="w-4 h-4 text-white" />
                 </div>
               </div>
             </div>
@@ -506,184 +372,21 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
             <div
               className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-[3/4] nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500 delay-150"
               onClick={() => handleOpenDemo('clothing-store')}
-              onMouseEnter={() => preloadDemo('clothing-store')}
-              onTouchStart={() => preloadDemo('clothing-store')}
-              data-testid="bento-luxury"
-              data-depth-zone
-              style={{ backgroundColor: 'var(--surface-elevated)' }}
             >
               <img
                 src={rascalImage}
                 alt="Premium Brand"
                 loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                style={{ filter: 'brightness(0.65)' }}
+                className="absolute inset-0 w-full h-full object-cover brightness-[0.65] transition-transform duration-500 group-hover:scale-105"
               />
-              <div 
-                className="absolute inset-0"
-                style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.95) 100%)' }}
-              />
-              <div className="absolute top-3 right-3">
-                <FavoriteButton demoId="clothing-store" size="sm" />
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-4">
-                <div className="text-[18px] font-semibold mb-0.5 text-white">
-                  {t('showcase.premiumBrand')}
-                </div>
-                <div className="text-[12px] mb-2 text-white/50">
-                  {t('showcase.personalSelection')}
-                </div>
+                <div className="text-[18px] font-semibold mb-0.5 text-white">{t('showcase.premiumBrand')}</div>
+                <div className="text-[12px] mb-2 text-white/50">{t('showcase.personalSelection')}</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-[16px] font-bold" style={{ color: 'var(--cta-background)' }}>+195%</div>
-                  <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: 'var(--overlay-medium)' }}
-                  >
-                    <ArrowUpRight className="w-4 h-4 text-white" />
-                  </div>
+                  <div className="text-[16px] font-bold text-[#10b981]">+195%</div>
+                  <ArrowUpRight className="w-4 h-4 text-white" />
                 </div>
-              </div>
-            </div>
-
-            <div
-              className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-square nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500 delay-200"
-              onClick={() => handleOpenDemo('restaurant')}
-              onMouseEnter={() => preloadDemo('restaurant')}
-              onTouchStart={() => preloadDemo('restaurant')}
-              data-testid="bento-restaurant"
-              data-depth-zone
-              style={{ backgroundColor: 'var(--surface-elevated)' }}
-            >
-              <img
-                src={nikeDestinyImage}
-                alt="Restaurant"
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                style={{ filter: 'brightness(0.65)' }}
-              />
-              <div 
-                className="absolute inset-0"
-                style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.95) 100%)' }}
-              />
-              <div className="absolute top-3 right-3">
-                <FavoriteButton demoId="restaurant" size="sm" />
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <div className="text-[16px] font-semibold mb-0.5 text-white">
-                  {t('showcase.restaurant')}
-                </div>
-                <div className="text-[11px] text-white/50">
-                  {t('showcase.menuDelivery')}
-                </div>
-              </div>
-            </div>
-
-            <div
-              className="rounded-2xl cursor-pointer group aspect-square flex flex-col items-center justify-center nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500 delay-300"
-              onClick={() => handleNavigate('projects')}
-              data-testid="bento-all"
-              data-depth-zone
-              style={{ backgroundColor: 'var(--surface-elevated)' }}
-            >
-              <div 
-                className="w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110"
-                style={{ border: '1px solid var(--card-border)' }}
-              >
-                <ArrowRight className="w-5 h-5" style={{ color: 'var(--text-primary)' }} />
-              </div>
-              <div className="text-[14px] font-medium" style={{ color: 'var(--text-secondary)' }}>
-                {t('showcase.allProjects')}
-              </div>
-              <div className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>
-                {t('showcase.cases')}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section
-          className="py-12 border-t animate-in fade-in duration-500"
-          style={{ borderColor: 'var(--card-border)' }}
-        >
-          <h2 
-            className="text-[13px] font-medium tracking-[0.08em] uppercase mb-6"
-            style={{ color: 'var(--text-tertiary)' }}
-          >
-            {t('showcase.includedTitle')}
-          </h2>
-          
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { title: t('showcase.payment'), desc: t('showcase.paymentDesc'), tonal: 'ios26-tonal-blue', icon: '💳' },
-              { title: t('showcase.aiBot'), desc: t('showcase.aiBotDesc'), tonal: 'ios26-tonal-purple', icon: '🤖' },
-              { title: t('showcase.analytics'), desc: 'Realtime', tonal: 'ios26-tonal-green', icon: '📊' },
-              { title: t('showcase.crm'), desc: t('showcase.crmDesc'), tonal: 'ios26-tonal-orange', icon: '📋' },
-            ].map((item, i) => (
-              <div 
-                key={i}
-                className={`p-4 rounded-xl transition-all duration-300 ios26-feature-card ${item.tonal} ios26-luminous h-[72px] flex flex-col justify-center`}
-                style={{ 
-                  backgroundColor: 'var(--card-bg)',
-                  border: '1px solid var(--card-border)',
-                  boxShadow: 'var(--card-shadow)'
-                }}
-              >
-                <div className="text-[14px] font-medium leading-tight " style={{ color: 'var(--text-primary)' }}>
-                  {item.title}
-                </div>
-                <div className="text-[12px] mt-0.5 " style={{ color: 'var(--text-tertiary)' }}>
-                  {item.desc}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section
-          className="py-12 border-t animate-in fade-in duration-500"
-          style={{ borderColor: 'var(--card-border)' }}
-        >
-          <div className="grid grid-cols-3 gap-4 mb-12">
-            <div className="text-center flex flex-col items-center justify-center h-[60px]">
-              <div className="text-[28px] font-semibold leading-none " style={{ color: 'var(--cta-background)' }}>24{t('showcase.hours')}</div>
-              <div className="text-[10px] uppercase tracking-wider mt-1 h-[20px] flex items-center justify-center " style={{ color: 'var(--text-tertiary)' }}>
-                {t('showcase.launch')}
-              </div>
-            </div>
-            <div className="text-center flex flex-col items-center justify-center h-[60px]">
-              <div className="text-[28px] font-semibold leading-none " style={{ color: 'var(--text-primary)' }}>127+</div>
-              <div className="text-[10px] uppercase tracking-wider mt-1 h-[20px] flex items-center justify-center " style={{ color: 'var(--text-tertiary)' }}>
-                {t('showcase.projects')}
-              </div>
-            </div>
-            <div className="text-center flex flex-col items-center justify-center h-[60px]">
-              <div className="text-[28px] font-semibold leading-none " style={{ color: 'var(--text-primary)' }}>4.9</div>
-              <div className="text-[10px] uppercase tracking-wider mt-1 h-[20px] flex items-center justify-center " style={{ color: 'var(--text-tertiary)' }}>
-                {t('showcase.rating')}
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="rounded-2xl p-6 cursor-pointer transition-all duration-200 active:scale-[0.985]"
-            onClick={() => handleNavigate('projects')}
-            data-testid="cta-bottom"
-            style={{ background: 'var(--cta-background)' }}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-[18px] font-semibold mb-0.5" style={{ color: 'var(--cta-foreground)' }}>
-                  {t('showcase.discussProject')}
-                </div>
-                <div className="text-[13px]" style={{ color: 'color-mix(in srgb, var(--cta-foreground) 60%, transparent)' }}>
-                  {t('showcase.freeConsultation')}
-                </div>
-              </div>
-              <div 
-                className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: 'var(--overlay-strong)' }}
-              >
-                <ArrowRight className="w-6 h-6" style={{ color: 'var(--cta-foreground)' }} />
               </div>
             </div>
           </div>
@@ -692,5 +395,3 @@ function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
     </div>
   );
 }
-
-export default memo(ShowcasePage);
