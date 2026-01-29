@@ -229,7 +229,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   <div className="h-[48px] overflow-visible mt-2">
                     <span
                       key={headlineIndex}
-                      className="block text-[38px] leading-[1.12] font-bold animate-blur-in"
+                      className="block text-[38px] leading-[1.12] font-bold animate-morph-elastic"
                       style={{ 
                         color: '#34d399',
                         letterSpacing: '-0.03em',
