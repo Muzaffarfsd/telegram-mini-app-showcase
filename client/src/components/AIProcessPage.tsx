@@ -10,7 +10,11 @@ import {
   Zap
 } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
-import { SplineScene } from './ui/spline-scene';
+import { SplineScene, preloadSplineScene } from './ui/spline-scene';
+
+// Preload 3D scene immediately
+const SPLINE_SCENE_URL = "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode";
+preloadSplineScene(SPLINE_SCENE_URL);
 
 interface AIProcessPageProps {
   onNavigate: (path: string) => void;
@@ -103,12 +107,29 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative min-h-screen overflow-y-auto" style={{ backgroundColor: '#000000', WebkitOverflowScrolling: 'touch' }}>
-      {/* Spline 3D Background - starts inactive, activates on horizontal touch */}
-      <div ref={splineRef} className="fixed inset-0 z-0 pointer-events-none">
+    <div 
+      ref={containerRef} 
+      className="relative min-h-screen overflow-y-auto gpu-layer" 
+      style={{ 
+        backgroundColor: '#000000', 
+        WebkitOverflowScrolling: 'touch',
+        contain: 'layout style',
+        isolation: 'isolate'
+      }}
+    >
+      {/* Spline 3D Background - GPU accelerated */}
+      <div 
+        ref={splineRef} 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          contain: 'strict',
+          transform: 'translate3d(0,0,0)',
+          willChange: 'transform'
+        }}
+      >
         <div className="absolute inset-0 flex items-center justify-center" style={{ paddingTop: '80px' }}>
           <SplineScene 
-            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            scene={SPLINE_SCENE_URL}
             className="w-full h-full"
           />
         </div>
