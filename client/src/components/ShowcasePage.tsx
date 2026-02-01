@@ -143,10 +143,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
     >
       {isDark && (
         <div className="fixed inset-0 z-0 pointer-events-none">
-          <TubesBackground 
-            className="w-full h-full" 
-            enableClickInteraction={false}
-          />
+          <TubesBackground className="w-full h-full" />
         </div>
       )}
       
