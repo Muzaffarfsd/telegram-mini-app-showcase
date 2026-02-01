@@ -1,4 +1,4 @@
-import { memo, useCallback, useState, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { 
   Check,
   MessageSquare,
@@ -20,16 +20,6 @@ interface AIProcessPageProps {
 
 const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   const { t, language } = useLanguage();
-  const [scrollY, setScrollY] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const splineRef = useRef<HTMLDivElement>(null);
-  const touchState = useRef({
-    startX: 0,
-    startY: 0,
-    startTime: 0,
-    decided: false,
-    isScrolling: false,
-  });
 
   // Sync Telegram Main Button with language changes
   useEffect(() => {
@@ -45,105 +35,23 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
     window.open('https://t.me/web4tgs', '_blank');
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    const spline = splineRef.current;
-    if (!container || !spline) return;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      const touch = e.touches[0];
-      touchState.current = {
-        startX: touch.clientX,
-        startY: touch.clientY,
-        startTime: Date.now(),
-        decided: false,
-        isScrolling: true,
-      };
-      spline.style.pointerEvents = 'none';
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      const touch = e.touches[0];
-      const deltaX = Math.abs(touch.clientX - touchState.current.startX);
-      const deltaY = Math.abs(touch.clientY - touchState.current.startY);
-
-      if (!touchState.current.decided && (deltaX > 12 || deltaY > 12)) {
-        const isHorizontalDominant = deltaX > deltaY * 1.5;
-        
-        touchState.current.decided = true;
-        
-        if (isHorizontalDominant) {
-          touchState.current.isScrolling = false;
-          spline.style.pointerEvents = 'auto';
-        }
-      }
-    };
-
-    const handleTouchEnd = () => {
-      touchState.current.decided = false;
-      touchState.current.isScrolling = true;
-      spline.style.pointerEvents = 'none';
-    };
-
-    container.addEventListener('touchstart', handleTouchStart, { passive: true });
-    container.addEventListener('touchmove', handleTouchMove, { passive: true });
-    container.addEventListener('touchend', handleTouchEnd, { passive: true });
-    container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
-
-    return () => {
-      container.removeEventListener('touchstart', handleTouchStart);
-      container.removeEventListener('touchmove', handleTouchMove);
-      container.removeEventListener('touchend', handleTouchEnd);
-      container.removeEventListener('touchcancel', handleTouchEnd);
-    };
-  }, []);
-
   return (
-    <div 
-      ref={containerRef} 
-      className="relative min-h-screen overflow-y-auto" 
-      style={{ 
-        backgroundColor: '#000000', 
-        WebkitOverflowScrolling: 'touch',
-        overscrollBehavior: 'contain'
-      }}
-    >
-      {/* Spline 3D Background - GPU isolated layer */}
+    <div className="relative min-h-screen bg-black">
+      {/* Spline 3D Background - purely decorative, no interaction */}
       <div 
-        ref={splineRef} 
         className="fixed inset-0 z-0 pointer-events-none"
-        style={{ 
-          transform: 'translateZ(0)',
-          backfaceVisibility: 'hidden',
-          contain: 'strict',
-          willChange: 'auto'
-        }}
+        style={{ paddingTop: '80px' }}
       >
-        <div 
-          className="absolute inset-0 flex items-center justify-center" 
-          style={{ paddingTop: '80px' }}
-        >
-          <SplineScene 
-            scene={SPLINE_SCENE_URL}
-            className="w-full h-full"
-          />
-        </div>
+        <SplineScene 
+          scene={SPLINE_SCENE_URL}
+          className="w-full h-full"
+        />
       </div>
       
-      {/* Content layer - scrollable, GPU accelerated */}
+      {/* Content layer - scrollable */}
       <div 
         className="relative z-10 min-h-screen pb-24"
-        style={{ 
-          paddingTop: '100px',
-          transform: 'translateZ(0)',
-          willChange: 'scroll-position'
-        }}
+        style={{ paddingTop: '100px' }}
       >
         <div className="max-w-md mx-auto">
         
