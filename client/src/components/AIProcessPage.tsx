@@ -110,31 +110,40 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
       className="relative min-h-screen overflow-y-auto" 
       style={{ 
         backgroundColor: '#000000', 
-        WebkitOverflowScrolling: 'touch'
+        WebkitOverflowScrolling: 'touch',
+        overscrollBehavior: 'contain'
       }}
     >
-      {/* Spline 3D Background */}
+      {/* Spline 3D Background - GPU isolated layer */}
       <div 
         ref={splineRef} 
         className="fixed inset-0 z-0 pointer-events-none"
-        style={{ minHeight: '100vh' }}
+        style={{ 
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          contain: 'strict',
+          willChange: 'auto'
+        }}
       >
         <div 
           className="absolute inset-0 flex items-center justify-center" 
-          style={{ paddingTop: '80px', minHeight: '400px' }}
+          style={{ paddingTop: '80px' }}
         >
           <SplineScene 
             scene={SPLINE_SCENE_URL}
             className="w-full h-full"
-            onLoad={() => console.log('[AIProcessPage] Robot loaded!')}
           />
         </div>
       </div>
       
-      {/* Content layer - scrollable */}
+      {/* Content layer - scrollable, GPU accelerated */}
       <div 
         className="relative z-10 min-h-screen pb-24"
-        style={{ paddingTop: '100px' }}
+        style={{ 
+          paddingTop: '100px',
+          transform: 'translateZ(0)',
+          willChange: 'scroll-position'
+        }}
       >
         <div className="max-w-md mx-auto">
         
