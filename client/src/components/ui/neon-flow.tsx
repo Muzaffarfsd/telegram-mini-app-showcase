@@ -35,16 +35,16 @@ export const TubesBackground = memo(function TubesBackground({
 
         const app = TubesCursor(canvasRef.current, {
           tubes: {
-            count: 6,
-            radius: 0.07,
+            count: 8,
+            radius: 0.08,
             colors: PURPLE_PALETTE.colors,
             lights: {
-              intensity: 400,
+              intensity: 450,
               colors: PURPLE_PALETTE.lights
             }
           },
           renderer: {
-            antialias: false,
+            antialias: true,
             alpha: true,
             powerPreference: 'high-performance'
           }
