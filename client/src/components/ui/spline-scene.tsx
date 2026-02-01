@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, lazy, useState, useEffect, useCallback, memo } from 'react'
+import { Suspense, lazy, useState, useCallback, memo, useEffect } from 'react'
 
 const Spline = lazy(() => import('@splinetool/react-spline'))
 
@@ -10,7 +10,6 @@ interface SplineSceneProps {
   onLoad?: () => void
 }
 
-// Loading skeleton
 function SplineLoadingSkeleton() {
   return (
     <div className="w-full h-full flex items-center justify-center">
@@ -27,6 +26,7 @@ function SplineLoadingSkeleton() {
             style={{ animationDuration: '1s' }}
           />
         </div>
+        <span className="text-[13px] text-white/40 font-medium mt-4">Loading 3D...</span>
       </div>
     </div>
   )
@@ -34,22 +34,16 @@ function SplineLoadingSkeleton() {
 
 function SplineSceneInner({ scene, className, onLoad }: SplineSceneProps) {
   const [isReady, setIsReady] = useState(false)
-  const [shouldRender, setShouldRender] = useState(false)
 
   useEffect(() => {
-    // Small delay to let page render first
-    const timer = setTimeout(() => setShouldRender(true), 50)
-    return () => clearTimeout(timer)
-  }, [])
+    console.log('[Spline] Mounting scene:', scene)
+  }, [scene])
 
   const handleLoad = useCallback(() => {
+    console.log('[Spline] Scene loaded successfully')
     setIsReady(true)
     onLoad?.()
   }, [onLoad])
-
-  if (!shouldRender) {
-    return <SplineLoadingSkeleton />
-  }
 
   return (
     <Suspense fallback={<SplineLoadingSkeleton />}>
@@ -57,8 +51,7 @@ function SplineSceneInner({ scene, className, onLoad }: SplineSceneProps) {
         className={className}
         style={{ 
           opacity: isReady ? 1 : 0,
-          transition: 'opacity 0.5s ease-out',
-          transform: 'translate3d(0,0,0)',
+          transition: 'opacity 0.3s ease-out',
         }}
       >
         <Spline
@@ -79,7 +72,3 @@ function SplineSceneInner({ scene, className, onLoad }: SplineSceneProps) {
 export const SplineScene = memo(SplineSceneInner)
 
 export default SplineScene
-
-export function preloadSplineScene(_sceneUrl: string) {
-  // Placeholder for future optimization
-}
