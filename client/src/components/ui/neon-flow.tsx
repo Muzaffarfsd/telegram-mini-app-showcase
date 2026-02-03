@@ -76,7 +76,7 @@ export const TubesBackground = memo(function TubesBackground({
   }, []);
 
   return (
-    <div className={cn("relative w-full h-full overflow-hidden bg-black", className)}>
+    <div className={cn("relative w-full h-full overflow-hidden bg-black pointer-events-none", className)}>
       <canvas 
         ref={canvasRef} 
         className="absolute inset-0 w-full h-full block pointer-events-none"
@@ -84,7 +84,9 @@ export const TubesBackground = memo(function TubesBackground({
           opacity: isLoaded ? 0.8 : 0,
           transition: 'opacity 0.3s ease-out',
           filter: 'contrast(1.1) brightness(1.1)',
-          contain: 'strict'
+          contain: 'strict',
+          touchAction: 'none',
+          userSelect: 'none'
         }}
       />
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/20 via-transparent to-black/40" />
