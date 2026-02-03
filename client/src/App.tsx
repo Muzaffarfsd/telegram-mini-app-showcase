@@ -516,8 +516,25 @@ function App() {
                     {/* Language Toggle */}
                     <LanguageToggleButton />
                     
-                    {/* Разделитель */}
-                    <div className="w-px h-6 mx-0.5" style={{ background: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)' }} />
+                    {/* iOS 26 Liquid Glass разделитель */}
+                    <div 
+                      className="flex items-center justify-center mx-1"
+                      style={{ width: '3px', height: '20px' }}
+                    >
+                      <div 
+                        style={{ 
+                          width: '3px', 
+                          height: '3px', 
+                          borderRadius: '50%',
+                          background: isDark 
+                            ? 'rgba(255,255,255,0.4)' 
+                            : 'rgba(0,0,0,0.25)',
+                          boxShadow: isDark 
+                            ? '0 0 6px rgba(255,255,255,0.3)' 
+                            : '0 0 4px rgba(0,0,0,0.15)'
+                        }} 
+                      />
+                    </div>
                     
                     {/* Переключатель темы - яркий и заметный */}
                     <button
