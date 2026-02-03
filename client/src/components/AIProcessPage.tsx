@@ -67,18 +67,18 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[28px] px-6 py-7 mb-5 relative overflow-hidden"
             style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)',
-              backdropFilter: 'blur(60px) saturate(200%)',
-              WebkitBackdropFilter: 'blur(60px) saturate(200%)',
-              border: '0.5px solid rgba(255,255,255,0.2)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 0.5px 0 rgba(255,255,255,0.15), inset 0 -0.5px 0 rgba(255,255,255,0.05)'
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+              backdropFilter: 'blur(60px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(60px) saturate(180%)',
+              border: '0.5px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.08)'
             }}
           >
             {/* Liquid Glass specular highlight */}
             <div 
               className="absolute top-0 left-0 right-0 h-[60%] pointer-events-none rounded-t-[28px]"
               style={{
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%)'
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)'
               }}
             />
             
@@ -87,12 +87,12 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               <span 
                 className="px-4 py-2 rounded-full text-[12px] font-semibold tracking-wide"
                 style={{
-                  background: 'rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.05)',
                   backdropFilter: 'blur(20px)',
                   WebkitBackdropFilter: 'blur(20px)',
-                  color: 'rgba(255,255,255,0.9)',
-                  border: '0.5px solid rgba(255,255,255,0.15)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
+                  color: 'rgba(255,255,255,0.85)',
+                  border: '0.5px solid rgba(255,255,255,0.08)',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.15)'
                 }}
               >
                 ✦ AI Powered
@@ -152,14 +152,14 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-2.5 rounded-[16px] transition-all duration-300 active:scale-[0.98]"
               style={{ 
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 100%)',
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)',
                 backdropFilter: 'blur(40px) saturate(180%)',
                 WebkitBackdropFilter: 'blur(40px) saturate(180%)',
                 height: '54px',
                 paddingLeft: '20px',
                 paddingRight: '16px',
-                border: '0.5px solid rgba(255,255,255,0.2)',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.25), inset 0 0.5px 0 rgba(255,255,255,0.2)'
+                border: '0.5px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.1)'
               }}
             >
               <MessageSquare className="w-[18px] h-[18px] text-white/90 flex-shrink-0" />
@@ -186,11 +186,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 key={i}
                 className="py-4 px-2 rounded-[14px] text-center relative overflow-hidden"
                 style={{ 
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.04) 100%)',
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
                   backdropFilter: 'blur(40px)',
                   WebkitBackdropFilter: 'blur(40px)',
-                  border: '0.5px solid rgba(255,255,255,0.12)',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+                  border: '0.5px solid rgba(255,255,255,0.06)',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.1)'
                 }}
               >
                 <span 
