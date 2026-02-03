@@ -430,29 +430,42 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
           {/* iOS 26 Liquid Glass - Premium Process Steps */}
           <section className="pb-10 pt-6">
-            <div className="flex items-center justify-center gap-2 mb-6">
+            <div className="flex flex-col items-center mb-8">
               <div 
-                className="w-8 h-8 rounded-full flex items-center justify-center"
+                className="w-12 h-12 rounded-[14px] flex items-center justify-center mb-4"
                 style={{
-                  background: isDark 
-                    ? 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0.08) 100%)'
-                    : 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%)',
-                  border: '0.5px solid rgba(16,185,129,0.3)'
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  boxShadow: '0 8px 24px rgba(16,185,129,0.35), 0 0 0 1px rgba(255,255,255,0.1) inset'
                 }}
               >
-                <Zap className="w-4 h-4" style={{ color: isDark ? '#34d399' : '#059669' }} strokeWidth={2} />
+                <Zap className="w-6 h-6 text-white" strokeWidth={1.5} />
               </div>
               <h2 
                 style={{
-                  fontSize: '20px',
-                  fontWeight: 600,
-                  letterSpacing: '-0.02em',
-                  color: isDark ? '#ffffff' : '#1d1d1f',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
+                  fontSize: '26px',
+                  fontWeight: 700,
+                  letterSpacing: '-0.03em',
+                  background: isDark 
+                    ? 'linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.7) 100%)'
+                    : 'linear-gradient(180deg, #1d1d1f 0%, #3a3a3c 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif'
                 }}
               >
                 {language === 'ru' ? 'Как это работает' : 'How It Works'}
               </h2>
+              <p 
+                className="mt-2 text-center"
+                style={{
+                  fontSize: '15px',
+                  color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(29,29,31,0.5)',
+                  fontFamily: '"SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui, sans-serif'
+                }}
+              >
+                {language === 'ru' ? 'Три простых шага к вашему успеху' : 'Three simple steps to your success'}
+              </p>
             </div>
             
             <div className="space-y-3">
@@ -551,29 +564,42 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
           {/* iOS 26 Liquid Glass - Premium Features Grid */}
           <section className="pb-10 pt-2">
-            <div className="flex items-center justify-center gap-2 mb-6">
+            <div className="flex flex-col items-center mb-8">
               <div 
-                className="w-8 h-8 rounded-full flex items-center justify-center"
+                className="w-12 h-12 rounded-[14px] flex items-center justify-center mb-4"
                 style={{
-                  background: isDark 
-                    ? 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(139,92,246,0.08) 100%)'
-                    : 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 100%)',
-                  border: '0.5px solid rgba(139,92,246,0.3)'
+                  background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+                  boxShadow: '0 8px 24px rgba(139,92,246,0.35), 0 0 0 1px rgba(255,255,255,0.1) inset'
                 }}
               >
-                <Sparkles className="w-4 h-4" style={{ color: isDark ? '#a78bfa' : '#7c3aed' }} strokeWidth={2} />
+                <Sparkles className="w-6 h-6 text-white" strokeWidth={1.5} />
               </div>
               <h2 
                 style={{
-                  fontSize: '20px',
-                  fontWeight: 600,
-                  letterSpacing: '-0.02em',
-                  color: isDark ? '#ffffff' : '#1d1d1f',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
+                  fontSize: '26px',
+                  fontWeight: 700,
+                  letterSpacing: '-0.03em',
+                  background: isDark 
+                    ? 'linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.7) 100%)'
+                    : 'linear-gradient(180deg, #1d1d1f 0%, #3a3a3c 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif'
                 }}
               >
                 {language === 'ru' ? 'Преимущества' : 'Advantages'}
               </h2>
+              <p 
+                className="mt-2 text-center"
+                style={{
+                  fontSize: '15px',
+                  color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(29,29,31,0.5)',
+                  fontFamily: '"SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui, sans-serif'
+                }}
+              >
+                {language === 'ru' ? 'Почему выбирают нас' : 'Why clients choose us'}
+              </p>
             </div>
             
             <div className="grid grid-cols-2 gap-3">
