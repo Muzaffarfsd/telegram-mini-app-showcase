@@ -519,7 +519,7 @@ function App() {
                     {/* Переключатель темы - яркий и заметный */}
                     <button
                       onClick={() => { toggleTheme(); hapticFeedback.medium(); }}
-                      className="relative flex items-center justify-center w-11 h-11 rounded-full"
+                      className="relative flex items-center justify-center w-10 h-10 rounded-full"
                       style={{
                         background: isDark 
                           ? 'linear-gradient(145deg, rgba(99,102,241,0.3) 0%, rgba(139,92,246,0.2) 100%)' 
@@ -534,10 +534,10 @@ function App() {
                       aria-label="Переключить тему"
                       data-testid="button-theme-toggle-mobile"
                     >
-                      <div className="relative w-6 h-6">
+                      <div className="relative w-5 h-5">
                         {/* Солнце */}
                         <Sun 
-                          className="absolute inset-0 w-6 h-6"
+                          className="absolute inset-0 w-5 h-5"
                           style={{
                             color: '#FBBF24',
                             opacity: isDark ? 0 : 1,
@@ -548,7 +548,7 @@ function App() {
                         />
                         {/* Луна */}
                         <Moon 
-                          className="absolute inset-0 w-6 h-6"
+                          className="absolute inset-0 w-5 h-5"
                           style={{
                             color: '#C4B5FD',
                             opacity: isDark ? 1 : 0,
