@@ -516,6 +516,9 @@ function App() {
                     {/* Language Toggle */}
                     <LanguageToggleButton />
                     
+                    {/* Разделитель */}
+                    <div className="w-px h-6 mx-0.5" style={{ background: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)' }} />
+                    
                     {/* Переключатель темы - яркий и заметный */}
                     <button
                       onClick={() => { toggleTheme(); hapticFeedback.medium(); }}
