@@ -47,8 +47,21 @@ export const TubesBackground = memo(function TubesBackground({
             antialias: true,
             alpha: true,
             powerPreference: 'high-performance'
+          },
+          mouse: {
+            disabled: true,
+            lerp: 0
+          },
+          cursor: {
+            enabled: false
           }
         });
+        
+        // Override mouse tracking - set fixed position
+        if (app && app.mouse) {
+          app.mouse.x = 0;
+          app.mouse.y = 0;
+        }
 
         tubesRef.current = app;
         setIsLoaded(true);
@@ -58,8 +71,29 @@ export const TubesBackground = memo(function TubesBackground({
         };
 
         window.addEventListener('resize', handleResize);
+        
+        // Block mouse events from reaching the library
+        const blockMouseEvents = (e: MouseEvent) => {
+          if (canvasRef.current && canvasRef.current.contains(e.target as Node)) {
+            e.stopPropagation();
+          }
+        };
+        
+        // Freeze mouse position to center
+        const freezeMouse = () => {
+          if (app && app.mouse) {
+            app.mouse.x = 0;
+            app.mouse.y = 0;
+            app.mouse.lerpX = 0;
+            app.mouse.lerpY = 0;
+          }
+        };
+        
+        const freezeInterval = setInterval(freezeMouse, 16);
+        
         cleanup = () => {
           window.removeEventListener('resize', handleResize);
+          clearInterval(freezeInterval);
         };
 
       } catch (error) {
