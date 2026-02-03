@@ -431,18 +431,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           {/* iOS 26 Liquid Glass - Premium Process Steps */}
           <section className="pb-10 pt-6">
             <div className="flex flex-col items-center mb-8">
-              <div 
-                className="w-12 h-12 rounded-[14px] flex items-center justify-center mb-4"
-                style={{
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  boxShadow: '0 8px 24px rgba(16,185,129,0.35), 0 0 0 1px rgba(255,255,255,0.1) inset'
-                }}
-              >
-                <Zap className="w-6 h-6 text-white" strokeWidth={1.5} />
-              </div>
               <h2 
                 style={{
-                  fontSize: '26px',
+                  fontSize: '28px',
                   fontWeight: 700,
                   letterSpacing: '-0.03em',
                   background: isDark 
@@ -565,18 +556,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           {/* iOS 26 Liquid Glass - Premium Features Grid */}
           <section className="pb-10 pt-2">
             <div className="flex flex-col items-center mb-8">
-              <div 
-                className="w-12 h-12 rounded-[14px] flex items-center justify-center mb-4"
-                style={{
-                  background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-                  boxShadow: '0 8px 24px rgba(139,92,246,0.35), 0 0 0 1px rgba(255,255,255,0.1) inset'
-                }}
-              >
-                <Sparkles className="w-6 h-6 text-white" strokeWidth={1.5} />
-              </div>
               <h2 
                 style={{
-                  fontSize: '26px',
+                  fontSize: '28px',
                   fontWeight: 700,
                   letterSpacing: '-0.03em',
                   background: isDark 
