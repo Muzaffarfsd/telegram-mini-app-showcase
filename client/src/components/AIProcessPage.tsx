@@ -62,138 +62,121 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
         </section>
 
         {/* Main content section - cards below robot */}
-        <section className="relative px-5 pt-4 pb-16">
-          {/* iOS 2026 Premium Hero Card */}
+        <section className="relative px-4 pt-4 pb-16">
+          {/* iOS 26 Liquid Glass Hero Card */}
           <div 
-            className="rounded-[32px] px-7 py-8 mb-6 relative overflow-hidden"
+            className="rounded-[28px] px-6 py-7 mb-5 relative overflow-hidden"
             style={{
-              background: 'linear-gradient(180deg, rgba(139,92,246,0.08) 0%, rgba(88,28,135,0.04) 100%)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-              border: '1px solid rgba(167,139,250,0.15)',
-              boxShadow: '0 0 80px rgba(139,92,246,0.08), inset 0 1px 0 rgba(255,255,255,0.05)'
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)',
+              backdropFilter: 'blur(60px) saturate(200%)',
+              WebkitBackdropFilter: 'blur(60px) saturate(200%)',
+              border: '0.5px solid rgba(255,255,255,0.2)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 0.5px 0 rgba(255,255,255,0.15), inset 0 -0.5px 0 rgba(255,255,255,0.05)'
             }}
           >
-            {/* Noise texture overlay */}
+            {/* Liquid Glass specular highlight */}
             <div 
-              className="absolute inset-0 opacity-[0.03] pointer-events-none rounded-[32px]"
+              className="absolute top-0 left-0 right-0 h-[60%] pointer-events-none rounded-t-[28px]"
               style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%)'
               }}
             />
             
-            {/* Purple glow accents */}
-            <div 
-              className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full pointer-events-none"
-              style={{
-                background: 'radial-gradient(circle, rgba(167,139,250,0.2) 0%, transparent 60%)'
-              }}
-            />
-            <div 
-              className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full pointer-events-none"
-              style={{
-                background: 'radial-gradient(circle, rgba(192,132,252,0.1) 0%, transparent 60%)'
-              }}
-            />
-            
-            {/* Badge - iOS style pill */}
+            {/* Floating badge - Liquid Glass pill */}
             <div className="flex justify-center mb-5 relative">
               <span 
-                className="px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.08em] uppercase"
+                className="px-4 py-2 rounded-full text-[12px] font-semibold tracking-wide"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(139,92,246,0.25) 0%, rgba(192,132,252,0.2) 100%)',
-                  color: '#c4b5fd',
-                  border: '1px solid rgba(167,139,250,0.25)',
-                  boxShadow: '0 0 20px rgba(139,92,246,0.15)'
+                  background: 'rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  color: 'rgba(255,255,255,0.9)',
+                  border: '0.5px solid rgba(255,255,255,0.15)',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
                 }}
               >
-                AI Powered
+                ✦ AI Powered
               </span>
             </div>
             
-            {/* Title - iOS 2026 SF Pro style */}
+            {/* Title - iOS 26 SF Pro Display */}
             <h1 className="text-center mb-4 relative">
               <span 
-                className="block text-[32px] leading-[1.1] font-semibold"
+                className="block text-[28px] leading-[1.15] font-semibold"
                 style={{ 
                   color: '#ffffff', 
-                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-                  letterSpacing: '-0.025em'
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
+                  letterSpacing: '-0.02em'
                 }}
               >
                 {t('aiProcess.heroTitle1')}
               </span>
               <span 
-                className="block text-[32px] leading-[1.1] font-semibold mt-1"
+                className="block text-[28px] leading-[1.15] font-semibold mt-0.5"
                 style={{ 
-                  background: 'linear-gradient(135deg, #c4b5fd 0%, #a78bfa 30%, #c084fc 60%, #e879f9 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-                  letterSpacing: '-0.025em'
+                  color: 'rgba(255,255,255,0.7)',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
+                  letterSpacing: '-0.02em'
                 }}
               >
                 {t('aiProcess.heroTitle2')} {t('aiProcess.heroTitle3')}
               </span>
             </h1>
             
-            {/* Subtitle - clean Inter typography */}
+            {/* Subtitle - SF Pro Text */}
             <p 
-              className="text-center text-[16px] leading-[1.5] font-medium relative"
+              className="text-center text-[15px] leading-[1.47] font-normal relative"
               style={{ 
-                color: 'rgba(255,255,255,0.85)',
-                fontFamily: 'Inter, -apple-system, sans-serif',
-                letterSpacing: '-0.01em'
+                color: 'rgba(255,255,255,0.8)',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
               }}
             >
               {t('aiProcess.heroSubtitle1')}
             </p>
             <p 
-              className="text-center text-[14px] leading-[1.5] mt-2 relative"
+              className="text-center text-[13px] leading-[1.38] mt-2 relative"
               style={{ 
                 color: 'rgba(255,255,255,0.5)',
-                fontFamily: 'Inter, -apple-system, sans-serif'
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
               }}
             >
               {t('aiProcess.heroSubtitle2')}
             </p>
           </div>
 
-          {/* CTA Button - premium glass with purple glow */}
-          <div className="flex items-center gap-2 mb-6">
+          {/* CTA Button - iOS 26 Liquid Glass floating button */}
+          <div className="flex items-center gap-2 mb-5">
             <a
               href="https://t.me/web4tgs"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-3 rounded-2xl transition-all duration-200 active:scale-[0.97]"
+              className="flex-1 flex items-center justify-center gap-2.5 rounded-[16px] transition-all duration-300 active:scale-[0.98]"
               style={{ 
-                background: 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(167,139,250,0.15) 100%)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                height: '58px',
-                paddingLeft: '24px',
-                paddingRight: '20px',
-                border: '1px solid rgba(167,139,250,0.3)',
-                boxShadow: '0 0 30px rgba(139,92,246,0.1), inset 0 1px 0 rgba(255,255,255,0.05)'
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 100%)',
+                backdropFilter: 'blur(40px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                height: '54px',
+                paddingLeft: '20px',
+                paddingRight: '16px',
+                border: '0.5px solid rgba(255,255,255,0.2)',
+                boxShadow: '0 4px 24px rgba(0,0,0,0.25), inset 0 0.5px 0 rgba(255,255,255,0.2)'
               }}
             >
-              <MessageSquare className="w-5 h-5 text-violet-300 flex-shrink-0" />
+              <MessageSquare className="w-[18px] h-[18px] text-white/90 flex-shrink-0" />
               <span 
-                className="text-[16px] font-semibold text-white"
+                className="text-[15px] font-semibold text-white"
                 style={{ 
-                  fontFamily: 'Inter, -apple-system, sans-serif',
-                  letterSpacing: '-0.01em'
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
                 }}
               >
                 {t('aiProcess.getConsultation')}
               </span>
-              <ArrowRight className="w-5 h-5 text-violet-300 flex-shrink-0" />
+              <ArrowRight className="w-[18px] h-[18px] text-white/60 flex-shrink-0" />
             </a>
           </div>
 
-          {/* Stats row - premium glass cards */}
-          <div className="grid grid-cols-3 gap-3 mb-6">
+          {/* Stats row - iOS 26 Liquid Glass floating cards */}
+          <div className="grid grid-cols-3 gap-2.5 mb-6">
             {[
               { value: '900M+', label: t('aiProcess.stats.users') },
               { value: '24/7', label: t('aiProcess.stats.support') },
@@ -201,27 +184,31 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
             ].map((stat, i) => (
               <div
                 key={i}
-                className="py-4 px-2 rounded-2xl text-center relative overflow-hidden"
+                className="py-4 px-2 rounded-[14px] text-center relative overflow-hidden"
                 style={{ 
-                  background: 'rgba(139,92,246,0.06)', 
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: '1px solid rgba(167,139,250,0.1)'
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.04) 100%)',
+                  backdropFilter: 'blur(40px)',
+                  WebkitBackdropFilter: 'blur(40px)',
+                  border: '0.5px solid rgba(255,255,255,0.12)',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
                 }}
               >
                 <span 
-                  className="text-[20px] font-bold block"
+                  className="text-[18px] font-bold block"
                   style={{ 
-                    color: '#e9d5ff',
-                    fontFamily: 'Inter, -apple-system, sans-serif',
+                    color: '#ffffff',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
                     letterSpacing: '-0.02em'
                   }}
                 >
                   {stat.value}
                 </span>
                 <span 
-                  className="text-[10px] font-medium uppercase tracking-wider"
-                  style={{ color: 'rgba(196,181,253,0.6)' }}
+                  className="text-[10px] font-medium uppercase tracking-wide"
+                  style={{ 
+                    color: 'rgba(255,255,255,0.5)',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
+                  }}
                 >
                   {stat.label}
                 </span>
