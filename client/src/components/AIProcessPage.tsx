@@ -217,7 +217,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           </div>
         </section>
 
-        <section className="px-6 py-6 space-y-5">
+        <section className="px-4 py-4 space-y-3">
           
           <ProcessStepPremium
             number="1"
@@ -277,30 +277,31 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
         </section>
 
-        <section className="px-6 py-8">
+        <section className="px-4 py-6">
           <h2 
-            className="text-center mb-8"
+            className="text-center mb-6"
             style={{
-              fontSize: '32px',
-              fontWeight: 700,
-              letterSpacing: '-0.04em',
-              color: 'var(--text-primary)',
-              lineHeight: '1.1'
+              fontSize: '24px',
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
+              color: '#ffffff',
+              lineHeight: '1.15',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
             }}
           >
             {t('aiProcess.benefitsTitle1')}
             <br />
-            {t('aiProcess.benefitsTitle2')}
+            <span style={{ color: 'rgba(255,255,255,0.6)' }}>{t('aiProcess.benefitsTitle2')}</span>
           </h2>
           
           <div 
-            className="rounded-[28px] p-8 space-y-5"
+            className="rounded-[20px] p-6 space-y-4"
             style={{
-              background: 'rgba(255,255,255,0.015)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.05)',
-              boxShadow: 'none'
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+              backdropFilter: 'blur(60px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(60px) saturate(180%)',
+              border: '0.5px solid rgba(255,255,255,0.08)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.06)'
             }}
           >
             <BenefitItemPremium text={t('aiProcess.benefits.benefit1')} />
@@ -312,23 +313,24 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           </div>
         </section>
 
-        <section className="px-6 py-8">
+        <section className="px-4 py-6">
           <h2 
-            className="text-center mb-8"
+            className="text-center mb-6"
             style={{
-              fontSize: '32px',
-              fontWeight: 700,
-              letterSpacing: '-0.04em',
-              color: 'var(--text-primary)',
-              lineHeight: '1.1'
+              fontSize: '24px',
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
+              color: '#ffffff',
+              lineHeight: '1.15',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
             }}
           >
             {t('aiProcess.whyTelegramTitle1')}
             <br />
-            {t('aiProcess.whyTelegramTitle2')}
+            <span style={{ color: 'rgba(255,255,255,0.6)' }}>{t('aiProcess.whyTelegramTitle2')}</span>
           </h2>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             <WhyFeatureCard
               icon="🌍"
               title={t('aiProcess.whyTelegram.feature1Title')}
@@ -347,33 +349,34 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           </div>
         </section>
 
-        <section className="px-6 py-12">
+        <section className="px-4 py-8">
           <div 
-            className="rounded-[28px] p-8 text-center relative overflow-hidden"
+            className="rounded-[20px] p-6 text-center relative overflow-hidden"
             style={{
-              background: 'rgba(255,255,255,0.02)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.06)',
-              boxShadow: 'none'
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+              backdropFilter: 'blur(60px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(60px) saturate(180%)',
+              border: '0.5px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.08)'
             }}
           >
+            {/* Specular highlight */}
             <div 
-              className="absolute inset-0 opacity-30"
+              className="absolute top-0 left-0 right-0 h-[50%] pointer-events-none rounded-t-[20px]"
               style={{
-                background: 'radial-gradient(circle at 50% 0%, rgba(0, 122, 255, 0.4) 0%, transparent 70%)',
-                animation: 'pulse 3s ease-in-out infinite'
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)'
               }}
             />
             
             <div className="relative z-10">
               <h3 
                 style={{
-                  fontSize: '28px',
-                  fontWeight: 700,
-                  letterSpacing: '-0.03em',
-                  color: '#FFFFFF',
-                  marginBottom: '12px'
+                  fontSize: '22px',
+                  fontWeight: 600,
+                  letterSpacing: '-0.02em',
+                  color: '#ffffff',
+                  marginBottom: '8px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
                 }}
               >
                 {t('aiProcess.ctaTitle')}
@@ -381,10 +384,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               
               <p 
                 style={{
-                  fontSize: '17px',
+                  fontSize: '15px',
                   lineHeight: '1.47',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  marginBottom: '24px'
+                  color: 'rgba(255,255,255,0.6)',
+                  marginBottom: '20px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
                 }}
               >
                 {t('aiProcess.ctaSubtitle1')}
@@ -394,26 +398,29 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
               <button
                 onClick={handleGetConsultation}
-                className="w-full py-4 bg-white text-black font-semibold rounded-full transition-all duration-200 active:scale-[0.97] mb-3 group"
+                className="w-full py-3.5 font-semibold rounded-[14px] transition-all duration-200 active:scale-[0.97] mb-3"
                 style={{
-                  fontSize: '17px',
-                  letterSpacing: '-0.02em',
-                  boxShadow: '0 4px 24px rgba(255, 255, 255, 0.25)',
-                  border: 'none'
+                  fontSize: '16px',
+                  letterSpacing: '-0.01em',
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)',
+                  color: '#000000',
+                  boxShadow: '0 4px 20px rgba(255,255,255,0.2)',
+                  border: 'none',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
                 }}
                 data-testid="button-get-consultation"
               >
                 <span className="flex items-center justify-center gap-2">
                   {t('aiProcess.ctaButton')}
-                  <ArrowRight className="w-5 h-5 transition-transform group-active:translate-x-1" />
+                  <ArrowRight className="w-4.5 h-4.5" />
                 </span>
               </button>
               
               <p 
                 style={{
-                  fontSize: '13px',
-                  color: 'rgba(255, 255, 255, 0.5)',
-                  letterSpacing: '0.01em'
+                  fontSize: '12px',
+                  color: 'rgba(255,255,255,0.4)',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
                 }}
               >
                 {t('aiProcess.ctaFooter')}
@@ -481,31 +488,24 @@ const ProcessStepPremium = memo(({
   features: string[];
 }) => (
   <div 
-    className="rounded-[24px] p-6 relative overflow-hidden group interactive-smooth active:scale-[0.98]"
+    className="rounded-[20px] p-5 relative overflow-hidden group active:scale-[0.98]"
     style={{
-      background: 'rgba(255,255,255,0.015)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255,255,255,0.05)',
-      boxShadow: 'none',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+      background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+      backdropFilter: 'blur(60px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(60px) saturate(180%)',
+      border: '0.5px solid rgba(255,255,255,0.08)',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.06)',
+      transition: 'transform 0.2s ease'
     }}
   >
-    <div 
-      className="absolute top-0 left-0 right-0 h-1 opacity-60"
-      style={{
-        background: accentGradient
-      }}
-    />
-
-    <div className="flex items-start gap-4 mb-4">
+    <div className="flex items-start gap-4">
       <div 
-        className="flex-shrink-0 flex items-center justify-center rounded-2xl"
+        className="flex-shrink-0 flex items-center justify-center rounded-[14px]"
         style={{
-          width: '56px',
-          height: '56px',
+          width: '48px',
+          height: '48px',
           background: accentGradient,
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
         }}
       >
         <div style={{ color: 'white' }}>
@@ -513,25 +513,28 @@ const ProcessStepPremium = memo(({
         </div>
       </div>
       
-      <div className="flex-1 pt-1">
-        <div className="flex items-center justify-between mb-2">
+      <div className="flex-1">
+        <div className="flex items-center justify-between mb-1.5">
           <h3 
             style={{
-              fontSize: '20px',
-              fontWeight: 700,
+              fontSize: '17px',
+              fontWeight: 600,
               letterSpacing: '-0.02em',
-              color: 'var(--text-primary)'
+              color: '#ffffff',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
             }}
           >
             {title}
           </h3>
           <div 
-            className="px-3 py-1.5 rounded-full shrink-0"
+            className="px-2.5 py-1 rounded-full shrink-0"
             style={{
-              background: 'var(--overlay-medium)',
-              fontSize: '13px',
-              color: 'var(--text-secondary)',
-              fontWeight: 600
+              background: 'rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(20px)',
+              fontSize: '12px',
+              color: 'rgba(255,255,255,0.6)',
+              fontWeight: 500,
+              border: '0.5px solid rgba(255,255,255,0.05)'
             }}
           >
             {duration}
@@ -539,28 +542,28 @@ const ProcessStepPremium = memo(({
         </div>
         <p 
           style={{
-            fontSize: '15px',
-            lineHeight: '1.5',
-            color: 'var(--text-tertiary)',
-            letterSpacing: '-0.01em',
-            marginBottom: '16px'
+            fontSize: '14px',
+            lineHeight: '1.47',
+            color: 'rgba(255,255,255,0.6)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
+            marginBottom: '12px'
           }}
         >
           {description}
         </p>
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {features.map((feature, index) => (
             <div key={index} className="flex items-center gap-2">
               <div 
-                className="w-1.5 h-1.5 rounded-full"
+                className="w-1 h-1 rounded-full"
                 style={{ background: accentGradient }}
               />
               <span 
                 style={{
-                  fontSize: '14px',
-                  color: 'var(--text-tertiary)',
-                  letterSpacing: '-0.01em'
+                  fontSize: '13px',
+                  color: 'rgba(255,255,255,0.5)',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
                 }}
               >
                 {feature}
@@ -570,42 +573,30 @@ const ProcessStepPremium = memo(({
         </div>
       </div>
     </div>
-
-    <div 
-      className="absolute -bottom-4 -right-4 opacity-5 select-none pointer-events-none"
-      style={{
-        fontSize: '120px',
-        fontWeight: 900,
-        color: 'var(--text-primary)',
-        lineHeight: '1'
-      }}
-    >
-      {number}
-    </div>
   </div>
 ));
 ProcessStepPremium.displayName = 'ProcessStepPremium';
 
 const BenefitItemPremium = memo(({ text }: { text: string }) => (
-  <div className="flex items-center gap-3 group">
+  <div className="flex items-center gap-3">
     <div 
-      className="flex-shrink-0 flex items-center justify-center rounded-full transition-transform group-hover:scale-110"
+      className="flex-shrink-0 flex items-center justify-center rounded-full"
       style={{
-        width: '28px',
-        height: '28px',
-        background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.3) 0%, rgba(48, 209, 88, 0.3) 100%)',
-        border: '1px solid rgba(52, 199, 89, 0.3)'
+        width: '24px',
+        height: '24px',
+        background: 'rgba(52, 199, 89, 0.15)',
+        border: '0.5px solid rgba(52, 199, 89, 0.2)'
       }}
     >
-      <Check className="w-4 h-4 text-[#34C759]" />
+      <Check className="w-3.5 h-3.5 text-[#34C759]" />
     </div>
     <p 
       style={{
-        fontSize: '16px',
-        lineHeight: '1.5',
-        color: 'var(--text-primary)',
-        letterSpacing: '-0.01em',
-        fontWeight: 500
+        fontSize: '15px',
+        lineHeight: '1.47',
+        color: 'rgba(255,255,255,0.85)',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
+        fontWeight: 400
       }}
     >
       {text}
@@ -624,20 +615,20 @@ const WhyFeatureCard = memo(({
   description: string;
 }) => (
   <div 
-    className="rounded-[20px] p-5 interactive-smooth active:scale-[0.98]"
+    className="rounded-[20px] p-5 active:scale-[0.98]"
     style={{
-      background: 'rgba(255,255,255,0.015)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255,255,255,0.05)',
-      boxShadow: 'none',
-      transition: 'all 0.3s ease'
+      background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+      backdropFilter: 'blur(60px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(60px) saturate(180%)',
+      border: '0.5px solid rgba(255,255,255,0.08)',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.06)',
+      transition: 'transform 0.2s ease'
     }}
   >
     <div className="flex gap-4">
       <div 
         style={{
-          fontSize: '32px',
+          fontSize: '28px',
           lineHeight: '1',
           flexShrink: 0
         }}
@@ -647,21 +638,22 @@ const WhyFeatureCard = memo(({
       <div className="flex-1">
         <h4 
           style={{
-            fontSize: '17px',
+            fontSize: '16px',
             fontWeight: 600,
-            color: 'var(--text-primary)',
-            marginBottom: '6px',
-            letterSpacing: '-0.02em'
+            color: '#ffffff',
+            marginBottom: '4px',
+            letterSpacing: '-0.02em',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
           }}
         >
           {title}
         </h4>
         <p 
           style={{
-            fontSize: '15px',
-            lineHeight: '1.5',
-            color: 'var(--text-tertiary)',
-            letterSpacing: '-0.01em'
+            fontSize: '14px',
+            lineHeight: '1.47',
+            color: 'rgba(255,255,255,0.6)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
           }}
         >
           {description}
