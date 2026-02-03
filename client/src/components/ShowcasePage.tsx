@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight, Play } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Play, MessageCircle, Zap, Rocket, Users, Clock, CreditCard, TrendingUp, Quote, Star, Sparkles, CheckCircle2 } from "lucide-react";
 import { useCallback, useState, useEffect, useRef } from "react";
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
@@ -428,82 +428,103 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </div>
           </section>
 
-          {/* iOS 26 Liquid Glass - How It Works */}
-          <section className="pb-8 pt-4">
-            <h2 
-              className="text-center mb-6"
-              style={{
-                fontSize: '22px',
-                fontWeight: 600,
-                letterSpacing: '-0.02em',
-                color: isDark ? '#ffffff' : '#1d1d1f',
-                lineHeight: '1.15',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
-              }}
-            >
-              {language === 'ru' ? 'Как это работает' : 'How It Works'}
-            </h2>
+          {/* iOS 26 Liquid Glass - Premium Process Steps */}
+          <section className="pb-10 pt-6">
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <div 
+                className="w-8 h-8 rounded-full flex items-center justify-center"
+                style={{
+                  background: isDark 
+                    ? 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0.08) 100%)'
+                    : 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%)',
+                  border: '0.5px solid rgba(16,185,129,0.3)'
+                }}
+              >
+                <Zap className="w-4 h-4" style={{ color: isDark ? '#34d399' : '#059669' }} strokeWidth={2} />
+              </div>
+              <h2 
+                style={{
+                  fontSize: '20px',
+                  fontWeight: 600,
+                  letterSpacing: '-0.02em',
+                  color: isDark ? '#ffffff' : '#1d1d1f',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
+                }}
+              >
+                {language === 'ru' ? 'Как это работает' : 'How It Works'}
+              </h2>
+            </div>
             
             <div className="space-y-3">
               {[
                 { 
-                  num: '01', 
+                  Icon: MessageCircle,
                   title: language === 'ru' ? 'Заявка' : 'Request',
-                  desc: language === 'ru' ? 'Опишите вашу идею или выберите готовое решение' : 'Describe your idea or choose a ready solution',
-                  icon: '💬'
+                  desc: language === 'ru' ? 'Опишите идею или выберите готовое решение из каталога' : 'Describe your idea or choose from our catalog',
+                  gradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                  glow: 'rgba(59,130,246,0.3)'
                 },
                 { 
-                  num: '02', 
+                  Icon: Zap,
                   title: language === 'ru' ? 'Разработка' : 'Development',
-                  desc: language === 'ru' ? 'Создаём ваше приложение за 24-48 часов' : 'We build your app in 24-48 hours',
-                  icon: '⚡️'
+                  desc: language === 'ru' ? 'Создаём приложение за 24-48 часов с премиум-дизайном' : 'We build your app in 24-48 hours with premium design',
+                  gradient: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+                  glow: 'rgba(139,92,246,0.3)'
                 },
                 { 
-                  num: '03', 
+                  Icon: Rocket,
                   title: language === 'ru' ? 'Запуск' : 'Launch',
-                  desc: language === 'ru' ? 'Подключаем к Telegram и запускаем продажи' : 'Connect to Telegram and start selling',
-                  icon: '🚀'
+                  desc: language === 'ru' ? 'Интеграция с Telegram, оплаты и аналитика — всё готово' : 'Telegram integration, payments & analytics — all set',
+                  gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  glow: 'rgba(16,185,129,0.3)'
                 }
               ].map((step, i) => (
                 <div 
                   key={i}
-                  className="rounded-[18px] p-4 relative overflow-hidden"
+                  className="rounded-[20px] p-5 relative overflow-hidden"
                   style={{
                     background: isDark 
-                      ? 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)'
-                      : 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
-                    backdropFilter: 'blur(40px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                    border: isDark ? '0.5px solid rgba(255,255,255,0.1)' : '0.5px solid rgba(0,0,0,0.08)',
+                      ? 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.015) 100%)'
+                      : 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%)',
+                    backdropFilter: 'blur(60px) saturate(200%)',
+                    WebkitBackdropFilter: 'blur(60px) saturate(200%)',
+                    border: isDark ? '0.5px solid rgba(255,255,255,0.08)' : '0.5px solid rgba(0,0,0,0.06)',
                     boxShadow: isDark 
-                      ? '0 4px 20px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.06)'
-                      : '0 4px 20px rgba(0,0,0,0.06), inset 0 0.5px 0 rgba(255,255,255,0.8)'
+                      ? `0 8px 32px rgba(0,0,0,0.3), 0 0 0 0.5px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.05)`
+                      : '0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)'
                   }}
                 >
-                  <div className="flex items-center gap-4">
+                  {/* Top specular */}
+                  <div 
+                    className="absolute top-0 left-0 right-0 h-[40%] pointer-events-none rounded-t-[20px]"
+                    style={{ background: isDark ? 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)' : 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 100%)' }}
+                  />
+                  
+                  <div className="flex items-start gap-4 relative">
                     <div 
-                      className="flex items-center justify-center rounded-[12px] flex-shrink-0"
+                      className="flex items-center justify-center rounded-[14px] flex-shrink-0"
                       style={{
-                        width: '44px',
-                        height: '44px',
-                        background: isDark 
-                          ? 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0.1) 100%)'
-                          : 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.08) 100%)',
-                        border: '0.5px solid rgba(16,185,129,0.3)'
+                        width: '52px',
+                        height: '52px',
+                        background: step.gradient,
+                        boxShadow: `0 8px 24px ${step.glow}`
                       }}
                     >
-                      <span className="text-xl">{step.icon}</span>
+                      <step.Icon className="w-6 h-6 text-white" strokeWidth={2} />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-0.5">
+                    <div className="flex-1 pt-0.5">
+                      <div className="flex items-center gap-2.5 mb-1.5">
                         <span 
-                          className="text-[11px] font-semibold"
-                          style={{ color: isDark ? 'rgba(16,185,129,0.8)' : 'rgba(16,185,129,1)' }}
+                          className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                          style={{ 
+                            background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
+                            color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)'
+                          }}
                         >
-                          {step.num}
+                          0{i + 1}
                         </span>
                         <span 
-                          className="text-[15px] font-semibold"
+                          className="text-[16px] font-semibold"
                           style={{ 
                             color: isDark ? '#ffffff' : '#1d1d1f',
                             fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
@@ -513,7 +534,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                         </span>
                       </div>
                       <p 
-                        className="text-[13px]"
+                        className="text-[14px] leading-[1.5]"
                         style={{ 
                           color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(29,29,31,0.6)',
                           fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
@@ -528,163 +549,211 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </div>
           </section>
 
-          {/* iOS 26 Liquid Glass - Features */}
-          <section className="pb-8 pt-2">
-            <h2 
-              className="text-center mb-6"
-              style={{
-                fontSize: '22px',
-                fontWeight: 600,
-                letterSpacing: '-0.02em',
-                color: isDark ? '#ffffff' : '#1d1d1f',
-                lineHeight: '1.15',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
-              }}
-            >
-              {language === 'ru' ? 'Почему мы' : 'Why Choose Us'}
-            </h2>
+          {/* iOS 26 Liquid Glass - Premium Features Grid */}
+          <section className="pb-10 pt-2">
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <div 
+                className="w-8 h-8 rounded-full flex items-center justify-center"
+                style={{
+                  background: isDark 
+                    ? 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(139,92,246,0.08) 100%)'
+                    : 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 100%)',
+                  border: '0.5px solid rgba(139,92,246,0.3)'
+                }}
+              >
+                <Sparkles className="w-4 h-4" style={{ color: isDark ? '#a78bfa' : '#7c3aed' }} strokeWidth={2} />
+              </div>
+              <h2 
+                style={{
+                  fontSize: '20px',
+                  fontWeight: 600,
+                  letterSpacing: '-0.02em',
+                  color: isDark ? '#ffffff' : '#1d1d1f',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
+                }}
+              >
+                {language === 'ru' ? 'Преимущества' : 'Advantages'}
+              </h2>
+            </div>
             
-            <div 
-              className="rounded-[20px] p-5 relative overflow-hidden"
-              style={{
-                background: isDark 
-                  ? 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
-                  : 'linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.65) 100%)',
-                backdropFilter: 'blur(60px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(60px) saturate(180%)',
-                border: isDark ? '0.5px solid rgba(255,255,255,0.08)' : '0.5px solid rgba(0,0,0,0.06)',
-                boxShadow: isDark 
-                  ? '0 8px 32px rgba(0,0,0,0.25), inset 0 0.5px 0 rgba(255,255,255,0.06)'
-                  : '0 8px 32px rgba(0,0,0,0.08), inset 0 0.5px 0 rgba(255,255,255,0.9)'
-              }}
-            >
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { icon: '🎯', title: language === 'ru' ? '900M+' : '900M+', desc: language === 'ru' ? 'пользователей Telegram' : 'Telegram users' },
-                  { icon: '⚡️', title: language === 'ru' ? '24ч' : '24h', desc: language === 'ru' ? 'на разработку' : 'development time' },
-                  { icon: '💳', title: language === 'ru' ? 'Оплата' : 'Payments', desc: language === 'ru' ? 'встроенная в Telegram' : 'built into Telegram' },
-                  { icon: '📈', title: language === 'ru' ? '+300%' : '+300%', desc: language === 'ru' ? 'рост продаж' : 'sales growth' }
-                ].map((feat, i) => (
-                  <div key={i} className="text-center py-3">
-                    <span className="text-2xl block mb-2">{feat.icon}</span>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { Icon: Users, value: '900M+', label: language === 'ru' ? 'аудитория' : 'audience', color: '#3b82f6' },
+                { Icon: Clock, value: '24h', label: language === 'ru' ? 'разработка' : 'development', color: '#8b5cf6' },
+                { Icon: CreditCard, value: language === 'ru' ? 'Встроено' : 'Built-in', label: language === 'ru' ? 'платежи' : 'payments', color: '#f59e0b' },
+                { Icon: TrendingUp, value: '+300%', label: language === 'ru' ? 'к продажам' : 'sales boost', color: '#10b981' }
+              ].map((feat, i) => (
+                <div 
+                  key={i}
+                  className="rounded-[18px] p-4 relative overflow-hidden"
+                  style={{
+                    background: isDark 
+                      ? 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)'
+                      : 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.75) 100%)',
+                    backdropFilter: 'blur(40px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                    border: isDark ? '0.5px solid rgba(255,255,255,0.06)' : '0.5px solid rgba(0,0,0,0.05)',
+                    boxShadow: isDark 
+                      ? '0 4px 20px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.04)'
+                      : '0 4px 20px rgba(0,0,0,0.04), inset 0 0.5px 0 rgba(255,255,255,0.8)'
+                  }}
+                >
+                  {/* Specular */}
+                  <div 
+                    className="absolute top-0 left-0 right-0 h-[50%] pointer-events-none rounded-t-[18px]"
+                    style={{ background: isDark ? 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)' : 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%)' }}
+                  />
+                  
+                  <div className="relative text-center">
                     <div 
-                      className="text-[18px] font-bold mb-0.5"
+                      className="w-10 h-10 rounded-[10px] flex items-center justify-center mx-auto mb-3"
+                      style={{
+                        background: isDark 
+                          ? `linear-gradient(135deg, ${feat.color}30 0%, ${feat.color}15 100%)`
+                          : `linear-gradient(135deg, ${feat.color}20 0%, ${feat.color}10 100%)`,
+                        border: `0.5px solid ${feat.color}40`
+                      }}
+                    >
+                      <feat.Icon className="w-5 h-5" style={{ color: feat.color }} strokeWidth={2} />
+                    </div>
+                    <div 
+                      className="text-[20px] font-bold mb-0.5"
                       style={{ 
-                        color: isDark ? '#10b981' : '#059669',
+                        color: isDark ? '#ffffff' : '#1d1d1f',
                         fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
                       }}
                     >
-                      {feat.title}
+                      {feat.value}
+                    </div>
+                    <div 
+                      className="text-[12px] font-medium uppercase tracking-wider"
+                      style={{ color: isDark ? 'rgba(255,255,255,0.45)' : 'rgba(29,29,31,0.45)' }}
+                    >
+                      {feat.label}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* iOS 26 Liquid Glass - Premium Testimonial */}
+          <section className="pb-10 pt-2">
+            <div 
+              className="rounded-[22px] p-5 relative overflow-hidden"
+              style={{
+                background: isDark 
+                  ? 'linear-gradient(180deg, rgba(16,185,129,0.06) 0%, rgba(16,185,129,0.02) 100%)'
+                  : 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.03) 100%)',
+                backdropFilter: 'blur(60px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(60px) saturate(180%)',
+                border: isDark ? '0.5px solid rgba(16,185,129,0.15)' : '0.5px solid rgba(16,185,129,0.2)',
+                boxShadow: isDark 
+                  ? '0 8px 32px rgba(16,185,129,0.08), inset 0 0.5px 0 rgba(255,255,255,0.04)'
+                  : '0 8px 32px rgba(16,185,129,0.06)'
+              }}
+            >
+              {/* Specular */}
+              <div 
+                className="absolute top-0 left-0 right-0 h-[40%] pointer-events-none rounded-t-[22px]"
+                style={{ background: isDark ? 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)' : 'linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 100%)' }}
+              />
+              
+              <div className="relative">
+                {/* Quote icon */}
+                <div 
+                  className="w-9 h-9 rounded-full flex items-center justify-center mb-4"
+                  style={{
+                    background: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.12)',
+                    border: '0.5px solid rgba(16,185,129,0.25)'
+                  }}
+                >
+                  <Quote className="w-4 h-4" style={{ color: isDark ? '#34d399' : '#059669' }} strokeWidth={2} />
+                </div>
+                
+                <p 
+                  className="text-[15px] leading-[1.6] mb-4"
+                  style={{ 
+                    color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(29,29,31,0.85)',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
+                  }}
+                >
+                  {language === 'ru' 
+                    ? '«За первый месяц продажи выросли на 340%. Telegram Mini App полностью изменил наш подход к e-commerce. Клиенты в восторге от удобства!»' 
+                    : '"Sales grew by 340% in the first month. Telegram Mini App completely changed our approach to e-commerce. Customers love the convenience!"'}
+                </p>
+                
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-[15px]"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      color: '#ffffff',
+                      boxShadow: '0 4px 12px rgba(16,185,129,0.3)'
+                    }}
+                  >
+                    АМ
+                  </div>
+                  <div>
+                    <div 
+                      className="text-[14px] font-semibold"
+                      style={{ color: isDark ? '#ffffff' : '#1d1d1f' }}
+                    >
+                      {language === 'ru' ? 'Александр М.' : 'Alexander M.'}
                     </div>
                     <div 
                       className="text-[12px]"
-                      style={{ 
-                        color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(29,29,31,0.5)',
-                        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
-                      }}
+                      style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(29,29,31,0.5)' }}
                     >
-                      {feat.desc}
+                      {language === 'ru' ? 'Владелец магазина часов' : 'Watch store owner'}
                     </div>
                   </div>
-                ))}
+                  <div className="ml-auto flex gap-0.5">
+                    {[1,2,3,4,5].map(n => (
+                      <Star key={n} className="w-4 h-4" style={{ color: '#fbbf24', fill: '#fbbf24' }} />
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </section>
 
-          {/* iOS 26 Liquid Glass - Testimonial */}
-          <section className="pb-8 pt-2">
+          {/* iOS 26 Liquid Glass - Premium CTA */}
+          <section className="pb-16 pt-2">
             <div 
-              className="rounded-[20px] p-5 relative overflow-hidden"
+              className="rounded-[24px] p-6 text-center relative overflow-hidden"
               style={{
                 background: isDark 
-                  ? 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.03) 100%)'
-                  : 'linear-gradient(180deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.04) 100%)',
-                backdropFilter: 'blur(60px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(60px) saturate(180%)',
+                  ? 'linear-gradient(180deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.04) 100%)'
+                  : 'linear-gradient(180deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.05) 100%)',
+                backdropFilter: 'blur(60px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(60px) saturate(200%)',
                 border: isDark ? '0.5px solid rgba(16,185,129,0.2)' : '0.5px solid rgba(16,185,129,0.25)',
                 boxShadow: isDark 
-                  ? '0 8px 32px rgba(16,185,129,0.1), inset 0 0.5px 0 rgba(255,255,255,0.05)'
-                  : '0 8px 32px rgba(16,185,129,0.08)'
-              }}
-            >
-              <div className="flex items-start gap-3 mb-3">
-                <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0"
-                  style={{ 
-                    background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.8)',
-                    border: isDark ? '0.5px solid rgba(255,255,255,0.15)' : '0.5px solid rgba(0,0,0,0.1)'
-                  }}
-                >
-                  👤
-                </div>
-                <div>
-                  <div 
-                    className="text-[14px] font-semibold"
-                    style={{ 
-                      color: isDark ? '#ffffff' : '#1d1d1f',
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
-                    }}
-                  >
-                    {language === 'ru' ? 'Александр М.' : 'Alexander M.'}
-                  </div>
-                  <div 
-                    className="text-[12px]"
-                    style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(29,29,31,0.5)' }}
-                  >
-                    {language === 'ru' ? 'Владелец магазина часов' : 'Watch store owner'}
-                  </div>
-                </div>
-                <div className="ml-auto flex gap-0.5">
-                  {[1,2,3,4,5].map(n => (
-                    <span key={n} className="text-[14px]">⭐️</span>
-                  ))}
-                </div>
-              </div>
-              <p 
-                className="text-[14px] leading-[1.5] italic"
-                style={{ 
-                  color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(29,29,31,0.8)',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
-                }}
-              >
-                "{language === 'ru' 
-                  ? 'За первый месяц продажи выросли на 340%. Telegram Mini App — это будущее e-commerce!' 
-                  : 'Sales grew by 340% in the first month. Telegram Mini App is the future of e-commerce!'}"
-              </p>
-            </div>
-          </section>
-
-          {/* iOS 26 Liquid Glass - CTA */}
-          <section className="pb-12 pt-2">
-            <div 
-              className="rounded-[20px] p-6 text-center relative overflow-hidden"
-              style={{
-                background: isDark 
-                  ? 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)'
-                  : 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
-                backdropFilter: 'blur(60px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(60px) saturate(180%)',
-                border: isDark ? '0.5px solid rgba(255,255,255,0.1)' : '0.5px solid rgba(0,0,0,0.08)',
-                boxShadow: isDark 
-                  ? '0 8px 32px rgba(0,0,0,0.25), inset 0 0.5px 0 rgba(255,255,255,0.08)'
-                  : '0 8px 32px rgba(0,0,0,0.08), inset 0 0.5px 0 rgba(255,255,255,0.9)'
+                  ? '0 12px 48px rgba(16,185,129,0.12), inset 0 1px 0 rgba(255,255,255,0.05)'
+                  : '0 12px 48px rgba(16,185,129,0.1), inset 0 1px 0 rgba(255,255,255,0.6)'
               }}
             >
               {/* Specular highlight */}
               <div 
-                className="absolute top-0 left-0 right-0 h-[50%] pointer-events-none rounded-t-[20px]"
-                style={{
-                  background: isDark 
-                    ? 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)'
-                    : 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 100%)'
-                }}
+                className="absolute top-0 left-0 right-0 h-[50%] pointer-events-none rounded-t-[24px]"
+                style={{ background: isDark ? 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)' : 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%)' }}
               />
               
               <div className="relative z-10">
-                <div className="text-3xl mb-3">✨</div>
+                <div 
+                  className="w-14 h-14 rounded-[16px] flex items-center justify-center mx-auto mb-4"
+                  style={{
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    boxShadow: '0 8px 24px rgba(16,185,129,0.35)'
+                  }}
+                >
+                  <Sparkles className="w-7 h-7 text-white" strokeWidth={2} />
+                </div>
+                
                 <h3 
                   style={{
-                    fontSize: '20px',
+                    fontSize: '22px',
                     fontWeight: 600,
                     letterSpacing: '-0.02em',
                     color: isDark ? '#ffffff' : '#1d1d1f',
@@ -692,40 +761,57 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
                   }}
                 >
-                  {language === 'ru' ? 'Готовы начать?' : 'Ready to Start?'}
+                  {language === 'ru' ? 'Готовы к росту?' : 'Ready to Grow?'}
                 </h3>
                 
                 <p 
                   style={{
-                    fontSize: '14px',
-                    lineHeight: '1.47',
-                    color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(29,29,31,0.6)',
-                    marginBottom: '16px',
+                    fontSize: '15px',
+                    lineHeight: '1.5',
+                    color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(29,29,31,0.65)',
+                    marginBottom: '20px',
                     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
                   }}
                 >
                   {language === 'ru' 
-                    ? 'Получите бесплатную консультацию и запустите свой магазин в Telegram'
-                    : 'Get a free consultation and launch your store in Telegram'}
+                    ? 'Бесплатная консультация и запуск магазина в Telegram за 24 часа'
+                    : 'Free consultation and launch your Telegram store in 24 hours'}
                 </p>
 
                 <button
                   onClick={() => handleNavigate('projects')}
-                  className="w-full py-3.5 font-semibold rounded-[14px] transition-all duration-200 active:scale-[0.97]"
+                  className="w-full py-4 font-semibold rounded-[16px] transition-all duration-200 active:scale-[0.97] flex items-center justify-center gap-2"
                   style={{
-                    fontSize: '15px',
+                    fontSize: '16px',
                     letterSpacing: '-0.01em',
-                    background: isDark 
-                      ? 'linear-gradient(180deg, rgba(16,185,129,0.9) 0%, rgba(16,185,129,0.8) 100%)'
-                      : 'linear-gradient(180deg, rgba(16,185,129,1) 0%, rgba(5,150,105,1) 100%)',
+                    background: 'linear-gradient(180deg, #10b981 0%, #059669 100%)',
                     color: '#ffffff',
-                    boxShadow: '0 4px 20px rgba(16,185,129,0.35)',
+                    boxShadow: '0 8px 32px rgba(16,185,129,0.4)',
                     border: 'none',
                     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
                   }}
                 >
-                  {language === 'ru' ? 'Заказать проект' : 'Order Project'} →
+                  {language === 'ru' ? 'Начать сейчас' : 'Start Now'}
+                  <ArrowRight className="w-5 h-5" strokeWidth={2} />
                 </button>
+                
+                <div className="flex items-center justify-center gap-4 mt-4">
+                  {[
+                    { Icon: CheckCircle2, text: language === 'ru' ? 'Бесплатно' : 'Free' },
+                    { Icon: Clock, text: language === 'ru' ? '24 часа' : '24 hours' },
+                    { Icon: Zap, text: language === 'ru' ? 'Быстро' : 'Fast' }
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-1.5">
+                      <item.Icon className="w-3.5 h-3.5" style={{ color: isDark ? '#34d399' : '#059669' }} strokeWidth={2} />
+                      <span 
+                        className="text-[12px] font-medium"
+                        style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(29,29,31,0.5)' }}
+                      >
+                        {item.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </section>
