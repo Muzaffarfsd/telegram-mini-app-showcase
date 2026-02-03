@@ -185,16 +185,21 @@ export function usePredictivePrefetch(config: PredictivePrefetchConfig = {}) {
       '/projects': () => import('@/components/ProjectsPage'),
       '/profile': () => import('@/components/ProfilePage'),
       '/constructor': () => import('@/components/ConstructorPage'),
-      '/ai-agent': () => import('@/components/AIAgentPage'),
+      '/ai-process': () => import('@/components/AIProcessPage'),
     };
 
     const loader = routeChunks[path];
-    if (loader) {
-      loader().then(() => {
-        prefetchedRef.current.add(path);
-      }).catch(() => {
+    if (loader && typeof loader === 'function') {
+      try {
+        const result = loader();
+        if (result && typeof result.then === 'function') {
+          result.then(() => {
+            prefetchedRef.current.add(path);
+          }).catch(() => {});
+        }
+      } catch {
         // Silent fail
-      });
+      }
     }
   }, []);
 
