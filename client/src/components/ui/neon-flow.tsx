@@ -33,7 +33,13 @@ export const TubesBackground = memo(function TubesBackground({
 
         if (!mounted) return;
 
-        const app = TubesCursor(canvasRef.current, {
+        const canvas = canvasRef.current;
+        
+        const blockEvent = (e: Event) => { e.stopImmediatePropagation(); e.preventDefault(); };
+        const inputEvents = ['mousemove', 'mousedown', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointermove', 'pointerup'];
+        inputEvents.forEach(evt => canvas.addEventListener(evt, blockEvent, { capture: true }));
+
+        const app = TubesCursor(canvas, {
           tubes: {
             count: 8,
             radius: 0.08,
@@ -56,8 +62,7 @@ export const TubesBackground = memo(function TubesBackground({
             enabled: false
           }
         });
-        
-        // Override mouse tracking - set fixed position
+
         if (app && app.mouse) {
           app.mouse.x = 0;
           app.mouse.y = 0;
@@ -71,15 +76,7 @@ export const TubesBackground = memo(function TubesBackground({
         };
 
         window.addEventListener('resize', handleResize);
-        
-        // Block mouse events from reaching the library
-        const blockMouseEvents = (e: MouseEvent) => {
-          if (canvasRef.current && canvasRef.current.contains(e.target as Node)) {
-            e.stopPropagation();
-          }
-        };
-        
-        // Freeze mouse position to center
+
         const freezeMouse = () => {
           if (app && app.mouse) {
             app.mouse.x = 0;
@@ -88,12 +85,13 @@ export const TubesBackground = memo(function TubesBackground({
             app.mouse.lerpY = 0;
           }
         };
-        
+
         const freezeInterval = setInterval(freezeMouse, 16);
-        
+
         cleanup = () => {
           window.removeEventListener('resize', handleResize);
           clearInterval(freezeInterval);
+          inputEvents.forEach(evt => canvas.removeEventListener(evt, blockEvent, { capture: true }));
         };
 
       } catch (error) {
