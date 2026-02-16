@@ -372,7 +372,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </div>
           </section>
 
-          <section className="pb-8 pt-0 animate-in fade-in duration-500">
+          <section className="pb-8 pt-8 animate-in fade-in duration-500">
             <div className="flex items-center justify-between mb-4">
               <h2 className={`text-[13px] font-medium tracking-[0.08em] uppercase ${isDark ? 'text-white/60' : 'text-gray-500'}`}>
                 {t('showcase.projectsTitle')}
