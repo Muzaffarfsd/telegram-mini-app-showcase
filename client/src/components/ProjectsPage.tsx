@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { FavoritesSection } from "./FavoritesSection";
 import { FavoriteButton } from "./FavoriteButton";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CardStack, type CardStackItem } from "@/components/ui/card-stack";
+import { VerticalImageStack, type VerticalImageItem } from "@/components/ui/vertical-image-stack";
 import { LazyMotionProvider } from "@/utils/LazyMotionProvider";
 
 interface ProjectsPageProps {
@@ -99,36 +99,31 @@ const AppCard = memo(({ app, onOpenDemo, t }: { app: any, onOpenDemo: (id: strin
 
 AppCard.displayName = 'AppCard';
 
-const cardStackItems: CardStackItem[] = [
+const verticalImageItems: VerticalImageItem[] = [
   {
     id: 1,
-    title: "Radiance",
-    description: "Premium fashion & accessories store",
-    imageSrc: "/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg",
+    src: "/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg",
+    alt: "Radiance — Premium fashion",
   },
   {
     id: 2,
-    title: "Nike Destiny",
-    description: "Next-gen sportswear experience",
-    imageSrc: "/attached_assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg",
+    src: "/attached_assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg",
+    alt: "Nike Destiny — Sportswear",
   },
   {
     id: 3,
-    title: "Nike Green",
-    description: "Eco-friendly sustainable collection",
-    imageSrc: "/attached_assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg",
+    src: "/attached_assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg",
+    alt: "Nike Green — Sustainable",
   },
   {
     id: 4,
-    title: "Rascal",
-    description: "Urban streetwear brand identity",
-    imageSrc: "/attached_assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg",
+    src: "/attached_assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg",
+    alt: "Rascal — Urban streetwear",
   },
   {
     id: 5,
-    title: "Studio Collection",
-    description: "Premium design portfolio showcase",
-    imageSrc: "/attached_assets/82a7adf27f8d0e1758ca0f797349db48_1763719506416.jpg",
+    src: "/attached_assets/82a7adf27f8d0e1758ca0f797349db48_1763719506416.jpg",
+    alt: "Studio Collection",
   },
 ];
 
@@ -241,23 +236,11 @@ export default memo(function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
             {t('projectsPage.projects')}
           </p>
           <LazyMotionProvider>
-            <CardStack
-              items={cardStackItems}
-              initialIndex={0}
-              autoAdvance
-              intervalMs={2500}
-              pauseOnHover
-              showDots
-              cardWidth={300}
-              cardHeight={200}
-              maxVisible={5}
-              overlap={0.45}
-              spreadDeg={35}
-              depthPx={100}
-              tiltXDeg={8}
-              activeLiftPx={16}
-              activeScale={1.02}
-              inactiveScale={0.92}
+            <VerticalImageStack
+              images={verticalImageItems}
+              height={480}
+              cardWidth={260}
+              cardHeight={380}
             />
           </LazyMotionProvider>
         </section>
