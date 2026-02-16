@@ -142,7 +142,7 @@ export function CardStack<T extends CardStackItem>({
     >
       <div
         className="relative w-full"
-        style={{ height: Math.max(380, cardHeight + 80) }}
+        style={{ height: cardHeight + 60 }}
         tabIndex={0}
         onKeyDown={onKeyDown}
       >
