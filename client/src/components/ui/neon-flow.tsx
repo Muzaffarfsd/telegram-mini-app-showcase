@@ -1,10 +1,75 @@
-import { useEffect, useRef, useState, memo } from 'react';
+import { useEffect, useRef, useState, memo, useCallback } from 'react';
 import { cn } from "@/lib/utils";
 
-const PURPLE_PALETTE = { 
-  colors: ["#8B5CF6", "#6D28D9", "#4C1D95"], 
-  lights: ["#A78BFA", "#8B5CF6", "#7C3AED"] 
-};
+const COLORS = [
+  'rgba(139, 92, 246, 0.6)',
+  'rgba(109, 40, 217, 0.5)',
+  'rgba(76, 29, 149, 0.4)',
+  'rgba(167, 139, 250, 0.5)',
+  'rgba(124, 58, 237, 0.45)',
+  'rgba(139, 92, 246, 0.35)',
+  'rgba(109, 40, 217, 0.3)',
+  'rgba(167, 139, 250, 0.4)',
+];
+
+interface Tube {
+  points: { x: number; y: number; vx: number; vy: number }[];
+  color: string;
+  width: number;
+  speed: number;
+  phase: number;
+}
+
+function createTube(w: number, h: number, color: string, index: number): Tube {
+  const numPoints = 5;
+  const points = [];
+  const startX = (w / (COLORS.length + 1)) * (index + 1);
+  const speed = 0.3 + Math.random() * 0.4;
+
+  for (let i = 0; i < numPoints; i++) {
+    points.push({
+      x: startX + (Math.random() - 0.5) * w * 0.3,
+      y: (h / (numPoints - 1)) * i,
+      vx: (Math.random() - 0.5) * speed,
+      vy: (Math.random() - 0.5) * speed * 0.3,
+    });
+  }
+
+  return {
+    points,
+    color,
+    width: 1.5 + Math.random() * 2,
+    speed,
+    phase: Math.random() * Math.PI * 2,
+  };
+}
+
+function drawTube(ctx: CanvasRenderingContext2D, tube: Tube) {
+  const { points, color, width } = tube;
+  if (points.length < 2) return;
+
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  ctx.moveTo(points[0].x, points[0].y);
+
+  for (let i = 1; i < points.length - 1; i++) {
+    const mx = (points[i].x + points[i + 1].x) / 2;
+    const my = (points[i].y + points[i + 1].y) / 2;
+    ctx.quadraticCurveTo(points[i].x, points[i].y, mx, my);
+  }
+
+  const last = points[points.length - 1];
+  ctx.lineTo(last.x, last.y);
+  ctx.stroke();
+
+  ctx.strokeStyle = color.replace(/[\d.]+\)$/, (m) => `${parseFloat(m) * 1.8})`);
+  ctx.lineWidth = width * 0.4;
+  ctx.stroke();
+}
 
 interface TubesBackgroundProps {
   children?: React.ReactNode;
@@ -16,150 +81,72 @@ export const TubesBackground = memo(function TubesBackground({
   className
 }: TubesBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const tubesRef = useRef<Tube[]>([]);
+  const rafRef = useRef<number>(0);
+  const timeRef = useRef(0);
   const [isLoaded, setIsLoaded] = useState(false);
-  const tubesRef = useRef<any>(null);
+
+  const animate = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const w = canvas.width;
+    const h = canvas.height;
+    timeRef.current += 0.008;
+    const t = timeRef.current;
+
+    ctx.clearRect(0, 0, w, h);
+
+    for (const tube of tubesRef.current) {
+      for (let i = 0; i < tube.points.length; i++) {
+        const p = tube.points[i];
+        const wave = Math.sin(t * tube.speed + tube.phase + i * 1.2) * 1.2;
+        const drift = Math.cos(t * tube.speed * 0.7 + tube.phase + i * 0.8) * 0.6;
+
+        p.x += wave + p.vx;
+        p.y += drift + p.vy;
+
+        if (p.x < -50) p.x = w + 50;
+        if (p.x > w + 50) p.x = -50;
+        if (p.y < -50) p.y = h + 50;
+        if (p.y > h + 50) p.y = -50;
+      }
+
+      drawTube(ctx, tube);
+    }
+
+    rafRef.current = requestAnimationFrame(animate);
+  }, []);
 
   useEffect(() => {
-    let mounted = true;
-    let cleanup: (() => void) | undefined;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const initTubes = async () => {
-      if (!canvasRef.current) return;
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext('2d');
+      if (ctx) ctx.scale(dpr, dpr);
 
-      try {
-        const canvas = canvasRef.current;
-        const blockedTypes = new Set(['mousemove', 'mousedown', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointermove', 'pointerup', 'click']);
-
-        const capturedDocListeners: Array<[string, EventListenerOrEventListenerObject, any]> = [];
-        const capturedWinListeners: Array<[string, EventListenerOrEventListenerObject, any]> = [];
-
-        const origDocAdd = document.addEventListener;
-        const origDocRemove = document.removeEventListener;
-        const origWinAdd = window.addEventListener;
-        const origWinRemove = window.removeEventListener;
-        const origCanvasAdd = canvas.addEventListener;
-
-        canvas.addEventListener = function(type: string, listener: any, options?: any) {
-          if (blockedTypes.has(type)) return;
-          origCanvasAdd.call(canvas, type, listener, options);
-        } as any;
-
-        document.addEventListener = function(type: string, listener: any, options?: any) {
-          if (blockedTypes.has(type)) {
-            capturedDocListeners.push([type, listener, options]);
-            return;
-          }
-          origDocAdd.call(document, type, listener, options);
-        } as any;
-
-        window.addEventListener = function(type: string, listener: any, options?: any) {
-          if (blockedTypes.has(type)) {
-            capturedWinListeners.push([type, listener, options]);
-            return;
-          }
-          origWinAdd.call(window, type, listener, options);
-        } as any;
-
-        // @ts-ignore
-        const module = await import('https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js');
-        const TubesCursor = module.default;
-
-        if (!mounted) {
-          document.addEventListener = origDocAdd;
-          document.removeEventListener = origDocRemove;
-          window.addEventListener = origWinAdd;
-          window.removeEventListener = origWinRemove;
-          canvas.addEventListener = origCanvasAdd;
-          return;
-        }
-
-        const app = TubesCursor(canvas, {
-          tubes: {
-            count: 8,
-            radius: 0.08,
-            colors: PURPLE_PALETTE.colors,
-            lights: {
-              intensity: 450,
-              colors: PURPLE_PALETTE.lights
-            }
-          },
-          renderer: {
-            antialias: true,
-            alpha: true,
-            powerPreference: 'high-performance'
-          },
-          mouse: {
-            disabled: true,
-            lerp: 0
-          },
-          cursor: {
-            enabled: false
-          }
-        });
-
-        document.addEventListener = origDocAdd;
-        document.removeEventListener = origDocRemove;
-        window.addEventListener = origWinAdd;
-        window.removeEventListener = origWinRemove;
-        canvas.addEventListener = origCanvasAdd;
-
-        capturedDocListeners.forEach(([type, listener, options]) => {
-          origDocRemove.call(document, type, listener, options);
-        });
-        capturedWinListeners.forEach(([type, listener, options]) => {
-          origWinRemove.call(window, type, listener, options);
-        });
-
-        if (app) {
-          const lockMouse = (obj: any) => {
-            if (!obj) return;
-            for (const key of Object.keys(obj)) {
-              if (typeof obj[key] === 'number') {
-                Object.defineProperty(obj, key, { get: () => 0, set: () => {}, configurable: true });
-              }
-            }
-          };
-          if (app.mouse) lockMouse(app.mouse);
-          if (app.cursor) lockMouse(app.cursor);
-
-          const scene = app.scene || app.three?.scene;
-          if (scene) {
-            scene.traverse?.((child: any) => {
-              if (child.material?.uniforms?.uMouse) {
-                const u = child.material.uniforms.uMouse;
-                if (u.value) {
-                  Object.defineProperty(u.value, 'x', { get: () => 0, set: () => {}, configurable: true });
-                  Object.defineProperty(u.value, 'y', { get: () => 0, set: () => {}, configurable: true });
-                }
-              }
-            });
-          }
-        }
-
-        tubesRef.current = app;
-        setIsLoaded(true);
-
-        const handleResize = () => {
-          if (app && app.resize) app.resize();
-        };
-        window.addEventListener('resize', handleResize);
-
-        cleanup = () => {
-          window.removeEventListener('resize', handleResize);
-        };
-
-      } catch (error) {
-        console.error("Failed to load Tubes:", error);
-      }
+      tubesRef.current = COLORS.map((color, i) =>
+        createTube(rect.width, rect.height, color, i)
+      );
     };
 
-    initTubes();
+    resize();
+    setIsLoaded(true);
+    rafRef.current = requestAnimationFrame(animate);
 
+    window.addEventListener('resize', resize);
     return () => {
-      mounted = false;
-      if (cleanup) cleanup();
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [animate]);
 
   return (
     <div className={cn("relative w-full h-full overflow-hidden bg-black pointer-events-none", className)}>
@@ -168,8 +155,8 @@ export const TubesBackground = memo(function TubesBackground({
         className="absolute inset-0 w-full h-full block pointer-events-none"
         style={{ 
           opacity: isLoaded ? 0.8 : 0,
-          transition: 'opacity 0.3s ease-out',
-          filter: 'contrast(1.1) brightness(1.1)',
+          transition: 'opacity 0.5s ease-out',
+          filter: 'blur(1px) contrast(1.1) brightness(1.1)',
           contain: 'strict',
           touchAction: 'none',
           userSelect: 'none'
