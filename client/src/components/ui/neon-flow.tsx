@@ -1,75 +1,10 @@
-import { useEffect, useRef, useState, memo, useCallback } from 'react';
+import { useEffect, useRef, useState, memo } from 'react';
 import { cn } from "@/lib/utils";
 
-const COLORS = [
-  'rgba(139, 92, 246, 0.6)',
-  'rgba(109, 40, 217, 0.5)',
-  'rgba(76, 29, 149, 0.4)',
-  'rgba(167, 139, 250, 0.5)',
-  'rgba(124, 58, 237, 0.45)',
-  'rgba(139, 92, 246, 0.35)',
-  'rgba(109, 40, 217, 0.3)',
-  'rgba(167, 139, 250, 0.4)',
-];
-
-interface Tube {
-  points: { x: number; y: number; vx: number; vy: number }[];
-  color: string;
-  width: number;
-  speed: number;
-  phase: number;
-}
-
-function createTube(w: number, h: number, color: string, index: number): Tube {
-  const numPoints = 5;
-  const points = [];
-  const startX = (w / (COLORS.length + 1)) * (index + 1);
-  const speed = 0.3 + Math.random() * 0.4;
-
-  for (let i = 0; i < numPoints; i++) {
-    points.push({
-      x: startX + (Math.random() - 0.5) * w * 0.3,
-      y: (h / (numPoints - 1)) * i,
-      vx: (Math.random() - 0.5) * speed,
-      vy: (Math.random() - 0.5) * speed * 0.3,
-    });
-  }
-
-  return {
-    points,
-    color,
-    width: 1.5 + Math.random() * 2,
-    speed,
-    phase: Math.random() * Math.PI * 2,
-  };
-}
-
-function drawTube(ctx: CanvasRenderingContext2D, tube: Tube) {
-  const { points, color, width } = tube;
-  if (points.length < 2) return;
-
-  ctx.beginPath();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-
-  ctx.moveTo(points[0].x, points[0].y);
-
-  for (let i = 1; i < points.length - 1; i++) {
-    const mx = (points[i].x + points[i + 1].x) / 2;
-    const my = (points[i].y + points[i + 1].y) / 2;
-    ctx.quadraticCurveTo(points[i].x, points[i].y, mx, my);
-  }
-
-  const last = points[points.length - 1];
-  ctx.lineTo(last.x, last.y);
-  ctx.stroke();
-
-  ctx.strokeStyle = color.replace(/[\d.]+\)$/, (m) => `${parseFloat(m) * 1.8})`);
-  ctx.lineWidth = width * 0.4;
-  ctx.stroke();
-}
+const PURPLE_PALETTE = { 
+  colors: ["#8B5CF6", "#6D28D9", "#4C1D95"], 
+  lights: ["#A78BFA", "#8B5CF6", "#7C3AED"] 
+};
 
 interface TubesBackgroundProps {
   children?: React.ReactNode;
@@ -80,86 +15,87 @@ export const TubesBackground = memo(function TubesBackground({
   children, 
   className
 }: TubesBackgroundProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const tubesRef = useRef<Tube[]>([]);
-  const rafRef = useRef<number>(0);
-  const timeRef = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const animate = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const w = canvas.width;
-    const h = canvas.height;
-    timeRef.current += 0.008;
-    const t = timeRef.current;
-
-    ctx.clearRect(0, 0, w, h);
-
-    for (const tube of tubesRef.current) {
-      for (let i = 0; i < tube.points.length; i++) {
-        const p = tube.points[i];
-        const wave = Math.sin(t * tube.speed + tube.phase + i * 1.2) * 1.2;
-        const drift = Math.cos(t * tube.speed * 0.7 + tube.phase + i * 0.8) * 0.6;
-
-        p.x += wave + p.vx;
-        p.y += drift + p.vy;
-
-        if (p.x < -50) p.x = w + 50;
-        if (p.x > w + 50) p.x = -50;
-        if (p.y < -50) p.y = h + 50;
-        if (p.y > h + 50) p.y = -50;
-      }
-
-      drawTube(ctx, tube);
-    }
-
-    rafRef.current = requestAnimationFrame(animate);
-  }, []);
-
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!containerRef.current) return;
 
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      const ctx = canvas.getContext('2d');
-      if (ctx) ctx.scale(dpr, dpr);
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;';
+    iframe.setAttribute('tabindex', '-1');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframeRef.current = iframe;
+    containerRef.current.appendChild(iframe);
 
-      tubesRef.current = COLORS.map((color, i) =>
-        createTube(rect.width, rect.height, color, i)
-      );
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) return;
+
+    iframeDoc.open();
+    iframeDoc.write(`<!DOCTYPE html>
+<html><head><style>
+  * { margin:0; padding:0; }
+  html, body, canvas { width:100%; height:100%; display:block; background:#000; overflow:hidden; }
+</style></head>
+<body><canvas id="c"></canvas>
+<script type="module">
+  const canvas = document.getElementById('c');
+
+  // Block ALL input events inside iframe
+  const block = ['mousemove','mousedown','mouseup','touchstart','touchmove','touchend','pointerdown','pointermove','pointerup','click'];
+  block.forEach(e => {
+    document.addEventListener(e, ev => { ev.stopImmediatePropagation(); ev.preventDefault(); }, { capture: true, passive: false });
+    window.addEventListener(e, ev => { ev.stopImmediatePropagation(); ev.preventDefault(); }, { capture: true, passive: false });
+    canvas.addEventListener(e, ev => { ev.stopImmediatePropagation(); ev.preventDefault(); }, { capture: true, passive: false });
+  });
+
+  const mod = await import('https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js');
+  const TubesCursor = mod.default;
+
+  const app = TubesCursor(canvas, {
+    tubes: { count: 8, radius: 0.08, colors: ${JSON.stringify(PURPLE_PALETTE.colors)}, lights: { intensity: 450, colors: ${JSON.stringify(PURPLE_PALETTE.lights)} } },
+    renderer: { antialias: true, alpha: true, powerPreference: 'high-performance' },
+    mouse: { disabled: true, lerp: 0 },
+    cursor: { enabled: false }
+  });
+
+  if (app && app.mouse) {
+    Object.defineProperty(app.mouse, 'x', { get: () => 0, set: () => {}, configurable: true });
+    Object.defineProperty(app.mouse, 'y', { get: () => 0, set: () => {}, configurable: true });
+    try {
+      Object.defineProperty(app.mouse, 'lerpX', { get: () => 0, set: () => {}, configurable: true });
+      Object.defineProperty(app.mouse, 'lerpY', { get: () => 0, set: () => {}, configurable: true });
+    } catch(e) {}
+  }
+
+  window.parent.postMessage('tubes-loaded', '*');
+<\/script></body></html>`);
+    iframeDoc.close();
+
+    const onMessage = (e: MessageEvent) => {
+      if (e.data === 'tubes-loaded') setIsLoaded(true);
     };
+    window.addEventListener('message', onMessage);
 
-    resize();
-    setIsLoaded(true);
-    rafRef.current = requestAnimationFrame(animate);
-
-    window.addEventListener('resize', resize);
     return () => {
-      window.removeEventListener('resize', resize);
-      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener('message', onMessage);
+      if (iframeRef.current && containerRef.current) {
+        containerRef.current.removeChild(iframeRef.current);
+      }
     };
-  }, [animate]);
+  }, []);
 
   return (
     <div className={cn("relative w-full h-full overflow-hidden bg-black pointer-events-none", className)}>
-      <canvas 
-        ref={canvasRef} 
-        className="absolute inset-0 w-full h-full block pointer-events-none"
+      <div 
+        ref={containerRef}
+        className="absolute inset-0 pointer-events-none"
         style={{ 
           opacity: isLoaded ? 0.8 : 0,
           transition: 'opacity 0.5s ease-out',
-          filter: 'blur(1px) contrast(1.1) brightness(1.1)',
+          filter: 'contrast(1.1) brightness(1.1)',
           contain: 'strict',
-          touchAction: 'none',
-          userSelect: 'none'
         }}
       />
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/20 via-transparent to-black/40" />
