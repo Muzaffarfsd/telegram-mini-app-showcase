@@ -385,6 +385,29 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               </button>
             </div>
 
+            <div className="mb-6 flex justify-center">
+              <LazyMotionProvider>
+                <CardStack
+                    items={showcaseCardStackItems}
+                    initialIndex={0}
+                    autoAdvance
+                    intervalMs={2500}
+                    pauseOnHover
+                    showDots
+                    cardWidth={300}
+                    cardHeight={200}
+                    maxVisible={5}
+                    overlap={0.45}
+                    spreadDeg={35}
+                    depthPx={100}
+                    tiltXDeg={8}
+                    activeLiftPx={16}
+                    activeScale={1.02}
+                    inactiveScale={0.92}
+                />
+              </LazyMotionProvider>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div
                 className="col-span-2 relative rounded-3xl overflow-hidden cursor-pointer group nav-depth-zone transition-all duration-300 active:scale-[0.98] animate-in fade-in duration-500"
@@ -417,29 +440,6 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="col-span-2 mt-3 flex justify-center">
-                <LazyMotionProvider>
-                  <CardStack
-                    items={showcaseCardStackItems}
-                    initialIndex={0}
-                    autoAdvance
-                    intervalMs={2500}
-                    pauseOnHover
-                    showDots
-                    cardWidth={300}
-                    cardHeight={200}
-                    maxVisible={5}
-                    overlap={0.45}
-                    spreadDeg={35}
-                    depthPx={100}
-                    tiltXDeg={8}
-                    activeLiftPx={16}
-                    activeScale={1.02}
-                    inactiveScale={0.92}
-                  />
-                </LazyMotionProvider>
               </div>
 
               <div
