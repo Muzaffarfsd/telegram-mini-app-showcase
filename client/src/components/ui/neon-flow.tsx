@@ -27,17 +27,44 @@ export const TubesBackground = memo(function TubesBackground({
       if (!canvasRef.current) return;
 
       try {
+        const canvas = canvasRef.current;
+
+        const origAddEventListener = canvas.addEventListener.bind(canvas);
+        const blockedEvents = new Set(['mousemove', 'mousedown', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointermove', 'pointerup', 'click']);
+        canvas.addEventListener = function(type: string, listener: any, options?: any) {
+          if (blockedEvents.has(type)) return;
+          origAddEventListener(type, listener, options);
+        } as any;
+
+        const origDocAdd = document.addEventListener.bind(document);
+        const docListeners: Array<{ type: string; listener: any; options?: any }> = [];
+        document.addEventListener = function(type: string, listener: any, options?: any) {
+          if (blockedEvents.has(type)) {
+            docListeners.push({ type, listener, options });
+            return;
+          }
+          origDocAdd(type, listener, options);
+        } as any;
+
+        const origWinAdd = window.addEventListener.bind(window);
+        const winListeners: Array<{ type: string; listener: any; options?: any }> = [];
+        window.addEventListener = function(type: string, listener: any, options?: any) {
+          if (blockedEvents.has(type)) {
+            winListeners.push({ type, listener, options });
+            return;
+          }
+          origWinAdd(type, listener, options);
+        } as any;
+
         // @ts-ignore
         const module = await import('https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js');
         const TubesCursor = module.default;
 
-        if (!mounted) return;
-
-        const canvas = canvasRef.current;
-        
-        const blockEvent = (e: Event) => { e.stopImmediatePropagation(); e.preventDefault(); };
-        const inputEvents = ['mousemove', 'mousedown', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointermove', 'pointerup'];
-        inputEvents.forEach(evt => canvas.addEventListener(evt, blockEvent, { capture: true }));
+        if (!mounted) {
+          document.addEventListener = origDocAdd;
+          window.addEventListener = origWinAdd;
+          return;
+        }
 
         const app = TubesCursor(canvas, {
           tubes: {
@@ -63,9 +90,16 @@ export const TubesBackground = memo(function TubesBackground({
           }
         });
 
+        document.addEventListener = origDocAdd;
+        window.addEventListener = origWinAdd;
+
         if (app && app.mouse) {
-          app.mouse.x = 0;
-          app.mouse.y = 0;
+          Object.defineProperty(app.mouse, 'x', { get: () => 0, set: () => {}, configurable: true });
+          Object.defineProperty(app.mouse, 'y', { get: () => 0, set: () => {}, configurable: true });
+          if ('lerpX' in app.mouse) {
+            Object.defineProperty(app.mouse, 'lerpX', { get: () => 0, set: () => {}, configurable: true });
+            Object.defineProperty(app.mouse, 'lerpY', { get: () => 0, set: () => {}, configurable: true });
+          }
         }
 
         tubesRef.current = app;
@@ -77,21 +111,8 @@ export const TubesBackground = memo(function TubesBackground({
 
         window.addEventListener('resize', handleResize);
 
-        const freezeMouse = () => {
-          if (app && app.mouse) {
-            app.mouse.x = 0;
-            app.mouse.y = 0;
-            app.mouse.lerpX = 0;
-            app.mouse.lerpY = 0;
-          }
-        };
-
-        const freezeInterval = setInterval(freezeMouse, 16);
-
         cleanup = () => {
           window.removeEventListener('resize', handleResize);
-          clearInterval(freezeInterval);
-          inputEvents.forEach(evt => canvas.removeEventListener(evt, blockEvent, { capture: true }));
         };
 
       } catch (error) {
