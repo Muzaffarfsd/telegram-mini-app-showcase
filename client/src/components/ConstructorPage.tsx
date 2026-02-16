@@ -40,8 +40,12 @@ import {
   TrendingUp,
   CheckCircle,
   Gift,
-  Shield
+  Shield,
+  Layers,
+  Monitor,
+  Building2
 } from "lucide-react";
+import { PricingModule, type PricingPlan } from "@/components/ui/pricing-module";
 
 interface ConstructorPageProps {
   onNavigate: (section: string, data?: any) => void;
@@ -258,22 +262,20 @@ const PaymentSection = memo(({ t }: { t: (key: string) => string }) => {
           marginBottom: '24px'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: 'rgba(90, 200, 250, 0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '14px',
-              fontWeight: 700,
-              color: '#5AC8FA'
-            }}>3</div>
-            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('constructor.monthlySubscription')}</span>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            background: 'rgba(90, 200, 250, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '14px',
+            fontWeight: 700,
+            color: '#5AC8FA'
+          }}>3</div>
+          <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('constructor.monthlySubscription')}</span>
         </div>
         <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px' }}>
           {t('constructor.monthlySubscriptionDesc')}
@@ -305,78 +307,67 @@ const PaymentSection = memo(({ t }: { t: (key: string) => string }) => {
           ))}
         </div>
         
-        {/* Pricing Tiers */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {/* Minimal */}
-          <div style={{ 
-            padding: '16px', 
-            borderRadius: '12px', 
-            background: 'var(--card-bg)',
-            border: '1px solid var(--card-border)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('constructor.minimalPlan')}</p>
-                <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '2px' }}>{t('constructor.minimalPlanDesc')}</p>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>9 900</span>
-                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> {t('constructor.perMonth')}</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Standard */}
-          <div style={{ 
-            padding: '16px', 
-            borderRadius: '12px', 
-            background: 'rgba(90, 200, 250, 0.08)',
-            border: '1px solid rgba(90, 200, 250, 0.2)',
-            position: 'relative'
-          }}>
-            <div style={{
-              position: 'absolute',
-              top: '-8px',
-              right: '12px',
-              padding: '2px 8px',
-              borderRadius: '6px',
-              background: '#5AC8FA',
-              fontSize: '9px',
-              fontWeight: 700,
-              color: '#000',
-              letterSpacing: '0.05em'
-            }}>{t('constructor.popular')}</div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('constructor.standardPlan')}</p>
-                <p style={{ fontSize: '11px', color: '#5AC8FA', marginTop: '2px' }}>{t('constructor.standardPlanDesc')}</p>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>14 900</span>
-                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> {t('constructor.perMonth')}</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Premium */}
-          <div style={{ 
-            padding: '16px', 
-            borderRadius: '12px', 
-            background: 'var(--hero-gradient)',
-            border: '1px solid var(--hero-border)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('constructor.premiumPlan')}</p>
-                <p style={{ fontSize: '11px', color: 'var(--accent-primary)', marginTop: '2px' }}>{t('constructor.premiumPlanDesc')}</p>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>24 900</span>
-                <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}> {t('constructor.perMonth')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PricingModule
+          title={t('constructor.pricingTitle')}
+          subtitle={t('constructor.pricingSubtitle')}
+          annualBillingLabel={t('constructor.annualBilling')}
+          monthlyLabel={t('constructor.monthLabel')}
+          yearlyLabel={t('constructor.yearLabel')}
+          buttonLabel={t('constructor.selectPlan')}
+          currency=""
+          highlightsLabel={t('constructor.highlights')}
+          overviewLabel={t('constructor.overview')}
+          plans={[
+            {
+              id: "minimal",
+              name: t('constructor.minimalPlan'),
+              description: t('constructor.minimalPlanDesc'),
+              icon: <Layers size={18} style={{ color: 'var(--text-secondary)' }} />,
+              priceMonthly: 9900,
+              priceYearly: 99000,
+              users: t('constructor.hosting') + ' + ' + t('constructor.support'),
+              features: [
+                { label: t('constructor.hosting') + ' 99.9%', included: true },
+                { label: t('constructor.updates'), included: true },
+                { label: t('constructor.backups'), included: true },
+                { label: t('constructor.pricingFeature.prioritySupport'), included: false },
+              ],
+            },
+            {
+              id: "standard",
+              name: t('constructor.standardPlan'),
+              description: t('constructor.standardPlanDesc'),
+              icon: <Monitor size={18} style={{ color: '#5AC8FA' }} />,
+              priceMonthly: 14900,
+              priceYearly: 149000,
+              users: t('constructor.hosting') + ' + ' + t('constructor.support') + ' + ' + t('constructor.updates'),
+              features: [
+                { label: t('constructor.hosting') + ' 99.9%', included: true },
+                { label: t('constructor.updates'), included: true },
+                { label: t('constructor.backups'), included: true },
+                { label: t('constructor.pricingFeature.prioritySupport'), included: true },
+              ],
+              recommended: true,
+            },
+            {
+              id: "premium",
+              name: t('constructor.premiumPlan'),
+              description: t('constructor.premiumPlanDesc'),
+              icon: <Building2 size={18} style={{ color: 'var(--accent-primary)' }} />,
+              priceMonthly: 24900,
+              priceYearly: 249000,
+              users: t('constructor.pricingFeature.allInclusive'),
+              features: [
+                { label: t('constructor.hosting') + ' 99.9%', included: true },
+                { label: t('constructor.updates'), included: true },
+                { label: t('constructor.backups'), included: true },
+                { label: t('constructor.pricingFeature.prioritySupport'), included: true },
+                { label: t('constructor.pricingFeature.consultations'), included: true },
+              ],
+            },
+          ]}
+          defaultAnnual={false}
+        />
       </div>
 
     </section>
