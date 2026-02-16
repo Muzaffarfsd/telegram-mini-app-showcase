@@ -1,5 +1,15 @@
-import { useState, memo } from "react";
-import { Check, X, Layers, Monitor, Users, Building2 } from "lucide-react";
+import * as React from "react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Check, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export interface PlanFeature {
   label: string;
@@ -22,313 +32,137 @@ export interface PricingModuleProps {
   title?: string;
   subtitle?: string;
   annualBillingLabel?: string;
-  monthlyLabel?: string;
-  yearlyLabel?: string;
   buttonLabel?: string;
   plans: PricingPlan[];
   defaultAnnual?: boolean;
+  className?: string;
   currency?: string;
+  monthlyLabel?: string;
+  yearlyLabel?: string;
   highlightsLabel?: string;
   overviewLabel?: string;
+  recommendedLabel?: string;
 }
 
-export const PricingModule = memo(function PricingModule({
+export function PricingModule({
   title = "Pricing Plans",
   subtitle = "Choose a plan that fits your needs.",
   annualBillingLabel = "Annual billing",
-  monthlyLabel = "month",
-  yearlyLabel = "year",
   buttonLabel = "Get started",
   plans,
   defaultAnnual = false,
+  className,
   currency = "$",
+  monthlyLabel = "month",
+  yearlyLabel = "year",
   highlightsLabel = "Highlights",
   overviewLabel = "Overview",
+  recommendedLabel = "Recommended",
 }: PricingModuleProps) {
-  const [isAnnual, setIsAnnual] = useState(defaultAnnual);
+  const [isAnnual, setIsAnnual] = React.useState(defaultAnnual);
 
   return (
-    <div style={{ width: "100%" }}>
-      <h3
-        style={{
-          fontSize: "20px",
-          fontWeight: 700,
-          color: "var(--text-primary)",
-          marginBottom: "4px",
-          letterSpacing: "-0.02em",
-        }}
-      >
-        {title}
-      </h3>
-      <p
-        style={{
-          fontSize: "13px",
-          color: "var(--text-tertiary)",
-          marginBottom: "16px",
-        }}
-      >
-        {subtitle}
-      </p>
+    <section
+      className={cn(
+        "w-full py-6",
+        className
+      )}
+    >
+      <div className="mx-auto text-center">
+        <h2 className="text-2xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>{title}</h2>
+        <p className="text-sm mb-6" style={{ color: 'var(--text-tertiary)' }}>{subtitle}</p>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          marginBottom: "16px",
-        }}
-      >
-        <button
-          onClick={() => setIsAnnual(!isAnnual)}
-          style={{
-            position: "relative",
-            width: "44px",
-            height: "24px",
-            borderRadius: "12px",
-            border: "none",
-            background: isAnnual
-              ? "var(--accent-primary, #8b5cf6)"
-              : "var(--button-secondary-bg, rgba(120,120,128,0.16))",
-            cursor: "pointer",
-            transition: "background 0.2s",
-            padding: 0,
-            flexShrink: 0,
-          }}
-          aria-label={annualBillingLabel}
-        >
-          <div
-            style={{
-              position: "absolute",
-              top: "2px",
-              left: isAnnual ? "22px" : "2px",
-              width: "20px",
-              height: "20px",
-              borderRadius: "50%",
-              background: "#fff",
-              transition: "left 0.2s",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-            }}
+        <div className="flex items-center justify-center gap-2 mb-8">
+          <Switch
+            id="billing-toggle"
+            checked={isAnnual}
+            onCheckedChange={(checked) => setIsAnnual(checked)}
           />
-        </button>
-        <span
-          style={{
-            fontSize: "13px",
-            color: "var(--text-secondary)",
-          }}
-        >
-          {annualBillingLabel}
-        </span>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-        }}
-      >
-        {plans.map((plan) => (
-          <div
-            key={plan.id}
-            style={{
-              position: "relative",
-              padding: "20px",
-              borderRadius: "16px",
-              background: plan.recommended
-                ? "rgba(90, 200, 250, 0.06)"
-                : "var(--card-bg)",
-              border: plan.recommended
-                ? "1.5px solid rgba(90, 200, 250, 0.25)"
-                : "1px solid var(--card-border)",
-              transition: "all 0.2s",
-            }}
+          <label
+            htmlFor="billing-toggle"
+            className="text-sm cursor-pointer"
+            style={{ color: 'var(--text-secondary)' }}
           >
-            {plan.recommended && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "-9px",
-                  right: "16px",
-                  padding: "2px 10px",
-                  borderRadius: "8px",
-                  background: "#5AC8FA",
-                  fontSize: "9px",
-                  fontWeight: 700,
-                  color: "#000",
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
-                }}
-              >
-                Recommended
-              </div>
-            )}
+            {annualBillingLabel}
+          </label>
+        </div>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                justifyContent: "space-between",
-                marginBottom: "12px",
-              }}
+        <div className="grid grid-cols-1 gap-5">
+          {plans.map((plan) => (
+            <Card
+              key={plan.id}
+              className={cn(
+                "relative rounded-xl transition-all",
+                plan.recommended
+                  ? "border-[#5AC8FA] ring-1 ring-[#5AC8FA]/30 scale-[1.02]"
+                  : "border-white/10 hover:border-white/20"
+              )}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                }}
-              >
-                <div
-                  style={{
-                    width: "36px",
-                    height: "36px",
-                    borderRadius: "10px",
-                    background: plan.recommended
-                      ? "rgba(90, 200, 250, 0.15)"
-                      : "var(--button-secondary-bg)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
+              {plan.recommended && (
+                <div className="absolute -top-3 left-0 right-0 mx-auto w-fit text-xs px-3 py-1 rounded-full font-semibold"
+                  style={{ background: '#5AC8FA', color: '#000' }}
                 >
-                  {plan.icon}
+                  {recommendedLabel}
                 </div>
-                <div>
-                  <p
-                    style={{
-                      fontSize: "15px",
-                      fontWeight: 600,
-                      color: "var(--text-primary)",
-                      marginBottom: "2px",
-                    }}
-                  >
-                    {plan.name}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: "11px",
-                      color: plan.recommended
-                        ? "#5AC8FA"
-                        : "var(--text-tertiary)",
-                    }}
-                  >
-                    {plan.description}
-                  </p>
-                </div>
-              </div>
+              )}
 
-              <div style={{ textAlign: "right", flexShrink: 0 }}>
-                <span
-                  style={{
-                    fontSize: "24px",
-                    fontWeight: 700,
-                    color: "var(--text-primary)",
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  {currency}
-                  {isAnnual ? plan.priceYearly : plan.priceMonthly}
-                </span>
-                <p
-                  style={{
-                    fontSize: "11px",
-                    color: "var(--text-tertiary)",
-                  }}
-                >
+              <CardHeader className="text-center pt-7 pb-3">
+                <div className="flex justify-center mb-3">{plan.icon}</div>
+                <CardTitle className="text-lg" style={{ color: 'var(--text-primary)' }}>{plan.name}</CardTitle>
+                <CardDescription style={{ color: plan.recommended ? '#5AC8FA' : 'var(--text-tertiary)' }}>
+                  {plan.description}
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="text-center">
+                <div className="text-3xl font-bold mb-1 transition-all duration-300" style={{ color: 'var(--text-primary)' }}>
+                  {currency}{isAnnual ? plan.priceYearly.toLocaleString() : plan.priceMonthly.toLocaleString()}
+                </div>
+                <p className="text-sm mb-4" style={{ color: 'var(--text-tertiary)' }}>
                   / {isAnnual ? yearlyLabel : monthlyLabel}
                 </p>
-              </div>
-            </div>
 
-            <p
-              style={{
-                fontSize: "12px",
-                color: "var(--text-secondary)",
-                marginBottom: "8px",
-              }}
-            >
-              ✓ {plan.users}
-            </p>
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-                marginBottom: "14px",
-              }}
-            >
-              {plan.features.map((f, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                  }}
-                >
-                  {f.included ? (
-                    <Check
-                      size={14}
-                      style={{
-                        color: plan.recommended
-                          ? "#5AC8FA"
-                          : "var(--accent-primary, #8b5cf6)",
-                        flexShrink: 0,
-                      }}
-                    />
-                  ) : (
-                    <X
-                      size={14}
-                      style={{
-                        color: "var(--text-tertiary)",
-                        opacity: 0.5,
-                        flexShrink: 0,
-                      }}
-                    />
+                <Button
+                  variant={plan.recommended ? "default" : "outline"}
+                  className={cn(
+                    "w-full mb-5",
+                    plan.recommended && "bg-[#5AC8FA] hover:bg-[#5AC8FA]/90 text-black"
                   )}
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      color: f.included
-                        ? "var(--text-secondary)"
-                        : "var(--text-tertiary)",
-                      textDecoration: f.included ? "none" : "line-through",
-                      opacity: f.included ? 1 : 0.6,
-                    }}
-                  >
-                    {f.label}
-                  </span>
+                >
+                  {buttonLabel}
+                </Button>
+
+                <div className="text-left text-sm">
+                  <h4 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{overviewLabel}</h4>
+                  <p className="mb-3" style={{ color: 'var(--text-secondary)' }}>✓ {plan.users}</p>
+
+                  <h4 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{highlightsLabel}</h4>
+                  <ul className="space-y-2">
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="flex items-center gap-2">
+                        {f.included ? (
+                          <Check className="w-4 h-4 shrink-0" style={{ color: plan.recommended ? '#5AC8FA' : 'var(--accent-primary, #8b5cf6)' }} />
+                        ) : (
+                          <X className="w-4 h-4 shrink-0" style={{ color: 'var(--text-tertiary)', opacity: 0.5 }} />
+                        )}
+                        <span
+                          className={cn(
+                            "text-sm",
+                            !f.included && "line-through opacity-60"
+                          )}
+                          style={{ color: f.included ? 'var(--text-secondary)' : 'var(--text-tertiary)' }}
+                        >
+                          {f.label}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              ))}
-            </div>
-
-            <button
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "10px",
-                border: plan.recommended
-                  ? "none"
-                  : "1px solid var(--card-border)",
-                background: plan.recommended
-                  ? "#5AC8FA"
-                  : "var(--button-secondary-bg)",
-                color: plan.recommended ? "#000" : "var(--text-primary)",
-                fontSize: "13px",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "opacity 0.2s",
-              }}
-            >
-              {buttonLabel}
-            </button>
-          </div>
-        ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
-});
-
-export { Layers, Monitor, Users as UsersIcon, Building2 };
+}

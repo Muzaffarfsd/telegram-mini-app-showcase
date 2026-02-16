@@ -317,12 +317,13 @@ const PaymentSection = memo(({ t }: { t: (key: string) => string }) => {
           currency=""
           highlightsLabel={t('constructor.highlights')}
           overviewLabel={t('constructor.overview')}
+          recommendedLabel={t('constructor.popular')}
           plans={[
             {
               id: "minimal",
               name: t('constructor.minimalPlan'),
               description: t('constructor.minimalPlanDesc'),
-              icon: <Layers size={18} style={{ color: 'var(--text-secondary)' }} />,
+              icon: <Layers className="w-8 h-8" style={{ color: 'var(--text-secondary)' }} />,
               priceMonthly: 9900,
               priceYearly: 99000,
               users: t('constructor.hosting') + ' + ' + t('constructor.support'),
@@ -337,7 +338,7 @@ const PaymentSection = memo(({ t }: { t: (key: string) => string }) => {
               id: "standard",
               name: t('constructor.standardPlan'),
               description: t('constructor.standardPlanDesc'),
-              icon: <Monitor size={18} style={{ color: '#5AC8FA' }} />,
+              icon: <Monitor className="w-8 h-8" style={{ color: '#5AC8FA' }} />,
               priceMonthly: 14900,
               priceYearly: 149000,
               users: t('constructor.hosting') + ' + ' + t('constructor.support') + ' + ' + t('constructor.updates'),
@@ -353,7 +354,7 @@ const PaymentSection = memo(({ t }: { t: (key: string) => string }) => {
               id: "premium",
               name: t('constructor.premiumPlan'),
               description: t('constructor.premiumPlanDesc'),
-              icon: <Building2 size={18} style={{ color: 'var(--accent-primary)' }} />,
+              icon: <Building2 className="w-8 h-8" style={{ color: 'var(--accent-primary)' }} />,
               priceMonthly: 24900,
               priceYearly: 249000,
               users: t('constructor.pricingFeature.allInclusive'),
