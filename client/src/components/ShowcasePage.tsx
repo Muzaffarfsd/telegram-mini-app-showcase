@@ -197,7 +197,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               <div 
                 className="rounded-[36px] p-8 mb-6 relative overflow-hidden"
                 style={{
-                  background: isDark ? 'rgba(30,30,35,0.85)' : 'rgba(255,255,255,0.88)',
+                  background: isDark ? 'rgba(40,40,50,0.55)' : 'rgba(255,255,255,0.6)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                   border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.08)',
                   boxShadow: isDark 
                     ? '0 24px 48px -12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' 
@@ -253,7 +255,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               <div 
                 className="rounded-[20px] px-6 py-5 mb-10 w-full relative overflow-hidden"
                 style={{
-                  background: isDark ? 'rgba(30,30,35,0.75)' : 'rgba(255,255,255,0.82)',
+                  background: isDark ? 'rgba(40,40,50,0.45)' : 'rgba(255,255,255,0.55)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                   border: isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.06)',
                   boxShadow: isDark ? '0 16px 32px -8px rgba(0,0,0,0.35)' : '0 16px 32px -8px rgba(0,0,0,0.08)'
                 }}
@@ -701,8 +705,10 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               className="rounded-[22px] p-5 relative overflow-hidden"
               style={{
                 background: isDark 
-                  ? 'linear-gradient(180deg, rgba(16,185,129,0.06) 0%, rgba(16,185,129,0.02) 100%)'
-                  : 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.03) 100%)',
+                  ? 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.03) 100%)'
+                  : 'linear-gradient(180deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.04) 100%)',
+                backdropFilter: 'blur(16px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(16px) saturate(150%)',
                 border: isDark ? '0.5px solid rgba(16,185,129,0.15)' : '0.5px solid rgba(16,185,129,0.2)',
                 boxShadow: isDark 
                   ? '0 8px 32px rgba(16,185,129,0.08), inset 0 0.5px 0 rgba(255,255,255,0.04)'
@@ -782,6 +788,8 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 background: isDark 
                   ? 'linear-gradient(180deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.04) 100%)'
                   : 'linear-gradient(180deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.05) 100%)',
+                backdropFilter: 'blur(16px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(16px) saturate(150%)',
                 border: isDark ? '0.5px solid rgba(16,185,129,0.2)' : '0.5px solid rgba(16,185,129,0.25)',
                 boxShadow: isDark 
                   ? '0 12px 48px rgba(16,185,129,0.12), inset 0 1px 0 rgba(255,255,255,0.05)'
