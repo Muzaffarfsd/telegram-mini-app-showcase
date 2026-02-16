@@ -28,32 +28,36 @@ export const TubesBackground = memo(function TubesBackground({
 
       try {
         const canvas = canvasRef.current;
+        const blockedTypes = new Set(['mousemove', 'mousedown', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointermove', 'pointerup', 'click']);
 
-        const origAddEventListener = canvas.addEventListener.bind(canvas);
-        const blockedEvents = new Set(['mousemove', 'mousedown', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointermove', 'pointerup', 'click']);
+        const capturedDocListeners: Array<[string, EventListenerOrEventListenerObject, any]> = [];
+        const capturedWinListeners: Array<[string, EventListenerOrEventListenerObject, any]> = [];
+
+        const origDocAdd = document.addEventListener;
+        const origDocRemove = document.removeEventListener;
+        const origWinAdd = window.addEventListener;
+        const origWinRemove = window.removeEventListener;
+        const origCanvasAdd = canvas.addEventListener;
+
         canvas.addEventListener = function(type: string, listener: any, options?: any) {
-          if (blockedEvents.has(type)) return;
-          origAddEventListener(type, listener, options);
+          if (blockedTypes.has(type)) return;
+          origCanvasAdd.call(canvas, type, listener, options);
         } as any;
 
-        const origDocAdd = document.addEventListener.bind(document);
-        const docListeners: Array<{ type: string; listener: any; options?: any }> = [];
         document.addEventListener = function(type: string, listener: any, options?: any) {
-          if (blockedEvents.has(type)) {
-            docListeners.push({ type, listener, options });
+          if (blockedTypes.has(type)) {
+            capturedDocListeners.push([type, listener, options]);
             return;
           }
-          origDocAdd(type, listener, options);
+          origDocAdd.call(document, type, listener, options);
         } as any;
 
-        const origWinAdd = window.addEventListener.bind(window);
-        const winListeners: Array<{ type: string; listener: any; options?: any }> = [];
         window.addEventListener = function(type: string, listener: any, options?: any) {
-          if (blockedEvents.has(type)) {
-            winListeners.push({ type, listener, options });
+          if (blockedTypes.has(type)) {
+            capturedWinListeners.push([type, listener, options]);
             return;
           }
-          origWinAdd(type, listener, options);
+          origWinAdd.call(window, type, listener, options);
         } as any;
 
         // @ts-ignore
@@ -62,7 +66,10 @@ export const TubesBackground = memo(function TubesBackground({
 
         if (!mounted) {
           document.addEventListener = origDocAdd;
+          document.removeEventListener = origDocRemove;
           window.addEventListener = origWinAdd;
+          window.removeEventListener = origWinRemove;
+          canvas.addEventListener = origCanvasAdd;
           return;
         }
 
@@ -91,14 +98,41 @@ export const TubesBackground = memo(function TubesBackground({
         });
 
         document.addEventListener = origDocAdd;
+        document.removeEventListener = origDocRemove;
         window.addEventListener = origWinAdd;
+        window.removeEventListener = origWinRemove;
+        canvas.addEventListener = origCanvasAdd;
 
-        if (app && app.mouse) {
-          Object.defineProperty(app.mouse, 'x', { get: () => 0, set: () => {}, configurable: true });
-          Object.defineProperty(app.mouse, 'y', { get: () => 0, set: () => {}, configurable: true });
-          if ('lerpX' in app.mouse) {
-            Object.defineProperty(app.mouse, 'lerpX', { get: () => 0, set: () => {}, configurable: true });
-            Object.defineProperty(app.mouse, 'lerpY', { get: () => 0, set: () => {}, configurable: true });
+        capturedDocListeners.forEach(([type, listener, options]) => {
+          origDocRemove.call(document, type, listener, options);
+        });
+        capturedWinListeners.forEach(([type, listener, options]) => {
+          origWinRemove.call(window, type, listener, options);
+        });
+
+        if (app) {
+          const lockMouse = (obj: any) => {
+            if (!obj) return;
+            for (const key of Object.keys(obj)) {
+              if (typeof obj[key] === 'number') {
+                Object.defineProperty(obj, key, { get: () => 0, set: () => {}, configurable: true });
+              }
+            }
+          };
+          if (app.mouse) lockMouse(app.mouse);
+          if (app.cursor) lockMouse(app.cursor);
+
+          const scene = app.scene || app.three?.scene;
+          if (scene) {
+            scene.traverse?.((child: any) => {
+              if (child.material?.uniforms?.uMouse) {
+                const u = child.material.uniforms.uMouse;
+                if (u.value) {
+                  Object.defineProperty(u.value, 'x', { get: () => 0, set: () => {}, configurable: true });
+                  Object.defineProperty(u.value, 'y', { get: () => 0, set: () => {}, configurable: true });
+                }
+              }
+            });
           }
         }
 
@@ -108,7 +142,6 @@ export const TubesBackground = memo(function TubesBackground({
         const handleResize = () => {
           if (app && app.resize) app.resize();
         };
-
         window.addEventListener('resize', handleResize);
 
         cleanup = () => {
