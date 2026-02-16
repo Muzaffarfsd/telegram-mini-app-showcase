@@ -1,15 +1,5 @@
 import * as React from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Check, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export interface PlanFeature {
   label: string;
@@ -51,7 +41,6 @@ export function PricingModule({
   buttonLabel = "Get started",
   plans,
   defaultAnnual = false,
-  className,
   currency = "$",
   monthlyLabel = "month",
   yearlyLabel = "year",
@@ -62,107 +51,224 @@ export function PricingModule({
   const [isAnnual, setIsAnnual] = React.useState(defaultAnnual);
 
   return (
-    <section
-      className={cn(
-        "w-full py-6",
-        className
-      )}
-    >
-      <div className="mx-auto text-center">
-        <h2 className="text-2xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>{title}</h2>
-        <p className="text-sm mb-6" style={{ color: 'var(--text-tertiary)' }}>{subtitle}</p>
+    <div style={{ width: "100%", paddingTop: "8px" }}>
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <h2 style={{
+          fontSize: "22px",
+          fontWeight: 700,
+          letterSpacing: "-0.02em",
+          color: "var(--text-primary)",
+          marginBottom: "6px",
+        }}>
+          {title}
+        </h2>
+        <p style={{
+          fontSize: "13px",
+          color: "var(--text-tertiary)",
+        }}>
+          {subtitle}
+        </p>
+      </div>
 
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <Switch
-            id="billing-toggle"
-            checked={isAnnual}
-            onCheckedChange={(checked) => setIsAnnual(checked)}
-          />
-          <label
-            htmlFor="billing-toggle"
-            className="text-sm cursor-pointer"
-            style={{ color: 'var(--text-secondary)' }}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "10px",
+        marginBottom: "20px",
+      }}>
+        <button
+          onClick={() => setIsAnnual(!isAnnual)}
+          style={{
+            position: "relative",
+            width: "44px",
+            height: "24px",
+            borderRadius: "12px",
+            border: "none",
+            background: isAnnual ? "#8b5cf6" : "rgba(120,120,128,0.32)",
+            cursor: "pointer",
+            transition: "background 0.2s",
+            padding: 0,
+            flexShrink: 0,
+          }}
+          aria-label={annualBillingLabel}
+        >
+          <div style={{
+            position: "absolute",
+            top: "2px",
+            left: isAnnual ? "22px" : "2px",
+            width: "20px",
+            height: "20px",
+            borderRadius: "50%",
+            background: "#fff",
+            transition: "left 0.2s",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+          }} />
+        </button>
+        <label
+          style={{
+            fontSize: "13px",
+            color: "var(--text-secondary)",
+            cursor: "pointer",
+          }}
+          onClick={() => setIsAnnual(!isAnnual)}
+        >
+          {annualBillingLabel}
+        </label>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        {plans.map((plan) => (
+          <div
+            key={plan.id}
+            style={{
+              position: "relative",
+              borderRadius: "16px",
+              border: plan.recommended
+                ? "1.5px solid rgba(90, 200, 250, 0.4)"
+                : "1px solid var(--card-border)",
+              background: plan.recommended
+                ? "rgba(90, 200, 250, 0.06)"
+                : "rgba(255, 255, 255, 0.05)",
+              backdropFilter: "blur(16px)",
+              transition: "all 0.2s",
+              transform: plan.recommended ? "scale(1.02)" : "scale(1)",
+              boxShadow: plan.recommended
+                ? "0 0 20px rgba(90, 200, 250, 0.1)"
+                : "0 2px 8px rgba(0,0,0,0.2)",
+            }}
           >
-            {annualBillingLabel}
-          </label>
-        </div>
+            {plan.recommended && (
+              <div style={{
+                position: "absolute",
+                top: "-11px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                padding: "3px 14px",
+                borderRadius: "20px",
+                background: "#5AC8FA",
+                fontSize: "11px",
+                fontWeight: 600,
+                color: "#000",
+                whiteSpace: "nowrap",
+              }}>
+                {recommendedLabel}
+              </div>
+            )}
 
-        <div className="grid grid-cols-1 gap-5">
-          {plans.map((plan) => (
-            <Card
-              key={plan.id}
-              className={cn(
-                "relative rounded-xl transition-all",
-                plan.recommended
-                  ? "border-[#5AC8FA] ring-1 ring-[#5AC8FA]/30 scale-[1.02]"
-                  : "border-white/10 hover:border-white/20"
-              )}
-            >
-              {plan.recommended && (
-                <div className="absolute -top-3 left-0 right-0 mx-auto w-fit text-xs px-3 py-1 rounded-full font-semibold"
-                  style={{ background: '#5AC8FA', color: '#000' }}
-                >
-                  {recommendedLabel}
-                </div>
-              )}
+            <div style={{
+              padding: "28px 20px 8px",
+              textAlign: "center",
+            }}>
+              <div style={{
+                display: "flex",
+                justifyContent: "center",
+                marginBottom: "14px",
+              }}>
+                {plan.icon}
+              </div>
+              <p style={{
+                fontSize: "18px",
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                marginBottom: "4px",
+              }}>
+                {plan.name}
+              </p>
+              <p style={{
+                fontSize: "13px",
+                color: plan.recommended ? "#5AC8FA" : "var(--text-tertiary)",
+              }}>
+                {plan.description}
+              </p>
+            </div>
 
-              <CardHeader className="text-center pt-7 pb-3">
-                <div className="flex justify-center mb-3">{plan.icon}</div>
-                <CardTitle className="text-lg" style={{ color: 'var(--text-primary)' }}>{plan.name}</CardTitle>
-                <CardDescription style={{ color: plan.recommended ? '#5AC8FA' : 'var(--text-tertiary)' }}>
-                  {plan.description}
-                </CardDescription>
-              </CardHeader>
+            <div style={{ padding: "12px 20px 20px", textAlign: "center" }}>
+              <div style={{
+                fontSize: "30px",
+                fontWeight: 700,
+                color: "var(--text-primary)",
+                letterSpacing: "-0.02em",
+                marginBottom: "2px",
+                transition: "all 0.3s",
+              }}>
+                {currency}{(isAnnual ? plan.priceYearly : plan.priceMonthly).toLocaleString()}
+              </div>
+              <p style={{
+                fontSize: "13px",
+                color: "var(--text-tertiary)",
+                marginBottom: "16px",
+              }}>
+                / {isAnnual ? yearlyLabel : monthlyLabel}
+              </p>
 
-              <CardContent className="text-center">
-                <div className="text-3xl font-bold mb-1 transition-all duration-300" style={{ color: 'var(--text-primary)' }}>
-                  {currency}{isAnnual ? plan.priceYearly.toLocaleString() : plan.priceMonthly.toLocaleString()}
-                </div>
-                <p className="text-sm mb-4" style={{ color: 'var(--text-tertiary)' }}>
-                  / {isAnnual ? yearlyLabel : monthlyLabel}
+              <button
+                style={{
+                  width: "100%",
+                  padding: "10px 16px",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  marginBottom: "20px",
+                  border: plan.recommended ? "none" : "1px solid var(--card-border)",
+                  background: plan.recommended ? "#5AC8FA" : "transparent",
+                  color: plan.recommended ? "#000" : "var(--text-primary)",
+                }}
+              >
+                {buttonLabel}
+              </button>
+
+              <div style={{ textAlign: "left" }}>
+                <p style={{
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  marginBottom: "6px",
+                }}>
+                  {overviewLabel}
+                </p>
+                <p style={{
+                  fontSize: "13px",
+                  color: "var(--text-secondary)",
+                  marginBottom: "14px",
+                }}>
+                  ✓ {plan.users}
                 </p>
 
-                <Button
-                  variant={plan.recommended ? "default" : "outline"}
-                  className={cn(
-                    "w-full mb-5",
-                    plan.recommended && "bg-[#5AC8FA] hover:bg-[#5AC8FA]/90 text-black"
-                  )}
-                >
-                  {buttonLabel}
-                </Button>
-
-                <div className="text-left text-sm">
-                  <h4 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{overviewLabel}</h4>
-                  <p className="mb-3" style={{ color: 'var(--text-secondary)' }}>✓ {plan.users}</p>
-
-                  <h4 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{highlightsLabel}</h4>
-                  <ul className="space-y-2">
-                    {plan.features.map((f, i) => (
-                      <li key={i} className="flex items-center gap-2">
-                        {f.included ? (
-                          <Check className="w-4 h-4 shrink-0" style={{ color: plan.recommended ? '#5AC8FA' : 'var(--accent-primary, #8b5cf6)' }} />
-                        ) : (
-                          <X className="w-4 h-4 shrink-0" style={{ color: 'var(--text-tertiary)', opacity: 0.5 }} />
-                        )}
-                        <span
-                          className={cn(
-                            "text-sm",
-                            !f.included && "line-through opacity-60"
-                          )}
-                          style={{ color: f.included ? 'var(--text-secondary)' : 'var(--text-tertiary)' }}
-                        >
-                          {f.label}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                <p style={{
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  marginBottom: "8px",
+                }}>
+                  {highlightsLabel}
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {plan.features.map((f, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      {f.included ? (
+                        <Check size={16} color={plan.recommended ? "#5AC8FA" : "#8b5cf6"} style={{ flexShrink: 0 }} />
+                      ) : (
+                        <X size={16} style={{ color: "var(--text-tertiary)", opacity: 0.5, flexShrink: 0 }} />
+                      )}
+                      <span style={{
+                        fontSize: "13px",
+                        color: f.included ? "var(--text-secondary)" : "var(--text-tertiary)",
+                        textDecoration: f.included ? "none" : "line-through",
+                        opacity: f.included ? 1 : 0.6,
+                      }}>
+                        {f.label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }
