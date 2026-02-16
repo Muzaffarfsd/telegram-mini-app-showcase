@@ -81,12 +81,10 @@ export function usePullToRefresh({
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      // Quick exit if not at top or refreshing
       if (startYRef.current === 0 || isRefreshingRef.current) return;
       
       const scrollTop = getScrollTop();
       
-      // If scrolled down, cancel
       if (scrollTop > 5) {
         isPullingRef.current = false;
         startYRef.current = 0;
@@ -100,19 +98,11 @@ export function usePullToRefresh({
       const currentY = e.touches[0].clientY;
       const deltaY = currentY - startYRef.current;
 
-      // Must be pulling down with significant movement
       if (deltaY > 20 && scrollTop <= 2) {
         isPullingRef.current = true;
-        
-        // Apply elastic resistance
         const elasticDistance = Math.min(deltaY * 0.4, maxPullDistance);
         setPullDistance(elasticDistance);
         pullDistanceRef.current = elasticDistance;
-        
-        // Prevent default only after significant pull
-        if (deltaY > 40) {
-          e.preventDefault();
-        }
       }
     };
 
@@ -135,9 +125,8 @@ export function usePullToRefresh({
       isPullingRef.current = false;
     };
 
-    // Attach to document with passive: true for start/end, passive: false for move
     document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
     document.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {

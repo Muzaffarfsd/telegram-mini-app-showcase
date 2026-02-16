@@ -197,9 +197,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               <div 
                 className="rounded-[36px] p-8 mb-6 relative overflow-hidden"
                 style={{
-                  background: isDark ? 'rgba(100,100,110,0.32)' : 'rgba(255,255,255,0.75)',
-                  backdropFilter: 'blur(60px) saturate(200%)',
-                  WebkitBackdropFilter: 'blur(60px) saturate(200%)',
+                  background: isDark ? 'rgba(30,30,35,0.85)' : 'rgba(255,255,255,0.88)',
                   border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.08)',
                   boxShadow: isDark 
                     ? '0 24px 48px -12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' 
@@ -255,9 +253,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               <div 
                 className="rounded-[20px] px-6 py-5 mb-10 w-full relative overflow-hidden"
                 style={{
-                  background: isDark ? 'rgba(100,100,110,0.22)' : 'rgba(255,255,255,0.65)',
-                  backdropFilter: 'blur(50px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(50px) saturate(180%)',
+                  background: isDark ? 'rgba(30,30,35,0.75)' : 'rgba(255,255,255,0.82)',
                   border: isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.06)',
                   boxShadow: isDark ? '0 16px 32px -8px rgba(0,0,0,0.35)' : '0 16px 32px -8px rgba(0,0,0,0.08)'
                 }}
@@ -287,9 +283,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleNavigate('projects')}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97] backdrop-blur-2xl"
+                  className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
                   style={{ 
-                    background: isDark ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.9)',
+                    background: isDark ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.9)',
                     height: '48px',
                     paddingLeft: '14px',
                     paddingRight: '12px',
@@ -305,7 +301,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 
                 <button
                   onClick={() => handleOpenDemo('clothing-store')}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97] backdrop-blur-2xl"
+                  className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-200 active:scale-[0.97]"
                   style={{ 
                     border: isDark ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(0, 0, 0, 0.15)',
                     height: '48px',
@@ -324,9 +320,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
               <div className="grid grid-cols-3 gap-3 mt-12">
                 <div
-                  className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 backdrop-blur-xl"
+                  className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500"
                   style={{ 
-                    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.8)', 
+                    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.9)', 
                     height: '88px', 
                     border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)' 
                   }}
@@ -339,9 +335,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   </div>
                 </div>
                 <div
-                  className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 backdrop-blur-xl"
+                  className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100"
                   style={{ 
-                    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.8)', 
+                    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.9)', 
                     height: '88px', 
                     border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)' 
                   }}
@@ -354,7 +350,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   </div>
                 </div>
                 <div
-                  className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200 backdrop-blur-xl"
+                  className="p-4 rounded-2xl text-center flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200"
                   style={{ 
                     backgroundColor: isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.15)', 
                     height: '88px', 
@@ -548,8 +544,6 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     background: isDark 
                       ? 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.015) 100%)'
                       : 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%)',
-                    backdropFilter: 'blur(60px) saturate(200%)',
-                    WebkitBackdropFilter: 'blur(60px) saturate(200%)',
                     border: isDark ? '0.5px solid rgba(255,255,255,0.08)' : '0.5px solid rgba(0,0,0,0.06)',
                     boxShadow: isDark 
                       ? `0 8px 32px rgba(0,0,0,0.3), 0 0 0 0.5px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.05)`
@@ -656,8 +650,6 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     background: isDark 
                       ? 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)'
                       : 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.75) 100%)',
-                    backdropFilter: 'blur(40px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
                     border: isDark ? '0.5px solid rgba(255,255,255,0.06)' : '0.5px solid rgba(0,0,0,0.05)',
                     boxShadow: isDark 
                       ? '0 4px 20px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.04)'
@@ -711,8 +703,6 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 background: isDark 
                   ? 'linear-gradient(180deg, rgba(16,185,129,0.06) 0%, rgba(16,185,129,0.02) 100%)'
                   : 'linear-gradient(180deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.03) 100%)',
-                backdropFilter: 'blur(60px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(60px) saturate(180%)',
                 border: isDark ? '0.5px solid rgba(16,185,129,0.15)' : '0.5px solid rgba(16,185,129,0.2)',
                 boxShadow: isDark 
                   ? '0 8px 32px rgba(16,185,129,0.08), inset 0 0.5px 0 rgba(255,255,255,0.04)'
@@ -792,8 +782,6 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 background: isDark 
                   ? 'linear-gradient(180deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.04) 100%)'
                   : 'linear-gradient(180deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.05) 100%)',
-                backdropFilter: 'blur(60px) saturate(200%)',
-                WebkitBackdropFilter: 'blur(60px) saturate(200%)',
                 border: isDark ? '0.5px solid rgba(16,185,129,0.2)' : '0.5px solid rgba(16,185,129,0.25)',
                 boxShadow: isDark 
                   ? '0 12px 48px rgba(16,185,129,0.12), inset 0 1px 0 rgba(255,255,255,0.05)'
