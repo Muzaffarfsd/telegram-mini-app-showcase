@@ -1,8 +1,6 @@
 'use client'
 
-import { Suspense, lazy, useState, useCallback, memo, useEffect } from 'react'
-
-const Spline = lazy(() => import('@splinetool/react-spline'))
+import { memo, useState, useCallback, useRef, useEffect } from 'react'
 
 interface SplineSceneProps {
   scene: string
@@ -34,38 +32,64 @@ function SplineLoadingSkeleton() {
 
 function SplineSceneInner({ scene, className, onLoad }: SplineSceneProps) {
   const [isReady, setIsReady] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const iframeRef = useRef<HTMLIFrameElement | null>(null)
 
   useEffect(() => {
-    console.log('[Spline] Mounting scene:', scene)
-  }, [scene])
+    if (!containerRef.current) return
+    console.log('[Spline] Mounting scene in iframe:', scene)
 
-  const handleLoad = useCallback(() => {
-    console.log('[Spline] Scene loaded successfully')
-    setIsReady(true)
-    onLoad?.()
-  }, [onLoad])
+    const iframe = document.createElement('iframe')
+    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;background:transparent;'
+    iframe.setAttribute('tabindex', '-1')
+    iframe.setAttribute('aria-hidden', 'true')
+    iframeRef.current = iframe
+
+    const html = `<!DOCTYPE html>
+<html><head>
+<style>*{margin:0;padding:0}html,body{width:100%;height:100%;background:transparent;overflow:hidden}canvas{display:block;width:100%;height:100%}</style>
+<script type="importmap">{"imports":{"@splinetool/runtime":"https://unpkg.com/@splinetool/runtime@1.9.82/build/runtime.js"}}</script>
+</head><body>
+<canvas id="c"></canvas>
+<script type="module">
+import { Application } from '@splinetool/runtime';
+const canvas = document.getElementById('c');
+const app = new Application(canvas);
+app.load('${scene}').then(() => {
+  window.parent.postMessage({type:'spline-loaded'},'*');
+}).catch(err => console.error('[Spline iframe] Error:', err));
+<\/script>
+</body></html>`
+
+    iframe.srcdoc = html
+    containerRef.current.appendChild(iframe)
+
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type === 'spline-loaded') {
+        console.log('[Spline] Scene loaded in iframe')
+        setIsReady(true)
+        onLoad?.()
+      }
+    }
+    window.addEventListener('message', handleMessage)
+
+    return () => {
+      window.removeEventListener('message', handleMessage)
+      if (iframeRef.current?.parentNode) {
+        try { iframeRef.current.parentNode.removeChild(iframeRef.current) } catch(e) {}
+      }
+      iframeRef.current = null
+    }
+  }, [scene, onLoad])
 
   return (
-    <Suspense fallback={<SplineLoadingSkeleton />}>
-      <div 
-        className={className}
-        style={{ 
-          opacity: isReady ? 1 : 0,
-          transition: 'opacity 0.3s ease-out',
-        }}
-      >
-        <Spline
-          scene={scene}
-          className="w-full h-full"
-          onLoad={handleLoad}
-        />
-      </div>
+    <div ref={containerRef} className={`relative ${className || ''}`} style={{ width: '100%', height: '100%' }}>
       {!isReady && (
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 z-10">
           <SplineLoadingSkeleton />
         </div>
       )}
-    </Suspense>
+    </div>
   )
 }
 
