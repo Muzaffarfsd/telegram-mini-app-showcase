@@ -7,177 +7,201 @@ interface EntropyProps {
 }
 
 export function Entropy({ className = "", size = 400 }: EntropyProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    if (!containerRef.current) return
 
-    const dpr = window.devicePixelRatio || 1
-    canvas.width = size * dpr
-    canvas.height = size * dpr
-    canvas.style.width = `${size}px`
-    canvas.style.height = `${size}px`
-    ctx.scale(dpr, dpr)
+    const iframe = document.createElement('iframe')
+    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;'
+    iframe.setAttribute('tabindex', '-1')
+    iframe.setAttribute('aria-hidden', 'true')
+    iframeRef.current = iframe
+    containerRef.current.appendChild(iframe)
 
-    const particleColor = '#ffffff'
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
+    if (!iframeDoc) return
 
-    class Particle {
-      x: number
-      y: number
-      size: number
-      order: boolean
-      velocity: { x: number; y: number }
-      originalX: number
-      originalY: number
-      influence: number
-      neighbors: Particle[]
+    iframeDoc.open()
+    iframeDoc.write(`<!DOCTYPE html>
+<html><head><style>
+  * { margin:0; padding:0; }
+  html, body { width:100%; height:100%; background:transparent; overflow:hidden; }
+  canvas { display:block; }
+</style></head>
+<body><canvas id="c"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const s = ${size};
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = s * dpr;
+  canvas.height = s * dpr;
+  canvas.style.width = s + 'px';
+  canvas.style.height = s + 'px';
+  ctx.scale(dpr, dpr);
 
-      constructor(x: number, y: number, order: boolean) {
-        this.x = x
-        this.y = y
-        this.originalX = x
-        this.originalY = y
-        this.size = 2
-        this.order = order
-        this.velocity = {
-          x: (Math.random() - 0.5) * 2,
-          y: (Math.random() - 0.5) * 2
+  const gridSize = 15;
+  const spacing = s / gridSize;
+  const particles = [];
+  const connectionDist = 50;
+  const neighborDist = 80;
+
+  for (let i = 0; i < gridSize; i++) {
+    for (let j = 0; j < gridSize; j++) {
+      const x = spacing * i + spacing / 2;
+      const y = spacing * j + spacing / 2;
+      particles.push({
+        x: x, y: y,
+        ox: x, oy: y,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        order: x < s / 2,
+        influence: 0
+      });
+    }
+  }
+
+  const cellSize = neighborDist;
+  const cols = Math.ceil(s / cellSize) + 1;
+  const rows = Math.ceil(s / cellSize) + 1;
+
+  function getCell(x, y) {
+    return Math.max(0, Math.min(cols - 1, Math.floor(x / cellSize))) +
+           Math.max(0, Math.min(rows - 1, Math.floor(y / cellSize))) * cols;
+  }
+
+  let time = 0;
+  let grid = {};
+
+  function rebuildGrid() {
+    grid = {};
+    for (let i = 0; i < particles.length; i++) {
+      const c = getCell(particles[i].x, particles[i].y);
+      if (!grid[c]) grid[c] = [];
+      grid[c].push(i);
+    }
+  }
+
+  function getNeighborIndices(p) {
+    const cx = Math.floor(p.x / cellSize);
+    const cy = Math.floor(p.y / cellSize);
+    const result = [];
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        const nx = cx + dx, ny = cy + dy;
+        if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) continue;
+        const cell = grid[nx + ny * cols];
+        if (cell) {
+          for (let k = 0; k < cell.length; k++) result.push(cell[k]);
         }
-        this.influence = 0
-        this.neighbors = []
       }
+    }
+    return result;
+  }
 
-      update() {
-        if (this.order) {
-          const dx = this.originalX - this.x
-          const dy = this.originalY - this.y
+  function animate() {
+    ctx.clearRect(0, 0, s, s);
 
-          const chaosInfluence = { x: 0, y: 0 }
-          this.neighbors.forEach(neighbor => {
-            if (!neighbor.order) {
-              const distance = Math.hypot(this.x - neighbor.x, this.y - neighbor.y)
-              const strength = Math.max(0, 1 - distance / 100)
-              chaosInfluence.x += (neighbor.velocity.x * strength)
-              chaosInfluence.y += (neighbor.velocity.y * strength)
-              this.influence = Math.max(this.influence, strength)
+    if (time % 20 === 0) rebuildGrid();
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      if (p.order) {
+        const dx = p.ox - p.x;
+        const dy = p.oy - p.y;
+        let cix = 0, ciy = 0;
+
+        if (time % 20 === 0) {
+          const ni = getNeighborIndices(p);
+          for (let k = 0; k < ni.length; k++) {
+            const n = particles[ni[k]];
+            if (n === p || n.order) continue;
+            const dist = Math.hypot(p.x - n.x, p.y - n.y);
+            if (dist < neighborDist) {
+              const str = 1 - dist / neighborDist;
+              cix += n.vx * str;
+              ciy += n.vy * str;
+              p.influence = Math.max(p.influence, str);
             }
-          })
+          }
+        }
 
-          this.x += dx * 0.05 * (1 - this.influence) + chaosInfluence.x * this.influence
-          this.y += dy * 0.05 * (1 - this.influence) + chaosInfluence.y * this.influence
+        p.x += dx * 0.05 * (1 - p.influence) + cix * p.influence;
+        p.y += dy * 0.05 * (1 - p.influence) + ciy * p.influence;
+        p.influence *= 0.99;
+      } else {
+        p.vx += (Math.random() - 0.5) * 0.5;
+        p.vy += (Math.random() - 0.5) * 0.5;
+        p.vx *= 0.95;
+        p.vy *= 0.95;
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < s / 2 || p.x > s) p.vx *= -1;
+        if (p.y < 0 || p.y > s) p.vy *= -1;
+        p.x = Math.max(s / 2, Math.min(s, p.x));
+        p.y = Math.max(0, Math.min(s, p.y));
+      }
+    }
 
-          this.influence *= 0.99
-        } else {
-          this.velocity.x += (Math.random() - 0.5) * 0.5
-          this.velocity.y += (Math.random() - 0.5) * 0.5
-          this.velocity.x *= 0.95
-          this.velocity.y *= 0.95
-          this.x += this.velocity.x
-          this.y += this.velocity.y
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      const alpha = p.order ? 0.8 - p.influence * 0.5 : 0.8;
+      const hex = Math.round(alpha * 255).toString(16).padStart(2, '0');
+      ctx.fillStyle = '#ffffff' + hex;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
-          if (this.x < size / 2 || this.x > size) this.velocity.x *= -1
-          if (this.y < 0 || this.y > size) this.velocity.y *= -1
-          this.x = Math.max(size / 2, Math.min(size, this.x))
-          this.y = Math.max(0, Math.min(size, this.y))
+    if (time % 20 === 0) {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        const ni = getNeighborIndices(p);
+        for (let k = 0; k < ni.length; k++) {
+          const n = particles[ni[k]];
+          if (ni[k] <= i) continue;
+          const dist = Math.hypot(p.x - n.x, p.y - n.y);
+          if (dist < 50) {
+            const a = 0.2 * (1 - dist / 50);
+            const h = Math.round(a * 255).toString(16).padStart(2, '0');
+            ctx.strokeStyle = '#ffffff' + h;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(n.x, n.y);
+            ctx.stroke();
+          }
         }
       }
-
-      draw(ctx: CanvasRenderingContext2D) {
-        const alpha = this.order ?
-          0.8 - this.influence * 0.5 :
-          0.8
-        ctx.fillStyle = `${particleColor}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`
-        ctx.beginPath()
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
-        ctx.fill()
-      }
     }
 
-    const particles: Particle[] = []
-    const gridSize = 25
-    const spacing = size / gridSize
+    ctx.strokeStyle = '#ffffff4D';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(s / 2, 0);
+    ctx.lineTo(s / 2, s);
+    ctx.stroke();
 
-    for (let i = 0; i < gridSize; i++) {
-      for (let j = 0; j < gridSize; j++) {
-        const x = spacing * i + spacing / 2
-        const y = spacing * j + spacing / 2
-        const order = x < size / 2
-        particles.push(new Particle(x, y, order))
-      }
-    }
+    time++;
+    requestAnimationFrame(animate);
+  }
 
-    function updateNeighbors() {
-      particles.forEach(particle => {
-        particle.neighbors = particles.filter(other => {
-          if (other === particle) return false
-          const distance = Math.hypot(particle.x - other.x, particle.y - other.y)
-          return distance < 100
-        })
-      })
-    }
-
-    let time = 0
-    let animationId: number
-    
-    function animate() {
-      if (!ctx) return
-      ctx.clearRect(0, 0, size, size)
-
-      if (time % 30 === 0) {
-        updateNeighbors()
-      }
-
-      particles.forEach(particle => {
-        particle.update()
-        particle.draw(ctx)
-
-        particle.neighbors.forEach(neighbor => {
-          const distance = Math.hypot(particle.x - neighbor.x, particle.y - neighbor.y)
-          if (distance < 50) {
-            const alpha = 0.2 * (1 - distance / 50)
-            ctx.strokeStyle = `${particleColor}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`
-            ctx.beginPath()
-            ctx.moveTo(particle.x, particle.y)
-            ctx.lineTo(neighbor.x, neighbor.y)
-            ctx.stroke()
-          }
-        })
-      })
-
-      ctx.strokeStyle = `${particleColor}4D`
-      ctx.lineWidth = 0.5
-      ctx.beginPath()
-      ctx.moveTo(size / 2, 0)
-      ctx.lineTo(size / 2, size)
-      ctx.stroke()
-
-      ctx.font = '12px monospace'
-      ctx.fillStyle = '#ffffff'
-      ctx.textAlign = 'center'
-
-      time++
-      animationId = requestAnimationFrame(animate)
-    }
-
-    animate()
+  animate();
+})();
+<\/script></body></html>`)
+    iframeDoc.close()
 
     return () => {
-      if (animationId) {
-        cancelAnimationFrame(animationId)
+      if (iframeRef.current && containerRef.current) {
+        try { containerRef.current.removeChild(iframeRef.current) } catch(e) {}
       }
     }
   }, [size])
 
   return (
-    <div className={`relative bg-black ${className}`} style={{ width: size, height: size }}>
-      <canvas
-        ref={canvasRef}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-      />
+    <div ref={containerRef} className={`relative ${className}`} style={{ width: size, height: size }}>
     </div>
   )
 }
