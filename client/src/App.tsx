@@ -9,7 +9,6 @@ import { useTheme } from "./hooks/useTheme";
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { PageLoadingFallback } from "./components/PageLoadingFallback";
 import { useRouting, navigate } from "./hooks/useRouting";
 import { useScrollHaptic } from "./hooks/useScrollHaptic";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
@@ -77,11 +76,10 @@ const EarningPage = lazy(() => import("./components/EarningPage").then(m => ({ d
 const NotificationsPage = lazyWithRetry(() => import("./pages/notifications"));
 const AnalyticsPage = lazyWithRetry(() => import("./pages/analytics"));
 
-// Global components - lazy loaded for faster first paint
-const GlobalSidebar = lazy(() => import("./components/GlobalSidebar"));
+import GlobalSidebar from "./components/GlobalSidebar";
+import { PageTransition } from "./components/PageTransition";
 const OnboardingTutorial = lazy(() => import("./components/OnboardingTutorial").then(m => ({ default: m.OnboardingTutorial })));
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
-const PageTransition = lazy(() => import("./components/PageTransition").then(m => ({ default: m.PageTransition })));
 
 const goBack = () => {
   window.history.back();
@@ -233,106 +231,75 @@ function App() {
     hapticFeedback.medium();
   }, [hapticFeedback]);
 
-  // No loading screen - instant load
-  const PageLoader = useCallback(() => null, []);
+  const cachedTabs = ['showcase', 'projects', 'aiProcess', 'constructor', 'profile'] as const;
+  const isCachedTab = cachedTabs.includes(route.component as any);
 
-  // Route component rendering with Suspense - shows loading spinner for code-split pages
-  const renderRoute = () => {
-    return (
-      <Suspense fallback={<PageLoadingFallback />}>
-        {(() => {
-          switch (route.component) {
-            case 'showcase':
-              return <ShowcasePage onOpenDemo={handleOpenDemo} onNavigate={handleNavigate} />;
-            
-            case 'projects':
-              return <ProjectsPage onNavigate={handleNavigate} onOpenDemo={handleOpenDemo} />;
-            
-            case 'about':
-              return <AboutPage onNavigate={handleNavigate} />;
-            
-            case 'demoLanding':
-              const demoId = route.params?.id;
-              if (!demoId) {
-                return (
-                  <div className="max-w-md mx-auto px-4 py-6">
-                    <h1 className="ios-title font-bold mb-4">Ошибка</h1>
-                    <p className="ios-body text-secondary-label">ID демо не указан</p>
-                    <button 
-                      onClick={() => navigate('/')} 
-                      className="mt-4 ios-button-filled"
-                    >
-                      Назад к главной
-                    </button>
-                  </div>
-                );
-              }
-              return <DemoAppLanding demoId={demoId} />;
-            
-            case 'demoApp':
-              return <DemoAppShell demoId={route.params?.id!} onClose={handleCloseDemo} />;
-            
-            case 'constructor':
-              return <ConstructorPage onNavigate={handleNavigate} />;
-            
-            case 'profile':
-              return <ProfilePage onNavigate={handleNavigate} />;
-            
-            case 'help':
-              return <HelpPage onBack={() => navigate('/profile')} />;
-            
-            case 'review':
-              return <ReviewPage onBack={() => navigate('/profile')} />;
-            
-            case 'checkout':
-              if (!orderData) {
-                navigate('/constructor');
-                return null;
-              }
-              return (
-                <CheckoutPage 
-                  selectedFeatures={orderData.selectedFeatures || []}
-                  projectName={orderData.projectName || ''}
-                  totalAmount={orderData.totalAmount || 0}
-                  onBack={handleCheckoutBack}
-                  onSuccess={handlePaymentSuccess}
-                />
-              );
-            
-            case 'aiAgent':
-              return <AIAgentPage onNavigate={handleNavigate} />;
-            
-            case 'aiProcess':
-              return <AIProcessPage onNavigate={handleNavigate} />;
-            
-            case 'photoGallery':
-              return <PhotoGallery />;
-            
-            case 'referral':
-              return <ReferralProgram />;
-            
-            case 'rewards':
-              return <GamificationHub />;
-            
-            case 'earning':
-              return <EarningPage onNavigate={handleNavigate} />;
-            
-            case 'notifications':
-              return <NotificationsPage />;
-            
-            case 'analytics':
-              return <AnalyticsPage />;
-            
-            case 'notFound':
-              return <NotFoundPage />;
-            
-            // Always show showcase page as default fallback
-            default:
-              return <ShowcasePage onOpenDemo={handleOpenDemo} onNavigate={handleNavigate} />;
-          }
-        })()} 
-      </Suspense>
-    );
+  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(() => new Set(['showcase']));
+
+  useEffect(() => {
+    if (cachedTabs.includes(route.component as any)) {
+      setVisitedTabs(prev => {
+        if (prev.has(route.component)) return prev;
+        const next = new Set(prev);
+        next.add(route.component);
+        return next;
+      });
+    }
+  }, [route.component]);
+
+  const renderNonCachedRoute = () => {
+    if (isCachedTab) return null;
+    switch (route.component) {
+      case 'about':
+        return <AboutPage onNavigate={handleNavigate} />;
+      case 'demoLanding':
+        const demoId = route.params?.id;
+        if (!demoId) {
+          return (
+            <div className="max-w-md mx-auto px-4 py-6">
+              <h1 className="ios-title font-bold mb-4">Ошибка</h1>
+              <p className="ios-body text-secondary-label">ID демо не указан</p>
+              <button onClick={() => navigate('/')} className="mt-4 ios-button-filled">Назад к главной</button>
+            </div>
+          );
+        }
+        return <DemoAppLanding demoId={demoId} />;
+      case 'demoApp':
+        return <DemoAppShell demoId={route.params?.id!} onClose={handleCloseDemo} />;
+      case 'help':
+        return <HelpPage onBack={() => navigate('/profile')} />;
+      case 'review':
+        return <ReviewPage onBack={() => navigate('/profile')} />;
+      case 'checkout':
+        if (!orderData) { navigate('/constructor'); return null; }
+        return (
+          <CheckoutPage 
+            selectedFeatures={orderData.selectedFeatures || []}
+            projectName={orderData.projectName || ''}
+            totalAmount={orderData.totalAmount || 0}
+            onBack={handleCheckoutBack}
+            onSuccess={handlePaymentSuccess}
+          />
+        );
+      case 'aiAgent':
+        return <AIAgentPage onNavigate={handleNavigate} />;
+      case 'photoGallery':
+        return <PhotoGallery />;
+      case 'referral':
+        return <ReferralProgram />;
+      case 'rewards':
+        return <GamificationHub />;
+      case 'earning':
+        return <EarningPage onNavigate={handleNavigate} />;
+      case 'notifications':
+        return <NotificationsPage />;
+      case 'analytics':
+        return <AnalyticsPage />;
+      case 'notFound':
+        return <NotFoundPage />;
+      default:
+        return null;
+    }
   };
 
   // Check if we should show bottom navigation
@@ -365,13 +332,50 @@ function App() {
                 )}
                 
                 <div className="pb-36" data-scroll="main">
-                  <PageTransition routeKey={`${route.component}-${route.params?.id || ''}`} variant="fade">
-                    <ErrorBoundary>
-                      <Suspense fallback={<PageLoadingFallback />}>
-                        {renderRoute()}
+                  {visitedTabs.has('showcase') && (
+                    <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
+                      <Suspense fallback={null}>
+                        <ShowcasePage onOpenDemo={handleOpenDemo} onNavigate={handleNavigate} />
                       </Suspense>
-                    </ErrorBoundary>
-                  </PageTransition>
+                    </div>
+                  )}
+                  {visitedTabs.has('projects') && (
+                    <div style={{ display: route.component === 'projects' ? 'block' : 'none' }}>
+                      <Suspense fallback={null}>
+                        <ProjectsPage onNavigate={handleNavigate} onOpenDemo={handleOpenDemo} />
+                      </Suspense>
+                    </div>
+                  )}
+                  {visitedTabs.has('aiProcess') && (
+                    <div style={{ display: route.component === 'aiProcess' ? 'block' : 'none' }}>
+                      <Suspense fallback={null}>
+                        <AIProcessPage onNavigate={handleNavigate} />
+                      </Suspense>
+                    </div>
+                  )}
+                  {visitedTabs.has('constructor') && (
+                    <div style={{ display: route.component === 'constructor' ? 'block' : 'none' }}>
+                      <Suspense fallback={null}>
+                        <ConstructorPage onNavigate={handleNavigate} />
+                      </Suspense>
+                    </div>
+                  )}
+                  {visitedTabs.has('profile') && (
+                    <div style={{ display: route.component === 'profile' ? 'block' : 'none' }}>
+                      <Suspense fallback={null}>
+                        <ProfilePage onNavigate={handleNavigate} />
+                      </Suspense>
+                    </div>
+                  )}
+                  {!isCachedTab && (
+                    <PageTransition routeKey={`${route.component}-${route.params?.id || ''}`}>
+                      <ErrorBoundary>
+                        <Suspense fallback={null}>
+                          {renderNonCachedRoute()}
+                        </Suspense>
+                      </ErrorBoundary>
+                    </PageTransition>
+                  )}
                 </div>
               </div>
             

@@ -14,9 +14,14 @@ This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional dem
 - **Internationalization**: Automatic language detection based on Telegram user region (CIS -> Russian, others -> English)
 - **Activity API**: `useActivity` hook and `<Activity>` component for preserving state during navigation
 - **Share API**: `ShareButton` component with Telegram `shareMessage()` integration and haptic feedback
-- **View Transitions**: CSS View Transitions API for smooth page transitions (progressive enhancement)
-- **INP Optimization**: `useTransition` in filters for non-blocking category changes
+- **View Transitions**: CSS View Transitions API (60ms fade, no scale) for instant page transitions
+- **INP Optimization**: `useTransition` in filters for non-blocking category changes; INP measured at 40ms
 - **Performance Detection**: `usePerformanceClass` hook for adaptive animations based on device capability
+- **Tab Caching**: 5 main tabs (showcase, projects, aiProcess, constructor, profile) stay mounted via CSS `display:none` — instant tab switching, preserved scroll position
+- **Eager Critical Components**: GlobalSidebar and PageTransition loaded eagerly (not lazy) for faster first paint
+- **CSS Performance**: All `transition: all` replaced with specific properties (transform, opacity, box-shadow); durations reduced to 100-200ms
+- **Touch Response**: Global `button:active` scale(0.97) at 60ms; `touch-action: manipulation` on all interactive elements
+- **Blur Budget**: Max blur(16-20px) on key elements; blur(40-60px) eliminated from navigation, sidebar, cards
 - **User-Generated Stories**: Users can create and upload stories with 8 content types: My Business, App Idea, Review, Before/After, Looking For Partner, Lifehack, Achievement, Question. Stories require moderation before public display. Features include:
   - **Reactions System**: 5 reaction types (like, fire, clap, heart_eyes, rocket) with optimistic UI updates
   - **Hashtags**: Up to 10 hashtags per story for discoverability

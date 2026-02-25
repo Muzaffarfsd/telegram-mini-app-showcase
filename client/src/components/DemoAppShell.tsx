@@ -306,8 +306,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                 className="relative flex items-center justify-center gap-1 rounded-[28px] px-3 py-2"
                 style={{
                   background: theme.navBackground,
-                  backdropFilter: 'blur(40px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
                   border: `1px solid ${theme.navBorder}`,
                   boxShadow: theme.navShadow,
                 }}
