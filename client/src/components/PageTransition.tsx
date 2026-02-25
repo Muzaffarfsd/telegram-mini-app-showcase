@@ -1,16 +1,15 @@
 import { ReactNode } from 'react';
-import { useLocation } from 'wouter';
 
 interface PageTransitionProps {
   children: ReactNode;
   routeKey?: string;
   variant?: 'fade' | 'slideUp' | 'slideLeft' | 'scale';
+  className?: string;
 }
 
-// Optimized for Telegram Mini App: removing complex framer-motion layers for raw performance
-export function PageTransition({ children, className = '' }: PageTransitionProps & { className?: string }) {
+export function PageTransition({ children, className = '' }: PageTransitionProps) {
   return (
-    <div className={`h-full w-full ${className} animate-in fade-in duration-150`}>
+    <div className={`h-full w-full ${className} page-enter`}>
       {children}
     </div>
   );

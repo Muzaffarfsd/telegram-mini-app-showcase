@@ -93,48 +93,53 @@ html.lang-en h4, html.lang-en h5, html.lang-en h6 {
 }
 
 .animate-blur-in {
-  animation: blur-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: blur-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* 2026 Premium Reveal - Apple-level refinement */
 @keyframes premium-reveal {
   0% {
     opacity: 0;
-    filter: blur(4px);
-    transform: translateY(6px);
+    transform: translateY(4px);
   }
   100% {
     opacity: 1;
-    filter: blur(0);
     transform: translateY(0);
   }
 }
 
 .animate-premium-reveal {
-  animation: premium-reveal 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation: premium-reveal 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+@keyframes page-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.page-enter {
+  animation: page-enter 60ms ease-out forwards;
 }
 
 @supports (view-transition-name: none) {
   @media (prefers-reduced-motion: no-preference) {
     ::view-transition-old(root) {
-      animation: fade-out 0.15s ease-out forwards;
+      animation: vt-fade-out 60ms ease-out forwards;
     }
     
     ::view-transition-new(root) {
-      animation: fade-in 0.15s ease-in forwards;
+      animation: vt-fade-in 60ms ease-out forwards;
     }
     
-    @keyframes fade-out {
-      from { opacity: 1; transform: scale(1); }
-      to { opacity: 0; transform: scale(0.98); }
+    @keyframes vt-fade-out {
+      from { opacity: 1; }
+      to { opacity: 0; }
     }
     
-    @keyframes fade-in {
-      from { opacity: 0; transform: scale(1.02); }
-      to { opacity: 1; transform: scale(1); }
+    @keyframes vt-fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     
-    /* Named transitions for specific elements */
     .view-transition-card {
       view-transition-name: card;
     }
@@ -284,11 +289,18 @@ body {
 
 /* Global touch optimizations */
 * {
-  /* Remove tap highlight for cleaner touch experience */
   -webkit-tap-highlight-color: transparent;
-  
-  /* Disable text selection during scroll gestures */
   -webkit-touch-callout: none;
+}
+
+button, a, [role="button"], [tabindex] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active, [role="button"]:active {
+  transform: scale(0.97);
+  transition: transform 60ms ease-out;
 }
 
 /* Allow text selection only for input fields */
@@ -1194,10 +1206,10 @@ html.light :root,
 
   /* iOS 17 Cards - Dark Theme */
   .ios-card {
-    @apply rounded-large border border-separator transition-all duration-200;
+    @apply rounded-large border border-separator;
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(16px);
     box-shadow: none;
+    transition: transform 0.15s ease-out, opacity 0.15s ease-out;
   }
   
   .ios-card-elevated {
@@ -1238,7 +1250,8 @@ html.light :root,
 
   /* iOS 17 Buttons */
   .ios-button {
-    @apply px-6 py-3 rounded-large font-semibold transition-all duration-200;
+    @apply px-6 py-3 rounded-large font-semibold;
+    transition: transform 0.1s ease-out, opacity 0.1s ease-out, background-color 0.1s ease-out;
     font-size: 17px;
     line-height: 22px;
   }
@@ -1275,22 +1288,22 @@ html.light :root,
   /* Glass Components */
   .glass-card {
     background: var(--glass-background);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: var(--radius-medium);
+    transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+  }
+
+  .glass-card-strong {
+    background: var(--glass-background-strong);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
     border-radius: var(--radius-medium);
-    transition: all 0.3s ease;
-  }
-
-  .glass-card-strong {
-    background: var(--glass-background-strong);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    border-radius: var(--radius-medium);
-    transition: all 0.3s ease;
+    transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
   }
 
   .glass-floating {
@@ -1318,7 +1331,7 @@ html.light :root,
     width: 200px;
     height: 320px;
     flex-shrink: 0;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease-out;
     cursor: pointer;
   }
 
@@ -1368,17 +1381,16 @@ html.light :root,
   /* Ultra Glass Navigation */
   .glass-navigation {
     background: var(--glass-nav-background);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid var(--glass-nav-border);
     box-shadow: var(--glass-nav-shadow);
-    transition: all 0.3s ease;
   }
 
   .glass-nav-button {
     font-family: var(--font-montserrat);
     color: rgba(255, 255, 255, 0.7);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: color 0.15s ease-out, transform 0.1s ease-out;
   }
 
   .glass-nav-button-active {
@@ -1465,8 +1477,8 @@ html.light :root,
   /* Smooth Reveal Animations */
   .reveal-up {
     opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .reveal-up.in-view {
@@ -1475,7 +1487,8 @@ html.light :root,
   }
   
   .ios-tabbar-item {
-    @apply flex flex-col items-center p-1 rounded-medium transition-all;
+    @apply flex flex-col items-center p-1 rounded-medium;
+    transition: color 0.1s ease-out, background-color 0.1s ease-out;
     min-height: 49px;
   }
   
@@ -2015,7 +2028,7 @@ html.light :root,
     box-shadow: 
       0 20px 60px rgba(0, 0, 0, 0.4),
       0 8px 16px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   }
   
   .elevated-card:hover {
@@ -2697,7 +2710,7 @@ html.light :root,
 
 .wow-card-3d {
   transform-style: preserve-3d;
-  transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.320, 1), box-shadow 0.3s ease-out;
   will-change: transform;
 }
 
@@ -2715,9 +2728,9 @@ html.light :root,
 
 /* Count-up Stats */
 .wow-stat {
-  transform: translateY(30px);
+  transform: translateY(20px);
   opacity: 0;
-  transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.320, 1), opacity 0.4s cubic-bezier(0.23, 1, 0.320, 1);
 }
 
 .wow-stat.visible {
@@ -2727,7 +2740,6 @@ html.light :root,
 
 .wow-count {
   font-variant-numeric: tabular-nums;
-  transition: all 0.3s ease;
 }
 
 /* Pulse Ring Animation */
@@ -2788,7 +2800,7 @@ html.light :root,
 
 .wow-card-3d {
   transform-style: preserve-3d;
-  transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.320, 1), box-shadow 0.3s ease-out;
   will-change: transform;
 }
 
@@ -3038,8 +3050,7 @@ html.light :root,
 .hover-intense:hover {
   transform: scale(1.05) rotateX(5deg) rotateY(5deg);
   box-shadow: 0 0 30px #10B981, 0 0 60px #10B981, 0 0 90px #10B981;
-  transition: all 0.3s ease;
-  animation: electric-surge 0.5s ease-in-out;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
 .perspective-container {
@@ -3256,7 +3267,7 @@ html.light :root,
     -8px -8px 16px #1a1a1a,
     inset 1px 1px 2px rgba(16, 185, 129, 0.1);
   border-radius: 16px;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
 .neuromorphic-card:hover {
@@ -6614,7 +6625,7 @@ html:not(.light) {
   border-radius: 16px;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
 }
 
 .premium-card::before {
@@ -6710,7 +6721,7 @@ html:not(.light) {
   font-weight: 600;
   cursor: pointer;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
 }
 
 .glow-button::before {
@@ -6886,15 +6897,15 @@ html:not(.light) {
 
 /* === 11. PREMIUM TRANSITIONS === */
 .transition-premium {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .transition-bounce {
-  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .transition-smooth {
-  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: transform 0.15s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.15s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* === 12. NEOMORPHISM ELEMENTS === */
@@ -7059,7 +7070,7 @@ html:not(.light) [data-slot="card"] {
   background: #1C1C1E;
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
+  transition: background-color 0.15s ease-out, box-shadow 0.15s ease-out;
 }
 
 html:not(.light) .card:hover,
@@ -7070,9 +7081,9 @@ html:not(.light) [data-slot="card"]:hover {
 
 /* === Premium Dark Sidebar === */
 html:not(.light) .global-sidebar-panel {
-  background: rgba(0, 0, 0, 0.95);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  background: rgba(0, 0, 0, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -7081,7 +7092,7 @@ html:not(.light) button[class*="bg-emerald"],
 html:not(.light) button[class*="bg-primary"] {
   position: relative;
   box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-  transition: all 0.3s ease;
+  transition: box-shadow 0.15s ease-out, transform 0.1s ease-out;
 }
 
 html:not(.light) button[class*="bg-emerald"]:hover,
@@ -7101,7 +7112,7 @@ html:not(.light) button[class*="bg-primary"]:active {
 .btn-neon-emerald {
   background: #10B981;
   box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-  transition: all 0.3s ease;
+  transition: box-shadow 0.15s ease-out, transform 0.1s ease-out;
 }
 
 .btn-neon-emerald:hover {
@@ -7137,7 +7148,7 @@ html:not(.light) button[class*="bg-primary"]:active {
   background: linear-gradient(135deg, #10B981 0%, #059669 100%);
   border: none;
   box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
-  transition: all 0.3s ease;
+  transition: box-shadow 0.15s ease-out, transform 0.1s ease-out;
 }
 
 .btn-gradient-cta:hover {
