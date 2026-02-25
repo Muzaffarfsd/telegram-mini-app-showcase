@@ -462,8 +462,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 className="flex items-center justify-between gap-3 px-4 py-3 rounded-[24px]"
                 style={{
                   background: 'rgba(0,0,0,0.7)',
-                  backdropFilter: 'blur(30px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
                   border: '0.5px solid rgba(255,255,255,0.15)',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
                 }}
@@ -618,8 +618,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
               style={{ 
                 background: 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
-                backdropFilter: 'blur(25px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
                 border: '0.5px solid rgba(255,255,255,0.6)',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7)'
               }}
@@ -633,8 +633,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               className="px-4 py-1.5 rounded-full"
               style={{
                 background: 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
-                backdropFilter: 'blur(25px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
                 border: '0.5px solid rgba(255,255,255,0.5)',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)'
               }}
@@ -655,8 +655,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 background: isFavorite(String(selectedProduct.id)) 
                   ? 'linear-gradient(145deg, rgba(255,59,48,0.35) 0%, rgba(255,59,48,0.15) 100%)'
                   : 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
-                backdropFilter: 'blur(25px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
                 border: isFavorite(String(selectedProduct.id)) 
                   ? '0.5px solid rgba(255,59,48,0.5)'
                   : '0.5px solid rgba(255,255,255,0.6)',
@@ -685,8 +685,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               flexDirection: 'column',
               gap: '16px',
               background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)',
-              backdropFilter: 'blur(30px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
               borderTop: '0.5px solid rgba(255,255,255,0.2)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15)',
             }}
@@ -1080,8 +1080,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             className="rounded-2xl p-3 flex items-center gap-4"
             style={{
               background: 'rgba(0,0,0,0.75)',
-              backdropFilter: 'blur(30px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
               border: '0.5px solid rgba(255,255,255,0.15)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)'
             }}
@@ -1133,8 +1133,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               className="w-full max-w-md rounded-t-3xl overflow-hidden"
               style={{
                 background: 'rgba(20,20,20,0.95)',
-                backdropFilter: 'blur(30px)',
-                WebkitBackdropFilter: 'blur(30px)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
                 border: '0.5px solid rgba(255,255,255,0.1)',
                 maxHeight: '70vh'
               }}
@@ -1446,8 +1446,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
                 style={{
                   background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
-                  backdropFilter: 'blur(30px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
                   border: '0.5px solid rgba(255,255,255,0.15)',
                   boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
                   maxHeight: '75vh',
@@ -1708,8 +1708,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
                 style={{
                   background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
-                  backdropFilter: 'blur(30px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
                   border: '0.5px solid rgba(255,255,255,0.15)',
                   boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
                   maxHeight: '75vh',

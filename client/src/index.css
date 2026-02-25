@@ -731,25 +731,25 @@ input, textarea {
   /* Level 2: Medium (cards) */
   --glass-medium-bg: rgba(255, 255, 255, 0.12);
   --glass-medium-border: rgba(255, 255, 255, 0.22);
-  --glass-medium-blur: blur(24px) saturate(200%);
+  --glass-medium-blur: blur(16px);
   --glass-medium-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   
   /* Level 3: Strong (modals) */
   --glass-strong-bg: rgba(255, 255, 255, 0.15);
   --glass-strong-border: rgba(255, 255, 255, 0.25);
-  --glass-strong-blur: blur(32px) saturate(200%);
+  --glass-strong-blur: blur(16px);
   --glass-strong-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   
   /* Level 4: Gradient Glass (premium cards) */
   --glass-gradient-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.08) 100%);
   --glass-gradient-border: rgba(16, 185, 129, 0.3);
-  --glass-gradient-blur: blur(28px) saturate(180%);
+  --glass-gradient-blur: blur(16px);
   --glass-gradient-shadow: 0 15px 45px rgba(16, 185, 129, 0.1);
   
   /* Level 5: Frosted Glass (overlays) */
   --glass-frosted-bg: rgba(255, 255, 255, 0.1);
   --glass-frosted-border: rgba(255, 255, 255, 0.2);
-  --glass-frosted-blur: blur(30px) saturate(150%);
+  --glass-frosted-blur: blur(16px);
   --glass-frosted-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   
   /* Aurora Glassmorphism */
@@ -1352,7 +1352,7 @@ html.light :root,
     @apply border-b border-separator px-4 py-2;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(16px);
-    transition: all 200ms ease-out;
+    transition: background 200ms ease-out, border-color 200ms ease-out;
   }
   
   .ios-navbar-large {
@@ -2289,7 +2289,7 @@ html.light :root,
       rgba(16, 185, 129, 0.25) 360deg
     );
     border-radius: inherit;
-    filter: blur(40px);
+    filter: blur(16px);
     opacity: 0;
     transition: opacity 0.5s ease;
     z-index: -1;
@@ -2537,7 +2537,7 @@ html.light :root,
     radial-gradient(circle at 80% 20%, #f093fb 20%, transparent 50%),
     radial-gradient(circle at 40% 80%, #4facfe 20%, transparent 50%);
   animation: wow-mesh-float 15s ease-in-out infinite alternate;
-  filter: blur(60px);
+  filter: blur(20px);
 }
 
 @keyframes wow-bg-spin {
@@ -2566,7 +2566,7 @@ html.light :root,
 .wow-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(40px);
+  filter: blur(16px);
   mix-blend-mode: multiply;
   animation: wow-blob-morph 8s ease-in-out infinite;
 }
@@ -3301,7 +3301,7 @@ html.light :root,
     rgba(16, 185, 129, 0.25) 360deg
   );
   border-radius: inherit;
-  filter: blur(40px);
+  filter: blur(16px);
   opacity: 0;
   transition: opacity 0.5s ease;
   z-index: -1;
@@ -4636,8 +4636,8 @@ html.slow-network video {
   background: rgba(60, 60, 65, 0.65) !important;
   
   /* Blur effect - creates frosted glass */
-  backdrop-filter: blur(40px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
   
   /* Subtle light border */
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -4914,8 +4914,8 @@ html.light #root {
 html.light .top-bar {
   background: rgba(255, 255, 255, 0.72) !important;
   border-bottom-color: rgba(0, 0, 0, 0.06) !important;
-  backdrop-filter: blur(40px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
 }
 
 html.light .hamburger-btn {
@@ -4945,8 +4945,8 @@ html.light .sidebar-panel {
     0 0 0 0.5px rgba(0, 0, 0, 0.04),
     0 8px 40px rgba(0, 0, 0, 0.08),
     0 12px 60px rgba(0, 0, 0, 0.04) !important;
-  backdrop-filter: blur(50px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(50px) saturate(180%) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
 }
 
 /* Hide gradient line in light theme */
@@ -5670,7 +5670,7 @@ html.light .ios26-btn {
   border-radius: 12px !important;
   color: var(--text-primary) !important;
   font-weight: 500 !important;
-  transition: all 0.2s ease !important;
+  transition: transform 0.15s ease, background 0.15s ease !important;
 }
 
 html.light .ios26-btn:hover {
@@ -6029,8 +6029,8 @@ html.light .bg-black\/80 {
 
 html.light [class*="rounded-3xl"][class*="backdrop-blur"] {
   background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(40px) saturate(150%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
   box-shadow: 
     0 0 0 1px rgba(0, 0, 0, 0.04),
     0 8px 32px rgba(0, 0, 0, 0.08),
@@ -6061,8 +6061,8 @@ html.light .liquid-glass-nav {
   background: var(--nav-bg) !important;
   border-top-color: var(--nav-border) !important;
   box-shadow: var(--nav-shadow) !important;
-  backdrop-filter: blur(40px) saturate(150%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
 }
 
 /* Nav icons and text */
@@ -6128,8 +6128,8 @@ html.light [role="dialog"] > div,
 html.light [aria-modal="true"] > div {
   background: var(--dialog-bg) !important;
   box-shadow: var(--dialog-shadow) !important;
-  backdrop-filter: blur(40px) saturate(150%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -6353,7 +6353,7 @@ html.light .showcase-page [data-testid="cta-primary"] {
     0 4px 16px rgba(59, 130, 246, 0.3),
     0 1px 3px rgba(59, 130, 246, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-  transition: all 0.2s ease !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
 }
 
 html.light .showcase-page [data-testid="cta-primary"]:hover {
@@ -6377,7 +6377,7 @@ html.light .showcase-page [data-testid="cta-demo"] {
   box-shadow: 
     0 0 0 1px rgba(0, 0, 0, 0.08),
     0 2px 8px rgba(0, 0, 0, 0.04) !important;
-  transition: all 0.2s ease !important;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease !important;
 }
 
 html.light .showcase-page [data-testid="cta-demo"]:hover {
@@ -6397,7 +6397,7 @@ html.light .showcase-page [data-testid="cta-bottom"] {
 
 /* === iOS 26 Improved Hover States === */
 html.light .hover-elevate-light {
-  transition: all 0.2s ease !important;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease !important;
 }
 
 html.light .hover-elevate-light:hover {
@@ -6412,7 +6412,7 @@ html.light .hover-elevate-light:active {
 
 /* === iOS 26 Pressed States === */
 html.light .active-press {
-  transition: all 0.1s ease !important;
+  transition: transform 0.1s ease, opacity 0.1s ease !important;
 }
 
 html.light .active-press:active {
@@ -6423,8 +6423,8 @@ html.light .active-press:active {
 /* === GlobalSidebar Light Theme - Professional iOS 26 Design === */
 html.light .global-sidebar-panel {
   background: #FFFFFF !important;
-  backdrop-filter: blur(40px) saturate(150%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
   border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
   box-shadow: 
     4px 0 24px rgba(0, 0, 0, 0.08),
@@ -6462,7 +6462,7 @@ html.light .global-sidebar-panel [style*="letter-spacing: 0.15em"] {
 
 html.light .global-sidebar-item {
   border-radius: 12px !important;
-  transition: all 0.2s ease !important;
+  transition: transform 0.15s ease, background 0.15s ease !important;
 }
 
 html.light .global-sidebar-item:hover {
@@ -6777,16 +6777,16 @@ html:not(.light) {
 /* === 6. GLASSMORPHISM 2.0 (Thin white borders 1px, 5% opacity) === */
 .glass-premium {
   background: rgba(28, 28, 30, 0.8);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .glass-premium-strong {
   background: rgba(44, 44, 46, 0.85);
-  backdrop-filter: blur(40px) saturate(200%);
-  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
@@ -6794,16 +6794,16 @@ html:not(.light) {
 /* Glass sidebar */
 .glass-sidebar {
   background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Glass modal */
 .glass-modal {
   background: rgba(44, 44, 46, 0.95);
-  backdrop-filter: blur(50px) saturate(200%);
-  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
 }
@@ -7179,8 +7179,8 @@ html:not(.light) .bottom-nav-premium {
     rgba(0, 0, 0, 0.8) 0%,
     rgba(0, 0, 0, 0.95) 100%
   );
-  backdrop-filter: blur(30px) saturate(200%);
-  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
 }

@@ -86,7 +86,7 @@ export default function NFTCarousel({ onOpenDemo }: NFTCarouselProps) {
           text-align: center;
           color: #000000;
           cursor: pointer;
-          transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
           transform-style: preserve-3d;
           box-shadow: 
             0 25px 50px rgba(0, 0, 0, 0.15),
@@ -192,7 +192,7 @@ export default function NFTCarousel({ onOpenDemo }: NFTCarouselProps) {
           border-radius: 50%;
           background: rgba(255, 165, 0, 0.4);
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: transform 0.2s ease, background 0.2s ease;
         }
 
         .indicator.active {

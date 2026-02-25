@@ -470,8 +470,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           justify-content: center;
           border-radius: 14px;
           background: rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(24px) saturate(200%);
-          -webkit-backdrop-filter: blur(24px) saturate(200%);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
           border: 1.5px solid rgba(255, 255, 255, 0.12);
           cursor: pointer;
           transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -686,8 +686,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           z-index: 101;
           width: min(320px, calc(100vw - 48px));
           background: rgba(0, 0, 0, 0.05);
-          backdrop-filter: blur(60px) saturate(200%) brightness(0.98);
-          -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(0.98);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           border-right: 1px solid rgba(255, 255, 255, 0.08);
           box-shadow: 20px 0 60px rgba(0, 0, 0, 0.2);
           display: flex;
@@ -801,7 +801,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.06);
           contain: layout style;
-          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
           flex-shrink: 0;
           position: relative;
           overflow: hidden;
@@ -851,7 +851,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(255, 255, 255, 0.06);
           cursor: pointer;
-          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
           -webkit-tap-highlight-color: transparent;
           position: relative;
           overflow: hidden;
@@ -980,7 +980,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(255, 255, 255, 0.08);
           cursor: pointer;
-          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
           flex-shrink: 0;
           -webkit-tap-highlight-color: transparent;
           position: relative;
@@ -1073,8 +1073,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           right: 0;
           z-index: 90;
           background: rgba(0, 0, 0, 0.05);
-          backdrop-filter: blur(60px) saturate(200%) brightness(0.98);
-          -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(0.98);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           border-bottom: 1px solid rgba(255, 255, 255, 0.06);
           padding-top: max(env(safe-area-inset-top, 0px), 12px);
           overflow: hidden;

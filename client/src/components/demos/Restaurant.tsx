@@ -561,7 +561,7 @@ const Restaurant = memo(function Restaurant({ activeTab }: RestaurantProps) {
           className="rounded-t-[2rem] -mt-16 relative z-10 p-6 space-y-6 pb-32"
           style={{ 
             background: luxuryColors.glass,
-            backdropFilter: 'blur(40px)',
+            backdropFilter: 'blur(16px)',
             borderTop: `1px solid ${luxuryColors.glassBorder}`
           }}
         >

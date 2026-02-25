@@ -454,8 +454,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 className="flex items-center justify-between gap-3 px-3 py-2 rounded-[20px]"
                 style={{
                   background: 'linear-gradient(145deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%)',
-                  backdropFilter: 'blur(30px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
                   border: '0.5px solid rgba(255,255,255,0.3)',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4)',
                 }}
@@ -596,8 +596,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
               style={{ 
                 background: 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
-                backdropFilter: 'blur(25px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
                 border: '0.5px solid rgba(255,255,255,0.6)',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7)'
               }}
@@ -611,8 +611,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               className="px-4 py-1.5 rounded-full"
               style={{
                 background: 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
-                backdropFilter: 'blur(25px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
                 border: '0.5px solid rgba(255,255,255,0.5)',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)'
               }}
@@ -633,8 +633,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 background: isFavorite(selectedProduct.id) 
                   ? 'linear-gradient(145deg, rgba(255,59,48,0.35) 0%, rgba(255,59,48,0.15) 100%)'
                   : 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
-                backdropFilter: 'blur(25px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
                 border: isFavorite(selectedProduct.id) 
                   ? '0.5px solid rgba(255,59,48,0.5)'
                   : '0.5px solid rgba(255,255,255,0.6)',
@@ -691,8 +691,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               flexDirection: 'column',
               gap: '20px',
               background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.08) 100%)',
-              backdropFilter: 'blur(30px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
               borderTop: '0.5px solid rgba(255,255,255,0.4)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)'
             }}
@@ -1215,8 +1215,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             className="rounded-2xl p-3 flex items-center gap-4"
             style={{
               background: 'rgba(0,0,0,0.85)',
-              backdropFilter: 'blur(30px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
               border: '0.5px solid rgba(255,255,255,0.15)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)'
             }}
@@ -1528,8 +1528,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
                 style={{
                   background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
-                  backdropFilter: 'blur(30px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
                   border: '0.5px solid rgba(255,255,255,0.15)',
                   boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
                   maxHeight: '70vh',
@@ -1817,8 +1817,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
                 style={{
                   background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
-                  backdropFilter: 'blur(30px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
                   border: '0.5px solid rgba(255,255,255,0.15)',
                   boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
                   maxHeight: '70vh',

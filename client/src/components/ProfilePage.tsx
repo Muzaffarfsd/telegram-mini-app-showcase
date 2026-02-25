@@ -603,8 +603,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
       <style>{`
         .ios26-profile .ios26-card {
           background: ${palette.cardBg};
-          backdrop-filter: blur(40px) saturate(150%);
-          -webkit-backdrop-filter: blur(40px) saturate(150%);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
           border-radius: 20px;
           border: 1px solid ${palette.cardBorder};
           box-shadow: ${palette.cardShadow};
@@ -664,8 +664,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         }
         .ios26-profile .ios26-stats-card {
           background: ${palette.cardBg};
-          backdrop-filter: blur(40px);
-          -webkit-backdrop-filter: blur(40px);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
           border-radius: 20px;
           border: 1px solid ${palette.cardBorder};
           box-shadow: ${palette.cardShadow};
@@ -727,7 +727,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           font-size: 15px;
           font-weight: 500;
           color: ${palette.textPrimary};
-          transition: all 0.2s ease;
+          transition: transform 0.15s ease, background 0.15s ease;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -776,7 +776,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           font-size: 16px;
           font-weight: 500;
           color: white;
-          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
           display: flex;
           align-items: center;
           justify-content: center;
