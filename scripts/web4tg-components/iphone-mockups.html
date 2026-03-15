@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEB4TG — iPhone Demo Mockups</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0a0a0a;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px 60px;
+  }
+
+  .section {
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* Header */
+  .badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(16,185,129,0.25);
+    background: rgba(16,185,129,0.1);
+    color: #34d399;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  h2 {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    text-align: center;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.65) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    margin-bottom: 44px;
+  }
+
+  /* Phones row */
+  .phones-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 18px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 0 8px 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .phones-row::-webkit-scrollbar { display: none; }
+
+  .phone-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .phone-wrapper.center { transform: translateY(-24px); }
+  .phone-wrapper:hover .phone-inner { transform: scale(1.05) translateY(-7px); }
+
+  .phone-inner {
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  /* iPhone frame */
+  .iphone {
+    position: relative;
+    width: 200px;
+    height: 420px;
+    border-radius: 38px;
+    background: linear-gradient(145deg, #2c2c30 0%, #1c1c1e 40%, #0f0f11 100%);
+    flex-shrink: 0;
+  }
+
+  .iphone.radiance  { box-shadow: 0 0 0 1px rgba(255,255,255,.13), 0 0 0 2.5px rgba(0,0,0,.95), 0 50px 90px rgba(0,0,0,.85), 0 0 55px rgba(16,185,129,.18), inset 0 1px 0 rgba(255,255,255,.15); }
+  .iphone.techmart  { box-shadow: 0 0 0 1px rgba(255,255,255,.13), 0 0 0 2.5px rgba(0,0,0,.95), 0 38px 70px rgba(0,0,0,.8),  0 0 50px rgba(6,182,212,.15),   inset 0 1px 0 rgba(255,255,255,.15); }
+  .iphone.floralart { box-shadow: 0 0 0 1px rgba(255,255,255,.13), 0 0 0 2.5px rgba(0,0,0,.95), 0 38px 70px rgba(0,0,0,.8),  0 0 50px rgba(244,114,182,.15), inset 0 1px 0 rgba(255,255,255,.15); }
+
+  /* Buttons */
+  .btn-left-1  { position:absolute; left:-2.5px; top:82px;  width:2.5px; height:19px; border-radius:2px 0 0 2px; background:#222226; }
+  .btn-left-2  { position:absolute; left:-2.5px; top:111px; width:2.5px; height:30px; border-radius:2px 0 0 2px; background:#222226; }
+  .btn-left-3  { position:absolute; left:-2.5px; top:150px; width:2.5px; height:30px; border-radius:2px 0 0 2px; background:#222226; }
+  .btn-right-1 { position:absolute; right:-2.5px; top:104px; width:2.5px; height:50px; border-radius:0 2px 2px 0; background:#222226; }
+  .btn-right-2 { position:absolute; right:-2.5px; top:168px; width:2.5px; height:55px; border-radius:0 2px 2px 0; background:#222226; }
+
+  /* Screen */
+  .screen {
+    position: absolute;
+    inset: 5px;
+    border-radius: 33px;
+    background: #000;
+    overflow: hidden;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 84px;
+    height: 25px;
+    border-radius: 16px;
+    background: #000;
+    z-index: 20;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    pointer-events: none;
+  }
+  .di-camera  { width:8px; height:8px; border-radius:50%; background:#1a1a1a; border:1px solid rgba(255,255,255,.06); }
+  .di-dot     { width:4.5px; height:4.5px; border-radius:50%; background:#1c1c1c; }
+
+  /* Status bar */
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 44px;
+    z-index: 15;
+    pointer-events: none;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 18px 5px;
+    background: linear-gradient(to bottom, rgba(0,0,0,.55) 0%, transparent 100%);
+  }
+  .status-time { color:rgba(255,255,255,.9); font-size:9px; font-weight:600; }
+  .status-icons { display:flex; gap:4px; align-items:center; }
+  .signal { display:flex; gap:1px; }
+  .signal-bar { width:2.5px; border-radius:1px; background:rgba(255,255,255,.9); }
+  .signal-bar.dim { background:rgba(255,255,255,.25); }
+  .battery {
+    width:18px; height:9px; border-radius:2.5px;
+    border:1.5px solid rgba(255,255,255,.5);
+    position:relative;
+  }
+  .battery-fill {
+    position:absolute; inset:1.5px; border-radius:1px;
+    background:rgba(255,255,255,.85); width:70%;
+  }
+
+  /* App iframe */
+  .app-frame {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .app-frame iframe {
+    width: 390px;
+    height: 844px;
+    border: none;
+    transform: scale(0.4872);
+    transform-origin: top left;
+    background: #000;
+  }
+
+  /* Home indicator */
+  .home-indicator {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255,255,255,.32);
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  /* Frame shine */
+  .frame-shine {
+    position: absolute;
+    inset: 0;
+    border-radius: 38px;
+    background: linear-gradient(135deg, rgba(255,255,255,.07) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Labels */
+  .label {
+    text-align: center;
+  }
+  .label-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.06);
+    margin-bottom: 5px;
+  }
+  .label-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .label-name { color:#fff; font-size:13px; font-weight:700; }
+  .label-category { color:rgba(255,255,255,.3); font-size:11px; }
+
+  /* Responsive */
+  @media (max-width: 680px) {
+    .iphone { width: 160px; height: 336px; border-radius: 30px; }
+    .screen { border-radius: 25px; }
+    .frame-shine { border-radius: 30px; }
+    .app-frame iframe { transform: scale(0.3897); }
+    .dynamic-island { width: 67px; height: 20px; top: 8px; }
+    .btn-left-1  { top:65px;  height:15px; }
+    .btn-left-2  { top:88px;  height:24px; }
+    .btn-left-3  { top:120px; height:24px; }
+    .btn-right-1 { top:83px;  height:40px; }
+    .btn-right-2 { top:134px; height:44px; }
+    .phones-row { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<section class="section">
+  <div class="badge">Demo apps</div>
+  <h2>Посмотрите как это работает</h2>
+  <p class="subtitle">Полнофункциональные приложения — нажмите и взаимодействуйте</p>
+
+  <div class="phones-row">
+
+    <!-- Radiance -->
+    <div class="phone-wrapper" id="phone-radiance">
+      <div class="phone-inner">
+        <div class="iphone radiance">
+          <div class="btn-left-1"></div>
+          <div class="btn-left-2"></div>
+          <div class="btn-left-3"></div>
+          <div class="btn-right-1"></div>
+          <div class="btn-right-2"></div>
+          <div class="screen">
+            <div class="dynamic-island"><div class="di-camera"></div><div class="di-dot"></div></div>
+            <div class="status-bar">
+              <span class="status-time">9:41</span>
+              <div class="status-icons">
+                <div class="signal">
+                  <div class="signal-bar" style="height:3px"></div>
+                  <div class="signal-bar" style="height:4px"></div>
+                  <div class="signal-bar" style="height:5px"></div>
+                  <div class="signal-bar dim" style="height:5px"></div>
+                </div>
+                <div class="battery"><div class="battery-fill"></div></div>
+              </div>
+            </div>
+            <div class="app-frame">
+              <iframe
+                src="https://web4tg.com/#/demos/clothing-store/app"
+                title="Radiance Fashion Store"
+                loading="lazy"
+                allow="clipboard-write"
+              ></iframe>
+            </div>
+            <div class="home-indicator"></div>
+          </div>
+          <div class="frame-shine"></div>
+        </div>
+      </div>
+      <div class="label">
+        <div class="label-pill" style="border:1px solid rgba(16,185,129,0.25)">
+          <div class="label-dot" style="background:#10b981"></div>
+          <span class="label-name">Radiance</span>
+        </div>
+        <div class="label-category">Премиальный fashion магазин</div>
+      </div>
+    </div>
+
+    <!-- Techmart (center — elevated) -->
+    <div class="phone-wrapper center" id="phone-techmart">
+      <div class="phone-inner">
+        <div class="iphone techmart">
+          <div class="btn-left-1"></div>
+          <div class="btn-left-2"></div>
+          <div class="btn-left-3"></div>
+          <div class="btn-right-1"></div>
+          <div class="btn-right-2"></div>
+          <div class="screen">
+            <div class="dynamic-island"><div class="di-camera"></div><div class="di-dot"></div></div>
+            <div class="status-bar">
+              <span class="status-time">9:41</span>
+              <div class="status-icons">
+                <div class="signal">
+                  <div class="signal-bar" style="height:3px"></div>
+                  <div class="signal-bar" style="height:4px"></div>
+                  <div class="signal-bar" style="height:5px"></div>
+                  <div class="signal-bar dim" style="height:5px"></div>
+                </div>
+                <div class="battery"><div class="battery-fill"></div></div>
+              </div>
+            </div>
+            <div class="app-frame">
+              <iframe
+                src="https://web4tg.com/#/demos/electronics/app"
+                title="Techmart Electronics"
+                loading="lazy"
+                allow="clipboard-write"
+              ></iframe>
+            </div>
+            <div class="home-indicator"></div>
+          </div>
+          <div class="frame-shine"></div>
+        </div>
+      </div>
+      <div class="label">
+        <div class="label-pill" style="border:1px solid rgba(6,182,212,0.25)">
+          <div class="label-dot" style="background:#06b6d4"></div>
+          <span class="label-name">Techmart</span>
+        </div>
+        <div class="label-category">Электроника и гаджеты</div>
+      </div>
+    </div>
+
+    <!-- FloralArt -->
+    <div class="phone-wrapper" id="phone-floralart">
+      <div class="phone-inner">
+        <div class="iphone floralart">
+          <div class="btn-left-1"></div>
+          <div class="btn-left-2"></div>
+          <div class="btn-left-3"></div>
+          <div class="btn-right-1"></div>
+          <div class="btn-right-2"></div>
+          <div class="screen">
+            <div class="dynamic-island"><div class="di-camera"></div><div class="di-dot"></div></div>
+            <div class="status-bar">
+              <span class="status-time">9:41</span>
+              <div class="status-icons">
+                <div class="signal">
+                  <div class="signal-bar" style="height:3px"></div>
+                  <div class="signal-bar" style="height:4px"></div>
+                  <div class="signal-bar" style="height:5px"></div>
+                  <div class="signal-bar dim" style="height:5px"></div>
+                </div>
+                <div class="battery"><div class="battery-fill"></div></div>
+              </div>
+            </div>
+            <div class="app-frame">
+              <iframe
+                src="https://web4tg.com/#/demos/florist/app"
+                title="FloralArt Florist"
+                loading="lazy"
+                allow="clipboard-write"
+              ></iframe>
+            </div>
+            <div class="home-indicator"></div>
+          </div>
+          <div class="frame-shine"></div>
+        </div>
+      </div>
+      <div class="label">
+        <div class="label-pill" style="border:1px solid rgba(244,114,182,0.25)">
+          <div class="label-dot" style="background:#f472b6"></div>
+          <span class="label-name">FloralArt</span>
+        </div>
+        <div class="label-category">Цветы и букеты</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>
