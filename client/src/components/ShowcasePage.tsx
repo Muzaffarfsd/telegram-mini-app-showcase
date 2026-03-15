@@ -14,6 +14,7 @@ import { TubesBackground } from './ui/neon-flow';
 import { useTheme } from '../hooks/useTheme';
 import { CardStack, type CardStackItem } from '@/components/ui/card-stack';
 import { LazyMotionProvider } from '@/utils/LazyMotionProvider';
+import IPhoneMockupShowcase from './IPhoneMockupShowcase';
 import nikeDestinyImage from "@assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg";
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
@@ -485,6 +486,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               </div>
             </div>
           </section>
+
+          {/* iPhone 17 Pro Max Mockup Showcase */}
+          <IPhoneMockupShowcase onOpenDemo={handleOpenDemo} />
 
           {/* iOS 26 Liquid Glass - Premium Process Steps */}
           <section className="pb-10 pt-6">
