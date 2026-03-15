@@ -313,7 +313,7 @@ function App() {
       <LanguageProvider>
       {/* Sync Telegram native buttons with language changes */}
       <TelegramButtonsSync routeComponent={route.component} />
-      <Suspense fallback={null}>
+      <Suspense fallback={<div style={{minHeight:'1px'}} />}>
         <LazyMotionProvider>
           <LazyRewardsProvider>
             <LazyXPNotificationProvider>
