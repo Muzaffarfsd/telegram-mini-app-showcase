@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development tsx server/index.ts",
+    "dev": "NODE_ENV=development node_modules/.bin/tsx server/index.ts",
     "build": "vite build && cp -r attached_assets dist/",
     "build:analyze": "ANALYZE=true vite build",
     "start": "NODE_ENV=production node dist/server/index.js",
