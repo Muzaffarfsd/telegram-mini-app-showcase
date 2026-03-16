@@ -62,6 +62,7 @@ interface Perfume {
   occasions: string[];
   isNew?: boolean;
   isTrending?: boolean;
+  sizePrices?: Record<string, number>;
 }
 
 const perfumes: Perfume[] = [
@@ -93,6 +94,7 @@ const perfumes: Perfume[] = [
     occasions: ['Вечер', 'Ночь', 'Романтик', 'Зима'],
     isNew: true,
     isTrending: true,
+    sizePrices: { '50 мл': 29500, '100 мл': 52000 },
   },
   {
     id: 2,
@@ -122,6 +124,7 @@ const perfumes: Perfume[] = [
     occasions: ['День', 'Деловой', 'Спорт', 'Лето'],
     isNew: true,
     isTrending: true,
+    sizePrices: { '50 мл': 44500, '100 мл': 78000, '250 мл': 165000 },
   },
   {
     id: 3,
@@ -151,6 +154,7 @@ const perfumes: Perfume[] = [
     occasions: ['Вечер', 'Романтик', 'Праздник', 'Осень'],
     isNew: true,
     isTrending: true,
+    sizePrices: { '50 мл': 18500, '100 мл': 32000 },
   },
   {
     id: 4,
@@ -180,6 +184,7 @@ const perfumes: Perfume[] = [
     occasions: ['День', 'Деловой', 'Вечер', 'Зима'],
     isNew: true,
     isTrending: true,
+    sizePrices: { '50 мл': 38500, '100 мл': 68000 },
   },
   {
     id: 5,
@@ -207,6 +212,7 @@ const perfumes: Perfume[] = [
     year: 2015,
     occasions: ['Вечер', 'Ночь', 'Романтик', 'Зима'],
     isTrending: true,
+    sizePrices: { '70 мл': 34000, '200 мл': 82000 },
   },
   {
     id: 6,
@@ -233,6 +239,7 @@ const perfumes: Perfume[] = [
     brand: 'TOM FORD',
     year: 2007,
     occasions: ['Вечер', 'Ночь', 'Деловой', 'Осень'],
+    sizePrices: { '50 мл': 43000, '100 мл': 76000 },
   },
   {
     id: 7,
@@ -260,6 +267,7 @@ const perfumes: Perfume[] = [
     year: 2015,
     occasions: ['День', 'Спорт', 'Деловой', 'Лето'],
     isNew: true,
+    sizePrices: { '60 мл': 14500, '100 мл': 22000, '200 мл': 38000 },
   },
   {
     id: 8,
@@ -286,6 +294,7 @@ const perfumes: Perfume[] = [
     brand: 'CHANEL',
     year: 2001,
     occasions: ['День', 'Романтик', 'Весна', 'Лето'],
+    sizePrices: { '50 мл': 16500, '100 мл': 28000 },
   },
 ];
 
@@ -353,6 +362,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   const [catalogSearch, setCatalogSearch] = useState('');
   const [showCatalogSearch, setShowCatalogSearch] = useState(false);
   const productScrollRef = useRef<HTMLDivElement>(null);
+  const heroImageRef = useRef<HTMLDivElement>(null);
 
   const { toast } = useToast();
   const sidebar = useDemoSidebar();
@@ -427,14 +437,18 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
     setSelectedPerfume(perfume);
     setSelectedVolume(perfume.volumes[0]);
     setSelectedConcentration(perfume.concentrations[0]);
+    setActiveProductTab('fragrance');
+    if (heroImageRef.current) heroImageRef.current.style.transform = '';
+    if (productScrollRef.current) productScrollRef.current.scrollTop = 0;
   };
 
   const addToCart = () => {
     if (!selectedPerfume) return;
+    const cartPrice = selectedPerfume.sizePrices?.[selectedVolume] ?? selectedPerfume.price;
     addToCartHook({
       id: String(selectedPerfume.id),
       name: selectedPerfume.name,
-      price: selectedPerfume.price,
+      price: cartPrice,
       image: selectedPerfume.image,
       size: selectedVolume,
       color: selectedConcentration,
@@ -468,8 +482,9 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
     const bgColor = selectedPerfume.categoryBg;
     const accentColor = categoryConfig[selectedPerfume.category]?.color ?? '#C9B037';
     const CategoryIcon = categoryConfig[selectedPerfume.category]?.icon;
+    const displayPrice = selectedPerfume.sizePrices?.[selectedVolume] ?? selectedPerfume.price;
     const discountPct = selectedPerfume.oldPrice
-      ? Math.round((1 - selectedPerfume.price / selectedPerfume.oldPrice) * 100)
+      ? Math.round((1 - displayPrice / selectedPerfume.oldPrice) * 100)
       : 0;
 
     return (
@@ -562,14 +577,22 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           ref={productScrollRef}
           className="flex-1 overflow-y-auto scrollbar-hide"
           style={{ paddingBottom: '180px' }}
-          onScroll={(e) => setShowStickyHeader(e.currentTarget.scrollTop > 300)}
+          onScroll={(e) => {
+            const st = e.currentTarget.scrollTop;
+            setShowStickyHeader(st > 300);
+            if (heroImageRef.current) {
+              heroImageRef.current.style.transform = `translateY(${st * 0.32}px)`;
+            }
+          }}
         >
 
         {/* ── HERO IMAGE 70vh — inside scroll so it scrolls away ── */}
         <div className="relative" style={{ height: '70vh', minHeight: '420px' }}>
           <div className="absolute inset-0 overflow-hidden">
             <m.div
+              ref={heroImageRef}
               className="w-full h-full"
+              style={{ willChange: 'transform' }}
               initial={{ scale: 1.06, filter: 'brightness(0.72)' }}
               animate={productExiting
                 ? { scale: 1.04, filter: 'brightness(0.55)' }
@@ -742,7 +765,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                     fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif",
                     color: 'rgba(255,255,255,0.97)', lineHeight: 1,
                   }}>
-                    {formatPrice(selectedPerfume.price)}
+                    {formatPrice(displayPrice)}
                   </p>
                   {selectedPerfume.oldPrice && (
                     <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through', fontFamily: "'Satoshi','Inter',sans-serif" }}>
@@ -819,7 +842,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 </div>
               </m.div>
 
-              {/* ── VOLUME selector — moved before tabs ── */}
+              {/* ── VOLUME selector with per-size pricing ── */}
               <m.div variants={contentItem}>
                 <p style={{
                   fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em',
@@ -831,24 +854,59 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {selectedPerfume.volumes.map((vol) => {
                     const isSelected = selectedVolume === vol;
+                    const volPrice = selectedPerfume.sizePrices?.[vol];
+                    const isSmallest = vol === selectedPerfume.volumes[0];
+                    const savingsVsSmallest = volPrice && selectedPerfume.sizePrices
+                      ? (() => {
+                          const basePerMl = (selectedPerfume.sizePrices[selectedPerfume.volumes[0]] ?? selectedPerfume.price) / parseInt(selectedPerfume.volumes[0]);
+                          const thisPerMl = volPrice / parseInt(vol);
+                          const savePct = Math.round((1 - thisPerMl / basePerMl) * 100);
+                          return savePct > 0 ? savePct : null;
+                        })()
+                      : null;
                     return (
                       <button
                         key={vol}
                         onClick={() => setSelectedVolume(vol)}
-                        className="active:scale-95 transition-all duration-200"
+                        className="active:scale-[0.97] transition-all duration-200"
                         style={{
-                          flex: 1, padding: '14px 8px', borderRadius: '12px',
-                          fontSize: '14px', fontWeight: 700,
-                          fontFamily: "'Satoshi','Inter',sans-serif",
-                          color: isSelected ? '#000' : 'rgba(255,255,255,0.65)',
-                          background: isSelected ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.07)',
-                          border: isSelected ? 'none' : '0.5px solid rgba(255,255,255,0.12)',
-                          boxShadow: isSelected ? '0 4px 20px rgba(255,255,255,0.15)' : 'none',
+                          flex: 1, padding: '12px 8px 11px', borderRadius: '14px',
+                          textAlign: 'center', position: 'relative',
+                          color: isSelected ? '#000' : 'rgba(255,255,255,0.75)',
+                          background: isSelected ? 'rgba(255,255,255,0.96)' : 'rgba(255,255,255,0.06)',
+                          border: isSelected ? `0.5px solid rgba(255,255,255,0.4)` : '0.5px solid rgba(255,255,255,0.1)',
+                          boxShadow: isSelected ? '0 6px 24px rgba(255,255,255,0.12)' : 'none',
                         }}
                         aria-pressed={isSelected}
                         data-testid={`button-volume-${vol}`}
                       >
-                        {vol}
+                        {!isSmallest && savingsVsSmallest && (
+                          <div style={{
+                            position: 'absolute', top: '-8px', left: '50%', transform: 'translateX(-50%)',
+                            background: accentColor, color: '#000',
+                            fontSize: '7px', fontWeight: 800, letterSpacing: '0.06em',
+                            padding: '2px 6px', borderRadius: '6px',
+                            fontFamily: "'Satoshi','Inter',sans-serif", whiteSpace: 'nowrap',
+                          }}>
+                            −{savingsVsSmallest}%/мл
+                          </div>
+                        )}
+                        <p style={{
+                          fontSize: '15px', fontWeight: 800, letterSpacing: '-0.02em',
+                          fontFamily: "'Satoshi','Inter',sans-serif", lineHeight: 1, marginBottom: '5px',
+                          color: isSelected ? '#000' : 'rgba(255,255,255,0.9)',
+                        }}>
+                          {vol}
+                        </p>
+                        {volPrice && (
+                          <p style={{
+                            fontSize: '11px', fontWeight: 600, letterSpacing: '-0.01em',
+                            fontFamily: "'Satoshi','Inter',sans-serif", lineHeight: 1,
+                            color: isSelected ? 'rgba(0,0,0,0.6)' : accentColor,
+                          }}>
+                            {formatPrice(volPrice)}
+                          </p>
+                        )}
                       </button>
                     );
                   })}
@@ -1287,7 +1345,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 </span>
                 <div style={{ width: '1px', height: '18px', background: 'rgba(0,0,0,0.2)', margin: '0 4px' }} />
                 <span style={{ fontSize: '15px', fontWeight: 800, color: '#000', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                  {formatPrice(selectedPerfume.price)}
+                  {formatPrice(displayPrice)}
                 </span>
               </button>
             }

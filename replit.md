@@ -206,6 +206,20 @@ To configure a branded loading screen for the Mini App:
 - **Order summary card**: Separated card showing: Товары (N) / Доставка: Бесплатно (green) / Итого (26px bold) — full breakdown
 - **Premium checkout CTA**: Gradient gold button (`linear-gradient(135deg, #D4BC3E, #C9B037, #B8A02E)`) with glow shadow; shows both label and price inline
 
+### Volume Selector with Per-Size Pricing — Complete
+- **`sizePrices: Record<string, number>`** added to Perfume interface + all 8 products (e.g. Black Orchid: 50ml=29 500₽ / 100ml=52 000₽; Creed Aventus: 50ml=44 500₽ / 100ml=78 000₽ / 250ml=165 000₽)
+- **`displayPrice`** computed as `sizePrices[selectedVolume] ?? price` — main price display + sticky header CTA both use `displayPrice`
+- **Volume button redesign**: 2-row cards (ml size bold + price in accent color); when selected: white bg + dark text
+- **Savings badge**: For non-smallest volumes, a gold pill badge "−N%/мл" appears above the button showing per-ml savings vs smallest bottle
+- **`addToCart`** uses `cartPrice = sizePrices[selectedVolume] ?? price` — cart shows correct volume-adjusted price
+- **`discountPct`** recomputed from `displayPrice` so discount badge is always volume-accurate
+
+### Hero Parallax — Zero Re-Render Implementation
+- **`heroImageRef = useRef<HTMLDivElement>(null)`** added to component
+- **`onScroll`** handler extended: `heroImageRef.current.style.transform = \`translateY(${st * 0.32}px)\`` — direct DOM mutation, zero React re-renders
+- **`willChange: 'transform'`** on hero image div — GPU-composited layer, 60fps smooth
+- **`openPerfume`** resets parallax: `heroImageRef.current.style.transform = ''` + `productScrollRef.current.scrollTop = 0` — clean slate per product
+
 ### Profile Page — Complete Luxury Redesign
 - **Gold gradient hero section**: Subtle `rgba(201,176,55,0.07)` corner glow + hairline gold horizontal gradient at top
 - **Initials avatar**: "АС" monogram on gold-to-dark gradient circle with double ring glow (`box-shadow: 0 0 0 3px rgba(201,176,55,0.2), 0 0 0 6px rgba(201,176,55,0.07)`)
