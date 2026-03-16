@@ -142,6 +142,42 @@ export const DemoThemes: Record<string, DemoTheme> = {
     },
   },
 
+  floralArt: {
+    id: 'floralArt',
+    name: 'Floral Art',
+    colors: {
+      primary: '#D4789C',
+      primaryForeground: '#FFFFFF',
+      secondary: '#F5EDE8',
+      secondaryForeground: '#1A1A1A',
+      accent: '#E8A0BF',
+      accentForeground: '#1A1A1A',
+      background: '#FDF8F5',
+      foreground: '#1A1A1A',
+      muted: '#F0E6DF',
+      mutedForeground: '#6B5C52',
+      card: '#FFFFFF',
+      cardForeground: '#1A1A1A',
+      border: 'rgba(212, 120, 156, 0.18)',
+      ring: '#D4789C',
+      gradient: {
+        from: '#D4789C',
+        via: '#E8A0BF',
+        to: '#F0C4D8',
+      },
+    },
+    fonts: {
+      heading: '"Cormorant Garamond", Georgia, serif',
+      body: '"Inter", system-ui, sans-serif',
+    },
+    style: {
+      borderRadius: '16px',
+      glassIntensity: 'medium',
+      shadowStyle: 'soft',
+      animation: 'smooth',
+    },
+  },
+
   timeElite: {
     id: 'timeElite',
     name: 'Time Elite',

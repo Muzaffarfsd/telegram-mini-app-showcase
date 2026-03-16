@@ -1,34 +1,36 @@
-import { useState, useEffect, memo } from "react";
-import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus, Flower2, Leaf, Clock, Truck } from "lucide-react";
-import { ConfirmDrawer } from "../ui/modern-drawer";
-import { useFilter } from "@/hooks/useFilter";
+import React, { useState, useRef, memo } from "react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { m, AnimatePresence } from "framer-motion";
+import {
+  Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package,
+  CreditCard, MapPin, Settings, LogOut, User, Sparkles, Search,
+  Menu, Home, Grid, Tag, Plus, Minus, Flower2, Leaf, Clock, Truck,
+  RotateCcw, ShieldCheck, Eye, Droplets, Sun, Snowflake, TreePine
+} from "lucide-react";
+import { ConfirmDrawer } from "../ui/modern-drawer";
 import { usePersistentCart } from "@/hooks/usePersistentCart";
 import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
 import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges } from "@/components/shared";
+import { LazyImage, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 const flowerVideo = "/attached_assets/5d2ab0bb92c8c7530a889b407ef3d457_1765617456150.mp4";
+const STORE_KEY = 'floralart-store';
+const ACCENT = '#D4789C';
+const BG = '#FDF8F5';
+const TEXT = '#1A1A1A';
+const MUTED = '#6B5C52';
+const CARD = '#FFFFFF';
 
 interface FloristProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
   onTabChange?: (tab: string) => void;
 }
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  size: string;
-  quantity: number;
-  image: string;
-  color: string;
-}
+type SeasonType = 'spring' | 'summer' | 'autumn' | 'year-round';
 
 interface FlowerProduct {
   id: number;
@@ -37,1185 +39,1437 @@ interface FlowerProduct {
   oldPrice?: number;
   image: string;
   description: string;
+  floristNote: string;
   category: string;
+  categoryBg: string;
   occasion: string[];
   sizes: string[];
+  sizePrices: Record<string, number>;
   colors: string[];
   colorHex: string[];
+  freshnessDays: number;
   freshness: string;
   rating: number;
   inStock: number;
-  seasonality: string;
+  season: SeasonType;
   vaseLife: string;
   careInstructions: string;
   flowerOrigin: string;
+  composition: string[];
   isNew?: boolean;
   isTrending?: boolean;
 }
 
 const flowers: FlowerProduct[] = [
-  { 
-    id: 1, 
-    name: 'Букет из красных роз', 
-    price: 4500, 
+  {
+    id: 1,
+    name: 'Букет из красных роз',
+    price: 4500,
     oldPrice: 5500,
-    image: '/attached_assets/red_roses_bouquet.jpg', 
-    description: 'Роскошная симфония из 15 эквадорских роз сорта Freedom с бархатными лепестками глубокого рубинового оттенка. Каждый бутон отобран вручную на плантациях высокогорья Эквадора, где чистейший горный воздух наполняет цветы особой силой. Аромат сочетает ноты спелой малины, утренней росы и легкий шлейф сандалового дерева.', 
-    category: 'Розы', 
-    occasion: ['Признание в любви', 'Юбилей', 'Предложение руки и сердца'], 
+    image: '/attached_assets/red_roses_bouquet.jpg',
+    description: 'Роскошная симфония из 15 эквадорских роз сорта Freedom с бархатными лепестками глубокого рубинового оттенка. Каждый бутон отобран вручную на плантациях высокогорья Эквадора.',
+    floristNote: 'Этот букет — моё признание в любви к совершенству. Каждая роза Freedom проходит тройной отбор на высокогорных плантациях, где чистейший воздух на высоте 2800м наполняет лепестки особой силой. Аромат — ноты спелой малины и сандалового дерева.',
+    category: 'Розы',
+    categoryBg: '#FDF5F3',
+    occasion: ['Признание в любви', 'Юбилей', 'Предложение'],
     sizes: ['Маленький', 'Средний', 'Большой'],
+    sizePrices: { 'Маленький': 4500, 'Средний': 6800, 'Большой': 9500 },
     colors: ['Красный', 'Бордо'],
     colorHex: ['#DC2626', '#7C2D12'],
-    freshness: '7 дней', 
-    rating: 4.9, 
+    freshnessDays: 7,
+    freshness: '7 дней',
+    rating: 4.9,
     inStock: 12,
-    seasonality: 'Круглый год',
-    vaseLife: '10-14 дней при правильном уходе',
-    careInstructions: 'Подрезать стебли под углом 45°, менять воду каждые 2 дня, добавлять специальную подкормку',
-    flowerOrigin: 'Высокогорные плантации Эквадора, 2800м над уровнем моря',
+    season: 'year-round',
+    vaseLife: '10–14 дней',
+    careInstructions: 'Подрезать стебли под углом 45°, менять воду каждые 2 дня, добавлять подкормку',
+    flowerOrigin: 'Высокогорные плантации Эквадора',
+    composition: ['Розы Freedom 15 шт.', 'Эвкалипт', 'Рускус', 'Атласная лента'],
     isNew: true,
-    isTrending: true
+    isTrending: true,
   },
-  { 
-    id: 2, 
-    name: 'Белые пионы', 
-    price: 3800, 
+  {
+    id: 2,
+    name: 'Белые пионы',
+    price: 3800,
     oldPrice: 4800,
-    image: '/attached_assets/white_peonies.jpg', 
-    description: 'Облако нежнейших белоснежных пионов сорта Duchess de Nemours с роскошными многослойными лепестками цвета первого снега. Их пьянящий аромат наполняет пространство нотами жасмина, свежести и едва уловимой сладости мёда. Каждый бутон раскрывается словно балерина на сцене, обнажая шелковистую текстуру лепестков.', 
-    category: 'Пионы', 
-    occasion: ['Свадьба', 'Помолвка', 'Рождение ребёнка'], 
+    image: '/attached_assets/white_peonies.jpg',
+    description: 'Облако нежнейших белоснежных пионов сорта Duchess de Nemours с роскошными многослойными лепестками цвета первого снега.',
+    floristNote: 'Пионы — это поэзия природы. Duchess de Nemours раскрывается словно балерина на сцене, обнажая шелковистую текстуру каждого лепестка. Пьянящий аромат жасмина и едва уловимой сладости мёда заполняет всё пространство.',
+    category: 'Пионы',
+    categoryBg: '#FFF5F7',
+    occasion: ['Свадьба', 'Помолвка', 'Рождение'],
     sizes: ['Маленький', 'Средний', 'Большой'],
+    sizePrices: { 'Маленький': 3800, 'Средний': 5600, 'Большой': 8200 },
     colors: ['Белый', 'Кремовый'],
     colorHex: ['#FAFAFA', '#FEF3C7'],
-    freshness: '5 дней', 
-    rating: 4.8, 
+    freshnessDays: 5,
+    freshness: '5 дней',
+    rating: 4.8,
     inStock: 8,
-    seasonality: 'Май — Июль',
-    vaseLife: '5-7 дней при прохладной температуре',
-    careInstructions: 'Держать вдали от прямых солнечных лучей, менять воду ежедневно, подрезать стебли каждые 2 дня',
-    flowerOrigin: 'Частные сады Голландии, провинция Северный Брабант',
+    season: 'spring',
+    vaseLife: '5–7 дней',
+    careInstructions: 'Держать вдали от солнца, менять воду ежедневно, подрезать стебли каждые 2 дня',
+    flowerOrigin: 'Частные сады Голландии',
+    composition: ['Пионы Duchess de Nemours 9 шт.', 'Питтоспорум', 'Берграсс'],
     isNew: true,
-    isTrending: true
+    isTrending: true,
   },
-  { 
-    id: 3, 
-    name: 'Микс из тюльпанов', 
-    price: 3200, 
-    image: '/attached_assets/tulips_mix.jpg', 
-    description: 'Радужная палитра голландских тюльпанов премиум класса — настоящий праздник весны в каждом лепестке. Бархатистые бутоны в оттенках розового заката, солнечного золота и небесной лазури сплетаются в единую гармонию цвета. Нежный, едва уловимый аромат свежести напоминает о первых тёплых днях и пробуждении природы.', 
-    category: 'Тюльпаны', 
-    occasion: ['8 Марта', 'Весенний праздник', 'Поздравление'], 
+  {
+    id: 3,
+    name: 'Микс из тюльпанов',
+    price: 3200,
+    image: '/attached_assets/tulips_mix.jpg',
+    description: 'Радужная палитра голландских тюльпанов премиум класса — настоящий праздник весны в каждом лепестке.',
+    floristNote: 'Тюльпаны — вестники весны. Я подбираю каждый бутон по оттенку, создавая плавный переход от розового заката через золото к небесной лазури. Это не просто букет — это палитра художника.',
+    category: 'Тюльпаны',
+    categoryBg: '#FFF8F0',
+    occasion: ['8 Марта', 'Весенний праздник', 'Поздравление'],
     sizes: ['Маленький', 'Средний', 'Большой'],
+    sizePrices: { 'Маленький': 3200, 'Средний': 4800, 'Большой': 7200 },
     colors: ['Микс', 'Розовый', 'Жёлтый'],
     colorHex: ['#EC4899', '#F472B6', '#FACC15'],
-    freshness: '4 дня', 
-    rating: 4.7, 
+    freshnessDays: 4,
+    freshness: '4 дня',
+    rating: 4.7,
     inStock: 15,
-    seasonality: 'Февраль — Май',
-    vaseLife: '5-7 дней в прохладном месте',
-    careInstructions: 'Использовать холодную воду, добавить каплю лимонного сока, держать вдали от фруктов',
-    flowerOrigin: 'Королевские поля Голландии, регион Лиссе',
-    isTrending: true
+    season: 'spring',
+    vaseLife: '5–7 дней',
+    careInstructions: 'Холодная вода, капля лимонного сока, держать вдали от фруктов',
+    flowerOrigin: 'Королевские поля Голландии, Лиссе',
+    composition: ['Тюльпаны 25 шт.', 'Зелень сезонная'],
+    isTrending: true,
   },
-  { 
-    id: 4, 
-    name: 'Орхидея в горшке', 
-    price: 5500, 
-    image: '/attached_assets/orchid_pot.jpg', 
-    description: 'Величественная орхидея фаленопсис с каскадом изысканных цветков, напоминающих крылья экзотических бабочек. Её восковые лепестки с перламутровым отливом хранят тайны тропических лесов Юго-Восточной Азии. Тонкий аромат ванили и орхидеи создаёт атмосферу роскоши и утончённости.', 
-    category: 'Горшечные', 
-    occasion: ['Подарок на новоселье', 'День рождения', 'Благодарность'], 
+  {
+    id: 4,
+    name: 'Орхидея фаленопсис',
+    price: 5500,
+    image: '/attached_assets/orchid_pot.jpg',
+    description: 'Величественная орхидея с каскадом изысканных цветков, напоминающих крылья экзотических бабочек.',
+    floristNote: 'Фаленопсис — королева тропиков. Её восковые лепестки с перламутровым отливом хранят тайны лесов Юго-Восточной Азии. Тонкий аромат ванили создаёт атмосферу утончённой роскоши.',
+    category: 'Горшечные',
+    categoryBg: '#F5F0FF',
+    occasion: ['Новоселье', 'День рождения', 'Благодарность'],
     sizes: ['Маленький', 'Средний'],
+    sizePrices: { 'Маленький': 5500, 'Средний': 8500 },
     colors: ['Белый', 'Фиолетовый', 'Розовый'],
     colorHex: ['#FAFAFA', '#A855F7', '#F9A8D4'],
-    freshness: '30 дней', 
-    rating: 4.8, 
+    freshnessDays: 30,
+    freshness: '30 дней',
+    rating: 4.8,
     inStock: 6,
-    seasonality: 'Круглый год',
-    vaseLife: 'До 3 месяцев цветения при правильном уходе',
-    careInstructions: 'Поливать раз в неделю методом погружения, опрыскивать листья, избегать прямых солнечных лучей',
-    flowerOrigin: 'Тепличные хозяйства Тайваня, остров орхидей',
-    isNew: true
+    season: 'year-round',
+    vaseLife: 'До 3 месяцев цветения',
+    careInstructions: 'Поливать раз в неделю методом погружения, опрыскивать листья',
+    flowerOrigin: 'Тепличные хозяйства Тайваня',
+    composition: ['Фаленопсис 2 ветки', 'Декоративный горшок', 'Кора орхидейная'],
+    isNew: true,
   },
-  { 
-    id: 5, 
-    name: 'Букет невесты', 
-    price: 8500, 
-    image: '/attached_assets/wedding_bouquet.jpg', 
-    description: 'Изысканная свадебная композиция из белоснежных роз David Austin с атласными лепестками и нежнейшей эустомы оттенка шампанского. Лёгкие веточки гипсофилы создают воздушное облако, словно фата невесты. Аромат сочетает ноты розы, фрезии и свежей зелени — запах счастья и начала новой жизни.', 
-    category: 'Свадебные', 
-    occasion: ['Свадьба', 'Венчание', 'Помолвка'], 
+  {
+    id: 5,
+    name: 'Букет невесты',
+    price: 8500,
+    image: '/attached_assets/wedding_bouquet.jpg',
+    description: 'Изысканная свадебная композиция из белоснежных роз David Austin с атласными лепестками и эустомы оттенка шампанского.',
+    floristNote: 'Свадебный букет — это не просто цветы, это символ начала новой жизни. Каждый элемент подобран с ювелирной точностью. Розы David Austin с их многослойными лепестками символизируют глубину чувств, а воздушная гипсофила — чистоту намерений.',
+    category: 'Свадебные',
+    categoryBg: '#FFFEF5',
+    occasion: ['Свадьба', 'Венчание', 'Помолвка'],
     sizes: ['Стандарт', 'Премиум'],
+    sizePrices: { 'Стандарт': 8500, 'Премиум': 14500 },
     colors: ['Белый', 'Шампань'],
     colorHex: ['#FFFFFF', '#FEF3C7'],
-    freshness: '8 дней', 
-    rating: 4.9, 
+    freshnessDays: 8,
+    freshness: '8 дней',
+    rating: 4.9,
     inStock: 4,
-    seasonality: 'Круглый год',
-    vaseLife: '8-12 дней с флористическим питанием',
-    careInstructions: 'Беречь от жары, обновлять срез каждый день, держать в специальном растворе',
-    flowerOrigin: 'Английские розарии Девона и голландские теплицы',
-    isTrending: true
+    season: 'year-round',
+    vaseLife: '8–12 дней',
+    careInstructions: 'Беречь от жары, обновлять срез каждый день, держать в растворе',
+    flowerOrigin: 'Розарии Девона, Англия',
+    composition: ['Розы David Austin 11 шт.', 'Эустома', 'Гипсофила', 'Фрезия', 'Атласная лента'],
+    isTrending: true,
   },
-  { 
-    id: 6, 
-    name: 'Хризантемы осенние', 
-    price: 2800, 
-    image: '/attached_assets/chrysanthemum.jpg', 
-    description: 'Пышные кустовые хризантемы в палитре золотой осени — от медового янтаря до глубокого бордо, словно листья в октябрьском парке. Каждый цветок с сотнями миниатюрных лепестков создаёт объёмную текстуру невероятной красоты. Терпкий травянистый аромат с нотами полыни и мёда напоминает о тёплых осенних вечерах.', 
-    category: 'Хризантемы', 
-    occasion: ['День учителя', 'Осенний праздник', 'Благодарность'], 
+  {
+    id: 6,
+    name: 'Хризантемы осенние',
+    price: 2800,
+    image: '/attached_assets/chrysanthemum.jpg',
+    description: 'Пышные кустовые хризантемы в палитре золотой осени — от медового янтаря до глубокого бордо.',
+    floristNote: 'Хризантемы — это живопись осени. Каждый цветок с сотнями миниатюрных лепестков создаёт объёмную текстуру невероятной красоты. Терпкий аромат полыни и мёда — запах тёплых осенних вечеров.',
+    category: 'Хризантемы',
+    categoryBg: '#FFF8F0',
+    occasion: ['День учителя', 'Осенний праздник', 'Благодарность'],
     sizes: ['Маленький', 'Средний', 'Большой'],
+    sizePrices: { 'Маленький': 2800, 'Средний': 4200, 'Большой': 6000 },
     colors: ['Жёлтый', 'Оранжевый', 'Бордо'],
     colorHex: ['#FACC15', '#F97316', '#9F1239'],
-    freshness: '10 дней', 
-    rating: 4.5, 
+    freshnessDays: 10,
+    freshness: '10 дней',
+    rating: 4.5,
     inStock: 20,
-    seasonality: 'Сентябрь — Ноябрь',
-    vaseLife: '14-21 день при правильном уходе',
+    season: 'autumn',
+    vaseLife: '14–21 день',
     careInstructions: 'Удалять нижние листья, менять воду каждые 3 дня, добавлять аспирин',
-    flowerOrigin: 'Фермерские хозяйства Краснодарского края'
+    flowerOrigin: 'Фермерские хозяйства Краснодара',
+    composition: ['Хризантемы кустовые 7 шт.', 'Аспидистра', 'Солидаго'],
   },
-  { 
-    id: 7, 
-    name: 'Лилии белые', 
-    price: 4200, 
-    image: '/attached_assets/white_lilies.jpg', 
-    description: 'Царственные восточные лилии сорта Касабланка с крупными бутонами цвета слоновой кости и изящно загнутыми лепестками. Их головокружительный аромат — густой, сладковатый, с нотами гардении и жасмина — наполняет всё пространство магией. Бархатистая текстура лепестков с мельчайшими капельками нектара притягивает взгляд.', 
-    category: 'Лилии', 
-    occasion: ['Траурная церемония', 'Память', 'Духовный праздник'], 
+  {
+    id: 7,
+    name: 'Лилии Касабланка',
+    price: 4200,
+    image: '/attached_assets/white_lilies.jpg',
+    description: 'Царственные восточные лилии с крупными бутонами цвета слоновой кости и головокружительным ароматом.',
+    floristNote: 'Лилия Касабланка — это аристократизм во плоти. Её аромат — густой, с нотами гардении и жасмина — способен наполнить магией целую комнату. Бархатистые лепестки с капельками нектара притягивают взгляд неодолимо.',
+    category: 'Лилии',
+    categoryBg: '#F5FFF5',
+    occasion: ['Траурная церемония', 'Память', 'Духовный праздник'],
     sizes: ['Маленький', 'Средний', 'Большой'],
+    sizePrices: { 'Маленький': 4200, 'Средний': 6300, 'Большой': 9000 },
     colors: ['Белый', 'Кремовый'],
     colorHex: ['#FAFAFA', '#FFFBEB'],
-    freshness: '6 дней', 
-    rating: 4.6, 
+    freshnessDays: 6,
+    freshness: '6 дней',
+    rating: 4.6,
     inStock: 10,
-    seasonality: 'Июнь — Сентябрь',
-    vaseLife: '7-10 дней, бутоны раскрываются постепенно',
-    careInstructions: 'Удалять пыльники для продления свежести, менять воду часто, подрезать стебли',
-    flowerOrigin: 'Лилейные поля Нидерландов, регион Вестланд'
+    season: 'summer',
+    vaseLife: '7–10 дней',
+    careInstructions: 'Удалять пыльники, менять воду часто, подрезать стебли',
+    flowerOrigin: 'Лилейные поля Нидерландов',
+    composition: ['Лилии Касабланка 5 шт.', 'Салал', 'Берграсс', 'Декоративная зелень'],
   },
-  { 
-    id: 8, 
-    name: 'Полевые цветы', 
-    price: 2500, 
-    image: '/attached_assets/wildflowers.jpg', 
-    description: 'Романтичная россыпь полевых цветов — ромашки с золотыми сердцевинками, нежные васильки цвета летнего неба и пушистые колоски злаков. Этот букет хранит дыхание июльского луга, согретого солнцем и овеянного тёплым ветром. Свежий травянистый аромат с медовыми нотами переносит в беззаботное детство.', 
-    category: 'Полевые', 
-    occasion: ['Романтическое свидание', 'Признание', 'Просто так'], 
+  {
+    id: 8,
+    name: 'Полевые цветы',
+    price: 2500,
+    image: '/attached_assets/wildflowers.jpg',
+    description: 'Романтичная россыпь полевых цветов — ромашки, васильки и пушистые колоски злаков.',
+    floristNote: 'Этот букет — дыхание июльского луга. Каждый стебелёк собран с любовью и хранит тепло настоящего солнца. Свежий аромат с медовыми нотами переносит в беззаботное детство.',
+    category: 'Полевые',
+    categoryBg: '#F0FFF4',
+    occasion: ['Свидание', 'Признание', 'Просто так'],
     sizes: ['Маленький', 'Средний'],
+    sizePrices: { 'Маленький': 2500, 'Средний': 3800 },
     colors: ['Микс', 'Синий'],
     colorHex: ['#86EFAC', '#3B82F6'],
-    freshness: '3 дня', 
-    rating: 4.4, 
+    freshnessDays: 3,
+    freshness: '3 дня',
+    rating: 4.4,
     inStock: 25,
-    seasonality: 'Июнь — Август',
-    vaseLife: '3-5 дней в прохладе',
-    careInstructions: 'Держать в прохладном месте, менять воду ежедневно, подрезать стебли под водой',
-    flowerOrigin: 'Экологически чистые луга Подмосковья'
+    season: 'summer',
+    vaseLife: '3–5 дней',
+    careInstructions: 'Прохладное место, менять воду ежедневно, подрезать под водой',
+    flowerOrigin: 'Экологичные луга Подмосковья',
+    composition: ['Ромашки', 'Васильки', 'Колоски', 'Лаванда', 'Полевая зелень'],
   },
-  { 
-    id: 9, 
-    name: 'Гортензия синяя', 
-    price: 4800, 
+  {
+    id: 9,
+    name: 'Гортензия синяя',
+    price: 4800,
     oldPrice: 5800,
-    image: '/attached_assets/blue_hydrangea.jpg', 
-    description: 'Волшебные соцветия гортензии в оттенках индиго и небесной лазури — словно кусочек летнего неба, заключённый в лепестки. Каждая шапка состоит из сотен миниатюрных цветков, создающих невероятный объём и воздушность. Лёгкий, едва уловимый аромат свежести и чистоты.', 
-    category: 'Гортензии', 
-    occasion: ['День рождения', 'Подарок маме', 'Выражение восхищения'], 
+    image: '/attached_assets/blue_hydrangea.jpg',
+    description: 'Волшебные соцветия гортензии в оттенках индиго и лазури — словно кусочек летнего неба в лепестках.',
+    floristNote: 'Гортензия — это архитектура природы. Каждая шапка из сотен миниатюрных цветков создаёт невероятный объём. Оттенок зависит от кислотности почвы — настоящая алхимия!',
+    category: 'Гортензии',
+    categoryBg: '#F0F5FF',
+    occasion: ['День рождения', 'Подарок маме', 'Восхищение'],
     sizes: ['Маленький', 'Средний', 'Большой'],
+    sizePrices: { 'Маленький': 4800, 'Средний': 7200, 'Большой': 10500 },
     colors: ['Синий', 'Голубой', 'Фиолетовый'],
     colorHex: ['#3B82F6', '#60A5FA', '#8B5CF6'],
-    freshness: '8 дней', 
-    rating: 4.7, 
+    freshnessDays: 8,
+    freshness: '8 дней',
+    rating: 4.7,
     inStock: 7,
-    seasonality: 'Июнь — Октябрь',
-    vaseLife: '7-10 дней при обильном поливе',
-    careInstructions: 'Погружать соцветия в воду на 30 минут ежедневно, использовать много воды, прохладное место',
+    season: 'summer',
+    vaseLife: '7–10 дней',
+    careInstructions: 'Погружать соцветия в воду на 30 мин ежедневно, много воды',
     flowerOrigin: 'Садовые питомники Бретани, Франция',
-    isNew: true
+    composition: ['Гортензия 3 шт.', 'Эвкалипт Бейби Блю', 'Лента из органзы'],
+    isNew: true,
   },
-  { 
-    id: 10, 
-    name: 'Подсолнухи', 
-    price: 3500, 
-    image: '/attached_assets/sunflowers.jpg', 
-    description: 'Солнечные гиганты с бархатистыми лепестками цвета спелого мёда и выразительными тёмными сердцевинами, усыпанными семенами. Каждый цветок — маленькое солнце, несущее тепло и радость в самый пасмурный день. Лёгкий ореховый аромат с нотами подсолнечного масла и летнего поля.', 
-    category: 'Подсолнухи', 
-    occasion: ['Поднять настроение', 'Выздоровление', 'Новоселье'], 
+  {
+    id: 10,
+    name: 'Подсолнухи',
+    price: 3500,
+    image: '/attached_assets/sunflowers.jpg',
+    description: 'Солнечные гиганты с бархатистыми лепестками цвета спелого мёда.',
+    floristNote: 'Подсолнухи — это маленькие солнца. Каждый цветок несёт тепло и радость в самый пасмурный день. Их ореховый аромат с нотами летнего поля создаёт атмосферу бесконечного лета.',
+    category: 'Подсолнухи',
+    categoryBg: '#FFFDF0',
+    occasion: ['Настроение', 'Выздоровление', 'Новоселье'],
     sizes: ['Маленький', 'Средний', 'Большой'],
+    sizePrices: { 'Маленький': 3500, 'Средний': 5200, 'Большой': 7800 },
     colors: ['Жёлтый', 'Оранжевый'],
     colorHex: ['#FACC15', '#FB923C'],
-    freshness: '5 дней', 
-    rating: 4.6, 
+    freshnessDays: 5,
+    freshness: '5 дней',
+    rating: 4.6,
     inStock: 18,
-    seasonality: 'Июль — Сентябрь',
-    vaseLife: '5-8 дней в чистой воде',
-    careInstructions: 'Использовать просторную вазу, много воды, подрезать толстые стебли острым ножом',
-    flowerOrigin: 'Солнечные поля Краснодара и Ростовской области'
+    season: 'summer',
+    vaseLife: '5–8 дней',
+    careInstructions: 'Просторная ваза, много воды, подрезать толстые стебли ножом',
+    flowerOrigin: 'Солнечные поля Краснодара',
+    composition: ['Подсолнухи 7 шт.', 'Гиперикум', 'Рускус'],
   },
-  { 
-    id: 11, 
-    name: 'Композиция в коробке', 
-    price: 6500, 
+  {
+    id: 11,
+    name: 'Композиция в коробке',
+    price: 6500,
     oldPrice: 7500,
-    image: '/attached_assets/box_composition.jpg', 
-    description: 'Роскошная флористическая композиция в бархатистой шляпной коробке — розы оттенка пудры, ароматный эвкалипт с серебристыми листьями и изящные веточки брунии. Каждый элемент подобран с ювелирной точностью и уложен на флористическую губку для максимальной свежести.', 
-    category: 'Композиции', 
-    occasion: ['VIP подарок', 'Юбилей компании', 'Благодарность партнёру'], 
+    image: '/attached_assets/box_composition.jpg',
+    description: 'Роскошная композиция в бархатистой шляпной коробке — розы пудры, эвкалипт и бруния.',
+    floristNote: 'Шляпная коробка — это подарок, который не требует вазы. Каждый элемент уложен на флористическую губку с ювелирной точностью. Это не букет — это произведение искусства, готовое к вручению.',
+    category: 'Композиции',
+    categoryBg: '#FFF5F8',
+    occasion: ['VIP подарок', 'Юбилей компании', 'Благодарность'],
     sizes: ['Средний', 'Большой'],
+    sizePrices: { 'Средний': 6500, 'Большой': 11000 },
     colors: ['Пудра', 'Розовый'],
     colorHex: ['#FECDD3', '#F9A8D4'],
-    freshness: '7 дней', 
-    rating: 4.8, 
+    freshnessDays: 7,
+    freshness: '7 дней',
+    rating: 4.8,
     inStock: 9,
-    seasonality: 'Круглый год',
-    vaseLife: '7-10 дней без пересадки',
-    careInstructions: 'Поливать губку каждые 2 дня, не допускать пересыхания, беречь от солнца',
-    flowerOrigin: 'Авторская работа флористов салона, премиум материалы из Голландии',
+    season: 'year-round',
+    vaseLife: '7–10 дней без пересадки',
+    careInstructions: 'Поливать губку каждые 2 дня, не допускать пересыхания',
+    flowerOrigin: 'Авторская работа, материалы из Голландии',
+    composition: ['Розы пудровые 15 шт.', 'Эвкалипт', 'Бруния', 'Хлопок', 'Бархатная коробка'],
     isNew: true,
-    isTrending: true
+    isTrending: true,
   },
-  { 
-    id: 12, 
-    name: 'Эустома разноцветная', 
-    price: 4000, 
-    image: '/attached_assets/eustoma.jpg', 
-    description: 'Нежнейшая эустома в переливах пастельных оттенков — от сливочного крема до лавандового тумана и персикового рассвета. Её многослойные лепестки с атласной текстурой напоминают юбку балерины в грациозном па-де-де.', 
-    category: 'Эустома', 
-    occasion: ['Признание в чувствах', 'День матери', 'Нежный сюрприз'], 
+  {
+    id: 12,
+    name: 'Эустома пастельная',
+    price: 4000,
+    image: '/attached_assets/eustoma.jpg',
+    description: 'Нежнейшая эустома в переливах пастельных оттенков — от сливочного крема до лавандового тумана.',
+    floristNote: 'Эустома — это аристократка мира цветов. Её многослойные лепестки с атласной текстурой напоминают юбку балерины. Каждый бутон раскрывается по-своему, даря новые оттенки каждый день.',
+    category: 'Эустома',
+    categoryBg: '#F8F0FF',
+    occasion: ['Признание', 'День матери', 'Нежный сюрприз'],
     sizes: ['Маленький', 'Средний', 'Большой'],
+    sizePrices: { 'Маленький': 4000, 'Средний': 6000, 'Большой': 8800 },
     colors: ['Лавандовый', 'Персиковый', 'Кремовый'],
     colorHex: ['#C4B5FD', '#FDBA74', '#FEF3C7'],
-    freshness: '6 дней', 
-    rating: 4.5, 
+    freshnessDays: 6,
+    freshness: '6 дней',
+    rating: 4.5,
     inStock: 14,
-    seasonality: 'Круглый год',
-    vaseLife: '10-14 дней при правильном уходе',
-    careInstructions: 'Подрезать стебли каждые 2 дня, использовать чистую воду комнатной температуры',
-    flowerOrigin: 'Японские селекционные сорта, выращенные в Нидерландах'
+    season: 'year-round',
+    vaseLife: '10–14 дней',
+    careInstructions: 'Подрезать стебли каждые 2 дня, чистая вода комнатной температуры',
+    flowerOrigin: 'Японские сорта, выращенные в Нидерландах',
+    composition: ['Эустома 11 шт.', 'Маттиола', 'Питтоспорум'],
   },
-  { 
-    id: 13, 
-    name: 'Каллы элегантные', 
-    price: 5200, 
-    image: '/attached_assets/calla_lilies.jpg', 
-    description: 'Изысканные каллы с безупречными линиями воронковидных цветков — воплощение архитектурной красоты в мире флоры. Их гладкие, словно отполированные, белоснежные покрывала с кремовым початком внутри напоминают скульптуры ар-деко.', 
-    category: 'Каллы', 
-    occasion: ['Торжественное событие', 'Свадьба', 'Открытие выставки'], 
-    sizes: ['Маленький', 'Средний', 'Большой'],
-    colors: ['Белый', 'Кремовый'],
-    colorHex: ['#FAFAFA', '#FEF9C3'],
-    freshness: '7 дней', 
-    rating: 4.7, 
-    inStock: 6,
-    seasonality: 'Круглый год',
-    vaseLife: '7-10 дней в высокой вазе',
-    careInstructions: 'Использовать высокую вазу с небольшим количеством воды, менять воду каждые 2 дня',
-    flowerOrigin: 'Калифорнийские фермы и южноафриканские плантации'
-  },
-  { 
-    id: 14, 
-    name: 'Герберы яркие', 
-    price: 3000, 
-    image: '/attached_assets/gerbera.jpg', 
-    description: 'Радостный фейерверк гербер в самых сочных оттенках лета — алом, как спелая вишня, оранжевом, как апельсиновая роща, и жёлтом, как полуденное солнце. Их идеально круглые лепестки с бархатистой текстурой и контрастные тёмные сердцевины создают графичный эффект.', 
-    category: 'Герберы', 
-    occasion: ['День рождения', 'Выздоровление', 'Просто порадовать'], 
-    sizes: ['Маленький', 'Средний', 'Большой'],
-    colors: ['Красный', 'Оранжевый', 'Жёлтый'],
-    colorHex: ['#EF4444', '#F97316', '#FACC15'],
-    freshness: '5 дней', 
-    rating: 4.4, 
-    inStock: 22,
-    seasonality: 'Круглый год',
-    vaseLife: '7-10 дней с подпоркой для стеблей',
-    careInstructions: 'Подвязывать стебли, использовать неглубокую воду, добавлять сахар',
-    flowerOrigin: 'Солнечные теплицы Кении и Нидерландов'
-  },
-  { 
-    id: 15, 
-    name: 'Фрезии ароматные', 
-    price: 3600, 
-    image: '/attached_assets/freesia.jpg', 
-    description: 'Изящные фрезии с каскадом миниатюрных воронковидных цветков, источающих один из самых чарующих ароматов в цветочном мире. Их нежные лепестки в оттенках от чистого белого до розового зефира и солнечного жёлтого.', 
-    category: 'Фрезии', 
-    occasion: ['Романтический вечер', '8 Марта', 'Признание в любви'], 
-    sizes: ['Маленький', 'Средний'],
-    colors: ['Белый', 'Розовый', 'Жёлтый'],
-    colorHex: ['#FAFAFA', '#FBCFE8', '#FDE047'],
-    freshness: '4 дня', 
-    rating: 4.6, 
-    inStock: 16,
-    seasonality: 'Февраль — Май',
-    vaseLife: '5-7 дней при прохладной температуре',
-    careInstructions: 'Держать в прохладе, подрезать стебли, бутоны раскрываются постепенно',
-    flowerOrigin: 'Капская провинция ЮАР, культивированы в Голландии'
-  },
-  { 
-    id: 16, 
-    name: 'Антуриум красный', 
-    price: 5800, 
-    image: '/attached_assets/anthurium.jpg', 
-    description: 'Экзотический антуриум с глянцевыми сердцевидными покрывалами насыщенного алого цвета и изящными кремовыми початками. Его восковые листья отражают свет, создавая эффект лакированной поверхности.', 
-    category: 'Экзотические', 
-    occasion: ['VIP подарок', 'Корпоративное событие', 'Юбилей'], 
-    sizes: ['Маленький', 'Средний'],
-    colors: ['Красный', 'Бордо'],
-    colorHex: ['#DC2626', '#991B1B'],
-    freshness: '10 дней', 
-    rating: 4.8, 
-    inStock: 5,
-    seasonality: 'Круглый год',
-    vaseLife: '2-3 недели при правильном уходе',
-    careInstructions: 'Опрыскивать покрывала, использовать тёплую воду, беречь от сквозняков',
-    flowerOrigin: 'Тропические плантации Колумбии и Коста-Рики',
-    isNew: true
-  },
-  { 
-    id: 17, 
-    name: 'Букет "Весенний бриз"', 
-    price: 4400, 
-    image: '/attached_assets/spring_bouquet.jpg', 
-    description: 'Нежная весенняя композиция из пастельных ранункулюсов, душистого горошка и веточек эвкалипта. Букет создаёт атмосферу пробуждения природы и первых тёплых дней. Идеальный подарок для тех, кто скучает по весне.', 
-    category: 'Композиции', 
-    occasion: ['Весенний праздник', 'День матери', 'Поздравление'], 
-    sizes: ['Маленький', 'Средний', 'Большой'],
-    colors: ['Пастельный микс', 'Розовый'],
-    colorHex: ['#FDF2F8', '#FBCFE8'],
-    freshness: '5 дней', 
-    rating: 4.7, 
-    inStock: 11,
-    seasonality: 'Март — Май',
-    vaseLife: '5-8 дней при правильном уходе',
-    careInstructions: 'Подрезать стебли, использовать прохладную воду, держать вдали от фруктов',
-    flowerOrigin: 'Итальянские и голландские теплицы',
-    isTrending: true
-  }
 ];
 
-const categories = ['Все', 'Розы', 'Пионы', 'Тюльпаны', 'Гортензии', 'Композиции', 'Экзотические'];
+const categories = ['Все', 'Розы', 'Пионы', 'Тюльпаны', 'Горшечные', 'Свадебные', 'Хризантемы', 'Лилии', 'Полевые', 'Гортензии', 'Подсолнухи', 'Композиции', 'Эустома'];
+const seasonFilters = ['All', 'spring', 'summer', 'autumn', 'year-round'] as const;
+
+const seasonConfig: Record<SeasonType, { icon: React.ComponentType<{style?: React.CSSProperties; className?: string}>, label: string, color: string }> = {
+  'spring': { icon: Flower2, label: 'Весна', color: '#EC4899' },
+  'summer': { icon: Sun, label: 'Лето', color: '#F59E0B' },
+  'autumn': { icon: Leaf, label: 'Осень', color: '#F97316' },
+  'year-round': { icon: TreePine, label: 'Круглый год', color: '#10B981' },
+};
+
+const mockReviews = [
+  { author: 'Екатерина М.', initials: 'ЕМ', rating: 5, date: '8 мар. 2026', text: 'Невероятной красоты букет! Цветы были свежайшие, простояли 12 дней. Доставка точно в срок, курьер очень аккуратный. Буду заказывать только здесь!', verified: true },
+  { author: 'Дмитрий К.', initials: 'ДК', rating: 5, date: '1 мар. 2026', text: 'Заказывал на 8 марта — жена была в восторге. Букет выглядел даже лучше, чем на фото. Упаковка премиальная, запах потрясающий.', verified: true },
+  { author: 'Анна В.', initials: 'АВ', rating: 4, date: '22 фев. 2026', text: 'Очень красивая композиция. Единственное — хотелось бы больше зелени в букете. Но качество цветов на высшем уровне, раскрылись на третий день полностью.', verified: true },
+];
 
 function Florist({ activeTab, onTabChange }: FloristProps) {
-  const [selectedProduct, setSelectedProduct] = useState<FlowerProduct | null>(null);
+  const [selectedFlower, setSelectedFlower] = useState<FlowerProduct | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [selectedSeason, setSelectedSeason] = useState<string>('All');
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  
+  const [productExiting, setProductExiting] = useState(false);
+  const [showStickyHeader, setShowStickyHeader] = useState(false);
+  const [activeProductTab, setActiveProductTab] = useState<'bouquet' | 'details' | 'reviews'>('bouquet');
+  const [quickViewFlower, setQuickViewFlower] = useState<FlowerProduct | null>(null);
+  const [catalogSearch, setCatalogSearch] = useState('');
+  const [showCatalogSearch, setShowCatalogSearch] = useState(false);
+  const productScrollRef = useRef<HTMLDivElement>(null);
+  const heroImageRef = useRef<HTMLDivElement>(null);
+
   const { toast } = useToast();
   const sidebar = useDemoSidebar();
-  
-  const { 
-    cartItems: cart, 
-    addToCart: addToCartPersistent, 
-    removeFromCart, 
+
+  const {
+    cartItems: cart,
+    addToCart: addToCartHook,
+    removeFromCart,
     updateQuantity,
-    clearCart, 
+    clearCart,
     totalAmount: cartTotal,
-    totalItems: cartCount 
-  } = usePersistentCart({ storageKey: 'florist_cart' });
-  
-  const { 
-    favorites, 
-    toggleFavorite, 
+    totalItems: cartCount,
+  } = usePersistentCart({ storageKey: `${STORE_KEY}_cart` });
+
+  const {
+    toggleFavorite: toggleFavoriteHook,
     isFavorite,
-    favoritesCount 
-  } = usePersistentFavorites({ storageKey: 'florist_favorites' });
-  
-  const { 
-    orders, 
+    favoritesCount,
+  } = usePersistentFavorites({ storageKey: `${STORE_KEY}_favorites` });
+
+  const {
+    orders,
     createOrder,
-    ordersCount 
-  } = usePersistentOrders({ storageKey: 'florist_orders' });
-  
+    ordersCount,
+  } = usePersistentOrders({ storageKey: `${STORE_KEY}_orders` });
+
   const sidebarMenuItems = [
     { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
     { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
     { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: 'var(--theme-primary)' },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: ACCENT },
     { icon: <Tag className="w-5 h-5" />, label: 'Акции', badge: 'NEW', badgeColor: '#EF4444' },
     { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
     { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
   ];
 
-  const { filteredItems, searchQuery, handleSearch } = useFilter({
-    items: flowers,
-    searchFields: ['name', 'description', 'category'] as (keyof FlowerProduct)[],
-  });
-
-  useEffect(() => {
-    scrollToTop();
-    if (activeTab !== 'catalog') {
-      setSelectedProduct(null);
-    }
-  }, [activeTab]);
-
-  const filteredProducts = filteredItems.filter(p => {
-    const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
-    return categoryMatch;
-  });
-
-  const handleImageLoad = (productId: number) => {
-    setLoadedImages(prev => new Set(prev).add(productId));
+  const handleProductBack = () => {
+    setProductExiting(true);
+    setTimeout(() => {
+      setProductExiting(false);
+      setSelectedFlower(null);
+    }, 340);
   };
 
-  const handleToggleFavorite = (productId: number) => {
-    toggleFavorite(productId);
-    const isNowFavorite = !isFavorite(productId);
-    toast({
-      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
-      duration: 1500,
-    });
+  const productPageVariants = {
+    initial: { opacity: 0, y: 28, scale: 0.985 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: 40, scale: 0.975 },
   };
 
-  const openProduct = (product: FlowerProduct) => {
+  const contentStagger = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.065, delayChildren: 0.2 } },
+  };
+
+  const contentItem = {
+    hidden: { opacity: 0, y: 18 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] as number[] } },
+  };
+
+  const handleToggleFavorite = (flowerId: number) => {
+    toggleFavoriteHook(String(flowerId));
+    const isNowFavorite = !isFavorite(String(flowerId));
+    toast({ title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного', duration: 1500 });
+  };
+
+  const openFlower = (flower: FlowerProduct) => {
     scrollToTop();
     onTabChange?.('catalog');
-    setSelectedProduct(product);
-    setSelectedSize(product.sizes[0]);
-    setSelectedColor(product.colors[0]);
+    setSelectedFlower(flower);
+    setSelectedSize(flower.sizes[0]);
+    setSelectedColor(flower.colors[0]);
+    setActiveProductTab('bouquet');
+    if (heroImageRef.current) heroImageRef.current.style.transform = '';
+    if (productScrollRef.current) productScrollRef.current.scrollTop = 0;
   };
 
   const addToCart = () => {
-    if (!selectedProduct) return;
-    
-    addToCartPersistent({
-      id: String(selectedProduct.id),
-      name: selectedProduct.name,
-      price: selectedProduct.price,
+    if (!selectedFlower) return;
+    const cartPrice = selectedFlower.sizePrices?.[selectedSize] ?? selectedFlower.price;
+    addToCartHook({
+      id: String(selectedFlower.id),
+      name: selectedFlower.name,
+      price: cartPrice,
+      image: selectedFlower.image,
       size: selectedSize,
-      image: selectedProduct.image,
-      color: selectedColor
+      color: selectedColor,
     });
-    
     toast({
       title: 'Добавлено в корзину',
-      description: `${selectedProduct.name} • ${selectedColor} • ${selectedSize}`,
+      description: `${selectedFlower.name} · ${selectedColor} · ${selectedSize}`,
       duration: 2000,
     });
-    
-    setSelectedProduct(null);
+    handleProductBack();
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  };
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', minimumFractionDigits: 0 }).format(price);
 
   const handleCheckout = (orderId: string) => {
-    const orderItems = cart.map(item => ({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-      image: item.image,
-      size: item.size,
-      color: item.color
-    }));
-    
-    createOrder(orderItems, cartTotal, {
-      address: 'Москва',
-      phone: '+7 (999) 123-45-67'
-    });
-    
+    createOrder(
+      cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, image: i.image, size: i.size, color: i.color })),
+      cartTotal,
+      { address: 'Москва', phone: '+7 (999) 123-45-67' }
+    );
     clearCart();
     setIsCheckoutOpen(false);
-    
-    toast({
-      title: 'Заказ оформлен!',
-      description: `Номер заказа: ${orderId}`,
-      duration: 3000,
-    });
+    toast({ title: 'Заказ оформлен!', description: `Номер заказа: ${orderId}`, duration: 3000 });
   };
 
-  if (activeTab === 'catalog' && selectedProduct) {
-    const bgGradient = 'linear-gradient(180deg, #2D1B2E 0%, #1A1A1A 100%)';
-    
+  if (activeTab === 'catalog' && selectedFlower) {
+    const bgColor = selectedFlower.categoryBg;
+    const seasonCfg = seasonConfig[selectedFlower.season];
+    const SeasonIcon = seasonCfg?.icon;
+    const displayPrice = selectedFlower.sizePrices?.[selectedSize] ?? selectedFlower.price;
+    const discountPct = selectedFlower.oldPrice
+      ? Math.round((1 - displayPrice / selectedFlower.oldPrice) * 100)
+      : 0;
+
     return (
-      <div className="min-h-screen text-white smooth-scroll-page" style={{ background: bgGradient }}>
-        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
-          <button 
-            onClick={() => setSelectedProduct(null)}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
-            data-testid="button-back"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleFavorite(selectedProduct.id);
-            }}
-            className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
-            aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-            data-testid={`button-favorite-${selectedProduct.id}`}
-          >
-            <Heart 
-              className={`w-5 h-5 ${isFavorite(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
-            />
-          </button>
-        </div>
-
-        <div className="relative h-[60vh]">
-          <img
-            src={selectedProduct.image}
-            alt={selectedProduct.name}
-            className="w-full h-full object-cover"
-            loading="eager"
-          />
-        </div>
-
-        <div className="relative pb-56">
-          <div className="bg-white/10 backdrop-blur-xl rounded-t-3xl p-6 space-y-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-2">{selectedProduct.name}</h2>
-              <div className="flex items-center justify-center gap-3">
-                <p className="text-3xl font-bold">{formatPrice(selectedProduct.price)}</p>
-                {selectedProduct.oldPrice && (
-                  <p className="text-xl text-white/50 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
-                )}
-              </div>
-            </div>
-
-            <p className="text-sm text-white/80 text-center">{selectedProduct.description}</p>
-
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="bg-white/10 rounded-xl p-3">
-                <div className="flex items-center gap-2 text-white/60 mb-1">
-                  <Clock className="w-4 h-4" />
-                  <span>Свежесть в вазе</span>
-                </div>
-                <p className="font-medium">{selectedProduct.vaseLife}</p>
-              </div>
-              <div className="bg-white/10 rounded-xl p-3">
-                <div className="flex items-center gap-2 text-white/60 mb-1">
-                  <MapPin className="w-4 h-4" />
-                  <span>Происхождение</span>
-                </div>
-                <p className="font-medium text-xs">{selectedProduct.flowerOrigin.split(',')[0]}</p>
-              </div>
-            </div>
-
-            <div className="bg-white/10 rounded-xl p-3">
-              <div className="flex items-center gap-2 text-white/60 mb-2">
-                <Leaf className="w-4 h-4" />
-                <span className="text-sm">Уход за букетом</span>
-              </div>
-              <p className="text-sm">{selectedProduct.careInstructions}</p>
-            </div>
-
-            <div>
-              <p className="text-sm mb-3 text-white/80 text-center">Выберите цвет:</p>
-              <div className="flex items-center justify-center gap-3">
-                {selectedProduct.colors.map((color, idx) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`w-10 h-10 rounded-full border-2 transition-all ${
-                      selectedColor === color
-                        ? 'border-white scale-110'
-                        : 'border-white/30'
-                    }`}
-                    style={{ backgroundColor: selectedProduct.colorHex[idx] }}
-                    data-testid={`button-color-${color}`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm mb-3 text-white/80 text-center">Выберите размер:</p>
-              <div className="flex items-center justify-center gap-3 flex-wrap">
-                {selectedProduct.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-2 rounded-full font-semibold transition-all text-sm ${
-                      selectedSize === size
-                        ? 'bg-[var(--theme-primary)] text-black'
-                        : 'bg-white/20 text-white hover:bg-white/30'
-                    }`}
-                    data-testid={`button-size-${size}`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div 
-          className="fixed bottom-0 left-0 right-0 z-50"
-          style={{ perspective: '1000px' }}
-        >
-          <div 
-            className="absolute -top-8 left-0 right-0 h-16 pointer-events-none"
-            style={{
-              background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
-              transform: 'rotateX(45deg)',
-              transformOrigin: 'bottom center',
-            }}
-          />
-          
-          <div 
-            className="relative rounded-t-3xl border-t border-white/20 p-6 pb-8"
-            style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              boxShadow: '0 -10px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
-            }}
-          >
-            <div 
-              className="absolute inset-0 rounded-t-3xl pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.1) 0%, transparent 60%)',
-              }}
-            />
-            
-            <ConfirmDrawer
-              trigger={
-                <button
-                  className="relative w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all shadow-lg"
-                  style={{
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.3), 0 0 40px rgba(var(--theme-primary-rgb, 255,255,255), 0.15)',
-                  }}
-                  data-testid="button-buy-now"
-                >
-                  Добавить в корзину
+      <m.div
+        className="h-screen overflow-hidden relative flex flex-col"
+        style={{ backgroundColor: bgColor }}
+        variants={productPageVariants}
+        initial="initial"
+        animate={productExiting ? 'exit' : 'animate'}
+        transition={{
+          duration: productExiting ? 0.32 : 0.35,
+          ease: productExiting ? [0.32, 0, 0.67, 0] : [0.22, 1, 0.36, 1],
+        }}
+      >
+        <AnimatePresence>
+          {showStickyHeader && (
+            <m.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+              className="fixed top-0 left-0 right-0 z-[100]"
+              style={{ paddingTop: 'max(12px, env(safe-area-inset-top))', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
+            >
+              <div
+                className="flex items-center justify-between gap-3 px-3 py-2 rounded-[20px]"
+                style={{
+                  background: `linear-gradient(145deg, ${ACCENT}20 0%, rgba(255,255,255,0.92) 100%)`,
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: `0.5px solid ${ACCENT}30`,
+                  boxShadow: `0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)`,
+                }}
+              >
+                <button onClick={handleProductBack} className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-transform" style={{ background: 'rgba(0,0,0,0.05)' }} data-testid="button-sticky-back">
+                  <ChevronLeft className="w-5 h-5" style={{ color: TEXT }} strokeWidth={2.5} />
                 </button>
-              }
-              title="Добавить в корзину?"
-              description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
-              confirmText="Добавить"
-              cancelText="Отмена"
-              variant="default"
-              onConfirm={addToCart}
-            />
-            
-            <div className="h-[env(safe-area-inset-bottom)]" />
+                <div className="flex-1 min-w-0 text-center">
+                  <p style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: ACCENT, fontFamily: "'Inter',sans-serif", marginBottom: '1px' }}>
+                    {selectedFlower.category}
+                  </p>
+                  <p style={{ fontSize: '15px', fontWeight: 400, fontStyle: 'italic', color: TEXT, letterSpacing: '0.01em', fontFamily: "'Cormorant Garamond', Georgia, serif", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {selectedFlower.name}
+                  </p>
+                </div>
+                <button onClick={() => onTabChange?.('cart')} className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-transform relative" style={{ background: 'rgba(0,0,0,0.05)' }} data-testid="button-sticky-cart">
+                  <ShoppingBag className="w-5 h-5" style={{ color: TEXT }} />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: ACCENT, color: '#fff' }}>
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </m.div>
+          )}
+        </AnimatePresence>
+
+        <div
+          ref={productScrollRef}
+          className="flex-1 overflow-y-auto scrollbar-hide"
+          style={{ paddingBottom: '180px' }}
+          onScroll={(e) => {
+            const st = e.currentTarget.scrollTop;
+            setShowStickyHeader(st > 300);
+            if (heroImageRef.current) {
+              heroImageRef.current.style.transform = `translateY(${st * 0.32}px)`;
+            }
+          }}
+        >
+          <div className="relative" style={{ height: '70vh', minHeight: '420px' }}>
+            <div className="absolute inset-0 overflow-hidden">
+              <m.div
+                ref={heroImageRef}
+                className="w-full h-full"
+                style={{ willChange: 'transform' }}
+                initial={{ scale: 1.06, filter: 'brightness(0.85)' }}
+                animate={productExiting
+                  ? { scale: 1.04, filter: 'brightness(0.7)' }
+                  : { scale: 1, filter: 'brightness(1)' }}
+                transition={{ duration: productExiting ? 0.32 : 0.65, ease: [0.32, 0.72, 0, 1] }}
+              >
+                <LazyImage src={selectedFlower.image} alt={selectedFlower.name} className="w-full h-full object-cover" />
+              </m.div>
+            </div>
+
+            <div className="absolute inset-0 pointer-events-none" style={{
+              background: `linear-gradient(180deg, rgba(0,0,0,0.25) 0%, transparent 40%, ${bgColor}F0 100%)`,
+            }} />
+
+            <div className="absolute left-0 right-0 z-50 flex items-center justify-between px-4" style={{ top: 'calc(max(12px, env(safe-area-inset-top)) + 6px)' }}>
+              <button onClick={handleProductBack} className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200" style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 100%)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.6)', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }} data-testid="button-back">
+                <ChevronLeft className="w-6 h-6" style={{ color: TEXT }} strokeWidth={2.5} />
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(selectedFlower.id); }} className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200" style={{ background: isFavorite(String(selectedFlower.id)) ? `linear-gradient(145deg, ${ACCENT}50 0%, ${ACCENT}25 100%)` : 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 100%)', backdropFilter: 'blur(12px)', border: isFavorite(String(selectedFlower.id)) ? `0.5px solid ${ACCENT}60` : '0.5px solid rgba(255,255,255,0.6)', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }} data-testid={`button-favorite-${selectedFlower.id}`}>
+                <Heart className="w-5 h-5" style={{ color: isFavorite(String(selectedFlower.id)) ? ACCENT : TEXT }} fill={isFavorite(String(selectedFlower.id)) ? ACCENT : 'none'} strokeWidth={2} />
+              </button>
+            </div>
+
+            <div className="absolute bottom-6 left-6 flex items-center gap-2 flex-wrap">
+              {selectedFlower.isNew && (
+                <div className="flex items-center px-3 py-1.5 rounded-full" style={{ background: ACCENT, boxShadow: `0 4px 12px ${ACCENT}55` }}>
+                  <span style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.18em', color: '#fff', textTransform: 'uppercase', fontFamily: "'Inter',sans-serif" }}>НОВИНКА · SS'26</span>
+                </div>
+              )}
+              {SeasonIcon && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(10px)', border: `0.5px solid ${seasonCfg.color}40` }}>
+                  <SeasonIcon style={{ width: '12px', height: '12px', color: seasonCfg.color }} />
+                  <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', color: seasonCfg.color, textTransform: 'uppercase', fontFamily: "'Inter',sans-serif" }}>{seasonCfg.label}</span>
+                </div>
+              )}
+              {selectedFlower.inStock <= 8 && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'rgba(239,68,68,0.12)', border: '0.5px solid rgba(239,68,68,0.3)' }}>
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#EF4444', display: 'inline-block', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#EF4444', letterSpacing: '0.05em', fontFamily: "'Inter',sans-serif" }}>Осталось {selectedFlower.inStock} шт.</span>
+                </div>
+              )}
+            </div>
           </div>
+
+          <m.div className="relative" style={{ marginTop: '-28px' }} variants={contentStagger} initial="hidden" animate={productExiting ? 'hidden' : 'visible'}>
+            <div className="relative rounded-t-[28px]" style={{ padding: '28px 20px 24px', display: 'flex', flexDirection: 'column', gap: '22px', background: `linear-gradient(180deg, ${bgColor}EE 0%, ${BG} 110px, ${BG} 100%)`, borderTop: `0.5px solid ${ACCENT}25` }}>
+
+              <m.div variants={contentItem}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <p style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.32em', textTransform: 'uppercase', color: ACCENT, fontFamily: "'Inter',sans-serif" }}>
+                    {selectedFlower.category}
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {[1,2,3,4,5].map(s => (
+                      <Star key={s} style={{ width: '10px', height: '10px' }} fill={s <= Math.round(selectedFlower.rating) ? ACCENT : 'transparent'} stroke={s <= Math.round(selectedFlower.rating) ? ACCENT : '#D1D5DB'} />
+                    ))}
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: MUTED, marginLeft: '4px' }}>{selectedFlower.rating}</span>
+                  </div>
+                </div>
+                <h2 style={{ fontSize: '34px', fontWeight: 400, fontStyle: 'italic', letterSpacing: '0.01em', lineHeight: 1.1, color: TEXT, marginBottom: '14px', fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                  {selectedFlower.name}
+                </h2>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                  <p style={{ fontSize: '30px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Inter',sans-serif", color: TEXT, lineHeight: 1 }}>{formatPrice(displayPrice)}</p>
+                  {selectedFlower.oldPrice && (
+                    <p style={{ fontSize: '16px', color: '#9CA3AF', textDecoration: 'line-through', fontFamily: "'Inter',sans-serif" }}>{formatPrice(selectedFlower.oldPrice)}</p>
+                  )}
+                  {discountPct > 0 && (
+                    <div className="inline-flex items-center px-2.5 py-1 rounded-full" style={{ background: `${ACCENT}15`, color: ACCENT, border: `0.5px solid ${ACCENT}40`, fontSize: '10px', fontWeight: 800, letterSpacing: '0.08em', fontFamily: "'Inter',sans-serif" }}>
+                      −{discountPct}%
+                    </div>
+                  )}
+                </div>
+              </m.div>
+
+              <m.div variants={contentItem}>
+                <p style={{ fontSize: '13px', lineHeight: 1.65, color: MUTED, fontFamily: "'Inter',sans-serif", fontWeight: 400, letterSpacing: '0.01em', borderLeft: `2px solid ${ACCENT}55`, paddingLeft: '12px' }}>
+                  {selectedFlower.description}
+                </p>
+              </m.div>
+
+              <m.div variants={contentItem}>
+                <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: '12px', fontFamily: "'Inter',sans-serif" }}>Оттенок</p>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  {selectedFlower.colors.map((color, idx) => {
+                    const isSelected = selectedColor === color;
+                    return (
+                      <button key={color} onClick={() => setSelectedColor(color)} className="active:scale-95 transition-all duration-200 flex items-center gap-2" style={{ padding: '8px 16px', borderRadius: '12px', fontSize: '12px', fontWeight: 600, fontFamily: "'Inter',sans-serif", color: isSelected ? TEXT : MUTED, background: isSelected ? `${ACCENT}15` : 'rgba(0,0,0,0.03)', border: isSelected ? `1px solid ${ACCENT}50` : '1px solid rgba(0,0,0,0.06)', boxShadow: isSelected ? `0 4px 12px ${ACCENT}15` : 'none' }} aria-pressed={isSelected} data-testid={`button-color-${color}`}>
+                        <span style={{ width: '14px', height: '14px', borderRadius: '50%', background: selectedFlower.colorHex[idx], border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }} />
+                        {color}
+                      </button>
+                    );
+                  })}
+                </div>
+              </m.div>
+
+              <m.div variants={contentItem}>
+                <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: '12px', fontFamily: "'Inter',sans-serif" }}>Размер</p>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {selectedFlower.sizes.map((size) => {
+                    const isSelected = selectedSize === size;
+                    const sizePrice = selectedFlower.sizePrices?.[size];
+                    const isSmallest = size === selectedFlower.sizes[0];
+                    const savingsVsSmallest = sizePrice && selectedFlower.sizePrices
+                      ? (() => {
+                          const basePerUnit = (selectedFlower.sizePrices[selectedFlower.sizes[0]] ?? selectedFlower.price);
+                          const savePct = Math.round((1 - sizePrice / (basePerUnit * (selectedFlower.sizes.indexOf(size) + 1))) * 100);
+                          return !isSmallest && savePct > 0 ? savePct : null;
+                        })()
+                      : null;
+                    return (
+                      <button key={size} onClick={() => setSelectedSize(size)} className="active:scale-[0.97] transition-all duration-200" style={{ flex: 1, padding: '12px 8px 11px', borderRadius: '14px', textAlign: 'center', position: 'relative', color: isSelected ? '#fff' : TEXT, background: isSelected ? ACCENT : CARD, border: isSelected ? `0.5px solid ${ACCENT}` : '0.5px solid rgba(0,0,0,0.08)', boxShadow: isSelected ? `0 6px 24px ${ACCENT}30` : '0 1px 3px rgba(0,0,0,0.04)' }} aria-pressed={isSelected} data-testid={`button-size-${size}`}>
+                        {savingsVsSmallest && (
+                          <div style={{ position: 'absolute', top: '-8px', left: '50%', transform: 'translateX(-50%)', background: '#10B981', color: '#fff', fontSize: '7px', fontWeight: 800, letterSpacing: '0.06em', padding: '2px 6px', borderRadius: '6px', fontFamily: "'Inter',sans-serif", whiteSpace: 'nowrap' }}>ВЫГОДНО</div>
+                        )}
+                        <p style={{ fontSize: '14px', fontWeight: 700, fontFamily: "'Inter',sans-serif", lineHeight: 1, marginBottom: '5px', color: isSelected ? '#fff' : TEXT }}>{size}</p>
+                        {sizePrice && (
+                          <p style={{ fontSize: '11px', fontWeight: 600, fontFamily: "'Inter',sans-serif", lineHeight: 1, color: isSelected ? 'rgba(255,255,255,0.8)' : ACCENT }}>{formatPrice(sizePrice)}</p>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </m.div>
+
+              <m.div variants={contentItem} style={{ borderBottom: `0.5px solid rgba(0,0,0,0.08)` }}>
+                <div style={{ display: 'flex' }} role="tablist">
+                  {[
+                    { key: 'bouquet', label: 'Букет' },
+                    { key: 'details', label: 'Детали' },
+                    { key: 'reviews', label: `Отзывы (${mockReviews.length})` },
+                  ].map((tab) => (
+                    <button key={tab.key} onClick={() => setActiveProductTab(tab.key as typeof activeProductTab)} className="flex-1 transition-all duration-200" style={{ padding: '12px 4px 13px', fontSize: '11px', fontWeight: activeProductTab === tab.key ? 700 : 500, color: activeProductTab === tab.key ? TEXT : '#9CA3AF', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Inter',sans-serif", borderBottom: activeProductTab === tab.key ? `1.5px solid ${ACCENT}` : '1.5px solid transparent', marginBottom: '-0.5px', background: 'transparent' }} role="tab" aria-selected={activeProductTab === tab.key} data-testid={`tab-${tab.key}`}>
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </m.div>
+
+              <m.div variants={contentItem} style={{ minHeight: '260px' }}>
+                <AnimatePresence mode="wait">
+                  {activeProductTab === 'bouquet' && (
+                    <m.div key="bouquet" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+
+                        <div>
+                          <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: '14px', fontFamily: "'Inter',sans-serif" }}>Состав букета</p>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {selectedFlower.composition.map((item, idx) => (
+                              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '10px', background: idx === 0 ? `${ACCENT}08` : 'rgba(0,0,0,0.02)', border: idx === 0 ? `0.5px solid ${ACCENT}20` : '0.5px solid rgba(0,0,0,0.05)' }}>
+                                <Flower2 style={{ width: '14px', height: '14px', color: idx === 0 ? ACCENT : '#9CA3AF', flexShrink: 0 }} />
+                                <span style={{ fontSize: '13px', color: idx === 0 ? TEXT : MUTED, fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic', fontWeight: idx === 0 ? 600 : 400 }}>{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <div style={{ flex: 1, padding: '14px 16px', borderRadius: '14px', background: CARD, border: '0.5px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                            <p style={{ fontSize: '8px', fontWeight: 700, letterSpacing: '0.25em', color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '8px', fontFamily: "'Inter',sans-serif" }}>Свежесть</p>
+                            <p style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.02em', color: TEXT, fontFamily: "'Inter',sans-serif", lineHeight: 1, marginBottom: '8px' }}>{selectedFlower.vaseLife}</p>
+                            <div style={{ display: 'flex', gap: '3px' }}>
+                              {[...Array(7)].map((_, i) => (
+                                <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i < Math.min(selectedFlower.freshnessDays, 7) ? ACCENT : 'rgba(0,0,0,0.06)' }} />
+                              ))}
+                            </div>
+                          </div>
+                          <div style={{ flex: 1, padding: '14px 16px', borderRadius: '14px', background: CARD, border: '0.5px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                            <p style={{ fontSize: '8px', fontWeight: 700, letterSpacing: '0.25em', color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '8px', fontFamily: "'Inter',sans-serif" }}>Сезон</p>
+                            <p style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.02em', color: TEXT, fontFamily: "'Inter',sans-serif", lineHeight: 1, marginBottom: '8px' }}>{seasonCfg.label}</p>
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                              {['spring', 'summer', 'autumn', 'year-round'].map((s) => (
+                                <div key={s} style={{ width: '20px', height: '3px', borderRadius: '2px', background: s === selectedFlower.season || selectedFlower.season === 'year-round' ? seasonCfg.color : 'rgba(0,0,0,0.06)' }} />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: '12px', fontFamily: "'Inter',sans-serif" }}>Повод</p>
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
+                            {selectedFlower.occasion.map((occ) => (
+                              <div key={occ} style={{ padding: '7px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, color: MUTED, background: 'rgba(0,0,0,0.03)', border: '0.5px solid rgba(0,0,0,0.06)', fontFamily: "'Inter',sans-serif", letterSpacing: '0.02em' }}>{occ}</div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div style={{ padding: '18px 20px', borderRadius: '16px', background: `${ACCENT}06`, border: `0.5px solid ${ACCENT}18` }}>
+                          <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: ACCENT, marginBottom: '12px', fontFamily: "'Inter',sans-serif" }}>Слово флориста</p>
+                          <p style={{ fontSize: '15px', lineHeight: 1.72, color: MUTED, fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic', fontWeight: 400, letterSpacing: '0.01em' }}>
+                            "{selectedFlower.floristNote}"
+                          </p>
+                        </div>
+                      </div>
+                    </m.div>
+                  )}
+
+                  {activeProductTab === 'details' && (
+                    <m.div key="details" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {[
+                          { label: 'Категория', value: selectedFlower.category },
+                          { label: 'Происхождение', value: selectedFlower.flowerOrigin },
+                          { label: 'Сезон', value: seasonCfg.label },
+                          { label: 'Свежесть в вазе', value: selectedFlower.vaseLife },
+                          { label: 'Размеры', value: selectedFlower.sizes.join(', ') },
+                          { label: 'Оттенки', value: selectedFlower.colors.join(', ') },
+                          { label: 'В наличии', value: `${selectedFlower.inStock} шт.` },
+                          { label: 'Рейтинг', value: '__stars__' },
+                        ].map((item, idx) => (
+                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderRadius: '12px', background: CARD, border: '0.5px solid rgba(0,0,0,0.05)' }}>
+                            <span style={{ color: '#9CA3AF', fontSize: '12px', fontFamily: "'Inter',sans-serif" }}>{item.label}</span>
+                            {item.value === '__stars__' ? (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <div style={{ display: 'flex', gap: '2px' }}>
+                                  {[1,2,3,4,5].map(s => (
+                                    <Star key={s} style={{ width: '11px', height: '11px' }} fill={s <= Math.round(selectedFlower.rating) ? ACCENT : 'transparent'} stroke={s <= Math.round(selectedFlower.rating) ? ACCENT : '#D1D5DB'} />
+                                  ))}
+                                </div>
+                                <span style={{ fontSize: '12px', fontWeight: 600, color: MUTED, fontFamily: "'Inter',sans-serif" }}>{selectedFlower.rating}</span>
+                              </div>
+                            ) : (
+                              <span style={{ color: TEXT, fontSize: '12px', fontWeight: 600, fontFamily: "'Inter',sans-serif", textAlign: 'right', maxWidth: '55%' }}>{item.value}</span>
+                            )}
+                          </div>
+                        ))}
+
+                        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '14px', background: `${ACCENT}06`, border: `0.5px solid ${ACCENT}18` }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                            <Leaf style={{ width: '14px', height: '14px', color: ACCENT }} />
+                            <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: ACCENT, fontFamily: "'Inter',sans-serif" }}>Уход за букетом</p>
+                          </div>
+                          <p style={{ fontSize: '13px', lineHeight: 1.6, color: MUTED, fontFamily: "'Inter',sans-serif" }}>{selectedFlower.careInstructions}</p>
+                        </div>
+                      </div>
+                    </m.div>
+                  )}
+
+                  {activeProductTab === 'reviews' && (
+                    <m.div key="reviews" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ display: 'flex' }}>
+                              {[1,2,3,4,5].map(s => (<Star key={s} className="w-4 h-4" fill={s <= Math.round(selectedFlower.rating) ? ACCENT : 'transparent'} stroke={s <= Math.round(selectedFlower.rating) ? ACCENT : '#D1D5DB'} />))}
+                            </div>
+                            <span style={{ fontSize: '16px', fontWeight: 700, color: TEXT, fontFamily: "'Inter',sans-serif" }}>{selectedFlower.rating}</span>
+                          </div>
+                          <span style={{ fontSize: '12px', color: '#9CA3AF', fontFamily: "'Inter',sans-serif" }}>{mockReviews.length} отзывов</span>
+                        </div>
+                        {mockReviews.map((review, idx) => (
+                          <div key={idx} style={{ padding: '16px', borderRadius: '16px', background: CARD, border: '0.5px solid rgba(0,0,0,0.05)', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: `linear-gradient(135deg, ${ACCENT}40 0%, ${ACCENT}20 100%)`, border: `0.5px solid ${ACCENT}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <span style={{ fontSize: '11px', fontWeight: 700, color: ACCENT, fontFamily: "'Inter',sans-serif" }}>{review.initials}</span>
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                                  <p style={{ fontSize: '13px', fontWeight: 600, color: TEXT, fontFamily: "'Inter',sans-serif" }}>{review.author}</p>
+                                  {review.verified && (<span style={{ fontSize: '9px', fontWeight: 700, color: '#10B981', letterSpacing: '0.1em', fontFamily: "'Inter',sans-serif" }}>✓ ПОДТВЕРЖДЁН</span>)}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <div style={{ display: 'flex', gap: '1px' }}>{[1,2,3,4,5].map(s => (<Star key={s} style={{ width: '10px', height: '10px' }} fill={s <= review.rating ? ACCENT : 'transparent'} stroke={s <= review.rating ? ACCENT : '#D1D5DB'} />))}</div>
+                                  <span style={{ fontSize: '10px', color: '#9CA3AF', fontFamily: "'Inter',sans-serif" }}>{review.date}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <p style={{ fontSize: '14px', lineHeight: 1.65, color: MUTED, fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic' }}>{review.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </m.div>
+                  )}
+                </AnimatePresence>
+              </m.div>
+
+              <m.div variants={contentItem}>
+                <div style={{ display: 'flex', alignItems: 'stretch', borderRadius: '16px', background: CARD, border: '0.5px solid rgba(0,0,0,0.06)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                  {[
+                    { icon: <Truck style={{ width: '15px', height: '15px', color: ACCENT }} strokeWidth={1.5} />, label: 'Доставка', sub: 'Бесплатно' },
+                    { icon: <RotateCcw style={{ width: '15px', height: '15px', color: ACCENT }} strokeWidth={1.5} />, label: 'Гарантия', sub: 'Свежесть' },
+                    { icon: <ShieldCheck style={{ width: '15px', height: '15px', color: ACCENT }} strokeWidth={1.5} />, label: 'Фото', sub: 'До отправки' },
+                  ].map((item, i) => (
+                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '14px 8px', gap: '5px', borderRight: i < 2 ? '0.5px solid rgba(0,0,0,0.06)' : 'none' }}>
+                      {item.icon}
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', color: TEXT, textTransform: 'uppercase', fontFamily: "'Inter',sans-serif", lineHeight: 1 }}>{item.label}</p>
+                      <p style={{ fontSize: '9px', color: '#9CA3AF', fontFamily: "'Inter',sans-serif" }}>{item.sub}</p>
+                    </div>
+                  ))}
+                </div>
+              </m.div>
+
+              {(() => {
+                const recommended = flowers.filter(p => p.id !== selectedFlower.id).sort((a, b) => { const sameCat = (a.category === selectedFlower.category ? 1 : 0) - (b.category === selectedFlower.category ? 1 : 0); return -sameCat; }).slice(0, 6);
+                if (recommended.length === 0) return null;
+                return (
+                  <m.div variants={contentItem}>
+                    <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ height: '1px', background: 'rgba(0,0,0,0.06)', flex: 1 }} />
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#9CA3AF', fontFamily: "'Inter',sans-serif", whiteSpace: 'nowrap' }}>Вам также понравится</p>
+                      <div style={{ height: '1px', background: 'rgba(0,0,0,0.06)', flex: 1 }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '4px' }} className="scrollbar-hide">
+                      {recommended.map((p) => (
+                        <div key={p.id} onClick={() => { setSelectedFlower(p); setSelectedSize(p.sizes[0]); setSelectedColor(p.colors[0]); setActiveProductTab('bouquet'); setTimeout(() => productScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50); }} className="cursor-pointer active:scale-95 transition-all duration-200" style={{ width: '120px', flexShrink: 0 }} data-testid={`recommended-flower-${p.id}`}>
+                          <div style={{ width: '120px', height: '140px', borderRadius: '14px', overflow: 'hidden', marginBottom: '8px', position: 'relative', background: 'rgba(0,0,0,0.03)' }}>
+                            <LazyImage src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                            {p.isNew && (<div style={{ position: 'absolute', top: '6px', left: '6px', padding: '2px 7px', borderRadius: '6px', fontSize: '8px', fontWeight: 800, letterSpacing: '0.1em', background: ACCENT, color: '#fff', fontFamily: "'Inter',sans-serif" }}>NEW</div>)}
+                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40px', background: 'linear-gradient(0deg, rgba(0,0,0,0.3) 0%, transparent 100%)' }} />
+                          </div>
+                          <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', color: '#9CA3AF', textTransform: 'uppercase', fontFamily: "'Inter',sans-serif", marginBottom: '3px' }}>{p.category}</p>
+                          <p style={{ fontSize: '13px', fontWeight: 400, fontStyle: 'italic', color: TEXT, lineHeight: 1.25, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: '4px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' } as React.CSSProperties}>{p.name}</p>
+                          <p style={{ fontSize: '12px', fontWeight: 700, color: MUTED, fontFamily: "'Inter',sans-serif" }}>{formatPrice(p.price)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </m.div>
+                );
+              })()}
+            </div>
+          </m.div>
         </div>
-      </div>
+
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 60, padding: `16px 20px calc(16px + env(safe-area-inset-bottom, 0px))`, background: `linear-gradient(0deg, ${BG} 60%, transparent 100%)` }}>
+          <ConfirmDrawer
+            trigger={
+              <button className="w-full flex items-center justify-center gap-3 active:scale-[0.98] transition-all duration-200" style={{ height: '56px', borderRadius: '18px', background: `linear-gradient(135deg, ${ACCENT} 0%, #C25882 100%)`, boxShadow: `0 8px 32px ${ACCENT}40`, border: 'none' }} data-testid="button-buy-now">
+                <ShoppingBag style={{ width: '20px', height: '20px', color: '#fff' }} strokeWidth={2} />
+                <span style={{ fontSize: '15px', fontWeight: 800, color: '#fff', letterSpacing: '-0.01em', fontFamily: "'Inter',sans-serif" }}>В корзину</span>
+                <div style={{ width: '1px', height: '18px', background: 'rgba(255,255,255,0.3)', margin: '0 4px' }} />
+                <span style={{ fontSize: '15px', fontWeight: 800, color: '#fff', fontVariantNumeric: 'tabular-nums', fontFamily: "'Inter',sans-serif" }}>{formatPrice(displayPrice)}</span>
+              </button>
+            }
+            title="Добавить в корзину?"
+            description={`${selectedFlower.name} · ${selectedColor} · ${selectedSize}`}
+            confirmText="Добавить"
+            cancelText="Отмена"
+            variant="default"
+            onConfirm={addToCart}
+          />
+        </div>
+      </m.div>
     );
   }
 
   if (activeTab === 'home') {
     return (
-      <div className="min-h-screen bg-[#FDF8F5] text-[#1A1A1A] pb-24 smooth-scroll-page">
-        <DemoSidebar
-          isOpen={sidebar.isOpen}
-          onClose={sidebar.close}
-          onOpen={sidebar.open}
-          menuItems={sidebarMenuItems}
-          title="BLOOM"
-          subtitle="STUDIO"
-          accentColor="#F472B6"
-          bgColor="#FDF8F5"
-        />
-        <div className="p-6 pb-4">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <button 
-              onClick={sidebar.open}
-              aria-label="Меню" 
-              data-testid="button-view-menu"
-            >
-              <Menu className="w-6 h-6 text-[#1A1A1A]" />
+      <div className="min-h-screen pb-24 smooth-scroll-page" style={{ background: BG }}>
+        <DemoSidebar isOpen={sidebar.isOpen} onClose={sidebar.close} onOpen={sidebar.open} menuItems={sidebarMenuItems} title="FLORAL" subtitle="ART" accentColor={ACCENT} bgColor={BG} />
+
+        <div className="px-5 pt-5 pb-4">
+          <div className="flex items-center justify-between">
+            <button onClick={sidebar.open} className="w-10 h-10 flex items-center justify-center rounded-full" style={{ background: 'rgba(0,0,0,0.04)' }} aria-label="Меню" data-testid="button-menu">
+              <Menu className="w-5 h-5" style={{ color: TEXT }} />
             </button>
-            <div className="flex items-center gap-3">
-              <button aria-label="Корзина" data-testid="button-view-cart">
-                <ShoppingBag className="w-6 h-6 text-[#1A1A1A]" />
-              </button>
-              <button aria-label="Избранное" data-testid="button-view-favorites">
-                <Heart className="w-6 h-6 text-[#1A1A1A]" />
-              </button>
+            <div className="text-center">
+              <div style={{ fontSize: '19px', fontWeight: 900, letterSpacing: '0.22em', lineHeight: 1, color: TEXT, fontFamily: "'Inter',sans-serif" }}>FLORAL</div>
+              <div style={{ fontSize: '14px', fontWeight: 300, letterSpacing: '0.35em', fontStyle: 'italic', lineHeight: 1, color: ACCENT, fontFamily: "'Cormorant Garamond', Georgia, serif", marginTop: '2px' }}>art studio</div>
             </div>
-          </div>
-
-          <div className="mb-6">
-            <h1 className="text-4xl font-black mb-1 tracking-tight text-[#1A1A1A]">
-              BLOOM<br/>
-              STUDIO
-            </h1>
-            <p className="text-[#6B7280] text-sm">Премиальная флористика</p>
-          </div>
-
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.slice(0, 5).map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-[#F472B6] text-white'
-                    : 'bg-white text-[#6B7280] shadow-sm hover:bg-gray-50'
-                }`}
-                data-testid={`button-filter-${cat.toLowerCase()}`}
-              >
-                {cat}
+            <div className="flex items-center gap-1.5">
+              <button onClick={() => onTabChange?.('cart')} className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ background: 'rgba(0,0,0,0.04)' }} data-testid="button-cart">
+                <ShoppingBag className="w-5 h-5" style={{ color: TEXT }} />
+                {cartCount > 0 && (<span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] rounded-full flex items-center justify-center text-[9px] font-bold" style={{ background: ACCENT, color: '#fff' }}>{cartCount}</span>)}
               </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 bg-white shadow-sm border border-[#E5E7EB] rounded-full px-4 py-3 flex items-center gap-2">
-              <Search className="w-5 h-5 text-[#6B7280]" />
-              <input
-                type="text"
-                placeholder="Поиск букетов..."
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="bg-transparent text-[#1A1A1A] placeholder:text-[#9CA3AF] outline-none flex-1 text-sm"
-                data-testid="input-search"
-              />
             </div>
           </div>
         </div>
 
-        <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden" style={{ height: '500px' }}>
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-            data-testid="video-hero-banner"
-          >
-            <source src={flowerVideo} type="video/mp4" />
-          </video>
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-          
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <m.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <h2 className="text-5xl font-black mb-3 tracking-tight leading-tight text-white">
-                ВЕСЕННЯЯ<br/>
-                КОЛЛЕКЦИЯ
-              </h2>
-              <p className="text-lg text-white/80 mb-6" style={{ letterSpacing: '0.1em' }}>
-                Свежие цветы каждый день
-              </p>
-              <button 
-                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105"
-                style={{
-                  background: 'var(--theme-primary)',
-                  boxShadow: '0 0 30px var(--theme-primary-glow, rgba(205, 255, 56, 0.4))'
-                }}
-                data-testid="button-view-collection"
-              >
-                Смотреть букеты
-              </button>
+        <div className="px-5 mb-3">
+          <m.div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
+            {seasonFilters.map((s) => {
+              const labels: Record<string, string> = { All: 'Все', spring: 'Весна', summer: 'Лето', autumn: 'Осень', 'year-round': 'Круглый год' };
+              const active = selectedSeason === s;
+              return (
+                <button key={s} onClick={() => setSelectedSeason(s)} className="flex-shrink-0 px-3.5 py-1.5 rounded-full transition-all active:scale-95" style={{ fontSize: '11px', fontWeight: active ? 700 : 500, letterSpacing: '0.06em', fontFamily: "'Inter',sans-serif", background: active ? ACCENT : CARD, color: active ? '#fff' : MUTED, border: active ? 'none' : '0.5px solid rgba(0,0,0,0.06)', boxShadow: active ? `0 4px 12px ${ACCENT}30` : '0 1px 3px rgba(0,0,0,0.04)' }}>
+                  {labels[s]}
+                </button>
+              );
+            })}
+          </m.div>
+        </div>
+
+        <div className="relative mx-4 mt-3 rounded-[26px] overflow-hidden" style={{ height: '410px' }}>
+          <video src={flowerVideo} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" data-testid="video-hero-banner" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 32%, rgba(0,0,0,0.55) 68%, rgba(0,0,0,0.88) 100%)' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.12) 0%, transparent 55%)' }} />
+
+          <div className="absolute top-4 left-4">
+            <span className="text-[9px] font-bold tracking-[0.35em] uppercase px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(16px)', color: 'rgba(255,255,255,0.8)', border: '0.5px solid rgba(255,255,255,0.2)' }}>ВЕСНА&apos;26</span>
+          </div>
+          <div className="absolute top-4 right-4 text-right">
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.35)' }}>COLLECTION</p>
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.25)' }}>SS&apos;26</p>
+          </div>
+
+          <div className="absolute bottom-0 left-0 right-0 p-6">
+            <m.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
+              <div style={{ lineHeight: 0.9, marginBottom: '10px' }}>
+                <div style={{ fontSize: '48px', fontWeight: 900, letterSpacing: '-0.04em', color: '#fff', display: 'block' }}>ВЕСЕННЯЯ</div>
+                <div style={{ fontSize: '48px', fontWeight: 100, letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", display: 'block' }}>коллекция</div>
+              </div>
+              <div className="flex items-center gap-4 mt-5">
+                <button onClick={() => onTabChange?.('catalog')} className="px-5 py-2.5 rounded-full text-[13px] font-black text-white transition-all active:scale-95" style={{ background: ACCENT, letterSpacing: '-0.01em', fontFamily: "'Inter',sans-serif" }} data-testid="button-hero-shop-now">Смотреть →</button>
+                <p className="text-[10px] tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: "'Inter',sans-serif" }}>Свежие цветы каждый день</p>
+              </div>
             </m.div>
           </div>
         </div>
 
-        <div className="px-6 space-y-4">
-          {filteredProducts.slice(0, 3).map((product, idx) => (
-            <m.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              onClick={() => openProduct(product)}
-              className="relative cursor-pointer group rounded-3xl overflow-hidden"
-              style={{ height: idx === 0 ? '400px' : '320px' }}
-              data-testid={`featured-product-${product.id}`}
-            >
-              <div className="absolute inset-0">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="eager"
-                />
-              </div>
+        <div className="px-4 mt-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px" style={{ background: 'rgba(0,0,0,0.06)' }} />
+            <div>
+              <p className="text-[8px] font-semibold tracking-[0.35em] uppercase text-center mb-0.5" style={{ color: '#9CA3AF', fontFamily: "'Inter',sans-serif" }}>Флорист рекомендует</p>
+              <h2 className="leading-none text-center" style={{ fontSize: '32px', fontWeight: 300, letterSpacing: '0.08em', fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic', color: TEXT }}>Bouquet du Jour</h2>
+            </div>
+            <div className="flex-1 h-px" style={{ background: 'rgba(0,0,0,0.06)' }} />
+          </div>
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-
-              <div className="absolute top-4 left-4">
-                <div className="px-3 py-1 bg-white/20 backdrop-blur-xl rounded-full">
-                  <span className="text-xs font-semibold text-white">
-                    {product.isNew ? 'Новинка' : product.category}
-                  </span>
+          {(() => {
+            const featured = flowers.find(p => p.isTrending && p.isNew) ?? flowers[0];
+            return (
+              <m.div whileTap={{ scale: 0.985 }} onClick={() => openFlower(featured)} className="relative cursor-pointer rounded-[22px] overflow-hidden" style={{ height: '300px' }} data-testid={`featured-flower-${featured.id}`}>
+                <img src={featured.image} alt={featured.name} className="w-full h-full object-cover" loading="lazy" />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.8) 100%)' }} />
+                <div className="absolute top-3.5 left-3.5">
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-bold" style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(0,0,0,0.08)', color: ACCENT, fontFamily: "'Inter',sans-serif", letterSpacing: '0.12em', textTransform: 'uppercase' }}>{featured.category}</span>
                 </div>
-              </div>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleToggleFavorite(product.id);
-                }}
-                aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
-                data-testid={`button-favorite-${product.id}`}
-              >
-                <Heart 
-                  className={`w-5 h-5 ${isFavorite(product.id) ? 'fill-white text-white' : 'text-white'}`}
-                />
-              </button>
-
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="flex items-end justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-2 leading-tight text-white">
-                      {product.name}
-                    </h3>
-                    <p className="text-sm text-white/80 mb-4">{product.freshness} свежести</p>
+                <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(featured.id); }} className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all" style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(0,0,0,0.08)' }} data-testid={`button-favorite-featured-${featured.id}`}>
+                  <Heart className={`w-4 h-4 ${isFavorite(String(featured.id)) ? 'fill-current' : ''}`} style={{ color: isFavorite(String(featured.id)) ? ACCENT : TEXT }} />
+                </button>
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', fontFamily: "'Inter',sans-serif", marginBottom: '4px' }}>{featured.category}</p>
+                      <p style={{ fontSize: '26px', fontWeight: 300, fontStyle: 'italic', lineHeight: 1.1, color: '#fff', fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{featured.name}</p>
+                      <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', fontFamily: "'Inter',sans-serif" }}>{featured.composition.slice(0, 2).join(' · ')}</p>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-3">
+                      <p style={{ fontSize: '20px', fontWeight: 800, fontFamily: "'Inter',sans-serif", letterSpacing: '-0.03em', color: '#fff' }}>{formatPrice(featured.price)}</p>
+                      {featured.oldPrice && (<p style={{ fontSize: '12px', textDecoration: 'line-through', color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter',sans-serif" }}>{formatPrice(featured.oldPrice)}</p>)}
+                    </div>
                   </div>
+                </div>
+              </m.div>
+            );
+          })()}
+        </div>
 
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openProduct(product);
-                    }}
-                    aria-label="Добавить в корзину"
-                    className="w-14 h-14 rounded-full bg-[var(--theme-primary)] flex items-center justify-center hover:bg-[var(--theme-accent)] transition-all hover:scale-110"
-                    data-testid={`button-add-to-cart-${product.id}`}
-                  >
-                    <ShoppingBag className="w-6 h-6 text-black" />
+        <div className="mt-10 px-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', color: '#9CA3AF', textTransform: 'uppercase', fontFamily: "'Inter',sans-serif", marginBottom: '4px' }}>Новинки</p>
+              <h3 style={{ fontSize: '22px', fontWeight: 300, fontStyle: 'italic', color: TEXT, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Just Arrived</h3>
+            </div>
+            <button onClick={() => onTabChange?.('catalog')} style={{ fontSize: '11px', color: ACCENT, fontWeight: 600, letterSpacing: '0.05em', fontFamily: "'Inter',sans-serif" }}>Все →</button>
+          </div>
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+            {flowers.filter(p => p.isNew && (selectedSeason === 'All' || p.season === selectedSeason)).map((flower) => (
+              <div key={flower.id} onClick={() => openFlower(flower)} className="cursor-pointer active:scale-[0.97] transition-all duration-200 flex-shrink-0" style={{ width: '148px' }} data-testid={`new-flower-${flower.id}`}>
+                <div style={{ width: '148px', height: '168px', borderRadius: '16px', overflow: 'hidden', position: 'relative', marginBottom: '10px', background: 'rgba(0,0,0,0.03)' }}>
+                  <LazyImage src={flower.image} alt={flower.name} className="w-full h-full object-cover" />
+                  <div style={{ position: 'absolute', top: '8px', left: '8px', padding: '3px 8px', borderRadius: '7px', fontSize: '8px', fontWeight: 800, letterSpacing: '0.1em', background: ACCENT, color: '#fff', fontFamily: "'Inter',sans-serif" }}>NEW</div>
+                  <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(flower.id); }} className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)' }} data-testid={`button-favorite-${flower.id}`}>
+                    <Heart className={`w-4 h-4 ${isFavorite(String(flower.id)) ? 'fill-current' : ''}`} style={{ color: isFavorite(String(flower.id)) ? ACCENT : MUTED }} />
                   </button>
                 </div>
-
-                <div className="mt-3">
-                  <p className="text-lg font-bold text-white">{formatPrice(product.price)}</p>
-                  {product.inStock < 10 && (
-                    <UrgencyIndicator 
-                      type="stock"
-                      value={product.inStock}
-                      variant="badge"
-                      className="mt-2"
-                    />
-                  )}
+                <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.22em', color: '#9CA3AF', textTransform: 'uppercase', fontFamily: "'Inter',sans-serif", marginBottom: '3px' }}>{flower.category}</p>
+                <p style={{ fontSize: '14px', fontWeight: 400, fontStyle: 'italic', color: TEXT, lineHeight: 1.2, fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: '5px' }}>{flower.name}</p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <p style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '-0.02em', color: TEXT, fontFamily: "'Inter',sans-serif" }}>{formatPrice(flower.price)}</p>
+                  <div style={{ display: 'flex', gap: '1px' }}>
+                    {[1,2,3,4,5].map(s => (<div key={s} style={{ width: '5px', height: '5px', borderRadius: '50%', background: s <= Math.round(flower.rating) ? ACCENT : 'rgba(0,0,0,0.08)' }} />))}
+                  </div>
                 </div>
               </div>
-            </m.div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        <div className="h-8"></div>
+        <div className="mt-10 px-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', color: '#9CA3AF', textTransform: 'uppercase', fontFamily: "'Inter',sans-serif", marginBottom: '4px' }}>Хиты продаж</p>
+              <h3 style={{ fontSize: '22px', fontWeight: 300, fontStyle: 'italic', color: TEXT, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Bestsellers</h3>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {flowers.filter(p => p.isTrending && (selectedSeason === 'All' || p.season === selectedSeason)).map((flower) => (
+              <div key={flower.id} onClick={() => openFlower(flower)} className="cursor-pointer active:scale-[0.97] transition-all duration-200" data-testid={`trending-flower-${flower.id}`}>
+                <div style={{ height: '200px', borderRadius: '16px', overflow: 'hidden', position: 'relative', marginBottom: '10px', background: 'rgba(0,0,0,0.03)' }}>
+                  <LazyImage src={flower.image} alt={flower.name} className="w-full h-full object-cover" />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 60%)' }} />
+                  <div style={{ position: 'absolute', bottom: '10px', left: '10px', right: '10px' }}>
+                    <p style={{ fontSize: '8px', fontWeight: 700, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', fontFamily: "'Inter',sans-serif", marginBottom: '2px' }}>{flower.category}</p>
+                    <p style={{ fontSize: '15px', fontWeight: 300, fontStyle: 'italic', color: '#fff', lineHeight: 1.15, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{flower.name}</p>
+                  </div>
+                  <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(flower.id); }} className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(8px)' }} data-testid={`button-favorite-${flower.id}`}>
+                    <Heart className={`w-4 h-4 ${isFavorite(String(flower.id)) ? 'fill-current' : ''}`} style={{ color: isFavorite(String(flower.id)) ? ACCENT : MUTED }} />
+                  </button>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <p style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.02em', color: TEXT, fontFamily: "'Inter',sans-serif" }}>{formatPrice(flower.price)}</p>
+                  {flower.oldPrice && (<p style={{ fontSize: '11px', color: '#9CA3AF', textDecoration: 'line-through', fontFamily: "'Inter',sans-serif" }}>{formatPrice(flower.oldPrice)}</p>)}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <div style={{ display: 'flex', gap: '1.5px' }}>{[1,2,3,4,5].map(s => (<Star key={s} style={{ width: '9px', height: '9px' }} fill={s <= Math.round(flower.rating) ? ACCENT : 'transparent'} stroke={s <= Math.round(flower.rating) ? ACCENT : '#D1D5DB'} />))}</div>
+                  <span style={{ fontSize: '10px', color: '#9CA3AF', fontFamily: "'Inter',sans-serif", fontWeight: 600 }}>{flower.rating}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="h-8" />
       </div>
     );
   }
 
   if (activeTab === 'catalog') {
+    const catalogQ = catalogSearch.trim().toLowerCase();
+    const filtered = flowers.filter(p =>
+      (selectedCategory === 'Все' || p.category === selectedCategory) &&
+      (selectedSeason === 'All' || p.season === selectedSeason) &&
+      (catalogQ === '' || p.name.toLowerCase().includes(catalogQ) || p.category.toLowerCase().includes(catalogQ))
+    );
     return (
-      <div className="min-h-screen bg-[#FDF8F5] text-[#1A1A1A] pb-24 smooth-scroll-page">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <h1 className="text-2xl font-bold text-[#1A1A1A]">Каталог букетов</h1>
-            <div className="flex items-center gap-3">
-              <button className="p-2" aria-label="Поиск" data-testid="button-view-search">
-                <Search className="w-6 h-6 text-[#1A1A1A]" />
+      <div className="min-h-screen pb-24 smooth-scroll-page" style={{ background: BG, color: TEXT }}>
+        <div className="px-5 pt-5 pb-3">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5" style={{ color: '#9CA3AF', fontFamily: "'Inter',sans-serif" }}>FLORAL ART</p>
+              <h1 className="leading-none" style={{ fontSize: '30px', fontWeight: 300, letterSpacing: '0.06em', fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic' }}>Каталог</h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => { setShowCatalogSearch(s => !s); if (showCatalogSearch) setCatalogSearch(''); }} className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95" style={{ background: showCatalogSearch ? ACCENT : 'rgba(0,0,0,0.04)', border: showCatalogSearch ? 'none' : '0.5px solid rgba(0,0,0,0.06)' }} aria-label="Поиск" data-testid="button-view-search">
+                <Search className="w-4 h-4" style={{ color: showCatalogSearch ? '#fff' : MUTED }} />
               </button>
-              <button className="p-2" aria-label="Фильтр" data-testid="button-view-filter">
-                <Filter className="w-6 h-6 text-[#1A1A1A]" />
+              <button onClick={() => setSelectedSeason(g => g === 'All' ? 'spring' : g === 'spring' ? 'summer' : g === 'summer' ? 'autumn' : g === 'autumn' ? 'year-round' : 'All')} className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95" style={{ background: selectedSeason !== 'All' ? ACCENT : 'rgba(0,0,0,0.04)', border: selectedSeason !== 'All' ? 'none' : '0.5px solid rgba(0,0,0,0.06)' }} aria-label="Фильтры" data-testid="button-view-filter">
+                <Filter className="w-4 h-4" style={{ color: selectedSeason !== 'All' ? '#fff' : MUTED }} />
               </button>
             </div>
           </div>
 
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-[#F472B6] text-white'
-                    : 'bg-white text-[#6B7280] shadow-sm hover:bg-gray-50'
-                }`}
-                data-testid={`button-filter-${cat.toLowerCase()}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {filteredProducts.map((product, idx) => (
-              <m.div
-                key={product.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => openProduct(product)}
-                className={`relative cursor-pointer scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
-                data-testid={`product-card-${product.id}`}
-              >
-                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white shadow-sm">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleToggleFavorite(product.id);
-                    }}
-                    aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                    className="absolute top-2 right-2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-xl flex items-center justify-center shadow-sm"
-                    data-testid={`button-favorite-catalog-${product.id}`}
-                  >
-                    <Heart 
-                      className={`w-4 h-4 ${isFavorite(product.id) ? 'fill-[#F472B6] text-[#F472B6]' : 'text-[#6B7280]'}`}
-                    />
-                  </button>
-
-                  {product.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-[#F472B6] text-white text-xs font-bold rounded-full">
-                      NEW
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold mb-1 truncate text-[#1A1A1A]">{product.name}</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-base font-bold text-[#1A1A1A]">{formatPrice(product.price)}</p>
-                    {product.oldPrice && (
-                      <p className="text-xs text-[#9CA3AF] line-through">{formatPrice(product.oldPrice)}</p>
-                    )}
-                  </div>
-                  {product.inStock < 10 && (
-                    <UrgencyIndicator 
-                      type="stock"
-                      value={product.inStock}
-                      variant="badge"
-                      className="mt-1"
-                    />
-                  )}
+          <AnimatePresence>
+            {showCatalogSearch && (
+              <m.div initial={{ opacity: 0, height: 0, marginBottom: 0 }} animate={{ opacity: 1, height: 44, marginBottom: 12 }} exit={{ opacity: 0, height: 0, marginBottom: 0 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }} style={{ overflow: 'hidden' }}>
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#9CA3AF' }} />
+                  <input autoFocus value={catalogSearch} onChange={e => setCatalogSearch(e.target.value)} placeholder="Поиск по названию…" className="w-full h-11 rounded-2xl pl-10 pr-4 text-[13px] outline-none" style={{ background: CARD, border: '0.5px solid rgba(0,0,0,0.08)', color: TEXT, fontFamily: "'Inter',sans-serif", boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }} />
                 </div>
               </m.div>
-            ))}
+            )}
+          </AnimatePresence>
+
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {categories.slice(0, 8).map((cat) => {
+              const active = selectedCategory === cat;
+              return (
+                <button key={cat} onClick={() => setSelectedCategory(cat)} className="flex-shrink-0 px-3.5 py-1.5 rounded-full transition-all active:scale-95" style={{ fontSize: '11px', fontWeight: active ? 700 : 500, letterSpacing: '0.04em', fontFamily: "'Inter',sans-serif", background: active ? ACCENT : CARD, color: active ? '#fff' : MUTED, border: active ? 'none' : '0.5px solid rgba(0,0,0,0.06)', boxShadow: active ? `0 4px 12px ${ACCENT}30` : '0 1px 3px rgba(0,0,0,0.04)' }} data-testid={`button-cat-${cat}`}>
+                  {cat}
+                </button>
+              );
+            })}
           </div>
         </div>
+
+        <div className="px-5 pt-3" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {(() => {
+            const rows: React.ReactNode[] = [];
+            let i = 0;
+            let groupIdx = 0;
+            while (i < filtered.length) {
+              const featured = filtered[i];
+              const discountFeatured = featured.oldPrice ? Math.round((1 - featured.price / featured.oldPrice) * 100) : 0;
+              rows.push(
+                <m.div key={`featured-${featured.id}`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: groupIdx * 0.1 }} whileTap={{ scale: 0.985 }} onClick={() => openFlower(featured)} className="relative cursor-pointer rounded-[20px] overflow-hidden" style={{ height: '280px' }} data-testid={`flower-card-${featured.id}`}>
+                  <LazyImage src={featured.image} alt={featured.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                  <div className="absolute top-3.5 left-3.5 flex gap-1.5">
+                    {featured.isNew && (<span className="px-2 py-1 text-[9px] font-black rounded-full tracking-[0.08em] uppercase text-white" style={{ background: ACCENT }}>NEW</span>)}
+                    <span className="px-2 py-1 text-[9px] font-medium rounded-full" style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', color: ACCENT, border: '0.5px solid rgba(0,0,0,0.06)', fontFamily: "'Inter',sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase' }}>{featured.category}</span>
+                  </div>
+                  <div className="absolute top-3.5 right-3.5 flex gap-1.5">
+                    <button onClick={(e) => { e.stopPropagation(); setQuickViewFlower(featured); }} aria-label="Быстрый просмотр" className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all" style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(0,0,0,0.08)' }} data-testid={`button-quickview-${featured.id}`}>
+                      <Eye className="w-3.5 h-3.5" style={{ color: TEXT }} />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(featured.id); }} aria-label="Избранное" className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all" style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(0,0,0,0.08)' }} data-testid={`button-favorite-catalog-${featured.id}`}>
+                      <Heart className={`w-3.5 h-3.5 ${isFavorite(String(featured.id)) ? 'fill-current' : ''}`} style={{ color: isFavorite(String(featured.id)) ? ACCENT : TEXT }} />
+                    </button>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="flex items-end justify-between">
+                      <div className="flex-1 mr-3">
+                        <p className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-1" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: "'Inter',sans-serif" }}>{featured.category}</p>
+                        <p style={{ fontSize: '18px', fontWeight: 300, fontStyle: 'italic', letterSpacing: '0.02em', fontFamily: "'Cormorant Garamond', Georgia, serif", lineHeight: 1.15, color: '#fff' }}>{featured.name}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-base font-bold text-white" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', fontFamily: "'Inter',sans-serif" }}>{formatPrice(featured.price)}</p>
+                        {featured.oldPrice && (<p className="text-[10px] line-through" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter',sans-serif" }}>{formatPrice(featured.oldPrice)}</p>)}
+                        {discountFeatured > 0 && (<span className="inline-block text-[9px] font-black text-white mt-1 px-1.5 py-0.5 rounded-md" style={{ background: ACCENT, fontFamily: "'Inter',sans-serif" }}>−{discountFeatured}%</span>)}
+                      </div>
+                    </div>
+                  </div>
+                </m.div>
+              );
+              i++;
+              const pair = filtered.slice(i, i + 2);
+              if (pair.length > 0) {
+                rows.push(
+                  <div key={`pair-${groupIdx}`} className="grid grid-cols-2 gap-3">
+                    {pair.map((product, colIdx) => (
+                      <m.div key={product.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: groupIdx * 0.1 + 0.04 + colIdx * 0.03 }} whileTap={{ scale: 0.97 }} onClick={() => openFlower(product)} className="cursor-pointer" data-testid={`flower-card-${product.id}`}>
+                        <div className="relative rounded-[18px] overflow-hidden mb-2.5" style={{ height: colIdx === 0 ? '210px' : '178px' }}>
+                          <LazyImage src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
+                          <div className="absolute top-2 right-2 flex flex-col gap-1.5">
+                            <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }} aria-label="Избранное" className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all" style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(0,0,0,0.06)' }} data-testid={`button-favorite-catalog-${product.id}`}>
+                              <Heart className={`w-3 h-3 ${isFavorite(String(product.id)) ? 'fill-current' : ''}`} style={{ color: isFavorite(String(product.id)) ? ACCENT : TEXT }} />
+                            </button>
+                          </div>
+                          {product.oldPrice && (
+                            <div className="absolute top-2 left-2">
+                              <span className="px-1.5 py-0.5 text-[9px] font-black rounded-md text-white" style={{ background: ACCENT, fontFamily: "'Inter',sans-serif" }}>−{Math.round((1 - product.price / product.oldPrice) * 100)}%</span>
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-[8px] font-semibold tracking-[0.22em] uppercase mb-0.5 truncate" style={{ color: '#9CA3AF', fontFamily: "'Inter',sans-serif" }}>{product.category}</p>
+                          <p style={{ fontSize: '13px', fontWeight: 400, fontStyle: 'italic', lineHeight: 1.2, marginBottom: '4px', fontFamily: "'Cormorant Garamond', Georgia, serif", color: TEXT, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' } as React.CSSProperties}>{product.name}</p>
+                          <div className="flex items-baseline gap-1.5 mb-1">
+                            <span className="text-[13px] font-bold" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em', fontFamily: "'Inter',sans-serif" }}>{formatPrice(product.price)}</span>
+                            {product.oldPrice && (<span className="text-[10px] line-through" style={{ color: '#9CA3AF', fontFamily: "'Inter',sans-serif" }}>{formatPrice(product.oldPrice)}</span>)}
+                          </div>
+                          <div className="flex items-center gap-0.5">
+                            {[1,2,3,4,5].map(star => (<div key={star} className="w-1.5 h-1.5 rounded-full" style={{ background: star <= Math.round(product.rating) ? ACCENT : 'rgba(0,0,0,0.08)' }} />))}
+                          </div>
+                        </div>
+                      </m.div>
+                    ))}
+                  </div>
+                );
+                i += pair.length;
+              }
+              groupIdx++;
+            }
+            return rows;
+          })()}
+        </div>
+
+        {filtered.length === 0 && (
+          <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="flex flex-col items-center justify-center py-20 px-8 text-center">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5" style={{ background: `${ACCENT}12`, border: `0.5px solid ${ACCENT}25` }}>
+              <Search className="w-6 h-6" style={{ color: ACCENT }} />
+            </div>
+            <p style={{ fontSize: '20px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: '8px', color: TEXT }}>Ничего не найдено</p>
+            <p style={{ fontSize: '13px', color: '#9CA3AF', fontFamily: "'Inter',sans-serif", lineHeight: 1.6, marginBottom: '20px' }}>
+              {catalogSearch ? `По запросу «${catalogSearch}» букетов не найдено` : 'Попробуйте изменить фильтры'}
+            </p>
+            <button onClick={() => { setSelectedCategory('Все'); setSelectedSeason('All'); setCatalogSearch(''); setShowCatalogSearch(false); }} className="px-6 py-2.5 rounded-full text-[12px] font-bold tracking-[0.05em] transition-all active:scale-95" style={{ background: ACCENT, color: '#fff', fontFamily: "'Inter',sans-serif" }}>Сбросить фильтры</button>
+          </m.div>
+        )}
+
+        <AnimatePresence>
+          {quickViewFlower && (
+            <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="fixed inset-0 z-[100] flex items-end justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => setQuickViewFlower(null)}>
+              <m.div initial={{ opacity: 0, y: 100, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 100, scale: 0.95 }} transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }} className="w-full max-w-lg rounded-t-[32px] overflow-hidden relative" style={{ background: BG, backdropFilter: 'blur(20px)', border: '0.5px solid rgba(0,0,0,0.06)', boxShadow: '0 -20px 60px rgba(0,0,0,0.15)', maxHeight: '72vh', paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 80px)' }} onClick={(e) => e.stopPropagation()}>
+                <div className="flex justify-center pt-3 pb-2"><div className="w-10 h-1 rounded-full" style={{ background: 'rgba(0,0,0,0.12)' }} /></div>
+                <button onClick={() => setQuickViewFlower(null)} className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10" style={{ background: 'rgba(0,0,0,0.05)' }} data-testid="button-close-quickview"><X className="w-4 h-4" style={{ color: TEXT }} /></button>
+                <div className="px-5 pb-4 overflow-y-auto" style={{ maxHeight: 'calc(72vh - 56px)' }}>
+                  <div style={{ display: 'flex', gap: '14px', marginBottom: '18px' }}>
+                    <div style={{ width: '100px', flexShrink: 0, borderRadius: '14px', overflow: 'hidden', background: 'rgba(0,0,0,0.03)', aspectRatio: '2/3' }}>
+                      <LazyImage src={quickViewFlower.image} alt={quickViewFlower.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: '2px', minWidth: 0 }}>
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: '6px', fontFamily: "'Inter',sans-serif" }}>{quickViewFlower.category}</p>
+                      <h3 style={{ fontSize: '20px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '0.03em', color: TEXT, lineHeight: 1.15, marginBottom: '8px' }}>{quickViewFlower.name}</h3>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginBottom: '12px' }}>
+                        {[1,2,3,4,5].map(s => (<Star key={s} style={{ width: '11px', height: '11px' }} fill={s <= Math.round(quickViewFlower.rating) ? ACCENT : 'transparent'} stroke={s <= Math.round(quickViewFlower.rating) ? ACCENT : '#D1D5DB'} />))}
+                        <span style={{ fontSize: '11px', color: '#9CA3AF', marginLeft: '3px', fontFamily: "'Inter',sans-serif" }}>{quickViewFlower.rating}</span>
+                      </div>
+                      <div style={{ marginTop: 'auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' as const }}>
+                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Inter',sans-serif", color: TEXT }}>{formatPrice(quickViewFlower.price)}</span>
+                          {quickViewFlower.oldPrice && (<span style={{ fontSize: '13px', textDecoration: 'line-through', color: '#9CA3AF' }}>{formatPrice(quickViewFlower.oldPrice)}</span>)}
+                        </div>
+                        {quickViewFlower.oldPrice && (<span style={{ display: 'inline-block', marginTop: '5px', fontSize: '10px', fontWeight: 700, color: '#fff', background: ACCENT, borderRadius: '6px', padding: '2px 8px', fontFamily: "'Inter',sans-serif" }}>−{Math.round((1 - quickViewFlower.price / quickViewFlower.oldPrice) * 100)}%</span>)}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ height: '0.5px', background: 'rgba(0,0,0,0.06)', marginBottom: '16px' }} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+                    <div style={{ padding: '12px', borderRadius: '12px', background: CARD, border: '0.5px solid rgba(0,0,0,0.05)' }}>
+                      <p style={{ fontSize: '8px', fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: '4px', fontFamily: "'Inter',sans-serif" }}>Свежесть</p>
+                      <p style={{ fontSize: '13px', fontWeight: 600, color: TEXT, fontFamily: "'Inter',sans-serif" }}>{quickViewFlower.vaseLife}</p>
+                    </div>
+                    <div style={{ padding: '12px', borderRadius: '12px', background: CARD, border: '0.5px solid rgba(0,0,0,0.05)' }}>
+                      <p style={{ fontSize: '8px', fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: '4px', fontFamily: "'Inter',sans-serif" }}>Сезон</p>
+                      <p style={{ fontSize: '13px', fontWeight: 600, color: seasonConfig[quickViewFlower.season]?.color ?? TEXT, fontFamily: "'Inter',sans-serif" }}>{seasonConfig[quickViewFlower.season]?.label}</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button onClick={() => { setQuickViewFlower(null); openFlower(quickViewFlower); }} className="flex-1 py-3.5 rounded-[16px] text-[13px] font-bold transition-all active:scale-[0.98]" style={{ background: 'rgba(0,0,0,0.04)', color: TEXT, border: '0.5px solid rgba(0,0,0,0.08)', fontFamily: "'Inter',sans-serif" }} data-testid="button-quickview-details">Подробнее</button>
+                    <button onClick={() => { addToCartHook({ id: String(quickViewFlower.id), name: quickViewFlower.name, price: quickViewFlower.price, image: quickViewFlower.image, size: quickViewFlower.sizes[0], color: quickViewFlower.colors[0] }); toast({ title: 'Добавлено в корзину', description: `${quickViewFlower.name} · ${quickViewFlower.colors[0]}`, duration: 2000 }); setQuickViewFlower(null); }} className="flex-1 py-3.5 rounded-[16px] text-[13px] font-black transition-all active:scale-[0.98]" style={{ background: ACCENT, color: '#fff', fontFamily: "'Inter',sans-serif" }} data-testid="button-quickview-add-to-cart">В корзину</button>
+                  </div>
+                </div>
+              </m.div>
+            </m.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
 
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[#FDF8F5] text-[#1A1A1A] pb-32 smooth-scroll-page">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6 text-[#1A1A1A]">Корзина</h1>
-
+      <div className="min-h-screen pb-52 smooth-scroll-page" style={{ background: BG, color: TEXT }}>
+        <div className="px-5 pt-6 pb-5" style={{ borderBottom: '0.5px solid rgba(0,0,0,0.06)' }}>
+          <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.32em', color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '4px', fontFamily: "'Inter',sans-serif" }}>FLORAL ART</p>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+            <h1 style={{ fontSize: '32px', fontWeight: 300, fontStyle: 'italic', lineHeight: 1, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Корзина</h1>
+            {cartCount > 0 && (<span style={{ fontSize: '13px', color: '#9CA3AF', fontFamily: "'Inter',sans-serif", fontWeight: 400 }}>— {cartCount} {cartCount === 1 ? 'букет' : cartCount < 5 ? 'букета' : 'букетов'}</span>)}
+          </div>
+        </div>
+        <div className="px-5 pt-4">
           {cart.length === 0 ? (
-            <EmptyState
-              type="cart"
-              actionLabel="В каталог"
-              onAction={() => onTabChange?.('catalog')}
-              className="py-20"
-            />
+            <EmptyState type="cart" title="Корзина пуста" description="Добавьте букеты из каталога, чтобы оформить заказ" actionLabel="Перейти в каталог" onAction={() => onTabChange?.('catalog')} />
           ) : (
-            <div className="space-y-4">
-              {cart.map((item) => (
-                <div
-                  key={`${item.id}-${item.size}-${item.color}`}
-                  className="bg-white shadow-sm rounded-2xl p-4 flex gap-4"
-                  data-testid={`cart-item-${item.id}`}
-                >
-                  <img
-                    src={item.image || ''}
-                    alt={item.name}
-                    className="w-20 h-20 rounded-xl object-cover"
-                    loading="lazy"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-1 text-[#1A1A1A]">{item.name}</h3>
-                    <p className="text-sm text-[#6B7280] mb-2">
-                      {item.color} • {item.size}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-lg font-bold text-[#1A1A1A]">{formatPrice(item.price * item.quantity)}</p>
-                      <div className="flex items-center gap-2 bg-[#F3F4F6] rounded-full px-2">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center text-[#1A1A1A]"
-                          aria-label="Уменьшить количество"
-                          data-testid={`button-decrease-${item.id}`}
-                        >
-                          <Minus className="w-4 h-4" />
+            <>
+              <div className="space-y-3">
+                <AnimatePresence>
+                  {cart.map((item) => {
+                    const flowerRef = flowers.find(p => String(p.id) === item.id);
+                    return (
+                      <m.div key={`${item.id}-${item.size}-${item.color}`} layout exit={{ opacity: 0, x: -80, transition: { duration: 0.25 } }} style={{ display: 'flex', gap: '14px', padding: '14px', borderRadius: '18px', background: CARD, border: '0.5px solid rgba(0,0,0,0.05)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', alignItems: 'center' }} data-testid={`cart-item-${item.id}`}>
+                        <div style={{ width: '72px', height: '72px', borderRadius: '14px', overflow: 'hidden', flexShrink: 0, background: 'rgba(0,0,0,0.03)' }}>
+                          <LazyImage src={item.image || ''} alt={item.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: '9px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9CA3AF', fontFamily: "'Inter',sans-serif", marginBottom: '2px' }}>{flowerRef?.category ?? ''}</p>
+                          <p style={{ fontSize: '15px', fontWeight: 500, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", color: TEXT, marginBottom: '4px', lineHeight: 1.2 }}>{item.name}</p>
+                          <p style={{ fontSize: '10px', color: '#9CA3AF', fontFamily: "'Inter',sans-serif", marginBottom: '8px' }}>{item.color} · {item.size}</p>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <p style={{ fontSize: '16px', fontWeight: 800, fontFamily: "'Inter',sans-serif", letterSpacing: '-0.02em' }}>{formatPrice(item.price * item.quantity)}</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'rgba(0,0,0,0.03)', borderRadius: '12px', padding: '2px' }}>
+                              <button onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)} className="w-8 h-8 rounded-[10px] flex items-center justify-center active:scale-95 transition-all" style={{ background: CARD }} aria-label="Уменьшить" data-testid={`button-decrease-${item.id}`}>
+                                <Minus className="w-3.5 h-3.5" style={{ color: MUTED }} />
+                              </button>
+                              <span style={{ width: '28px', textAlign: 'center', fontSize: '13px', fontWeight: 700, fontFamily: "'Inter',sans-serif" }}>{item.quantity}</span>
+                              <button onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)} className="w-8 h-8 rounded-[10px] flex items-center justify-center active:scale-95 transition-all" style={{ background: CARD }} aria-label="Увеличить" data-testid={`button-increase-${item.id}`}>
+                                <Plus className="w-3.5 h-3.5" style={{ color: MUTED }} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <button onClick={() => removeFromCart(item.id, item.size, item.color)} className="w-8 h-8 rounded-full flex items-center justify-center self-start active:scale-95" style={{ background: 'rgba(239,68,68,0.06)' }} aria-label="Удалить" data-testid={`button-remove-${item.id}`}>
+                          <X className="w-3.5 h-3.5" style={{ color: '#EF4444' }} />
                         </button>
-                        <span className="w-6 text-center font-semibold text-[#1A1A1A]">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center text-[#1A1A1A]"
-                          aria-label="Увеличить количество"
-                          data-testid={`button-increase-${item.id}`}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => removeFromCart(item.id, item.size, item.color)}
-                    aria-label="Удалить из корзины"
-                    className="w-10 h-10 flex items-center justify-center text-[#6B7280]"
-                    data-testid={`button-remove-${item.id}`}
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              ))}
-
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#FDF8F5] border-t border-[#E5E7EB]">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold text-[#1A1A1A]">Итого:</span>
-                  <span className="text-2xl font-bold text-[#1A1A1A]">{formatPrice(cartTotal)}</span>
-                </div>
-                <TrustBadges variant="compact" className="mb-4" />
-                <button
-                  onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full bg-[#F472B6] text-white font-bold py-4 rounded-full hover:bg-[#EC4899] transition-all min-h-[48px]"
-                  data-testid="button-checkout"
-                >
-                  Оформить заказ
-                </button>
+                      </m.div>
+                    );
+                  })}
+                </AnimatePresence>
               </div>
-              
-              <CheckoutDrawer
-                isOpen={isCheckoutOpen}
-                onClose={() => setIsCheckoutOpen(false)}
-                items={cart.map(item => ({
-                  id: parseInt(item.id) || 0,
-                  name: item.name,
-                  price: item.price,
-                  quantity: item.quantity,
-                  size: item.size,
-                  color: item.color,
-                  image: item.image
-                }))}
-                total={cartTotal}
-                currency="₽"
-                onOrderComplete={handleCheckout}
-                storeName="BLOOM STUDIO"
-              />
-            </div>
+            </>
           )}
         </div>
+
+        {cart.length > 0 && (
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 60, padding: `16px 20px calc(16px + env(safe-area-inset-bottom, 0px))`, background: `linear-gradient(0deg, ${BG} 70%, transparent 100%)` }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+              <span style={{ fontSize: '13px', color: '#9CA3AF', fontFamily: "'Inter',sans-serif" }}>Итого</span>
+              <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontFamily: "'Inter',sans-serif" }}>{formatPrice(cartTotal)}</span>
+            </div>
+            <button onClick={() => setIsCheckoutOpen(true)} className="w-full rounded-[18px] font-black transition-all active:scale-[0.97]" style={{ background: `linear-gradient(135deg, ${ACCENT} 0%, #C25882 100%)`, color: '#fff', fontSize: '15px', fontFamily: "'Inter',sans-serif", letterSpacing: '-0.01em', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', boxShadow: `0 8px 32px ${ACCENT}30` }} data-testid="button-checkout">
+              <span>Оформить заказ</span>
+              <span style={{ opacity: 0.55 }}>·</span>
+              <span>{formatPrice(cartTotal)}</span>
+            </button>
+          </div>
+        )}
+
+        <CheckoutDrawer isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} items={cart.map(item => ({ id: Number(item.id), name: item.name, price: item.price, quantity: item.quantity, size: item.size, color: item.color, image: item.image }))} total={cartTotal} currency="₽" onOrderComplete={handleCheckout} storeName="FloralArt" />
       </div>
     );
   }
 
   if (activeTab === 'profile') {
+    const totalSpent = orders.reduce((acc, o) => acc + o.total, 0);
+    const tier = totalSpent >= 50000 ? 'FLORAL PLATINUM' : totalSpent >= 15000 ? 'FLORAL GOLD' : 'FLORAL MEMBER';
+    const tierColor = totalSpent >= 50000 ? '#8B5CF6' : ACCENT;
+    const statusLabel: Record<string, string> = { pending: 'Обработка', confirmed: 'Подтверждён', processing: 'Собирается', shipped: 'Доставляется', delivered: 'Доставлен' };
+    const statusColor: Record<string, string> = { pending: '#9CA3AF', confirmed: '#60A5FA', processing: '#F97316', shipped: '#F59E0B', delivered: '#10B981' };
+
     return (
-      <div className="min-h-screen bg-[#FDF8F5] text-[#1A1A1A] pb-24 smooth-scroll-page">
-        <div className="p-6 bg-white shadow-sm border-b border-[#E5E7EB]">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#F472B6] to-[#EC4899] rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-white" />
+      <div className="min-h-screen pb-24 smooth-scroll-page" style={{ background: BG, color: TEXT }}>
+        <div style={{ position: 'relative', overflow: 'hidden', padding: '36px 20px 28px' }}>
+          <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, ${ACCENT}08 0%, transparent 55%), linear-gradient(225deg, ${ACCENT}04 0%, transparent 50%)` }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '0.5px', background: `linear-gradient(90deg, transparent, ${ACCENT}30, transparent)` }} />
+
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ position: 'relative' }}>
+              <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: `linear-gradient(135deg, ${ACCENT} 0%, #C25882 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 0 0 3px ${ACCENT}20, 0 0 0 6px ${ACCENT}08` }}>
+                <span style={{ fontSize: '22px', fontWeight: 800, color: '#fff', fontFamily: "'Inter',sans-serif", letterSpacing: '-0.03em' }}>АЦ</span>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-[#1A1A1A]">Анна Цветкова</h2>
-              <p className="text-sm text-[#6B7280]">+7 (999) 123-45-67</p>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', fontFamily: "'Inter',sans-serif", marginBottom: '2px' }}>Анна Цветкова</h2>
+              <p style={{ fontSize: '12px', color: '#9CA3AF', fontFamily: "'Inter',sans-serif", marginBottom: '10px' }}>+7 (999) 123-45-67</p>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', borderRadius: '20px', background: `${tierColor}10`, border: `0.5px solid ${tierColor}25` }}>
+                <Sparkles style={{ width: '9px', height: '9px', color: tierColor }} />
+                <span style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.22em', color: tierColor, fontFamily: "'Inter',sans-serif", textTransform: 'uppercase' }}>{tier}</span>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB]">
-              <p className="text-sm text-[#6B7280] mb-1">Заказы</p>
-              <p className="text-2xl font-bold text-[#1A1A1A]">{ordersCount}</p>
-            </div>
-            <div className="p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB]">
-              <p className="text-sm text-[#6B7280] mb-1">Избранное</p>
-              <p className="text-2xl font-bold text-[#1A1A1A]">{favoritesCount}</p>
-            </div>
+          <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+            {[
+              { label: 'Заказы', value: String(ordersCount) },
+              { label: 'Избранное', value: String(favoritesCount) },
+              { label: 'Потрачено', value: totalSpent > 0 ? `${Math.round(totalSpent / 1000)}К` : '0' },
+            ].map((stat) => (
+              <div key={stat.label} style={{ padding: '14px 10px', borderRadius: '16px', background: CARD, border: '0.5px solid rgba(0,0,0,0.05)', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <p style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.03em', fontFamily: "'Inter',sans-serif", color: ACCENT, lineHeight: 1, marginBottom: '5px' }}>{stat.value}</p>
+                <p style={{ fontSize: '9px', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#9CA3AF', fontFamily: "'Inter',sans-serif" }}>{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="p-4 space-y-4">
-          <div className="scroll-fade-in">
-            <h3 className="text-lg font-bold mb-4 text-[#1A1A1A]">Мои заказы</h3>
-            {orders.length === 0 ? (
-              <div className="text-center py-8 text-[#9CA3AF]">
-                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>У вас пока нет заказов</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {orders.map((order) => (
-                  <div key={order.id} className="bg-white shadow-sm rounded-xl p-4 border border-[#E5E7EB]" data-testid={`order-${order.id}`}>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-[#6B7280]">Заказ #{order.id.slice(-6)}</span>
-                      <span className="text-sm text-[#6B7280]">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
+        <div style={{ height: '0.5px', background: 'rgba(0,0,0,0.06)', margin: '0 20px' }} />
+
+        {orders.length > 0 && (
+          <div style={{ padding: '20px 20px 4px' }}>
+            <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: '12px', fontFamily: "'Inter',sans-serif" }}>Последние заказы</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {orders.slice(0, 3).map((order) => {
+                const st = order.status ?? 'delivered';
+                return (
+                  <div key={order.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '16px', background: CARD, border: '0.5px solid rgba(0,0,0,0.05)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: `${ACCENT}08`, border: `0.5px solid ${ACCENT}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Package style={{ width: '18px', height: '18px', color: ACCENT }} />
                     </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-[#4B5563]">{order.items.length} букетов</span>
-                      <span className="font-bold text-[#1A1A1A]">{formatPrice(order.total)}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: '13px', fontWeight: 600, fontFamily: "'Inter',sans-serif", color: TEXT, marginBottom: '2px' }}>№ {order.id.slice(-6).toUpperCase()}</p>
+                      <p style={{ fontSize: '11px', color: '#9CA3AF', fontFamily: "'Inter',sans-serif" }}>{order.items.length} {order.items.length === 1 ? 'букет' : order.items.length < 5 ? 'букета' : 'букетов'} · {formatPrice(order.total)}</p>
                     </div>
-                    <div className="mt-2">
-                      <span className="text-xs px-2 py-1 bg-[#FDF2F8] text-[#F472B6] rounded-full">
-                        {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Доставляется' : 'Доставлен'}
-                      </span>
-                    </div>
+                    <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 9px', borderRadius: '20px', background: `${statusColor[st]}12`, color: statusColor[st], fontFamily: "'Inter',sans-serif", flexShrink: 0 }}>{statusLabel[st] ?? 'Доставлен'}</span>
                   </div>
-                ))}
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <div style={{ padding: orders.length > 0 ? '12px 20px 0' : '20px 20px 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {[
+            { icon: <Heart style={{ width: '18px', height: '18px' }} />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined, testId: 'button-favorites' },
+            { icon: <MapPin style={{ width: '18px', height: '18px' }} />, label: 'Адреса доставки', testId: 'button-addresses' },
+            { icon: <Package style={{ width: '18px', height: '18px' }} />, label: 'Мои заказы', badge: ordersCount > 0 ? String(ordersCount) : undefined, testId: 'button-orders' },
+            { icon: <CreditCard style={{ width: '18px', height: '18px' }} />, label: 'Способы оплаты', testId: 'button-payment' },
+            { icon: <Settings style={{ width: '18px', height: '18px' }} />, label: 'Настройки', testId: 'button-settings' },
+          ].map((item) => (
+            <button key={item.label} className="w-full transition-all active:scale-[0.98]" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '18px', background: CARD, border: '0.5px solid rgba(0,0,0,0.05)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }} aria-label={item.label} data-testid={item.testId}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(0,0,0,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: MUTED }}>{item.icon}</div>
+                <span style={{ fontSize: '15px', fontWeight: 500, color: TEXT, fontFamily: "'Inter',sans-serif" }}>{item.label}</span>
               </div>
-            )}
-          </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {item.badge && (<span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '20px', background: `${ACCENT}10`, color: ACCENT, fontFamily: "'Inter',sans-serif" }}>{item.badge}</span>)}
+                <ChevronLeft style={{ width: '16px', height: '16px', color: '#D1D5DB', transform: 'rotate(180deg)' }} />
+              </div>
+            </button>
+          ))}
 
-          <div className="space-y-2">
-          <button className="w-full p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB] flex items-center justify-between hover:bg-gray-50 transition-colors" data-testid="button-orders">
-            <div className="flex items-center gap-3">
-              <Package className="w-5 h-5 text-[#6B7280]" />
-              <span className="font-medium text-[#1A1A1A]">История заказов</span>
+          <button className="w-full transition-all active:scale-[0.98]" style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px', borderRadius: '18px', background: 'rgba(239,68,68,0.04)', border: '0.5px solid rgba(239,68,68,0.1)' }} data-testid="button-logout">
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(239,68,68,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LogOut style={{ width: '18px', height: '18px', color: 'rgba(239,68,68,0.7)' }} />
             </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-[#9CA3AF]" />
+            <span style={{ fontSize: '15px', fontWeight: 600, color: 'rgba(239,68,68,0.8)', fontFamily: "'Inter',sans-serif" }}>Выйти из аккаунта</span>
           </button>
-
-          <button className="w-full p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB] flex items-center justify-between hover:bg-gray-50 transition-colors" data-testid="button-favorites">
-            <div className="flex items-center gap-3">
-              <Heart className="w-5 h-5 text-[#6B7280]" />
-              <span className="font-medium text-[#1A1A1A]">Избранное</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-[#9CA3AF]" />
-          </button>
-
-          <button className="w-full p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB] flex items-center justify-between hover:bg-gray-50 transition-colors" data-testid="button-delivery">
-            <div className="flex items-center gap-3">
-              <Truck className="w-5 h-5 text-[#6B7280]" />
-              <span className="font-medium text-[#1A1A1A]">Адреса доставки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-[#9CA3AF]" />
-          </button>
-
-          <button className="w-full p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB] flex items-center justify-between hover:bg-gray-50 transition-colors" data-testid="button-payment">
-            <div className="flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-[#6B7280]" />
-              <span className="font-medium text-[#1A1A1A]">Способы оплаты</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-[#9CA3AF]" />
-          </button>
-
-          <button className="w-full p-4 bg-white shadow-sm rounded-xl border border-[#E5E7EB] flex items-center justify-between hover:bg-gray-50 transition-colors" data-testid="button-settings">
-            <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-[#6B7280]" />
-              <span className="font-medium text-[#1A1A1A]">Настройки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-[#9CA3AF]" />
-          </button>
-
-          <button className="w-full p-4 bg-red-50 rounded-xl border border-red-200 flex items-center justify-between hover:bg-red-100 transition-colors mt-4" data-testid="button-logout">
-            <div className="flex items-center gap-3">
-              <LogOut className="w-5 h-5 text-red-500" />
-              <span className="font-medium text-red-500">Выйти</span>
-            </div>
-          </button>
-          </div>
         </div>
+        <div style={{ height: '20px' }} />
       </div>
     );
   }
@@ -1225,14 +1479,9 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
 
 function FloristWithTheme(props: FloristProps) {
   return (
-    <div style={{
-      '--theme-primary': '#F472B6',
-      '--theme-accent': '#EC4899',
-      '--theme-background': '#FDF8F5',
-      '--theme-primary-glow': 'rgba(244, 114, 182, 0.4)'
-    } as React.CSSProperties}>
+    <DemoThemeProvider themeId="floralArt">
       <Florist {...props} />
-    </div>
+    </DemoThemeProvider>
   );
 }
 
