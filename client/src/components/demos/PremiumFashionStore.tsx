@@ -430,7 +430,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   if (activeTab === 'catalog' && selectedProduct) {
     // Static premium dark background (like Carbon Collection) - doesn't change with color selection
     const bgColor = '#0A0A0A';
-    const productImages = [selectedProduct.image, selectedProduct.hoverImage];
+    const productImages = [...new Set([selectedProduct.image, selectedProduct.hoverImage])];
     
     return (
       <div className="h-screen text-white overflow-hidden relative flex flex-col" style={{ backgroundColor: bgColor }}>
@@ -607,21 +607,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               <ChevronLeft className="w-6 h-6" style={{ color: 'rgba(0,0,0,0.8)' }} strokeWidth={2.5} />
             </button>
             
-            {/* Photo Counter Badge - Center */}
-            <div 
-              className="px-4 py-1.5 rounded-full"
-              style={{
-                background: 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: '0.5px solid rgba(255,255,255,0.5)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)'
-              }}
-            >
-              <span className="text-xs font-semibold" style={{ color: 'rgba(0,0,0,0.7)' }}>
-                {currentImageIndex + 1} / {productImages.length}
-              </span>
-            </div>
+            {/* Center spacer (counter removed) */}
+            <div style={{ width: '44px' }} />
             
             {/* Favorite Button - Liquid Glass */}
             <button
@@ -653,14 +640,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             </button>
           </div>
           
-          {/* Dots Indicator - Bottom of hero */}
-          <div 
+          {/* Dots Indicator — hidden when only 1 image */}
+          {productImages.length > 1 && <div 
             className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2 px-3 py-2 rounded-full"
             style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 100%)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              border: '0.5px solid rgba(255,255,255,0.5)',
+              background: 'rgba(0,0,0,0.35)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '0.5px solid rgba(255,255,255,0.15)',
             }}
           >
             {productImages.map((_, idx) => (
@@ -679,7 +666,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 data-testid={`gallery-dot-${idx}`}
               />
             ))}
-          </div>
+          </div>}
         </div>
 
         {/* ===== CONTENT SHEET: Slides up over hero ===== */}
@@ -1001,7 +988,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     { label: 'Категория', value: selectedProduct.category },
                     { label: 'Состав', value: selectedProduct.composition },
                     { label: 'Посадка', value: fitTranslations[selectedProduct.fit] },
-                    { label: 'Рейтинг', value: `${selectedProduct.rating}/5` },
+                    { label: 'Рейтинг', value: '__stars__' },
                   ].map((item, idx) => (
                     <div 
                       key={idx}
@@ -1015,15 +1002,26 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         border: '0.5px solid rgba(255,255,255,0.1)'
                       }}
                     >
-                      <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>{item.label}</span>
-                      <span style={{ 
-                        color: 'rgba(255,255,255,0.9)', 
-                        fontSize: '14px', 
-                        fontWeight: 500,
-                        letterSpacing: '-0.01em'
-                      }}>
-                        {item.value}
-                      </span>
+                      <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', letterSpacing: '0.02em', fontFamily: "'Satoshi','Inter',sans-serif" }}>{item.label}</span>
+                      {item.value === '__stars__' ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <div style={{ display: 'flex', gap: '2px' }}>
+                            {[1,2,3,4,5].map(s => (
+                              <Star key={s} style={{ width: '13px', height: '13px' }}
+                                fill={s <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.9)' : 'transparent'}
+                                stroke={s <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)'}
+                              />
+                            ))}
+                          </div>
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.6)', letterSpacing: '-0.01em' }}>
+                            {selectedProduct.rating}
+                          </span>
+                        </div>
+                      ) : (
+                        <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '13px', fontWeight: 500, letterSpacing: '-0.01em' }}>
+                          {item.value}
+                        </span>
+                      )}
                     </div>
                   ))}
                   
