@@ -122,16 +122,6 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const videoWrapRef = useRef(null);
-  const videoInView = useInView(videoWrapRef, { once: true, margin: "200px" });
-  useEffect(() => {
-    if (videoInView && videoRef.current && !videoRef.current.src) {
-      videoRef.current.src = "/videos/hero-bg.mp4";
-      videoRef.current.load();
-    }
-  }, [videoInView]);
-
   const stackCards = useMemo(() => [
     { id: 'luxury-perfume', src: '/screenshots/fragrance-app.png', label: 'FragranceRoyale', sub: ru ? 'Премиальная парфюмерия' : 'Premium Fragrances', growth: '+310%' },
     { id: 'florist', src: '/screenshots/florist-app.png', label: 'Bloom', sub: ru ? 'Цветочный магазин' : 'Flower Shop', growth: '+240%' },
@@ -225,15 +215,8 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
         <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
 
           <header ref={heroRef} className="relative px-6 pt-16 pb-16 overflow-hidden" role="banner">
-            <div className="absolute inset-0 z-0" ref={videoWrapRef}>
-              <video
-                ref={videoRef}
-                autoPlay loop muted playsInline
-                preload="none"
-                className="w-full h-full object-cover"
-                style={{ opacity: 0.18, filter: 'saturate(0.35) contrast(1.15)' }}
-              />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, #050505 0%, transparent 30%, transparent 60%, #050505 100%)' }} />
+            <div className="absolute inset-0 z-0">
+              <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 30% 80%, ${EMERALD}08 0%, transparent 60%), radial-gradient(ellipse at 70% 20%, rgba(255,255,255,0.02) 0%, transparent 50%)` }} />
             </div>
 
             <m.div className="relative z-10" style={{ y: reducedMotion ? 0 : heroY, opacity: reducedMotion ? 1 : heroOpacity }}>
