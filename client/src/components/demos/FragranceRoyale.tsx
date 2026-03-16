@@ -555,8 +555,16 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           )}
         </AnimatePresence>
 
-        {/* ── HERO IMAGE 70vh ── */}
-        <div className="relative flex-shrink-0" style={{ height: '70vh', minHeight: '420px' }}>
+        {/* ── SINGLE SCROLL CONTAINER: hero + content together ── */}
+        <div
+          ref={productScrollRef}
+          className="flex-1 overflow-y-auto scrollbar-hide"
+          style={{ paddingBottom: '180px' }}
+          onScroll={(e) => setShowStickyHeader(e.currentTarget.scrollTop > 300)}
+        >
+
+        {/* ── HERO IMAGE 70vh — inside scroll so it scrolls away ── */}
+        <div className="relative" style={{ height: '70vh', minHeight: '420px' }}>
           <div className="absolute inset-0 overflow-hidden">
             <m.div
               className="w-full h-full"
@@ -671,16 +679,10 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           </div>
         </div>
 
-        {/* ── SCROLLABLE CONTENT ── */}
-        <div
-          ref={productScrollRef}
-          className="flex-1 overflow-y-auto scrollbar-hide"
-          onScroll={(e) => setShowStickyHeader(e.currentTarget.scrollTop > 60)}
-        >
-          {/* Content sheet */}
+          {/* ── CONTENT SHEET — slides up over hero ── */}
           <m.div
             className="relative"
-            style={{ marginTop: '-28px', paddingBottom: '140px' }}
+            style={{ marginTop: '-28px' }}
             variants={contentStagger}
             initial="hidden"
             animate={productExiting ? 'hidden' : 'visible'}
