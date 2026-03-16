@@ -146,9 +146,15 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           {/* ═══════ HERO — full-screen cinematic ═══════ */}
           <header ref={heroRef} className="relative px-6 pt-16 pb-16 overflow-hidden" role="banner">
 
-            {/* Background gradient layer */}
+            {/* Background video layer */}
             <div className="absolute inset-0 z-0">
-              <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 30% 80%, ${EMERALD}08 0%, transparent 60%), radial-gradient(ellipse at 70% 20%, rgba(255,255,255,0.02) 0%, transparent 50%)` }} />
+              <video
+                src="/videos/hero-bg.mp4"
+                autoPlay loop muted playsInline
+                className="w-full h-full object-cover"
+                style={{ opacity: 0.15, filter: 'saturate(0.4) contrast(1.2)' }}
+              />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, #050505 0%, transparent 25%, transparent 65%, #050505 100%)' }} />
             </div>
 
             <m.div className="relative z-10" style={{ y: heroY, opacity: heroOpacity }}>
