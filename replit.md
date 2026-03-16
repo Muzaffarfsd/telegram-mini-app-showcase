@@ -179,6 +179,42 @@ To configure a branded loading screen for the Mini App:
 - **Stock pulse**: Pulsing dot animation on low-stock pill in hero
 - **Cart/Profile backgrounds**: Fixed from hardcoded `#0A0A0A` to `var(--theme-background)` (all 3 occurrences: cart, cart checkout gradient, profile)
 
+## Comprehensive World-Class Audit — Wave 2 (March 2026)
+### Product Detail
+- **Content sheet gradient background**: Changed from flat `#0C0C0E` to `linear-gradient(180deg, ${bgColor}EE 0%, #07070A 110px)` — per-category color seeps into content sheet, creating seamless visual from hero into content
+- **Tab AnimatePresence cross-fade**: Each tab (Аромат/Детали/Отзывы) wrapped in `<AnimatePresence mode="wait"><m.div key={activeProductTab}>` — smooth opacity+y transition on tab switch
+
+### Catalog Page
+- **Inline search toggle**: Search button (🔍) toggles an animated expanding input (AnimatePresence height 0→44px); searches by name/brand in real-time; button turns gold when active
+- **Gender filter row**: Все/Женские/Мужские/Унисекс pill row visible directly in catalog header — no need to go to home page
+- **Category chips with icons**: Catalog chips now show category icon (Wind/Flame/Flower2/Leaf/Gem) + colored background + colored border matching category, same as home page
+- **Empty state**: When filtered results = 0, animated empty state with Search icon, message, and "Сбросить фильтры" gold button
+- **Filter button cycles gender**: Clicking Filter button in header cycles through gender filters; turns gold when active
+
+### Home Page
+- **Scent family chips colored**: Each chip uses `cfg.color` as background (`${color}18`) and border (`${color}35`) — visually distinct per category
+- **Home search → catalog**: Typing in home search + pressing Enter or clicking "Найти →" sets catalogSearch, opens search bar in catalog, and navigates there
+- **Just Arrived star ratings**: Small 5-dot rating indicator (gold/grey 5px dots) below price on each Just Arrived card
+- **Bestsellers star ratings**: Star icon row (Star from lucide) below price on each Bestsellers card; price displayed in `fontWeight: 800` for hierarchy
+
+### Cart Page — Complete Luxury Redesign
+- **Luxury header**: "FRAGRANCE ROYALE" supertitle + italic Cormorant "Корзина" + live count "— N ароматов"
+- **Brand in cart items**: Shows perfume brand supertitle (e.g., "TOM FORD") above product name in Cormorant italic
+- **Category color dot**: Category color circle badge overlaid on product image corner (e.g., orange for Oriental)
+- **Animated item removal**: AnimatePresence with `exit={{ opacity: 0, x: -24, scale: 0.97 }}` + `layout` prop for smooth reflow
+- **Inline quantity stepper**: Pill-shaped stepper with rounded-full border (no separate circle buttons), compact unified control
+- **Order summary card**: Separated card showing: Товары (N) / Доставка: Бесплатно (green) / Итого (26px bold) — full breakdown
+- **Premium checkout CTA**: Gradient gold button (`linear-gradient(135deg, #D4BC3E, #C9B037, #B8A02E)`) with glow shadow; shows both label and price inline
+
+### Profile Page — Complete Luxury Redesign
+- **Gold gradient hero section**: Subtle `rgba(201,176,55,0.07)` corner glow + hairline gold horizontal gradient at top
+- **Initials avatar**: "АС" monogram on gold-to-dark gradient circle with double ring glow (`box-shadow: 0 0 0 3px rgba(201,176,55,0.2), 0 0 0 6px rgba(201,176,55,0.07)`)
+- **Membership tier badge**: Dynamic tier — ROYALE MEMBER → ROYALE GOLD (≥30K₽ spent) → ROYALE PLATINUM (≥100K₽); Sparkles icon + gold/silver color
+- **3-column stats**: Заказы / Избранное / Потрачено (in thousands, e.g., "29К") — gold numerals on dark cards
+- **Recent orders section**: Shows up to 3 most recent orders with Package icon, order #, item count + total, colored status badge (Delivered=green, Shipped=amber, etc.)
+- **Menu items with icon containers**: Each item has a 36px rounded square icon container + badge counter in gold for Избранное/Заказы
+- **Logout with icon container**: Red tinted background + red-tinted square icon container for LogOut icon
+
 # Radiance Fashion Demo — March 2026 Cinematic Animation Audit
 
 ## Page-Level Transitions (Product Detail)

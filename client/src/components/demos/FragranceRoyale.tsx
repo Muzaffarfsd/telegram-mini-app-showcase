@@ -1370,10 +1370,26 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               placeholder="Поиск ароматов, брендов..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && searchQuery.trim()) {
+                  setCatalogSearch(searchQuery.trim());
+                  setShowCatalogSearch(true);
+                  setSearchQuery('');
+                  onTabChange?.('catalog');
+                }
+              }}
               className="bg-transparent text-white placeholder:text-white/35 outline-none flex-1 text-sm"
               style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}
               data-testid="input-search"
             />
+            {searchQuery && (
+              <button
+                onClick={() => { setCatalogSearch(searchQuery.trim()); setShowCatalogSearch(true); setSearchQuery(''); onTabChange?.('catalog'); }}
+                style={{ fontSize: '10px', fontWeight: 700, color: '#C9B037', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.05em', flexShrink: 0 }}
+              >
+                Найти →
+              </button>
+            )}
           </div>
 
           {/* Gender filters — animated underline */}
@@ -1681,13 +1697,20 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 }}>
                   {perfume.name}
                 </p>
-                <p style={{
-                  fontSize: '13px', fontWeight: 700,
-                  color: 'rgba(255,255,255,0.75)',
-                  fontFamily: "'Satoshi','Inter',sans-serif",
-                }}>
-                  {formatPrice(perfume.price)}
-                </p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <p style={{
+                    fontSize: '13px', fontWeight: 800, letterSpacing: '-0.02em',
+                    color: 'rgba(255,255,255,0.88)',
+                    fontFamily: "'Satoshi','Inter',sans-serif",
+                  }}>
+                    {formatPrice(perfume.price)}
+                  </p>
+                  <div style={{ display: 'flex', gap: '1px' }}>
+                    {[1,2,3,4,5].map(s => (
+                      <div key={s} style={{ width: '5px', height: '5px', borderRadius: '50%', background: s <= Math.round(perfume.rating) ? '#C9B037' : 'rgba(255,255,255,0.15)' }} />
+                    ))}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -1759,10 +1782,10 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                     <Heart className={`w-4 h-4 ${isFavorite(String(perfume.id)) ? 'fill-white text-white' : 'text-white'}`} />
                   </button>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
                   <p style={{
-                    fontSize: '14px', fontWeight: 700,
-                    color: 'rgba(255,255,255,0.8)',
+                    fontSize: '15px', fontWeight: 800, letterSpacing: '-0.02em',
+                    color: 'rgba(255,255,255,0.92)',
                     fontFamily: "'Satoshi','Inter',sans-serif",
                   }}>
                     {formatPrice(perfume.price)}
@@ -1776,6 +1799,20 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                       {formatPrice(perfume.oldPrice)}
                     </p>
                   )}
+                </div>
+                {/* Star rating */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <div style={{ display: 'flex', gap: '1.5px' }}>
+                    {[1,2,3,4,5].map(s => (
+                      <Star key={s} style={{ width: '9px', height: '9px' }}
+                        fill={s <= Math.round(perfume.rating) ? '#C9B037' : 'transparent'}
+                        stroke={s <= Math.round(perfume.rating) ? '#C9B037' : 'rgba(255,255,255,0.2)'}
+                      />
+                    ))}
+                  </div>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontFamily: "'Satoshi','Inter',sans-serif", fontWeight: 600 }}>
+                    {perfume.rating}
+                  </span>
                 </div>
               </div>
             ))}
@@ -1895,23 +1932,27 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           {/* Category chips */}
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {categories.map((cat) => {
-              const catColor = cat !== 'Все' ? (categoryConfig[cat]?.color ?? '#C9B037') : '#C9B037';
+              const cfg = cat !== 'Все' ? categoryConfig[cat] : null;
+              const catColor = cfg?.color ?? '#C9B037';
+              const CatIcon = cfg?.icon ?? null;
               const active = selectedCategory === cat;
               return (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className="flex-shrink-0 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all active:scale-95"
+                  className="flex-shrink-0 rounded-full whitespace-nowrap transition-all active:scale-95 flex items-center gap-1.5"
                   style={{
-                    background: active ? catColor : 'rgba(255,255,255,0.06)',
-                    color: active ? '#000' : 'rgba(255,255,255,0.6)',
-                    border: active ? 'none' : `0.5px solid ${cat !== 'Все' ? `${catColor}30` : 'rgba(255,255,255,0.1)'}`,
-                    fontSize: '11px', fontWeight: active ? 700 : 500,
+                    padding: '7px 13px',
+                    background: active ? catColor : `${catColor}18`,
+                    color: active ? '#000' : 'rgba(255,255,255,0.75)',
+                    border: active ? 'none' : `0.5px solid ${cat !== 'Все' ? `${catColor}35` : 'rgba(255,255,255,0.1)'}`,
+                    fontSize: '11px', fontWeight: active ? 700 : 600,
                     letterSpacing: '0.04em', fontFamily: "'Satoshi','Inter',sans-serif",
                   }}
                   aria-pressed={active}
                   data-testid={`button-filter-${cat.toLowerCase()}`}
                 >
+                  {CatIcon && <CatIcon style={{ width: '11px', height: '11px', color: active ? '#000' : catColor }} />}
                   {cat}
                 </button>
               );
@@ -2290,16 +2331,25 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   /* ─── CART ─── */
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-32 smooth-scroll-page">
-        <div className="px-5 pt-5 pb-4">
-          <h1 style={{
-            fontSize: '24px', fontWeight: 300, fontStyle: 'italic',
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-          }}>
-            Корзина
-          </h1>
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-52 smooth-scroll-page">
+        {/* ── Header ── */}
+        <div className="px-5 pt-6 pb-5" style={{ borderBottom: '0.5px solid rgba(255,255,255,0.07)' }}>
+          <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.32em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: '4px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+            FRAGRANCE ROYALE
+          </p>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+            <h1 style={{ fontSize: '32px', fontWeight: 300, fontStyle: 'italic', lineHeight: 1, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+              Корзина
+            </h1>
+            {cartCount > 0 && (
+              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.38)', fontFamily: "'Satoshi','Inter',sans-serif", fontWeight: 400 }}>
+                — {cartCount} {cartCount === 1 ? 'аромат' : cartCount < 5 ? 'аромата' : 'ароматов'}
+              </span>
+            )}
+          </div>
         </div>
-        <div className="px-5">
+
+        <div className="px-5 pt-4">
           {cart.length === 0 ? (
             <EmptyState
               type="cart"
@@ -2309,48 +2359,139 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               onAction={() => onTabChange?.('catalog')}
             />
           ) : (
-            <div className="space-y-4">
-              {cart.map((item) => (
-                <div
-                  key={`${item.id}-${item.size}-${item.color}`}
-                  className="flex gap-4 p-4 rounded-2xl"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.08)' }}
-                  data-testid={`cart-item-${item.id}`}
-                >
-                  <img src={item.image} alt={item.name} className="w-20 h-20 rounded-xl object-cover" loading="lazy" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-1" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>{item.name}</h3>
-                    <p className="text-sm mb-2" style={{ color: 'rgba(255,255,255,0.5)' }}>{item.color} · {item.size}</p>
-                    <p className="text-base font-bold" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>{formatPrice(item.price)}</p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <button onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.1)' }} aria-label="Уменьшить" data-testid={`button-decrease-${item.id}`}><Minus className="w-3.5 h-3.5" /></button>
-                      <span className="font-semibold min-w-[20px] text-center">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.1)' }} aria-label="Увеличить" data-testid={`button-increase-${item.id}`}><Plus className="w-3.5 h-3.5" /></button>
-                    </div>
-                  </div>
-                  <button onClick={() => removeFromCart(item.id, item.size, item.color)} className="w-9 h-9 flex items-center justify-center self-start" aria-label="Удалить" data-testid={`button-remove-${item.id}`}>
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
+            <>
+              {/* ── Cart items ── */}
+              <div className="space-y-3">
+                <AnimatePresence>
+                  {cart.map((item) => {
+                    const perfumeRef = perfumes.find(p => String(p.id) === item.id);
+                    const catColor = perfumeRef ? (categoryConfig[perfumeRef.category]?.color ?? '#C9B037') : '#C9B037';
+                    return (
+                      <m.div
+                        key={`${item.id}-${item.size}-${item.color}`}
+                        layout
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -24, scale: 0.97 }}
+                        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '14px', display: 'flex', gap: '14px' }}
+                        data-testid={`cart-item-${item.id}`}
+                      >
+                        {/* Image with category dot */}
+                        <div style={{ position: 'relative', flexShrink: 0 }}>
+                          <img src={item.image} alt={item.name} style={{ width: '76px', height: '76px', borderRadius: '14px', objectFit: 'cover', display: 'block' }} loading="lazy" />
+                          <div style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '12px', height: '12px', borderRadius: '50%', background: catColor, border: '2px solid var(--theme-background)' }} />
+                        </div>
 
-              <div className="fixed bottom-24 left-0 right-0 px-5 py-4" style={{ background: 'linear-gradient(0deg, var(--theme-background) 70%, transparent 100%)' }}>
-                <div className="flex items-center justify-between mb-4">
-                  <span style={{ fontFamily: "'Satoshi','Inter',sans-serif", fontWeight: 600 }}>Итого:</span>
-                  <span style={{ fontSize: '22px', fontWeight: 800, fontFamily: "'Satoshi','Inter',sans-serif" }}>{formatPrice(cartTotal)}</span>
-                </div>
-                <button
-                  onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full py-4 rounded-[18px] font-bold transition-all active:scale-[0.98]"
-                  style={{ background: '#C9B037', color: '#000', fontSize: '15px', fontFamily: "'Satoshi','Inter',sans-serif" }}
-                  data-testid="button-checkout"
-                >
-                  Оформить заказ
-                </button>
+                        {/* Info */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          {perfumeRef && (
+                            <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.38)', textTransform: 'uppercase', marginBottom: '2px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                              {perfumeRef.brand}
+                            </p>
+                          )}
+                          <p style={{ fontSize: '16px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", lineHeight: 1.2, marginBottom: '3px', color: 'rgba(255,255,255,0.95)' }}>
+                            {item.name}
+                          </p>
+                          <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '10px' }}>
+                            {item.color}{item.size ? ` · ${item.size}` : ''}
+                          </p>
+
+                          {/* Price + Qty row */}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <p style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.025em', fontFamily: "'Satoshi','Inter',sans-serif", color: 'rgba(255,255,255,0.97)' }}>
+                              {formatPrice(item.price * item.quantity)}
+                            </p>
+                            {/* Quantity stepper */}
+                            <div style={{ display: 'flex', alignItems: 'center', borderRadius: '22px', overflow: 'hidden', border: '0.5px solid rgba(255,255,255,0.12)' }}>
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
+                                style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.06)' }}
+                                aria-label="Уменьшить" data-testid={`button-decrease-${item.id}`}
+                              >
+                                <Minus style={{ width: '12px', height: '12px' }} />
+                              </button>
+                              <span style={{ minWidth: '26px', textAlign: 'center', fontSize: '14px', fontWeight: 700, fontFamily: "'Satoshi','Inter',sans-serif", color: 'rgba(255,255,255,0.9)' }}>
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                                style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.06)' }}
+                                aria-label="Увеличить" data-testid={`button-increase-${item.id}`}
+                              >
+                                <Plus style={{ width: '12px', height: '12px' }} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Remove */}
+                        <button
+                          onClick={() => removeFromCart(item.id, item.size, item.color)}
+                          style={{ width: '30px', height: '30px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', alignSelf: 'flex-start' }}
+                          aria-label="Удалить" data-testid={`button-remove-${item.id}`}
+                        >
+                          <X style={{ width: '13px', height: '13px', color: 'rgba(255,255,255,0.4)' }} />
+                        </button>
+                      </m.div>
+                    );
+                  })}
+                </AnimatePresence>
               </div>
-            </div>
+
+              {/* ── Order summary card ── */}
+              <div style={{ marginTop: '16px', padding: '20px', borderRadius: '20px', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
+                <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '16px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                  Состав заказа
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      Товары ({cartCount})
+                    </span>
+                    <span style={{ fontSize: '14px', fontWeight: 600, fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      {formatPrice(cartTotal)}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontFamily: "'Satoshi','Inter',sans-serif" }}>Доставка</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#34D399', fontFamily: "'Satoshi','Inter',sans-serif" }}>Бесплатно</span>
+                  </div>
+                  <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <span style={{ fontSize: '15px', fontWeight: 700, letterSpacing: '-0.01em', fontFamily: "'Satoshi','Inter',sans-serif" }}>Итого</span>
+                    <span style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.03em', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      {formatPrice(cartTotal)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </>
           )}
         </div>
+
+        {/* ── Fixed checkout CTA ── */}
+        {cart.length > 0 && (
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 20px 40px', background: 'linear-gradient(0deg, var(--theme-background) 55%, transparent 100%)' }}>
+            <button
+              onClick={() => setIsCheckoutOpen(true)}
+              className="w-full rounded-[18px] font-black transition-all active:scale-[0.97]"
+              style={{
+                background: 'linear-gradient(135deg, #D4BC3E 0%, #C9B037 50%, #B8A02E 100%)',
+                color: '#000', fontSize: '15px', fontFamily: "'Satoshi','Inter',sans-serif",
+                letterSpacing: '-0.01em', padding: '16px 20px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px',
+                boxShadow: '0 8px 32px rgba(201,176,55,0.25)',
+              }}
+              data-testid="button-checkout"
+            >
+              <span>Оформить заказ</span>
+              <span style={{ opacity: 0.55 }}>·</span>
+              <span>{formatPrice(cartTotal)}</span>
+            </button>
+          </div>
+        )}
+
         <CheckoutDrawer
           isOpen={isCheckoutOpen}
           onClose={() => setIsCheckoutOpen(false)}
@@ -2366,63 +2507,152 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
   /* ─── PROFILE ─── */
   if (activeTab === 'profile') {
+    const totalSpent = orders.reduce((acc, o) => acc + o.total, 0);
+    const tier = totalSpent >= 100000 ? 'ROYALE PLATINUM' : totalSpent >= 30000 ? 'ROYALE GOLD' : 'ROYALE MEMBER';
+    const tierColor = totalSpent >= 100000 ? '#E8E8E8' : '#C9B037';
+    const statusLabel: Record<string, string> = { pending: 'Обработка', confirmed: 'Подтверждён', processing: 'В пути', shipped: 'Доставляется', delivered: 'Доставлен' };
+    const statusColor: Record<string, string> = { pending: 'rgba(255,255,255,0.35)', confirmed: '#60A5FA', processing: '#F97316', shipped: '#F59E0B', delivered: '#34D399' };
+
     return (
       <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
-        <div className="px-5 pt-8 pb-6" style={{ borderBottom: '0.5px solid rgba(255,255,255,0.07)' }}>
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #C9B037 0%, #A8922A 100%)' }}>
-              <User className="w-8 h-8 text-black" />
+
+        {/* ── Hero section ── */}
+        <div style={{ position: 'relative', overflow: 'hidden', padding: '36px 20px 28px' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(201,176,55,0.07) 0%, transparent 55%), linear-gradient(225deg, rgba(201,176,55,0.04) 0%, transparent 50%)' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '0.5px', background: 'linear-gradient(90deg, transparent, rgba(201,176,55,0.4), transparent)' }} />
+
+          {/* Avatar + name */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ position: 'relative' }}>
+              <div style={{
+                width: '72px', height: '72px', borderRadius: '50%',
+                background: 'linear-gradient(135deg, #C9B037 0%, #8A7420 100%)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 0 3px rgba(201,176,55,0.2), 0 0 0 6px rgba(201,176,55,0.07)',
+              }}>
+                <span style={{ fontSize: '22px', fontWeight: 800, color: '#000', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '-0.03em' }}>АС</span>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-bold" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>Анна Смирнова</h2>
-              <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>+7 (999) 888-77-66</p>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '2px' }}>
+                Анна Смирнова
+              </h2>
+              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '10px' }}>
+                +7 (999) 888-77-66
+              </p>
+              {/* Membership tier badge */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', borderRadius: '20px', background: `${tierColor}15`, border: `0.5px solid ${tierColor}35` }}>
+                <Sparkles style={{ width: '9px', height: '9px', color: tierColor }} />
+                <span style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.22em', color: tierColor, fontFamily: "'Satoshi','Inter',sans-serif", textTransform: 'uppercase' }}>
+                  {tier}
+                </span>
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            {[{ label: 'Заказы', val: ordersCount }, { label: 'Избранное', val: favoritesCount }].map((item) => (
-              <div key={item.label} className="p-4 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
-                <p className="text-sm mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>{item.label}</p>
-                <p className="text-2xl font-bold" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>{item.val}</p>
+
+          {/* Stats 3-col */}
+          <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+            {[
+              { label: 'Заказы', value: String(ordersCount) },
+              { label: 'Избранное', value: String(favoritesCount) },
+              { label: 'Потрачено', value: totalSpent > 0 ? `${Math.round(totalSpent / 1000)}К` : '0' },
+            ].map((stat) => (
+              <div key={stat.label} style={{ padding: '14px 10px', borderRadius: '16px', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                <p style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.03em', fontFamily: "'Satoshi','Inter',sans-serif", color: '#C9B037', lineHeight: 1, marginBottom: '5px' }}>
+                  {stat.value}
+                </p>
+                <p style={{ fontSize: '9px', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                  {stat.label}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="px-4 pt-4 space-y-2">
+        <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.07)', margin: '0 20px' }} />
+
+        {/* ── Recent orders ── */}
+        {orders.length > 0 && (
+          <div style={{ padding: '20px 20px 4px' }}>
+            <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '12px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+              Последние заказы
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {orders.slice(0, 3).map((order) => {
+                const st = order.status ?? 'delivered';
+                return (
+                  <div key={order.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '16px', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(201,176,55,0.1)', border: '0.5px solid rgba(201,176,55,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Package style={{ width: '18px', height: '18px', color: '#C9B037' }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: '13px', fontWeight: 600, fontFamily: "'Satoshi','Inter',sans-serif", color: 'rgba(255,255,255,0.9)', marginBottom: '2px' }}>
+                        № {order.id.slice(-6).toUpperCase()}
+                      </p>
+                      <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                        {order.items.length} {order.items.length === 1 ? 'товар' : order.items.length < 5 ? 'товара' : 'товаров'} · {formatPrice(order.total)}
+                      </p>
+                    </div>
+                    <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 9px', borderRadius: '20px', background: `${statusColor[st]}18`, color: statusColor[st], fontFamily: "'Satoshi','Inter',sans-serif", flexShrink: 0 }}>
+                      {statusLabel[st] ?? 'Доставлен'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── Menu ── */}
+        <div style={{ padding: orders.length > 0 ? '12px 20px 0' : '20px 20px 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {[
-            { icon: <Heart className="w-5 h-5" />, label: 'Избранное', testId: 'button-favorites' },
-            { icon: <MapPin className="w-5 h-5" />, label: 'Адреса доставки', testId: 'button-addresses' },
-            { icon: <Package className="w-5 h-5" />, label: 'Мои заказы', testId: 'button-orders' },
-            { icon: <CreditCard className="w-5 h-5" />, label: 'Способы оплаты', testId: 'button-payment' },
-            { icon: <Settings className="w-5 h-5" />, label: 'Настройки', testId: 'button-settings' },
+            { icon: <Heart style={{ width: '18px', height: '18px' }} />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined, testId: 'button-favorites' },
+            { icon: <MapPin style={{ width: '18px', height: '18px' }} />, label: 'Адреса доставки', testId: 'button-addresses' },
+            { icon: <Package style={{ width: '18px', height: '18px' }} />, label: 'Мои заказы', badge: ordersCount > 0 ? String(ordersCount) : undefined, testId: 'button-orders' },
+            { icon: <CreditCard style={{ width: '18px', height: '18px' }} />, label: 'Способы оплаты', testId: 'button-payment' },
+            { icon: <Settings style={{ width: '18px', height: '18px' }} />, label: 'Настройки', testId: 'button-settings' },
           ].map((item) => (
             <button
               key={item.label}
-              className="w-full flex items-center justify-between p-4 rounded-2xl transition-all active:scale-[0.98]"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.07)' }}
+              className="w-full transition-all active:scale-[0.98]"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '18px', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.07)' }}
               aria-label={item.label}
               data-testid={item.testId}
             >
-              <div className="flex items-center gap-3" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                {item.icon}
-                <span style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.85)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.5)' }}>
+                  {item.icon}
+                </div>
+                <span style={{ fontSize: '15px', fontWeight: 500, color: 'rgba(255,255,255,0.88)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
                   {item.label}
                 </span>
               </div>
-              <ChevronLeft className="w-4 h-4 rotate-180" style={{ color: 'rgba(255,255,255,0.2)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {item.badge && (
+                  <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '20px', background: 'rgba(201,176,55,0.15)', color: '#C9B037', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                    {item.badge}
+                  </span>
+                )}
+                <ChevronLeft style={{ width: '16px', height: '16px', color: 'rgba(255,255,255,0.2)', transform: 'rotate(180deg)' }} />
+              </div>
             </button>
           ))}
 
           <button
-            className="w-full flex items-center gap-3 p-4 rounded-2xl transition-all active:scale-[0.98] mt-2"
-            style={{ background: 'rgba(239,68,68,0.07)', border: '0.5px solid rgba(239,68,68,0.18)' }}
+            className="w-full transition-all active:scale-[0.98]"
+            style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px', borderRadius: '18px', background: 'rgba(239,68,68,0.06)', border: '0.5px solid rgba(239,68,68,0.15)' }}
             data-testid="button-logout"
           >
-            <LogOut className="w-5 h-5 text-red-400" />
-            <span className="text-sm font-medium text-red-400" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>Выйти</span>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LogOut style={{ width: '18px', height: '18px', color: 'rgba(239,68,68,0.8)' }} />
+            </div>
+            <span style={{ fontSize: '15px', fontWeight: 600, color: 'rgba(239,68,68,0.85)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+              Выйти из аккаунта
+            </span>
           </button>
         </div>
-        <div className="h-4" />
+
+        <div style={{ height: '20px' }} />
       </div>
     );
   }
