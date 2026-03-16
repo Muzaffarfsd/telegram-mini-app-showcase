@@ -244,14 +244,15 @@ const products: Product[] = [
 ];
 
 const categories = ['Все', 'Худи', 'Куртки', 'Пальто'];
-const genderFilters = ['All', 'Men', 'Woman', 'Children'];
+const genderFilters = ['Все', 'Мужское', 'Женское', 'Детское'];
+const genderMap: Record<string, string> = { 'Мужское': 'Men', 'Женское': 'Woman', 'Детское': 'Children' };
 
 function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Все');
-  const [selectedGender, setSelectedGender] = useState<string>('All');
+  const [selectedGender, setSelectedGender] = useState<string>('Все');
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -332,7 +333,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
       setSelectedProduct(null);
     }
     if (activeTab !== 'home') {
-      setSelectedGender('All');
+      setSelectedGender('Все');
     }
   }, [activeTab]);
 
@@ -340,7 +341,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
     
     if (activeTab === 'home') {
-      const genderMatch = selectedGender === 'All' || p.gender === selectedGender;
+      const genderMatch = selectedGender === 'Все' || p.gender === (genderMap[selectedGender] ?? selectedGender);
       return categoryMatch && genderMatch;
     }
     
@@ -697,57 +698,59 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)'
             }}
           >
-            {/* Product Title & Price */}
-            <div className="text-center pt-2">
-              <h2 
-                className="text-[22px] font-semibold mb-4 tracking-tight"
-                style={{ 
-                  color: 'rgba(255,255,255,0.95)',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                  letterSpacing: '-0.02em',
-                  lineHeight: 1.2,
-                  textRendering: 'optimizeLegibility',
-                  fontFeatureSettings: "'ss01'"
+            {/* Product Title & Price — left-aligned editorial */}
+            <div className="pt-2">
+              <p
+                className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-1"
+                style={{ color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi', 'Inter', sans-serif" }}
+              >
+                {selectedProduct.brand}
+              </p>
+              <h2
+                style={{
+                  fontSize: '26px',
+                  fontWeight: 700,
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.15,
+                  color: 'rgba(255,255,255,0.97)',
+                  marginBottom: '14px',
+                  fontFamily: "'Satoshi', 'Inter', sans-serif",
                 }}
               >
                 {selectedProduct.name}
               </h2>
-              <div className="flex items-center justify-center gap-2">
-                <p 
-                  className="text-[28px] font-bold tracking-tight"
-                  style={{ 
-                    color: 'rgba(255,255,255,0.98)',
-                    fontFeatureSettings: "'tnum'",
-                    letterSpacing: '-0.01em'
+              <div className="flex items-center gap-3 mb-1">
+                <p
+                  className="text-[30px] font-bold"
+                  style={{
+                    letterSpacing: '-0.03em',
+                    fontVariantNumeric: 'tabular-nums',
+                    fontFamily: "'Satoshi', 'Inter', sans-serif",
                   }}
                 >
                   {formatPrice(selectedProduct.price)}
                 </p>
                 {selectedProduct.oldPrice && (
-                  <p 
-                    className="text-lg line-through"
-                    style={{ 
-                      color: 'rgba(255,255,255,0.4)',
-                      fontFeatureSettings: "'tnum'",
-                      marginLeft: '8px'
-                    }}
+                  <p
+                    className="text-[18px] line-through"
+                    style={{ color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}
                   >
                     {formatPrice(selectedProduct.oldPrice)}
                   </p>
                 )}
               </div>
               {selectedProduct.oldPrice && (
-                <div 
-                  className="inline-block mt-3 px-3 py-1 rounded-full text-xs font-medium"
+                <div
+                  className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(52,199,89,0.3) 0%, rgba(52,199,89,0.15) 100%)',
-                    color: '#34C759',
-                    border: '0.5px solid rgba(52,199,89,0.4)',
-                    letterSpacing: '0.05em',
-                    textTransform: 'uppercase'
+                    background: 'rgba(var(--theme-primary-rgb, 205,255,56), 0.15)',
+                    color: 'var(--theme-primary)',
+                    border: '0.5px solid rgba(var(--theme-primary-rgb, 205,255,56), 0.35)',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
                   }}
                 >
-                  Скидка {Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100)}%
+                  −{Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100)}%
                 </div>
               )}
             </div>
@@ -1295,10 +1298,15 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
             {/* Center wordmark */}
             <div className="text-center">
-              <div className="text-[17px] font-black tracking-[0.18em] leading-none">RADIANCE</div>
               <div
-                className="text-[8px] font-light tracking-[0.35em] mt-0.5"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
+                className="text-[20px] font-black tracking-[0.2em] leading-none"
+                style={{ fontFamily: "'Satoshi', 'Inter', sans-serif" }}
+              >
+                RADIANCE
+              </div>
+              <div
+                className="text-[7.5px] font-light tracking-[0.38em] mt-0.5"
+                style={{ color: 'rgba(255,255,255,0.3)', fontFamily: "'Satoshi', 'Inter', sans-serif" }}
               >
                 FASHION STUDIO
               </div>
@@ -1505,10 +1513,16 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   Editorial
                 </p>
                 <h2
-                  className="text-[28px] font-black leading-none text-center"
-                  style={{ letterSpacing: '-0.04em' }}
+                  className="leading-none text-center"
+                  style={{
+                    fontSize: '34px',
+                    fontWeight: 300,
+                    letterSpacing: '0.08em',
+                    fontFamily: "'Cormorant Garamond', Georgia, serif",
+                    fontStyle: 'italic',
+                  }}
                 >
-                  THE EDIT
+                  The Edit
                 </h2>
               </div>
             </div>
@@ -1629,14 +1643,11 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); openProduct(filteredProducts[0]); }}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold text-black active:scale-95 transition-all"
-                    style={{ background: 'var(--theme-primary)' }}
+                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[12px] font-black text-black active:scale-95 transition-all"
+                    style={{ background: 'var(--theme-primary)', letterSpacing: '0.03em' }}
                     data-testid={`button-add-to-cart-${filteredProducts[0].id}`}
                   >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-                      {formatPrice(filteredProducts[0].price)}
-                    </span>
+                    Открыть →
                   </button>
                 </div>
               </div>
@@ -1660,10 +1671,16 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               </p>
             </div>
             <h2
-              className="text-[28px] font-black leading-none"
-              style={{ letterSpacing: '-0.04em' }}
+              className="leading-none"
+              style={{
+                fontSize: '34px',
+                fontWeight: 300,
+                letterSpacing: '0.06em',
+                fontFamily: "'Cormorant Garamond', Georgia, serif",
+                fontStyle: 'italic',
+              }}
             >
-              JUST DROPPED
+              Just Dropped
             </h2>
           </div>
 
@@ -1771,10 +1788,16 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   Актуальные образы
                 </p>
                 <h2
-                  className="text-[28px] font-black leading-none"
-                  style={{ letterSpacing: '-0.04em' }}
+                  className="leading-none text-center"
+                  style={{
+                    fontSize: '34px',
+                    fontWeight: 300,
+                    letterSpacing: '0.08em',
+                    fontFamily: "'Cormorant Garamond', Georgia, serif",
+                    fontStyle: 'italic',
+                  }}
                 >
-                  LOOKBOOK
+                  Lookbook
                 </h2>
               </div>
               <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
@@ -2041,10 +2064,16 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 RADIANCE
               </p>
               <h1
-                className="text-[26px] font-black leading-none"
-                style={{ letterSpacing: '-0.04em' }}
+                className="leading-none"
+                style={{
+                  fontSize: '30px',
+                  fontWeight: 300,
+                  letterSpacing: '0.06em',
+                  fontFamily: "'Cormorant Garamond', Georgia, serif",
+                  fontStyle: 'italic',
+                }}
               >
-                КАТАЛОГ
+                Каталог
               </h1>
             </div>
             <div className="flex items-center gap-2">
@@ -2073,13 +2102,16 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className="flex-shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all active:scale-95"
+                className="flex-shrink-0 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all active:scale-95"
                 style={{
                   background:
-                    selectedCategory === cat ? 'var(--theme-primary)' : 'rgba(255,255,255,0.08)',
-                  color: selectedCategory === cat ? '#000' : 'rgba(255,255,255,0.65)',
-                  border: selectedCategory === cat ? 'none' : '0.5px solid rgba(255,255,255,0.12)',
-                  letterSpacing: '0.02em',
+                    selectedCategory === cat ? 'var(--theme-primary)' : 'rgba(255,255,255,0.07)',
+                  color: selectedCategory === cat ? '#000' : 'rgba(255,255,255,0.6)',
+                  border: selectedCategory === cat ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
+                  fontSize: '11px',
+                  fontWeight: selectedCategory === cat ? 700 : 500,
+                  letterSpacing: '0.04em',
+                  fontFamily: "'Satoshi', 'Inter', sans-serif",
                 }}
                 data-testid={`button-filter-${cat.toLowerCase()}`}
               >
@@ -2530,10 +2562,16 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </p>
           <div className="flex items-center justify-between">
             <h1
-              className="text-[26px] font-black leading-none"
-              style={{ letterSpacing: '-0.04em' }}
+              className="leading-none"
+              style={{
+                fontSize: '30px',
+                fontWeight: 300,
+                letterSpacing: '0.06em',
+                fontFamily: "'Cormorant Garamond', Georgia, serif",
+                fontStyle: 'italic',
+              }}
             >
-              МОЯ КОРЗИНА
+              Корзина
             </h1>
             {cart.length > 0 && (
               <span
@@ -2757,10 +2795,16 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             RADIANCE
           </p>
           <h1
-            className="text-[26px] font-black leading-none"
-            style={{ letterSpacing: '-0.04em' }}
+            className="leading-none"
+            style={{
+              fontSize: '30px',
+              fontWeight: 300,
+              letterSpacing: '0.06em',
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontStyle: 'italic',
+            }}
           >
-            ПРОФИЛЬ
+            Профиль
           </h1>
         </div>
 
