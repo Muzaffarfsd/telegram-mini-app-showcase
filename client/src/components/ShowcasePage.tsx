@@ -1,10 +1,9 @@
-import { ArrowUpRight, ChevronRight } from "lucide-react";
+import { ArrowUpRight, ChevronRight, Zap, CreditCard, Bot, BarChart3, Palette, Pause, Play } from "lucide-react";
 import { useCallback, useState, useEffect, useRef, useMemo } from "react";
 import { m, AnimatePresence, useInView, useScroll, useTransform } from '@/utils/LazyMotionProvider';
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
 import { useViewedDemos } from '../hooks/useTelegramStorage';
-
 import { useLanguage } from '../contexts/LanguageContext';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from './PullToRefreshIndicator';
@@ -17,39 +16,43 @@ interface ShowcasePageProps {
   onOpenDemo: (demoId: string) => void;
 }
 
-/* ─────────── Design System ─────────── */
 const SYNE = '"Syne", system-ui, sans-serif';
 const INSTRUMENT = '"Instrument Serif", Georgia, serif';
 const INTER = '"Inter", -apple-system, system-ui, sans-serif';
 const EMERALD = '#34d399';
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+function useReducedMotion() {
+  const [rm, setRm] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setRm(mq.matches);
+    const h = (e: MediaQueryListEvent) => setRm(e.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
+  return rm;
+}
 
-/* ─────────── Scroll-triggered reveal ─────────── */
-function Cin({ children, className = "", delay = 0 }: {
-  children: React.ReactNode; className?: string; delay?: number;
+function Cin({ children, className = "", delay = 0, rm = false }: {
+  children: React.ReactNode; className?: string; delay?: number; rm?: boolean;
 }) {
   const r = useRef(null);
-  const v = useInView(r, { once: true, margin: "-100px" });
-  const rm = prefersReducedMotion();
+  const v = useInView(r, { once: true, margin: "-80px" });
   return (
     <m.div ref={r}
-      initial={rm ? { opacity: 1 } : { opacity: 0, y: 50 }}
+      initial={rm ? { opacity: 1 } : { opacity: 0, y: 40 }}
       animate={v ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: rm ? 0 : 0.9, ease: EASE, delay: rm ? 0 : delay }}
+      transition={{ duration: rm ? 0 : 0.8, ease: EASE, delay: rm ? 0 : delay }}
       className={className}>
       {children}
     </m.div>
   );
 }
 
-/* ─────────── Animated counter ─────────── */
-function Ct({ to, suffix = "" }: { to: number; suffix?: string }) {
+function Ct({ to, suffix = "", rm = false }: { to: number; suffix?: string; rm?: boolean }) {
   const r = useRef(null);
   const v = useInView(r, { once: true });
-  const rm = prefersReducedMotion();
   const [n, setN] = useState(rm ? to : 0);
   useEffect(() => {
     if (!v || rm) { setN(to); return; }
@@ -67,21 +70,27 @@ function Ct({ to, suffix = "" }: { to: number; suffix?: string }) {
   return <span ref={r}>{n}{suffix}</span>;
 }
 
-/* ─────────── Rotating tagline words ─────────── */
 const TAG_WORDS = {
   ru: ["конкурентов", "рынка", "ожиданий", "привычного"],
   en: ["competition", "expectations", "the ordinary", "the status quo"],
 };
 
-/* ══════════════════════════════════════════════════ */
+const FEATURE_ICONS = {
+  launch: Zap,
+  payments: CreditCard,
+  ai: Bot,
+  analytics: BarChart3,
+  design: Palette,
+} as const;
 
 export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   useTelegram();
   const haptic = useHaptic();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const ru = language === 'ru';
   const { markAsViewed } = useViewedDemos();
   const queryClient = useQueryClient();
+  const reducedMotion = useReducedMotion();
 
   const words = ru ? TAG_WORDS.ru : TAG_WORDS.en;
   const [wi, setWi] = useState(0);
@@ -95,10 +104,10 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   });
 
   useEffect(() => {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    if (reducedMotion) return;
     const id = setInterval(() => setWi(i => (i + 1) % words.length), 2600);
     return () => clearInterval(id);
-  }, [words.length]);
+  }, [words.length, reducedMotion]);
 
   const openDemo = useCallback((id: string) => {
     haptic.light(); markAsViewed(id); onOpenDemo(id);
@@ -108,21 +117,36 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
     haptic.light(); onNavigate(s);
   }, [haptic, onNavigate]);
 
-  /* hero parallax */
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoWrapRef = useRef(null);
+  const videoInView = useInView(videoWrapRef, { once: true, margin: "200px" });
+  useEffect(() => {
+    if (videoInView && videoRef.current && !videoRef.current.src) {
+      videoRef.current.src = "/videos/hero-bg.mp4";
+      videoRef.current.load();
+    }
+  }, [videoInView]);
 
   const stackCards = useMemo(() => [
     { id: 'luxury-perfume', src: '/screenshots/fragrance-app.png', label: 'FragranceRoyale', sub: ru ? 'Премиальная парфюмерия' : 'Premium Fragrances', growth: '+310%' },
     { id: 'florist', src: '/screenshots/florist-app.png', label: 'Bloom', sub: ru ? 'Цветочный магазин' : 'Flower Shop', growth: '+240%' },
     { id: 'sneaker-store', src: nikeGreenImage, label: 'SneakerVault', sub: ru ? 'Культ кроссовок' : 'Sneaker culture', growth: '+280%' },
     { id: 'clothing-store', src: rascalImage, label: 'Radiance', sub: ru ? 'Уличная мода' : 'Street fashion', growth: '+195%' },
-    { id: 'luxury-watches', src: nikeGreenImage, label: 'TimeElite', sub: ru ? 'Роскошь на запястье' : 'Luxury on your wrist', growth: '+340%' },
   ], [ru]);
 
   const [stackIdx, setStackIdx] = useState(0);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const autoResumeRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    return () => clearTimeout(autoResumeRef.current);
+  }, []);
+
   const visibleCards = useMemo(() => {
     const result = [];
     for (let i = 0; i < 3; i++) {
@@ -131,68 +155,121 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
     return result;
   }, [stackIdx, stackCards]);
 
+  const pauseAutoPlay = useCallback(() => {
+    setAutoPlay(false);
+    clearTimeout(autoResumeRef.current);
+    autoResumeRef.current = setTimeout(() => setAutoPlay(true), 8000);
+  }, []);
+
   const handleStackNext = useCallback(() => {
     haptic.light();
     setStackIdx(i => (i + 1) % stackCards.length);
-  }, [haptic, stackCards.length]);
+    pauseAutoPlay();
+  }, [haptic, stackCards.length, pauseAutoPlay]);
+
+  const handleStackPrev = useCallback(() => {
+    haptic.light();
+    setStackIdx(i => (i - 1 + stackCards.length) % stackCards.length);
+    pauseAutoPlay();
+  }, [haptic, stackCards.length, pauseAutoPlay]);
+
+  useEffect(() => {
+    if (!autoPlay || reducedMotion) return;
+    const id = setInterval(() => {
+      setStackIdx(i => (i + 1) % stackCards.length);
+    }, 4500);
+    return () => clearInterval(id);
+  }, [autoPlay, stackCards.length, reducedMotion]);
+
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const swiping = useRef(false);
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    swiping.current = false;
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    const dx = e.touches[0].clientX - touchStartX.current;
+    const dy = e.touches[0].clientY - touchStartY.current;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+      swiping.current = true;
+    }
+  }, []);
+
+  const onTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!swiping.current) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 50) {
+      if (dx < 0) handleStackNext();
+      else handleStackPrev();
+    }
+  }, [handleStackNext, handleStackPrev]);
+
+  const currentCardIdx = stackIdx % stackCards.length;
 
   return (
     <div className="min-h-screen select-none overflow-x-hidden showcase-page" style={{ backgroundColor: '#050505' }}>
+      <div className="fixed inset-0 pointer-events-none z-[2]" aria-hidden="true" style={{ mixBlendMode: 'overlay' }}>
+        <svg width="100%" height="100%" style={{ opacity: 0.04 }}>
+          <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" /></filter>
+          <rect width="100%" height="100%" filter="url(#grain)" />
+        </svg>
+      </div>
+
       <div className="relative z-10">
         <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} shouldShow={shouldShowIndicator} progress={progress} />
 
         <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
 
-          {/* ═══════ HERO — full-screen cinematic ═══════ */}
           <header ref={heroRef} className="relative px-6 pt-16 pb-16 overflow-hidden" role="banner">
-
-            {/* Background video layer */}
-            <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 z-0" ref={videoWrapRef}>
               <video
-                src="/videos/hero-bg.mp4"
+                ref={videoRef}
                 autoPlay loop muted playsInline
+                preload="none"
                 className="w-full h-full object-cover"
-                style={{ opacity: 0.15, filter: 'saturate(0.4) contrast(1.2)' }}
+                style={{ opacity: 0.18, filter: 'saturate(0.35) contrast(1.15)' }}
               />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, #050505 0%, transparent 25%, transparent 65%, #050505 100%)' }} />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, #050505 0%, transparent 30%, transparent 60%, #050505 100%)' }} />
             </div>
 
-            <m.div className="relative z-10" style={{ y: heroY, opacity: heroOpacity }}>
+            <m.div className="relative z-10" style={{ y: reducedMotion ? 0 : heroY, opacity: reducedMotion ? 1 : heroOpacity }}>
 
-              {/* Small eyebrow */}
               <m.div
-                initial={{ opacity: 0, x: -20 }}
+                initial={reducedMotion ? { opacity: 1 } : { opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.3 }}
-                className="mb-6"
+                transition={{ duration: reducedMotion ? 0 : 0.7, ease: EASE, delay: reducedMotion ? 0 : 0.3 }}
+                className="mb-6 flex items-center gap-2"
               >
+                <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: EMERALD, boxShadow: `0 0 6px ${EMERALD}` }} />
                 <span style={{
                   fontFamily: INTER, fontSize: 'clamp(0.55rem, 1.2vw, 0.65rem)',
-                  fontWeight: 600, letterSpacing: '0.25em', textTransform: 'uppercase' as const,
-                  color: EMERALD, opacity: 0.9
+                  fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const,
+                  color: 'rgba(255,255,255,0.5)',
                 }}>
-                  WEB4TG Studio
+                  {ru ? '22 приложения запущено' : '22 apps launched'}
                 </span>
               </m.div>
 
-              {/* Cinematic headline — each word on its own line */}
               <m.h1
-                initial={{ opacity: 0 }}
+                initial={reducedMotion ? { opacity: 1 } : { opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
+                transition={{ duration: reducedMotion ? 0 : 0.5, delay: reducedMotion ? 0 : 0.4 }}
                 style={{ fontFamily: SYNE, lineHeight: 0.92, letterSpacing: '-0.06em' }}
               >
                 <m.span
                   className="block"
-                  initial={{ opacity: 0, y: 60, filter: 'blur(12px)' }}
+                  initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 60, filter: 'blur(12px)' }}
                   animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                  transition={{ duration: 0.8, ease: EASE, delay: 0.5 }}
+                  transition={{ duration: reducedMotion ? 0 : 0.8, ease: EASE, delay: reducedMotion ? 0 : 0.5 }}
                   style={{ fontSize: 'clamp(3.2rem, 12vw, 5rem)', fontWeight: 800, color: '#fff' }}
                 >
                   {ru ? 'Впереди' : 'Beyond'}
                 </m.span>
 
-                {/* rotating word */}
                 <span className="block overflow-hidden" style={{ height: 'clamp(3.5rem, 13vw, 5.5rem)' }}>
                   <AnimatePresence mode="wait">
                     <m.span
@@ -204,8 +281,8 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                       transition={{ duration: 0.55, ease: EASE }}
                       style={{
                         fontSize: 'clamp(3.2rem, 12vw, 5rem)', fontWeight: 800,
-                        fontFamily: INSTRUMENT, fontStyle: 'italic',
-                        background: `linear-gradient(135deg, ${EMERALD}, #a7f3d0)`,
+                        fontFamily: SYNE,
+                        background: `linear-gradient(135deg, ${EMERALD}, #6ee7b7)`,
                         WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                       }}
                     >
@@ -215,11 +292,10 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 </span>
               </m.h1>
 
-              {/* Subtitle */}
               <m.p
-                initial={{ opacity: 0, y: 20 }}
+                initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.9 }}
+                transition={{ duration: reducedMotion ? 0 : 0.7, ease: EASE, delay: reducedMotion ? 0 : 0.9 }}
                 className="mt-7 max-w-xs"
                 style={{
                   fontFamily: INTER, fontSize: 'clamp(0.8rem, 2vw, 0.9375rem)',
@@ -231,20 +307,16 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   : 'We build Telegram mini apps that sell. Zero marketplace fees. Ready in 24 hours.'}
               </m.p>
 
-              {/* CTA */}
               <m.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: EASE, delay: 1.1 }}
+                transition={{ duration: reducedMotion ? 0 : 0.6, ease: EASE, delay: reducedMotion ? 0 : 1.1 }}
                 className="mt-8 flex items-center gap-4"
               >
                 <button
                   onClick={() => nav('projects')}
                   className="group flex items-center gap-2.5 rounded-full px-6 transition-all duration-500 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
-                  style={{
-                    height: 50, background: '#fff',
-                    boxShadow: '0 0 0 0 rgba(255,255,255,0)',
-                  }}
+                  style={{ height: 50, background: '#fff', boxShadow: '0 0 0 0 rgba(255,255,255,0)' }}
                   onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 40px rgba(255,255,255,0.15)'; }}
                   onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 0 0 0 rgba(255,255,255,0)'; }}
                 >
@@ -256,14 +328,13 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
                 <button
                   onClick={() => openDemo('clothing-store')}
-                  className="flex items-center gap-2 transition-opacity duration-300 active:opacity-60"
+                  className="flex items-center gap-2 transition-opacity duration-300 active:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/40 focus-visible:outline-offset-2 rounded"
                   aria-label={ru ? 'Посмотреть демо' : 'View demo'}
                 >
                   <span style={{
                     fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8125rem)',
                     fontWeight: 500, color: 'rgba(255,255,255,0.5)',
-                    borderBottom: '1px solid rgba(255,255,255,0.15)',
-                    paddingBottom: 2,
+                    borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: 2,
                   }}>
                     {ru ? 'Демо' : 'Demo'}
                   </span>
@@ -272,10 +343,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </m.div>
           </header>
 
-          {/* ═══════ MARQUEE — horizontal ticker ═══════ */}
           <div className="py-5 overflow-hidden" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
             <m.div
-              animate={prefersReducedMotion() ? {} : { x: ['0%', '-50%'] }}
+              animate={reducedMotion ? {} : { x: ['0%', '-50%'] }}
               transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
               className="flex items-center gap-6 whitespace-nowrap"
               style={{ width: 'max-content' }}
@@ -300,7 +370,53 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </m.div>
           </div>
 
-          {/* ═══════ REEL — animated card stack ═══════ */}
+          <Cin>
+            <div className="px-6 py-6 flex items-center justify-center gap-6" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+              {[
+                { n: '22', l: ru ? 'приложения' : 'apps' },
+                { n: '5', l: ru ? 'индустрий' : 'industries' },
+                { n: '2024', l: ru ? 'с года' : 'since' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-1.5">
+                  <span style={{ fontFamily: SYNE, fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{item.n}</span>
+                  <span style={{ fontFamily: INTER, fontSize: 'clamp(0.55rem, 1.2vw, 0.65rem)', color: 'rgba(255,255,255,0.5)' }}>{item.l}</span>
+                  {i < 2 && <span className="ml-4 inline-block" style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />}
+                </div>
+              ))}
+            </div>
+          </Cin>
+
+          <section className="px-6 py-20" aria-label={ru ? 'Метрики' : 'Metrics'}>
+            <div className="space-y-16">
+              {[
+                { num: 900, sfx: 'M+', title: ru ? 'пользователей Telegram' : 'Telegram users', desc: ru ? 'Ваш магазин — прямо у них в кармане' : 'Your store — right in their pocket' },
+                { num: 0, sfx: '%', title: ru ? 'комиссий' : 'commission', desc: ru ? 'Маркетплейсы забирают до 25%. Мы — ноль' : 'Marketplaces take up to 25%. We take zero' },
+                { num: 24, sfx: ru ? 'ч' : 'h', title: ru ? 'до запуска' : 'to launch', desc: ru ? 'От идеи до первого заказа — один день' : 'From idea to first order — one day' },
+              ].map((metric, i) => (
+                <Cin key={i} delay={i * 0.06}>
+                  <div>
+                    <div style={{
+                      fontFamily: SYNE, fontSize: 'clamp(4rem, 16vw, 7rem)',
+                      fontWeight: 800, lineHeight: 0.85, letterSpacing: '-0.06em',
+                      color: i === 0 ? '#fff' : 'transparent',
+                      WebkitTextStroke: i === 0 ? 'none' : '1.5px rgba(255,255,255,0.15)',
+                    }}>
+                      <Ct to={metric.num} suffix={metric.sfx} />
+                    </div>
+                    <div className="mt-3" style={{
+                      fontFamily: SYNE, fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                      fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '-0.02em',
+                    }}>{metric.title}</div>
+                    <div className="mt-1" style={{
+                      fontFamily: INSTRUMENT, fontSize: 'clamp(0.8rem, 2vw, 0.9375rem)',
+                      fontStyle: 'italic', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5,
+                    }}>{metric.desc}</div>
+                  </div>
+                </Cin>
+              ))}
+            </div>
+          </section>
+
           <section className="py-16 px-6" aria-label={ru ? 'Наши работы' : 'Our work'}>
             <Cin className="mb-6">
               <div className="flex items-end justify-between">
@@ -315,7 +431,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)',
                     color: 'rgba(255,255,255,0.45)',
                   }}>
-                    {ru ? 'Нажмите на карточку чтобы открыть' : 'Tap a card to explore'}
+                    {ru ? 'Свайпните или нажмите' : 'Swipe or tap to explore'}
                   </p>
                 </div>
                 <button onClick={() => nav('projects')} className="flex items-center gap-0.5 active:opacity-50 transition-opacity pb-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2 rounded">
@@ -329,7 +445,13 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
             <Cin delay={0.1}>
               <div className="relative" style={{ height: 420 }}>
-                <div className="relative w-full overflow-hidden" style={{ height: 380 }}>
+                <div
+                  className="relative w-full overflow-hidden touch-pan-y"
+                  style={{ height: 380 }}
+                  onTouchStart={onTouchStart}
+                  onTouchMove={onTouchMove}
+                  onTouchEnd={onTouchEnd}
+                >
                   <AnimatePresence initial={false}>
                     {visibleCards.map((card, index) => {
                       const scales = [1, 0.94, 0.88];
@@ -355,8 +477,6 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                             transform: 'translateX(-50%)',
                             width: '100%',
                             maxWidth: 400,
-                            marginLeft: 'auto',
-                            marginRight: 'auto',
                             x: '-50%',
                           }}
                           className="will-change-transform"
@@ -371,13 +491,10 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                             role="button"
                             tabIndex={index === 0 ? 0 : -1}
                             aria-label={`${ru ? 'Открыть' : 'Open'} ${card.label}`}
-                            onClick={() => {
-                              if (index === 0) openDemo(card.id);
-                            }}
+                            onClick={() => { if (index === 0) openDemo(card.id); }}
                             onKeyDown={e => {
                               if (index === 0 && (e.key === 'Enter' || e.key === ' ')) {
-                                e.preventDefault();
-                                openDemo(card.id);
+                                e.preventDefault(); openDemo(card.id);
                               }
                             }}
                           >
@@ -422,61 +539,52 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   </AnimatePresence>
                 </div>
 
-                <div className="relative z-10 flex items-center justify-center mt-3">
+                <div className="relative z-10 flex items-center justify-center gap-4 mt-3">
                   <button
                     onClick={handleStackNext}
                     className="flex items-center gap-1.5 rounded-full px-4 py-2 transition-all duration-300 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2"
-                    style={{
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                    }}
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
                     aria-label={ru ? 'Следующий проект' : 'Next project'}
                   >
-                    <span style={{
-                      fontFamily: SYNE, fontSize: '0.6875rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)',
-                    }}>
+                    <span style={{ fontFamily: SYNE, fontSize: '0.6875rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>
                       {ru ? 'Листать' : 'Next'}
                     </span>
                     <ChevronRight className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
                   </button>
+
+                  <button
+                    onClick={() => { setAutoPlay(p => !p); haptic.light(); }}
+                    className="flex items-center justify-center w-7 h-7 rounded-full transition-all duration-300 active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    aria-label={autoPlay ? (ru ? 'Остановить' : 'Pause') : (ru ? 'Воспроизвести' : 'Play')}
+                  >
+                    {autoPlay
+                      ? <Pause className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.5)' }} strokeWidth={2.5} />
+                      : <Play className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.5)' }} strokeWidth={2.5} />
+                    }
+                  </button>
+
+                  <div className="flex items-center gap-1.5" aria-label={ru ? 'Индикатор проектов' : 'Project indicator'}>
+                    {stackCards.map((card, i) => (
+                      <button
+                        key={card.id}
+                        onClick={() => { haptic.light(); setStackIdx(i); pauseAutoPlay(); }}
+                        className="transition-all duration-300 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50"
+                        style={{
+                          width: i === currentCardIdx ? 16 : 6,
+                          height: 6,
+                          background: i === currentCardIdx ? EMERALD : 'rgba(255,255,255,0.15)',
+                        }}
+                        aria-current={i === currentCardIdx ? 'true' : undefined}
+                        aria-label={card.label}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </Cin>
           </section>
 
-          {/* ═══════ BIG NUMBERS — cinematic metrics ═══════ */}
-          <section className="px-6 py-20" aria-label={ru ? 'Метрики' : 'Metrics'}>
-            <div className="space-y-16">
-              {[
-                { num: 900, sfx: 'M+', title: ru ? 'пользователей Telegram' : 'Telegram users', desc: ru ? 'Ваш магазин — прямо у них в кармане' : 'Your store — right in their pocket' },
-                { num: 0, sfx: '%', title: ru ? 'комиссий' : 'commission', desc: ru ? 'Маркетплейсы забирают до 25%. Мы — ноль' : 'Marketplaces take up to 25%. We take zero' },
-                { num: 24, sfx: ru ? 'ч' : 'h', title: ru ? 'до запуска' : 'to launch', desc: ru ? 'От идеи до первого заказа — один день' : 'From idea to first order — one day' },
-              ].map((m, i) => (
-                <Cin key={i} delay={i * 0.06}>
-                  <div>
-                    <div style={{
-                      fontFamily: SYNE, fontSize: 'clamp(4rem, 16vw, 7rem)',
-                      fontWeight: 800, lineHeight: 0.85, letterSpacing: '-0.06em',
-                      color: i === 0 ? '#fff' : 'transparent',
-                      WebkitTextStroke: i === 0 ? 'none' : '1.5px rgba(255,255,255,0.15)',
-                    }}>
-                      <Ct to={m.num} suffix={m.sfx} />
-                    </div>
-                    <div className="mt-3" style={{
-                      fontFamily: SYNE, fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
-                      fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '-0.02em',
-                    }}>{m.title}</div>
-                    <div className="mt-1" style={{
-                      fontFamily: INSTRUMENT, fontSize: 'clamp(0.8rem, 2vw, 0.9375rem)',
-                      fontStyle: 'italic', color: 'rgba(255,255,255,0.4)', lineHeight: 1.5,
-                    }}>{m.desc}</div>
-                  </div>
-                </Cin>
-              ))}
-            </div>
-          </section>
-
-          {/* ═══════ WHAT WE BUILD — visual grid ═══════ */}
           <section className="px-6 py-16" aria-label={ru ? 'Что мы создаём' : 'What we build'}>
             <Cin>
               <h2 className="mb-10" style={{
@@ -488,44 +596,103 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </Cin>
 
             <div className="grid grid-cols-2 gap-2.5">
-              {[
-                { emoji: '⚡', t: ru ? 'Запуск' : 'Launch', s: '24h', span: '' },
-                { emoji: '💳', t: ru ? 'Платежи' : 'Payments', s: 'Stripe · YooKassa', span: '' },
-                { emoji: '🤖', t: ru ? 'AI-агент' : 'AI Agent', s: ru ? 'Поддержка 24/7' : 'Support 24/7', span: 'col-span-2' },
-                { emoji: '📊', t: ru ? 'Аналитика' : 'Analytics', s: ru ? 'Реальное время' : 'Real-time', span: '' },
-                { emoji: '🎨', t: ru ? 'Дизайн' : 'Design', s: ru ? 'Уровень Apple' : 'Apple-level', span: '' },
-              ].map((f, i) => (
-                <Cin key={i} delay={i * 0.04} className={f.span}>
-                  <div
-                    className="rounded-2xl p-4 transition-all duration-500 group"
-                    style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.04)'; }}
-                  >
-                    <span className="text-xl transition-transform duration-300 inline-block group-hover:scale-125">{f.emoji}</span>
-                    <div className="mt-2" style={{
-                      fontFamily: SYNE, fontSize: 'clamp(0.8rem, 2vw, 0.9rem)',
-                      fontWeight: 700, color: '#fff', letterSpacing: '-0.02em',
-                    }}>{f.t}</div>
-                    <div className="mt-0.5" style={{
-                      fontFamily: INTER, fontSize: 'clamp(0.65rem, 1.4vw, 0.75rem)',
-                      color: 'rgba(255,255,255,0.45)',
-                    }}>{f.s}</div>
-                  </div>
-                </Cin>
-              ))}
+              {([
+                { icon: 'launch' as const, t: ru ? 'Запуск' : 'Launch', s: '24h', span: '' },
+                { icon: 'payments' as const, t: ru ? 'Платежи' : 'Payments', s: 'Stripe · YooKassa', span: '' },
+                { icon: 'ai' as const, t: ru ? 'AI-агент' : 'AI Agent', s: ru ? 'Поддержка 24/7' : 'Support 24/7', span: 'col-span-2' },
+                { icon: 'analytics' as const, t: ru ? 'Аналитика' : 'Analytics', s: ru ? 'Реальное время' : 'Real-time', span: '' },
+                { icon: 'design' as const, t: ru ? 'Дизайн' : 'Design', s: ru ? 'Уровень Apple' : 'Apple-level', span: '' },
+              ]).map((f, i) => {
+                const Icon = FEATURE_ICONS[f.icon];
+                return (
+                  <Cin key={i} delay={i * 0.04} className={f.span}>
+                    <div
+                      className="rounded-2xl p-4 transition-all duration-500 group"
+                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.04)'; }}
+                    >
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2.5 transition-transform duration-300 group-hover:scale-110"
+                        style={{ background: 'rgba(52,211,153,0.07)', border: '1px solid rgba(52,211,153,0.1)' }}>
+                        <Icon className="w-4 h-4" style={{ color: EMERALD }} strokeWidth={2} />
+                      </div>
+                      <div style={{
+                        fontFamily: SYNE, fontSize: 'clamp(0.8rem, 2vw, 0.9rem)',
+                        fontWeight: 700, color: '#fff', letterSpacing: '-0.02em',
+                      }}>{f.t}</div>
+                      <div className="mt-0.5" style={{
+                        fontFamily: INTER, fontSize: 'clamp(0.65rem, 1.4vw, 0.75rem)',
+                        color: 'rgba(255,255,255,0.45)',
+                      }}>{f.s}</div>
+                    </div>
+                  </Cin>
+                );
+              })}
             </div>
           </section>
 
-          {/* ═══════ SINGLE TESTIMONIAL — editorial ═══════ */}
-          <section className="px-6 py-20" aria-label={ru ? 'Отзыв' : 'Testimonial'}>
+          <section className="px-6 py-16" aria-label={ru ? 'Процесс' : 'Process'}>
             <Cin>
+              <h2 className="mb-10" style={{
+                fontFamily: SYNE, fontSize: 'clamp(0.65rem, 1.4vw, 0.75rem)',
+                fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase' as const,
+                color: 'rgba(255,255,255,0.45)',
+              }}>
+                {ru ? 'Три шага' : 'Three Steps'}
+              </h2>
+            </Cin>
+
+            {[
+              { n: '01', t: ru ? 'Бриф' : 'Brief', d: ru ? 'Выберите шаблон или расскажите идею. Мы начнём в тот же день.' : 'Pick a template or share your idea. We start the same day.' },
+              { n: '02', t: ru ? 'Сборка' : 'Build', d: ru ? 'Дизайн, фронтенд, бэкенд, платежи — всё за 24–48 часов.' : 'Design, frontend, backend, payments — all in 24–48 hours.' },
+              { n: '03', t: ru ? 'Запуск' : 'Launch', d: ru ? 'Деплой в Telegram. Аналитика подключена. Вы зарабатываете.' : 'Deploy to Telegram. Analytics connected. You earn.' },
+            ].map((s, i) => (
+              <Cin key={i} delay={i * 0.08}>
+                <div className="flex items-start gap-5 mb-9 last:mb-0">
+                  <span style={{
+                    fontFamily: SYNE, fontSize: 'clamp(2rem, 7vw, 3rem)',
+                    fontWeight: 800, lineHeight: 1, letterSpacing: '-0.05em',
+                    color: i === 2 ? EMERALD : 'rgba(255,255,255,0.08)',
+                  }}>{s.n}</span>
+                  <div className="pt-1.5">
+                    <h3 style={{
+                      fontFamily: SYNE, fontSize: 'clamp(0.95rem, 2.5vw, 1.125rem)',
+                      fontWeight: 700, color: '#fff', letterSpacing: '-0.03em',
+                    }}>{s.t}</h3>
+                    <p className="mt-1" style={{
+                      fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8125rem)',
+                      lineHeight: 1.65, color: 'rgba(255,255,255,0.45)',
+                    }}>{s.d}</p>
+                  </div>
+                </div>
+              </Cin>
+            ))}
+          </section>
+
+          <section className="px-6 py-20" aria-label={ru ? 'Отзывы' : 'Testimonials'}>
+            <Cin>
+              <div className="rounded-2xl p-6 mb-10" style={{ background: 'rgba(52,211,153,0.04)', border: '1px solid rgba(52,211,153,0.08)' }}>
+                <div className="flex items-baseline gap-2">
+                  <span style={{ fontFamily: SYNE, fontSize: 'clamp(2.5rem, 9vw, 3.5rem)', fontWeight: 800, color: EMERALD, letterSpacing: '-0.05em', lineHeight: 1 }}>
+                    +340%
+                  </span>
+                  <span style={{ fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)', color: 'rgba(255,255,255,0.5)' }}>
+                    {ru ? 'продаж за 30 дней' : 'sales in 30 days'}
+                  </span>
+                </div>
+                <p className="mt-2" style={{ fontFamily: INTER, fontSize: 'clamp(0.65rem, 1.3vw, 0.75rem)', color: 'rgba(255,255,255,0.5)' }}>
+                  {ru ? 'Средний результат наших клиентов после запуска в Telegram' : 'Average result for our clients after launching in Telegram'}
+                </p>
+              </div>
+            </Cin>
+
+            <Cin delay={0.1}>
               <div className="relative">
                 <span style={{
                   fontFamily: INSTRUMENT, fontSize: 'clamp(5rem, 18vw, 8rem)',
                   lineHeight: 0.7, color: 'rgba(52,211,153,0.08)', fontStyle: 'italic',
                   position: 'absolute', top: -24, left: -8, pointerEvents: 'none',
-                }}>"</span>
+                }} aria-hidden="true">"</span>
 
                 <blockquote className="relative z-10">
                   <p style={{
@@ -547,7 +714,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     <div style={{ fontFamily: SYNE, fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
                       {ru ? 'Александр М.' : 'Alexander M.'}
                     </div>
-                    <div style={{ fontFamily: INTER, fontSize: '0.6875rem', color: 'rgba(255,255,255,0.25)' }}>
+                    <div style={{ fontFamily: INTER, fontSize: '0.6875rem', color: 'rgba(255,255,255,0.5)' }}>
                       {ru ? 'Основатель TimeElite' : 'Founder, TimeElite'}
                     </div>
                   </div>
@@ -556,46 +723,6 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </Cin>
           </section>
 
-          {/* ═══════ PROCESS — minimal timeline ═══════ */}
-          <section className="px-6 py-16" aria-label={ru ? 'Процесс' : 'Process'}>
-            <Cin>
-              <h2 className="mb-10" style={{
-                fontFamily: SYNE, fontSize: 'clamp(0.6rem, 1.3vw, 0.7rem)',
-                fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const,
-                color: 'rgba(255,255,255,0.25)',
-              }}>
-                {ru ? 'Три шага' : 'Three Steps'}
-              </h2>
-            </Cin>
-
-            {[
-              { n: '01', t: ru ? 'Бриф' : 'Brief', d: ru ? 'Выберите шаблон или расскажите идею. Мы начнём в тот же день.' : 'Pick a template or share your idea. We start the same day.' },
-              { n: '02', t: ru ? 'Сборка' : 'Build', d: ru ? 'Дизайн, фронтенд, бэкенд, платежи — всё за 24–48 часов.' : 'Design, frontend, backend, payments — all in 24–48 hours.' },
-              { n: '03', t: ru ? 'Запуск' : 'Launch', d: ru ? 'Деплой в Telegram. Аналитика подключена. Вы зарабатываете.' : 'Deploy to Telegram. Analytics connected. You earn.' },
-            ].map((s, i) => (
-              <Cin key={i} delay={i * 0.08}>
-                <div className="flex items-start gap-5 mb-9 last:mb-0">
-                  <span style={{
-                    fontFamily: SYNE, fontSize: 'clamp(2rem, 7vw, 3rem)',
-                    fontWeight: 800, lineHeight: 1, letterSpacing: '-0.05em',
-                    color: i === 2 ? EMERALD : 'rgba(255,255,255,0.06)',
-                  }}>{s.n}</span>
-                  <div className="pt-1.5">
-                    <h3 style={{
-                      fontFamily: SYNE, fontSize: 'clamp(0.95rem, 2.5vw, 1.125rem)',
-                      fontWeight: 700, color: '#fff', letterSpacing: '-0.03em',
-                    }}>{s.t}</h3>
-                    <p className="mt-1" style={{
-                      fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8125rem)',
-                      lineHeight: 1.65, color: 'rgba(255,255,255,0.45)',
-                    }}>{s.d}</p>
-                  </div>
-                </div>
-              </Cin>
-            ))}
-          </section>
-
-          {/* ═══════ FINAL CTA — cinematic close ═══════ */}
           <section className="px-6 pt-8 pb-10" aria-label="CTA">
             <Cin>
               <div className="relative overflow-hidden rounded-3xl py-14 px-7 text-center" style={{ border: '1px solid rgba(255,255,255,0.04)' }}>
@@ -635,14 +762,13 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </Cin>
           </section>
 
-          {/* ═══════ FOOTER ═══════ */}
-          <footer className="px-6 py-8 mb-20" role="contentinfo" style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}>
+          <footer className="px-6 py-8 mb-20" role="contentinfo" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
             <Cin>
               <div className="flex items-center justify-between">
                 <span style={{ fontFamily: SYNE, fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)', fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: '-0.03em' }}>
                   WEB4TG
                 </span>
-                <span style={{ fontFamily: INTER, fontSize: '0.625rem', color: 'rgba(255,255,255,0.15)' }}>
+                <span style={{ fontFamily: INTER, fontSize: '0.625rem', color: 'rgba(255,255,255,0.5)' }}>
                   &copy; {new Date().getFullYear()}
                 </span>
               </div>
