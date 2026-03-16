@@ -1378,8 +1378,37 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </div>
         </div>
 
+        {/* ─── MARQUEE STRIP ─── */}
+        <div
+          className="overflow-hidden py-2.5 mb-1"
+          style={{ borderTop: '0.5px solid rgba(255,255,255,0.07)', borderBottom: '0.5px solid rgba(255,255,255,0.07)' }}
+        >
+          <m.div
+            className="flex gap-0 whitespace-nowrap"
+            animate={{ x: ['0%', '-50%'] }}
+            transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+            style={{ width: 'max-content' }}
+          >
+            {[...Array(2)].map((_, rep) => (
+              <span key={rep} className="inline-flex items-center gap-6 pr-6">
+                {['RADIANCE', '✦', 'SS\'26', '✦', 'НОВАЯ КОЛЛЕКЦИЯ', '✦', 'FASHION STUDIO', '✦', 'ВЕСНА / ЛЕТО', '✦', 'PREMIUM EDIT', '✦', 'ЭКСКЛЮЗИВ', '✦'].map((word, wi) => (
+                  <span
+                    key={wi}
+                    className="text-[10px] font-semibold tracking-[0.25em] uppercase"
+                    style={{
+                      color: word === '✦' ? 'var(--theme-primary)' : 'rgba(255,255,255,0.35)',
+                    }}
+                  >
+                    {word}
+                  </span>
+                ))}
+              </span>
+            ))}
+          </m.div>
+        </div>
+
         {/* ─── VIDEO HERO ─── */}
-        <div className="relative mx-4 rounded-[26px] overflow-hidden" style={{ height: '380px' }}>
+        <div className="relative mx-4 mt-3 rounded-[26px] overflow-hidden" style={{ height: '400px' }}>
           <video
             autoPlay
             loop
@@ -1390,93 +1419,100 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           >
             <source src={fashionVideo} type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/30" />
+          {/* Layered gradient for depth */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 35%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.92) 100%)' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.2) 0%, transparent 50%)' }} />
 
-          {/* Season tag */}
+          {/* Season tag — top left */}
           <div className="absolute top-4 left-4">
             <span
-              className="text-[9px] font-semibold tracking-[0.3em] uppercase px-3 py-1.5 rounded-full"
+              className="text-[9px] font-bold tracking-[0.35em] uppercase px-3 py-1.5 rounded-full"
               style={{
-                background: 'rgba(255,255,255,0.12)',
-                backdropFilter: 'blur(12px)',
-                color: 'rgba(255,255,255,0.75)',
-                border: '0.5px solid rgba(255,255,255,0.2)',
+                background: 'rgba(255,255,255,0.1)',
+                backdropFilter: 'blur(16px)',
+                color: 'rgba(255,255,255,0.7)',
+                border: '0.5px solid rgba(255,255,255,0.18)',
               }}
             >
-              SS&apos;26 COLLECTION
+              SS&apos;26
             </span>
           </div>
 
-          {/* Hero text */}
+          {/* Issue number — top right (editorial magazine feel) */}
+          <div className="absolute top-4 right-4 text-right">
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              VOL.I
+            </p>
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.2)' }}>
+              №001
+            </p>
+          </div>
+
+          {/* Hero text — left-aligned editorial */}
           <div className="absolute bottom-0 left-0 right-0 p-6">
             <m.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              <h2
-                className="leading-none mb-1"
-                style={{ fontSize: '42px', fontWeight: 900, letterSpacing: '-0.04em' }}
-              >
-                НОВАЯ
-              </h2>
-              <h2
-                className="leading-none mb-4"
-                style={{
-                  fontSize: '42px',
-                  fontWeight: 200,
-                  letterSpacing: '-0.02em',
-                  color: 'rgba(255,255,255,0.65)',
-                }}
-              >
-                КОЛЛЕКЦИЯ
-              </h2>
-              <p
-                className="text-[10px] tracking-[0.25em] mb-5 uppercase"
-                style={{ color: 'rgba(255,255,255,0.45)' }}
-              >
-                Весна — Лето 2026
-              </p>
-              <button
-                className="px-6 py-3 rounded-full text-sm font-bold text-black transition-all active:scale-95"
-                style={{ background: 'var(--theme-primary)' }}
-                onClick={() => onTabChange?.('catalog')}
-                data-testid="button-view-collection"
-              >
-                Смотреть коллекцию
-              </button>
+              {/* Super large display text */}
+              <div style={{ lineHeight: 0.9, marginBottom: '10px' }}>
+                <div
+                  className="block"
+                  style={{ fontSize: '52px', fontWeight: 900, letterSpacing: '-0.05em', color: '#fff' }}
+                >
+                  НОВАЯ
+                </div>
+                <div
+                  className="block"
+                  style={{ fontSize: '52px', fontWeight: 100, letterSpacing: '-0.02em', color: 'rgba(255,255,255,0.55)', fontStyle: 'italic' }}
+                >
+                  коллекция
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 mt-5">
+                <button
+                  className="px-5 py-2.5 rounded-full text-[13px] font-black text-black transition-all active:scale-95"
+                  style={{ background: 'var(--theme-primary)', letterSpacing: '-0.01em' }}
+                  onClick={() => onTabChange?.('catalog')}
+                  data-testid="button-view-collection"
+                >
+                  Смотреть →
+                </button>
+                <p
+                  className="text-[10px] tracking-[0.2em] uppercase"
+                  style={{ color: 'rgba(255,255,255,0.4)' }}
+                >
+                  Весна — Лето 2026
+                </p>
+              </div>
             </m.div>
           </div>
         </div>
 
         {/* ─── THE EDIT — Featured product ─── */}
         <div className="px-4 mt-7">
-          <div className="flex items-end justify-between mb-4">
-            <div>
-              <p
-                className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
-              >
-                Editorial Selection
-              </p>
-              <h2
-                className="text-[26px] font-black leading-none"
-                style={{ letterSpacing: '-0.04em' }}
-              >
-                THE EDIT
-              </h2>
+          {/* Editorial section divider */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+            <div className="flex items-end gap-3">
+              <div>
+                <p
+                  className="text-[8px] font-semibold tracking-[0.35em] uppercase text-center mb-0.5"
+                  style={{ color: 'rgba(255,255,255,0.3)' }}
+                >
+                  Editorial
+                </p>
+                <h2
+                  className="text-[28px] font-black leading-none text-center"
+                  style={{ letterSpacing: '-0.04em' }}
+                >
+                  THE EDIT
+                </h2>
+              </div>
             </div>
-            <button
-              onClick={() => onTabChange?.('catalog')}
-              className="text-[10px] font-semibold tracking-[0.15em] uppercase pb-0.5"
-              style={{
-                color: 'rgba(255,255,255,0.4)',
-                borderBottom: '0.5px solid rgba(255,255,255,0.2)',
-              }}
-            >
-              Все →
-            </button>
+            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
           </div>
 
           {filteredProducts[0] && (
@@ -1610,21 +1646,25 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
         {/* ─── JUST DROPPED — Horizontal scroll ─── */}
         <div className="mt-8">
-          <div className="px-4 flex items-end justify-between mb-4">
-            <div>
+          <div className="px-4 mb-4">
+            <div className="flex items-center gap-3 mb-0.5">
+              <div
+                className="w-2 h-2 rounded-full animate-pulse"
+                style={{ background: 'var(--theme-primary)' }}
+              />
               <p
-                className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
+                className="text-[9px] font-bold tracking-[0.35em] uppercase"
+                style={{ color: 'var(--theme-primary)' }}
               >
                 Новые поступления
               </p>
-              <h2
-                className="text-[26px] font-black leading-none"
-                style={{ letterSpacing: '-0.04em' }}
-              >
-                JUST DROPPED
-              </h2>
             </div>
+            <h2
+              className="text-[28px] font-black leading-none"
+              style={{ letterSpacing: '-0.04em' }}
+            >
+              JUST DROPPED
+            </h2>
           </div>
 
           <div
@@ -1720,31 +1760,24 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         {/* ─── LOOKBOOK — Staggered 2-col grid ─── */}
         {filteredProducts.length > 4 && (
           <div className="px-4 mt-8">
-            <div className="flex items-end justify-between mb-4">
-              <div>
+            {/* Section with editorial divider lines */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+              <div className="text-center">
                 <p
-                  className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
-                  style={{ color: 'rgba(255,255,255,0.35)' }}
+                  className="text-[8px] font-semibold tracking-[0.35em] uppercase mb-0.5"
+                  style={{ color: 'rgba(255,255,255,0.3)' }}
                 >
                   Актуальные образы
                 </p>
                 <h2
-                  className="text-[26px] font-black leading-none"
+                  className="text-[28px] font-black leading-none"
                   style={{ letterSpacing: '-0.04em' }}
                 >
                   LOOKBOOK
                 </h2>
               </div>
-              <button
-                onClick={() => onTabChange?.('catalog')}
-                className="text-[10px] font-semibold tracking-[0.15em] uppercase pb-0.5"
-                style={{
-                  color: 'rgba(255,255,255,0.4)',
-                  borderBottom: '0.5px solid rgba(255,255,255,0.2)',
-                }}
-              >
-                Смотреть →
-              </button>
+              <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -2740,6 +2773,16 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               minHeight: '140px',
             }}
           >
+            {/* Shine sweep animation */}
+            <m.div
+              className="absolute inset-0 pointer-events-none"
+              animate={{ x: ['-100%', '200%'] }}
+              transition={{ duration: 3.5, repeat: Infinity, repeatDelay: 4, ease: 'easeInOut' }}
+              style={{
+                background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%)',
+                zIndex: 1,
+              }}
+            />
             {/* Decorative circles */}
             <div
               className="absolute -right-8 -top-8 w-36 h-36 rounded-full opacity-20"
