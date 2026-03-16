@@ -4,7 +4,8 @@ import { m, AnimatePresence } from "framer-motion";
 import {
   Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package,
   CreditCard, MapPin, Settings, LogOut, User, Sparkles, Search,
-  Menu, Home, Grid, Tag, Plus, Minus, Flame, Wind, Leaf, Gem, Flower2, Eye
+  Menu, Home, Grid, Tag, Plus, Minus, Flame, Wind, Leaf, Gem, Flower2, Eye,
+  Truck, RotateCcw, ShieldCheck
 } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { usePersistentCart } from "@/hooks/usePersistentCart";
@@ -349,6 +350,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   const [activeProductTab, setActiveProductTab] = useState<'fragrance' | 'details' | 'reviews'>('fragrance');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [quickViewPerfume, setQuickViewPerfume] = useState<Perfume | null>(null);
+  const productScrollRef = useRef<HTMLDivElement>(null);
 
   const { toast } = useToast();
   const sidebar = useDemoSidebar();
@@ -625,8 +627,21 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
             </button>
           </div>
 
-          {/* Category + Stock pill at bottom of hero */}
-          <div className="absolute bottom-6 left-6 flex items-center gap-2">
+          {/* Category + Stock + NEW pill at bottom of hero */}
+          <div className="absolute bottom-6 left-6 flex items-center gap-2 flex-wrap">
+            {selectedPerfume.isNew && (
+              <div
+                className="flex items-center px-3 py-1.5 rounded-full"
+                style={{
+                  background: accentColor,
+                  boxShadow: `0 4px 12px ${accentColor}55`,
+                }}
+              >
+                <span style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.18em', color: '#000', textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                  НОВИНКА · SS'26
+                </span>
+              </div>
+            )}
             {CategoryIcon && (
               <div
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
@@ -647,7 +662,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
                 style={{ background: 'rgba(239,68,68,0.18)', border: '0.5px solid rgba(239,68,68,0.4)' }}
               >
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#EF4444', display: 'inline-block' }} />
+                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#EF4444', display: 'inline-block', animation: 'pulse 1.5s ease-in-out infinite' }} />
                 <span style={{ fontSize: '10px', fontWeight: 700, color: '#EF4444', letterSpacing: '0.05em', fontFamily: "'Satoshi','Inter',sans-serif" }}>
                   Осталось {selectedPerfume.inStock} шт.
                 </span>
@@ -658,6 +673,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
         {/* ── SCROLLABLE CONTENT ── */}
         <div
+          ref={productScrollRef}
           className="flex-1 overflow-y-auto scrollbar-hide"
           onScroll={(e) => setShowStickyHeader(e.currentTarget.scrollTop > 60)}
         >
@@ -744,6 +760,22 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                     </div>
                   )}
                 </div>
+              </m.div>
+
+              {/* ── DESCRIPTION — editorial excerpt ── */}
+              <m.div variants={contentItem}>
+                <p style={{
+                  fontSize: '13px',
+                  lineHeight: 1.65,
+                  color: 'rgba(255,255,255,0.55)',
+                  fontFamily: "'Satoshi','Inter',sans-serif",
+                  fontWeight: 400,
+                  letterSpacing: '0.01em',
+                  borderLeft: `2px solid ${accentColor}55`,
+                  paddingLeft: '12px',
+                }}>
+                  {selectedPerfume.description}
+                </p>
               </m.div>
 
               {/* ── CONCENTRATION selector — moved before tabs ── */}
@@ -1081,9 +1113,9 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                   overflow: 'hidden',
                 }}>
                   {[
-                    { icon: '🚚', label: 'Доставка', sub: 'Бесплатно' },
-                    { icon: '↩', label: 'Возврат', sub: '30 дней' },
-                    { icon: '✦', label: 'Оригинал', sub: 'Сертификат' },
+                    { icon: <Truck style={{ width: '15px', height: '15px', color: accentColor }} strokeWidth={1.5} />, label: 'Доставка', sub: 'Бесплатно' },
+                    { icon: <RotateCcw style={{ width: '15px', height: '15px', color: accentColor }} strokeWidth={1.5} />, label: 'Возврат', sub: '30 дней' },
+                    { icon: <ShieldCheck style={{ width: '15px', height: '15px', color: accentColor }} strokeWidth={1.5} />, label: 'Оригинал', sub: 'Сертификат' },
                   ].map((item, i) => (
                     <div key={i} style={{
                       flex: 1,
@@ -1092,7 +1124,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                       padding: '14px 8px', gap: '5px',
                       borderRight: i < 2 ? '0.5px solid rgba(255,255,255,0.07)' : 'none',
                     }}>
-                      <span style={{ fontSize: '16px' }}>{item.icon}</span>
+                      {item.icon}
                       <p style={{
                         fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em',
                         color: 'rgba(255,255,255,0.85)', textTransform: 'uppercase',
@@ -1149,6 +1181,8 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                             setSelectedPerfume(p);
                             setSelectedVolume(p.volumes[0]);
                             setSelectedConcentration(p.concentrations[0]);
+                            setActiveProductTab('fragrance');
+                            setTimeout(() => productScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50);
                           }}
                           className="cursor-pointer active:scale-95 transition-all duration-200"
                           style={{ width: '120px', flexShrink: 0 }}
@@ -1589,7 +1623,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           </div>
 
           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-            {perfumes.filter(p => p.isNew).map((perfume) => (
+            {perfumes.filter(p => p.isNew && (selectedGender === 'All' || p.gender === selectedGender)).map((perfume) => (
               <div
                 key={perfume.id}
                 onClick={() => openPerfume(perfume)}
@@ -1670,7 +1704,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            {perfumes.filter(p => p.isTrending).map((perfume) => (
+            {perfumes.filter(p => p.isTrending && (selectedGender === 'All' || p.gender === selectedGender)).map((perfume) => (
               <div
                 key={perfume.id}
                 onClick={() => openPerfume(perfume)}
@@ -1747,7 +1781,8 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   ──────────────────────────────────────────────────────────── */
   if (activeTab === 'catalog') {
     const filtered = perfumes.filter(p =>
-      (selectedCategory === 'Все' || p.category === selectedCategory)
+      (selectedCategory === 'Все' || p.category === selectedCategory) &&
+      (selectedGender === 'All' || p.gender === selectedGender)
     );
     return (
       <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
@@ -2148,7 +2183,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   /* ─── CART ─── */
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white pb-32 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-32 smooth-scroll-page">
         <div className="px-5 pt-5 pb-4">
           <h1 style={{
             fontSize: '24px', fontWeight: 300, fontStyle: 'italic',
@@ -2192,7 +2227,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 </div>
               ))}
 
-              <div className="fixed bottom-24 left-0 right-0 px-5 py-4" style={{ background: 'linear-gradient(0deg, #0A0A0A 70%, transparent 100%)' }}>
+              <div className="fixed bottom-24 left-0 right-0 px-5 py-4" style={{ background: 'linear-gradient(0deg, var(--theme-background) 70%, transparent 100%)' }}>
                 <div className="flex items-center justify-between mb-4">
                   <span style={{ fontFamily: "'Satoshi','Inter',sans-serif", fontWeight: 600 }}>Итого:</span>
                   <span style={{ fontSize: '22px', fontWeight: 800, fontFamily: "'Satoshi','Inter',sans-serif" }}>{formatPrice(cartTotal)}</span>
@@ -2225,7 +2260,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   /* ─── PROFILE ─── */
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white pb-24 smooth-scroll-page">
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="px-5 pt-8 pb-6" style={{ borderBottom: '0.5px solid rgba(255,255,255,0.07)' }}>
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #C9B037 0%, #A8922A 100%)' }}>

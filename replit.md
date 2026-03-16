@@ -168,6 +168,16 @@ To configure a branded loading screen for the Mini App:
 - Video editorial hero with `SS'26 Exclusive` badge + Cormorant italic headline
 - Scent Family chips (5 categories with colored icons)
 - `Just Arrived` horizontal scroll + `Bestsellers` 2-col grid
+- Gender filter (Все/Женские/Мужские/Унисекс) correctly applied to Just Arrived, Bestsellers, and Catalog sections
+
+## Exhaustive Audit Fixes (March 2026)
+- **Gender filter wired to data**: `selectedGender` now filters Just Arrived, Bestsellers (home), and full Catalog page
+- **`activeProductTab` reset**: clicking a recommended perfume resets to 'fragrance' tab + smooth-scrolls to top via `productScrollRef`
+- **Product description**: `selectedPerfume.description` shown as editorial excerpt with accent-colored left border, between price and concentration selector
+- **Service strip icons**: Replaced emoji (🚚↩✦) with lucide-react SVG icons `Truck`, `RotateCcw`, `ShieldCheck` in accent color
+- **Hero editorial badge**: `НОВИНКА · SS'26` gold pill displayed at bottom-left of product detail hero when `isNew === true`
+- **Stock pulse**: Pulsing dot animation on low-stock pill in hero
+- **Cart/Profile backgrounds**: Fixed from hardcoded `#0A0A0A` to `var(--theme-background)` (all 3 occurrences: cart, cart checkout gradient, profile)
 
 # Radiance Fashion Demo — March 2026 Cinematic Animation Audit
 
