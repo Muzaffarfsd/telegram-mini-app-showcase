@@ -264,6 +264,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   const [promoCode, setPromoCode] = useState<string>('');
   const [promoApplied, setPromoApplied] = useState<boolean>(false);
   const [promoDiscountPct, setPromoDiscountPct] = useState<number>(0);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   
@@ -892,6 +893,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   </p>
                 </div>
                 <button
+                  onClick={() => setShowSizeGuide(true)}
                   style={{
                     fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.4)',
                     letterSpacing: '0.02em', fontFamily: "'Satoshi', 'Inter', sans-serif",
@@ -1354,6 +1356,189 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         </div>
         </div>
         {/* END SCROLLABLE CONTENT CONTAINER */}
+
+        {/* ===== SIZE GUIDE MODAL ===== */}
+        <AnimatePresence>
+          {showSizeGuide && (
+            <>
+              {/* Backdrop */}
+              <m.div
+                key="size-guide-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => setShowSizeGuide(false)}
+                className="fixed inset-0 z-[110]"
+                style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
+              />
+              {/* Bottom sheet */}
+              <m.div
+                key="size-guide-sheet"
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 32, stiffness: 320 }}
+                className="fixed left-0 right-0 z-[120] overflow-y-auto"
+                style={{
+                  bottom: 0,
+                  maxHeight: '82vh',
+                  borderRadius: '28px 28px 0 0',
+                  background: '#141414',
+                  border: '0.5px solid rgba(255,255,255,0.12)',
+                  paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
+                }}
+              >
+                {/* Handle */}
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
+                  <div style={{ width: '36px', height: '4px', borderRadius: '99px', background: 'rgba(255,255,255,0.15)' }} />
+                </div>
+
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 24px 20px' }}>
+                  <div>
+                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '4px' }}>
+                      {selectedProduct.brand}
+                    </p>
+                    <h3 style={{ fontSize: '22px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", color: 'rgba(255,255,255,0.95)', letterSpacing: '0.01em' }}>
+                      Гид по размерам
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setShowSizeGuide(false)}
+                    style={{
+                      width: '36px', height: '36px', borderRadius: '50%',
+                      background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.12)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: 'rgba(255,255,255,0.6)', fontSize: '18px', lineHeight: 1,
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+
+                  {/* Product-specific size chart */}
+                  <div>
+                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '14px' }}>
+                      Замеры изделия (см)
+                    </p>
+                    <div style={{ borderRadius: '14px', overflow: 'hidden', border: '0.5px solid rgba(255,255,255,0.1)' }}>
+                      {/* Table header */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr 1fr', background: 'rgba(255,255,255,0.06)', padding: '10px 16px' }}>
+                        {['Размер', 'Грудь', 'Длина'].map(h => (
+                          <span key={h} style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{h}</span>
+                        ))}
+                      </div>
+                      {/* Rows */}
+                      {Object.entries(selectedProduct.sizeChart).map(([sz, measurements], idx) => {
+                        const parts = measurements.split(',').map(s => s.trim());
+                        const chest = parts[0]?.replace(/грудь\s*/i, '') ?? '—';
+                        const length = parts[1]?.replace(/длина\s*/i, '') ?? '—';
+                        const isSelected = selectedSize === sz;
+                        return (
+                          <button
+                            key={sz}
+                            onClick={() => { setSelectedSize(sz); setShowSizeGuide(false); }}
+                            style={{
+                              display: 'grid', gridTemplateColumns: '60px 1fr 1fr',
+                              padding: '13px 16px', width: '100%', textAlign: 'left',
+                              background: isSelected ? 'rgba(var(--theme-primary-rgb, 205,255,56), 0.1)' : idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
+                              borderTop: '0.5px solid rgba(255,255,255,0.07)',
+                              transition: 'background 0.15s',
+                            }}
+                          >
+                            <span style={{ fontSize: '14px', fontWeight: isSelected ? 800 : 600, color: isSelected ? 'var(--theme-primary)' : 'rgba(255,255,255,0.9)', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: isSelected ? '0.02em' : 0 }}>{sz}</span>
+                            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{chest}</span>
+                            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{length}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '8px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.01em' }}>
+                      Нажмите на размер, чтобы выбрать его
+                    </p>
+                  </div>
+
+                  {/* International size conversion */}
+                  <div>
+                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '14px' }}>
+                      Международная конвертация
+                    </p>
+                    <div style={{ borderRadius: '14px', overflow: 'hidden', border: '0.5px solid rgba(255,255,255,0.1)' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', background: 'rgba(255,255,255,0.06)', padding: '10px 16px' }}>
+                        {['RU', 'EU', 'US', 'IT', 'UK'].map(h => (
+                          <span key={h} style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'center' }}>{h}</span>
+                        ))}
+                      </div>
+                      {[
+                        ['XS', '32', '2', '36', '6'],
+                        ['S',  '34', '4', '38', '8'],
+                        ['M',  '36', '6', '40', '10'],
+                        ['L',  '38', '8', '42', '12'],
+                        ['XL', '40', '10', '44', '14'],
+                      ].map(([ru, eu, us, it, uk], idx) => {
+                        const isSelected = selectedSize === ru;
+                        return (
+                          <div key={ru} style={{
+                            display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)',
+                            padding: '12px 16px',
+                            background: isSelected ? 'rgba(var(--theme-primary-rgb, 205,255,56), 0.1)' : idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
+                            borderTop: '0.5px solid rgba(255,255,255,0.07)',
+                          }}>
+                            {[ru, eu, us, it, uk].map((v, i) => (
+                              <span key={i} style={{ fontSize: '13px', fontWeight: i === 0 ? (isSelected ? 800 : 600) : 400, color: i === 0 && isSelected ? 'var(--theme-primary)' : i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.55)', fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'center' }}>{v}</span>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* How to measure */}
+                  <div>
+                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '14px' }}>
+                      Как снять мерки
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {[
+                        { icon: '⬡', label: 'Обхват груди', text: 'Измерьте горизонтально по самой широкой части груди, лента должна быть параллельна полу' },
+                        { icon: '↕', label: 'Длина изделия', text: 'От высшей точки плеча до нижнего края изделия по вертикали' },
+                        { icon: '○', label: 'Обхват талии', text: 'Измерьте по самой узкой части талии, обычно на 2–3 см выше пупка' },
+                      ].map((tip, i) => (
+                        <div key={i} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', padding: '14px', borderRadius: '14px', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
+                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px' }}>
+                            {tip.icon}
+                          </div>
+                          <div>
+                            <p style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.9)', marginBottom: '4px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.01em' }}>{tip.label}</p>
+                            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.55, fontFamily: "'Satoshi','Inter',sans-serif" }}>{tip.text}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Fit note */}
+                  <div style={{ padding: '14px 16px', borderRadius: '14px', background: 'rgba(var(--theme-primary-rgb,205,255,56),0.07)', border: '0.5px solid rgba(var(--theme-primary-rgb,205,255,56),0.2)', marginBottom: '8px' }}>
+                    <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--theme-primary)', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.02em', marginBottom: '4px' }}>
+                      Посадка этого изделия: {selectedProduct.fit === 'regular' ? 'Стандартная' : selectedProduct.fit === 'oversized' ? 'Оверсайз' : selectedProduct.fit === 'slim' ? 'Приталенная' : selectedProduct.fit === 'relaxed' ? 'Свободная' : selectedProduct.fit}
+                    </p>
+                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: "'Satoshi','Inter',sans-serif", lineHeight: 1.5 }}>
+                      {selectedProduct.fit === 'oversized'
+                        ? 'Рекомендуем выбрать размер меньше обычного для более чёткого силуэта'
+                        : selectedProduct.fit === 'slim'
+                        ? 'Рекомендуем выбрать размер больше обычного для комфортной посадки'
+                        : 'Соответствует стандартной размерной сетке'}
+                    </p>
+                  </div>
+
+                </div>
+              </m.div>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* FIXED Bottom CTA — premium 2026 */}
         <div
