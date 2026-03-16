@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo, useRef } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus, Eye } from "lucide-react";
+import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus, Eye, Truck, RotateCcw, ShieldCheck } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { Skeleton } from "../ui/skeleton";
@@ -458,7 +458,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     const productImages = [...new Set([selectedProduct.image, selectedProduct.hoverImage])];
     
     return (
-      <div className="h-screen text-white overflow-hidden relative flex flex-col" style={{ backgroundColor: bgColor }}>
+      <m.div
+        className="h-screen text-white overflow-hidden relative flex flex-col"
+        style={{ backgroundColor: bgColor }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.22, ease: 'easeOut' }}
+      >
         
         {/* ===== STICKY GLASS HEADER: Shows on scroll past hero ===== */}
         <AnimatePresence>
@@ -557,13 +563,16 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         <div className="relative flex-shrink-0" style={{ height: '70vh', minHeight: '420px' }}>
           
           {/* Full-bleed Image Gallery - iOS-style snap scroll */}
-          <div 
+          <m.div 
             className="absolute inset-0 overflow-x-auto overflow-y-hidden scrollbar-hide"
             style={{ 
               scrollSnapType: 'x mandatory',
               WebkitOverflowScrolling: 'touch',
               scrollBehavior: 'smooth',
             }}
+            initial={{ scale: 1.04 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
             onScroll={(e) => {
               const container = e.currentTarget;
               const scrollLeft = container.scrollLeft;
@@ -607,7 +616,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 background: `linear-gradient(0deg, ${bgColor} 0%, transparent 100%)`
               }}
             />
-          </div>
+          </m.div>
           
           {/* ===== FLOATING NAV: Back & Favorite buttons lower ===== */}
           <div 
@@ -710,7 +719,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         </div>
 
         {/* ===== CONTENT SHEET: Slides up over hero ===== */}
-        <div className="relative" style={{ paddingBottom: '176px', marginTop: '-32px' }}>
+        <m.div
+          className="relative"
+          style={{ paddingBottom: '176px', marginTop: '-32px' }}
+          initial={{ opacity: 0, y: 36 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        >
           <div 
             className="relative rounded-t-[28px]"
             style={{
@@ -938,23 +953,47 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             <div
               style={{
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '14px 16px',
-                borderRadius: '14px',
+                alignItems: 'stretch',
+                borderRadius: '16px',
                 background: 'rgba(255,255,255,0.04)',
                 border: '0.5px solid rgba(255,255,255,0.08)',
+                overflow: 'hidden',
               }}
             >
               {[
-                { icon: '🚚', label: 'Доставка', sub: 'Бесплатно' },
-                { icon: '↩', label: 'Возврат', sub: '30 дней' },
-                { icon: '✦', label: 'Оригинал', sub: 'Гарантия' },
+                { Icon: Truck, label: 'Доставка', sub: 'Бесплатно' },
+                { Icon: RotateCcw, label: 'Возврат', sub: '30 дней' },
+                { Icon: ShieldCheck, label: 'Оригинал', sub: 'Гарантия' },
               ].map((item, i) => (
-                <div key={i} style={{ textAlign: 'center', flex: 1 }}>
-                  <p style={{ fontSize: '16px', marginBottom: '3px' }}>{item.icon}</p>
-                  <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase', fontFamily: "'Satoshi', 'Inter', sans-serif" }}>{item.label}</p>
-                  <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em', fontFamily: "'Satoshi', 'Inter', sans-serif" }}>{item.sub}</p>
+                <div
+                  key={i}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '16px 8px',
+                    gap: '6px',
+                    borderRight: i < 2 ? '0.5px solid rgba(255,255,255,0.07)' : 'none',
+                  }}
+                >
+                  <item.Icon
+                    style={{ width: '18px', height: '18px', color: 'var(--theme-primary)', strokeWidth: 1.5 }}
+                  />
+                  <p style={{
+                    fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em',
+                    color: 'rgba(255,255,255,0.88)', textTransform: 'uppercase',
+                    fontFamily: "'Satoshi', 'Inter', sans-serif", lineHeight: 1,
+                  }}>
+                    {item.label}
+                  </p>
+                  <p style={{
+                    fontSize: '9px', color: 'rgba(255,255,255,0.38)', letterSpacing: '0.04em',
+                    fontFamily: "'Satoshi', 'Inter', sans-serif", lineHeight: 1,
+                  }}>
+                    {item.sub}
+                  </p>
                 </div>
               ))}
             </div>
@@ -1353,7 +1392,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               );
             })()}
           </div>
-        </div>
+        </m.div>
         </div>
         {/* END SCROLLABLE CONTENT CONTAINER */}
 
@@ -1618,7 +1657,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             />
           </div>
         </div>
-      </div>
+      </m.div>
     );
   }
 
@@ -1854,9 +1893,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         </div>
 
         {/* ─── THE EDIT — Featured product ─── */}
-        <div className="px-4 mt-7">
+        <div className="px-4 mt-10">
           {/* Editorial section divider */}
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-6">
             <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
             <div className="flex items-end gap-3">
               <div>
@@ -2017,8 +2056,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         </div>
 
         {/* ─── JUST DROPPED — Horizontal scroll ─── */}
-        <div className="mt-8">
-          <div className="px-4 mb-4">
+        <div className="mt-14">
+          <div className="px-4 mb-6">
             <div className="flex items-center gap-3 mb-0.5">
               <div
                 className="w-2 h-2 rounded-full animate-pulse"
@@ -2046,7 +2085,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </div>
 
           <div
-            className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide"
+            className="flex gap-4 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide"
             style={{ scrollbarWidth: 'none' }}
           >
             {filteredProducts.slice(1, 6).map((product, idx) => (
@@ -2057,12 +2096,12 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 transition={{ delay: 0.1 + idx * 0.07 }}
                 onClick={() => openProduct(product)}
                 className="flex-shrink-0 snap-start cursor-pointer active:scale-[0.97] transition-transform"
-                style={{ width: '155px' }}
+                style={{ width: '162px' }}
                 data-testid={`featured-product-${product.id}`}
               >
                 <div
-                  className="relative rounded-[18px] overflow-hidden mb-2.5"
-                  style={{ height: '196px' }}
+                  className="relative rounded-[20px] overflow-hidden mb-3"
+                  style={{ height: '208px' }}
                 >
                   <LazyImage
                     src={product.image}
@@ -2119,14 +2158,25 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 </div>
 
                 <p
-                  className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-0.5 truncate"
-                  style={{ color: 'rgba(255,255,255,0.38)' }}
+                  style={{
+                    fontSize: '8px', fontWeight: 700, letterSpacing: '0.28em',
+                    textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
+                    fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '4px',
+                  }}
                 >
                   {product.brand}
                 </p>
                 <p
-                  className="text-sm font-semibold leading-tight truncate"
-                  style={{ letterSpacing: '-0.01em' }}
+                  style={{
+                    fontSize: '15px', fontWeight: 300, fontStyle: 'italic',
+                    fontFamily: "'Cormorant Garamond', Georgia, serif",
+                    lineHeight: 1.2, letterSpacing: '0.02em',
+                    color: 'rgba(255,255,255,0.9)',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  } as React.CSSProperties}
                 >
                   {product.name}
                 </p>
@@ -2137,9 +2187,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
         {/* ─── LOOKBOOK — Staggered 2-col grid ─── */}
         {filteredProducts.length > 4 && (
-          <div className="px-4 mt-8">
+          <div className="px-4 mt-14">
             {/* Section with editorial divider lines */}
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-6">
               <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
               <div className="text-center">
                 <p
@@ -2176,8 +2226,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   data-testid={`featured-product-${product.id}`}
                 >
                   <div
-                    className="relative rounded-[18px] overflow-hidden mb-2"
-                    style={{ height: idx % 2 === 0 ? '215px' : '175px' }}
+                    className="relative rounded-[20px] overflow-hidden mb-2.5"
+                    style={{ height: idx % 2 === 0 ? '230px' : '188px' }}
                   >
                     <LazyImage
                       src={product.image}
@@ -2216,14 +2266,35 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
                     <div className="absolute bottom-0 left-0 right-0 p-3">
                       <p
-                        className="text-[11px] font-bold leading-tight truncate"
-                        style={{ letterSpacing: '-0.01em' }}
+                        style={{
+                          fontSize: '8px', fontWeight: 700, letterSpacing: '0.22em',
+                          textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
+                          fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '3px',
+                        }}
+                      >
+                        {product.brand}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: '14px', fontWeight: 300, fontStyle: 'italic',
+                          fontFamily: "'Cormorant Garamond', Georgia, serif",
+                          lineHeight: 1.15, letterSpacing: '0.01em',
+                          color: 'rgba(255,255,255,0.92)',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          marginBottom: '3px',
+                        } as React.CSSProperties}
                       >
                         {product.name}
                       </p>
                       <p
-                        className="text-[10px]"
-                        style={{ color: 'rgba(255,255,255,0.55)', fontVariantNumeric: 'tabular-nums' }}
+                        style={{
+                          fontSize: '12px', fontWeight: 600, letterSpacing: '-0.01em',
+                          color: 'rgba(255,255,255,0.65)', fontVariantNumeric: 'tabular-nums',
+                          fontFamily: "'Satoshi','Inter',sans-serif",
+                        }}
                       >
                         {formatPrice(product.price)}
                       </p>
