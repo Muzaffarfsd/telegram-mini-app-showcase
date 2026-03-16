@@ -683,57 +683,88 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         </div>
 
         {/* ===== CONTENT SHEET: Slides up over hero ===== */}
-        <div className="relative" style={{ paddingBottom: '176px', marginTop: '-28px' }}>
+        <div className="relative" style={{ paddingBottom: '176px', marginTop: '-32px' }}>
           <div 
-            className="relative rounded-t-[32px]"
+            className="relative rounded-t-[28px]"
             style={{
-              padding: '24px',
+              padding: '28px 24px 24px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '20px',
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.08) 100%)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              borderTop: '0.5px solid rgba(255,255,255,0.4)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)'
+              gap: '24px',
+              background: '#0D0D0D',
+              borderTop: '0.5px solid rgba(255,255,255,0.1)',
             }}
           >
-            {/* Product Title & Price — left-aligned editorial */}
-            <div className="pt-2">
-              <p
-                className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-1"
-                style={{ color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi', 'Inter', sans-serif" }}
-              >
-                {selectedProduct.brand}
-              </p>
+            {/* Product Title & Price — editorial 2026 */}
+            <div>
+              {/* Brand + Rating row */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <p
+                  style={{
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    letterSpacing: '0.3em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.5)',
+                    fontFamily: "'Satoshi', 'Inter', sans-serif",
+                  }}
+                >
+                  {selectedProduct.brand}
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <div style={{ display: 'flex', gap: '2px' }}>
+                    {[1,2,3,4,5].map(s => (
+                      <Star key={s} style={{ width: '10px', height: '10px' }}
+                        fill={s <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.85)' : 'transparent'}
+                        stroke={s <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
+                      />
+                    ))}
+                  </div>
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.55)', letterSpacing: '-0.01em' }}>
+                    {selectedProduct.rating}
+                  </span>
+                </div>
+              </div>
+
+              {/* Name — Cormorant Garamond editorial */}
               <h2
                 style={{
-                  fontSize: '26px',
-                  fontWeight: 700,
-                  letterSpacing: '-0.03em',
-                  lineHeight: 1.15,
+                  fontSize: '32px',
+                  fontWeight: 300,
+                  fontStyle: 'italic',
+                  letterSpacing: '0.01em',
+                  lineHeight: 1.1,
                   color: 'rgba(255,255,255,0.97)',
-                  marginBottom: '14px',
-                  fontFamily: "'Satoshi', 'Inter', sans-serif",
+                  marginBottom: '16px',
+                  fontFamily: "'Cormorant Garamond', Georgia, serif",
                 }}
               >
                 {selectedProduct.name}
               </h2>
-              <div className="flex items-center gap-3 mb-1">
+
+              {/* Price row */}
+              <div className="flex items-baseline gap-3 mb-2">
                 <p
-                  className="text-[30px] font-bold"
                   style={{
+                    fontSize: '28px',
+                    fontWeight: 800,
                     letterSpacing: '-0.03em',
                     fontVariantNumeric: 'tabular-nums',
                     fontFamily: "'Satoshi', 'Inter', sans-serif",
+                    color: 'rgba(255,255,255,0.97)',
                   }}
                 >
                   {formatPrice(selectedProduct.price)}
                 </p>
                 {selectedProduct.oldPrice && (
                   <p
-                    className="text-[18px] line-through"
-                    style={{ color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}
+                    style={{
+                      fontSize: '16px',
+                      textDecoration: 'line-through',
+                      color: 'rgba(255,255,255,0.3)',
+                      fontVariantNumeric: 'tabular-nums',
+                      fontFamily: "'Satoshi', 'Inter', sans-serif",
+                    }}
                   >
                     {formatPrice(selectedProduct.oldPrice)}
                   </p>
@@ -779,104 +810,78 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               )}
             </div>
 
-            {/* Color Selection - iOS Style */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Color Selection — left-aligned editorial */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <p 
-                  className="text-[9px] font-bold uppercase"
-                  style={{ 
-                    color: 'rgba(255,255,255,0.35)',
-                    letterSpacing: '0.25em',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif",
-                  }}
-                >
+                <p style={{
+                  fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em',
+                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
+                  fontFamily: "'Satoshi', 'Inter', sans-serif",
+                }}>
                   Цвет
                 </p>
-                <p
-                  className="text-[12px] font-semibold"
-                  style={{ color: 'rgba(255,255,255,0.75)', letterSpacing: '-0.01em' }}
-                >
+                <p style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.01em' }}>
                   {selectedColor}
                 </p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 {selectedProduct.colors.map((color, idx) => (
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
                     className="relative transition-all duration-200 active:scale-95"
                     style={{
-                      width: '38px',
-                      height: '38px',
-                      borderRadius: '50%',
+                      width: '32px', height: '32px', borderRadius: '50%',
                       backgroundColor: selectedProduct.colorHex[idx],
-                      border: selectedColor === color 
-                        ? '2.5px solid rgba(255,255,255,0.9)'
-                        : '1.5px solid rgba(255,255,255,0.25)',
-                      boxShadow: selectedColor === color 
-                        ? '0 0 0 3px rgba(255,255,255,0.2), inset 0 2px 4px rgba(255,255,255,0.3)'
-                        : 'inset 0 2px 4px rgba(255,255,255,0.2)',
-                      transform: selectedColor === color ? 'scale(1.15)' : 'scale(1)'
+                      border: selectedColor === color
+                        ? '2px solid rgba(255,255,255,0.95)'
+                        : '1.5px solid rgba(255,255,255,0.2)',
+                      boxShadow: selectedColor === color
+                        ? '0 0 0 2.5px rgba(255,255,255,0.15)'
+                        : 'none',
+                      transform: selectedColor === color ? 'scale(1.12)' : 'scale(1)',
                     }}
                     data-testid={`button-color-${color}`}
-                  >
-                    {selectedColor === color && (
-                      <div 
-                        className="absolute inset-0 rounded-full"
-                        style={{
-                          background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 50%)'
-                        }}
-                      />
-                    )}
-                  </button>
+                  />
                 ))}
               </div>
             </div>
 
-            {/* Size Selection - iOS Segmented Control Style */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Size Selection — full-width editorial grid */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <p 
-                  className="text-[9px] font-bold uppercase"
-                  style={{ 
-                    color: 'rgba(255,255,255,0.35)',
-                    letterSpacing: '0.25em',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif",
-                  }}
-                >
+                <p style={{
+                  fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em',
+                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
+                  fontFamily: "'Satoshi', 'Inter', sans-serif",
+                }}>
                   Размер
                 </p>
-                <p
-                  className="text-[12px] font-semibold"
-                  style={{ color: 'rgba(255,255,255,0.75)', letterSpacing: '-0.01em' }}
-                >
+                <p style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.01em' }}>
                   {selectedSize}
                 </p>
               </div>
-              <div 
-                className="flex items-center justify-center rounded-2xl mx-auto"
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  maxWidth: 'fit-content',
-                  padding: '6px',
-                  gap: '8px'
-                }}
-              >
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
                 {selectedProduct.sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className="relative rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95"
+                    className="transition-all duration-200 active:scale-95"
                     style={{
-                      padding: '10px 16px',
-                      background: selectedSize === size 
-                        ? 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)'
-                        : 'transparent',
-                      color: selectedSize === size ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.7)',
-                      boxShadow: selectedSize === size 
-                        ? '0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5)'
-                        : 'none',
-                      letterSpacing: '-0.01em'
+                      flex: 1,
+                      padding: '13px 8px',
+                      borderRadius: '12px',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      letterSpacing: '0.02em',
+                      fontFamily: "'Satoshi', 'Inter', sans-serif",
+                      background: selectedSize === size
+                        ? 'var(--theme-primary)'
+                        : 'rgba(255,255,255,0.06)',
+                      color: selectedSize === size ? '#000' : 'rgba(255,255,255,0.65)',
+                      border: selectedSize === size
+                        ? 'none'
+                        : '0.5px solid rgba(255,255,255,0.12)',
                     }}
                     data-testid={`button-size-${size}`}
                   >
@@ -886,42 +891,60 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               </div>
             </div>
 
-            {/* iOS Segmented Control for Content Tabs */}
-            <div style={{ paddingTop: '16px' }}>
-              <div 
-                className="flex items-center rounded-2xl mx-auto"
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  maxWidth: '100%',
-                  padding: '4px'
-                }}
-                role="tablist"
-              >
+            {/* Services strip — Net-a-Porter style */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 16px',
+                borderRadius: '14px',
+                background: 'rgba(255,255,255,0.04)',
+                border: '0.5px solid rgba(255,255,255,0.08)',
+              }}
+            >
+              {[
+                { icon: '🚚', label: 'Доставка', sub: 'Бесплатно' },
+                { icon: '↩', label: 'Возврат', sub: '30 дней' },
+                { icon: '✦', label: 'Оригинал', sub: 'Гарантия' },
+              ].map((item, i) => (
+                <div key={i} style={{ textAlign: 'center', flex: 1 }}>
+                  <p style={{ fontSize: '16px', marginBottom: '3px' }}>{item.icon}</p>
+                  <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase', fontFamily: "'Satoshi', 'Inter', sans-serif" }}>{item.label}</p>
+                  <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em', fontFamily: "'Satoshi', 'Inter', sans-serif" }}>{item.sub}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Editorial underline tabs */}
+            <div style={{ borderBottom: '0.5px solid rgba(255,255,255,0.1)' }}>
+              <div className="flex" role="tablist">
                 {[
                   { key: 'description', label: 'Описание' },
-                  { key: 'characteristics', label: 'Характеристики' },
-                  { key: 'reviews', label: 'Отзывы' }
+                  { key: 'characteristics', label: 'Детали' },
+                  { key: 'reviews', label: `Отзывы (${mockReviews.length})` }
                 ].map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveProductTab(tab.key as typeof activeProductTab)}
-                    className="flex-1 rounded-xl font-medium text-sm transition-all duration-300"
+                    className="flex-1 transition-all duration-200"
                     style={{
-                      padding: '10px 12px',
-                      background: activeProductTab === tab.key 
-                        ? 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)'
-                        : 'transparent',
-                      color: activeProductTab === tab.key ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.6)',
-                      boxShadow: activeProductTab === tab.key 
-                        ? '0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5)'
-                        : 'none',
-                      letterSpacing: '0.05em',
-                      textRendering: 'optimizeLegibility'
+                      padding: '12px 4px 13px',
+                      fontSize: '11px',
+                      fontWeight: activeProductTab === tab.key ? 700 : 500,
+                      color: activeProductTab === tab.key ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.4)',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      fontFamily: "'Satoshi', 'Inter', sans-serif",
+                      borderBottom: activeProductTab === tab.key
+                        ? '1.5px solid var(--theme-primary)'
+                        : '1.5px solid transparent',
+                      marginBottom: '-0.5px',
+                      background: 'transparent',
                     }}
                     data-testid={`tab-${tab.key}`}
                     role="tab"
                     aria-selected={activeProductTab === tab.key}
-                    aria-controls={`panel-${tab.key}`}
                   >
                     {tab.label}
                   </button>
@@ -933,54 +956,39 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             <div style={{ minHeight: '200px' }}>
               {/* Description Tab */}
               {activeProductTab === 'description' && (
-                <div id="panel-description" style={{ display: 'flex', flexDirection: 'column', gap: '16px', opacity: 1, transition: 'opacity 300ms' }}>
-                  <p 
-                    className="text-[15px]"
-                    style={{ 
-                      color: 'rgba(255,255,255,0.8)',
-                      lineHeight: 1.6,
-                      letterSpacing: '-0.01em',
-                      textRendering: 'optimizeLegibility'
-                    }}
-                  >
+                <div id="panel-description" style={{ paddingTop: '4px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <p style={{
+                    fontSize: '15px',
+                    color: 'rgba(255,255,255,0.75)',
+                    lineHeight: 1.7,
+                    letterSpacing: '0em',
+                    fontFamily: "'Cormorant Garamond', Georgia, serif",
+                    fontWeight: 400,
+                  }}>
                     {selectedProduct.description}
                   </p>
-                  
-                  <div 
-                    className="rounded-2xl"
-                    style={{
-                      background: 'rgba(255,255,255,0.08)',
-                      border: '0.5px solid rgba(255,255,255,0.15)',
-                      padding: '16px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>Состав</span>
-                      <span style={{ 
-                        color: 'rgba(255,255,255,0.9)',
-                        fontSize: '14px',
-                        fontWeight: 500,
-                        letterSpacing: '-0.01em'
+                  {/* Inline material pill row */}
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {[
+                      { label: selectedProduct.composition },
+                      { label: fitTranslations[selectedProduct.fit] },
+                      { label: selectedProduct.category },
+                    ].map((tag, i) => (
+                      <span key={i} style={{
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        letterSpacing: '0.12em',
+                        textTransform: 'uppercase',
+                        color: 'rgba(255,255,255,0.55)',
+                        background: 'rgba(255,255,255,0.06)',
+                        border: '0.5px solid rgba(255,255,255,0.1)',
+                        padding: '6px 12px',
+                        borderRadius: '99px',
+                        fontFamily: "'Satoshi', 'Inter', sans-serif",
                       }}>
-                        {selectedProduct.composition}
+                        {tag.label}
                       </span>
-                    </div>
-                    <div style={{ 
-                      height: '1px', 
-                      background: 'rgba(255,255,255,0.1)',
-                      margin: '12px 0'
-                    }} />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>Посадка</span>
-                      <span style={{ 
-                        color: 'rgba(255,255,255,0.9)',
-                        fontSize: '14px',
-                        fontWeight: 500,
-                        letterSpacing: '-0.01em'
-                      }}>
-                        {fitTranslations[selectedProduct.fit]}
-                      </span>
-                    </div>
+                    ))}
                   </div>
                 </div>
               )}
@@ -1102,48 +1110,61 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   </div>
                   
                   {mockReviews.map((review, idx) => (
-                    <div 
+                    <div
                       key={idx}
                       style={{
                         padding: '16px',
                         borderRadius: '16px',
-                        background: 'rgba(255,255,255,0.08)',
-                        border: '0.5px solid rgba(255,255,255,0.1)'
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '0.5px solid rgba(255,255,255,0.08)',
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <span style={{ 
-                          color: 'rgba(255,255,255,0.9)',
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          letterSpacing: '-0.01em'
+                      {/* Reviewer header */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                        {/* Avatar */}
+                        <div style={{
+                          width: '34px', height: '34px', borderRadius: '50%',
+                          background: 'rgba(255,255,255,0.1)',
+                          border: '0.5px solid rgba(255,255,255,0.15)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          flexShrink: 0,
                         }}>
-                          {review.name}
-                        </span>
-                        <span style={{ 
-                          color: 'rgba(255,255,255,0.4)',
-                          fontSize: '12px',
-                          letterSpacing: '-0.01em'
-                        }}>
-                          {review.date}
-                        </span>
+                          <span style={{
+                            fontSize: '13px', fontWeight: 700,
+                            color: 'rgba(255,255,255,0.75)',
+                            fontFamily: "'Satoshi', 'Inter', sans-serif",
+                          }}>
+                            {review.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.01em' }}>
+                            {review.name}
+                          </p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                            <div style={{ display: 'flex', gap: '2px' }}>
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  style={{ width: '10px', height: '10px' }}
+                                  fill={star <= review.rating ? 'rgba(255,255,255,0.85)' : 'transparent'}
+                                  stroke={star <= review.rating ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
+                                />
+                              ))}
+                            </div>
+                            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.02em' }}>
+                              {review.date}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star 
-                            key={star} 
-                            className="w-3 h-3" 
-                            fill={star <= review.rating ? 'rgba(255,255,255,0.9)' : 'transparent'}
-                            stroke={star <= review.rating ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)'}
-                          />
-                        ))}
-                      </div>
-                      <p style={{ 
-                        color: 'rgba(255,255,255,0.7)',
+                      <p style={{
+                        color: 'rgba(255,255,255,0.65)',
                         fontSize: '14px',
-                        lineHeight: 1.6,
+                        lineHeight: 1.65,
                         letterSpacing: '-0.01em',
-                        textRendering: 'optimizeLegibility'
+                        fontFamily: "'Cormorant Garamond', Georgia, serif",
+                        fontWeight: 400,
                       }}>
                         {review.text}
                       </p>
@@ -1251,57 +1272,77 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         </div>
         {/* END SCROLLABLE CONTENT CONTAINER */}
 
-        {/* ABSOLUTE Bottom Panel - как в Электронике */}
-        <div 
-          className="absolute left-0 right-0 z-[90]"
+        {/* FIXED Bottom CTA — premium 2026 */}
+        <div
+          className="fixed left-0 right-0 z-[90]"
           style={{
-            bottom: '90px',
-            padding: '12px 16px',
+            bottom: '88px',
+            padding: '10px 16px',
+            background: 'linear-gradient(to top, #0A0A0A 65%, transparent)',
           }}
         >
-          <div 
-            className="rounded-2xl p-3 flex items-center gap-4"
-            style={{
-              background: 'rgba(0,0,0,0.85)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '0.5px solid rgba(255,255,255,0.15)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)'
-            }}
-          >
-            <div className="flex flex-col">
-              <span 
-                className="text-[10px] font-medium"
-                style={{ color: 'rgba(255,255,255,0.5)' }}
-              >
-                Итого
-              </span>
-              <span 
-                className="text-lg font-bold"
-                style={{ color: 'rgba(255,255,255,0.98)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
-              >
-                {formatPrice(selectedProduct.price)}
-              </span>
-            </div>
-            
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            {/* Favorite button */}
+            <button
+              onClick={() => handleToggleFavorite(selectedProduct.id)}
+              aria-label={isFavorite(selectedProduct.id) ? 'Убрать из избранного' : 'В избранное'}
+              className="flex-shrink-0 transition-all active:scale-95"
+              style={{
+                width: '52px', height: '52px', borderRadius: '14px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: isFavorite(selectedProduct.id)
+                  ? 'rgba(255,59,48,0.15)'
+                  : 'rgba(255,255,255,0.08)',
+                border: isFavorite(selectedProduct.id)
+                  ? '0.5px solid rgba(255,59,48,0.4)'
+                  : '0.5px solid rgba(255,255,255,0.12)',
+              }}
+            >
+              <Heart
+                style={{ width: '20px', height: '20px' }}
+                fill={isFavorite(selectedProduct.id) ? '#FF3B30' : 'none'}
+                stroke={isFavorite(selectedProduct.id) ? '#FF3B30' : 'rgba(255,255,255,0.7)'}
+                strokeWidth={2}
+              />
+            </button>
+
+            {/* Add to cart — price inside */}
             <ConfirmDrawer
               trigger={
                 <button
-                  className="flex-1 py-4 rounded-xl font-black text-[15px] flex items-center justify-center transition-all duration-300 active:scale-98"
+                  className="flex-1 transition-all duration-200 active:scale-[0.98]"
                   style={{
+                    height: '52px',
+                    borderRadius: '14px',
                     background: 'var(--theme-primary)',
                     color: '#000',
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase',
-                    boxShadow: '0 4px 24px rgba(var(--theme-primary-rgb, 99,102,241),0.45)'
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 20px rgba(var(--theme-primary-rgb, 99,102,241),0.4)',
                   }}
                   data-testid="button-buy-now"
                 >
-                  В КОРЗИНУ
+                  <span style={{
+                    fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em',
+                    textTransform: 'uppercase', fontFamily: "'Satoshi', 'Inter', sans-serif",
+                  }}>
+                    В КОРЗИНУ
+                  </span>
+                  <span style={{
+                    width: '1px', height: '16px', background: 'rgba(0,0,0,0.2)',
+                  }} />
+                  <span style={{
+                    fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em',
+                    fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi', 'Inter', sans-serif",
+                  }}>
+                    {formatPrice(selectedProduct.price)}
+                  </span>
                 </button>
               }
               title="Добавить в корзину?"
-              description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
+              description={`${selectedProduct.name} · ${selectedColor} · ${selectedSize}`}
               confirmText="Добавить"
               cancelText="Отмена"
               variant="default"
