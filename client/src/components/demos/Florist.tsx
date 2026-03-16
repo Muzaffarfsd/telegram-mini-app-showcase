@@ -728,7 +728,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                 </div>
               </m.div>
 
-              <m.div variants={contentItem} style={{ minHeight: '260px' }}>
+              <div>
                 <AnimatePresence mode="wait">
                   {activeProductTab === 'bouquet' && (
                     <m.div key="bouquet" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
@@ -863,7 +863,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                     </m.div>
                   )}
                 </AnimatePresence>
-              </m.div>
+              </div>
 
               <m.div variants={contentItem} style={{ marginTop: '6px' }}>
                 <div style={{ height: '1px', background: 'rgba(0,0,0,0.06)', marginBottom: '20px' }} />

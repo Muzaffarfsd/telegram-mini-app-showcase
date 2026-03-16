@@ -950,7 +950,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               </m.div>
 
               {/* ── TAB CONTENT PANELS ── */}
-              <m.div variants={contentItem} style={{ minHeight: '260px' }}>
+              <div>
                 <AnimatePresence mode="wait">
                 {/* ── TAB: АРОМАТ — Notes Pyramid + Longevity/Sillage + Occasions + Perfumer's Note ── */}
                 {activeProductTab === 'fragrance' && (
@@ -1170,7 +1170,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 )}
                 </AnimatePresence>
 
-              </m.div>
+              </div>
 
               {/* ── BLOCK 8: SERVICE STRIP ── */}
               <m.div variants={contentItem} style={{ marginTop: '6px' }}>
