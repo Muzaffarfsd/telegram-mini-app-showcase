@@ -350,6 +350,8 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   const [activeProductTab, setActiveProductTab] = useState<'fragrance' | 'details' | 'reviews'>('fragrance');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [quickViewPerfume, setQuickViewPerfume] = useState<Perfume | null>(null);
+  const [catalogSearch, setCatalogSearch] = useState('');
+  const [showCatalogSearch, setShowCatalogSearch] = useState(false);
   const productScrollRef = useRef<HTMLDivElement>(null);
 
   const { toast } = useToast();
@@ -694,8 +696,8 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '22px',
-                background: '#0C0C0E',
-                borderTop: `0.5px solid ${accentColor}25`,
+                background: `linear-gradient(180deg, ${bgColor}EE 0%, #07070A 110px, #07070A 100%)`,
+                borderTop: `0.5px solid ${accentColor}30`,
               }}
             >
 
@@ -891,9 +893,10 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
               {/* ── TAB CONTENT PANELS ── */}
               <m.div variants={contentItem} style={{ minHeight: '260px' }}>
-
+                <AnimatePresence mode="wait">
                 {/* ── TAB: АРОМАТ — Notes Pyramid + Longevity/Sillage + Occasions + Perfumer's Note ── */}
                 {activeProductTab === 'fragrance' && (
+                <m.div key="fragrance" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
 
                     {/* Notes Pyramid */}
@@ -993,10 +996,12 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                     </div>
 
                   </div>
+                </m.div>
                 )}
 
                 {/* ── TAB: ДЕТАЛИ — Characteristics table ── */}
                 {activeProductTab === 'details' && (
+                <m.div key="details" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {[
                       { label: 'Бренд', value: selectedPerfume.brand },
@@ -1038,10 +1043,12 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                       </div>
                     ))}
                   </div>
+                </m.div>
                 )}
 
                 {/* ── TAB: ОТЗЫВЫ — Reviews ── */}
                 {activeProductTab === 'reviews' && (
+                <m.div key="reviews" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {/* Rating summary */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
@@ -1101,7 +1108,9 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                       </div>
                     ))}
                   </div>
+                </m.div>
                 )}
+                </AnimatePresence>
 
               </m.div>
 
@@ -1499,9 +1508,9 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                   style={{
                     padding: '8px 14px', borderRadius: '20px',
                     fontSize: '11px', fontWeight: 600,
-                    color: 'rgba(255,255,255,0.7)',
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '0.5px solid rgba(255,255,255,0.1)',
+                    color: 'rgba(255,255,255,0.85)',
+                    background: `${cfg.color}18`,
+                    border: `0.5px solid ${cfg.color}35`,
                     fontFamily: "'Satoshi','Inter',sans-serif",
                   }}
                 >
@@ -1782,9 +1791,11 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
      CATALOG PAGE
   ──────────────────────────────────────────────────────────── */
   if (activeTab === 'catalog') {
+    const catalogQ = catalogSearch.trim().toLowerCase();
     const filtered = perfumes.filter(p =>
       (selectedCategory === 'Все' || p.category === selectedCategory) &&
-      (selectedGender === 'All' || p.gender === selectedGender)
+      (selectedGender === 'All' || p.gender === selectedGender) &&
+      (catalogQ === '' || p.name.toLowerCase().includes(catalogQ) || p.brand.toLowerCase().includes(catalogQ))
     );
     return (
       <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
@@ -1805,40 +1816,106 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
             </div>
             <div className="flex items-center gap-2">
               <button
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+                onClick={() => { setShowCatalogSearch(s => !s); if (showCatalogSearch) setCatalogSearch(''); }}
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
+                style={{
+                  background: showCatalogSearch ? '#C9B037' : 'rgba(255,255,255,0.07)',
+                  border: showCatalogSearch ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
+                }}
                 aria-label="Поиск" data-testid="button-view-search">
-                <Search className="w-4 h-4" />
+                <Search className="w-4 h-4" style={{ color: showCatalogSearch ? '#000' : 'rgba(255,255,255,0.7)' }} />
               </button>
               <button
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+                onClick={() => setSelectedGender(g => g === 'All' ? 'Woman' : g === 'Woman' ? 'Men' : g === 'Men' ? 'Unisex' : 'All')}
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
+                style={{
+                  background: selectedGender !== 'All' ? '#C9B037' : 'rgba(255,255,255,0.07)',
+                  border: selectedGender !== 'All' ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
+                }}
                 aria-label="Фильтры" data-testid="button-view-filter">
-                <Filter className="w-4 h-4" />
+                <Filter className="w-4 h-4" style={{ color: selectedGender !== 'All' ? '#000' : 'rgba(255,255,255,0.7)' }} />
               </button>
             </div>
           </div>
 
+          {/* Inline search bar */}
+          <AnimatePresence>
+            {showCatalogSearch && (
+              <m.div
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: 44, marginBottom: 12 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(255,255,255,0.35)' }} />
+                  <input
+                    autoFocus
+                    value={catalogSearch}
+                    onChange={e => setCatalogSearch(e.target.value)}
+                    placeholder="Поиск по названию или бренду…"
+                    className="w-full h-11 rounded-2xl pl-10 pr-4 text-[13px] outline-none"
+                    style={{
+                      background: 'rgba(255,255,255,0.07)',
+                      border: '0.5px solid rgba(255,255,255,0.12)',
+                      color: 'rgba(255,255,255,0.9)',
+                      fontFamily: "'Satoshi','Inter',sans-serif",
+                    }}
+                  />
+                </div>
+              </m.div>
+            )}
+          </AnimatePresence>
+
+          {/* Gender filter chips */}
+          <div className="flex gap-1.5 mb-3">
+            {(['All', 'Woman', 'Men', 'Unisex'] as const).map((g) => {
+              const labels: Record<string, string> = { All: 'Все', Woman: 'Женские', Men: 'Мужские', Unisex: 'Унисекс' };
+              const active = selectedGender === g;
+              return (
+                <button
+                  key={g}
+                  onClick={() => setSelectedGender(g)}
+                  className="flex-shrink-0 px-3 py-1 rounded-full transition-all active:scale-95"
+                  style={{
+                    fontSize: '10px', fontWeight: active ? 700 : 500,
+                    letterSpacing: '0.06em', fontFamily: "'Satoshi','Inter',sans-serif",
+                    background: active ? 'rgba(255,255,255,0.14)' : 'transparent',
+                    color: active ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.38)',
+                    border: active ? '0.5px solid rgba(255,255,255,0.25)' : '0.5px solid transparent',
+                  }}
+                >
+                  {labels[g]}
+                </button>
+              );
+            })}
+          </div>
+
           {/* Category chips */}
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className="flex-shrink-0 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all active:scale-95"
-                style={{
-                  background: selectedCategory === cat ? '#C9B037' : 'rgba(255,255,255,0.07)',
-                  color: selectedCategory === cat ? '#000' : 'rgba(255,255,255,0.6)',
-                  border: selectedCategory === cat ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
-                  fontSize: '11px', fontWeight: selectedCategory === cat ? 700 : 500,
-                  letterSpacing: '0.04em', fontFamily: "'Satoshi','Inter',sans-serif",
-                }}
-                aria-pressed={selectedCategory === cat}
-                data-testid={`button-filter-${cat.toLowerCase()}`}
-              >
-                {cat}
-              </button>
-            ))}
+            {categories.map((cat) => {
+              const catColor = cat !== 'Все' ? (categoryConfig[cat]?.color ?? '#C9B037') : '#C9B037';
+              const active = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className="flex-shrink-0 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all active:scale-95"
+                  style={{
+                    background: active ? catColor : 'rgba(255,255,255,0.06)',
+                    color: active ? '#000' : 'rgba(255,255,255,0.6)',
+                    border: active ? 'none' : `0.5px solid ${cat !== 'Все' ? `${catColor}30` : 'rgba(255,255,255,0.1)'}`,
+                    fontSize: '11px', fontWeight: active ? 700 : 500,
+                    letterSpacing: '0.04em', fontFamily: "'Satoshi','Inter',sans-serif",
+                  }}
+                  aria-pressed={active}
+                  data-testid={`button-filter-${cat.toLowerCase()}`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
           </div>
 
           {/* Product count */}
@@ -2032,6 +2109,34 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
             return rows;
           })()}
         </div>
+
+        {/* ─── EMPTY STATE ─── */}
+        {filtered.length === 0 && (
+          <m.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center justify-center py-20 px-8 text-center"
+          >
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
+              style={{ background: 'rgba(201,176,55,0.1)', border: '0.5px solid rgba(201,176,55,0.25)' }}>
+              <Search className="w-6 h-6" style={{ color: '#C9B037' }} />
+            </div>
+            <p style={{ fontSize: '20px', fontWeight: 300, fontStyle: 'italic', letterSpacing: '0.02em', fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: '8px', color: 'rgba(255,255,255,0.85)' }}>
+              Ничего не найдено
+            </p>
+            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.38)', fontFamily: "'Satoshi','Inter',sans-serif", lineHeight: 1.6, marginBottom: '20px' }}>
+              {catalogSearch ? `По запросу «${catalogSearch}» ароматов не найдено` : 'Попробуйте изменить фильтры'}
+            </p>
+            <button
+              onClick={() => { setSelectedCategory('Все'); setSelectedGender('All'); setCatalogSearch(''); setShowCatalogSearch(false); }}
+              className="px-6 py-2.5 rounded-full text-[12px] font-bold tracking-[0.05em] transition-all active:scale-95"
+              style={{ background: '#C9B037', color: '#000', fontFamily: "'Satoshi','Inter',sans-serif" }}
+            >
+              Сбросить фильтры
+            </button>
+          </m.div>
+        )}
 
         {/* ─── QUICK VIEW MODAL ─── */}
         <AnimatePresence>
