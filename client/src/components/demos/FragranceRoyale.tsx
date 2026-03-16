@@ -4,7 +4,7 @@ import { m, AnimatePresence } from "framer-motion";
 import {
   Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package,
   CreditCard, MapPin, Settings, LogOut, User, Sparkles, Search,
-  Menu, Home, Grid, Tag, Plus, Minus, Flame, Wind, Leaf, Gem, Flower2
+  Menu, Home, Grid, Tag, Plus, Minus, Flame, Wind, Leaf, Gem, Flower2, Eye
 } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
 import { usePersistentCart } from "@/hooks/usePersistentCart";
@@ -347,6 +347,8 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   const [productExiting, setProductExiting] = useState(false);
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const [activeProductTab, setActiveProductTab] = useState<'fragrance' | 'details' | 'reviews'>('fragrance');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [quickViewPerfume, setQuickViewPerfume] = useState<Perfume | null>(null);
 
   const { toast } = useToast();
   const sidebar = useDemoSidebar();
@@ -1273,7 +1275,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           bgColor="var(--theme-background)"
         />
 
-        {/* Header */}
+        {/* ─── HEADER ─── */}
         <div className="px-5 pt-5 pb-4">
           <div className="flex items-center justify-between">
             <button
@@ -1313,50 +1315,129 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               </button>
             </div>
           </div>
+
+          {/* Search bar */}
+          <div className="flex items-center gap-2 mt-4 px-4 py-2.5 rounded-full"
+            style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}>
+            <Search className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.35)' }} />
+            <input
+              type="text"
+              placeholder="Поиск ароматов, брендов..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-transparent text-white placeholder:text-white/35 outline-none flex-1 text-sm"
+              style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}
+              data-testid="input-search"
+            />
+          </div>
+
+          {/* Gender filters — animated underline */}
+          <div className="flex items-center gap-1 mt-4">
+            {genderFilters.map((gender) => (
+              <button
+                key={gender}
+                onClick={() => setSelectedGender(gender)}
+                className="relative px-3 py-1.5 text-sm transition-all"
+                data-testid={`button-filter-${gender.toLowerCase()}`}
+                style={{
+                  color: selectedGender === gender ? '#fff' : 'rgba(255,255,255,0.32)',
+                  fontWeight: selectedGender === gender ? 700 : 400,
+                  fontFamily: "'Satoshi','Inter',sans-serif",
+                  letterSpacing: selectedGender === gender ? '-0.01em' : '0',
+                }}
+                aria-pressed={selectedGender === gender}
+              >
+                {gender === 'All' ? 'Все' : gender === 'Woman' ? 'Женские' : gender === 'Men' ? 'Мужские' : 'Унисекс'}
+                {selectedGender === gender && (
+                  <m.div
+                    layoutId="gender-underline-fragrance"
+                    className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full"
+                    style={{ background: '#C9B037' }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                  />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Editorial hero — video */}
-        <div className="relative mx-4 mt-2 rounded-[24px] overflow-hidden" style={{ height: '420px' }}>
+        {/* ─── MARQUEE STRIP ─── */}
+        <div className="overflow-hidden py-2.5 mb-1"
+          style={{ borderTop: '0.5px solid rgba(255,255,255,0.07)', borderBottom: '0.5px solid rgba(255,255,255,0.07)' }}>
+          <m.div
+            className="flex gap-0 whitespace-nowrap"
+            animate={{ x: ['0%', '-50%'] }}
+            transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
+            style={{ width: 'max-content' }}
+          >
+            {[...Array(2)].map((_, rep) => (
+              <span key={rep} className="inline-flex items-center gap-6 pr-6">
+                {['FRAGRANCE ROYALE', '✦', "SS'26", '✦', 'PARFUMS EXCLUSIFS', '✦', 'NICHE PERFUMERY', '✦', 'ÉDITION LIMITÉE', '✦', 'MAISON DE PARFUMS', '✦'].map((word, wi) => (
+                  <span key={wi} className="text-[10px] font-semibold tracking-[0.25em] uppercase"
+                    style={{ color: word === '✦' ? '#C9B037' : 'rgba(255,255,255,0.35)' }}>
+                    {word}
+                  </span>
+                ))}
+              </span>
+            ))}
+          </m.div>
+        </div>
+
+        {/* ─── EDITORIAL HERO — video ─── */}
+        <div className="relative mx-4 mt-3 rounded-[26px] overflow-hidden" style={{ height: '410px' }}>
           <video
             src="/videos/luxury_fragrance.mp4"
             autoPlay muted loop playsInline
             className="absolute inset-0 w-full h-full object-cover"
+            data-testid="video-hero-banner"
           />
-          <div className="absolute inset-0" style={{
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.85) 100%)',
-          }} />
-          <div className="absolute bottom-0 left-0 right-0 p-7">
-            <div className="flex items-center gap-2 mb-3">
-              <div style={{
-                fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em',
-                color: '#C9B037', fontFamily: "'Satoshi','Inter',sans-serif",
-                textTransform: 'uppercase',
-              }}>
-                SS'26 Exclusive
-              </div>
-            </div>
-            <h2 style={{
-              fontSize: '42px', fontWeight: 300, fontStyle: 'italic',
-              lineHeight: 1.0, color: '#fff', letterSpacing: '0.01em',
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              marginBottom: '14px',
-            }}>
-              Новая<br />Коллекция
-            </h2>
-            <button
-              onClick={() => onTabChange?.('catalog')}
-              className="active:scale-95 transition-all duration-200"
-              style={{
-                padding: '12px 24px', borderRadius: '20px',
-                fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em',
-                color: '#000', background: '#C9B037',
-                fontFamily: "'Satoshi','Inter',sans-serif",
-                textTransform: 'uppercase',
-              }}
-              data-testid="button-hero-shop-now"
+          {/* Layered gradients for depth */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.05) 32%, rgba(0,0,0,0.65) 68%, rgba(0,0,0,0.93) 100%)' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.18) 0%, transparent 55%)' }} />
+
+          {/* Season tag — frosted glass pill top-left */}
+          <div className="absolute top-4 left-4">
+            <span className="text-[9px] font-bold tracking-[0.35em] uppercase px-3 py-1.5 rounded-full"
+              style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', color: 'rgba(255,255,255,0.75)', border: '0.5px solid rgba(255,255,255,0.18)' }}>
+              SS&apos;26
+            </span>
+          </div>
+
+          {/* Edition number — top right editorial */}
+          <div className="absolute top-4 right-4 text-right">
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.3)' }}>VOL.I</p>
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.2)' }}>№001</p>
+          </div>
+
+          {/* Hero text — animated entrance */}
+          <div className="absolute bottom-0 left-0 right-0 p-6">
+            <m.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              Смотреть
-            </button>
+              <div style={{ lineHeight: 0.9, marginBottom: '10px' }}>
+                <div style={{ fontSize: '50px', fontWeight: 900, letterSpacing: '-0.04em', color: '#fff', display: 'block' }}>
+                  PARFUMS
+                </div>
+                <div style={{ fontSize: '50px', fontWeight: 100, letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.55)', fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", display: 'block' }}>
+                  d&apos;exception
+                </div>
+              </div>
+              <div className="flex items-center gap-4 mt-5">
+                <button
+                  onClick={() => onTabChange?.('catalog')}
+                  className="px-5 py-2.5 rounded-full text-[13px] font-black text-black transition-all active:scale-95"
+                  style={{ background: '#C9B037', letterSpacing: '-0.01em', fontFamily: "'Satoshi','Inter',sans-serif" }}
+                  data-testid="button-hero-shop-now"
+                >
+                  Смотреть →
+                </button>
+                <p className="text-[10px] tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                  Весна — Лето 2026
+                </p>
+              </div>
+            </m.div>
           </div>
         </div>
 
@@ -1396,30 +1477,89 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           </div>
         </div>
 
-        {/* Gender filters */}
-        <div className="mt-5 px-5 flex gap-5">
-          {genderFilters.map((gender) => (
-            <button
-              key={gender}
-              onClick={() => setSelectedGender(gender)}
-              className="text-sm font-medium transition-colors min-h-[44px]"
-              style={{
-                color: selectedGender === gender ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.35)',
-                fontFamily: "'Satoshi','Inter',sans-serif",
-                fontWeight: selectedGender === gender ? 700 : 500,
-                letterSpacing: '0.05em',
-                borderBottom: selectedGender === gender ? '1px solid rgba(255,255,255,0.5)' : '1px solid transparent',
-              }}
-              aria-pressed={selectedGender === gender}
-              data-testid={`button-filter-${gender.toLowerCase()}`}
-            >
-              {gender === 'All' ? 'Все' : gender === 'Woman' ? 'Женские' : gender === 'Men' ? 'Мужские' : 'Унисекс'}
-            </button>
-          ))}
+        {/* ─── Editorial section divider ─── */}
+        <div className="px-4 mt-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+            <div>
+              <p className="text-[8px] font-semibold tracking-[0.35em] uppercase text-center mb-0.5"
+                style={{ color: 'rgba(255,255,255,0.3)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                Парфюмер рекомендует
+              </p>
+              <h2 className="leading-none text-center"
+                style={{ fontSize: '32px', fontWeight: 300, letterSpacing: '0.08em', fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic' }}>
+                Parfum du Moment
+              </h2>
+            </div>
+            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+          </div>
+
+          {/* Featured perfume — full-width editorial card */}
+          {(() => {
+            const featured = perfumes.find(p => p.isTrending && p.isNew) ?? perfumes[0];
+            const featuredCfg = categoryConfig[featured.category];
+            return (
+              <m.div
+                whileTap={{ scale: 0.985 }}
+                onClick={() => openPerfume(featured)}
+                className="relative cursor-pointer rounded-[22px] overflow-hidden"
+                style={{ height: '300px' }}
+                data-testid={`featured-perfume-${featured.id}`}
+              >
+                <img src={featured.image} alt={featured.name} className="w-full h-full object-cover" loading="lazy" />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.85) 100%)' }} />
+
+                {/* Category badge */}
+                <div className="absolute top-3.5 left-3.5">
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-bold"
+                    style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.15)', color: featuredCfg?.color ?? '#C9B037', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                    {featured.category}
+                  </span>
+                </div>
+
+                {/* Quick heart */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(featured.id); }}
+                  className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                  style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
+                  data-testid={`button-favorite-featured-${featured.id}`}
+                >
+                  <Heart className={`w-4 h-4 ${isFavorite(String(featured.id)) ? 'fill-white text-white' : 'text-white'}`} />
+                </button>
+
+                {/* Info bottom */}
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '4px' }}>
+                        {featured.brand}
+                      </p>
+                      <p style={{ fontSize: '26px', fontWeight: 300, fontStyle: 'italic', lineHeight: 1.1, color: '#fff', fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                        {featured.name}
+                      </p>
+                      <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', marginTop: '4px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                        {featured.topNotes.slice(0, 3).join(' · ')}
+                      </p>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-3">
+                      <p style={{ fontSize: '20px', fontWeight: 800, fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '-0.03em' }}>
+                        {formatPrice(featured.price)}
+                      </p>
+                      {featured.oldPrice && (
+                        <p style={{ fontSize: '12px', textDecoration: 'line-through', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                          {formatPrice(featured.oldPrice)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </m.div>
+            );
+          })()}
         </div>
 
         {/* Just Arrived section */}
-        <div className="mt-8 px-5">
+        <div className="mt-10 px-5">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p style={{
@@ -1607,138 +1747,400 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   ──────────────────────────────────────────────────────────── */
   if (activeTab === 'catalog') {
     const filtered = perfumes.filter(p =>
-      selectedCategory === 'Все' || p.category === selectedCategory
+      (selectedCategory === 'Все' || p.category === selectedCategory)
     );
     return (
       <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
-        <div className="px-5 pt-5 pb-4 flex items-center justify-between">
-          <h1 style={{
-            fontSize: '24px', fontWeight: 300, fontStyle: 'italic',
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            color: 'rgba(255,255,255,0.92)',
-          }}>
-            Каталог
-          </h1>
-          <div className="flex items-center gap-2">
-            <button className="w-10 h-10 flex items-center justify-center" aria-label="Поиск" data-testid="button-view-search">
-              <Search className="w-5 h-5" />
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center" aria-label="Фильтры" data-testid="button-view-filter">
-              <Filter className="w-5 h-5" />
-            </button>
+        {/* ─── Catalog Header ─── */}
+        <div className="px-5 pt-5 pb-3">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
+                style={{ color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                FRAGRANCE ROYALE
+              </p>
+              <h1 className="leading-none" style={{
+                fontSize: '30px', fontWeight: 300, letterSpacing: '0.06em',
+                fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic',
+              }}>
+                Каталог
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+                aria-label="Поиск" data-testid="button-view-search">
+                <Search className="w-4 h-4" />
+              </button>
+              <button
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+                aria-label="Фильтры" data-testid="button-view-filter">
+                <Filter className="w-4 h-4" />
+              </button>
+            </div>
           </div>
+
+          {/* Category chips */}
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className="flex-shrink-0 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all active:scale-95"
+                style={{
+                  background: selectedCategory === cat ? '#C9B037' : 'rgba(255,255,255,0.07)',
+                  color: selectedCategory === cat ? '#000' : 'rgba(255,255,255,0.6)',
+                  border: selectedCategory === cat ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
+                  fontSize: '11px', fontWeight: selectedCategory === cat ? 700 : 500,
+                  letterSpacing: '0.04em', fontFamily: "'Satoshi','Inter',sans-serif",
+                }}
+                aria-pressed={selectedCategory === cat}
+                data-testid={`button-filter-${cat.toLowerCase()}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Product count */}
+          <p className="mt-3 text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+            {filtered.length} {filtered.length === 1 ? 'аромат' : filtered.length < 5 ? 'аромата' : 'ароматов'}
+          </p>
         </div>
 
-        {/* Category chips */}
-        <div className="flex gap-2 px-5 mb-5 overflow-x-auto scrollbar-hide pb-1">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className="flex-shrink-0 active:scale-95 transition-all duration-200"
-              style={{
-                padding: '8px 16px', borderRadius: '20px',
-                fontSize: '12px', fontWeight: 600, letterSpacing: '0.02em',
-                fontFamily: "'Satoshi','Inter',sans-serif",
-                color: selectedCategory === cat ? '#000' : 'rgba(255,255,255,0.6)',
-                background: selectedCategory === cat ? '#C9B037' : 'rgba(255,255,255,0.07)',
-                border: selectedCategory === cat ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
-              }}
-              aria-pressed={selectedCategory === cat}
-              data-testid={`button-filter-${cat.toLowerCase()}`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 px-4">
-          {filtered.map((perfume, index) => (
-            <m.div
-              key={perfume.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => openPerfume(perfume)}
-              className="cursor-pointer"
-              data-testid={`perfume-card-${perfume.id}`}
-            >
-              <div style={{ position: 'relative', height: '220px', borderRadius: '18px', overflow: 'hidden', marginBottom: '10px', background: 'rgba(255,255,255,0.05)' }}>
-                <LazyImage src={perfume.image} alt={perfume.name} className="w-full h-full object-cover" />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(0,0,0,0.5) 0%, transparent 60%)' }} />
-
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(perfume.id); }}
-                  className="absolute top-2.5 right-2.5 w-9 h-9 rounded-full flex items-center justify-center"
-                  style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)' }}
-                  data-testid={`button-favorite-${perfume.id}`}
+        {/* ─── Products — Interleaved Asymmetric Grid ─── */}
+        <div className="px-4 space-y-3 pb-2">
+          {(() => {
+            const rows: React.ReactNode[] = [];
+            let i = 0;
+            let groupIdx = 0;
+            while (i < filtered.length) {
+              const featured = filtered[i];
+              const discountFeatured = featured.oldPrice ? Math.round((1 - featured.price / featured.oldPrice) * 100) : 0;
+              // Full-width featured card
+              rows.push(
+                <m.div
+                  key={`featured-${featured.id}`}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: groupIdx * 0.1 }}
+                  whileTap={{ scale: 0.985 }}
+                  onClick={() => openPerfume(featured)}
+                  className="relative cursor-pointer rounded-[20px] overflow-hidden"
+                  style={{ height: '280px' }}
+                  data-testid={`perfume-card-${featured.id}`}
                 >
-                  <Heart className={`w-4 h-4 ${isFavorite(String(perfume.id)) ? 'fill-white text-white' : 'text-white'}`} />
-                </button>
+                  <LazyImage src={featured.image} alt={featured.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-                {perfume.isNew && (
-                  <div style={{
-                    position: 'absolute', top: '10px', left: '10px',
-                    padding: '3px 8px', borderRadius: '7px',
-                    fontSize: '8px', fontWeight: 800, letterSpacing: '0.1em',
-                    background: '#C9B037', color: '#000',
-                    fontFamily: "'Satoshi','Inter',sans-serif",
-                  }}>
-                    NEW
-                  </div>
-                )}
-
-                <div style={{ position: 'absolute', bottom: '10px', left: '10px', right: '10px' }}>
-                  <div style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '4px',
-                    padding: '3px 8px', borderRadius: '8px', marginBottom: '4px',
-                    background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)',
-                  }}>
-                    <span style={{
-                      fontSize: '8px', fontWeight: 700, letterSpacing: '0.15em',
-                      color: categoryConfig[perfume.category]?.color ?? '#fff',
-                      textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif",
-                    }}>
-                      {perfume.category}
+                  {/* Badges top-left */}
+                  <div className="absolute top-3.5 left-3.5 flex gap-1.5">
+                    {featured.isNew && (
+                      <span className="px-2 py-1 text-[9px] font-black rounded-full tracking-[0.08em] uppercase text-black"
+                        style={{ background: '#C9B037' }}>NEW</span>
+                    )}
+                    <span className="px-2 py-1 text-[9px] font-medium rounded-full"
+                      style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)', color: categoryConfig[featured.category]?.color ?? '#fff', border: '0.5px solid rgba(255,255,255,0.15)', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                      {featured.category}
                     </span>
                   </div>
-                </div>
-              </div>
 
-              <p style={{
-                fontSize: '9px', fontWeight: 700, letterSpacing: '0.22em',
-                color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
-                fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '3px',
-              }}>
-                {perfume.brand}
-              </p>
-              <p style={{
-                fontSize: '15px', fontWeight: 300, fontStyle: 'italic',
-                color: 'rgba(255,255,255,0.9)', lineHeight: 1.2, marginBottom: '5px',
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
-              }}>
-                {perfume.name}
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <p style={{
-                  fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.82)',
-                  fontFamily: "'Satoshi','Inter',sans-serif",
-                }}>
-                  {formatPrice(perfume.price)}
-                </p>
-                {perfume.oldPrice && (
-                  <p style={{
-                    fontSize: '11px', color: 'rgba(255,255,255,0.3)',
-                    textDecoration: 'line-through', fontFamily: "'Satoshi','Inter',sans-serif",
-                  }}>
-                    {formatPrice(perfume.oldPrice)}
-                  </p>
-                )}
-              </div>
-            </m.div>
-          ))}
+                  {/* Actions top-right */}
+                  <div className="absolute top-3.5 right-3.5 flex gap-1.5">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setQuickViewPerfume(featured); }}
+                      aria-label="Быстрый просмотр"
+                      className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                      style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
+                      data-testid={`button-quickview-${featured.id}`}
+                    >
+                      <Eye className="w-3.5 h-3.5 text-white" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleToggleFavorite(featured.id); }}
+                      aria-label="Избранное"
+                      className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                      style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
+                      data-testid={`button-favorite-catalog-${featured.id}`}
+                    >
+                      <Heart className={`w-3.5 h-3.5 ${isFavorite(String(featured.id)) ? 'fill-white' : ''} text-white`} />
+                    </button>
+                  </div>
+
+                  {/* Info bottom-left */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="flex items-end justify-between">
+                      <div className="flex-1 mr-3">
+                        <p className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-1" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                          {featured.brand}
+                        </p>
+                        <p style={{ fontSize: '18px', fontWeight: 300, fontStyle: 'italic', letterSpacing: '0.02em', fontFamily: "'Cormorant Garamond', Georgia, serif", lineHeight: 1.15 }}>
+                          {featured.name}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-base font-bold" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                          {formatPrice(featured.price)}
+                        </p>
+                        {featured.oldPrice && (
+                          <p className="text-[10px] line-through" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                            {formatPrice(featured.oldPrice)}
+                          </p>
+                        )}
+                        {discountFeatured > 0 && (
+                          <span className="inline-block text-[9px] font-black text-black mt-1 px-1.5 py-0.5 rounded-md" style={{ background: '#C9B037', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                            −{discountFeatured}%
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </m.div>
+              );
+              i++;
+
+              // 2-col pair
+              const pair = filtered.slice(i, i + 2);
+              if (pair.length > 0) {
+                rows.push(
+                  <div key={`pair-${groupIdx}`} className="grid grid-cols-2 gap-3">
+                    {pair.map((product, colIdx) => {
+                      const discountPair = product.oldPrice ? Math.round((1 - product.price / product.oldPrice) * 100) : 0;
+                      return (
+                        <m.div
+                          key={product.id}
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: groupIdx * 0.1 + 0.04 + colIdx * 0.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => openPerfume(product)}
+                          className="cursor-pointer"
+                          data-testid={`perfume-card-${product.id}`}
+                        >
+                          <div className="relative rounded-[18px] overflow-hidden mb-2.5"
+                            style={{ height: colIdx === 0 ? '210px' : '178px' }}>
+                            <LazyImage src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+
+                            {/* Actions */}
+                            <div className="absolute top-2 right-2 flex flex-col gap-1.5">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
+                                aria-label="Избранное"
+                                className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                                style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
+                                data-testid={`button-favorite-catalog-${product.id}`}
+                              >
+                                <Heart className={`w-3 h-3 ${isFavorite(String(product.id)) ? 'fill-white' : ''} text-white`} />
+                              </button>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setQuickViewPerfume(product); }}
+                                aria-label="Быстрый просмотр"
+                                className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                                style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
+                                data-testid={`button-quickview-${product.id}`}
+                              >
+                                <Eye className="w-3 h-3 text-white" />
+                              </button>
+                            </div>
+
+                            {/* Discount badge */}
+                            {discountPair > 0 && (
+                              <div className="absolute top-2 left-2">
+                                <span className="px-1.5 py-0.5 text-[9px] font-black rounded-md text-black"
+                                  style={{ background: '#C9B037', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                                  −{discountPair}%
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <p className="text-[8px] font-semibold tracking-[0.22em] uppercase mb-0.5 truncate"
+                              style={{ color: 'rgba(255,255,255,0.38)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                              {product.brand}
+                            </p>
+                            <p style={{ fontSize: '13px', fontWeight: 300, fontStyle: 'italic', lineHeight: 1.2, marginBottom: '4px', fontFamily: "'Cormorant Garamond', Georgia, serif", color: 'rgba(255,255,255,0.9)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' } as React.CSSProperties}>
+                              {product.name}
+                            </p>
+                            <div className="flex items-baseline gap-1.5 mb-1">
+                              <span className="text-[13px] font-bold" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                                {formatPrice(product.price)}
+                              </span>
+                              {product.oldPrice && (
+                                <span className="text-[10px] line-through" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                                  {formatPrice(product.oldPrice)}
+                                </span>
+                              )}
+                            </div>
+                            {/* Star rating dots */}
+                            <div className="flex items-center gap-0.5">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <div key={star} className="w-1.5 h-1.5 rounded-full"
+                                  style={{ background: star <= Math.round(product.rating) ? '#C9B037' : 'rgba(255,255,255,0.15)' }} />
+                              ))}
+                            </div>
+                          </div>
+                        </m.div>
+                      );
+                    })}
+                  </div>
+                );
+                i += pair.length;
+              }
+              groupIdx++;
+            }
+            return rows;
+          })()}
         </div>
+
+        {/* ─── QUICK VIEW MODAL ─── */}
+        <AnimatePresence>
+          {quickViewPerfume && (
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[100] flex items-end justify-center"
+              style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}
+              onClick={() => setQuickViewPerfume(null)}
+            >
+              <m.div
+                initial={{ opacity: 0, y: 100, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 100, scale: 0.95 }}
+                transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                className="w-full max-w-lg rounded-t-[32px] overflow-hidden relative"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(30,22,40,0.97) 0%, rgba(16,12,22,0.99) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: '0.5px solid rgba(255,255,255,0.12)',
+                  boxShadow: '0 -20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
+                  maxHeight: '72vh',
+                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 80px)',
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Drag handle */}
+                <div className="flex justify-center pt-3 pb-2">
+                  <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.28)' }} />
+                </div>
+
+                {/* Close */}
+                <button
+                  onClick={() => setQuickViewPerfume(null)}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10"
+                  style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)' }}
+                  data-testid="button-close-quickview"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+
+                <div className="px-5 pb-4 overflow-y-auto" style={{ maxHeight: 'calc(72vh - 56px)' }}>
+                  {/* Hero row */}
+                  <div style={{ display: 'flex', gap: '14px', marginBottom: '18px' }}>
+                    <div style={{ width: '100px', flexShrink: 0, borderRadius: '14px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', aspectRatio: '2/3' }}>
+                      <LazyImage src={quickViewPerfume.image} alt={quickViewPerfume.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: '2px', minWidth: 0 }}>
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: '6px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                        {quickViewPerfume.brand}
+                      </p>
+                      <h3 style={{ fontSize: '20px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '0.03em', color: 'rgba(255,255,255,0.95)', lineHeight: 1.15, marginBottom: '8px' }}>
+                        {quickViewPerfume.name}
+                      </h3>
+                      {/* Stars */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginBottom: '12px' }}>
+                        {[1,2,3,4,5].map(s => (
+                          <Star key={s} style={{ width: '11px', height: '11px' }}
+                            fill={s <= Math.round(quickViewPerfume.rating) ? '#C9B037' : 'transparent'}
+                            stroke={s <= Math.round(quickViewPerfume.rating) ? '#C9B037' : 'rgba(255,255,255,0.2)'}
+                          />
+                        ))}
+                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginLeft: '3px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                          {quickViewPerfume.rating}
+                        </span>
+                      </div>
+                      <div style={{ marginTop: 'auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' as const }}>
+                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                            {formatPrice(quickViewPerfume.price)}
+                          </span>
+                          {quickViewPerfume.oldPrice && (
+                            <span style={{ fontSize: '13px', textDecoration: 'line-through', color: 'rgba(255,255,255,0.28)', fontVariantNumeric: 'tabular-nums' }}>
+                              {formatPrice(quickViewPerfume.oldPrice)}
+                            </span>
+                          )}
+                        </div>
+                        {quickViewPerfume.oldPrice && (
+                          <span style={{ display: 'inline-block', marginTop: '5px', fontSize: '10px', fontWeight: 700, color: '#000', background: '#C9B037', borderRadius: '6px', padding: '2px 8px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                            −{Math.round((1 - quickViewPerfume.price / quickViewPerfume.oldPrice) * 100)}%
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', marginBottom: '16px' }} />
+
+                  {/* Top Notes preview */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '8px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      Верхние ноты
+                    </p>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
+                      {quickViewPerfume.topNotes.map(note => (
+                        <span key={note} style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '11px', background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.75)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                          {note}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Category + Longevity */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+                    <div style={{ padding: '12px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
+                      <p style={{ fontSize: '8px', fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '4px', fontFamily: "'Satoshi','Inter',sans-serif" }}>Семейство</p>
+                      <p style={{ fontSize: '13px', fontWeight: 600, color: categoryConfig[quickViewPerfume.category]?.color ?? '#fff', fontFamily: "'Satoshi','Inter',sans-serif" }}>{quickViewPerfume.category}</p>
+                    </div>
+                    <div style={{ padding: '12px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
+                      <p style={{ fontSize: '8px', fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '4px', fontFamily: "'Satoshi','Inter',sans-serif" }}>Стойкость</p>
+                      <p style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.85)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{quickViewPerfume.longevity}</p>
+                    </div>
+                  </div>
+
+                  {/* CTA buttons */}
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                      onClick={() => { setQuickViewPerfume(null); openPerfume(quickViewPerfume); }}
+                      className="flex-1 py-3.5 rounded-[16px] text-[13px] font-bold transition-all active:scale-[0.98]"
+                      style={{ background: 'rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.85)', border: '0.5px solid rgba(255,255,255,0.15)', fontFamily: "'Satoshi','Inter',sans-serif" }}
+                      data-testid="button-quickview-details"
+                    >
+                      Подробнее
+                    </button>
+                    <button
+                      onClick={() => {
+                        addToCartHook({ id: String(quickViewPerfume.id), name: quickViewPerfume.name, price: quickViewPerfume.price, image: quickViewPerfume.image, size: quickViewPerfume.volumes[0], color: quickViewPerfume.concentrations[0] });
+                        toast({ title: 'Добавлено в корзину', description: `${quickViewPerfume.name} · ${quickViewPerfume.concentrations[0]}`, duration: 2000 });
+                        setQuickViewPerfume(null);
+                      }}
+                      className="flex-1 py-3.5 rounded-[16px] text-[13px] font-black transition-all active:scale-[0.98]"
+                      style={{ background: '#C9B037', color: '#000', fontFamily: "'Satoshi','Inter',sans-serif" }}
+                      data-testid="button-quickview-add-to-cart"
+                    >
+                      В корзину
+                    </button>
+                  </div>
+                </div>
+              </m.div>
+            </m.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
