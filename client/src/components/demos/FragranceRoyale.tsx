@@ -1560,42 +1560,6 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           </div>
         </div>
 
-        {/* Scent family chips */}
-        <div className="mt-7 px-5">
-          <div className="flex items-center justify-between mb-3">
-            <p style={{
-              fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em',
-              color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
-              fontFamily: "'Satoshi','Inter',sans-serif",
-            }}>
-              Семейство ароматов
-            </p>
-          </div>
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-            {Object.entries(categoryConfig).map(([key, cfg]) => {
-              const Icon = cfg.icon;
-              return (
-                <button
-                  key={key}
-                  onClick={() => { setSelectedCategory(key); onTabChange?.('catalog'); }}
-                  className="flex items-center gap-1.5 flex-shrink-0 active:scale-95 transition-all duration-200"
-                  style={{
-                    padding: '8px 14px', borderRadius: '20px',
-                    fontSize: '11px', fontWeight: 600,
-                    color: 'rgba(255,255,255,0.85)',
-                    background: `${cfg.color}18`,
-                    border: `0.5px solid ${cfg.color}35`,
-                    fontFamily: "'Satoshi','Inter',sans-serif",
-                  }}
-                >
-                  <Icon style={{ width: '12px', height: '12px', color: cfg.color }} />
-                  {cfg.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* ─── Editorial section divider ─── */}
         <div className="px-4 mt-10">
           <div className="flex items-center gap-3 mb-6">
