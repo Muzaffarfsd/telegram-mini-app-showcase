@@ -2,6 +2,11 @@
 
 This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional demo applications across various business sectors. It highlights the potential of AI agents for 24/7 support, sales automation, personalization, and analytics within a Telegram environment. The platform offers an interactive experience for users to explore diverse business scenarios and serves as an "app within an app."
 
+## 2026 Q1 Updates (March 2026)
+- **TimeElite Premium Rewrite** (2429 lines): Full editorial redesign matching FragranceRoyale quality — parallax hero 70vh, sticky glass header, 3-tab product detail (Характеристики/Наследие/Отзывы), mockWatchReviews, marquee strip, recommended carousel, service strip, editorial home/cart/profile with tier system (ELITE GOLD/PLATINUM). Theme: `DemoThemeProvider themeId="timeElite"`, accent `#D4AF37`, font `Playfair Display`.
+- **SneakerVault Premium Rewrite** (1996 lines): Same quality overhaul — parallax hero, sticky glass header, 3-tab product detail (Кроссовки/Технологии/Отзывы), mockSneakerReviews, marquee strip, recommended carousel, service strip, editorial pages with tier system (VAULT GOLD/PLATINUM). Theme: `DemoThemeProvider themeId="sneakerVault"`, accent `#f97316`, font `Montserrat`.
+- **Shared Premium Patterns**: productPageVariants, contentStagger/contentItem animations, heroImageRef parallax, productScrollRef, handleProductBack with exit animation, animated tab underline with layoutId.
+
 ## 2026 Q1 Updates (January 2026)
 - **React 19.2**: New `<Activity>` component, `useEffectEvent` hook, improved DevTools performance tracking
 - **framer-motion 12**: Rebranded to `motion`, new animation APIs

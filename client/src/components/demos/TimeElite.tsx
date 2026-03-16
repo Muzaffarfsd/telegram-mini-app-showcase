@@ -506,20 +506,20 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
     clearCart, 
     totalAmount: cartTotal,
     totalItems: cartCount 
-  } = usePersistentCart({ storageKey: STORE_KEY });
+  } = usePersistentCart({ storageKey: `${STORE_KEY}_cart` });
   
   const { 
     favorites, 
     toggleFavorite, 
     isFavorite,
     favoritesCount 
-  } = usePersistentFavorites({ storageKey: STORE_KEY });
+  } = usePersistentFavorites({ storageKey: `${STORE_KEY}_favorites` });
   
   const { 
     orders, 
     createOrder,
     ordersCount 
-  } = usePersistentOrders({ storageKey: STORE_KEY });
+  } = usePersistentOrders({ storageKey: `${STORE_KEY}_orders` });
   
   const sidebarMenuItems = [
     { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home', onClick: () => onTabChange?.('home') },
@@ -546,7 +546,7 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
 
   const contentItem = {
     hidden: { opacity: 0, y: 14 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as number[] } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
   };
 
   const { filteredItems, handleSearch } = useFilter({
