@@ -90,7 +90,7 @@ const products: Product[] = [
     gender: 'Men',
     inStock: 15, 
     rating: 5.0, 
-    brand: 'CARBON',
+    brand: 'CARBON STUDIO',
     isNew: true,
     isTrending: true,
     composition: '100% органический хлопок',
@@ -112,7 +112,7 @@ const products: Product[] = [
     gender: 'Men',
     inStock: 8, 
     rating: 4.9, 
-    brand: 'URBAN',
+    brand: 'URBAN ATELIER',
     isNew: true,
     isTrending: true,
     composition: '80% хлопок, 20% полиэстер',
@@ -134,7 +134,7 @@ const products: Product[] = [
     gender: 'Men',
     inStock: 5, 
     rating: 5.0, 
-    brand: 'PUFF',
+    brand: 'NORD ATELIER',
     isNew: true,
     isTrending: true,
     composition: '100% нейлон, наполнитель: гусиный пух',
@@ -156,7 +156,7 @@ const products: Product[] = [
     gender: 'Woman',
     inStock: 8, 
     rating: 4.9, 
-    brand: 'PUFF',
+    brand: 'STUDIO X',
     isNew: true,
     isTrending: true,
     composition: '100% итальянский полиамид',
@@ -177,7 +177,7 @@ const products: Product[] = [
     gender: 'Woman',
     inStock: 10, 
     rating: 5.0, 
-    brand: 'PUFF',
+    brand: 'MAISON P',
     isTrending: true,
     composition: '90% утиный пух, 10% перо',
     fit: 'slim',
@@ -197,7 +197,7 @@ const products: Product[] = [
     gender: 'Children',
     inStock: 6, 
     rating: 4.8, 
-    brand: 'PUFF',
+    brand: 'ALPINE',
     composition: '100% полиэстер, утеплитель Thinsulate',
     fit: 'regular',
     sizeChart: { S: 'грудь 86, длина 52', M: 'грудь 92, длина 56', L: 'грудь 98, длина 60' }
@@ -216,7 +216,7 @@ const products: Product[] = [
     gender: 'Men',
     inStock: 12, 
     rating: 4.9, 
-    brand: 'PUFF',
+    brand: 'ATELIER NOIR',
     isNew: true,
     composition: '100% японский деним',
     fit: 'regular',
@@ -236,7 +236,7 @@ const products: Product[] = [
     gender: 'Woman',
     inStock: 4, 
     rating: 5.0, 
-    brand: 'PUFF',
+    brand: 'MAISON B',
     composition: '100% хлопковый габардин',
     fit: 'slim',
     sizeChart: { S: 'грудь 96, длина 105', M: 'грудь 102, длина 108', L: 'грудь 108, длина 111' }
@@ -753,20 +753,52 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   −{Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100)}%
                 </div>
               )}
+              {selectedProduct.inStock <= 5 && (
+                <div
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full"
+                  style={{
+                    background: 'rgba(239,68,68,0.12)',
+                    border: '0.5px solid rgba(239,68,68,0.3)',
+                    marginLeft: selectedProduct.oldPrice ? '8px' : '0',
+                  }}
+                >
+                  <span
+                    style={{
+                      width: '5px',
+                      height: '5px',
+                      borderRadius: '50%',
+                      background: '#EF4444',
+                      display: 'inline-block',
+                      animation: 'pulse 1.5s ease-in-out infinite',
+                    }}
+                  />
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#EF4444', letterSpacing: '0.05em' }}>
+                    Осталось {selectedProduct.inStock} шт.
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Color Selection - iOS Style */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <p 
-                className="text-[13px] font-medium text-center uppercase"
-                style={{ 
-                  color: 'rgba(255,255,255,0.5)',
-                  letterSpacing: '0.05em',
-                  textRendering: 'optimizeLegibility'
-                }}
-              >
-                Цвет: {selectedColor}
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <p 
+                  className="text-[9px] font-bold uppercase"
+                  style={{ 
+                    color: 'rgba(255,255,255,0.35)',
+                    letterSpacing: '0.25em',
+                    fontFamily: "'Satoshi', 'Inter', sans-serif",
+                  }}
+                >
+                  Цвет
+                </p>
+                <p
+                  className="text-[12px] font-semibold"
+                  style={{ color: 'rgba(255,255,255,0.75)', letterSpacing: '-0.01em' }}
+                >
+                  {selectedColor}
+                </p>
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
                 {selectedProduct.colors.map((color, idx) => (
                   <button
@@ -803,16 +835,24 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
             {/* Size Selection - iOS Segmented Control Style */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <p 
-                className="text-[13px] font-medium text-center uppercase"
-                style={{ 
-                  color: 'rgba(255,255,255,0.5)',
-                  letterSpacing: '0.05em',
-                  textRendering: 'optimizeLegibility'
-                }}
-              >
-                Размер: {selectedSize}
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <p 
+                  className="text-[9px] font-bold uppercase"
+                  style={{ 
+                    color: 'rgba(255,255,255,0.35)',
+                    letterSpacing: '0.25em',
+                    fontFamily: "'Satoshi', 'Inter', sans-serif",
+                  }}
+                >
+                  Размер
+                </p>
+                <p
+                  className="text-[12px] font-semibold"
+                  style={{ color: 'rgba(255,255,255,0.75)', letterSpacing: '-0.01em' }}
+                >
+                  {selectedSize}
+                </p>
+              </div>
               <div 
                 className="flex items-center justify-center rounded-2xl mx-auto"
                 style={{
@@ -1038,8 +1078,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           <Star 
                             key={star} 
                             className="w-4 h-4" 
-                            fill={star <= Math.round(selectedProduct.rating) ? '#FFD700' : 'transparent'}
-                            stroke={star <= Math.round(selectedProduct.rating) ? '#FFD700' : 'rgba(255,255,255,0.3)'}
+                            fill={star <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.95)' : 'transparent'}
+                            stroke={star <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.25)'}
                           />
                         ))}
                       </div>
@@ -1093,8 +1133,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           <Star 
                             key={star} 
                             className="w-3 h-3" 
-                            fill={star <= review.rating ? '#FFD700' : 'transparent'}
-                            stroke={star <= review.rating ? '#FFD700' : 'rgba(255,255,255,0.3)'}
+                            fill={star <= review.rating ? 'rgba(255,255,255,0.9)' : 'transparent'}
+                            stroke={star <= review.rating ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)'}
                           />
                         ))}
                       </div>
@@ -1129,18 +1169,23 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               
               return (
                 <div style={{ paddingTop: '24px' }}>
-                  <h3 
-                    className="text-lg font-semibold"
-                    style={{ 
-                      color: 'rgba(255,255,255,0.9)',
-                      marginBottom: '16px',
-                      letterSpacing: '-0.02em',
-                      lineHeight: 1.2,
-                      textRendering: 'optimizeLegibility'
-                    }}
-                  >
-                    Рекомендуемые товары
-                  </h3>
+                  <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.12)', flex: 1 }} />
+                    <p
+                      style={{
+                        fontSize: '9px',
+                        fontWeight: 700,
+                        letterSpacing: '0.25em',
+                        textTransform: 'uppercase',
+                        color: 'rgba(255,255,255,0.4)',
+                        fontFamily: "'Satoshi', 'Inter', sans-serif",
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Вам также понравится
+                    </p>
+                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.12)', flex: 1 }} />
+                  </div>
                   <div 
                     className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-6 px-6"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -1242,17 +1287,17 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             <ConfirmDrawer
               trigger={
                 <button
-                  className="flex-1 py-4 rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all duration-300 active:scale-98"
+                  className="flex-1 py-4 rounded-xl font-black text-[15px] flex items-center justify-center transition-all duration-300 active:scale-98"
                   style={{
                     background: 'var(--theme-primary)',
                     color: '#000',
-                    letterSpacing: '-0.01em',
-                    boxShadow: '0 4px 16px rgba(var(--theme-primary-rgb, 99,102,241),0.4)'
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    boxShadow: '0 4px 24px rgba(var(--theme-primary-rgb, 99,102,241),0.45)'
                   }}
                   data-testid="button-buy-now"
                 >
-                  <ShoppingBag className="w-5 h-5" />
-                  Добавить в корзину
+                  В КОРЗИНУ
                 </button>
               }
               title="Добавить в корзину?"
@@ -2681,7 +2726,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     onClick={() => removeFromCart(item.id, item.size, item.color)}
                     aria-label="Удалить из корзины"
                     className="flex-shrink-0 px-3 flex items-center justify-center transition-all active:scale-90"
-                    style={{ color: 'rgba(255,255,255,0.3)' }}
+                    style={{ color: 'rgba(255,255,255,0.5)' }}
                     data-testid={`button-remove-${item.id}`}
                   >
                     <X className="w-4 h-4" />
@@ -2777,6 +2822,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   // PROFILE PAGE — 2026 MEMBERSHIP TIER REDESIGN
   if (activeTab === 'profile') {
     const membershipTier = ordersCount >= 5 ? 'Gold' : ordersCount >= 2 ? 'Silver' : 'Bronze';
+    const membershipTierRu = ordersCount >= 5 ? 'Золотой' : ordersCount >= 2 ? 'Серебряный' : 'Бронзовый';
     const tierGradient =
       membershipTier === 'Gold'
         ? 'linear-gradient(135deg, #B8860B 0%, #FFD700 40%, #DAA520 70%, #B8860B 100%)'
@@ -2860,7 +2906,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   Статус участника
                 </p>
                 <p className="text-[20px] font-black text-white leading-none" style={{ letterSpacing: '-0.03em' }}>
-                  {membershipTier} Member
+                  {membershipTierRu} Участник
                 </p>
               </div>
               <div className="text-right">
