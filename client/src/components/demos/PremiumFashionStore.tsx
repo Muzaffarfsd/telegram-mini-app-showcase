@@ -265,8 +265,42 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   const [promoApplied, setPromoApplied] = useState<boolean>(false);
   const [promoDiscountPct, setPromoDiscountPct] = useState<number>(0);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [productExiting, setProductExiting] = useState(false);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+
+  const handleProductBack = () => {
+    setProductExiting(true);
+    setTimeout(() => {
+      setProductExiting(false);
+      setSelectedProduct(null);
+    }, 340);
+  };
+
+  const productPageVariants = {
+    initial: { opacity: 0, y: 28, scale: 0.985 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: 40, scale: 0.975 },
+  };
+
+  const contentStagger = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.065,
+        delayChildren: 0.22,
+      },
+    },
+  };
+
+  const contentItem = {
+    hidden: { opacity: 0, y: 18 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] },
+    },
+  };
   
   useEffect(() => {
     const handleScroll = () => {
@@ -461,9 +495,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
       <m.div
         className="h-screen text-white overflow-hidden relative flex flex-col"
         style={{ backgroundColor: bgColor }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.22, ease: 'easeOut' }}
+        variants={productPageVariants}
+        initial="initial"
+        animate={productExiting ? 'exit' : 'animate'}
+        transition={{
+          duration: productExiting ? 0.32 : 0.35,
+          ease: productExiting ? [0.32, 0, 0.67, 0] : [0.22, 1, 0.36, 1],
+        }}
       >
         
         {/* ===== STICKY GLASS HEADER: Shows on scroll past hero ===== */}
@@ -563,16 +601,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         <div className="relative flex-shrink-0" style={{ height: '70vh', minHeight: '420px' }}>
           
           {/* Full-bleed Image Gallery - iOS-style snap scroll */}
-          <m.div 
+          <div 
             className="absolute inset-0 overflow-x-auto overflow-y-hidden scrollbar-hide"
             style={{ 
               scrollSnapType: 'x mandatory',
               WebkitOverflowScrolling: 'touch',
               scrollBehavior: 'smooth',
             }}
-            initial={{ scale: 1.04 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
             onScroll={(e) => {
               const container = e.currentTarget;
               const scrollLeft = container.scrollLeft;
@@ -583,7 +618,15 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               }
             }}
           >
-            <div className="flex h-full w-full">
+            <m.div
+              className="flex h-full w-full"
+              initial={{ scale: 1.06, filter: 'brightness(0.72)' }}
+              animate={productExiting
+                ? { scale: 1.04, filter: 'brightness(0.65)' }
+                : { scale: 1, filter: 'brightness(1)' }
+              }
+              transition={{ duration: productExiting ? 0.32 : 0.65, ease: [0.32, 0.72, 0, 1] }}
+            >
               {productImages.map((img, idx) => (
                 <div 
                   key={idx} 
@@ -597,7 +640,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   />
                 </div>
               ))}
-            </div>
+            </m.div>
             
             {/* Top gradient for button visibility */}
             <div 
@@ -616,7 +659,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 background: `linear-gradient(0deg, ${bgColor} 0%, transparent 100%)`
               }}
             />
-          </m.div>
+          </div>
           
           {/* ===== FLOATING NAV: Back & Favorite buttons lower ===== */}
           <div 
@@ -627,7 +670,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           >
             {/* Back Button - Liquid Glass */}
             <button 
-              onClick={() => setSelectedProduct(null)}
+              onClick={handleProductBack}
               className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
               style={{ 
                 background: 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
@@ -722,9 +765,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         <m.div
           className="relative"
           style={{ paddingBottom: '176px', marginTop: '-32px' }}
-          initial={{ opacity: 0, y: 36 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.18, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          variants={contentStagger}
+          initial="hidden"
+          animate={productExiting ? 'hidden' : 'visible'}
         >
           <div 
             className="relative rounded-t-[28px]"
@@ -738,7 +781,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             }}
           >
             {/* Product Title & Price — editorial 2026 */}
-            <div>
+            <m.div variants={contentItem}>
               {/* Brand + Rating row */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <p
@@ -853,10 +896,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   )}
                 </div>
               )}
-            </div>
+            </m.div>
 
             {/* Color Selection — left-aligned editorial */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <m.div variants={contentItem} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <p style={{
                   fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em',
@@ -890,10 +933,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   />
                 ))}
               </div>
-            </div>
+            </m.div>
 
             {/* Size Selection — full-width editorial grid */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <m.div variants={contentItem} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <p style={{
@@ -947,10 +990,11 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   </button>
                 ))}
               </div>
-            </div>
+            </m.div>
 
             {/* Services strip — Net-a-Porter style */}
-            <div
+            <m.div
+              variants={contentItem}
               style={{
                 display: 'flex',
                 alignItems: 'stretch',
@@ -996,10 +1040,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   </p>
                 </div>
               ))}
-            </div>
+            </m.div>
 
             {/* Editorial underline tabs */}
-            <div style={{ borderBottom: '0.5px solid rgba(255,255,255,0.1)' }}>
+            <m.div variants={contentItem} style={{ borderBottom: '0.5px solid rgba(255,255,255,0.1)' }}>
               <div className="flex" role="tablist">
                 {[
                   { key: 'description', label: 'Описание' },
@@ -1032,10 +1076,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   </button>
                 ))}
               </div>
-            </div>
+            </m.div>
 
             {/* Tab Content Panels */}
-            <div style={{ minHeight: '200px' }}>
+            <m.div variants={contentItem} style={{ minHeight: '200px' }}>
               {/* Description Tab */}
               {activeProductTab === 'description' && (
                 <div id="panel-description" style={{ paddingTop: '4px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -1265,7 +1309,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   ))}
                 </div>
               )}
-            </div>
+            </m.div>
 
             {/* Recommended Products Carousel */}
             {(() => {
@@ -1282,7 +1326,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               if (recommendedProducts.length === 0) return null;
               
               return (
-                <div style={{ paddingTop: '24px' }}>
+                <m.div variants={contentItem} style={{ paddingTop: '24px' }}>
                   <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ height: '1px', background: 'rgba(255,255,255,0.12)', flex: 1 }} />
                     <p
@@ -1388,7 +1432,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       </div>
                     ))}
                   </div>
-                </div>
+                </m.div>
               );
             })()}
           </div>

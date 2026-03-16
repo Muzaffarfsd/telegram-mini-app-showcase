@@ -144,3 +144,16 @@ To configure a branded loading screen for the Mini App:
 - `DeviceStorage` / `SecureStorage` - Persistent local storage
 - `BiometricManager` - Biometric authentication
 - `HapticFeedback` - Tactile feedback for interactions
+# Radiance Fashion Demo — March 2026 Cinematic Animation Audit
+
+## Page-Level Transitions (Product Detail)
+- **Outer page**: `productPageVariants` — enter: `opacity 0→1, y 28→0, scale 0.985→1` (ease [0.22,1,0.36,1] 350ms); exit: `opacity 1→0, y 0→40, scale 1→0.975` (ease [0.32,0,0.67,0] 320ms)
+- **`productExiting` state**: triggers exit animation, then `setSelectedProduct(null)` after 340ms via `handleProductBack()`
+- **Hero image**: scale 1.06→1 + brightness 0.72→1 (650ms); on exit: scales back to 1.04 + dims to 0.65
+- **Scale on inner flex container** (not overflow wrapper) — avoids clipping artifacts
+
+## Content Stagger System
+- **`contentStagger`**: staggerChildren 0.065, delayChildren 0.22
+- **`contentItem`**: opacity 0→1, y 18→0 (420ms spring ease [0.22,1,0.36,1])
+- Sections staggered: title/price → color → sizes → service strip → tabs tablist → tab content → recommended carousel
+- Exit: stagger container snaps to `hidden` immediately (no out-stagger delay)
