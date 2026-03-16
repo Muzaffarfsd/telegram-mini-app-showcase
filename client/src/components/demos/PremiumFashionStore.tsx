@@ -1265,7 +1265,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     );
   }
 
-  // HOME PAGE - REAL TIME SHOPPING STYLE
+  // HOME PAGE — 2026 EDITORIAL FASHION DESIGN
   if (activeTab === 'home') {
     return (
       <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
@@ -1274,84 +1274,112 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           onClose={sidebar.close}
           onOpen={sidebar.open}
           menuItems={sidebarMenuItems}
-          title="REAL TIME"
-          subtitle="SHOPPING"
+          title="RADIANCE"
+          subtitle="FASHION STUDIO"
           accentColor="var(--theme-primary)"
           bgColor="var(--theme-background)"
         />
-        {/* Header */}
-        <div className="p-6 pb-4">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <button 
+
+        {/* ─── HEADER ─── */}
+        <div className="px-5 pt-5 pb-4">
+          <div className="flex items-center justify-between">
+            <button
               onClick={sidebar.open}
-              aria-label="Меню" 
+              aria-label="Меню"
               data-testid="button-view-menu"
+              className="w-10 h-10 flex items-center justify-center rounded-full"
+              style={{ background: 'rgba(255,255,255,0.06)' }}
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-3">
-              <button aria-label="Корзина" data-testid="button-view-cart">
-                <ShoppingBag className="w-6 h-6" />
+
+            {/* Center wordmark */}
+            <div className="text-center">
+              <div className="text-[17px] font-black tracking-[0.18em] leading-none">RADIANCE</div>
+              <div
+                className="text-[8px] font-light tracking-[0.35em] mt-0.5"
+                style={{ color: 'rgba(255,255,255,0.35)' }}
+              >
+                FASHION STUDIO
+              </div>
+            </div>
+
+            {/* Right icons */}
+            <div className="flex items-center gap-2">
+              <button
+                aria-label="Избранное"
+                data-testid="button-view-favorites"
+                className="w-10 h-10 flex items-center justify-center rounded-full"
+                style={{ background: 'rgba(255,255,255,0.06)' }}
+              >
+                <Heart className="w-5 h-5" />
               </button>
-              <button aria-label="Избранное" data-testid="button-view-favorites">
-                <Heart className="w-6 h-6" />
+              <button
+                aria-label="Корзина"
+                data-testid="button-view-cart"
+                onClick={() => onTabChange?.('cart')}
+                className="relative w-10 h-10 flex items-center justify-center rounded-full"
+                style={{ background: 'rgba(255,255,255,0.06)' }}
+              >
+                <ShoppingBag className="w-5 h-5" />
+                {cartCount > 0 && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-black text-[9px] font-black flex items-center justify-center"
+                    style={{ background: 'var(--theme-primary)' }}
+                  >
+                    {cartCount}
+                  </span>
+                )}
               </button>
             </div>
           </div>
 
-          {/* Title */}
-          <div className="mb-6">
-            <h1 className="text-4xl font-black mb-1 tracking-tight">
-              REAL TIME<br/>
-              SHOPPING
-            </h1>
+          {/* Search bar */}
+          <div
+            className="flex items-center gap-2 mt-4 px-4 py-2.5 rounded-full"
+            style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+          >
+            <Search className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.35)' }} />
+            <input
+              type="text"
+              placeholder="Поиск товаров, брендов..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="bg-transparent text-white placeholder:text-white/35 outline-none flex-1 text-sm"
+              data-testid="input-search"
+            />
           </div>
 
-          {/* Gender Filters */}
-          <div className="flex items-center gap-4 mb-6">
-            <button 
-              className="p-2 bg-white rounded-full"
-              aria-label="Главная"
-              data-testid="button-view-home"
-            >
-              <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-              </svg>
-            </button>
-            {genderFilters.map((gender, idx) => (
+          {/* Gender filter — underline style */}
+          <div className="flex items-center gap-1 mt-4">
+            {genderFilters.map((gender) => (
               <button
                 key={gender}
                 onClick={() => setSelectedGender(gender)}
-                className={`text-sm font-medium transition-colors ${
-                  selectedGender === gender
-                    ? 'text-white'
-                    : 'text-white/40'
-                }`}
+                className="relative px-3 py-1.5 text-sm transition-all"
                 data-testid={`button-filter-${gender.toLowerCase()}`}
+                style={{
+                  color: selectedGender === gender ? '#fff' : 'rgba(255,255,255,0.32)',
+                  fontWeight: selectedGender === gender ? 700 : 400,
+                  letterSpacing: selectedGender === gender ? '-0.01em' : '0',
+                }}
               >
                 {gender}
+                {selectedGender === gender && (
+                  <m.div
+                    layoutId="gender-underline"
+                    className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full"
+                    style={{ background: 'var(--theme-primary)' }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                  />
+                )}
               </button>
             ))}
           </div>
-
-          {/* Search Bar */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-full px-4 py-3 flex items-center gap-2">
-              <Search className="w-5 h-5 text-white/50" />
-              <input
-                type="text"
-                placeholder="Поиск товаров..."
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
-                data-testid="input-search"
-              />
-            </div>
-          </div>
         </div>
 
-        {/* Video Hero Banner */}
-        <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden" style={{ height: '500px' }}>
+        {/* ─── VIDEO HERO ─── */}
+        <div className="relative mx-4 rounded-[26px] overflow-hidden" style={{ height: '380px' }}>
           <video
             autoPlay
             loop
@@ -1362,30 +1390,58 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           >
             <source src={fashionVideo} type="video/mp4" />
           </video>
-          
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-          
-          {/* Content Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <m.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/30" />
+
+          {/* Season tag */}
+          <div className="absolute top-4 left-4">
+            <span
+              className="text-[9px] font-semibold tracking-[0.3em] uppercase px-3 py-1.5 rounded-full"
+              style={{
+                background: 'rgba(255,255,255,0.12)',
+                backdropFilter: 'blur(12px)',
+                color: 'rgba(255,255,255,0.75)',
+                border: '0.5px solid rgba(255,255,255,0.2)',
+              }}
             >
-              <h2 className="text-5xl font-black mb-3 tracking-tight leading-tight">
-                НОВАЯ<br/>
+              SS&apos;26 COLLECTION
+            </span>
+          </div>
+
+          {/* Hero text */}
+          <div className="absolute bottom-0 left-0 right-0 p-6">
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              <h2
+                className="leading-none mb-1"
+                style={{ fontSize: '42px', fontWeight: 900, letterSpacing: '-0.04em' }}
+              >
+                НОВАЯ
+              </h2>
+              <h2
+                className="leading-none mb-4"
+                style={{
+                  fontSize: '42px',
+                  fontWeight: 200,
+                  letterSpacing: '-0.02em',
+                  color: 'rgba(255,255,255,0.65)',
+                }}
+              >
                 КОЛЛЕКЦИЯ
               </h2>
-              <p className="text-lg text-white/80 mb-6" style={{ letterSpacing: '0.1em' }}>
-                Эксклюзивные модели 2025
+              <p
+                className="text-[10px] tracking-[0.25em] mb-5 uppercase"
+                style={{ color: 'rgba(255,255,255,0.45)' }}
+              >
+                Весна — Лето 2026
               </p>
-              <button 
-                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105"
-                style={{
-                  background: 'var(--theme-primary)',
-                  boxShadow: '0 0 30px var(--theme-primary-glow, rgba(205, 255, 56, 0.4))'
-                }}
+              <button
+                className="px-6 py-3 rounded-full text-sm font-bold text-black transition-all active:scale-95"
+                style={{ background: 'var(--theme-primary)' }}
+                onClick={() => onTabChange?.('catalog')}
                 data-testid="button-view-collection"
               >
                 Смотреть коллекцию
@@ -1394,119 +1450,368 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </div>
         </div>
 
-        {/* Featured Product Cards */}
-        <div className="px-6 space-y-4">
-          {filteredProducts.slice(0, 3).map((product, idx) => (
-            <m.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              onClick={() => openProduct(product)}
-              className="relative cursor-pointer group rounded-3xl overflow-hidden"
-              style={{ height: idx === 0 ? '400px' : '320px' }}
-              data-testid={`featured-product-${product.id}`}
+        {/* ─── THE EDIT — Featured product ─── */}
+        <div className="px-4 mt-7">
+          <div className="flex items-end justify-between mb-4">
+            <div>
+              <p
+                className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
+                style={{ color: 'rgba(255,255,255,0.35)' }}
+              >
+                Editorial Selection
+              </p>
+              <h2
+                className="text-[26px] font-black leading-none"
+                style={{ letterSpacing: '-0.04em' }}
+              >
+                THE EDIT
+              </h2>
+            </div>
+            <button
+              onClick={() => onTabChange?.('catalog')}
+              className="text-[10px] font-semibold tracking-[0.15em] uppercase pb-0.5"
+              style={{
+                color: 'rgba(255,255,255,0.4)',
+                borderBottom: '0.5px solid rgba(255,255,255,0.2)',
+              }}
             >
-              {/* Background Image with Skeleton */}
+              Все →
+            </button>
+          </div>
+
+          {filteredProducts[0] && (
+            <m.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              onClick={() => openProduct(filteredProducts[0])}
+              className="relative cursor-pointer rounded-[22px] overflow-hidden"
+              style={{ height: '430px' }}
+              data-testid={`featured-product-${filteredProducts[0].id}`}
+            >
               <div className="absolute inset-0">
                 <LazyImage
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  onLoadComplete={() => handleImageLoad(product.id)}
-                  priority={idx < 2}
+                  src={filteredProducts[0].image}
+                  alt={filteredProducts[0].name}
+                  className="w-full h-full object-cover"
+                  onLoadComplete={() => handleImageLoad(filteredProducts[0].id)}
+                  priority
                 />
               </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
 
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-
-              {/* Badge */}
-              <div className="absolute top-4 left-4">
-                <div className="px-3 py-1 bg-white/20 backdrop-blur-xl rounded-full">
-                  <span className="text-xs font-semibold text-white">
-                    {product.category}
+              {/* Badges */}
+              <div className="absolute top-4 left-4 flex gap-2">
+                {filteredProducts[0].isNew && (
+                  <span
+                    className="px-2.5 py-1 text-[9px] font-black rounded-full tracking-[0.1em] uppercase text-black"
+                    style={{ background: 'var(--theme-primary)' }}
+                  >
+                    NEW
                   </span>
-                </div>
+                )}
+                <span
+                  className="px-2.5 py-1 text-[9px] font-semibold rounded-full tracking-wide uppercase"
+                  style={{
+                    background: 'rgba(0,0,0,0.45)',
+                    backdropFilter: 'blur(10px)',
+                    color: 'rgba(255,255,255,0.8)',
+                    border: '0.5px solid rgba(255,255,255,0.18)',
+                  }}
+                >
+                  {filteredProducts[0].category}
+                </span>
               </div>
 
-              {/* Quick Actions - Favorite & Quick View */}
+              {/* Quick view + heart */}
               <div className="absolute top-4 right-4 flex gap-2">
-                {/* Quick View Button */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setQuickViewProduct(product);
-                    setQuickViewSize(product.sizes[0]);
-                    setQuickViewColor(product.colors[0]);
+                    setQuickViewProduct(filteredProducts[0]);
+                    setQuickViewSize(filteredProducts[0].sizes[0]);
+                    setQuickViewColor(filteredProducts[0].colors[0]);
                   }}
                   aria-label="Быстрый просмотр"
-                  className="w-11 h-11 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all"
                   style={{
-                    background: 'linear-gradient(145deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%)',
-                    backdropFilter: 'blur(20px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                    border: '1px solid rgba(255,255,255,0.3)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                    background: 'rgba(0,0,0,0.4)',
+                    backdropFilter: 'blur(16px)',
+                    border: '0.5px solid rgba(255,255,255,0.2)',
                   }}
-                  data-testid={`button-quickview-home-${product.id}`}
+                  data-testid={`button-quickview-home-${filteredProducts[0].id}`}
                 >
-                  <Eye className="w-5 h-5 text-white" />
+                  <Eye className="w-4 h-4 text-white" />
                 </button>
-                
-                {/* Favorite */}
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleToggleFavorite(product.id);
+                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(filteredProducts[0].id); }}
+                  aria-label={isFavorite(filteredProducts[0].id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                  style={{
+                    background: 'rgba(0,0,0,0.4)',
+                    backdropFilter: 'blur(16px)',
+                    border: '0.5px solid rgba(255,255,255,0.2)',
                   }}
-                  aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                  className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center"
-                  data-testid={`button-favorite-${product.id}`}
+                  data-testid={`button-favorite-${filteredProducts[0].id}`}
                 >
-                  <Heart 
-                    className={`w-5 h-5 ${isFavorite(product.id) ? 'fill-white text-white' : 'text-white'}`}
+                  <Heart
+                    className={`w-4 h-4 ${isFavorite(filteredProducts[0].id) ? 'fill-white' : ''} text-white`}
                   />
                 </button>
               </div>
 
-              {/* Content */}
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="flex items-end justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-2 leading-tight">
-                      {product.name.split(' ').slice(0, 2).join(' ')}<br/>
-                      {product.name.split(' ').slice(2).join(' ')}
-                    </h3>
-                    <p className="text-sm text-white/80 mb-4">{product.gender}'s wear</p>
+              {/* Bottom info */}
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <p
+                  className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-1"
+                  style={{ color: 'rgba(255,255,255,0.45)' }}
+                >
+                  {filteredProducts[0].brand}
+                </p>
+                <h3
+                  className="mb-4 leading-tight"
+                  style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em' }}
+                >
+                  {filteredProducts[0].name}
+                </h3>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-baseline gap-2">
+                    <span
+                      className="text-xl font-bold"
+                      style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
+                    >
+                      {formatPrice(filteredProducts[0].price)}
+                    </span>
+                    {filteredProducts[0].oldPrice && (
+                      <span
+                        className="text-sm line-through"
+                        style={{ color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}
+                      >
+                        {formatPrice(filteredProducts[0].oldPrice)}
+                      </span>
+                    )}
                   </div>
-
-                  {/* Buy Button */}
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openProduct(product);
-                    }}
-                    className="px-4 py-2.5 rounded-full flex items-center gap-2 transition-all active:scale-95"
-                    style={{
-                      background: 'var(--theme-primary)',
-                      boxShadow: '0 4px 16px rgba(var(--theme-primary-rgb, 99,102,241), 0.4)'
-                    }}
-                    data-testid={`button-add-to-cart-${product.id}`}
+                    onClick={(e) => { e.stopPropagation(); openProduct(filteredProducts[0]); }}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold text-black active:scale-95 transition-all"
+                    style={{ background: 'var(--theme-primary)' }}
+                    data-testid={`button-add-to-cart-${filteredProducts[0].id}`}
                   >
-                    <ShoppingBag className="w-5 h-5 text-black" />
-                    <span className="text-sm font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                      {formatPrice(product.price)}
+                    <ShoppingBag className="w-4 h-4" />
+                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      {formatPrice(filteredProducts[0].price)}
                     </span>
                   </button>
                 </div>
               </div>
             </m.div>
-          ))}
+          )}
         </div>
 
-        {/* Bottom Spacer */}
-        <div className="h-8"></div>
+        {/* ─── JUST DROPPED — Horizontal scroll ─── */}
+        <div className="mt-8">
+          <div className="px-4 flex items-end justify-between mb-4">
+            <div>
+              <p
+                className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
+                style={{ color: 'rgba(255,255,255,0.35)' }}
+              >
+                Новые поступления
+              </p>
+              <h2
+                className="text-[26px] font-black leading-none"
+                style={{ letterSpacing: '-0.04em' }}
+              >
+                JUST DROPPED
+              </h2>
+            </div>
+          </div>
+
+          <div
+            className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide"
+            style={{ scrollbarWidth: 'none' }}
+          >
+            {filteredProducts.slice(1, 6).map((product, idx) => (
+              <m.div
+                key={product.id}
+                initial={{ opacity: 0, x: 18 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + idx * 0.07 }}
+                onClick={() => openProduct(product)}
+                className="flex-shrink-0 snap-start cursor-pointer active:scale-[0.97] transition-transform"
+                style={{ width: '155px' }}
+                data-testid={`featured-product-${product.id}`}
+              >
+                <div
+                  className="relative rounded-[18px] overflow-hidden mb-2.5"
+                  style={{ height: '196px' }}
+                >
+                  <LazyImage
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    onLoadComplete={() => handleImageLoad(product.id)}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
+
+                  {/* Heart */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
+                    aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                    className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                    style={{
+                      background: 'rgba(0,0,0,0.38)',
+                      backdropFilter: 'blur(12px)',
+                      border: '0.5px solid rgba(255,255,255,0.18)',
+                    }}
+                    data-testid={`button-favorite-${product.id}`}
+                  >
+                    <Heart className={`w-3.5 h-3.5 ${isFavorite(product.id) ? 'fill-white' : ''} text-white`} />
+                  </button>
+
+                  {/* Quick view */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setQuickViewProduct(product);
+                      setQuickViewSize(product.sizes[0]);
+                      setQuickViewColor(product.colors[0]);
+                    }}
+                    aria-label="Быстрый просмотр"
+                    className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                    style={{
+                      background: 'rgba(0,0,0,0.38)',
+                      backdropFilter: 'blur(12px)',
+                      border: '0.5px solid rgba(255,255,255,0.18)',
+                    }}
+                    data-testid={`button-quickview-home-${product.id}`}
+                  >
+                    <Eye className="w-3.5 h-3.5 text-white" />
+                  </button>
+
+                  {/* Price */}
+                  <div className="absolute bottom-3 left-3">
+                    <span
+                      className="text-sm font-bold"
+                      style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }}
+                    >
+                      {formatPrice(product.price)}
+                    </span>
+                  </div>
+                </div>
+
+                <p
+                  className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-0.5 truncate"
+                  style={{ color: 'rgba(255,255,255,0.38)' }}
+                >
+                  {product.brand}
+                </p>
+                <p
+                  className="text-sm font-semibold leading-tight truncate"
+                  style={{ letterSpacing: '-0.01em' }}
+                >
+                  {product.name}
+                </p>
+              </m.div>
+            ))}
+          </div>
+        </div>
+
+        {/* ─── LOOKBOOK — Staggered 2-col grid ─── */}
+        {filteredProducts.length > 4 && (
+          <div className="px-4 mt-8">
+            <div className="flex items-end justify-between mb-4">
+              <div>
+                <p
+                  className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
+                  style={{ color: 'rgba(255,255,255,0.35)' }}
+                >
+                  Актуальные образы
+                </p>
+                <h2
+                  className="text-[26px] font-black leading-none"
+                  style={{ letterSpacing: '-0.04em' }}
+                >
+                  LOOKBOOK
+                </h2>
+              </div>
+              <button
+                onClick={() => onTabChange?.('catalog')}
+                className="text-[10px] font-semibold tracking-[0.15em] uppercase pb-0.5"
+                style={{
+                  color: 'rgba(255,255,255,0.4)',
+                  borderBottom: '0.5px solid rgba(255,255,255,0.2)',
+                }}
+              >
+                Смотреть →
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {filteredProducts.slice(4, 8).map((product, idx) => (
+                <m.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 + idx * 0.07 }}
+                  onClick={() => openProduct(product)}
+                  className="cursor-pointer active:scale-[0.97] transition-transform"
+                  data-testid={`featured-product-${product.id}`}
+                >
+                  <div
+                    className="relative rounded-[18px] overflow-hidden mb-2"
+                    style={{ height: idx % 2 === 0 ? '215px' : '175px' }}
+                  >
+                    <LazyImage
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                      onLoadComplete={() => handleImageLoad(product.id)}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+
+                    {/* Quick view */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setQuickViewProduct(product);
+                        setQuickViewSize(product.sizes[0]);
+                        setQuickViewColor(product.colors[0]);
+                      }}
+                      aria-label="Быстрый просмотр"
+                      className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center"
+                      style={{
+                        background: 'rgba(0,0,0,0.38)',
+                        backdropFilter: 'blur(10px)',
+                      }}
+                      data-testid={`button-quickview-home-${product.id}`}
+                    >
+                      <Eye className="w-3 h-3 text-white" />
+                    </button>
+
+                    <div className="absolute bottom-0 left-0 right-0 p-3">
+                      <p
+                        className="text-[11px] font-bold leading-tight truncate"
+                        style={{ letterSpacing: '-0.01em' }}
+                      >
+                        {product.name}
+                      </p>
+                      <p
+                        className="text-[10px]"
+                        style={{ color: 'rgba(255,255,255,0.55)', fontVariantNumeric: 'tabular-nums' }}
+                      >
+                        {formatPrice(product.price)}
+                      </p>
+                    </div>
+                  </div>
+                </m.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Bottom spacer */}
+        <div className="h-6" />
         
         {/* ===== QUICK VIEW MODAL for HOME PAGE ===== */}
         <AnimatePresence>
@@ -1688,113 +1993,275 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     );
   }
 
-  // CATALOG PAGE
+  // CATALOG PAGE — 2026 ASYMMETRIC GRID
   if (activeTab === 'catalog') {
     return (
       <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <h1 className="text-2xl font-bold">Каталог</h1>
-            <div className="flex items-center gap-3">
-              <button className="p-2" aria-label="Поиск" data-testid="button-view-search">
-                <Search className="w-6 h-6" />
+        {/* ─── Catalog Header ─── */}
+        <div className="px-5 pt-5 pb-3">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p
+                className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
+                style={{ color: 'rgba(255,255,255,0.35)' }}
+              >
+                RADIANCE
+              </p>
+              <h1
+                className="text-[26px] font-black leading-none"
+                style={{ letterSpacing: '-0.04em' }}
+              >
+                КАТАЛОГ
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+                aria-label="Поиск"
+                data-testid="button-view-search"
+              >
+                <Search className="w-4.5 h-4.5" />
               </button>
-              <button className="p-2" aria-label="Фильтр" data-testid="button-view-filter">
-                <Filter className="w-6 h-6" />
+              <button
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+                aria-label="Фильтр"
+                data-testid="button-view-filter"
+              >
+                <Filter className="w-4.5 h-4.5" />
               </button>
             </div>
           </div>
 
-          {/* Categories */}
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+          {/* Category chips */}
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-[var(--theme-primary)] text-black'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
-                }`}
+                className="flex-shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all active:scale-95"
+                style={{
+                  background:
+                    selectedCategory === cat ? 'var(--theme-primary)' : 'rgba(255,255,255,0.08)',
+                  color: selectedCategory === cat ? '#000' : 'rgba(255,255,255,0.65)',
+                  border: selectedCategory === cat ? 'none' : '0.5px solid rgba(255,255,255,0.12)',
+                  letterSpacing: '0.02em',
+                }}
                 data-testid={`button-filter-${cat.toLowerCase()}`}
               >
                 {cat}
               </button>
             ))}
           </div>
+        </div>
 
-          {/* Products Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            {filteredProducts.map((product, idx) => (
-              <m.div
-                key={product.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => openProduct(product)}
-                className={`relative cursor-pointer rounded-3xl overflow-hidden scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
-                data-testid={`product-card-${product.id}`}
-              >
-                <div className="relative aspect-[3/4] overflow-hidden mb-3">
+        {/* ─── Products — Interleaved Asymmetric Grid ─── */}
+        <div className="px-4 space-y-3 pb-2">
+          {(() => {
+            const rows: React.ReactNode[] = [];
+            let i = 0;
+            let groupIdx = 0;
+            while (i < filteredProducts.length) {
+              const featured = filteredProducts[i];
+              // Full-width featured card
+              rows.push(
+                <m.div
+                  key={`featured-${featured.id}`}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: groupIdx * 0.1 }}
+                  whileTap={{ scale: 0.985 }}
+                  onClick={() => openProduct(featured)}
+                  className="relative cursor-pointer rounded-[20px] overflow-hidden"
+                  style={{ height: '280px' }}
+                  data-testid={`product-card-${featured.id}`}
+                >
                   <LazyImage
-                    src={product.image}
-                    alt={product.name}
+                    src={featured.image}
+                    alt={featured.name}
                     className="w-full h-full object-cover"
-                    onLoadComplete={() => handleImageLoad(product.id)}
+                    onLoadComplete={() => handleImageLoad(featured.id)}
                   />
-                  
-                  {/* Action Buttons */}
-                  <div className="absolute top-2 right-2 flex flex-col gap-2">
-                    {/* Favorite */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleFavorite(product.id);
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+
+                  <div className="absolute top-3.5 left-3.5 flex gap-1.5">
+                    {featured.isNew && (
+                      <span
+                        className="px-2 py-1 text-[9px] font-black rounded-full tracking-[0.08em] uppercase text-black"
+                        style={{ background: 'var(--theme-primary)' }}
+                      >
+                        NEW
+                      </span>
+                    )}
+                    <span
+                      className="px-2 py-1 text-[9px] font-medium rounded-full"
+                      style={{
+                        background: 'rgba(0,0,0,0.45)',
+                        backdropFilter: 'blur(8px)',
+                        color: 'rgba(255,255,255,0.75)',
+                        border: '0.5px solid rgba(255,255,255,0.15)',
                       }}
-                      aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                      className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
-                      data-testid={`button-favorite-catalog-${product.id}`}
                     >
-                      <Heart 
-                        className={`w-4 h-4 ${isFavorite(product.id) ? 'fill-white text-white' : 'text-white'}`}
-                      />
-                    </button>
-                    
-                    {/* Quick View */}
+                      {featured.category}
+                    </span>
+                  </div>
+
+                  <div className="absolute top-3.5 right-3.5 flex gap-1.5">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setQuickViewProduct(product);
-                        setQuickViewSize(product.sizes[0]);
-                        setQuickViewColor(product.colors[0]);
+                        setQuickViewProduct(featured);
+                        setQuickViewSize(featured.sizes[0]);
+                        setQuickViewColor(featured.colors[0]);
                       }}
                       aria-label="Быстрый просмотр"
-                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
-                      style={{
-                        background: 'linear-gradient(145deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%)',
-                        backdropFilter: 'blur(20px) saturate(180%)',
-                        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                        border: '1px solid rgba(255,255,255,0.3)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-                      }}
-                      data-testid={`button-quickview-${product.id}`}
+                      className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                      style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
+                      data-testid={`button-quickview-${featured.id}`}
                     >
-                      <Eye className="w-4 h-4 text-white" />
+                      <Eye className="w-3.5 h-3.5 text-white" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleToggleFavorite(featured.id); }}
+                      aria-label={isFavorite(featured.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                      className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                      style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
+                      data-testid={`button-favorite-catalog-${featured.id}`}
+                    >
+                      <Heart className={`w-3.5 h-3.5 ${isFavorite(featured.id) ? 'fill-white' : ''} text-white`} />
                     </button>
                   </div>
-                </div>
 
-                {/* Product Info */}
-                <div>
-                  <p className="text-sm font-semibold mb-1 truncate">{product.name}</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-base font-bold">{formatPrice(product.price)}</p>
-                    {product.oldPrice && (
-                      <p className="text-xs text-white/40 line-through">{formatPrice(product.oldPrice)}</p>
-                    )}
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="flex items-end justify-between">
+                      <div className="flex-1 mr-3">
+                        <p className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                          {featured.brand}
+                        </p>
+                        <p className="text-[16px] font-black leading-tight" style={{ letterSpacing: '-0.02em' }}>
+                          {featured.name}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-base font-bold" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
+                          {formatPrice(featured.price)}
+                        </p>
+                        {featured.oldPrice && (
+                          <p className="text-[10px] line-through" style={{ color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}>
+                            {formatPrice(featured.oldPrice)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </m.div>
-            ))}
-          </div>
+                </m.div>
+              );
+              i++;
+
+              // 2-col pair
+              const pair = filteredProducts.slice(i, i + 2);
+              if (pair.length > 0) {
+                rows.push(
+                  <div key={`pair-${groupIdx}`} className="grid grid-cols-2 gap-3">
+                    {pair.map((product, colIdx) => (
+                      <m.div
+                        key={product.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: groupIdx * 0.1 + 0.04 + colIdx * 0.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => openProduct(product)}
+                        className="cursor-pointer"
+                        data-testid={`product-card-${product.id}`}
+                      >
+                        <div
+                          className="relative rounded-[18px] overflow-hidden mb-2.5"
+                          style={{ height: colIdx === 0 ? '205px' : '175px' }}
+                        >
+                          <LazyImage
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                            onLoadComplete={() => handleImageLoad(product.id)}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+
+                          <div className="absolute top-2 right-2 flex flex-col gap-1.5">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
+                              aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                              className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                              style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
+                              data-testid={`button-favorite-catalog-${product.id}`}
+                            >
+                              <Heart className={`w-3 h-3 ${isFavorite(product.id) ? 'fill-white' : ''} text-white`} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setQuickViewProduct(product);
+                                setQuickViewSize(product.sizes[0]);
+                                setQuickViewColor(product.colors[0]);
+                              }}
+                              aria-label="Быстрый просмотр"
+                              className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                              style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
+                              data-testid={`button-quickview-${product.id}`}
+                            >
+                              <Eye className="w-3 h-3 text-white" />
+                            </button>
+                          </div>
+
+                          {product.oldPrice && (
+                            <div className="absolute top-2 left-2">
+                              <span
+                                className="px-1.5 py-0.5 text-[9px] font-black rounded-md text-black"
+                                style={{ background: 'var(--theme-primary)' }}
+                              >
+                                −{Math.round((1 - product.price / product.oldPrice) * 100)}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="text-[8px] font-semibold tracking-[0.22em] uppercase mb-0.5 truncate" style={{ color: 'rgba(255,255,255,0.38)' }}>
+                            {product.brand}
+                          </p>
+                          <p className="text-[12px] font-semibold leading-tight mb-1 truncate" style={{ letterSpacing: '-0.01em' }}>
+                            {product.name}
+                          </p>
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="text-[13px] font-bold" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }}>
+                              {formatPrice(product.price)}
+                            </span>
+                            {product.oldPrice && (
+                              <span className="text-[10px] line-through" style={{ color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}>
+                                {formatPrice(product.oldPrice)}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-0.5 mt-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <div
+                                key={star}
+                                className="w-1.5 h-1.5 rounded-full"
+                                style={{ background: star <= Math.round(product.rating) ? 'var(--theme-primary)' : 'rgba(255,255,255,0.15)' }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </m.div>
+                    ))}
+                  </div>
+                );
+                i += pair.length;
+              }
+              groupIdx++;
+            }
+            return rows;
+          })()}
         </div>
         
         {/* ===== QUICK VIEW MODAL ===== */}
@@ -2016,218 +2483,484 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     );
   }
 
-  // CART PAGE
+  // CART PAGE — 2026 CLEAN REDESIGN
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-32 smooth-scroll-page">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Корзина</h1>
+      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-40 smooth-scroll-page">
+        {/* ─── Cart Header ─── */}
+        <div className="px-5 pt-5 pb-5">
+          <p
+            className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
+            style={{ color: 'rgba(255,255,255,0.35)' }}
+          >
+            RADIANCE
+          </p>
+          <div className="flex items-center justify-between">
+            <h1
+              className="text-[26px] font-black leading-none"
+              style={{ letterSpacing: '-0.04em' }}
+            >
+              МОЯ КОРЗИНА
+            </h1>
+            {cart.length > 0 && (
+              <span
+                className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                style={{
+                  background: 'rgba(255,255,255,0.08)',
+                  color: 'rgba(255,255,255,0.55)',
+                  border: '0.5px solid rgba(255,255,255,0.12)',
+                }}
+              >
+                {cart.length} {cart.length === 1 ? 'товар' : cart.length < 5 ? 'товара' : 'товаров'}
+              </span>
+            )}
+          </div>
+        </div>
 
-          {cart.length === 0 ? (
-            <EmptyState
-              type="cart"
-              actionLabel="В каталог"
-              onAction={() => onTabChange?.('catalog')}
-              className="py-20"
-            />
-          ) : (
-            <div className="space-y-4">
+        {cart.length === 0 ? (
+          <EmptyState
+            type="cart"
+            actionLabel="В каталог"
+            onAction={() => onTabChange?.('catalog')}
+            className="py-20"
+          />
+        ) : (
+          <>
+            {/* Cart items */}
+            <div className="px-4 space-y-3">
               {cart.map((item) => (
                 <div
                   key={`${item.id}-${item.size}-${item.color}`}
-                  className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
+                  className="rounded-[18px] overflow-hidden flex gap-0"
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '0.5px solid rgba(255,255,255,0.09)',
+                  }}
                   data-testid={`cart-item-${item.id}`}
                 >
-                  <LazyImage
-                    src={item.image || ''}
-                    alt={item.name}
-                    className="w-20 h-20 rounded-xl object-cover"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-1">{item.name}</h3>
-                    <p className="text-sm text-white/60 mb-2">
-                      {item.color} • {item.size}
-                    </p>
+                  {/* Image */}
+                  <div className="flex-shrink-0 w-[88px] h-[108px] overflow-hidden rounded-l-[18px]">
+                    <LazyImage
+                      src={item.image || ''}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 px-4 py-3 flex flex-col justify-between">
+                    <div>
+                      <h3
+                        className="text-[13px] font-bold leading-tight mb-0.5"
+                        style={{ letterSpacing: '-0.01em' }}
+                      >
+                        {item.name}
+                      </h3>
+                      <p
+                        className="text-[11px]"
+                        style={{ color: 'rgba(255,255,255,0.45)' }}
+                      >
+                        {item.color} · {item.size}
+                      </p>
+                    </div>
                     <div className="flex items-center justify-between">
-                      <p className="text-lg font-bold">{formatPrice(item.price * item.quantity)}</p>
-                      <div className="flex items-center gap-2 bg-white/10 rounded-full px-2">
+                      <p
+                        className="text-[15px] font-bold"
+                        style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
+                      >
+                        {formatPrice(item.price * item.quantity)}
+                      </p>
+
+                      {/* Quantity control */}
+                      <div
+                        className="flex items-center rounded-full overflow-hidden"
+                        style={{
+                          background: 'rgba(255,255,255,0.09)',
+                          border: '0.5px solid rgba(255,255,255,0.12)',
+                        }}
+                      >
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center"
+                          className="w-8 h-8 flex items-center justify-center transition-all active:scale-90"
                           aria-label="Уменьшить количество"
                           data-testid={`button-decrease-${item.id}`}
                         >
-                          <Minus className="w-4 h-4" />
+                          <Minus className="w-3 h-3" />
                         </button>
-                        <span className="w-6 text-center font-semibold">{item.quantity}</span>
+                        <span
+                          className="text-[13px] font-bold px-1"
+                          style={{ minWidth: '20px', textAlign: 'center' }}
+                        >
+                          {item.quantity}
+                        </span>
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center"
+                          className="w-8 h-8 flex items-center justify-center transition-all active:scale-90"
                           aria-label="Увеличить количество"
                           data-testid={`button-increase-${item.id}`}
                         >
-                          <Plus className="w-4 h-4" />
+                          <Plus className="w-3 h-3" />
                         </button>
                       </div>
                     </div>
                   </div>
+
+                  {/* Remove */}
                   <button
                     onClick={() => removeFromCart(item.id, item.size, item.color)}
                     aria-label="Удалить из корзины"
-                    className="w-10 h-10 flex items-center justify-center"
+                    className="flex-shrink-0 px-3 flex items-center justify-center transition-all active:scale-90"
+                    style={{ color: 'rgba(255,255,255,0.3)' }}
                     data-testid={`button-remove-${item.id}`}
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               ))}
-
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[var(--theme-background)] border-t border-white/10">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
-                </div>
-                <TrustBadges variant="compact" className="mb-4" />
-                <button
-                  onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all min-h-[48px]"
-                  data-testid="button-checkout"
-                >
-                  Оформить заказ
-                </button>
-              </div>
-              
-              <CheckoutDrawer
-                isOpen={isCheckoutOpen}
-                onClose={() => setIsCheckoutOpen(false)}
-                items={cart.map(item => ({
-                  id: parseInt(item.id) || 0,
-                  name: item.name,
-                  price: item.price,
-                  quantity: item.quantity,
-                  size: item.size,
-                  color: item.color,
-                  image: item.image
-                }))}
-                total={cartTotal}
-                currency="₽"
-                onOrderComplete={handleCheckout}
-                storeName="RADIANCE"
-              />
             </div>
-          )}
-        </div>
+
+            {/* Summary card */}
+            <div className="px-4 mt-4">
+              <div
+                className="rounded-[18px] p-4 space-y-3"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '0.5px solid rgba(255,255,255,0.09)',
+                }}
+              >
+                <div className="flex items-center justify-between text-[13px]">
+                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>Товары ({cartCount})</span>
+                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatPrice(cartTotal)}</span>
+                </div>
+                <div className="flex items-center justify-between text-[13px]">
+                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>Доставка</span>
+                  <span className="font-semibold" style={{ color: 'var(--theme-primary)' }}>Бесплатно</span>
+                </div>
+                <div
+                  className="h-px"
+                  style={{ background: 'rgba(255,255,255,0.08)' }}
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-[15px] font-bold" style={{ letterSpacing: '-0.01em' }}>
+                    Итого
+                  </span>
+                  <span
+                    className="text-[18px] font-black"
+                    style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.03em' }}
+                  >
+                    {formatPrice(cartTotal)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Trust badges */}
+            <div className="px-4 mt-3">
+              <TrustBadges variant="compact" />
+            </div>
+
+            {/* Fixed checkout button */}
+            <div
+              className="fixed bottom-[88px] left-0 right-0 px-4 py-3"
+              style={{
+                background:
+                  'linear-gradient(to top, var(--theme-background) 60%, transparent)',
+              }}
+            >
+              <button
+                onClick={() => setIsCheckoutOpen(true)}
+                className="w-full py-4 rounded-full font-black text-black text-[15px] transition-all active:scale-[0.98]"
+                style={{
+                  background: 'var(--theme-primary)',
+                  letterSpacing: '-0.01em',
+                }}
+                data-testid="button-checkout"
+              >
+                Оформить заказ · {formatPrice(cartTotal)}
+              </button>
+            </div>
+
+            <CheckoutDrawer
+              isOpen={isCheckoutOpen}
+              onClose={() => setIsCheckoutOpen(false)}
+              items={cart.map(item => ({
+                id: parseInt(item.id) || 0,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                size: item.size,
+                color: item.color,
+                image: item.image
+              }))}
+              total={cartTotal}
+              currency="₽"
+              onOrderComplete={handleCheckout}
+              storeName="RADIANCE"
+            />
+          </>
+        )}
       </div>
     );
   }
 
-  // PROFILE PAGE
+  // PROFILE PAGE — 2026 MEMBERSHIP TIER REDESIGN
   if (activeTab === 'profile') {
+    const membershipTier = ordersCount >= 5 ? 'Gold' : ordersCount >= 2 ? 'Silver' : 'Bronze';
+    const tierGradient =
+      membershipTier === 'Gold'
+        ? 'linear-gradient(135deg, #B8860B 0%, #FFD700 40%, #DAA520 70%, #B8860B 100%)'
+        : membershipTier === 'Silver'
+        ? 'linear-gradient(135deg, #606060 0%, #C0C0C0 40%, #A8A8A8 70%, #707070 100%)'
+        : 'linear-gradient(135deg, #7C4A1E 0%, #CD7F32 40%, #A0602A 70%, #7C4A1E 100%)';
+
     return (
       <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
-        <div className="p-6 bg-white/10 backdrop-blur-xl border-b border-white/10">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-accent)] rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-black" />
+        {/* ─── Profile Header ─── */}
+        <div className="px-5 pt-5 pb-4">
+          <p
+            className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
+            style={{ color: 'rgba(255,255,255,0.35)' }}
+          >
+            RADIANCE
+          </p>
+          <h1
+            className="text-[26px] font-black leading-none"
+            style={{ letterSpacing: '-0.04em' }}
+          >
+            ПРОФИЛЬ
+          </h1>
+        </div>
+
+        {/* ─── Membership Card ─── */}
+        <div className="px-4 mb-5">
+          <div
+            className="relative rounded-[22px] overflow-hidden p-5"
+            style={{
+              background: tierGradient,
+              minHeight: '140px',
+            }}
+          >
+            {/* Decorative circles */}
+            <div
+              className="absolute -right-8 -top-8 w-36 h-36 rounded-full opacity-20"
+              style={{ background: 'rgba(255,255,255,0.4)' }}
+            />
+            <div
+              className="absolute -right-2 top-12 w-20 h-20 rounded-full opacity-15"
+              style={{ background: 'rgba(255,255,255,0.4)' }}
+            />
+
+            {/* User row */}
+            <div className="flex items-center gap-3 mb-4 relative z-10">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(0,0,0,0.25)' }}
+              >
+                <User className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-[15px] font-black text-white leading-tight" style={{ letterSpacing: '-0.02em' }}>
+                  Александр Петров
+                </p>
+                <p className="text-[11px] text-white/70">+7 (999) 123-45-67</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-bold">Александр Петров</h2>
-              <p className="text-sm text-white/60">+7 (999) 123-45-67</p>
+
+            {/* Membership tier + stats */}
+            <div className="flex items-end justify-between relative z-10">
+              <div>
+                <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/60 mb-0.5">
+                  Статус участника
+                </p>
+                <p className="text-[20px] font-black text-white leading-none" style={{ letterSpacing: '-0.03em' }}>
+                  {membershipTier} Member
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-[9px] font-semibold tracking-[0.15em] uppercase text-white/60 mb-0.5">
+                  Бонусы
+                </p>
+                <p className="text-[20px] font-black text-white leading-none" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.03em' }}>
+                  {(ordersCount * 450).toLocaleString('ru-RU')} ₽
+                </p>
+              </div>
             </div>
           </div>
+        </div>
 
+        {/* ─── Quick Stats ─── */}
+        <div className="px-4 mb-5">
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{ordersCount}</p>
+            <div
+              className="rounded-[18px] p-4"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '0.5px solid rgba(255,255,255,0.09)',
+              }}
+            >
+              <p
+                className="text-[9px] font-semibold tracking-[0.2em] uppercase mb-1"
+                style={{ color: 'rgba(255,255,255,0.4)' }}
+              >
+                Заказы
+              </p>
+              <p
+                className="text-[32px] font-black leading-none"
+                style={{ letterSpacing: '-0.04em' }}
+              >
+                {ordersCount}
+              </p>
             </div>
-            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Избранное</p>
-              <p className="text-2xl font-bold">{favoritesCount}</p>
+            <div
+              className="rounded-[18px] p-4"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '0.5px solid rgba(255,255,255,0.09)',
+              }}
+            >
+              <p
+                className="text-[9px] font-semibold tracking-[0.2em] uppercase mb-1"
+                style={{ color: 'rgba(255,255,255,0.4)' }}
+              >
+                Избранное
+              </p>
+              <p
+                className="text-[32px] font-black leading-none"
+                style={{ letterSpacing: '-0.04em' }}
+              >
+                {favoritesCount}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="p-4 space-y-4">
-          <div className="scroll-fade-in">
-            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
-            {orders.length === 0 ? (
-              <div className="text-center py-8 text-white/50">
-                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>У вас пока нет заказов</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {orders.map((order) => (
-                  <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-white/70">Заказ #{order.id.slice(-6)}</span>
-                      <span className="text-sm text-white/70">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
-                    </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-white/80">{order.items.length} товаров</span>
-                      <span className="font-bold">{formatPrice(order.total)}</span>
-                    </div>
-                    <div className="mt-2">
-                      <span className="text-xs px-2 py-1 bg-[var(--theme-primary)]/20 text-[var(--theme-primary)] rounded-full">
-                        {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
-                      </span>
-                    </div>
+        {/* ─── Recent Orders ─── */}
+        <div className="px-4 mb-5">
+          <p
+            className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-3"
+            style={{ color: 'rgba(255,255,255,0.35)' }}
+          >
+            Последние заказы
+          </p>
+
+          {orders.length === 0 ? (
+            <div
+              className="rounded-[18px] p-6 text-center"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '0.5px solid rgba(255,255,255,0.08)',
+              }}
+            >
+              <Package
+                className="w-10 h-10 mx-auto mb-2"
+                style={{ color: 'rgba(255,255,255,0.2)' }}
+              />
+              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                У вас пока нет заказов
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {orders.slice(0, 3).map((order) => (
+                <div
+                  key={order.id}
+                  className="rounded-[16px] px-4 py-3.5 flex items-center justify-between"
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '0.5px solid rgba(255,255,255,0.08)',
+                  }}
+                  data-testid={`order-${order.id}`}
+                >
+                  <div>
+                    <p className="text-[12px] font-bold" style={{ letterSpacing: '-0.01em' }}>
+                      Заказ #{order.id.slice(-6)}
+                    </p>
+                    <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                      {order.items.length} {order.items.length === 1 ? 'товар' : order.items.length < 5 ? 'товара' : 'товаров'} · {formatPrice(order.total)}
+                    </p>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-orders">
-            <div className="flex items-center gap-3">
-              <Package className="w-5 h-5 text-white/70" />
-              <span className="font-medium">История заказов</span>
+                  <span
+                    className="text-[9px] font-bold px-2.5 py-1 rounded-full tracking-[0.08em] uppercase"
+                    style={{
+                      background: 'rgba(var(--theme-primary-rgb, 16,185,129),0.15)',
+                      color: 'var(--theme-primary)',
+                      border: '0.5px solid rgba(var(--theme-primary-rgb, 16,185,129),0.25)',
+                    }}
+                  >
+                    {order.status === 'pending'
+                      ? 'Ожидает'
+                      : order.status === 'confirmed'
+                      ? 'Подтверждён'
+                      : order.status === 'processing'
+                      ? 'В обработке'
+                      : order.status === 'shipped'
+                      ? 'Отправлен'
+                      : 'Доставлен'}
+                  </span>
+                </div>
+              ))}
             </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
-            <div className="flex items-center gap-3">
-              <Heart className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Избранное</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
-            <div className="flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Способы оплаты</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-address">
-            <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Адреса доставки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
-            <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Настройки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover-elevate active-elevate-2 mt-4" data-testid="button-logout">
-            <div className="flex items-center gap-3">
-              <LogOut className="w-5 h-5 text-red-400" />
-              <span className="font-medium text-red-400">Выйти</span>
-            </div>
-          </button>
-          </div>
+          )}
         </div>
+
+        {/* ─── Menu ─── */}
+        <div className="px-4 space-y-2">
+          {[
+            { icon: Package, label: 'История заказов', testId: 'button-orders' },
+            { icon: Heart, label: 'Избранное', testId: 'button-favorites' },
+            { icon: CreditCard, label: 'Способы оплаты', testId: 'button-payment' },
+            { icon: MapPin, label: 'Адреса доставки', testId: 'button-address' },
+            { icon: Settings, label: 'Настройки', testId: 'button-settings' },
+          ].map(({ icon: Icon, label, testId }) => (
+            <button
+              key={testId}
+              className="w-full flex items-center justify-between px-4 py-3.5 rounded-[16px] transition-all active:scale-[0.98]"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '0.5px solid rgba(255,255,255,0.08)',
+              }}
+              data-testid={testId}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(255,255,255,0.08)' }}
+                >
+                  <Icon className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.6)' }} />
+                </div>
+                <span className="text-[14px] font-medium" style={{ letterSpacing: '-0.01em' }}>
+                  {label}
+                </span>
+              </div>
+              <ChevronLeft
+                className="w-4 h-4 rotate-180"
+                style={{ color: 'rgba(255,255,255,0.25)' }}
+              />
+            </button>
+          ))}
+
+          {/* Logout */}
+          <button
+            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-[16px] transition-all active:scale-[0.98] mt-2"
+            style={{
+              background: 'rgba(239,68,68,0.07)',
+              border: '0.5px solid rgba(239,68,68,0.18)',
+            }}
+            data-testid="button-logout"
+          >
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(239,68,68,0.12)' }}
+            >
+              <LogOut className="w-4 h-4 text-red-400" />
+            </div>
+            <span className="text-[14px] font-medium text-red-400" style={{ letterSpacing: '-0.01em' }}>
+              Выйти
+            </span>
+          </button>
+        </div>
+
+        <div className="h-4" />
       </div>
     );
   }
