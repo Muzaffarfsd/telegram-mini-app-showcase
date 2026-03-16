@@ -214,9 +214,32 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
         <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
 
-          <header ref={heroRef} className="relative px-6 pt-16 pb-16 overflow-hidden" role="banner">
-            <div className="absolute inset-0 z-0">
-              <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 30% 80%, ${EMERALD}08 0%, transparent 60%), radial-gradient(ellipse at 70% 20%, rgba(255,255,255,0.02) 0%, transparent 50%)` }} />
+          <header ref={heroRef} className="relative px-6 pt-20 pb-20 overflow-hidden" style={{ minHeight: '85vh' }} role="banner">
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <div
+                className="showcase-orb-1 absolute rounded-full"
+                style={{
+                  width: 280, height: 280, top: '15%', left: '-10%',
+                  background: `radial-gradient(circle, ${EMERALD}18 0%, ${EMERALD}06 40%, transparent 70%)`,
+                  filter: 'blur(60px)',
+                }}
+              />
+              <div
+                className="showcase-orb-2 absolute rounded-full"
+                style={{
+                  width: 200, height: 200, top: '60%', right: '-5%',
+                  background: 'radial-gradient(circle, rgba(168,85,247,0.12) 0%, rgba(168,85,247,0.03) 40%, transparent 70%)',
+                  filter: 'blur(50px)',
+                }}
+              />
+              <div
+                className="showcase-orb-3 absolute rounded-full"
+                style={{
+                  width: 160, height: 160, bottom: '10%', left: '30%',
+                  background: 'radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 60%)',
+                  filter: 'blur(45px)',
+                }}
+              />
             </div>
 
             <m.div className="relative z-10" style={{ y: reducedMotion ? 0 : heroY, opacity: reducedMotion ? 1 : heroOpacity }}>
@@ -296,18 +319,22 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 transition={{ duration: reducedMotion ? 0 : 0.6, ease: EASE, delay: reducedMotion ? 0 : 1.1 }}
                 className="mt-8 flex items-center gap-4"
               >
+                <div className="relative">
+                  <div className="absolute -inset-1 rounded-full" style={{
+                    background: `linear-gradient(135deg, ${EMERALD}25, rgba(255,255,255,0.1))`,
+                    filter: 'blur(10px)', opacity: 0.6,
+                  }} />
                 <button
                   onClick={() => nav('projects')}
-                  className="group flex items-center gap-2.5 rounded-full px-6 transition-all duration-500 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
-                  style={{ height: 50, background: '#fff', boxShadow: '0 0 0 0 rgba(255,255,255,0)' }}
-                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 40px rgba(255,255,255,0.15)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 0 0 0 rgba(255,255,255,0)'; }}
+                  className="relative group flex items-center gap-2.5 rounded-full px-6 transition-all duration-500 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+                  style={{ height: 50, background: '#fff' }}
                 >
                   <span style={{ fontFamily: SYNE, fontSize: '0.8125rem', fontWeight: 700, color: '#000', letterSpacing: '-0.01em' }}>
                     {ru ? 'Начать проект' : 'Start a Project'}
                   </span>
                   <ArrowUpRight className="w-4 h-4 text-black transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.5} />
                 </button>
+                </div>
 
                 <button
                   onClick={() => openDemo('clothing-store')}
@@ -326,7 +353,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </m.div>
           </header>
 
-          <div className="py-5 overflow-hidden" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+          <div className="py-5 overflow-hidden relative" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(to right, transparent, ${EMERALD}15, transparent)` }} aria-hidden="true" />
+            <div className="absolute inset-x-0 bottom-0 h-px" style={{ background: `linear-gradient(to right, transparent, ${EMERALD}15, transparent)` }} aria-hidden="true" />
             <m.div
               animate={reducedMotion ? {} : { x: ['0%', '-50%'] }}
               transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
@@ -369,8 +398,13 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </div>
           </Cin>
 
-          <section className="px-6 py-20" aria-label={ru ? 'Метрики' : 'Metrics'}>
-            <div className="space-y-16">
+          <section className="px-6 py-20 relative" aria-label={ru ? 'Метрики' : 'Metrics'}>
+            <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+              <div className="showcase-orb-3 absolute rounded-full"
+                style={{ width: 200, height: 200, top: '20%', left: '-20%', background: `radial-gradient(circle, ${EMERALD}0a 0%, transparent 60%)`, filter: 'blur(50px)' }}
+              />
+            </div>
+            <div className="space-y-16 relative z-10">
               {[
                 { num: 900, sfx: 'M+', title: ru ? 'пользователей Telegram' : 'Telegram users', desc: ru ? 'Ваш магазин — прямо у них в кармане' : 'Your store — right in their pocket' },
                 { num: 0, sfx: '%', title: ru ? 'комиссий' : 'commission', desc: ru ? 'Маркетплейсы забирают до 25%. Мы — ноль' : 'Marketplaces take up to 25%. We take zero' },
@@ -381,8 +415,10 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     <div style={{
                       fontFamily: SYNE, fontSize: 'clamp(4rem, 16vw, 7rem)',
                       fontWeight: 800, lineHeight: 0.85, letterSpacing: '-0.06em',
-                      color: i === 0 ? '#fff' : 'transparent',
-                      WebkitTextStroke: i === 0 ? 'none' : '1.5px rgba(255,255,255,0.15)',
+                      ...(i === 0
+                        ? { background: `linear-gradient(135deg, #fff, ${EMERALD})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }
+                        : { color: 'transparent', WebkitTextStroke: '1.5px rgba(255,255,255,0.15)' }
+                      ),
                     }}>
                       <Ct to={metric.num} suffix={metric.sfx} />
                     </div>
@@ -465,11 +501,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                           className="will-change-transform"
                         >
                           <article
-                            className="relative overflow-hidden rounded-2xl cursor-pointer group active:scale-[0.98] transition-transform duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+                            className="relative overflow-hidden rounded-2xl cursor-pointer group active:scale-[0.98] transition-all duration-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2 showcase-glass-card"
                             style={{
                               height: 320,
-                              background: 'rgba(255,255,255,0.03)',
-                              border: '1px solid rgba(255,255,255,0.06)',
                             }}
                             role="button"
                             tabIndex={index === 0 ? 0 : -1}
@@ -590,10 +624,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 return (
                   <Cin key={i} delay={i * 0.04} className={f.span}>
                     <div
-                      className="rounded-2xl p-4 transition-all duration-500 group"
-                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.04)'; }}
+                      className="rounded-2xl p-4 group showcase-glass-card"
                     >
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2.5 transition-transform duration-300 group-hover:scale-110"
                         style={{ background: 'rgba(52,211,153,0.07)', border: '1px solid rgba(52,211,153,0.1)' }}>
@@ -625,36 +656,57 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               </h2>
             </Cin>
 
-            {[
-              { n: '01', t: ru ? 'Бриф' : 'Brief', d: ru ? 'Выберите шаблон или расскажите идею. Мы начнём в тот же день.' : 'Pick a template or share your idea. We start the same day.' },
-              { n: '02', t: ru ? 'Сборка' : 'Build', d: ru ? 'Дизайн, фронтенд, бэкенд, платежи — всё за 24–48 часов.' : 'Design, frontend, backend, payments — all in 24–48 hours.' },
-              { n: '03', t: ru ? 'Запуск' : 'Launch', d: ru ? 'Деплой в Telegram. Аналитика подключена. Вы зарабатываете.' : 'Deploy to Telegram. Analytics connected. You earn.' },
-            ].map((s, i) => (
-              <Cin key={i} delay={i * 0.08}>
-                <div className="flex items-start gap-5 mb-9 last:mb-0">
-                  <span style={{
-                    fontFamily: SYNE, fontSize: 'clamp(2rem, 7vw, 3rem)',
-                    fontWeight: 800, lineHeight: 1, letterSpacing: '-0.05em',
-                    color: i === 2 ? EMERALD : 'rgba(255,255,255,0.08)',
-                  }}>{s.n}</span>
-                  <div className="pt-1.5">
-                    <h3 style={{
-                      fontFamily: SYNE, fontSize: 'clamp(0.95rem, 2.5vw, 1.125rem)',
-                      fontWeight: 700, color: '#fff', letterSpacing: '-0.03em',
-                    }}>{s.t}</h3>
-                    <p className="mt-1" style={{
-                      fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8125rem)',
-                      lineHeight: 1.65, color: 'rgba(255,255,255,0.45)',
-                    }}>{s.d}</p>
+            <div className="relative">
+              <div className="absolute left-[1.35rem] top-4 bottom-4 w-px showcase-process-line"
+                style={{ background: `linear-gradient(to bottom, ${EMERALD}30, ${EMERALD}08)` }}
+                aria-hidden="true"
+              />
+
+              {[
+                { n: '01', t: ru ? 'Бриф' : 'Brief', d: ru ? 'Выберите шаблон или расскажите идею. Мы начнём в тот же день.' : 'Pick a template or share your idea. We start the same day.' },
+                { n: '02', t: ru ? 'Сборка' : 'Build', d: ru ? 'Дизайн, фронтенд, бэкенд, платежи — всё за 24–48 часов.' : 'Design, frontend, backend, payments — all in 24–48 hours.' },
+                { n: '03', t: ru ? 'Запуск' : 'Launch', d: ru ? 'Деплой в Telegram. Аналитика подключена. Вы зарабатываете.' : 'Deploy to Telegram. Analytics connected. You earn.' },
+              ].map((s, i) => (
+                <Cin key={i} delay={i * 0.08}>
+                  <div className="flex items-start gap-5 mb-9 last:mb-0 relative">
+                    <div className="relative flex flex-col items-center">
+                      <div className="w-11 h-11 rounded-full flex items-center justify-center"
+                        style={{
+                          background: i === 2 ? `${EMERALD}15` : 'rgba(255,255,255,0.04)',
+                          border: `1px solid ${i === 2 ? `${EMERALD}30` : 'rgba(255,255,255,0.06)'}`,
+                          boxShadow: i === 2 ? `0 0 20px ${EMERALD}15` : 'none',
+                        }}>
+                        <span style={{
+                          fontFamily: SYNE, fontSize: '0.75rem',
+                          fontWeight: 800, letterSpacing: '-0.03em',
+                          color: i === 2 ? EMERALD : 'rgba(255,255,255,0.3)',
+                        }}>{s.n}</span>
+                      </div>
+                    </div>
+                    <div className="pt-2">
+                      <h3 style={{
+                        fontFamily: SYNE, fontSize: 'clamp(0.95rem, 2.5vw, 1.125rem)',
+                        fontWeight: 700, color: '#fff', letterSpacing: '-0.03em',
+                      }}>{s.t}</h3>
+                      <p className="mt-1" style={{
+                        fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8125rem)',
+                        lineHeight: 1.65, color: 'rgba(255,255,255,0.45)',
+                      }}>{s.d}</p>
+                    </div>
                   </div>
-                </div>
-              </Cin>
-            ))}
+                </Cin>
+              ))}
+            </div>
           </section>
 
-          <section className="px-6 py-20" aria-label={ru ? 'Отзывы' : 'Testimonials'}>
+          <section className="px-6 py-20 relative" aria-label={ru ? 'Отзывы' : 'Testimonials'}>
+            <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+              <div className="showcase-orb-2 absolute rounded-full"
+                style={{ width: 180, height: 180, top: '30%', right: '-15%', background: `radial-gradient(circle, ${EMERALD}08 0%, transparent 60%)`, filter: 'blur(40px)' }}
+              />
+            </div>
             <Cin>
-              <div className="rounded-2xl p-6 mb-10" style={{ background: 'rgba(52,211,153,0.04)', border: '1px solid rgba(52,211,153,0.08)' }}>
+              <div className="rounded-2xl p-6 mb-10 showcase-glass-card" style={{ background: 'rgba(52,211,153,0.04)', border: '1px solid rgba(52,211,153,0.1)' }}>
                 <div className="flex items-baseline gap-2">
                   <span style={{ fontFamily: SYNE, fontSize: 'clamp(2.5rem, 9vw, 3.5rem)', fontWeight: 800, color: EMERALD, letterSpacing: '-0.05em', lineHeight: 1 }}>
                     +340%
@@ -708,38 +760,45 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
           <section className="px-6 pt-8 pb-10" aria-label="CTA">
             <Cin>
-              <div className="relative overflow-hidden rounded-3xl py-14 px-7 text-center" style={{ border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="relative overflow-hidden rounded-3xl py-16 px-7 text-center showcase-glass-card" style={{ border: '1px solid rgba(52,211,153,0.08)' }}>
+                <div className="absolute inset-0 pointer-events-none showcase-cta-glow" style={{
+                  background: `radial-gradient(ellipse at 50% 100%, ${EMERALD}15 0%, transparent 60%)`,
+                }} />
                 <div className="absolute inset-0 pointer-events-none" style={{
-                  background: `radial-gradient(ellipse at 50% 120%, ${EMERALD}10 0%, transparent 70%)`,
+                  background: `radial-gradient(ellipse at 20% 20%, rgba(168,85,247,0.04) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, ${EMERALD}06 0%, transparent 50%)`,
                 }} />
 
                 <div className="relative z-10">
                   <h2 style={{
-                    fontFamily: SYNE, fontSize: 'clamp(1.75rem, 6vw, 2.5rem)',
+                    fontFamily: SYNE, fontSize: 'clamp(2rem, 7vw, 3rem)',
                     fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.05,
                   }}>
                     {ru ? 'Ваш ход' : 'Your move'}
                   </h2>
-                  <p className="mt-3 mx-auto" style={{
-                    maxWidth: 260,
-                    fontFamily: INSTRUMENT, fontSize: 'clamp(0.85rem, 2vw, 1rem)',
-                    fontStyle: 'italic', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5,
+                  <p className="mt-4 mx-auto" style={{
+                    maxWidth: 280,
+                    fontFamily: INSTRUMENT, fontSize: 'clamp(0.9rem, 2.2vw, 1.1rem)',
+                    fontStyle: 'italic', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5,
                   }}>
                     {ru ? 'Бесплатная консультация. Первый прототип — завтра.' : 'Free consultation. First prototype — tomorrow.'}
                   </p>
 
-                  <button
-                    onClick={() => nav('projects')}
-                    className="mt-7 inline-flex items-center gap-2 rounded-full px-7 transition-all duration-500 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
-                    style={{ height: 50, background: '#fff', boxShadow: '0 0 60px rgba(255,255,255,0.06)' }}
-                    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 80px rgba(255,255,255,0.15)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 0 60px rgba(255,255,255,0.06)'; }}
-                  >
-                    <span style={{ fontFamily: SYNE, fontSize: '0.8125rem', fontWeight: 700, color: '#000' }}>
-                      {ru ? 'Начать' : 'Get Started'}
-                    </span>
-                    <ArrowUpRight className="w-4 h-4 text-black" strokeWidth={2.5} />
-                  </button>
+                  <div className="relative inline-block mt-8">
+                    <div className="absolute -inset-1 rounded-full showcase-cta-glow" style={{
+                      background: `linear-gradient(135deg, ${EMERALD}40, rgba(168,85,247,0.2))`,
+                      filter: 'blur(12px)',
+                    }} />
+                    <button
+                      onClick={() => nav('projects')}
+                      className="relative inline-flex items-center gap-2.5 rounded-full px-8 transition-all duration-500 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+                      style={{ height: 52, background: '#fff' }}
+                    >
+                      <span style={{ fontFamily: SYNE, fontSize: '0.875rem', fontWeight: 700, color: '#000' }}>
+                        {ru ? 'Начать' : 'Get Started'}
+                      </span>
+                      <ArrowUpRight className="w-4 h-4 text-black" strokeWidth={2.5} />
+                    </button>
+                  </div>
                 </div>
               </div>
             </Cin>
