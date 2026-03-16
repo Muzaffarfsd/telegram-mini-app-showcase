@@ -448,12 +448,12 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
 
   const contentStagger = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.065, delayChildren: 0.2 } },
+    visible: { transition: { staggerChildren: 0.055, delayChildren: 0.15 } },
   };
 
   const contentItem = {
-    hidden: { opacity: 0, y: 18 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] as number[] } },
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as number[] } },
   };
 
   const handleToggleFavorite = (flowerId: number) => {
@@ -574,7 +574,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
         <div
           ref={productScrollRef}
           className="flex-1 overflow-y-auto scrollbar-hide"
-          style={{ paddingBottom: '180px' }}
+          style={{ paddingBottom: '220px' }}
           onScroll={(e) => {
             const st = e.currentTarget.scrollTop;
             setShowStickyHeader(st > 300);
@@ -634,7 +634,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
           </div>
 
           <m.div className="relative" style={{ marginTop: '-28px' }} variants={contentStagger} initial="hidden" animate={productExiting ? 'hidden' : 'visible'}>
-            <div className="relative rounded-t-[28px]" style={{ padding: '28px 20px 24px', display: 'flex', flexDirection: 'column', gap: '22px', background: `linear-gradient(180deg, ${bgColor}EE 0%, ${BG} 110px, ${BG} 100%)`, borderTop: `0.5px solid ${ACCENT}25` }}>
+            <div className="relative rounded-t-[28px]" style={{ padding: '28px 20px 32px', display: 'flex', flexDirection: 'column', gap: '26px', background: `linear-gradient(180deg, ${bgColor}EE 0%, ${BG} 110px, ${BG} 100%)`, borderTop: `0.5px solid ${ACCENT}25` }}>
 
               <m.div variants={contentItem}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -732,7 +732,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                 <AnimatePresence mode="wait">
                   {activeProductTab === 'bouquet' && (
                     <m.div key="bouquet" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '26px' }}>
 
                         <div>
                           <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: '14px', fontFamily: "'Inter',sans-serif" }}>Состав букета</p>
@@ -865,7 +865,8 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                 </AnimatePresence>
               </m.div>
 
-              <m.div variants={contentItem}>
+              <m.div variants={contentItem} style={{ marginTop: '6px' }}>
+                <div style={{ height: '1px', background: 'rgba(0,0,0,0.06)', marginBottom: '20px' }} />
                 <div style={{ display: 'flex', alignItems: 'stretch', borderRadius: '16px', background: CARD, border: '0.5px solid rgba(0,0,0,0.06)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                   {[
                     { icon: <Truck style={{ width: '15px', height: '15px', color: ACCENT }} strokeWidth={1.5} />, label: 'Доставка', sub: 'Бесплатно' },
@@ -885,7 +886,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
                 const recommended = flowers.filter(p => p.id !== selectedFlower.id).sort((a, b) => { const sameCat = (a.category === selectedFlower.category ? 1 : 0) - (b.category === selectedFlower.category ? 1 : 0); return -sameCat; }).slice(0, 6);
                 if (recommended.length === 0) return null;
                 return (
-                  <m.div variants={contentItem}>
+                  <m.div variants={contentItem} style={{ marginTop: '6px' }}>
                     <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ height: '1px', background: 'rgba(0,0,0,0.06)', flex: 1 }} />
                       <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#9CA3AF', fontFamily: "'Inter',sans-serif", whiteSpace: 'nowrap' }}>Вам также понравится</p>

@@ -416,13 +416,13 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   const contentStagger = {
     hidden: {},
     visible: {
-      transition: { staggerChildren: 0.065, delayChildren: 0.2 },
+      transition: { staggerChildren: 0.055, delayChildren: 0.15 },
     },
   };
 
   const contentItem = {
-    hidden:   { opacity: 0, y: 18 },
-    visible:  { opacity: 1, y: 0, transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] as number[] } },
+    hidden:   { opacity: 0, y: 10 },
+    visible:  { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as number[] } },
   };
 
   const handleToggleFavorite = (perfumeId: number) => {
@@ -576,7 +576,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
         <div
           ref={productScrollRef}
           className="flex-1 overflow-y-auto scrollbar-hide"
-          style={{ paddingBottom: '180px' }}
+          style={{ paddingBottom: '220px' }}
           onScroll={(e) => {
             const st = e.currentTarget.scrollTop;
             setShowStickyHeader(st > 300);
@@ -715,10 +715,10 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
             <div
               className="relative rounded-t-[28px]"
               style={{
-                padding: '28px 20px 24px',
+                padding: '28px 20px 32px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '22px',
+                gap: '26px',
                 background: `linear-gradient(180deg, ${bgColor}EE 0%, #07070A 110px, #07070A 100%)`,
                 borderTop: `0.5px solid ${accentColor}30`,
               }}
@@ -955,7 +955,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 {/* ── TAB: АРОМАТ — Notes Pyramid + Longevity/Sillage + Occasions + Perfumer's Note ── */}
                 {activeProductTab === 'fragrance' && (
                 <m.div key="fragrance" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '26px' }}>
 
                     {/* Notes Pyramid */}
                     <div>
@@ -1173,7 +1173,8 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               </m.div>
 
               {/* ── BLOCK 8: SERVICE STRIP ── */}
-              <m.div variants={contentItem}>
+              <m.div variants={contentItem} style={{ marginTop: '6px' }}>
+                <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '20px' }} />
                 <div style={{
                   display: 'flex', alignItems: 'stretch',
                   borderRadius: '16px',
@@ -1223,7 +1224,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                   .slice(0, 6);
                 if (recommended.length === 0) return null;
                 return (
-                  <m.div variants={contentItem}>
+                  <m.div variants={contentItem} style={{ marginTop: '6px' }}>
                     <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', flex: 1 }} />
                       <p style={{
