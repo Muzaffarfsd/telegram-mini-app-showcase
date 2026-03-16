@@ -4,7 +4,7 @@ import { m, AnimatePresence } from "framer-motion";
 import {
   Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package,
   CreditCard, MapPin, Settings, LogOut, User, Sparkles, Search,
-  Menu, Home, Grid, Tag, Plus, Minus, Flame, Wind, Leaf, Gem, Flower2, Eye,
+  Menu, Home, Grid, Tag, Plus, Minus, Droplets, Moon, Flower, TreePine, Diamond, Eye,
   Truck, RotateCcw, ShieldCheck
 } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
@@ -320,11 +320,11 @@ const mockPerfumeReviews = [
 ];
 
 const categoryConfig: Record<string, { icon: React.ComponentType<{style?: React.CSSProperties}>, label: string, color: string }> = {
-  Fresh:    { icon: Wind,    label: 'Свежие',    color: '#34D399' },
-  Oriental: { icon: Flame,   label: 'Восточные', color: '#F97316' },
-  Floral:   { icon: Flower2, label: 'Цветочные', color: '#F472B6' },
-  Woody:    { icon: Leaf,    label: 'Древесные', color: '#A3845C' },
-  Amber:    { icon: Gem,     label: 'Амберные',  color: '#F59E0B' },
+  Fresh:    { icon: Droplets, label: 'Свежие',    color: '#34D399' },
+  Oriental: { icon: Moon,     label: 'Восточные', color: '#F97316' },
+  Floral:   { icon: Flower,   label: 'Цветочные', color: '#F472B6' },
+  Woody:    { icon: TreePine, label: 'Древесные', color: '#A3845C' },
+  Amber:    { icon: Diamond,  label: 'Амберные',  color: '#F59E0B' },
 };
 
 const sillageLabel: Record<SillageLevel, string> = {
