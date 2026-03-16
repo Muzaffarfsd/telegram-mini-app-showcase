@@ -261,6 +261,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [quickViewSize, setQuickViewSize] = useState<string>('');
   const [quickViewColor, setQuickViewColor] = useState<string>('');
+  const [promoCode, setPromoCode] = useState<string>('');
+  const [promoApplied, setPromoApplied] = useState<boolean>(false);
+  const [promoDiscountPct, setPromoDiscountPct] = useState<number>(0);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   
@@ -360,6 +363,27 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
       duration: 1500,
     });
   };
+
+  const PROMO_CODES: Record<string, number> = { 'RADIANCE10': 10, 'STYLE20': 20, 'SS26': 15 };
+
+  const handleApplyPromo = () => {
+    const discount = PROMO_CODES[promoCode.trim().toUpperCase()];
+    if (discount) {
+      setPromoDiscountPct(discount);
+      setPromoApplied(true);
+      toast({ title: `Промокод применён — скидка ${discount}%`, duration: 2000 });
+    } else {
+      toast({ title: 'Неверный промокод', description: 'Попробуйте: RADIANCE10 или STYLE20', duration: 2500 });
+    }
+  };
+
+  const promoSaving = promoApplied ? Math.round(cartTotal * promoDiscountPct / 100) : 0;
+  const oldPriceSaving = cart.reduce((acc, item) => {
+    const product = products.find(p => p.id === parseInt(item.id));
+    return acc + (product?.oldPrice ? (product.oldPrice - product.price) * item.quantity : 0);
+  }, 0);
+  const totalSaving = promoSaving + oldPriceSaving;
+  const finalTotal = cartTotal - promoSaving;
 
   const openProduct = (product: Product) => {
     scrollToTop();
@@ -1704,7 +1728,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 </p>
                 <h3
                   className="mb-4 leading-tight"
-                  style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em' }}
+                  style={{
+                    fontSize: '26px',
+                    fontWeight: 300,
+                    fontStyle: 'italic',
+                    fontFamily: "'Cormorant Garamond', Georgia, serif",
+                    letterSpacing: '0.04em',
+                    lineHeight: 1.15,
+                  }}
                 >
                   {filteredProducts[0].name}
                 </h3>
@@ -1910,24 +1941,32 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
 
-                    {/* Quick view */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setQuickViewProduct(product);
-                        setQuickViewSize(product.sizes[0]);
-                        setQuickViewColor(product.colors[0]);
-                      }}
-                      aria-label="Быстрый просмотр"
-                      className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center"
-                      style={{
-                        background: 'rgba(0,0,0,0.38)',
-                        backdropFilter: 'blur(10px)',
-                      }}
-                      data-testid={`button-quickview-home-${product.id}`}
-                    >
-                      <Eye className="w-3 h-3 text-white" />
-                    </button>
+                    {/* Quick view + Heart row */}
+                    <div className="absolute top-2 right-2 flex flex-col gap-1.5">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
+                        aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                        className="w-7 h-7 rounded-full flex items-center justify-center active:scale-90 transition-all"
+                        style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.15)' }}
+                        data-testid={`button-favorite-${product.id}`}
+                      >
+                        <Heart className={`w-3 h-3 ${isFavorite(product.id) ? 'fill-white' : ''} text-white`} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQuickViewProduct(product);
+                          setQuickViewSize(product.sizes[0]);
+                          setQuickViewColor(product.colors[0]);
+                        }}
+                        aria-label="Быстрый просмотр"
+                        className="w-7 h-7 rounded-full flex items-center justify-center active:scale-90 transition-all"
+                        style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.12)' }}
+                        data-testid={`button-quickview-home-${product.id}`}
+                      >
+                        <Eye className="w-3 h-3 text-white" />
+                      </button>
+                    </div>
 
                     <div className="absolute bottom-0 left-0 right-0 p-3">
                       <p
@@ -2003,73 +2042,97 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <X className="w-4 h-4 text-white" />
                 </button>
                 
-                <div className="px-6 pb-8 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 60px)' }}>
-                  {/* Product Image */}
-                  <div 
-                    className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-5"
-                    style={{ background: 'rgba(255,255,255,0.05)' }}
-                  >
-                    <LazyImage
-                      src={quickViewProduct.image}
-                      alt={quickViewProduct.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  
-                  {/* Product Info */}
-                  <div className="text-center mb-5">
-                    <h3 className="text-xl font-bold mb-2" style={{ color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.02em' }}>
-                      {quickViewProduct.name}
-                    </h3>
-                    <div className="flex items-center justify-center gap-3">
-                      <p className="text-2xl font-bold" style={{ color: 'rgba(255,255,255,0.95)', fontFeatureSettings: "'tnum'" }}>
-                        {formatPrice(quickViewProduct.price)}
+                <div className="px-5 pb-6 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 60px)' }}>
+                  {/* Hero row: image + info side-by-side */}
+                  <div style={{ display: 'flex', gap: '14px', marginBottom: '20px' }}>
+                    {/* Product image — compact portrait */}
+                    <div style={{ width: '110px', flexShrink: 0, borderRadius: '16px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', aspectRatio: '2/3' }}>
+                      <LazyImage src={quickViewProduct.image} alt={quickViewProduct.name} className="w-full h-full object-cover" />
+                    </div>
+                    {/* Info column */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: '2px', minWidth: 0 }}>
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: '7px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                        {quickViewProduct.brand}
                       </p>
-                      {quickViewProduct.oldPrice && (
-                        <p className="text-base line-through" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                          {formatPrice(quickViewProduct.oldPrice)}
-                        </p>
-                      )}
+                      <h3 style={{ fontSize: '21px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '0.03em', color: 'rgba(255,255,255,0.95)', lineHeight: 1.15, marginBottom: '10px' }}>
+                        {quickViewProduct.name}
+                      </h3>
+                      {/* Stars */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginBottom: '14px' }}>
+                        {[1,2,3,4,5].map(s => (
+                          <Star key={s} style={{ width: '11px', height: '11px' }}
+                            fill={s <= Math.round(quickViewProduct.rating) ? 'rgba(255,255,255,0.85)' : 'transparent'}
+                            stroke={s <= Math.round(quickViewProduct.rating) ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
+                          />
+                        ))}
+                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginLeft: '3px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                          {quickViewProduct.rating}
+                        </span>
+                      </div>
+                      {/* Price */}
+                      <div style={{ marginTop: 'auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                            {formatPrice(quickViewProduct.price)}
+                          </span>
+                          {quickViewProduct.oldPrice && (
+                            <span style={{ fontSize: '13px', textDecoration: 'line-through', color: 'rgba(255,255,255,0.28)', fontVariantNumeric: 'tabular-nums' }}>
+                              {formatPrice(quickViewProduct.oldPrice)}
+                            </span>
+                          )}
+                        </div>
+                        {quickViewProduct.oldPrice && (
+                          <span style={{ display: 'inline-block', marginTop: '5px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.05em', color: '#000', background: 'var(--theme-primary)', borderRadius: '6px', padding: '2px 8px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                            −{Math.round((1 - quickViewProduct.price / quickViewProduct.oldPrice) * 100)}%
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* Color Selection */}
-                  <div className="mb-5">
-                    <p className="text-xs font-medium uppercase mb-3 text-center" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
-                      Цвет: {quickViewColor}
+
+                  <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', marginBottom: '18px' }} />
+
+                  {/* Color */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      Цвет <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>— {quickViewColor}</span>
                     </p>
-                    <div className="flex justify-center gap-2.5">
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {quickViewProduct.colors.map((color, idx) => (
                         <button
                           key={color}
                           onClick={() => setQuickViewColor(color)}
-                          className="relative w-9 h-9 rounded-full transition-transform active:scale-95"
+                          className="active:scale-90 transition-all"
                           style={{
+                            width: '32px', height: '32px', borderRadius: '50%',
                             background: quickViewProduct.colorHex[idx],
-                            border: quickViewColor === color ? '2.5px solid var(--theme-primary)' : '2px solid rgba(255,255,255,0.2)',
-                            boxShadow: quickViewColor === color ? '0 0 12px rgba(var(--theme-primary-rgb, 205,255,56), 0.4)' : 'none',
+                            border: quickViewColor === color ? '2.5px solid var(--theme-primary)' : '2px solid rgba(255,255,255,0.15)',
+                            boxShadow: quickViewColor === color ? '0 0 10px rgba(var(--theme-primary-rgb,205,255,56),0.35)' : 'none',
                           }}
                           data-testid={`quickview-home-color-${color}`}
                         />
                       ))}
                     </div>
                   </div>
-                  
-                  {/* Size Selection */}
-                  <div className="mb-6">
-                    <p className="text-xs font-medium uppercase mb-3 text-center" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
+
+                  {/* Size */}
+                  <div style={{ marginBottom: '22px' }}>
+                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
                       Размер
                     </p>
-                    <div className="flex justify-center gap-2 flex-wrap">
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
                       {quickViewProduct.sizes.map((size) => (
                         <button
                           key={size}
                           onClick={() => setQuickViewSize(size)}
-                          className="min-w-[48px] px-4 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
+                          className="active:scale-95 transition-all"
                           style={{
-                            background: quickViewSize === size ? 'var(--theme-primary)' : 'rgba(255,255,255,0.1)',
-                            color: quickViewSize === size ? '#000' : 'rgba(255,255,255,0.8)',
-                            border: quickViewSize === size ? 'none' : '0.5px solid rgba(255,255,255,0.15)',
+                            padding: '9px 4px', borderRadius: '10px',
+                            fontSize: '12px', fontWeight: quickViewSize === size ? 700 : 500,
+                            fontFamily: "'Satoshi','Inter',sans-serif",
+                            background: quickViewSize === size ? 'var(--theme-primary)' : 'rgba(255,255,255,0.07)',
+                            color: quickViewSize === size ? '#000' : 'rgba(255,255,255,0.7)',
+                            border: quickViewSize === size ? 'none' : '0.5px solid rgba(255,255,255,0.12)',
                           }}
                           data-testid={`quickview-home-size-${size}`}
                         >
@@ -2078,8 +2141,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       ))}
                     </div>
                   </div>
-                  
-                  {/* Add to Cart Button */}
+
+                  {/* CTA — matches product detail style */}
                   <button
                     onClick={() => {
                       addToCartPersistent({
@@ -2090,39 +2153,34 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         image: quickViewProduct.image,
                         color: quickViewColor,
                       });
-                      toast({
-                        title: 'Добавлено в корзину',
-                        description: `${quickViewProduct.name} • ${quickViewColor} • ${quickViewSize}`,
-                        duration: 2000,
-                      });
+                      toast({ title: 'Добавлено в корзину', description: `${quickViewProduct.name} • ${quickViewColor} • ${quickViewSize}`, duration: 2000 });
                       setQuickViewProduct(null);
                     }}
-                    className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98]"
+                    className="w-full active:scale-[0.98] transition-all"
                     style={{
-                      background: 'var(--theme-primary)',
-                      color: '#000',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.3), 0 0 30px rgba(var(--theme-primary-rgb, 205,255,56), 0.2)',
+                      height: '52px', borderRadius: '14px', background: 'var(--theme-primary)', color: '#000',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                      boxShadow: '0 4px 20px rgba(var(--theme-primary-rgb,205,255,56),0.25)',
+                      marginBottom: '10px',
                     }}
                     data-testid="button-quickview-home-add-to-cart"
                   >
-                    Добавить в корзину
+                    <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      В КОРЗИНУ
+                    </span>
+                    <span style={{ width: '1px', height: '16px', background: 'rgba(0,0,0,0.2)' }} />
+                    <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      {formatPrice(quickViewProduct.price)}
+                    </span>
                   </button>
-                  
-                  {/* View Full Details */}
+
                   <button
-                    onClick={() => {
-                      openProduct(quickViewProduct);
-                      setQuickViewProduct(null);
-                    }}
-                    className="w-full py-3 mt-3 rounded-xl text-sm font-medium transition-all"
-                    style={{
-                      background: 'rgba(255,255,255,0.1)',
-                      color: 'rgba(255,255,255,0.8)',
-                      border: '0.5px solid rgba(255,255,255,0.15)',
-                    }}
+                    onClick={() => { openProduct(quickViewProduct); setQuickViewProduct(null); }}
+                    className="w-full py-3 transition-all active:opacity-70"
+                    style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.02em' }}
                     data-testid="button-quickview-home-details"
                   >
-                    Подробнее о товаре
+                    Смотреть полностью →
                   </button>
                 </div>
               </m.div>
@@ -2463,112 +2521,89 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <X className="w-4 h-4 text-white" />
                 </button>
                 
-                <div className="px-6 pb-8 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 60px)' }}>
-                  {/* Product Image */}
-                  <div 
-                    className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-5"
-                    style={{
-                      background: 'rgba(255,255,255,0.05)',
-                    }}
-                  >
-                    <LazyImage
-                      src={quickViewProduct.image}
-                      alt={quickViewProduct.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  
-                  {/* Product Info */}
-                  <div className="text-center mb-5">
-                    <h3 
-                      className="text-xl font-bold mb-2"
-                      style={{ 
-                        color: 'rgba(255,255,255,0.95)',
-                        letterSpacing: '-0.02em',
-                      }}
-                    >
-                      {quickViewProduct.name}
-                    </h3>
-                    <div className="flex items-center justify-center gap-3">
-                      <p 
-                        className="text-2xl font-bold"
-                        style={{ 
-                          color: 'rgba(255,255,255,0.95)',
-                          fontFeatureSettings: "'tnum'",
-                        }}
-                      >
-                        {formatPrice(quickViewProduct.price)}
+                <div className="px-5 pb-6 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 60px)' }}>
+                  {/* Hero row: image + info side-by-side */}
+                  <div style={{ display: 'flex', gap: '14px', marginBottom: '20px' }}>
+                    <div style={{ width: '110px', flexShrink: 0, borderRadius: '16px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', aspectRatio: '2/3' }}>
+                      <LazyImage src={quickViewProduct.image} alt={quickViewProduct.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: '2px', minWidth: 0 }}>
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: '7px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                        {quickViewProduct.brand}
                       </p>
-                      {quickViewProduct.oldPrice && (
-                        <p 
-                          className="text-base line-through"
-                          style={{ color: 'rgba(255,255,255,0.4)' }}
-                        >
-                          {formatPrice(quickViewProduct.oldPrice)}
-                        </p>
-                      )}
+                      <h3 style={{ fontSize: '21px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '0.03em', color: 'rgba(255,255,255,0.95)', lineHeight: 1.15, marginBottom: '10px' }}>
+                        {quickViewProduct.name}
+                      </h3>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginBottom: '14px' }}>
+                        {[1,2,3,4,5].map(s => (
+                          <Star key={s} style={{ width: '11px', height: '11px' }}
+                            fill={s <= Math.round(quickViewProduct.rating) ? 'rgba(255,255,255,0.85)' : 'transparent'}
+                            stroke={s <= Math.round(quickViewProduct.rating) ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
+                          />
+                        ))}
+                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginLeft: '3px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                          {quickViewProduct.rating}
+                        </span>
+                      </div>
+                      <div style={{ marginTop: 'auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                            {formatPrice(quickViewProduct.price)}
+                          </span>
+                          {quickViewProduct.oldPrice && (
+                            <span style={{ fontSize: '13px', textDecoration: 'line-through', color: 'rgba(255,255,255,0.28)', fontVariantNumeric: 'tabular-nums' }}>
+                              {formatPrice(quickViewProduct.oldPrice)}
+                            </span>
+                          )}
+                        </div>
+                        {quickViewProduct.oldPrice && (
+                          <span style={{ display: 'inline-block', marginTop: '5px', fontSize: '10px', fontWeight: 700, color: '#000', background: 'var(--theme-primary)', borderRadius: '6px', padding: '2px 8px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                            −{Math.round((1 - quickViewProduct.price / quickViewProduct.oldPrice) * 100)}%
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* Color Selection */}
-                  <div className="mb-5">
-                    <p 
-                      className="text-xs font-medium uppercase mb-3 text-center"
-                      style={{ 
-                        color: 'rgba(255,255,255,0.5)',
-                        letterSpacing: '0.1em',
-                      }}
-                    >
-                      Цвет: {quickViewColor}
+
+                  <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', marginBottom: '18px' }} />
+
+                  {/* Color */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      Цвет <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>— {quickViewColor}</span>
                     </p>
-                    <div className="flex justify-center gap-2.5">
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {quickViewProduct.colors.map((color, idx) => (
-                        <button
-                          key={color}
-                          onClick={() => setQuickViewColor(color)}
-                          className="relative w-9 h-9 rounded-full transition-transform active:scale-95"
+                        <button key={color} onClick={() => setQuickViewColor(color)}
+                          className="active:scale-90 transition-all"
                           style={{
+                            width: '32px', height: '32px', borderRadius: '50%',
                             background: quickViewProduct.colorHex[idx],
-                            border: quickViewColor === color 
-                              ? '2.5px solid var(--theme-primary)'
-                              : '2px solid rgba(255,255,255,0.2)',
-                            boxShadow: quickViewColor === color 
-                              ? '0 0 12px rgba(var(--theme-primary-rgb, 205,255,56), 0.4)'
-                              : 'none',
+                            border: quickViewColor === color ? '2.5px solid var(--theme-primary)' : '2px solid rgba(255,255,255,0.15)',
+                            boxShadow: quickViewColor === color ? '0 0 10px rgba(var(--theme-primary-rgb,205,255,56),0.35)' : 'none',
                           }}
                           data-testid={`quickview-color-${color}`}
                         />
                       ))}
                     </div>
                   </div>
-                  
-                  {/* Size Selection */}
-                  <div className="mb-6">
-                    <p 
-                      className="text-xs font-medium uppercase mb-3 text-center"
-                      style={{ 
-                        color: 'rgba(255,255,255,0.5)',
-                        letterSpacing: '0.1em',
-                      }}
-                    >
+
+                  {/* Size */}
+                  <div style={{ marginBottom: '22px' }}>
+                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
                       Размер
                     </p>
-                    <div className="flex justify-center gap-2 flex-wrap">
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
                       {quickViewProduct.sizes.map((size) => (
-                        <button
-                          key={size}
-                          onClick={() => setQuickViewSize(size)}
-                          className="min-w-[48px] px-4 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
+                        <button key={size} onClick={() => setQuickViewSize(size)}
+                          className="active:scale-95 transition-all"
                           style={{
-                            background: quickViewSize === size 
-                              ? 'var(--theme-primary)'
-                              : 'rgba(255,255,255,0.1)',
-                            color: quickViewSize === size 
-                              ? '#000'
-                              : 'rgba(255,255,255,0.8)',
-                            border: quickViewSize === size 
-                              ? 'none'
-                              : '0.5px solid rgba(255,255,255,0.15)',
+                            padding: '9px 4px', borderRadius: '10px',
+                            fontSize: '12px', fontWeight: quickViewSize === size ? 700 : 500,
+                            fontFamily: "'Satoshi','Inter',sans-serif",
+                            background: quickViewSize === size ? 'var(--theme-primary)' : 'rgba(255,255,255,0.07)',
+                            color: quickViewSize === size ? '#000' : 'rgba(255,255,255,0.7)',
+                            border: quickViewSize === size ? 'none' : '0.5px solid rgba(255,255,255,0.12)',
                           }}
                           data-testid={`quickview-size-${size}`}
                         >
@@ -2577,8 +2612,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       ))}
                     </div>
                   </div>
-                  
-                  {/* Add to Cart Button */}
+
                   <button
                     onClick={() => {
                       addToCartPersistent({
@@ -2589,39 +2623,32 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         image: quickViewProduct.image,
                         color: quickViewColor,
                       });
-                      toast({
-                        title: 'Добавлено в корзину',
-                        description: `${quickViewProduct.name} • ${quickViewColor} • ${quickViewSize}`,
-                        duration: 2000,
-                      });
+                      toast({ title: 'Добавлено в корзину', description: `${quickViewProduct.name} • ${quickViewColor} • ${quickViewSize}`, duration: 2000 });
                       setQuickViewProduct(null);
                     }}
-                    className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98]"
+                    className="w-full active:scale-[0.98] transition-all"
                     style={{
-                      background: 'var(--theme-primary)',
-                      color: '#000',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.3), 0 0 30px rgba(var(--theme-primary-rgb, 205,255,56), 0.2)',
+                      height: '52px', borderRadius: '14px', background: 'var(--theme-primary)', color: '#000',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                      boxShadow: '0 4px 20px rgba(var(--theme-primary-rgb,205,255,56),0.25)',
+                      marginBottom: '10px',
                     }}
                     data-testid="button-quickview-add-to-cart"
                   >
-                    Добавить в корзину
+                    <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif" }}>В КОРЗИНУ</span>
+                    <span style={{ width: '1px', height: '16px', background: 'rgba(0,0,0,0.2)' }} />
+                    <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      {formatPrice(quickViewProduct.price)}
+                    </span>
                   </button>
-                  
-                  {/* View Full Details */}
+
                   <button
-                    onClick={() => {
-                      openProduct(quickViewProduct);
-                      setQuickViewProduct(null);
-                    }}
-                    className="w-full py-3 mt-3 rounded-xl text-sm font-medium transition-all"
-                    style={{
-                      background: 'rgba(255,255,255,0.1)',
-                      color: 'rgba(255,255,255,0.8)',
-                      border: '0.5px solid rgba(255,255,255,0.15)',
-                    }}
+                    onClick={() => { openProduct(quickViewProduct); setQuickViewProduct(null); }}
+                    className="w-full py-3 transition-all active:opacity-70"
+                    style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.02em' }}
                     data-testid="button-quickview-details"
                   >
-                    Подробнее о товаре
+                    Смотреть полностью →
                   </button>
                 </div>
               </m.div>
@@ -2774,8 +2801,58 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               ))}
             </div>
 
-            {/* Summary card */}
+            {/* Promo code */}
             <div className="px-4 mt-4">
+              {promoApplied ? (
+                <div
+                  className="rounded-[14px] px-4 py-3 flex items-center justify-between"
+                  style={{ background: 'rgba(var(--theme-primary-rgb,205,255,56),0.1)', border: '0.5px solid rgba(var(--theme-primary-rgb,205,255,56),0.25)' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" style={{ color: 'var(--theme-primary)' }} />
+                    <span className="text-[13px] font-semibold" style={{ color: 'var(--theme-primary)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      {promoCode.toUpperCase()} — скидка {promoDiscountPct}%
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => { setPromoApplied(false); setPromoDiscountPct(0); setPromoCode(''); }}
+                    className="w-6 h-6 flex items-center justify-center rounded-full active:scale-90 transition-all"
+                    style={{ background: 'rgba(255,255,255,0.1)' }}
+                  >
+                    <X className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.6)' }} />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  className="rounded-[14px] overflow-hidden flex"
+                  style={{ border: '0.5px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}
+                >
+                  <input
+                    type="text"
+                    placeholder="Промокод"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleApplyPromo()}
+                    className="flex-1 bg-transparent px-4 py-3 text-[13px] outline-none placeholder:text-white/25 text-white"
+                    style={{ fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.06em' }}
+                  />
+                  <button
+                    onClick={handleApplyPromo}
+                    className="px-4 py-3 text-[12px] font-bold active:scale-95 transition-all"
+                    style={{
+                      color: promoCode.length > 0 ? 'var(--theme-primary)' : 'rgba(255,255,255,0.25)',
+                      letterSpacing: '0.06em', fontFamily: "'Satoshi','Inter',sans-serif",
+                      borderLeft: '0.5px solid rgba(255,255,255,0.08)',
+                    }}
+                  >
+                    ПРИМЕНИТЬ
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Summary card */}
+            <div className="px-4 mt-3">
               <div
                 className="rounded-[18px] p-4 space-y-3"
                 style={{
@@ -2787,23 +2864,30 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <span style={{ color: 'rgba(255,255,255,0.5)' }}>Товары ({cartCount})</span>
                   <span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatPrice(cartTotal)}</span>
                 </div>
+                {promoApplied && (
+                  <div className="flex items-center justify-between text-[13px]">
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>Промокод ({promoDiscountPct}%)</span>
+                    <span className="font-semibold" style={{ color: 'var(--theme-primary)', fontVariantNumeric: 'tabular-nums' }}>−{formatPrice(promoSaving)}</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between text-[13px]">
                   <span style={{ color: 'rgba(255,255,255,0.5)' }}>Доставка</span>
                   <span className="font-semibold" style={{ color: 'var(--theme-primary)' }}>Бесплатно</span>
                 </div>
-                <div
-                  className="h-px"
-                  style={{ background: 'rgba(255,255,255,0.08)' }}
-                />
-                <div className="flex items-center justify-between">
-                  <span className="text-[15px] font-bold" style={{ letterSpacing: '-0.01em' }}>
-                    Итого
-                  </span>
-                  <span
-                    className="text-[18px] font-black"
-                    style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.03em' }}
+                {totalSaving > 0 && (
+                  <div
+                    className="rounded-[10px] px-3 py-2 flex items-center justify-between text-[12px]"
+                    style={{ background: 'rgba(var(--theme-primary-rgb,205,255,56),0.07)', border: '0.5px solid rgba(var(--theme-primary-rgb,205,255,56),0.15)' }}
                   >
-                    {formatPrice(cartTotal)}
+                    <span style={{ color: 'rgba(255,255,255,0.55)' }}>Ваша экономия</span>
+                    <span className="font-bold" style={{ color: 'var(--theme-primary)', fontVariantNumeric: 'tabular-nums' }}>−{formatPrice(totalSaving)}</span>
+                  </div>
+                )}
+                <div className="h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                <div className="flex items-center justify-between">
+                  <span className="text-[15px] font-bold" style={{ letterSpacing: '-0.01em' }}>Итого</span>
+                  <span className="text-[18px] font-black" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.03em' }}>
+                    {formatPrice(finalTotal)}
                   </span>
                 </div>
               </div>
@@ -2831,7 +2915,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 }}
                 data-testid="button-checkout"
               >
-                Оформить заказ · {formatPrice(cartTotal)}
+                Оформить заказ · {formatPrice(finalTotal)}
               </button>
             </div>
 
@@ -2847,7 +2931,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 color: item.color,
                 image: item.image
               }))}
-              total={cartTotal}
+              total={finalTotal}
               currency="₽"
               onOrderComplete={handleCheckout}
               storeName="RADIANCE"
@@ -2924,11 +3008,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
             {/* User row */}
             <div className="flex items-center gap-3 mb-4 relative z-10">
+              {/* Initials avatar */}
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(0,0,0,0.25)' }}
+                className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 select-none"
+                style={{ background: 'rgba(0,0,0,0.28)', border: '1.5px solid rgba(255,255,255,0.3)' }}
               >
-                <User className="w-6 h-6 text-white" />
+                <span style={{ fontSize: '16px', fontWeight: 800, color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.02em', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                  АП
+                </span>
               </div>
               <div>
                 <p className="text-[15px] font-black text-white leading-tight" style={{ letterSpacing: '-0.02em' }}>
@@ -2939,23 +3026,59 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             </div>
 
             {/* Membership tier + stats */}
-            <div className="flex items-end justify-between relative z-10">
-              <div>
-                <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/60 mb-0.5">
-                  Статус участника
-                </p>
-                <p className="text-[20px] font-black text-white leading-none" style={{ letterSpacing: '-0.03em' }}>
-                  {membershipTierRu} Участник
-                </p>
+            <div className="relative z-10">
+              <div className="flex items-end justify-between mb-3">
+                <div>
+                  <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/60 mb-0.5">
+                    Статус участника
+                  </p>
+                  <p className="text-[20px] font-black text-white leading-none" style={{ letterSpacing: '-0.03em' }}>
+                    {membershipTierRu} Участник
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[9px] font-semibold tracking-[0.15em] uppercase text-white/60 mb-0.5">
+                    Бонусы
+                  </p>
+                  <p className="text-[20px] font-black text-white leading-none" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.03em' }}>
+                    {(ordersCount * 450).toLocaleString('ru-RU')} ₽
+                  </p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-[9px] font-semibold tracking-[0.15em] uppercase text-white/60 mb-0.5">
-                  Бонусы
+              {/* Tier progress bar */}
+              {membershipTier !== 'Gold' && (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-[9px] text-white/50" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      {membershipTier === 'Bronze'
+                        ? `${ordersCount} из 2 заказов до Серебряного`
+                        : `${ordersCount} из 5 заказов до Золотого`}
+                    </p>
+                    <p className="text-[9px] font-bold text-white/70" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      {membershipTier === 'Bronze'
+                        ? `${Math.min(100, Math.round(ordersCount / 2 * 100))}%`
+                        : `${Math.min(100, Math.round(ordersCount / 5 * 100))}%`}
+                    </p>
+                  </div>
+                  <div className="rounded-full overflow-hidden" style={{ height: '4px', background: 'rgba(0,0,0,0.25)' }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: membershipTier === 'Bronze'
+                          ? `${Math.min(100, ordersCount / 2 * 100)}%`
+                          : `${Math.min(100, ordersCount / 5 * 100)}%`,
+                        background: 'rgba(255,255,255,0.85)',
+                        transition: 'width 0.6s ease',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+              {membershipTier === 'Gold' && (
+                <p className="text-[10px] font-semibold text-white/70 tracking-[0.1em] uppercase" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                  ✦ Максимальный статус достигнут
                 </p>
-                <p className="text-[20px] font-black text-white leading-none" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.03em' }}>
-                  {(ordersCount * 450).toLocaleString('ru-RU')} ₽
-                </p>
-              </div>
+              )}
             </div>
           </div>
         </div>

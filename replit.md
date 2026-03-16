@@ -98,6 +98,17 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Security**: Telegram authentication validation (HMAC-SHA256), Redis-based CSRF tokens (1-hour TTL), XSS sanitization, 4-tier rate limiting, Redis for distributed limiting.
 - **Caching**: Upstash Redis for CSRF tokens, leaderboard caching, and session management.
 
+## Radiance Fashion Demo — March 2026 Editorial Audit (PremiumFashionStore.tsx)
+- **QuickView redesign**: Both HOME and CATALOG QuickView drawers rebuilt as editorial left-aligned layouts — product name in Cormorant Garamond italic, brand label + star rating + price (with discount badge) in side-by-side image/info layout matching product detail design language
+- **The Edit hero card**: Product name font changed from `fontWeight:800` to Cormorant Garamond 26px light italic for editorial consistency
+- **Lookbook grid**: Added ❤️ heart/favorite button + Eye quick-view button (stacked column) to all 4 lookbook cards, matching Just Dropped card behavior
+- **Cart — Promo code**: Working promo code field with codes RADIANCE10 (10%), STYLE20 (20%), SS26 (15%); applied state shows badge with removal; activates on Enter key
+- **Cart — Savings row**: "Вы экономите X ₽" green highlight row appears when promoApplied OR items have oldPrice; `finalTotal` used throughout (button, CheckoutDrawer)
+- **Profile avatar**: Generic User icon replaced with "АП" initials in dark circle with white border
+- **Profile tier progress bar**: Progress bar below membership tier text shows "N из 2/5 заказов до следующего тира" with percentage; hidden at Gold (shows "Максимальный статус достигнут")
+- **Rating stars**: Characteristics tab renders visual ★ stars via `Star` component instead of text placeholder `'__stars__'`
+- **Gallery dots**: Dots indicator hidden when only 1 unique image; dark pill style (no frosted glass)
+
 ## Deployment Architecture (Production)
 - **Platform**: Railway for frontend-only SPA deployment.
 - **Builder**: Railpack with Caddy for static file serving and SPA routing.
