@@ -633,9 +633,9 @@ function App() {
               </Suspense>
               
               {/* Onboarding tutorial for new users - lazy loaded */}
-              <Suspense fallback={null}>
+              {/* <Suspense fallback={null}>
                 <OnboardingTutorial />
-              </Suspense>
+              </Suspense> */}
             </LazyXPNotificationProvider>
           </LazyRewardsProvider>
         </LazyMotionProvider>
