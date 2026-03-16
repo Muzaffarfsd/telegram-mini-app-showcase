@@ -71,8 +71,8 @@ function Ct({ to, suffix = "", rm = false }: { to: number; suffix?: string; rm?:
 }
 
 const TAG_WORDS = {
-  ru: ["конкурентов", "рынка", "ожиданий", "привычного"],
-  en: ["competition", "expectations", "the ordinary", "the status quo"],
+  ru: ["продают", "конвертят", "впечатляют", "зарабатывают"],
+  en: ["sell", "convert", "impress", "earn"],
 };
 
 const FEATURE_ICONS = {
@@ -214,30 +214,30 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
         <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
 
-          <header ref={heroRef} className="relative px-6 pt-14 pb-10 overflow-hidden" role="banner">
+          <header ref={heroRef} className="relative px-6 pt-16 pb-14 overflow-hidden" role="banner">
             <div className="absolute inset-0 z-0 overflow-hidden">
               <div
                 className="showcase-orb-1 absolute rounded-full"
                 style={{
-                  width: 340, height: 340, top: '5%', left: '-15%',
-                  background: `radial-gradient(circle, ${EMERALD}35 0%, ${EMERALD}12 40%, transparent 70%)`,
-                  filter: 'blur(70px)',
+                  width: 400, height: 400, top: '-10%', left: '-20%',
+                  background: `radial-gradient(circle, ${EMERALD}30 0%, ${EMERALD}0a 50%, transparent 70%)`,
+                  filter: 'blur(80px)',
                 }}
               />
               <div
                 className="showcase-orb-2 absolute rounded-full"
                 style={{
-                  width: 260, height: 260, top: '50%', right: '-12%',
-                  background: 'radial-gradient(circle, rgba(168,85,247,0.25) 0%, rgba(168,85,247,0.06) 40%, transparent 70%)',
-                  filter: 'blur(60px)',
+                  width: 300, height: 300, top: '40%', right: '-20%',
+                  background: 'radial-gradient(circle, rgba(168,85,247,0.22) 0%, rgba(168,85,247,0.04) 50%, transparent 70%)',
+                  filter: 'blur(70px)',
                 }}
               />
               <div
                 className="showcase-orb-3 absolute rounded-full"
                 style={{
-                  width: 200, height: 200, bottom: '5%', left: '25%',
-                  background: 'radial-gradient(circle, rgba(56,189,248,0.15) 0%, transparent 60%)',
-                  filter: 'blur(50px)',
+                  width: 250, height: 250, bottom: '-5%', left: '20%',
+                  background: 'radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 60%)',
+                  filter: 'blur(60px)',
                 }}
               />
             </div>
@@ -245,17 +245,17 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             <m.div className="relative z-10" style={{ y: reducedMotion ? 0 : heroY, opacity: reducedMotion ? 1 : heroOpacity }}>
 
               <m.div
-                initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: reducedMotion ? 0 : 0.6, ease: EASE, delay: reducedMotion ? 0 : 0.3 }}
-                className="mb-7"
+                initial={reducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: reducedMotion ? 0 : 0.5, ease: EASE, delay: reducedMotion ? 0 : 0.2 }}
+                className="mb-8"
               >
                 <span
-                  className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5"
+                  className="inline-flex items-center gap-2.5 rounded-full px-4 py-2"
                   style={{
-                    background: `${EMERALD}0a`,
-                    border: `1px solid ${EMERALD}20`,
-                    boxShadow: `0 0 20px ${EMERALD}08`,
+                    background: `${EMERALD}08`,
+                    border: `1px solid ${EMERALD}18`,
+                    boxShadow: `0 0 30px ${EMERALD}0a, inset 0 0 20px ${EMERALD}05`,
                   }}
                 >
                   <span className="relative flex h-2 w-2">
@@ -264,42 +264,63 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   </span>
                   <span style={{
                     fontFamily: INTER, fontSize: '0.6875rem',
-                    fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const,
+                    fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' as const,
                     color: EMERALD,
                   }}>
-                    {ru ? '22 приложения • Live' : '22 apps • Live'}
+                    {ru ? '22 приложения запущены' : '22 apps live'}
                   </span>
                 </span>
+              </m.div>
+
+              <m.div
+                initial={reducedMotion ? { opacity: 1 } : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: reducedMotion ? 0 : 0.3, delay: reducedMotion ? 0 : 0.35 }}
+                className="mb-5"
+              >
+                <div className="h-px w-12" style={{ background: `linear-gradient(to right, ${EMERALD}, transparent)` }} aria-hidden="true" />
               </m.div>
 
               <m.h1
                 initial={reducedMotion ? { opacity: 1 } : { opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: reducedMotion ? 0 : 0.5, delay: reducedMotion ? 0 : 0.4 }}
-                style={{ fontFamily: SYNE, lineHeight: 0.92, letterSpacing: '-0.06em' }}
+                style={{ fontFamily: SYNE, letterSpacing: '-0.06em' }}
               >
                 <m.span
                   className="block"
-                  initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 50, filter: 'blur(10px)' }}
-                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                  transition={{ duration: reducedMotion ? 0 : 0.8, ease: EASE, delay: reducedMotion ? 0 : 0.5 }}
-                  style={{ fontSize: 'clamp(2.8rem, 11vw, 4.5rem)', fontWeight: 800, color: '#fff' }}
+                  initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: reducedMotion ? 0 : 0.7, ease: EASE, delay: reducedMotion ? 0 : 0.45 }}
+                  style={{ fontSize: 'clamp(2.5rem, 10vw, 4rem)', fontWeight: 800, color: '#fff', lineHeight: 0.95 }}
                 >
-                  {ru ? 'Впереди' : 'Beyond'}
+                  {ru ? 'Мы создаём' : 'We build'}
+                </m.span>
+                <m.span
+                  className="block"
+                  initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: reducedMotion ? 0 : 0.7, ease: EASE, delay: reducedMotion ? 0 : 0.55 }}
+                  style={{
+                    fontSize: 'clamp(2.5rem, 10vw, 4rem)', fontWeight: 800, lineHeight: 0.95,
+                    color: 'rgba(255,255,255,0.25)',
+                  }}
+                >
+                  {ru ? 'приложения' : 'apps that'}
                 </m.span>
 
-                <span className="block overflow-hidden" style={{ height: 'clamp(3rem, 12vw, 5rem)' }}>
+                <span className="block overflow-hidden mt-1" style={{ height: 'clamp(2.8rem, 11vw, 4.5rem)' }}>
                   <AnimatePresence mode="wait">
                     <m.span
                       key={wi}
                       className="block"
-                      initial={{ y: '110%', opacity: 0, rotateX: -25 }}
-                      animate={{ y: '0%', opacity: 1, rotateX: 0 }}
-                      exit={{ y: '-100%', opacity: 0, rotateX: 20 }}
-                      transition={{ duration: 0.55, ease: EASE }}
+                      initial={{ y: '120%', opacity: 0 }}
+                      animate={{ y: '0%', opacity: 1 }}
+                      exit={{ y: '-110%', opacity: 0 }}
+                      transition={{ duration: 0.5, ease: EASE }}
                       style={{
-                        fontSize: 'clamp(2.8rem, 11vw, 4.5rem)', fontWeight: 800,
-                        fontFamily: SYNE,
+                        fontSize: 'clamp(2.5rem, 10vw, 4rem)', fontWeight: 800,
+                        fontFamily: SYNE, lineHeight: 0.95,
                         background: `linear-gradient(135deg, ${EMERALD}, #a7f3d0, #6ee7b7)`,
                         WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                       }}
@@ -311,36 +332,36 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               </m.h1>
 
               <m.p
-                initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+                initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: reducedMotion ? 0 : 0.7, ease: EASE, delay: reducedMotion ? 0 : 0.9 }}
-                className="mt-5"
+                transition={{ duration: reducedMotion ? 0 : 0.6, ease: EASE, delay: reducedMotion ? 0 : 0.9 }}
+                className="mt-8"
                 style={{
-                  maxWidth: 320,
-                  fontFamily: INTER, fontSize: 'clamp(0.8rem, 2vw, 0.9375rem)',
-                  lineHeight: 1.7, color: 'rgba(255,255,255,0.55)', fontWeight: 400,
+                  maxWidth: 340,
+                  fontFamily: INTER, fontSize: 'clamp(0.85rem, 2.2vw, 1rem)',
+                  lineHeight: 1.65, color: 'rgba(255,255,255,0.5)', fontWeight: 400,
                 }}
               >
                 {ru
-                  ? 'Создаём мини-приложения для Telegram, которые продают. Без комиссий. Готово за 24 часа.'
-                  : 'We build Telegram mini apps that sell. Zero marketplace fees. Ready in 24 hours.'}
+                  ? 'Telegram Mini Apps для e-commerce. Ноль комиссий маркетплейсов. Запуск за 24 часа.'
+                  : 'Telegram Mini Apps for e-commerce. Zero marketplace fees. Launch in 24 hours.'}
               </m.p>
 
               <m.div
-                initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+                initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: reducedMotion ? 0 : 0.6, ease: EASE, delay: reducedMotion ? 0 : 1.1 }}
-                className="mt-7 flex items-center gap-4"
+                transition={{ duration: reducedMotion ? 0 : 0.5, ease: EASE, delay: reducedMotion ? 0 : 1.1 }}
+                className="mt-8 flex items-center gap-5"
               >
                 <div className="relative">
-                  <div className="absolute -inset-1.5 rounded-full showcase-cta-glow" style={{
-                    background: `linear-gradient(135deg, ${EMERALD}30, rgba(168,85,247,0.15))`,
-                    filter: 'blur(12px)',
+                  <div className="absolute -inset-2 rounded-full showcase-cta-glow" style={{
+                    background: `linear-gradient(135deg, ${EMERALD}25, rgba(168,85,247,0.12))`,
+                    filter: 'blur(14px)',
                   }} />
                   <button
                     onClick={() => nav('projects')}
-                    className="relative group flex items-center gap-2.5 rounded-full px-6 transition-all duration-500 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
-                    style={{ height: 48, background: '#fff' }}
+                    className="relative group flex items-center gap-2.5 rounded-full px-7 transition-all duration-500 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+                    style={{ height: 50, background: '#fff' }}
                   >
                     <span style={{ fontFamily: SYNE, fontSize: '0.8125rem', fontWeight: 700, color: '#000', letterSpacing: '-0.01em' }}>
                       {ru ? 'Начать проект' : 'Start a Project'}
@@ -351,69 +372,42 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
                 <button
                   onClick={() => openDemo('clothing-store')}
-                  className="flex items-center gap-2 transition-opacity duration-300 active:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/40 focus-visible:outline-offset-2 rounded"
+                  className="group flex items-center gap-1.5 transition-opacity duration-300 active:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/40 focus-visible:outline-offset-2 rounded"
                   aria-label={ru ? 'Посмотреть демо' : 'View demo'}
                 >
                   <span style={{
-                    fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8125rem)',
-                    fontWeight: 500, color: 'rgba(255,255,255,0.55)',
-                    borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: 2,
+                    fontFamily: INTER, fontSize: 'clamp(0.75rem, 1.6vw, 0.8125rem)',
+                    fontWeight: 500, color: 'rgba(255,255,255,0.5)',
                   }}>
-                    {ru ? 'Демо' : 'Demo'}
+                    {ru ? 'Смотреть демо' : 'View Demo'}
                   </span>
+                  <ChevronRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5" style={{ color: 'rgba(255,255,255,0.4)' }} />
                 </button>
               </m.div>
 
               <m.div
-                initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: reducedMotion ? 0 : 0.8, ease: EASE, delay: reducedMotion ? 0 : 1.4 }}
-                className="mt-10 relative"
+                initial={reducedMotion ? { opacity: 1 } : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: reducedMotion ? 0 : 0.6, delay: reducedMotion ? 0 : 1.5 }}
+                className="mt-12 flex items-center gap-8"
               >
-                <div className="relative mx-auto" style={{ maxWidth: 280 }}>
-                  <div className="absolute -inset-4 rounded-3xl" style={{
-                    background: `linear-gradient(135deg, ${EMERALD}15, rgba(168,85,247,0.08), rgba(56,189,248,0.06))`,
-                    filter: 'blur(30px)',
-                  }} aria-hidden="true" />
-
-                  <div className="relative rounded-2xl overflow-hidden showcase-glass-card"
-                    style={{
-                      border: `1px solid ${EMERALD}15`,
-                      boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 40px ${EMERALD}08`,
-                    }}
-                  >
-                    <img
-                      src="/screenshots/fragrance-app.png"
-                      alt={ru ? 'FragranceRoyale — мини-приложение' : 'FragranceRoyale — mini app'}
-                      className="w-full h-auto block"
-                      loading="eager"
-                      style={{ aspectRatio: '9/16', objectFit: 'cover', objectPosition: 'top' }}
-                    />
-
-                    <div className="absolute bottom-0 inset-x-0 p-4" style={{
-                      background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)',
-                    }}>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div style={{ fontFamily: SYNE, fontSize: '0.75rem', fontWeight: 700, color: '#fff' }}>
-                            FragranceRoyale
-                          </div>
-                          <div style={{ fontFamily: INTER, fontSize: '0.625rem', color: 'rgba(255,255,255,0.6)' }}>
-                            {ru ? 'Парфюмерия • E-commerce' : 'Perfume • E-commerce'}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1.5 rounded-full px-2.5 py-1" style={{
-                          background: `${EMERALD}15`, border: `1px solid ${EMERALD}25`,
-                        }}>
-                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: EMERALD }} />
-                          <span style={{ fontFamily: SYNE, fontSize: '0.5625rem', fontWeight: 700, color: EMERALD }}>
-                            LIVE
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                {[
+                  { v: '900M+', l: ru ? 'аудитория' : 'audience' },
+                  { v: '0%', l: ru ? 'комиссий' : 'fees' },
+                  { v: '24h', l: ru ? 'запуск' : 'launch' },
+                ].map((s, i) => (
+                  <div key={i} className="flex items-baseline gap-1.5">
+                    <span style={{
+                      fontFamily: SYNE, fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)',
+                      fontWeight: 800, letterSpacing: '-0.03em',
+                      color: i === 0 ? '#fff' : 'rgba(255,255,255,0.7)',
+                    }}>{s.v}</span>
+                    <span style={{
+                      fontFamily: INTER, fontSize: '0.625rem',
+                      color: 'rgba(255,255,255,0.35)',
+                    }}>{s.l}</span>
                   </div>
-                </div>
+                ))}
               </m.div>
             </m.div>
           </header>
