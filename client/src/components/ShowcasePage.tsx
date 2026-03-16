@@ -1,9 +1,6 @@
-import {
-  ArrowRight, Play, Star, ChevronRight, ArrowUpRight,
-  Zap, CreditCard, Bot, BarChart3, Palette, ShieldCheck
-} from "lucide-react";
+import { ArrowUpRight, ChevronRight } from "lucide-react";
 import { useCallback, useState, useEffect, useRef, useMemo } from "react";
-import { m, AnimatePresence, useInView } from '@/utils/LazyMotionProvider';
+import { m, AnimatePresence, useInView, useScroll, useTransform } from '@/utils/LazyMotionProvider';
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
 import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
@@ -13,95 +10,71 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from './PullToRefreshIndicator';
 import { useQueryClient } from '@tanstack/react-query';
-import { TubesBackground } from './ui/neon-flow';
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
 
-/* ─── Types ─── */
 interface ShowcasePageProps {
   onNavigate: (section: string) => void;
   onOpenDemo: (demoId: string) => void;
 }
 
-/* ─── Design Tokens ─── */
-const ACCENT = '#34d399';
-const BORDER = 'rgba(255,255,255,0.06)';
-const SURFACE = 'rgba(255,255,255,0.03)';
-const TEXT = { primary: '#fff', secondary: 'rgba(255,255,255,0.6)', muted: 'rgba(255,255,255,0.5)' };
-const FONT = {
-  sans: '"Inter", -apple-system, "SF Pro Display", system-ui, sans-serif',
-  serif: '"Playfair Display", Georgia, "Times New Roman", serif',
-};
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+/* ─────────── Design System ─────────── */
+const SYNE = '"Syne", system-ui, sans-serif';
+const INSTRUMENT = '"Instrument Serif", Georgia, serif';
+const INTER = '"Inter", -apple-system, system-ui, sans-serif';
+const EMERALD = '#34d399';
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-/* ─── Fluid Typography (clamp-based) ─── */
-const fluid = {
-  hero: 'clamp(2.75rem, 8vw, 4rem)',
-  h2: 'clamp(1.75rem, 5vw, 2.5rem)',
-  h3: 'clamp(1.25rem, 3.5vw, 1.75rem)',
-  body: 'clamp(0.875rem, 2vw, 1rem)',
-  caption: 'clamp(0.6875rem, 1.5vw, 0.8125rem)',
-  overline: 'clamp(0.5625rem, 1.2vw, 0.6875rem)',
-};
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-/* ─── Scroll-Reveal Wrapper ─── */
-function Reveal({ children, className = "", delay = 0 }: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
+/* ─────────── Scroll-triggered reveal ─────────── */
+function Cin({ children, className = "", delay = 0 }: {
+  children: React.ReactNode; className?: string; delay?: number;
 }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const r = useRef(null);
+  const v = useInView(r, { once: true, margin: "-100px" });
+  const rm = prefersReducedMotion();
   return (
-    <m.div
-      ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, ease: EASE, delay }}
-      className={className}
-    >
+    <m.div ref={r}
+      initial={rm ? { opacity: 1 } : { opacity: 0, y: 50 }}
+      animate={v ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: rm ? 0 : 0.9, ease: EASE, delay: rm ? 0 : delay }}
+      className={className}>
       {children}
     </m.div>
   );
 }
 
-/* ─── Animated Number Counter ─── */
-function AnimatedNumber({ value, suffix = "", prefix = "" }: {
-  value: number; suffix?: string; prefix?: string;
-}) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true });
-  const [current, setCurrent] = useState(0);
-
+/* ─────────── Animated counter ─────────── */
+function Ct({ to, suffix = "" }: { to: number; suffix?: string }) {
+  const r = useRef(null);
+  const v = useInView(r, { once: true });
+  const rm = prefersReducedMotion();
+  const [n, setN] = useState(rm ? to : 0);
   useEffect(() => {
-    if (!inView) return;
-    let cancelled = false;
-    const start = performance.now();
-    const duration = 1400;
-
-    function tick(now: number) {
-      if (cancelled) return;
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 4);
-      setCurrent(Math.round(eased * value));
-      if (progress < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-    return () => { cancelled = true; };
-  }, [inView, value]);
-
-  return <span ref={ref}>{prefix}{current}{suffix}</span>;
+    if (!v || rm) { setN(to); return; }
+    let dead = false;
+    const s = performance.now();
+    const loop = (t: number) => {
+      if (dead) return;
+      const p = Math.min((t - s) / 1600, 1);
+      setN(Math.round((1 - Math.pow(1 - p, 5)) * to));
+      if (p < 1) requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+    return () => { dead = true; };
+  }, [v, to, rm]);
+  return <span ref={r}>{n}{suffix}</span>;
 }
 
-/* ─── Rotating Words in Hero ─── */
-const ROTATING_WORDS = {
-  ru: ["у конкурентов", "на рынке", "в России", "в вашей нише"],
-  en: ["competitors lack", "the market needs", "your niche craves"],
+/* ─────────── Rotating tagline words ─────────── */
+const TAG_WORDS = {
+  ru: ["конкурентов", "рынка", "ожиданий", "привычного"],
+  en: ["competition", "expectations", "the ordinary", "the status quo"],
 };
 
-/* ═══════════════════════════════════════════════ */
-/*                 SHOWCASE PAGE                   */
-/* ═══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════ */
 
 export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   useTelegram();
@@ -112,565 +85,484 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   const { markAsViewed } = useViewedDemos();
   const queryClient = useQueryClient();
 
-  const words = ru ? ROTATING_WORDS.ru : ROTATING_WORDS.en;
-  const [wordIndex, setWordIndex] = useState(0);
+  const words = ru ? TAG_WORDS.ru : TAG_WORDS.en;
+  const [wi, setWi] = useState(0);
 
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries();
-    await new Promise(r => setTimeout(r, 600));
+    await new Promise(resolve => setTimeout(resolve, 600));
   }, [queryClient]);
-
   const { pullDistance, isRefreshing, progress, shouldShowIndicator } = usePullToRefresh({
-    onRefresh: handleRefresh, threshold: 70, maxPullDistance: 100
+    onRefresh: handleRefresh, threshold: 70, maxPullDistance: 100,
   });
 
   useEffect(() => {
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    const interval = setInterval(() => setWordIndex(i => (i + 1) % words.length), 3000);
-    return () => clearInterval(interval);
+    const id = setInterval(() => setWi(i => (i + 1) % words.length), 2600);
+    return () => clearInterval(id);
   }, [words.length]);
 
   const openDemo = useCallback((id: string) => {
     haptic.light(); markAsViewed(id); onOpenDemo(id);
   }, [haptic, onOpenDemo, markAsViewed]);
 
-  const navigate = useCallback((section: string) => {
-    haptic.light(); onNavigate(section);
+  const nav = useCallback((s: string) => {
+    haptic.light(); onNavigate(s);
   }, [haptic, onNavigate]);
 
-  /* ─── Case Studies Data ─── */
-  const cases = useMemo(() => [
-    {
-      id: 'luxury-watches', isVideo: true,
-      src: "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4",
-      name: 'TimeElite', desc: ru ? 'Часы премиум' : 'Premium Watches', stat: '+340%',
-    },
-    {
-      id: 'sneaker-store', isVideo: false,
-      src: nikeGreenImage,
-      name: 'SneakerVault', desc: ru ? 'Лимитки, предзаказы' : 'Limited editions', stat: '+280%',
-    },
-    {
-      id: 'clothing-store', isVideo: false,
-      src: rascalImage,
-      name: 'Rascal', desc: ru ? 'Одежда, бренд' : 'Fashion brand', stat: '+195%',
-    },
-  ], [ru]);
+  /* hero parallax */
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
-  /* ─── Bento Grid Features Data ─── */
-  const features = useMemo(() => [
-    { icon: Zap, title: ru ? 'Запуск за 24ч' : 'Launch in 24h', desc: ru ? 'Полный цикл разработки за сутки' : 'Full development cycle in one day', accent: '#34d399', span: 'col-span-1' },
-    { icon: CreditCard, title: ru ? 'Платежи' : 'Payments', desc: ru ? 'Stripe · ЮKassa · Крипто' : 'Stripe · YooKassa · Crypto', accent: '#818cf8', span: 'col-span-1' },
-    { icon: Bot, title: ru ? 'AI-ассистент' : 'AI Assistant', desc: ru ? 'Умная поддержка клиентов 24/7' : 'Smart customer support 24/7', accent: '#fb923c', span: 'col-span-2' },
-    { icon: BarChart3, title: ru ? 'Аналитика' : 'Analytics', desc: ru ? 'Дашборд в реальном времени' : 'Real-time dashboard', accent: '#38bdf8', span: 'col-span-1' },
-    { icon: Palette, title: ru ? 'Премиум дизайн' : 'Premium Design', desc: ru ? 'Уровень Apple и Stripe' : 'Apple & Stripe quality', accent: '#f472b6', span: 'col-span-1' },
-    { icon: ShieldCheck, title: ru ? '0% комиссий' : '0% Commission', desc: ru ? 'Вся выручка — ваша' : 'All revenue stays with you', accent: '#34d399', span: 'col-span-2' },
+  const cases = useMemo(() => [
+    { id: 'luxury-watches', vid: true, src: "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4", label: 'TimeElite', sub: ru ? 'Роскошь на запястье' : 'Luxury on your wrist', growth: '+340%' },
+    { id: 'sneaker-store', vid: false, src: nikeGreenImage, label: 'SneakerVault', sub: ru ? 'Культ кроссовок' : 'Sneaker culture', growth: '+280%' },
+    { id: 'clothing-store', vid: false, src: rascalImage, label: 'Rascal', sub: ru ? 'Уличная мода' : 'Street fashion', growth: '+195%' },
   ], [ru]);
 
   return (
-    <div className="min-h-screen select-none overflow-x-hidden showcase-page" style={{ backgroundColor: '#000' }}>
-
-      {/* ─── Background Layer ─── */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-60">
-        <TubesBackground className="w-full h-full" />
-      </div>
-
+    <div className="min-h-screen select-none overflow-x-hidden showcase-page" style={{ backgroundColor: '#050505' }}>
       <div className="relative z-10">
-        <PullToRefreshIndicator
-          pullDistance={pullDistance} isRefreshing={isRefreshing}
-          shouldShow={shouldShowIndicator} progress={progress}
-        />
+        <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} shouldShow={shouldShowIndicator} progress={progress} />
 
-        <div className="mx-auto w-full" style={{ maxWidth: '540px' }}>
+        <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
 
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          {/*  SECTION 1 · HERO                      */}
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          <header className="px-6 pt-14 pb-16" role="banner">
+          {/* ═══════ HERO — full-screen cinematic ═══════ */}
+          <header ref={heroRef} className="relative px-6 pt-16 pb-16 overflow-hidden" role="banner">
 
-            {/* Overline badge */}
-            <m.div
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
-              className="flex items-center gap-2.5 mb-8"
-            >
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1"
-                style={{ background: `${ACCENT}14`, border: `1px solid ${ACCENT}28` }}
+            {/* Background gradient layer */}
+            <div className="absolute inset-0 z-0">
+              <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 30% 80%, ${EMERALD}08 0%, transparent 60%), radial-gradient(ellipse at 70% 20%, rgba(255,255,255,0.02) 0%, transparent 50%)` }} />
+            </div>
+
+            <m.div className="relative z-10" style={{ y: heroY, opacity: heroOpacity }}>
+
+              {/* Small eyebrow */}
+              <m.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, ease: EASE, delay: 0.3 }}
+                className="mb-6"
               >
-                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: ACCENT }} />
-                <span style={{ fontFamily: FONT.sans, fontSize: fluid.overline, color: ACCENT, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>
-                  Telegram Mini Apps
+                <span style={{
+                  fontFamily: INTER, fontSize: 'clamp(0.55rem, 1.2vw, 0.65rem)',
+                  fontWeight: 600, letterSpacing: '0.25em', textTransform: 'uppercase' as const,
+                  color: EMERALD, opacity: 0.9
+                }}>
+                  WEB4TG Studio
                 </span>
-              </span>
-            </m.div>
+              </m.div>
 
-            {/* Main heading with rotating word */}
-            <m.h1
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
-              className="mb-5"
-            >
-              <span className="block" style={{ fontFamily: FONT.serif, fontSize: fluid.hero, lineHeight: 1, letterSpacing: '-0.04em', fontWeight: 700, color: TEXT.primary }}>
-                {ru ? 'Приложение,' : 'The app'}
-              </span>
-              <span className="block mt-1" style={{ fontFamily: FONT.serif, fontSize: fluid.hero, lineHeight: 1, letterSpacing: '-0.04em', fontWeight: 400, fontStyle: 'italic', color: TEXT.secondary }}>
-                {ru ? 'которого нет' : 'they don\'t have'}
-              </span>
-              <span className="block mt-1 overflow-hidden" style={{ height: 'calc(1em + 8px)' }}>
-                <AnimatePresence mode="wait">
-                  <m.span
-                    key={wordIndex}
-                    initial={{ opacity: 0, y: 28, filter: 'blur(6px)' }}
-                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                    exit={{ opacity: 0, y: -24, filter: 'blur(4px)' }}
-                    transition={{ duration: 0.5, ease: EASE }}
-                    className="block"
-                    style={{ fontFamily: FONT.serif, fontSize: fluid.hero, lineHeight: 1, letterSpacing: '-0.04em', fontWeight: 700, color: ACCENT }}
-                  >
-                    {words[wordIndex]}
-                  </m.span>
-                </AnimatePresence>
-              </span>
-            </m.h1>
-
-            {/* Subheading */}
-            <m.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.35 }}
-              className="max-w-xs mb-8"
-              style={{ fontFamily: FONT.sans, fontSize: fluid.body, lineHeight: 1.7, color: TEXT.muted }}
-            >
-              {ru
-                ? 'Маркетплейсы забирают до 25% выручки. Своё приложение в Telegram — 0% комиссий, запуск за 24 часа.'
-                : 'Marketplaces take up to 25% of your revenue. Your own Telegram app — 0% fees, live in 24 hours.'}
-            </m.p>
-
-            {/* CTA buttons */}
-            <m.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.45 }}
-              className="flex gap-3"
-            >
-              <button
-                onClick={() => navigate('projects')}
-                className="flex-1 flex items-center justify-center gap-2 rounded-full transition-all duration-300 active:scale-[0.97]"
-                style={{ height: 52, background: ACCENT, boxShadow: `0 0 40px ${ACCENT}30, 0 4px 16px ${ACCENT}20` }}
-                onMouseEnter={e => { (e.currentTarget.style.boxShadow = `0 0 60px ${ACCENT}45, 0 8px 24px ${ACCENT}30`); (e.currentTarget.style.transform = 'translateY(-1px)'); }}
-                onMouseLeave={e => { (e.currentTarget.style.boxShadow = `0 0 40px ${ACCENT}30, 0 4px 16px ${ACCENT}20`); (e.currentTarget.style.transform = 'translateY(0)'); }}
+              {/* Cinematic headline — each word on its own line */}
+              <m.h1
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                style={{ fontFamily: SYNE, lineHeight: 0.92, letterSpacing: '-0.06em' }}
               >
-                <span style={{ fontFamily: FONT.sans, fontSize: '0.875rem', fontWeight: 600, color: '#000' }}>
-                  {t('showcase.orderProject')}
+                <m.span
+                  className="block"
+                  initial={{ opacity: 0, y: 60, filter: 'blur(12px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{ duration: 0.8, ease: EASE, delay: 0.5 }}
+                  style={{ fontSize: 'clamp(3.2rem, 12vw, 5rem)', fontWeight: 800, color: '#fff' }}
+                >
+                  {ru ? 'Впереди' : 'Beyond'}
+                </m.span>
+
+                {/* rotating word */}
+                <span className="block overflow-hidden" style={{ height: 'clamp(3.5rem, 13vw, 5.5rem)' }}>
+                  <AnimatePresence mode="wait">
+                    <m.span
+                      key={wi}
+                      className="block"
+                      initial={{ y: '110%', opacity: 0, rotateX: -25 }}
+                      animate={{ y: '0%', opacity: 1, rotateX: 0 }}
+                      exit={{ y: '-100%', opacity: 0, rotateX: 20 }}
+                      transition={{ duration: 0.55, ease: EASE }}
+                      style={{
+                        fontSize: 'clamp(3.2rem, 12vw, 5rem)', fontWeight: 800,
+                        fontFamily: INSTRUMENT, fontStyle: 'italic',
+                        background: `linear-gradient(135deg, ${EMERALD}, #a7f3d0)`,
+                        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                      }}
+                    >
+                      {words[wi]}
+                    </m.span>
+                  </AnimatePresence>
                 </span>
-                <ArrowRight className="w-4 h-4 text-black" strokeWidth={2.5} />
-              </button>
+              </m.h1>
 
-              <button
-                onClick={() => openDemo('clothing-store')}
-                aria-label={ru ? 'Смотреть демо' : 'Watch demo'}
-                className="flex items-center justify-center rounded-full transition-all duration-300 active:scale-[0.97]"
-                style={{ width: 52, height: 52, border: `1px solid ${BORDER}`, background: SURFACE }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.background = SURFACE; }}
+              {/* Subtitle */}
+              <m.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: EASE, delay: 0.9 }}
+                className="mt-7 max-w-xs"
+                style={{
+                  fontFamily: INTER, fontSize: 'clamp(0.8rem, 2vw, 0.9375rem)',
+                  lineHeight: 1.75, color: 'rgba(255,255,255,0.5)', fontWeight: 400,
+                }}
               >
-                <Play className="w-4 h-4 text-white/80" fill="currentColor" />
-              </button>
-            </m.div>
+                {ru
+                  ? 'Создаём мини-приложения для Telegram, которые продают. Без комиссий маркетплейсов. Готово за 24 часа.'
+                  : 'We build Telegram mini apps that sell. Zero marketplace fees. Ready in 24 hours.'}
+              </m.p>
 
-            {/* Stats strip */}
-            <m.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.7, ease: EASE, delay: 0.6 }}
-              className="flex items-center justify-between mt-10 pt-6"
-              style={{ borderTop: `1px solid ${BORDER}` }}
-            >
-              {[
-                { n: 127, s: '+', label: ru ? 'клиентов' : 'clients' },
-                { n: 24, s: ru ? 'ч' : 'h', label: ru ? 'запуск' : 'launch' },
-                { n: 0, s: '%', label: ru ? 'комиссий' : 'fees' },
-              ].map((stat, i) => (
-                <div key={i} className={i === 1 ? 'text-center' : i === 2 ? 'text-right' : ''}>
-                  <div style={{ fontFamily: FONT.sans, fontSize: 'clamp(1.5rem, 4vw, 1.75rem)', fontWeight: 700, color: TEXT.primary, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}>
-                    <AnimatedNumber value={stat.n} suffix={stat.s} />
-                  </div>
-                  <div style={{ fontFamily: FONT.sans, fontSize: fluid.overline, fontWeight: 500, color: TEXT.muted, letterSpacing: '0.1em', textTransform: 'uppercase' as const, marginTop: 2 }}>
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
+              {/* CTA */}
+              <m.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: EASE, delay: 1.1 }}
+                className="mt-8 flex items-center gap-4"
+              >
+                <button
+                  onClick={() => nav('projects')}
+                  className="group flex items-center gap-2.5 rounded-full px-6 transition-all duration-500 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+                  style={{
+                    height: 50, background: '#fff',
+                    boxShadow: '0 0 0 0 rgba(255,255,255,0)',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 40px rgba(255,255,255,0.15)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 0 0 0 rgba(255,255,255,0)'; }}
+                >
+                  <span style={{ fontFamily: SYNE, fontSize: '0.8125rem', fontWeight: 700, color: '#000', letterSpacing: '-0.01em' }}>
+                    {ru ? 'Начать проект' : 'Start a Project'}
+                  </span>
+                  <ArrowUpRight className="w-4 h-4 text-black transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.5} />
+                </button>
+
+                <button
+                  onClick={() => openDemo('clothing-store')}
+                  className="flex items-center gap-2 transition-opacity duration-300 active:opacity-60"
+                  aria-label={ru ? 'Посмотреть демо' : 'View demo'}
+                >
+                  <span style={{
+                    fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8125rem)',
+                    fontWeight: 500, color: 'rgba(255,255,255,0.5)',
+                    borderBottom: '1px solid rgba(255,255,255,0.15)',
+                    paddingBottom: 2,
+                  }}>
+                    {ru ? 'Демо' : 'Demo'}
+                  </span>
+                </button>
+              </m.div>
             </m.div>
           </header>
 
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          {/*  SECTION 2 · EDITORIAL STATEMENT       */}
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          <section className="px-6 py-16" aria-label={ru ? 'О платформе' : 'About the platform'}>
-            <Reveal>
-              <blockquote className="border-none p-0 m-0">
-                <p style={{ fontFamily: FONT.serif, fontSize: fluid.h2, lineHeight: 1.25, letterSpacing: '-0.025em' }}>
-                  <span style={{ fontWeight: 700, color: TEXT.primary }}>
-                    {ru ? '900 миллионов ' : '900 million '}
-                  </span>
-                  <span style={{ fontWeight: 400, fontStyle: 'italic', color: TEXT.secondary }}>
-                    {ru
-                      ? 'пользователей Telegram — и ваш магазин прямо у них в\u00A0кармане. '
-                      : 'Telegram users — and your store right in\u00A0their pocket. '}
-                  </span>
-                  <span style={{ fontWeight: 700, color: ACCENT }}>
-                    {ru ? 'Без\u00A0посредников.' : 'No\u00A0middlemen.'}
-                  </span>
-                </p>
-              </blockquote>
-            </Reveal>
-          </section>
+          {/* ═══════ MARQUEE — horizontal ticker ═══════ */}
+          <div className="py-5 overflow-hidden" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+            <m.div
+              animate={prefersReducedMotion() ? {} : { x: ['0%', '-50%'] }}
+              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+              className="flex items-center gap-6 whitespace-nowrap"
+              style={{ width: 'max-content' }}
+            >
+              {[...Array(2)].map((_, rep) => (
+                <div key={rep} className="flex items-center gap-6">
+                  {(ru
+                    ? ['Telegram Mini Apps', '0% комиссий', 'Запуск за 24ч', 'AI-ассистент', 'Аналитика', 'Платежи', 'CRM', 'Премиум дизайн']
+                    : ['Telegram Mini Apps', '0% Fees', 'Launch in 24h', 'AI Assistant', 'Analytics', 'Payments', 'CRM', 'Premium Design']
+                  ).map((txt, j) => (
+                    <span key={j} className="flex items-center gap-6">
+                      <span style={{
+                        fontFamily: SYNE, fontSize: 'clamp(0.6rem, 1.4vw, 0.7rem)',
+                        fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' as const,
+                        color: 'rgba(255,255,255,0.35)',
+                      }}>{txt}</span>
+                      <span style={{ color: EMERALD, opacity: 0.4, fontSize: '6px' }}>●</span>
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </m.div>
+          </div>
 
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          {/*  SECTION 3 · SOCIAL PROOF / CASES      */}
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          <section className="pb-14" aria-label={ru ? 'Кейсы' : 'Case studies'}>
-            <Reveal className="px-6 mb-5">
-              <div className="flex items-baseline justify-between">
-                <h2 style={{ fontFamily: FONT.sans, fontSize: fluid.overline, fontWeight: 600, color: TEXT.muted, letterSpacing: '0.15em', textTransform: 'uppercase' as const }}>
-                  {ru ? 'Избранные кейсы' : 'Featured Cases'}
-                </h2>
-                <button
-                  onClick={() => navigate('projects')}
-                  className="flex items-center gap-0.5 transition-opacity duration-200 active:opacity-60"
-                  style={{ fontFamily: FONT.sans, fontSize: fluid.caption, color: TEXT.muted }}
-                >
-                  {t('showcase.all')}
-                  <ChevronRight className="w-3.5 h-3.5" />
+          {/* ═══════ REEL — case studies ═══════ */}
+          <section className="py-16" aria-label={ru ? 'Кейсы' : 'Case studies'}>
+            <Cin className="px-6 mb-6">
+              <div className="flex items-end justify-between">
+                <div>
+                  <h2 style={{
+                    fontFamily: SYNE, fontSize: 'clamp(1.5rem, 5vw, 2rem)',
+                    fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
+                  }}>
+                    {ru ? 'Наши работы' : 'Selected Work'}
+                  </h2>
+                  <p className="mt-1.5" style={{
+                    fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)',
+                    color: 'rgba(255,255,255,0.45)',
+                  }}>
+                    {ru ? 'Каждый проект — рост продаж от 195%' : 'Every project — 195%+ sales growth'}
+                  </p>
+                </div>
+                <button onClick={() => nav('projects')} className="flex items-center gap-0.5 active:opacity-50 transition-opacity pb-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2 rounded">
+                  <span style={{ fontFamily: INTER, fontSize: 'clamp(0.65rem, 1.3vw, 0.75rem)', color: 'rgba(255,255,255,0.5)' }}>
+                    {ru ? 'Все' : 'All'}
+                  </span>
+                  <ChevronRight className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
                 </button>
               </div>
-            </Reveal>
+            </Cin>
 
-            {/* Horizontal scroll showcase */}
             <div className="overflow-x-auto scrollbar-hide">
               <div className="flex gap-4 px-6" style={{ width: 'max-content', paddingRight: 24 }}>
                 {cases.map((c, i) => (
-                  <Reveal key={c.id} delay={i * 0.08}>
+                  <Cin key={c.id} delay={i * 0.1}>
                     <article
-                      className="relative flex-shrink-0 rounded-2xl overflow-hidden group transition-transform duration-300 active:scale-[0.97] cursor-pointer"
-                      style={{ width: 260, height: 370 }}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`${ru ? 'Открыть' : 'Open'} ${c.name}`}
+                      className="relative flex-shrink-0 rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-500 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+                      style={{ width: 280, height: 400 }}
+                      role="button" tabIndex={0}
+                      aria-label={`${ru ? 'Открыть' : 'Open'} ${c.label}`}
                       onClick={() => openDemo(c.id)}
                       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDemo(c.id); } }}
                     >
-                      {c.isVideo ? (
-                        <video
-                          ref={i === 0 ? videoRef : undefined}
-                          src={c.src} loop muted playsInline autoPlay
-                          className="absolute inset-0 w-full h-full object-cover brightness-[0.3] saturate-[0.7] transition-transform duration-700 group-hover:scale-105"
-                        />
+                      {c.vid ? (
+                        <video ref={i === 0 ? videoRef : undefined} src={c.src} loop muted playsInline autoPlay
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-110"
+                          style={{ filter: 'brightness(0.4) saturate(0.6)' }} />
                       ) : (
-                        <img
-                          src={c.src} alt={c.name} loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover brightness-[0.3] saturate-[0.7] transition-transform duration-700 group-hover:scale-105"
-                        />
+                        <img src={c.src} alt={c.label} loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-110"
+                          style={{ filter: 'brightness(0.4) saturate(0.6)' }} />
                       )}
 
-                      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)' }} />
+                      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 20%, rgba(5,5,5,0.95) 100%)' }} />
 
                       <div className="absolute top-4 right-4 z-10" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
                         <FavoriteButton demoId={c.id} size="md" />
                       </div>
 
+                      {/* Growth badge */}
+                      <div className="absolute top-4 left-4">
+                        <span className="inline-block rounded-full px-2.5 py-1" style={{
+                          background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)',
+                          fontFamily: SYNE, fontSize: '0.6875rem', fontWeight: 700, color: EMERALD,
+                        }}>{c.growth}</span>
+                      </div>
+
                       <div className="absolute bottom-0 left-0 right-0 p-5">
-                        <div style={{ fontFamily: FONT.sans, fontSize: 'clamp(2rem, 5vw, 2.5rem)', fontWeight: 800, color: ACCENT, lineHeight: 1, letterSpacing: '-0.03em' }}>
-                          {c.stat}
-                        </div>
-                        <div style={{ fontFamily: FONT.sans, fontSize: fluid.overline, fontWeight: 600, color: TEXT.muted, letterSpacing: '0.08em', textTransform: 'uppercase' as const, margin: '4px 0 14px' }}>
-                          {t('showcase.sales')}
-                        </div>
-                        <div className="h-px mb-3.5" style={{ background: BORDER }} />
-                        <div style={{ fontFamily: FONT.sans, fontSize: fluid.body, fontWeight: 600, color: TEXT.primary, letterSpacing: '-0.01em' }}>
-                          {c.name}
-                        </div>
-                        <div style={{ fontFamily: FONT.sans, fontSize: fluid.caption, color: TEXT.muted, marginTop: 2 }}>
-                          {c.desc}
-                        </div>
+                        <h3 style={{
+                          fontFamily: SYNE, fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
+                          fontWeight: 800, color: '#fff', letterSpacing: '-0.04em',
+                        }}>{c.label}</h3>
+                        <p className="mt-1" style={{
+                          fontFamily: INSTRUMENT, fontSize: 'clamp(0.8rem, 2vw, 0.9375rem)',
+                          fontStyle: 'italic', color: 'rgba(255,255,255,0.4)',
+                        }}>{c.sub}</p>
                       </div>
                     </article>
-                  </Reveal>
+                  </Cin>
                 ))}
               </div>
             </div>
+          </section>
 
-            {/* Testimonials row */}
-            <div className="px-6 mt-10 space-y-3">
+          {/* ═══════ BIG NUMBERS — cinematic metrics ═══════ */}
+          <section className="px-6 py-20" aria-label={ru ? 'Метрики' : 'Metrics'}>
+            <div className="space-y-16">
               {[
-                {
-                  text: ru ? 'Продажи +340% за первый месяц. Приложение полностью изменило подход.' : 'Sales +340% in the first month. The app changed everything.',
-                  author: ru ? 'Александр М.' : 'Alexander M.',
-                  role: ru ? 'Часовой бизнес' : 'Watch business',
-                  color: '#10b981',
-                },
-                {
-                  text: ru ? 'Готово за 24 часа. Месяцами мучились с маркетплейсами.' : 'Ready in 24h. We struggled with marketplaces for months.',
-                  author: ru ? 'Елена К.' : 'Elena K.',
-                  role: ru ? 'Косметика' : 'Cosmetics',
-                  color: '#8b5cf6',
-                },
-                {
-                  text: ru ? '0% комиссии — сэкономили 2 млн за квартал.' : '0% commission — saved $25k per quarter.',
-                  author: ru ? 'Дмитрий В.' : 'Dmitry V.',
-                  role: 'CEO',
-                  color: '#3b82f6',
-                },
-              ].map((review, i) => (
-                <Reveal key={i} delay={i * 0.06}>
-                  <figure
-                    className="rounded-2xl p-5 transition-colors duration-300"
-                    style={{ background: SURFACE, border: `1px solid ${BORDER}` }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER; }}
-                  >
-                    <blockquote>
-                      <p style={{ fontFamily: FONT.sans, fontSize: fluid.body, lineHeight: 1.65, color: TEXT.secondary }}>
-                        "{review.text}"
-                      </p>
-                    </blockquote>
-                    <figcaption className="flex items-center justify-between mt-4">
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className="w-7 h-7 rounded-full flex items-center justify-center"
-                          style={{ background: review.color }}
-                        >
-                          <span style={{ fontFamily: FONT.sans, fontSize: '0.625rem', fontWeight: 700, color: '#fff' }}>
-                            {review.author.charAt(0)}
-                          </span>
-                        </div>
-                        <div>
-                          <div style={{ fontFamily: FONT.sans, fontSize: fluid.caption, fontWeight: 600, color: 'rgba(255,255,255,0.75)' }}>
-                            {review.author}
-                          </div>
-                          <div style={{ fontFamily: FONT.sans, fontSize: '0.625rem', color: TEXT.muted }}>
-                            {review.role}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-0.5" role="img" aria-label={ru ? '5 из 5 звёзд' : '5 out of 5 stars'}>
-                        {[1,2,3,4,5].map(n => (
-                          <Star key={n} className="w-3 h-3" aria-hidden="true" style={{ color: '#fbbf24', fill: '#fbbf24' }} />
-                        ))}
-                      </div>
-                    </figcaption>
-                  </figure>
-                </Reveal>
+                { num: 900, sfx: 'M+', title: ru ? 'пользователей Telegram' : 'Telegram users', desc: ru ? 'Ваш магазин — прямо у них в кармане' : 'Your store — right in their pocket' },
+                { num: 0, sfx: '%', title: ru ? 'комиссий' : 'commission', desc: ru ? 'Маркетплейсы забирают до 25%. Мы — ноль' : 'Marketplaces take up to 25%. We take zero' },
+                { num: 24, sfx: ru ? 'ч' : 'h', title: ru ? 'до запуска' : 'to launch', desc: ru ? 'От идеи до первого заказа — один день' : 'From idea to first order — one day' },
+              ].map((m, i) => (
+                <Cin key={i} delay={i * 0.06}>
+                  <div>
+                    <div style={{
+                      fontFamily: SYNE, fontSize: 'clamp(4rem, 16vw, 7rem)',
+                      fontWeight: 800, lineHeight: 0.85, letterSpacing: '-0.06em',
+                      color: i === 0 ? '#fff' : 'transparent',
+                      WebkitTextStroke: i === 0 ? 'none' : '1.5px rgba(255,255,255,0.15)',
+                    }}>
+                      <Ct to={m.num} suffix={m.sfx} />
+                    </div>
+                    <div className="mt-3" style={{
+                      fontFamily: SYNE, fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                      fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '-0.02em',
+                    }}>{m.title}</div>
+                    <div className="mt-1" style={{
+                      fontFamily: INSTRUMENT, fontSize: 'clamp(0.8rem, 2vw, 0.9375rem)',
+                      fontStyle: 'italic', color: 'rgba(255,255,255,0.4)', lineHeight: 1.5,
+                    }}>{m.desc}</div>
+                  </div>
+                </Cin>
               ))}
             </div>
           </section>
 
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          {/*  SECTION 4 · FEATURES (BENTO GRID)     */}
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          <section className="px-6 py-16" aria-label={ru ? 'Возможности' : 'Features'}>
-            <Reveal>
-              <h2 className="mb-2" style={{ fontFamily: FONT.serif, fontSize: fluid.h2, fontWeight: 700, color: TEXT.primary, letterSpacing: '-0.03em', lineHeight: 1.15 }}>
-                {ru ? 'Что внутри' : 'What\'s Inside'}
+          {/* ═══════ WHAT WE BUILD — visual grid ═══════ */}
+          <section className="px-6 py-16" aria-label={ru ? 'Что мы создаём' : 'What we build'}>
+            <Cin>
+              <h2 className="mb-10" style={{
+                fontFamily: SYNE, fontSize: 'clamp(1.5rem, 5vw, 2rem)',
+                fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
+              }}>
+                {ru ? <>Полный стек.<br />Ничего лишнего.</> : <>Full stack.<br />Nothing extra.</>}
               </h2>
-              <p className="mb-8" style={{ fontFamily: FONT.sans, fontSize: fluid.body, color: TEXT.muted }}>
-                {ru ? 'Каждый проект включает полный стек технологий.' : 'Every project ships with the full tech stack.'}
-              </p>
-            </Reveal>
+            </Cin>
 
-            <div className="grid grid-cols-2 gap-3">
-              {features.map((feat, i) => {
-                const Icon = feat.icon;
-                return (
-                  <Reveal key={i} delay={i * 0.05} className={feat.span}>
-                    <div
-                      className="rounded-2xl p-4 h-full transition-all duration-300 group"
-                      style={{ background: SURFACE, border: `1px solid ${BORDER}` }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.borderColor = `${feat.accent}30`;
-                        e.currentTarget.style.background = `${feat.accent}08`;
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.borderColor = BORDER;
-                        e.currentTarget.style.background = SURFACE;
-                      }}
-                    >
-                      <div className="mb-3 transition-transform duration-300 group-hover:scale-110 inline-block">
-                        <Icon className="w-5 h-5" style={{ color: feat.accent }} strokeWidth={1.8} />
-                      </div>
-                      <div style={{ fontFamily: FONT.sans, fontSize: fluid.body, fontWeight: 600, color: TEXT.primary, letterSpacing: '-0.01em' }}>
-                        {feat.title}
-                      </div>
-                      <div style={{ fontFamily: FONT.sans, fontSize: fluid.caption, color: TEXT.muted, lineHeight: 1.5, marginTop: 2 }}>
-                        {feat.desc}
-                      </div>
-                    </div>
-                  </Reveal>
-                );
-              })}
+            <div className="grid grid-cols-2 gap-2.5">
+              {[
+                { emoji: '⚡', t: ru ? 'Запуск' : 'Launch', s: '24h', span: '' },
+                { emoji: '💳', t: ru ? 'Платежи' : 'Payments', s: 'Stripe · YooKassa', span: '' },
+                { emoji: '🤖', t: ru ? 'AI-агент' : 'AI Agent', s: ru ? 'Поддержка 24/7' : 'Support 24/7', span: 'col-span-2' },
+                { emoji: '📊', t: ru ? 'Аналитика' : 'Analytics', s: ru ? 'Реальное время' : 'Real-time', span: '' },
+                { emoji: '🎨', t: ru ? 'Дизайн' : 'Design', s: ru ? 'Уровень Apple' : 'Apple-level', span: '' },
+              ].map((f, i) => (
+                <Cin key={i} delay={i * 0.04} className={f.span}>
+                  <div
+                    className="rounded-2xl p-4 transition-all duration-500 group"
+                    style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.04)'; }}
+                  >
+                    <span className="text-xl transition-transform duration-300 inline-block group-hover:scale-125">{f.emoji}</span>
+                    <div className="mt-2" style={{
+                      fontFamily: SYNE, fontSize: 'clamp(0.8rem, 2vw, 0.9rem)',
+                      fontWeight: 700, color: '#fff', letterSpacing: '-0.02em',
+                    }}>{f.t}</div>
+                    <div className="mt-0.5" style={{
+                      fontFamily: INTER, fontSize: 'clamp(0.65rem, 1.4vw, 0.75rem)',
+                      color: 'rgba(255,255,255,0.45)',
+                    }}>{f.s}</div>
+                  </div>
+                </Cin>
+              ))}
             </div>
           </section>
 
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          {/*  SECTION 5 · THE NUMBERS               */}
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          <section className="px-6 py-16" aria-label={ru ? 'Метрики' : 'Metrics'}>
-            <Reveal>
-              <h2 style={{ fontFamily: FONT.sans, fontSize: fluid.overline, fontWeight: 600, color: TEXT.muted, letterSpacing: '0.15em', textTransform: 'uppercase' as const, marginBottom: 32 }}>
-                {ru ? 'В цифрах' : 'By the Numbers'}
-              </h2>
-            </Reveal>
+          {/* ═══════ SINGLE TESTIMONIAL — editorial ═══════ */}
+          <section className="px-6 py-20" aria-label={ru ? 'Отзыв' : 'Testimonial'}>
+            <Cin>
+              <div className="relative">
+                <span style={{
+                  fontFamily: INSTRUMENT, fontSize: 'clamp(5rem, 18vw, 8rem)',
+                  lineHeight: 0.7, color: 'rgba(52,211,153,0.08)', fontStyle: 'italic',
+                  position: 'absolute', top: -24, left: -8, pointerEvents: 'none',
+                }}>"</span>
 
-            {[
-              { value: 300, prefix: '+', suffix: '%', text: ru ? 'Средний рост продаж наших клиентов в\u00A0первый месяц.' : 'Average sales growth for our clients in\u00A0the first month.', highlight: true },
-              { value: 24, prefix: '', suffix: ru ? ' ч' : 'h', text: ru ? 'От идеи до рабочего приложения. Дизайн, код, деплой.' : 'From idea to working app. Design, code, deploy.', highlight: false },
-              { value: 0, prefix: '', suffix: '%', text: ru ? 'Комиссий. Вся выручка остаётся у вас.' : 'Commission. All revenue stays with you.', highlight: false },
-            ].map((metric, i) => (
-              <Reveal key={i} delay={i * 0.06}>
-                <div className="py-5" style={{ borderTop: `1px solid ${BORDER}` }}>
-                  <div className="flex items-start gap-5">
-                    <div
-                      className="flex-shrink-0"
-                      style={{
-                        fontFamily: FONT.sans,
-                        fontSize: 'clamp(2.5rem, 8vw, 3.5rem)',
-                        fontWeight: 800,
-                        lineHeight: 1,
-                        letterSpacing: '-0.04em',
-                        color: metric.highlight ? ACCENT : TEXT.primary,
-                        fontVariantNumeric: 'tabular-nums',
-                        minWidth: 120,
-                      }}
-                    >
-                      <AnimatedNumber value={metric.value} suffix={metric.suffix} prefix={metric.prefix} />
+                <blockquote className="relative z-10">
+                  <p style={{
+                    fontFamily: INSTRUMENT, fontSize: 'clamp(1.25rem, 4vw, 1.75rem)',
+                    fontStyle: 'italic', lineHeight: 1.45, color: 'rgba(255,255,255,0.6)',
+                    letterSpacing: '-0.01em',
+                  }}>
+                    {ru
+                      ? 'Мы потратили полгода на маркетплейс и потеряли 3 миллиона на комиссиях. С WEB4TG запустились за день. Продажи — плюс 340% за первый месяц.'
+                      : 'We spent six months on a marketplace and lost $40k in fees. With WEB4TG we launched in one day. Sales — up 340% in the first month.'}
+                  </p>
+                </blockquote>
+
+                <div className="mt-6 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(52,211,153,0.15)' }}>
+                    <span style={{ fontFamily: SYNE, fontSize: '0.6875rem', fontWeight: 700, color: EMERALD }}>А</span>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: SYNE, fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
+                      {ru ? 'Александр М.' : 'Alexander M.'}
                     </div>
-                    <p className="pt-2.5" style={{ fontFamily: FONT.sans, fontSize: fluid.body, lineHeight: 1.6, color: TEXT.muted }}>
-                      {metric.text}
-                    </p>
+                    <div style={{ fontFamily: INTER, fontSize: '0.6875rem', color: 'rgba(255,255,255,0.25)' }}>
+                      {ru ? 'Основатель TimeElite' : 'Founder, TimeElite'}
+                    </div>
                   </div>
                 </div>
-              </Reveal>
+              </div>
+            </Cin>
+          </section>
+
+          {/* ═══════ PROCESS — minimal timeline ═══════ */}
+          <section className="px-6 py-16" aria-label={ru ? 'Процесс' : 'Process'}>
+            <Cin>
+              <h2 className="mb-10" style={{
+                fontFamily: SYNE, fontSize: 'clamp(0.6rem, 1.3vw, 0.7rem)',
+                fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const,
+                color: 'rgba(255,255,255,0.25)',
+              }}>
+                {ru ? 'Три шага' : 'Three Steps'}
+              </h2>
+            </Cin>
+
+            {[
+              { n: '01', t: ru ? 'Бриф' : 'Brief', d: ru ? 'Выберите шаблон или расскажите идею. Мы начнём в тот же день.' : 'Pick a template or share your idea. We start the same day.' },
+              { n: '02', t: ru ? 'Сборка' : 'Build', d: ru ? 'Дизайн, фронтенд, бэкенд, платежи — всё за 24–48 часов.' : 'Design, frontend, backend, payments — all in 24–48 hours.' },
+              { n: '03', t: ru ? 'Запуск' : 'Launch', d: ru ? 'Деплой в Telegram. Аналитика подключена. Вы зарабатываете.' : 'Deploy to Telegram. Analytics connected. You earn.' },
+            ].map((s, i) => (
+              <Cin key={i} delay={i * 0.08}>
+                <div className="flex items-start gap-5 mb-9 last:mb-0">
+                  <span style={{
+                    fontFamily: SYNE, fontSize: 'clamp(2rem, 7vw, 3rem)',
+                    fontWeight: 800, lineHeight: 1, letterSpacing: '-0.05em',
+                    color: i === 2 ? EMERALD : 'rgba(255,255,255,0.06)',
+                  }}>{s.n}</span>
+                  <div className="pt-1.5">
+                    <h3 style={{
+                      fontFamily: SYNE, fontSize: 'clamp(0.95rem, 2.5vw, 1.125rem)',
+                      fontWeight: 700, color: '#fff', letterSpacing: '-0.03em',
+                    }}>{s.t}</h3>
+                    <p className="mt-1" style={{
+                      fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8125rem)',
+                      lineHeight: 1.65, color: 'rgba(255,255,255,0.45)',
+                    }}>{s.d}</p>
+                  </div>
+                </div>
+              </Cin>
             ))}
           </section>
 
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          {/*  SECTION 6 · PROCESS TIMELINE          */}
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          <section className="px-6 py-16" aria-label={ru ? 'Процесс' : 'Process'}>
-            <Reveal>
-              <h2 style={{ fontFamily: FONT.sans, fontSize: fluid.overline, fontWeight: 600, color: TEXT.muted, letterSpacing: '0.15em', textTransform: 'uppercase' as const, marginBottom: 32 }}>
-                {ru ? 'Как это работает' : 'How It Works'}
-              </h2>
-            </Reveal>
+          {/* ═══════ FINAL CTA — cinematic close ═══════ */}
+          <section className="px-6 pt-8 pb-10" aria-label="CTA">
+            <Cin>
+              <div className="relative overflow-hidden rounded-3xl py-14 px-7 text-center" style={{ border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="absolute inset-0 pointer-events-none" style={{
+                  background: `radial-gradient(ellipse at 50% 120%, ${EMERALD}10 0%, transparent 70%)`,
+                }} />
 
-            <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute left-[18px] top-0 bottom-0 w-px" style={{ background: `linear-gradient(180deg, ${ACCENT}50, ${BORDER}, transparent)` }} />
-
-              {[
-                { title: ru ? 'Заявка' : 'Brief', desc: ru ? 'Расскажите идею или выберите шаблон из каталога — мы начнём в\u00A0тот\u00A0же день.' : 'Share your idea or pick a template — we start the same day.' },
-                { title: ru ? 'Разработка' : 'Build', desc: ru ? 'Дизайн, фронтенд, бэкенд, платежи. Приложение готово за 24–48 часов.' : 'Design, frontend, backend, payments. App ready in 24–48 hours.' },
-                { title: ru ? 'Запуск' : 'Launch', desc: ru ? 'Деплой в Telegram, подключение аналитики — сразу работает и зарабатывает.' : 'Deploy to Telegram, connect analytics — works and earns from day one.' },
-              ].map((step, i) => (
-                <Reveal key={i} delay={i * 0.1}>
-                  <div className="flex items-start gap-4 mb-7 last:mb-0">
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 relative z-10 transition-all duration-300"
-                      style={{
-                        background: i === 2 ? ACCENT : '#000',
-                        border: `1.5px solid ${i === 2 ? ACCENT : 'rgba(255,255,255,0.12)'}`,
-                        boxShadow: i === 2 ? `0 0 20px ${ACCENT}30` : 'none',
-                      }}
-                    >
-                      <span style={{ fontFamily: FONT.sans, fontSize: '0.75rem', fontWeight: 700, color: i === 2 ? '#000' : TEXT.secondary }}>
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                    </div>
-                    <div className="pt-1">
-                      <h3 style={{ fontFamily: FONT.sans, fontSize: fluid.h3, fontWeight: 600, color: TEXT.primary, letterSpacing: '-0.02em', marginBottom: 4 }}>
-                        {step.title}
-                      </h3>
-                      <p style={{ fontFamily: FONT.sans, fontSize: fluid.caption, lineHeight: 1.6, color: TEXT.muted }}>
-                        {step.desc}
-                      </p>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </section>
-
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          {/*  SECTION 7 · CTA                       */}
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          <section className="px-6 pt-4 pb-12" aria-label="CTA">
-            <Reveal>
-              <div
-                className="relative overflow-hidden rounded-3xl p-7"
-                style={{ border: `1px solid ${ACCENT}18` }}
-              >
-                {/* Ambient glow */}
-                <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 50% -30%, ${ACCENT}12 0%, transparent 70%)` }} />
-
-                <div className="relative">
-                  <h2 className="mb-3" style={{ fontFamily: FONT.serif, fontSize: fluid.h2, fontWeight: 700, color: TEXT.primary, lineHeight: 1.1, letterSpacing: '-0.03em' }}>
-                    {ru ? 'Запустим ваш\u00A0проект' : 'Let\'s launch your\u00A0project'}
+                <div className="relative z-10">
+                  <h2 style={{
+                    fontFamily: SYNE, fontSize: 'clamp(1.75rem, 6vw, 2.5rem)',
+                    fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.05,
+                  }}>
+                    {ru ? 'Ваш ход' : 'Your move'}
                   </h2>
-                  <p className="mb-7 max-w-[280px]" style={{ fontFamily: FONT.sans, fontSize: fluid.body, lineHeight: 1.65, color: TEXT.muted }}>
-                    {ru ? 'Бесплатная консультация. Первый результат — через 24\u00A0часа.' : 'Free consultation. First result — within 24\u00A0hours.'}
+                  <p className="mt-3 mx-auto" style={{
+                    maxWidth: 260,
+                    fontFamily: INSTRUMENT, fontSize: 'clamp(0.85rem, 2vw, 1rem)',
+                    fontStyle: 'italic', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5,
+                  }}>
+                    {ru ? 'Бесплатная консультация. Первый прототип — завтра.' : 'Free consultation. First prototype — tomorrow.'}
                   </p>
 
                   <button
-                    onClick={() => navigate('projects')}
-                    className="w-full py-3.5 rounded-full flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.97]"
-                    style={{ background: ACCENT, boxShadow: `0 0 48px ${ACCENT}20` }}
-                    onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 0 64px ${ACCENT}35`; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.boxShadow = `0 0 48px ${ACCENT}20`; e.currentTarget.style.transform = 'translateY(0)'; }}
+                    onClick={() => nav('projects')}
+                    className="mt-7 inline-flex items-center gap-2 rounded-full px-7 transition-all duration-500 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+                    style={{ height: 50, background: '#fff', boxShadow: '0 0 60px rgba(255,255,255,0.06)' }}
+                    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 80px rgba(255,255,255,0.15)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 0 60px rgba(255,255,255,0.06)'; }}
                   >
-                    <span style={{ fontFamily: FONT.sans, fontSize: '0.9375rem', fontWeight: 600, color: '#000' }}>
-                      {ru ? 'Начать сейчас' : 'Start Now'}
+                    <span style={{ fontFamily: SYNE, fontSize: '0.8125rem', fontWeight: 700, color: '#000' }}>
+                      {ru ? 'Начать' : 'Get Started'}
                     </span>
                     <ArrowUpRight className="w-4 h-4 text-black" strokeWidth={2.5} />
                   </button>
-
-                  <div className="flex items-center gap-5 mt-4 justify-center">
-                    {[
-                      ru ? 'Бесплатно' : 'Free',
-                      '24h',
-                      ru ? '0% комиссий' : '0% fees',
-                    ].map((item, i) => (
-                      <span key={i} style={{ fontFamily: FONT.sans, fontSize: fluid.overline, fontWeight: 500, color: TEXT.muted }}>
-                        {item}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               </div>
-            </Reveal>
+            </Cin>
           </section>
 
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          {/*  FOOTER                                */}
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-          <footer className="px-6 py-10 mb-20" role="contentinfo" style={{ borderTop: `1px solid ${BORDER}` }}>
-            <Reveal>
+          {/* ═══════ FOOTER ═══════ */}
+          <footer className="px-6 py-8 mb-20" role="contentinfo" style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}>
+            <Cin>
               <div className="flex items-center justify-between">
-                <div>
-                  <div style={{ fontFamily: FONT.sans, fontSize: fluid.body, fontWeight: 700, color: TEXT.primary, letterSpacing: '-0.02em' }}>
-                    WEB4TG
-                  </div>
-                  <div style={{ fontFamily: FONT.sans, fontSize: fluid.overline, color: TEXT.muted, marginTop: 2 }}>
-                    Telegram Mini Apps Studio
-                  </div>
-                </div>
-                <div style={{ fontFamily: FONT.sans, fontSize: fluid.overline, color: TEXT.muted }}>
+                <span style={{ fontFamily: SYNE, fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)', fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: '-0.03em' }}>
+                  WEB4TG
+                </span>
+                <span style={{ fontFamily: INTER, fontSize: '0.625rem', color: 'rgba(255,255,255,0.15)' }}>
                   &copy; {new Date().getFullYear()}
-                </div>
+                </span>
               </div>
-            </Reveal>
+            </Cin>
           </footer>
 
         </div>
