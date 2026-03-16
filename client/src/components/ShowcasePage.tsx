@@ -322,14 +322,14 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                       {c.vid ? (
                         <video ref={i === 0 ? videoRef : undefined} src={c.src} loop muted playsInline autoPlay
                           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-110"
-                          style={{ filter: 'brightness(0.4) saturate(0.6)' }} />
+                          style={{ filter: 'brightness(0.75) saturate(0.9)' }} />
                       ) : (
                         <img src={c.src} alt={c.label} loading="lazy"
                           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-110"
-                          style={{ filter: 'brightness(0.4) saturate(0.6)' }} />
+                          style={{ filter: 'brightness(0.75) saturate(0.9)' }} />
                       )}
 
-                      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 20%, rgba(5,5,5,0.95) 100%)' }} />
+                      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 40%, rgba(5,5,5,0.85) 100%)' }} />
 
                       <div className="absolute top-4 right-4 z-10" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
                         <FavoriteButton demoId={c.id} size="md" />
