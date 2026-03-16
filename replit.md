@@ -144,6 +144,31 @@ To configure a branded loading screen for the Mini App:
 - `DeviceStorage` / `SecureStorage` - Persistent local storage
 - `BiometricManager` - Biometric authentication
 - `HapticFeedback` - Tactile feedback for interactions
+# Fragrance Royale Perfume Demo — March 2026 Full Redesign
+
+## Product Detail Page — World-Class Editorial Architecture
+- **Background**: Category-matched atmospheric dark: Oriental `#0D0812`, Fresh `#070F0D`, Floral `#0D080A`, Woody `#0A0805`, Amber `#0D0A06`
+- **Sticky Glass Header**: Appears on scroll >60px — brand + italic name + price in gold-tinted frosted glass pill; back button + cart badge
+- **Animation system**: Same as Radiance — `productExiting`, `handleProductBack` (340ms), `productPageVariants`, `contentStagger`, `contentItem`
+
+## Unique Perfume-Specific Blocks
+- **Fragrance Notes Pyramid**: Three-tier visual (Top/Heart/Base) with gradient color coding per category, connector lines, Cormorant Garamond italic notes
+- **Longevity + Sillage meters**: 8-segment time bar + 3-dot sillage indicator in side-by-side cards
+- **Tab system** (Аромат / Детали / Отзывы):
+  - *Аромат*: Full pyramid + longevity/sillage + occasion chips + perfumer's editorial note
+  - *Детали*: 10-row characteristics table with star rating and category metadata
+  - *Отзывы*: 3 perfume-specific reviews with initials avatar, verified badge, Cormorant italic text
+- **Category Family icons**: Wind (Fresh), Flame (Oriental), Flower2 (Floral), Leaf (Woody), Gem (Amber)
+- **Concentration pills**: Color-coded gradient buttons per concentration with category-specific hues
+- **Occasion chips**: День / Вечер / Ночь / Романтик / Деловой / Сезон in pill UI
+- **Perfumer's Note**: editorial block in Cormorant Garamond italic with accent-colored border
+
+## Home Page — Editorial 2026
+- Centred wordmark `FRAGRANCE ROYALE · PARFUMS`
+- Video editorial hero with `SS'26 Exclusive` badge + Cormorant italic headline
+- Scent Family chips (5 categories with colored icons)
+- `Just Arrived` horizontal scroll + `Bestsellers` 2-col grid
+
 # Radiance Fashion Demo — March 2026 Cinematic Animation Audit
 
 ## Page-Level Transitions (Product Detail)

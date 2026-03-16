@@ -291,6 +291,33 @@ const perfumes: Perfume[] = [
 const categories = ['Все', 'Fresh', 'Oriental', 'Floral', 'Woody', 'Amber'];
 const genderFilters = ['All', 'Men', 'Woman', 'Unisex'];
 
+const mockPerfumeReviews = [
+  {
+    author: 'Александра М.',
+    initials: 'АМ',
+    rating: 5,
+    date: '12 февр. 2026',
+    text: 'Невероятный аромат — именно то, что я искала годами. Шлейф держится больше 10 часов даже в холодную погоду. На коже раскрывается совершенно иначе, чем на бумажном пробнике — стал более тёплым и обволакивающим. Флакон — отдельное произведение искусства.',
+    verified: true,
+  },
+  {
+    author: 'Дмитрий К.',
+    initials: 'ДК',
+    rating: 5,
+    date: '3 янв. 2026',
+    text: 'Покупал в подарок, но теперь хочу себе такой же. Аромат получает комплименты каждый раз. Очень стойкий — на одежде держится несколько дней. Это настоящая нишевая парфюмерия: никакой банальности, только глубина и характер.',
+    verified: true,
+  },
+  {
+    author: 'Валерия Н.',
+    initials: 'ВН',
+    rating: 4,
+    date: '18 дек. 2025',
+    text: 'Ожидала больше шлейфа в тёплое время года, но в осенне-зимний сезон это безусловный шедевр. Базовые ноты раскрываются медленно и очень красиво — примерно через час после нанесения начинается настоящее волшебство. Буду брать ещё.',
+    verified: true,
+  },
+];
+
 const categoryConfig: Record<string, { icon: React.ComponentType<{style?: React.CSSProperties}>, label: string, color: string }> = {
   Fresh:    { icon: Wind,    label: 'Свежие',    color: '#34D399' },
   Oriental: { icon: Flame,   label: 'Восточные', color: '#F97316' },
@@ -319,6 +346,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [productExiting, setProductExiting] = useState(false);
   const [showStickyHeader, setShowStickyHeader] = useState(false);
+  const [activeProductTab, setActiveProductTab] = useState<'fragrance' | 'details' | 'reviews'>('fragrance');
 
   const { toast } = useToast();
   const sidebar = useDemoSidebar();
@@ -450,6 +478,79 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
           ease: productExiting ? [0.32, 0, 0.67, 0] : [0.22, 1, 0.36, 1],
         }}
       >
+        {/* ── STICKY GLASS HEADER — appears on scroll ── */}
+        <AnimatePresence>
+          {showStickyHeader && (
+            <m.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+              className="fixed top-0 left-0 right-0 z-[100]"
+              style={{
+                paddingTop: 'max(12px, env(safe-area-inset-top))',
+                paddingBottom: '12px',
+                paddingLeft: '16px',
+                paddingRight: '16px',
+              }}
+            >
+              <div
+                className="flex items-center justify-between gap-3 px-3 py-2 rounded-[20px]"
+                style={{
+                  background: `linear-gradient(145deg, ${accentColor}30 0%, rgba(20,20,20,0.85) 100%)`,
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: `0.5px solid ${accentColor}40`,
+                  boxShadow: `0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 ${accentColor}20`,
+                }}
+              >
+                <button
+                  onClick={handleProductBack}
+                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+                  style={{ background: 'rgba(255,255,255,0.12)' }}
+                  data-testid="button-sticky-back"
+                >
+                  <ChevronLeft className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.9)' }} strokeWidth={2.5} />
+                </button>
+                <div className="flex-1 min-w-0 text-center">
+                  <p style={{
+                    fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em',
+                    textTransform: 'uppercase', color: accentColor,
+                    fontFamily: "'Satoshi','Inter',sans-serif",
+                    marginBottom: '1px',
+                  }}>
+                    {selectedPerfume.brand}
+                  </p>
+                  <p style={{
+                    fontSize: '15px', fontWeight: 300, fontStyle: 'italic',
+                    color: 'rgba(255,255,255,0.95)', letterSpacing: '0.01em',
+                    fontFamily: "'Cormorant Garamond', Georgia, serif",
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    {selectedPerfume.name}
+                  </p>
+                </div>
+                <button
+                  onClick={() => onTabChange?.('cart')}
+                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-transform relative"
+                  style={{ background: 'rgba(255,255,255,0.12)' }}
+                  data-testid="button-sticky-cart"
+                >
+                  <ShoppingBag className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.9)' }} />
+                  {cartCount > 0 && (
+                    <span
+                      className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold"
+                      style={{ background: accentColor, color: '#000' }}
+                    >
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </m.div>
+          )}
+        </AnimatePresence>
+
         {/* ── HERO IMAGE 70vh ── */}
         <div className="relative flex-shrink-0" style={{ height: '70vh', minHeight: '420px' }}>
           <div className="absolute inset-0 overflow-hidden">
@@ -643,226 +744,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 </div>
               </m.div>
 
-              {/* ── BLOCK 2: FRAGRANCE NOTES PYRAMID ── */}
-              <m.div variants={contentItem}>
-                <p style={{
-                  fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em',
-                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
-                  marginBottom: '14px', fontFamily: "'Satoshi','Inter',sans-serif",
-                }}>
-                  Пирамида аромата
-                </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {/* Top notes */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{
-                      width: '58px', flexShrink: 0,
-                      fontSize: '8px', fontWeight: 700, letterSpacing: '0.2em',
-                      color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase',
-                      fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'right',
-                    }}>
-                      Верхние
-                    </div>
-                    <div style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      borderRadius: '10px',
-                      background: `linear-gradient(135deg, ${accentColor}18 0%, rgba(255,255,255,0.04) 100%)`,
-                      border: `0.5px solid ${accentColor}30`,
-                      display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap',
-                    }}>
-                      {selectedPerfume.topNotes.map((note) => (
-                        <span key={note} style={{
-                          fontSize: '11px', color: `${accentColor}E0`,
-                          fontFamily: "'Cormorant Garamond', Georgia, serif",
-                          fontStyle: 'italic', fontWeight: 500,
-                        }}>
-                          {note}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Pyramid connector */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '58px', flexShrink: 0 }} />
-                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                      <div style={{ width: '1px', height: '8px', background: `${accentColor}30` }} />
-                    </div>
-                  </div>
-
-                  {/* Heart notes */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{
-                      width: '58px', flexShrink: 0,
-                      fontSize: '8px', fontWeight: 700, letterSpacing: '0.2em',
-                      color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase',
-                      fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'right',
-                    }}>
-                      Сердце
-                    </div>
-                    <div style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      borderRadius: '10px',
-                      background: `linear-gradient(135deg, ${accentColor}28 0%, rgba(255,255,255,0.05) 100%)`,
-                      border: `0.5px solid ${accentColor}40`,
-                      display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap',
-                    }}>
-                      {selectedPerfume.heartNotes.map((note) => (
-                        <span key={note} style={{
-                          fontSize: '11px', color: 'rgba(255,255,255,0.88)',
-                          fontFamily: "'Cormorant Garamond', Georgia, serif",
-                          fontStyle: 'italic', fontWeight: 500,
-                        }}>
-                          {note}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Pyramid connector */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '58px', flexShrink: 0 }} />
-                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                      <div style={{ width: '1px', height: '8px', background: `${accentColor}30` }} />
-                    </div>
-                  </div>
-
-                  {/* Base notes */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{
-                      width: '58px', flexShrink: 0,
-                      fontSize: '8px', fontWeight: 700, letterSpacing: '0.2em',
-                      color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase',
-                      fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'right',
-                    }}>
-                      База
-                    </div>
-                    <div style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      borderRadius: '10px',
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '0.5px solid rgba(255,255,255,0.1)',
-                      display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap',
-                    }}>
-                      {selectedPerfume.baseNotes.map((note) => (
-                        <span key={note} style={{
-                          fontSize: '11px', color: 'rgba(255,255,255,0.65)',
-                          fontFamily: "'Cormorant Garamond', Georgia, serif",
-                          fontStyle: 'italic', fontWeight: 500,
-                        }}>
-                          {note}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </m.div>
-
-              {/* ── BLOCK 3: LONGEVITY & SILLAGE ── */}
-              <m.div variants={contentItem}>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  {/* Longevity */}
-                  <div style={{
-                    flex: 1, padding: '14px 16px', borderRadius: '14px',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '0.5px solid rgba(255,255,255,0.08)',
-                  }}>
-                    <p style={{
-                      fontSize: '8px', fontWeight: 700, letterSpacing: '0.25em',
-                      color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase',
-                      marginBottom: '8px', fontFamily: "'Satoshi','Inter',sans-serif",
-                    }}>
-                      Стойкость
-                    </p>
-                    <p style={{
-                      fontSize: '20px', fontWeight: 800, letterSpacing: '-0.02em',
-                      color: 'rgba(255,255,255,0.92)', fontFamily: "'Satoshi','Inter',sans-serif",
-                      lineHeight: 1, marginBottom: '8px',
-                    }}>
-                      {selectedPerfume.longevity}
-                    </p>
-                    {/* Time bar */}
-                    <div style={{ display: 'flex', gap: '3px' }}>
-                      {[...Array(8)].map((_, i) => (
-                        <div key={i} style={{
-                          flex: 1, height: '3px', borderRadius: '2px',
-                          background: i < Math.round(selectedPerfume.longevityHours / 2)
-                            ? accentColor
-                            : 'rgba(255,255,255,0.1)',
-                        }} />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Sillage */}
-                  <div style={{
-                    flex: 1, padding: '14px 16px', borderRadius: '14px',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '0.5px solid rgba(255,255,255,0.08)',
-                  }}>
-                    <p style={{
-                      fontSize: '8px', fontWeight: 700, letterSpacing: '0.25em',
-                      color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase',
-                      marginBottom: '8px', fontFamily: "'Satoshi','Inter',sans-serif",
-                    }}>
-                      Шлейф
-                    </p>
-                    <p style={{
-                      fontSize: '20px', fontWeight: 800, letterSpacing: '-0.02em',
-                      color: 'rgba(255,255,255,0.92)', fontFamily: "'Satoshi','Inter',sans-serif",
-                      lineHeight: 1, marginBottom: '8px',
-                    }}>
-                      {sillageLabel[selectedPerfume.sillage]}
-                    </p>
-                    {/* Sillage dots */}
-                    <div style={{ display: 'flex', gap: '5px' }}>
-                      {[1, 2, 3].map((lvl) => (
-                        <div key={lvl} style={{
-                          width: '28px', height: '3px', borderRadius: '2px',
-                          background: lvl <= sillageLevel[selectedPerfume.sillage]
-                            ? accentColor
-                            : 'rgba(255,255,255,0.1)',
-                        }} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </m.div>
-
-              {/* ── BLOCK 4: OCCASIONS — когда носить ── */}
-              <m.div variants={contentItem}>
-                <p style={{
-                  fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em',
-                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
-                  marginBottom: '12px', fontFamily: "'Satoshi','Inter',sans-serif",
-                }}>
-                  Когда носить
-                </p>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {selectedPerfume.occasions.map((occ) => (
-                    <div
-                      key={occ}
-                      style={{
-                        padding: '7px 14px', borderRadius: '20px',
-                        fontSize: '11px', fontWeight: 600,
-                        color: 'rgba(255,255,255,0.7)',
-                        background: 'rgba(255,255,255,0.07)',
-                        border: '0.5px solid rgba(255,255,255,0.12)',
-                        fontFamily: "'Satoshi','Inter',sans-serif",
-                        letterSpacing: '0.02em',
-                      }}
-                    >
-                      {occ}
-                    </div>
-                  ))}
-                </div>
-              </m.div>
-
-              {/* ── BLOCK 5: CONCENTRATION selector ── */}
+              {/* ── CONCENTRATION selector — moved before tabs ── */}
               <m.div variants={contentItem}>
                 <p style={{
                   fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em',
@@ -885,15 +767,9 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                           fontSize: '12px', fontWeight: 700,
                           letterSpacing: '0.03em', fontFamily: "'Satoshi','Inter',sans-serif",
                           color: isSelected ? '#fff' : 'rgba(255,255,255,0.55)',
-                          background: isSelected
-                            ? `linear-gradient(135deg, ${color}90 0%, ${color}60 100%)`
-                            : 'rgba(255,255,255,0.06)',
-                          border: isSelected
-                            ? `0.5px solid ${color}80`
-                            : '0.5px solid rgba(255,255,255,0.1)',
-                          boxShadow: isSelected
-                            ? `0 4px 16px ${color}30`
-                            : 'none',
+                          background: isSelected ? `linear-gradient(135deg, ${color}90 0%, ${color}60 100%)` : 'rgba(255,255,255,0.06)',
+                          border: isSelected ? `0.5px solid ${color}80` : '0.5px solid rgba(255,255,255,0.1)',
+                          boxShadow: isSelected ? `0 4px 16px ${color}30` : 'none',
                         }}
                         aria-pressed={isSelected}
                         data-testid={`button-concentration-${conc}`}
@@ -905,7 +781,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 </div>
               </m.div>
 
-              {/* ── BLOCK 6: VOLUME selector ── */}
+              {/* ── VOLUME selector — moved before tabs ── */}
               <m.div variants={contentItem}>
                 <p style={{
                   fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em',
@@ -941,31 +817,256 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
                 </div>
               </m.div>
 
-              {/* ── BLOCK 7: PERFUMER'S NOTE — editorial description ── */}
-              <m.div variants={contentItem}>
-                <div style={{
-                  padding: '18px 20px',
-                  borderRadius: '16px',
-                  background: `linear-gradient(135deg, ${accentColor}08 0%, rgba(255,255,255,0.02) 100%)`,
-                  border: `0.5px solid ${accentColor}20`,
-                }}>
-                  <p style={{
-                    fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em',
-                    textTransform: 'uppercase', color: accentColor,
-                    marginBottom: '12px', fontFamily: "'Satoshi','Inter',sans-serif",
-                  }}>
-                    Слово парфюмера
-                  </p>
-                  <p style={{
-                    fontSize: '15px', lineHeight: 1.72,
-                    color: 'rgba(255,255,255,0.72)',
-                    fontFamily: "'Cormorant Garamond', Georgia, serif",
-                    fontStyle: 'italic', fontWeight: 400,
-                    letterSpacing: '0.01em',
-                  }}>
-                    "{selectedPerfume.perfumerNote}"
-                  </p>
+              {/* ── TAB NAVIGATION: Аромат / Детали / Отзывы ── */}
+              <m.div variants={contentItem} style={{ borderBottom: `0.5px solid rgba(255,255,255,0.1)` }}>
+                <div style={{ display: 'flex' }} role="tablist">
+                  {[
+                    { key: 'fragrance', label: 'Аромат' },
+                    { key: 'details',   label: 'Детали' },
+                    { key: 'reviews',   label: `Отзывы (${mockPerfumeReviews.length})` },
+                  ].map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setActiveProductTab(tab.key as typeof activeProductTab)}
+                      className="flex-1 transition-all duration-200"
+                      style={{
+                        padding: '12px 4px 13px',
+                        fontSize: '11px',
+                        fontWeight: activeProductTab === tab.key ? 700 : 500,
+                        color: activeProductTab === tab.key ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.4)',
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        fontFamily: "'Satoshi','Inter',sans-serif",
+                        borderBottom: activeProductTab === tab.key
+                          ? `1.5px solid ${accentColor}`
+                          : '1.5px solid transparent',
+                        marginBottom: '-0.5px',
+                        background: 'transparent',
+                      }}
+                      role="tab"
+                      aria-selected={activeProductTab === tab.key}
+                      data-testid={`tab-${tab.key}`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
+              </m.div>
+
+              {/* ── TAB CONTENT PANELS ── */}
+              <m.div variants={contentItem} style={{ minHeight: '260px' }}>
+
+                {/* ── TAB: АРОМАТ — Notes Pyramid + Longevity/Sillage + Occasions + Perfumer's Note ── */}
+                {activeProductTab === 'fragrance' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+
+                    {/* Notes Pyramid */}
+                    <div>
+                      <p style={{
+                        fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em',
+                        textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
+                        marginBottom: '14px', fontFamily: "'Satoshi','Inter',sans-serif",
+                      }}>
+                        Пирамида аромата
+                      </p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {/* Top notes */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '58px', flexShrink: 0, fontSize: '8px', fontWeight: 700, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'right' }}>
+                            Верхние
+                          </div>
+                          <div style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: `linear-gradient(135deg, ${accentColor}18 0%, rgba(255,255,255,0.04) 100%)`, border: `0.5px solid ${accentColor}30`, display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' as const }}>
+                            {selectedPerfume.topNotes.map((note) => (
+                              <span key={note} style={{ fontSize: '11px', color: `${accentColor}E0`, fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic', fontWeight: 500 }}>{note}</span>
+                            ))}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '58px', flexShrink: 0 }} />
+                          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}><div style={{ width: '1px', height: '8px', background: `${accentColor}30` }} /></div>
+                        </div>
+                        {/* Heart notes */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '58px', flexShrink: 0, fontSize: '8px', fontWeight: 700, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'right' }}>
+                            Сердце
+                          </div>
+                          <div style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: `linear-gradient(135deg, ${accentColor}28 0%, rgba(255,255,255,0.05) 100%)`, border: `0.5px solid ${accentColor}40`, display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' as const }}>
+                            {selectedPerfume.heartNotes.map((note) => (
+                              <span key={note} style={{ fontSize: '11px', color: 'rgba(255,255,255,0.88)', fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic', fontWeight: 500 }}>{note}</span>
+                            ))}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '58px', flexShrink: 0 }} />
+                          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}><div style={{ width: '1px', height: '8px', background: `${accentColor}30` }} /></div>
+                        </div>
+                        {/* Base notes */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '58px', flexShrink: 0, fontSize: '8px', fontWeight: 700, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'right' }}>
+                            База
+                          </div>
+                          <div style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' as const }}>
+                            {selectedPerfume.baseNotes.map((note) => (
+                              <span key={note} style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic', fontWeight: 500 }}>{note}</span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Longevity & Sillage */}
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <div style={{ flex: 1, padding: '14px 16px', borderRadius: '14px', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
+                        <p style={{ fontSize: '8px', fontWeight: 700, letterSpacing: '0.25em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: '8px', fontFamily: "'Satoshi','Inter',sans-serif" }}>Стойкость</p>
+                        <p style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.02em', color: 'rgba(255,255,255,0.92)', fontFamily: "'Satoshi','Inter',sans-serif", lineHeight: 1, marginBottom: '8px' }}>{selectedPerfume.longevity}</p>
+                        <div style={{ display: 'flex', gap: '3px' }}>
+                          {[...Array(8)].map((_, i) => (
+                            <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i < Math.round(selectedPerfume.longevityHours / 2) ? accentColor : 'rgba(255,255,255,0.1)' }} />
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{ flex: 1, padding: '14px 16px', borderRadius: '14px', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
+                        <p style={{ fontSize: '8px', fontWeight: 700, letterSpacing: '0.25em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: '8px', fontFamily: "'Satoshi','Inter',sans-serif" }}>Шлейф</p>
+                        <p style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.02em', color: 'rgba(255,255,255,0.92)', fontFamily: "'Satoshi','Inter',sans-serif", lineHeight: 1, marginBottom: '8px' }}>{sillageLabel[selectedPerfume.sillage]}</p>
+                        <div style={{ display: 'flex', gap: '5px' }}>
+                          {[1, 2, 3].map((lvl) => (
+                            <div key={lvl} style={{ width: '28px', height: '3px', borderRadius: '2px', background: lvl <= sillageLevel[selectedPerfume.sillage] ? accentColor : 'rgba(255,255,255,0.1)' }} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Occasions */}
+                    <div>
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '12px', fontFamily: "'Satoshi','Inter',sans-serif" }}>Когда носить</p>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
+                        {selectedPerfume.occasions.map((occ) => (
+                          <div key={occ} style={{ padding: '7px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.12)', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.02em' }}>
+                            {occ}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Perfumer's Note */}
+                    <div style={{ padding: '18px 20px', borderRadius: '16px', background: `linear-gradient(135deg, ${accentColor}08 0%, rgba(255,255,255,0.02) 100%)`, border: `0.5px solid ${accentColor}20` }}>
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: accentColor, marginBottom: '12px', fontFamily: "'Satoshi','Inter',sans-serif" }}>Слово парфюмера</p>
+                      <p style={{ fontSize: '15px', lineHeight: 1.72, color: 'rgba(255,255,255,0.72)', fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic', fontWeight: 400, letterSpacing: '0.01em' }}>
+                        "{selectedPerfume.perfumerNote}"
+                      </p>
+                    </div>
+
+                  </div>
+                )}
+
+                {/* ── TAB: ДЕТАЛИ — Characteristics table ── */}
+                {activeProductTab === 'details' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {[
+                      { label: 'Бренд', value: selectedPerfume.brand },
+                      { label: 'Год создания', value: selectedPerfume.year ? String(selectedPerfume.year) : '—' },
+                      { label: 'Семейство', value: categoryConfig[selectedPerfume.category]?.label ?? selectedPerfume.category },
+                      { label: 'Для кого', value: selectedPerfume.gender === 'Men' ? 'Мужской' : selectedPerfume.gender === 'Woman' ? 'Женский' : 'Унисекс' },
+                      { label: 'Концентрация', value: selectedPerfume.concentrations.join(', ') },
+                      { label: 'Шлейф', value: sillageLabel[selectedPerfume.sillage] },
+                      { label: 'Стойкость', value: selectedPerfume.longevity },
+                      { label: 'В наличии', value: `${selectedPerfume.inStock} шт.` },
+                      { label: 'Объёмы', value: selectedPerfume.volumes.join(', ') },
+                      { label: 'Рейтинг', value: '__stars__' },
+                    ].map((item, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          padding: '12px 14px', borderRadius: '12px',
+                          background: 'rgba(255,255,255,0.04)',
+                          border: '0.5px solid rgba(255,255,255,0.07)',
+                        }}
+                      >
+                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: "'Satoshi','Inter',sans-serif" }}>{item.label}</span>
+                        {item.value === '__stars__' ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <div style={{ display: 'flex', gap: '2px' }}>
+                              {[1,2,3,4,5].map(s => (
+                                <Star key={s} style={{ width: '11px', height: '11px' }}
+                                  fill={s <= Math.round(selectedPerfume.rating) ? accentColor : 'transparent'}
+                                  stroke={s <= Math.round(selectedPerfume.rating) ? accentColor : 'rgba(255,255,255,0.2)'}
+                                />
+                              ))}
+                            </div>
+                            <span style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.6)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{selectedPerfume.rating}</span>
+                          </div>
+                        ) : (
+                          <span style={{ color: 'rgba(255,255,255,0.88)', fontSize: '12px', fontWeight: 600, fontFamily: "'Satoshi','Inter',sans-serif" }}>{item.value}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* ── TAB: ОТЗЫВЫ — Reviews ── */}
+                {activeProductTab === 'reviews' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {/* Rating summary */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ display: 'flex' }}>
+                          {[1,2,3,4,5].map((s) => (
+                            <Star key={s} className="w-4 h-4"
+                              fill={s <= Math.round(selectedPerfume.rating) ? 'rgba(255,255,255,0.95)' : 'transparent'}
+                              stroke={s <= Math.round(selectedPerfume.rating) ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.25)'}
+                            />
+                          ))}
+                        </div>
+                        <span style={{ fontSize: '16px', fontWeight: 700, color: 'rgba(255,255,255,0.95)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{selectedPerfume.rating}</span>
+                      </div>
+                      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{mockPerfumeReviews.length} отзывов</span>
+                    </div>
+
+                    {mockPerfumeReviews.map((review, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          padding: '16px', borderRadius: '16px',
+                          background: 'rgba(255,255,255,0.04)',
+                          border: '0.5px solid rgba(255,255,255,0.08)',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                          <div style={{
+                            width: '36px', height: '36px', borderRadius: '50%',
+                            background: `linear-gradient(135deg, ${accentColor}60 0%, ${accentColor}30 100%)`,
+                            border: `0.5px solid ${accentColor}40`,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                          }}>
+                            <span style={{ fontSize: '11px', fontWeight: 700, color: accentColor, fontFamily: "'Satoshi','Inter',sans-serif" }}>{review.initials}</span>
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                              <p style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.9)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{review.author}</p>
+                              {review.verified && (
+                                <span style={{ fontSize: '9px', fontWeight: 700, color: accentColor, letterSpacing: '0.1em', fontFamily: "'Satoshi','Inter',sans-serif" }}>✓ ВЕРИФИЦИРОВАН</span>
+                              )}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <div style={{ display: 'flex', gap: '1px' }}>
+                                {[1,2,3,4,5].map((s) => (
+                                  <Star key={s} style={{ width: '10px', height: '10px' }}
+                                    fill={s <= review.rating ? 'rgba(255,255,255,0.8)' : 'transparent'}
+                                    stroke={s <= review.rating ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.2)'}
+                                  />
+                                ))}
+                              </div>
+                              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{review.date}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <p style={{ fontSize: '14px', lineHeight: 1.65, color: 'rgba(255,255,255,0.7)', fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic' }}>{review.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
               </m.div>
 
               {/* ── BLOCK 8: SERVICE STRIP ── */}
