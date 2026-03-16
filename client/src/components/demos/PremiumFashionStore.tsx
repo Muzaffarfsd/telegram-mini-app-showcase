@@ -553,7 +553,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         >
         
         {/* ===== HERO SECTION: Full-bleed image with floating controls ===== */}
-        <div className="relative flex-shrink-0" style={{ height: '58vh', minHeight: '400px' }}>
+        <div className="relative flex-shrink-0" style={{ height: '70vh', minHeight: '420px' }}>
           
           {/* Full-bleed Image Gallery - iOS-style snap scroll */}
           <div 
@@ -664,6 +664,21 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             </button>
           </div>
           
+          {/* Editorial badge — NEW / TRENDING, bottom-left of hero */}
+          {(selectedProduct.isNew || selectedProduct.isTrending) && (
+            <div className="absolute z-40" style={{ bottom: '52px', left: '16px' }}>
+              <span style={{
+                fontSize: '9px', fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase',
+                background: 'var(--theme-primary)', color: '#000',
+                padding: '5px 11px', borderRadius: '99px',
+                fontFamily: "'Satoshi', 'Inter', sans-serif",
+                display: 'inline-block',
+              }}>
+                {selectedProduct.isNew ? 'Новинка' : 'В тренде'} · SS'26
+              </span>
+            </div>
+          )}
+
           {/* Dots Indicator — hidden when only 1 image */}
           {productImages.length > 1 && <div 
             className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2 px-3 py-2 rounded-full"
@@ -684,8 +699,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   height: '7px',
                   borderRadius: '4px',
                   background: currentImageIndex === idx 
-                    ? 'rgba(0,0,0,0.8)' 
-                    : 'rgba(0,0,0,0.3)',
+                    ? 'rgba(255,255,255,0.95)' 
+                    : 'rgba(255,255,255,0.35)',
                 }}
                 data-testid={`gallery-dot-${idx}`}
               />
@@ -753,70 +768,73 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 {selectedProduct.name}
               </h2>
 
-              {/* Price row */}
-              <div className="flex items-baseline gap-3 mb-2">
+              {/* Price row — hero price */}
+              <div className="flex items-baseline gap-3" style={{ marginBottom: '10px' }}>
                 <p
                   style={{
-                    fontSize: '28px',
+                    fontSize: '30px',
                     fontWeight: 800,
                     letterSpacing: '-0.03em',
                     fontVariantNumeric: 'tabular-nums',
                     fontFamily: "'Satoshi', 'Inter', sans-serif",
                     color: 'rgba(255,255,255,0.97)',
+                    lineHeight: 1,
                   }}
                 >
                   {formatPrice(selectedProduct.price)}
                 </p>
-                {selectedProduct.oldPrice && (
-                  <p
-                    style={{
-                      fontSize: '16px',
-                      textDecoration: 'line-through',
-                      color: 'rgba(255,255,255,0.3)',
-                      fontVariantNumeric: 'tabular-nums',
-                      fontFamily: "'Satoshi', 'Inter', sans-serif",
-                    }}
-                  >
-                    {formatPrice(selectedProduct.oldPrice)}
-                  </p>
-                )}
               </div>
-              {selectedProduct.oldPrice && (
-                <div
-                  className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black"
-                  style={{
-                    background: 'rgba(var(--theme-primary-rgb, 205,255,56), 0.15)',
-                    color: 'var(--theme-primary)',
-                    border: '0.5px solid rgba(var(--theme-primary-rgb, 205,255,56), 0.35)',
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  −{Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100)}%
-                </div>
-              )}
-              {selectedProduct.inStock <= 5 && (
-                <div
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full"
-                  style={{
-                    background: 'rgba(239,68,68,0.12)',
-                    border: '0.5px solid rgba(239,68,68,0.3)',
-                    marginLeft: selectedProduct.oldPrice ? '8px' : '0',
-                  }}
-                >
-                  <span
-                    style={{
-                      width: '5px',
-                      height: '5px',
-                      borderRadius: '50%',
-                      background: '#EF4444',
-                      display: 'inline-block',
-                      animation: 'pulse 1.5s ease-in-out infinite',
-                    }}
-                  />
-                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#EF4444', letterSpacing: '0.05em' }}>
-                    Осталось {selectedProduct.inStock} шт.
-                  </span>
+              {/* Secondary row: old price + discount badge + stock pill */}
+              {(selectedProduct.oldPrice || selectedProduct.inStock <= 5) && (
+                <div className="flex items-center flex-wrap gap-2" style={{ marginBottom: '4px' }}>
+                  {selectedProduct.oldPrice && (
+                    <p
+                      style={{
+                        fontSize: '15px',
+                        textDecoration: 'line-through',
+                        color: 'rgba(255,255,255,0.28)',
+                        fontVariantNumeric: 'tabular-nums',
+                        fontFamily: "'Satoshi', 'Inter', sans-serif",
+                      }}
+                    >
+                      {formatPrice(selectedProduct.oldPrice)}
+                    </p>
+                  )}
+                  {selectedProduct.oldPrice && (
+                    <div
+                      className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black"
+                      style={{
+                        background: 'rgba(var(--theme-primary-rgb, 205,255,56), 0.15)',
+                        color: 'var(--theme-primary)',
+                        border: '0.5px solid rgba(var(--theme-primary-rgb, 205,255,56), 0.35)',
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        fontFamily: "'Satoshi', 'Inter', sans-serif",
+                      }}
+                    >
+                      −{Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100)}%
+                    </div>
+                  )}
+                  {selectedProduct.inStock <= 5 && (
+                    <div
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                      style={{
+                        background: 'rgba(239,68,68,0.12)',
+                        border: '0.5px solid rgba(239,68,68,0.3)',
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: '5px', height: '5px', borderRadius: '50%',
+                          background: '#EF4444', display: 'inline-block',
+                          animation: 'pulse 1.5s ease-in-out infinite',
+                        }}
+                      />
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#EF4444', letterSpacing: '0.05em', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                        Осталось {selectedProduct.inStock} шт.
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -861,16 +879,28 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             {/* Size Selection — full-width editorial grid */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <p style={{
-                  fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em',
-                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
-                  fontFamily: "'Satoshi', 'Inter', sans-serif",
-                }}>
-                  Размер
-                </p>
-                <p style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.01em' }}>
-                  {selectedSize}
-                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <p style={{
+                    fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em',
+                    textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
+                    fontFamily: "'Satoshi', 'Inter', sans-serif",
+                  }}>
+                    Размер
+                  </p>
+                  <p style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.01em' }}>
+                    {selectedSize}
+                  </p>
+                </div>
+                <button
+                  style={{
+                    fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.4)',
+                    letterSpacing: '0.02em', fontFamily: "'Satoshi', 'Inter', sans-serif",
+                    borderBottom: '0.5px solid rgba(255,255,255,0.25)', lineHeight: 1.2,
+                    background: 'none', padding: 0,
+                  }}
+                >
+                  Гид по размерам →
+                </button>
               </div>
               <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
                 {selectedProduct.sizes.map((size) => (
@@ -1245,40 +1275,71 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           scrollToTop();
                         }}
                         className="flex-shrink-0 snap-start cursor-pointer active:scale-[0.98] transition-transform duration-150"
-                        style={{ width: '120px' }}
+                        style={{ width: '140px' }}
                         data-testid={`recommended-product-${product.id}`}
                       >
-                        {/* iOS Minimalist Card */}
+                        {/* Card image with bottom gradient */}
                         <div 
-                          className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2"
-                          style={{
-                            background: 'rgba(255,255,255,0.08)',
-                          }}
+                          className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2.5"
+                          style={{ background: 'rgba(255,255,255,0.06)' }}
                         >
                           <LazyImage
                             src={product.image}
                             alt={product.name}
                             className="w-full h-full object-cover"
                           />
+                          {/* Bottom fade for legibility */}
+                          <div style={{
+                            position: 'absolute', bottom: 0, left: 0, right: 0, height: '60px',
+                            background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 100%)',
+                            pointerEvents: 'none',
+                          }} />
+                          {/* Small NEW badge inside image */}
+                          {product.isNew && (
+                            <span style={{
+                              position: 'absolute', top: '8px', left: '8px',
+                              fontSize: '7px', fontWeight: 800, letterSpacing: '0.2em',
+                              textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif",
+                              background: 'var(--theme-primary)', color: '#000',
+                              padding: '3px 7px', borderRadius: '99px',
+                            }}>NEW</span>
+                          )}
                         </div>
                         
-                        {/* Minimal Info */}
+                        {/* Brand */}
                         <p 
-                          className="text-[11px] font-medium truncate"
                           style={{ 
-                            color: 'rgba(255,255,255,0.7)',
-                            marginBottom: '4px',
-                            letterSpacing: '-0.01em'
+                            fontSize: '8px', fontWeight: 700, letterSpacing: '0.22em',
+                            textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
+                            fontFamily: "'Satoshi','Inter',sans-serif",
+                            marginBottom: '3px',
                           }}
+                        >
+                          {product.brand}
+                        </p>
+                        {/* Product name — Cormorant */}
+                        <p 
+                          style={{ 
+                            fontSize: '13px', fontWeight: 300, fontStyle: 'italic',
+                            fontFamily: "'Cormorant Garamond', Georgia, serif",
+                            color: 'rgba(255,255,255,0.85)',
+                            marginBottom: '4px',
+                            lineHeight: 1.2,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          } as React.CSSProperties}
                         >
                           {product.name}
                         </p>
+                        {/* Price */}
                         <p 
-                          className="text-[13px] font-semibold"
                           style={{ 
+                            fontSize: '13px', fontWeight: 700, letterSpacing: '-0.02em',
                             color: 'rgba(255,255,255,0.95)',
                             fontFeatureSettings: "'tnum'",
-                            letterSpacing: '-0.01em'
+                            fontFamily: "'Satoshi','Inter',sans-serif",
                           }}
                         >
                           {formatPrice(product.price)}
@@ -1298,9 +1359,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         <div
           className="fixed left-0 right-0 z-[90]"
           style={{
-            bottom: '88px',
-            padding: '10px 16px',
-            background: 'linear-gradient(to top, #0A0A0A 65%, transparent)',
+            bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))',
+            padding: '12px 16px',
+            background: 'linear-gradient(to top, #0A0A0A 70%, transparent)',
           }}
         >
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
