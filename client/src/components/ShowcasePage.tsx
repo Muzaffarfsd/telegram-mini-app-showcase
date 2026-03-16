@@ -3,9 +3,8 @@ import { useCallback, useState, useEffect, useRef, useMemo } from "react";
 import { m, AnimatePresence, useInView, useScroll, useTransform } from '@/utils/LazyMotionProvider';
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
-import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
 import { useViewedDemos } from '../hooks/useTelegramStorage';
-import { FavoriteButton } from './FavoriteButton';
+
 import { useLanguage } from '../contexts/LanguageContext';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from './PullToRefreshIndicator';
@@ -81,7 +80,6 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   const haptic = useHaptic();
   const { t, language } = useLanguage();
   const ru = language === 'ru';
-  const { videoRef } = useVideoLazyLoad({ threshold: 0.25 });
   const { markAsViewed } = useViewedDemos();
   const queryClient = useQueryClient();
 
@@ -116,11 +114,27 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
-  const cases = useMemo(() => [
-    { id: 'luxury-watches', vid: true, src: "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4", label: 'TimeElite', sub: ru ? 'Роскошь на запястье' : 'Luxury on your wrist', growth: '+340%' },
-    { id: 'sneaker-store', vid: false, src: nikeGreenImage, label: 'SneakerVault', sub: ru ? 'Культ кроссовок' : 'Sneaker culture', growth: '+280%' },
-    { id: 'clothing-store', vid: false, src: rascalImage, label: 'Rascal', sub: ru ? 'Уличная мода' : 'Street fashion', growth: '+195%' },
+  const stackCards = useMemo(() => [
+    { id: 'luxury-perfume', src: '/screenshots/fragrance-app.png', label: 'FragranceRoyale', sub: ru ? 'Премиальная парфюмерия' : 'Premium Fragrances', growth: '+310%' },
+    { id: 'florist', src: '/screenshots/florist-app.png', label: 'Bloom', sub: ru ? 'Цветочный магазин' : 'Flower Shop', growth: '+240%' },
+    { id: 'sneaker-store', src: nikeGreenImage, label: 'SneakerVault', sub: ru ? 'Культ кроссовок' : 'Sneaker culture', growth: '+280%' },
+    { id: 'clothing-store', src: rascalImage, label: 'Radiance', sub: ru ? 'Уличная мода' : 'Street fashion', growth: '+195%' },
+    { id: 'luxury-watches', src: nikeGreenImage, label: 'TimeElite', sub: ru ? 'Роскошь на запястье' : 'Luxury on your wrist', growth: '+340%' },
   ], [ru]);
+
+  const [stackIdx, setStackIdx] = useState(0);
+  const visibleCards = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < 3; i++) {
+      result.push(stackCards[(stackIdx + i) % stackCards.length]);
+    }
+    return result;
+  }, [stackIdx, stackCards]);
+
+  const handleStackNext = useCallback(() => {
+    haptic.light();
+    setStackIdx(i => (i + 1) % stackCards.length);
+  }, [haptic, stackCards.length]);
 
   return (
     <div className="min-h-screen select-none overflow-x-hidden showcase-page" style={{ backgroundColor: '#050505' }}>
@@ -280,9 +294,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </m.div>
           </div>
 
-          {/* ═══════ REEL — case studies ═══════ */}
-          <section className="py-16" aria-label={ru ? 'Кейсы' : 'Case studies'}>
-            <Cin className="px-6 mb-6">
+          {/* ═══════ REEL — animated card stack ═══════ */}
+          <section className="py-16 px-6" aria-label={ru ? 'Наши работы' : 'Our work'}>
+            <Cin className="mb-6">
               <div className="flex items-end justify-between">
                 <div>
                   <h2 style={{
@@ -295,7 +309,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)',
                     color: 'rgba(255,255,255,0.45)',
                   }}>
-                    {ru ? 'Каждый проект — рост продаж от 195%' : 'Every project — 195%+ sales growth'}
+                    {ru ? 'Нажмите на карточку чтобы открыть' : 'Tap a card to explore'}
                   </p>
                 </div>
                 <button onClick={() => nav('projects')} className="flex items-center gap-0.5 active:opacity-50 transition-opacity pb-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2 rounded">
@@ -307,57 +321,121 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               </div>
             </Cin>
 
-            <div className="overflow-x-auto scrollbar-hide">
-              <div className="flex gap-4 px-6" style={{ width: 'max-content', paddingRight: 24 }}>
-                {cases.map((c, i) => (
-                  <Cin key={c.id} delay={i * 0.1}>
-                    <article
-                      className="relative flex-shrink-0 rounded-3xl overflow-hidden group cursor-pointer transition-transform duration-500 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
-                      style={{ width: 280, height: 400 }}
-                      role="button" tabIndex={0}
-                      aria-label={`${ru ? 'Открыть' : 'Open'} ${c.label}`}
-                      onClick={() => openDemo(c.id)}
-                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDemo(c.id); } }}
-                    >
-                      {c.vid ? (
-                        <video ref={i === 0 ? videoRef : undefined} src={c.src} loop muted playsInline autoPlay
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-110"
-                          style={{ filter: 'brightness(0.4) saturate(0.6)' }} />
-                      ) : (
-                        <img src={c.src} alt={c.label} loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-110"
-                          style={{ filter: 'brightness(0.4) saturate(0.6)' }} />
-                      )}
+            <Cin delay={0.1}>
+              <div className="relative" style={{ height: 420 }}>
+                <div className="relative w-full overflow-hidden" style={{ height: 380 }}>
+                  <AnimatePresence initial={false}>
+                    {visibleCards.map((card, index) => {
+                      const scales = [1, 0.94, 0.88];
+                      const yPositions = [0, -20, -40];
+                      const zIndexes = [3, 2, 1];
 
-                      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 20%, rgba(5,5,5,0.95) 100%)' }} />
+                      return (
+                        <m.div
+                          key={`${card.id}-${stackIdx}-${index}`}
+                          initial={index === 2 ? { y: -40, scale: 0.88, opacity: 0 } : undefined}
+                          animate={{
+                            y: yPositions[index],
+                            scale: scales[index],
+                            opacity: index === 2 ? 0.6 : 1,
+                          }}
+                          exit={index === 0 ? { y: 380, scale: 1, opacity: 0 } : undefined}
+                          transition={{ type: 'spring', duration: 0.7, bounce: 0 }}
+                          style={{
+                            zIndex: zIndexes[index],
+                            position: 'absolute',
+                            left: '50%',
+                            bottom: 0,
+                            transform: 'translateX(-50%)',
+                            width: '100%',
+                            maxWidth: 400,
+                            marginLeft: 'auto',
+                            marginRight: 'auto',
+                            x: '-50%',
+                          }}
+                          className="will-change-transform"
+                        >
+                          <article
+                            className="relative overflow-hidden rounded-2xl cursor-pointer group active:scale-[0.98] transition-transform duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+                            style={{
+                              height: 320,
+                              background: 'rgba(255,255,255,0.03)',
+                              border: '1px solid rgba(255,255,255,0.06)',
+                            }}
+                            role="button"
+                            tabIndex={index === 0 ? 0 : -1}
+                            aria-label={`${ru ? 'Открыть' : 'Open'} ${card.label}`}
+                            onClick={() => {
+                              if (index === 0) openDemo(card.id);
+                            }}
+                            onKeyDown={e => {
+                              if (index === 0 && (e.key === 'Enter' || e.key === ' ')) {
+                                e.preventDefault();
+                                openDemo(card.id);
+                              }
+                            }}
+                          >
+                            <div className="overflow-hidden rounded-xl m-1.5" style={{ height: 220 }}>
+                              <img
+                                src={card.src}
+                                alt={card.label}
+                                loading="lazy"
+                                className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                              />
+                            </div>
 
-                      <div className="absolute top-4 right-4 z-10" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
-                        <FavoriteButton demoId={c.id} size="md" />
-                      </div>
+                            <div className="flex items-center justify-between px-4 pb-4 pt-2">
+                              <div className="min-w-0 flex-1">
+                                <h3 style={{
+                                  fontFamily: SYNE, fontSize: 'clamp(0.875rem, 2.2vw, 1rem)',
+                                  fontWeight: 700, color: '#fff', letterSpacing: '-0.03em',
+                                }}>{card.label}</h3>
+                                <p style={{
+                                  fontFamily: INTER, fontSize: 'clamp(0.65rem, 1.4vw, 0.75rem)',
+                                  color: 'rgba(255,255,255,0.45)',
+                                }}>{card.sub}</p>
+                              </div>
 
-                      {/* Growth badge */}
-                      <div className="absolute top-4 left-4">
-                        <span className="inline-block rounded-full px-2.5 py-1" style={{
-                          background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)',
-                          fontFamily: SYNE, fontSize: '0.6875rem', fontWeight: 700, color: EMERALD,
-                        }}>{c.growth}</span>
-                      </div>
+                              <div className="flex items-center gap-2">
+                                <span className="inline-block rounded-full px-2 py-0.5" style={{
+                                  background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.15)',
+                                  fontFamily: SYNE, fontSize: '0.625rem', fontWeight: 700, color: EMERALD,
+                                }}>{card.growth}</span>
 
-                      <div className="absolute bottom-0 left-0 right-0 p-5">
-                        <h3 style={{
-                          fontFamily: SYNE, fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
-                          fontWeight: 800, color: '#fff', letterSpacing: '-0.04em',
-                        }}>{c.label}</h3>
-                        <p className="mt-1" style={{
-                          fontFamily: INSTRUMENT, fontSize: 'clamp(0.8rem, 2vw, 0.9375rem)',
-                          fontStyle: 'italic', color: 'rgba(255,255,255,0.4)',
-                        }}>{c.sub}</p>
-                      </div>
-                    </article>
-                  </Cin>
-                ))}
+                                {index === 0 && (
+                                  <div className="flex items-center justify-center w-8 h-8 rounded-full" style={{ background: '#fff' }}>
+                                    <ArrowUpRight className="w-3.5 h-3.5 text-black" strokeWidth={2.5} />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </article>
+                        </m.div>
+                      );
+                    })}
+                  </AnimatePresence>
+                </div>
+
+                <div className="relative z-10 flex items-center justify-center mt-3">
+                  <button
+                    onClick={handleStackNext}
+                    className="flex items-center gap-1.5 rounded-full px-4 py-2 transition-all duration-300 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2"
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                    }}
+                    aria-label={ru ? 'Следующий проект' : 'Next project'}
+                  >
+                    <span style={{
+                      fontFamily: SYNE, fontSize: '0.6875rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)',
+                    }}>
+                      {ru ? 'Листать' : 'Next'}
+                    </span>
+                    <ChevronRight className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
+                  </button>
+                </div>
               </div>
-            </div>
+            </Cin>
           </section>
 
           {/* ═══════ BIG NUMBERS — cinematic metrics ═══════ */}
