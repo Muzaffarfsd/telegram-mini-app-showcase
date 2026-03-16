@@ -491,6 +491,8 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const [activeProductTab, setActiveProductTab] = useState<'specs' | 'heritage' | 'reviews'>('specs');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [catalogSearch, setCatalogSearch] = useState('');
+  const [showCatalogSearch, setShowCatalogSearch] = useState(false);
 
   const productScrollRef = useRef<HTMLDivElement>(null);
   const heroImageRef = useRef<HTMLDivElement>(null);
@@ -569,6 +571,11 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
     if (activeTab === 'home') {
       const brandMatch = selectedBrand === 'All' || p.brand === selectedBrand;
       return categoryMatch && brandMatch;
+    }
+    if (activeTab === 'catalog') {
+      const q = catalogSearch.trim().toLowerCase();
+      const searchMatch = q === '' || p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
+      return categoryMatch && searchMatch;
     }
     return categoryMatch;
   });
@@ -1878,18 +1885,57 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
                 </h1>
               </div>
               <div className="flex items-center gap-2">
-                <button className="w-10 h-10 flex items-center justify-center rounded-full"
-                  style={{ background: 'rgba(255,255,255,0.06)' }}
+                <button
+                  onClick={() => { setShowCatalogSearch(s => !s); if (showCatalogSearch) setCatalogSearch(''); }}
+                  className="w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95"
+                  style={{
+                    background: showCatalogSearch ? '#D4AF37' : 'rgba(255,255,255,0.07)',
+                    border: showCatalogSearch ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
+                  }}
                   aria-label="Поиск" data-testid="button-view-search">
-                  <Search className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.5)' }} />
+                  <Search className="w-4 h-4" style={{ color: showCatalogSearch ? '#000' : 'rgba(255,255,255,0.7)' }} />
                 </button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-full"
-                  style={{ background: 'rgba(255,255,255,0.06)' }}
+                <button
+                  onClick={() => setSelectedCategory(selectedCategory === 'Все' ? categories[1] || 'Все' : 'Все')}
+                  className="w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-95"
+                  style={{
+                    background: selectedCategory !== 'Все' ? '#D4AF37' : 'rgba(255,255,255,0.07)',
+                    border: selectedCategory !== 'Все' ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
+                  }}
                   aria-label="Фильтр" data-testid="button-view-filter">
-                  <Filter className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.5)' }} />
+                  <Filter className="w-4 h-4" style={{ color: selectedCategory !== 'Все' ? '#000' : 'rgba(255,255,255,0.7)' }} />
                 </button>
               </div>
             </div>
+
+            <AnimatePresence>
+              {showCatalogSearch && (
+                <m.div
+                  initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  animate={{ opacity: 1, height: 44, marginBottom: 12 }}
+                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                  style={{ overflow: 'hidden' }}
+                >
+                  <div className="relative">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(255,255,255,0.35)' }} />
+                    <input
+                      autoFocus
+                      value={catalogSearch}
+                      onChange={e => setCatalogSearch(e.target.value)}
+                      placeholder="Поиск по названию или бренду…"
+                      className="w-full h-11 rounded-2xl pl-10 pr-4 text-[13px] outline-none"
+                      style={{
+                        background: 'rgba(255,255,255,0.07)',
+                        border: '0.5px solid rgba(255,255,255,0.12)',
+                        color: 'rgba(255,255,255,0.9)',
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                      }}
+                    />
+                  </div>
+                </m.div>
+              )}
+            </AnimatePresence>
 
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {categories.map((cat) => {
@@ -2091,10 +2137,10 @@ function TimeElite({ activeTab, onTabChange }: TimeEliteProps) {
                 Ничего не найдено
               </p>
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.38)', fontFamily: "'Inter', system-ui, sans-serif", lineHeight: 1.6, marginBottom: '20px' }}>
-                Попробуйте изменить фильтры
+                {catalogSearch ? `По запросу «${catalogSearch}» моделей не найдено` : 'Попробуйте изменить фильтры'}
               </p>
               <button
-                onClick={() => { setSelectedCategory('Все'); }}
+                onClick={() => { setSelectedCategory('Все'); setCatalogSearch(''); setShowCatalogSearch(false); }}
                 className="px-6 py-2.5 rounded-full text-[12px] font-bold tracking-[0.05em] transition-all active:scale-95"
                 style={{ background: '#D4AF37', color: '#000', fontFamily: "'Inter', system-ui, sans-serif" }}
               >

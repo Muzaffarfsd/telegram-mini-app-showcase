@@ -261,6 +261,8 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
   const [productExiting, setProductExiting] = useState(false);
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const [activeProductTab, setActiveProductTab] = useState<'sneaker' | 'tech' | 'reviews'>('sneaker');
+  const [catalogSearch, setCatalogSearch] = useState('');
+  const [showCatalogSearch, setShowCatalogSearch] = useState(false);
 
   const productScrollRef = useRef<HTMLDivElement>(null);
   const heroImageRef = useRef<HTMLDivElement>(null);
@@ -342,6 +344,11 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
     if (activeTab === 'home') {
       const genderMatch = selectedGender === 'All' || s.gender === selectedGender;
       return categoryMatch && genderMatch;
+    }
+    if (activeTab === 'catalog') {
+      const q = catalogSearch.trim().toLowerCase();
+      const searchMatch = q === '' || s.name.toLowerCase().includes(q) || s.brand.toLowerCase().includes(q);
+      return categoryMatch && searchMatch;
     }
     
     return categoryMatch;
@@ -1533,6 +1540,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
   }
 
   if (activeTab === 'catalog') {
+    const accentCat = '#f97316';
     return (
       <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="px-5 pt-5 pb-3">
@@ -1551,23 +1559,60 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
             </div>
             <div className="flex items-center gap-2">
               <button
+                onClick={() => { setShowCatalogSearch(s => !s); if (showCatalogSearch) setCatalogSearch(''); }}
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
-                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+                style={{
+                  background: showCatalogSearch ? accentCat : 'rgba(255,255,255,0.07)',
+                  border: showCatalogSearch ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
+                }}
                 aria-label="Поиск"
                 data-testid="button-view-search"
               >
-                <Search className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.7)' }} />
+                <Search className="w-4 h-4" style={{ color: showCatalogSearch ? '#000' : 'rgba(255,255,255,0.7)' }} />
               </button>
               <button
+                onClick={() => setSelectedCategory(selectedCategory === 'Все' ? categories[1] || 'Все' : 'Все')}
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
-                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+                style={{
+                  background: selectedCategory !== 'Все' ? accentCat : 'rgba(255,255,255,0.07)',
+                  border: selectedCategory !== 'Все' ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
+                }}
                 aria-label="Фильтры"
                 data-testid="button-view-filter"
               >
-                <Filter className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.7)' }} />
+                <Filter className="w-4 h-4" style={{ color: selectedCategory !== 'Все' ? '#000' : 'rgba(255,255,255,0.7)' }} />
               </button>
             </div>
           </div>
+
+          <AnimatePresence>
+            {showCatalogSearch && (
+              <m.div
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: 44, marginBottom: 12 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(255,255,255,0.35)' }} />
+                  <input
+                    autoFocus
+                    value={catalogSearch}
+                    onChange={e => setCatalogSearch(e.target.value)}
+                    placeholder="Поиск по названию или бренду…"
+                    className="w-full h-11 rounded-2xl pl-10 pr-4 text-[13px] outline-none"
+                    style={{
+                      background: 'rgba(255,255,255,0.07)',
+                      border: '0.5px solid rgba(255,255,255,0.12)',
+                      color: 'rgba(255,255,255,0.9)',
+                      fontFamily: "'Inter', system-ui, sans-serif",
+                    }}
+                  />
+                </div>
+              </m.div>
+            )}
+          </AnimatePresence>
 
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map((cat) => {
@@ -1581,7 +1626,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
                     padding: '8px 16px', borderRadius: '20px',
                     fontSize: '11px', fontWeight: active ? 700 : 500,
                     letterSpacing: '0.04em', fontFamily: "'Inter', system-ui, sans-serif",
-                    background: active ? '#f97316' : 'rgba(255,255,255,0.06)',
+                    background: active ? accentCat : 'rgba(255,255,255,0.06)',
                     color: active ? '#000' : 'rgba(255,255,255,0.6)',
                     border: active ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
                   }}
@@ -1593,81 +1638,200 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
               );
             })}
           </div>
+
+          <p className="mt-3 text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: "'Inter', system-ui, sans-serif" }}>
+            {filteredSneakers.length} {filteredSneakers.length === 1 ? 'модель' : filteredSneakers.length < 5 ? 'модели' : 'моделей'}
+          </p>
         </div>
 
-        <div className="px-5">
-          <div className="grid grid-cols-2 gap-3">
-            {filteredSneakers.map((sneaker) => (
-              <m.div
-                key={sneaker.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => openSneaker(sneaker)}
-                className="cursor-pointer"
-                data-testid={`sneaker-card-${sneaker.id}`}
-              >
-                <div className="relative rounded-[18px] overflow-hidden mb-2.5"
-                  style={{ height: '210px' }}>
-                  <LazyImage src={sneaker.image} alt={sneaker.name} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+        <div className="px-4 space-y-3 pb-2">
+          {(() => {
+            const rows: React.ReactNode[] = [];
+            let i = 0;
+            let groupIdx = 0;
+            while (i < filteredSneakers.length) {
+              const featured = filteredSneakers[i];
+              const discountFeatured = featured.oldPrice ? Math.round((1 - featured.price / featured.oldPrice) * 100) : 0;
+              rows.push(
+                <m.div
+                  key={`featured-${featured.id}`}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: groupIdx * 0.1 }}
+                  whileTap={{ scale: 0.985 }}
+                  onClick={() => openSneaker(featured)}
+                  className="relative cursor-pointer rounded-[20px] overflow-hidden"
+                  style={{ height: '280px' }}
+                  data-testid={`sneaker-card-${featured.id}`}
+                >
+                  <LazyImage src={featured.image} alt={featured.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-                  <div className="absolute top-2 right-2">
+                  <div className="absolute top-3.5 left-3.5 flex gap-1.5">
+                    {featured.isNew && (
+                      <span className="px-2 py-1 text-[9px] font-black rounded-full tracking-[0.08em] uppercase text-black"
+                        style={{ background: accentCat }}>NEW</span>
+                    )}
+                  </div>
+
+                  <div className="absolute top-3.5 right-3.5">
                     <button
-                      onClick={(e) => { e.stopPropagation(); handleToggleFavorite(sneaker.id); }}
-                      className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                      style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
-                      aria-label={isFavorite(String(sneaker.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                      data-testid={`button-favorite-${sneaker.id}`}
+                      onClick={(e) => { e.stopPropagation(); handleToggleFavorite(featured.id); }}
+                      aria-label="Избранное"
+                      className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                      style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
+                      data-testid={`button-favorite-catalog-${featured.id}`}
                     >
-                      <Heart className={`w-3 h-3 ${isFavorite(String(sneaker.id)) ? 'fill-white' : ''} text-white`} />
+                      <Heart className={`w-3.5 h-3.5 ${isFavorite(String(featured.id)) ? 'fill-white' : ''} text-white`} />
                     </button>
                   </div>
 
-                  {sneaker.isNew && (
-                    <div className="absolute top-2 left-2">
-                      <span className="px-2 py-1 text-[9px] font-black rounded-full tracking-[0.08em] uppercase text-black"
-                        style={{ background: '#f97316' }}>NEW</span>
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="flex items-end justify-between">
+                      <div className="flex-1 mr-3">
+                        <p className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-1" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                          {featured.brand}
+                        </p>
+                        <p style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.01em', fontFamily: "'Montserrat', system-ui, sans-serif", lineHeight: 1.15 }}>
+                          {featured.name}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-base font-bold" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                          {formatPrice(featured.price)}
+                        </p>
+                        {featured.oldPrice && (
+                          <p className="text-[10px] line-through" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                            {formatPrice(featured.oldPrice)}
+                          </p>
+                        )}
+                        {discountFeatured > 0 && (
+                          <span className="inline-block text-[9px] font-black text-black mt-1 px-1.5 py-0.5 rounded-md" style={{ background: accentCat, fontFamily: "'Inter', system-ui, sans-serif" }}>
+                            −{discountFeatured}%
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  )}
-
-                  {sneaker.oldPrice && (
-                    <div className="absolute bottom-2 left-2">
-                      <span className="px-1.5 py-0.5 text-[9px] font-black rounded-md text-black"
-                        style={{ background: '#f97316', fontFamily: "'Inter', system-ui, sans-serif" }}>
-                        −{Math.round((1 - sneaker.price / sneaker.oldPrice) * 100)}%
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <p className="text-[8px] font-semibold tracking-[0.22em] uppercase mb-0.5 truncate"
-                    style={{ color: 'rgba(255,255,255,0.38)', fontFamily: "'Inter', system-ui, sans-serif" }}>
-                    {sneaker.brand}
-                  </p>
-                  <p style={{ fontSize: '13px', fontWeight: 700, lineHeight: 1.2, marginBottom: '4px', fontFamily: "'Montserrat', system-ui, sans-serif", color: 'rgba(255,255,255,0.9)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' } as React.CSSProperties}>
-                    {sneaker.name}
-                  </p>
-                  <div className="flex items-baseline gap-1.5 mb-1">
-                    <span className="text-[13px] font-bold" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em', fontFamily: "'Inter', system-ui, sans-serif" }}>
-                      {formatPrice(sneaker.price)}
-                    </span>
-                    {sneaker.oldPrice && (
-                      <span className="text-[10px] line-through" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: "'Inter', system-ui, sans-serif" }}>
-                        {formatPrice(sneaker.oldPrice)}
-                      </span>
-                    )}
                   </div>
-                  <div className="flex items-center gap-0.5">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <div key={star} className="w-1.5 h-1.5 rounded-full"
-                        style={{ background: star <= Math.round(sneaker.rating) ? '#f97316' : 'rgba(255,255,255,0.15)' }} />
-                    ))}
+                </m.div>
+              );
+              i++;
+
+              const pair = filteredSneakers.slice(i, i + 2);
+              if (pair.length > 0) {
+                rows.push(
+                  <div key={`pair-${groupIdx}`} className="grid grid-cols-2 gap-3">
+                    {pair.map((sneaker, colIdx) => {
+                      const discountPair = sneaker.oldPrice ? Math.round((1 - sneaker.price / sneaker.oldPrice) * 100) : 0;
+                      return (
+                        <m.div
+                          key={sneaker.id}
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: groupIdx * 0.1 + 0.04 + colIdx * 0.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => openSneaker(sneaker)}
+                          className="cursor-pointer"
+                          data-testid={`sneaker-card-${sneaker.id}`}
+                        >
+                          <div className="relative rounded-[18px] overflow-hidden mb-2.5"
+                            style={{ height: colIdx === 0 ? '210px' : '178px' }}>
+                            <LazyImage src={sneaker.image} alt={sneaker.name} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+
+                            <div className="absolute top-2 right-2">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleToggleFavorite(sneaker.id); }}
+                                aria-label="Избранное"
+                                className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                                style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
+                                data-testid={`button-favorite-catalog-${sneaker.id}`}
+                              >
+                                <Heart className={`w-3 h-3 ${isFavorite(String(sneaker.id)) ? 'fill-white' : ''} text-white`} />
+                              </button>
+                            </div>
+
+                            {sneaker.isNew && (
+                              <div className="absolute top-2 left-2">
+                                <span className="px-2 py-1 text-[9px] font-black rounded-full tracking-[0.08em] uppercase text-black"
+                                  style={{ background: accentCat }}>NEW</span>
+                              </div>
+                            )}
+
+                            {discountPair > 0 && (
+                              <div className="absolute bottom-2 left-2">
+                                <span className="px-1.5 py-0.5 text-[9px] font-black rounded-md text-black"
+                                  style={{ background: accentCat, fontFamily: "'Inter', system-ui, sans-serif" }}>
+                                  −{discountPair}%
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <p className="text-[8px] font-semibold tracking-[0.22em] uppercase mb-0.5 truncate"
+                              style={{ color: 'rgba(255,255,255,0.38)', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                              {sneaker.brand}
+                            </p>
+                            <p style={{ fontSize: '13px', fontWeight: 700, lineHeight: 1.2, marginBottom: '4px', fontFamily: "'Montserrat', system-ui, sans-serif", color: 'rgba(255,255,255,0.9)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' } as React.CSSProperties}>
+                              {sneaker.name}
+                            </p>
+                            <div className="flex items-baseline gap-1.5 mb-1">
+                              <span className="text-[13px] font-bold" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                                {formatPrice(sneaker.price)}
+                              </span>
+                              {sneaker.oldPrice && (
+                                <span className="text-[10px] line-through" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                                  {formatPrice(sneaker.oldPrice)}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-0.5">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <div key={star} className="w-1.5 h-1.5 rounded-full"
+                                  style={{ background: star <= Math.round(sneaker.rating) ? accentCat : 'rgba(255,255,255,0.15)' }} />
+                              ))}
+                            </div>
+                          </div>
+                        </m.div>
+                      );
+                    })}
                   </div>
-                </div>
-              </m.div>
-            ))}
-          </div>
+                );
+                i += pair.length;
+              }
+              groupIdx++;
+            }
+            return rows;
+          })()}
         </div>
+
+        {filteredSneakers.length === 0 && (
+          <m.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+            className="flex flex-col items-center justify-center py-20 px-8 text-center"
+          >
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
+              style={{ background: 'rgba(249,115,22,0.1)', border: '0.5px solid rgba(249,115,22,0.25)' }}>
+              <Search className="w-6 h-6" style={{ color: accentCat }} />
+            </div>
+            <p style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '-0.02em', fontFamily: "'Montserrat', system-ui, sans-serif", marginBottom: '8px', color: 'rgba(255,255,255,0.85)' }}>
+              Ничего не найдено
+            </p>
+            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.38)', fontFamily: "'Inter', system-ui, sans-serif", lineHeight: 1.6, marginBottom: '20px' }}>
+              {catalogSearch ? `По запросу «${catalogSearch}» моделей не найдено` : 'Попробуйте изменить фильтры'}
+            </p>
+            <button
+              onClick={() => { setSelectedCategory('Все'); setCatalogSearch(''); setShowCatalogSearch(false); }}
+              className="px-6 py-2.5 rounded-full text-[12px] font-bold tracking-[0.05em] transition-all active:scale-95"
+              style={{ background: accentCat, color: '#000', fontFamily: "'Inter', system-ui, sans-serif" }}
+            >
+              Сбросить фильтры
+            </button>
+          </m.div>
+        )}
       </div>
     );
   }
