@@ -2,6 +2,7 @@ import { memo, useMemo, useRef, useState, useEffect } from "react";
 import { demoApps } from "../data/demoApps";
 import { ArrowUpRight, ChevronRight } from "lucide-react";
 import { FavoritesSection } from "./FavoritesSection";
+import { FavoriteButton } from "./FavoriteButton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { VerticalImageStack, type VerticalImageItem } from "@/components/ui/vertical-image-stack";
 import { m, useInView } from "@/utils/LazyMotionProvider";
@@ -75,11 +76,10 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
     <Cin delay={index * 0.03}>
       <div
         onClick={handleCardClick}
-        className="group cursor-pointer rounded-2xl transition-all duration-300 active:scale-[0.97]"
+        className="group cursor-pointer rounded-2xl p-4 transition-all duration-300 active:scale-[0.97]"
         style={{
-          padding: '14px 16px',
-          background: 'transparent',
-          borderBottom: '1px solid rgba(255,255,255,0.04)',
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.04)',
         }}
         data-testid={`card-app-${app.id}`}
       >
@@ -93,7 +93,7 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
                 color: 'rgba(255,255,255,0.85)',
-                marginBottom: 2,
+                marginBottom: 3,
               }}
             >
               {app.title}
@@ -104,7 +104,7 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
                 fontFamily: INTER,
                 fontSize: '0.7rem',
                 lineHeight: '1.5',
-                color: 'rgba(255,255,255,0.3)',
+                color: 'rgba(255,255,255,0.35)',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -114,7 +114,27 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
             </p>
           </div>
 
-          <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.15)' }} strokeWidth={2} />
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <FavoriteButton demoId={app.id} size="md" />
+            <button
+              className="flex items-center gap-1.5 rounded-full px-3.5 py-2 transition-all duration-300 active:scale-[0.95]"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}
+              data-testid={`button-open-${app.id}`}
+            >
+              <span style={{
+                fontFamily: INTER,
+                fontSize: '0.7rem',
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.55)',
+              }}>
+                {t('projectsPage.open')}
+              </span>
+              <ArrowUpRight className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.35)' }} strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
       </div>
     </Cin>
