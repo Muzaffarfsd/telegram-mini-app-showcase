@@ -63,32 +63,22 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
         {/* Main content section - cards below robot */}
         <section className="relative px-4 pt-4 pb-16">
-          {/* iOS 26 Liquid Glass Hero Card */}
           <div 
             className="rounded-[28px] px-6 py-7 mb-5 relative overflow-hidden"
             style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
-              border: '0.5px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.08)'
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.06)'
             }}
           >
-            {/* Specular highlight */}
-            <div 
-              className="absolute top-0 left-0 right-0 h-[60%] pointer-events-none rounded-t-[28px]"
-              style={{
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)'
-              }}
-            />
             
             {/* Badge pill */}
             <div className="flex justify-center mb-5 relative">
               <span 
                 className="px-4 py-2 rounded-full text-[12px] font-semibold tracking-wide"
                 style={{
-                  background: 'rgba(255,255,255,0.08)',
+                  background: 'rgba(255,255,255,0.06)',
                   color: 'rgba(255,255,255,0.85)',
-                  border: '0.5px solid rgba(255,255,255,0.08)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.15)'
+                  border: '1px solid rgba(255,255,255,0.06)'
                 }}
               >
                 ✦ AI Powered
@@ -140,7 +130,6 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
             </p>
           </div>
 
-          {/* CTA Button - iOS 26 Liquid Glass floating button */}
           <div className="flex items-center gap-2 mb-5">
             <a
               href="https://t.me/web4tgs"
@@ -148,12 +137,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-2.5 rounded-[16px] transition-all duration-300 active:scale-[0.98]"
               style={{ 
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)',
+                background: 'rgba(255,255,255,0.05)',
                 height: '54px',
                 paddingLeft: '20px',
                 paddingRight: '16px',
-                border: '0.5px solid rgba(255,255,255,0.1)',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.1)'
+                border: '1px solid rgba(255,255,255,0.08)'
               }}
             >
               <MessageSquare className="w-[18px] h-[18px] text-white/90 flex-shrink-0" />
@@ -169,7 +157,6 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
             </a>
           </div>
 
-          {/* Stats row - iOS 26 Liquid Glass floating cards */}
           <div className="grid grid-cols-3 gap-2.5 mb-6">
             {[
               { value: '900M+', label: t('aiProcess.stats.users') },
@@ -180,9 +167,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 key={i}
                 className="py-4 px-2 rounded-[14px] text-center relative overflow-hidden"
                 style={{ 
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
-                  border: '0.5px solid rgba(255,255,255,0.06)',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.1)'
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.06)'
                 }}
               >
                 <span 
@@ -289,9 +275,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[20px] p-6 space-y-4"
             style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-              border: '0.5px solid rgba(255,255,255,0.08)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.06)'
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.06)'
             }}
           >
             <BenefitItemPremium text={t('aiProcess.benefits.benefit1')} />
@@ -343,18 +328,10 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[20px] p-6 text-center relative overflow-hidden"
             style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
-              border: '0.5px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.08)'
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.06)'
             }}
           >
-            {/* Specular highlight */}
-            <div 
-              className="absolute top-0 left-0 right-0 h-[50%] pointer-events-none rounded-t-[20px]"
-              style={{
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)'
-              }}
-            />
             
             <div className="relative z-10">
               <h3 
@@ -390,9 +367,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 style={{
                   fontSize: '16px',
                   letterSpacing: '-0.01em',
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)',
+                  background: 'rgba(255,255,255,0.9)',
                   color: '#000000',
-                  boxShadow: '0 4px 20px rgba(255,255,255,0.2)',
                   border: 'none',
                   fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
                 }}
@@ -478,9 +454,8 @@ const ProcessStepPremium = memo(({
   <div 
     className="rounded-[20px] p-5 relative overflow-hidden group active:scale-[0.98]"
     style={{
-      background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-      border: '0.5px solid rgba(255,255,255,0.08)',
-      boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.06)',
+      background: 'rgba(255,255,255,0.03)',
+      border: '1px solid rgba(255,255,255,0.06)',
       transition: 'transform 0.2s ease'
     }}
   >
@@ -515,11 +490,11 @@ const ProcessStepPremium = memo(({
           <div 
             className="px-2.5 py-1 rounded-full shrink-0"
             style={{
-              background: 'rgba(255,255,255,0.08)',
+              background: 'rgba(255,255,255,0.06)',
               fontSize: '12px',
               color: 'rgba(255,255,255,0.6)',
               fontWeight: 500,
-              border: '0.5px solid rgba(255,255,255,0.05)'
+              border: '1px solid rgba(255,255,255,0.06)'
             }}
           >
             {duration}
@@ -602,9 +577,8 @@ const WhyFeatureCard = memo(({
   <div 
     className="rounded-[20px] p-5 active:scale-[0.98]"
     style={{
-      background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-      border: '0.5px solid rgba(255,255,255,0.08)',
-      boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.06)',
+      background: 'rgba(255,255,255,0.03)',
+      border: '1px solid rgba(255,255,255,0.06)',
       transition: 'transform 0.2s ease'
     }}
   >
