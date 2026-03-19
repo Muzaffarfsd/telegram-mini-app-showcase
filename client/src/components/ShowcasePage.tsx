@@ -241,8 +241,8 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 transition={{ duration: 0.7, ease: EASE, delay: 0.9 }}
                 className="mt-6 max-w-xs"
                 style={{
-                  fontFamily: INTER, fontSize: 'clamp(0.8rem, 2vw, 0.9375rem)',
-                  lineHeight: 1.7, color: 'rgba(255,255,255,0.5)', fontWeight: 400,
+                  fontFamily: INTER, fontSize: 'clamp(0.85rem, 2.2vw, 1rem)',
+                  lineHeight: 1.7, color: 'rgba(255,255,255,0.75)', fontWeight: 400,
                 }}
               >
                 {ru
