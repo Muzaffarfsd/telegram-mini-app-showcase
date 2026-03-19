@@ -95,52 +95,91 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
     <Cin delay={index * 0.04}>
       <div
         onClick={handleCardClick}
-        className="app-card group cursor-pointer overflow-hidden transition-all duration-500 active:scale-[0.97]"
+        className="app-card group cursor-pointer overflow-hidden transition-all duration-600 active:scale-[0.97]"
         style={{
           position: 'relative',
-          borderRadius: 22,
+          borderRadius: 24,
         }}
         data-testid={`card-app-${app.id}`}
       >
-        <div className="absolute inset-0 pointer-events-none" style={{
+        <div className="app-card-glass absolute inset-0 pointer-events-none" style={{
           borderRadius: 'inherit',
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015))',
-          border: '1px solid rgba(255,255,255,0.07)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05)',
+          background: `linear-gradient(
+            165deg,
+            rgba(255,255,255,0.09) 0%,
+            rgba(255,255,255,0.04) 30%,
+            rgba(255,255,255,0.02) 60%,
+            rgba(255,255,255,0.06) 100%
+          )`,
+          backdropFilter: 'blur(24px) saturate(1.4)',
+          WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: `
+            0 1px 0 rgba(255,255,255,0.07) inset,
+            0 -1px 0 rgba(255,255,255,0.02) inset,
+            1px 0 0 rgba(255,255,255,0.04) inset,
+            -1px 0 0 rgba(255,255,255,0.04) inset,
+            0 12px 40px -8px rgba(0,0,0,0.35),
+            0 4px 12px -2px rgba(0,0,0,0.15)
+          `,
+          transition: 'all 0.6s cubic-bezier(0.22,1,0.36,1)',
         }} />
 
         <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ borderRadius: 'inherit' }}>
+          <div className="app-card-refraction" style={{
+            position: 'absolute',
+            top: '-50%', left: '-30%',
+            width: '80%', height: '150%',
+            background: `radial-gradient(ellipse, rgba(255,255,255,0.04) 0%, transparent 70%)`,
+            transform: 'rotate(-30deg)',
+            transition: 'transform 0.8s cubic-bezier(0.22,1,0.36,1), opacity 0.6s ease',
+          }} />
+
+          <div className="app-card-caustic" style={{
+            position: 'absolute',
+            bottom: '-30%', right: '-20%',
+            width: '60%', height: '80%',
+            background: `radial-gradient(ellipse, ${EMERALD}06 0%, transparent 60%)`,
+            filter: 'blur(30px)',
+            transition: 'opacity 0.6s ease',
+            opacity: 0.3,
+          }} />
+
           <div className="app-card-shine" style={{
             position: 'absolute',
-            top: 0, left: '-120%',
-            width: '60%', height: '100%',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.035) 50%, transparent 100%)',
-            transform: 'skewX(-20deg)',
-            transition: 'left 0.9s cubic-bezier(0.22,1,0.36,1)',
+            top: 0, left: '-130%',
+            width: '70%', height: '100%',
+            background: `linear-gradient(
+              90deg,
+              transparent 0%,
+              rgba(255,255,255,0.06) 35%,
+              rgba(255,255,255,0.02) 50%,
+              rgba(255,255,255,0.06) 65%,
+              transparent 100%
+            )`,
+            transform: 'skewX(-18deg)',
+            transition: 'left 1.1s cubic-bezier(0.22,1,0.36,1)',
           }} />
-          <div style={{
-            position: 'absolute',
-            bottom: -20, right: 30,
-            width: 80, height: 80,
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${EMERALD}08 0%, transparent 70%)`,
-            filter: 'blur(20px)',
-            transition: 'opacity 0.5s ease',
-            opacity: 0,
-          }} className="app-card-glow" />
         </div>
 
-        <div className="relative z-10 flex items-center gap-4" style={{ padding: '16px 18px' }}>
+        <div className="absolute inset-0 pointer-events-none" style={{
+          borderRadius: 'inherit',
+          background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.012'/%3E%3C/svg%3E")`,
+          opacity: 0.5,
+          mixBlendMode: 'overlay' as any,
+        }} />
+
+        <div className="relative z-10 flex items-center gap-4" style={{ padding: '18px 20px' }}>
           <div className="flex-1 min-w-0">
             <h3
               data-testid={`text-title-${app.id}`}
               style={{
                 fontFamily: SYNE,
-                fontSize: '0.875rem',
+                fontSize: '0.9rem',
                 fontWeight: 800,
                 letterSpacing: '-0.03em',
-                color: '#fff',
-                marginBottom: 3,
+                color: 'rgba(255,255,255,0.95)',
+                marginBottom: 4,
               }}
             >
               {app.title}
@@ -149,9 +188,9 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
               data-testid={`text-description-${app.id}`}
               style={{
                 fontFamily: INTER,
-                fontSize: '0.69rem',
-                lineHeight: '1.4',
-                color: 'rgba(255,255,255,0.38)',
+                fontSize: '0.7rem',
+                lineHeight: '1.45',
+                color: 'rgba(255,255,255,0.4)',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -165,26 +204,27 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
           <div className="flex items-center gap-2.5 flex-shrink-0">
             <FavoriteButton demoId={app.id} size="md" />
             <button
-              className="app-card-btn flex items-center gap-1.5 rounded-full transition-all duration-400 active:scale-[0.95]"
+              className="app-card-btn flex items-center gap-1.5 transition-all duration-500 active:scale-[0.95]"
               style={{
-                padding: '8px 14px',
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
-                border: '1px solid rgba(255,255,255,0.09)',
-                backdropFilter: 'blur(12px)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+                padding: '8px 16px',
+                borderRadius: 20,
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04))',
+                border: '1px solid rgba(255,255,255,0.12)',
+                backdropFilter: 'blur(16px)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.15)',
               }}
               data-testid={`button-open-${app.id}`}
             >
               <span style={{
                 fontFamily: INTER,
-                fontSize: '0.68rem',
+                fontSize: '0.7rem',
                 fontWeight: 600,
-                color: 'rgba(255,255,255,0.6)',
+                color: 'rgba(255,255,255,0.7)',
                 letterSpacing: '-0.01em',
               }}>
                 {t('projectsPage.open')}
               </span>
-              <ArrowUpRight className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.4)' }} strokeWidth={2.2} />
+              <ArrowUpRight className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.45)' }} strokeWidth={2.2} />
             </button>
           </div>
         </div>
@@ -446,15 +486,36 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
       </div>
 
       <style>{`
-        .app-card:hover .app-card-shine {
-          left: 130% !important;
+        .app-card:hover .app-card-glass {
+          background: linear-gradient(
+            165deg,
+            rgba(255,255,255,0.12) 0%,
+            rgba(255,255,255,0.06) 30%,
+            rgba(255,255,255,0.03) 60%,
+            rgba(255,255,255,0.08) 100%
+          ) !important;
+          border-color: rgba(255,255,255,0.14) !important;
+          box-shadow:
+            0 1px 0 rgba(255,255,255,0.1) inset,
+            0 -1px 0 rgba(255,255,255,0.03) inset,
+            1px 0 0 rgba(255,255,255,0.06) inset,
+            -1px 0 0 rgba(255,255,255,0.06) inset,
+            0 16px 48px -8px rgba(0,0,0,0.4),
+            0 6px 16px -2px rgba(0,0,0,0.2) !important;
         }
-        .app-card:hover .app-card-glow {
-          opacity: 1 !important;
+        .app-card:hover .app-card-refraction {
+          transform: rotate(-25deg) scale(1.1) !important;
+        }
+        .app-card:hover .app-card-caustic {
+          opacity: 0.7 !important;
+        }
+        .app-card:hover .app-card-shine {
+          left: 140% !important;
         }
         .app-card:hover .app-card-btn {
-          background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(52,211,153,0.06)) !important;
+          background: linear-gradient(135deg, rgba(52,211,153,0.14), rgba(52,211,153,0.05)) !important;
           border-color: rgba(52,211,153,0.2) !important;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 20px rgba(52,211,153,0.08) !important;
         }
         .app-card:hover .app-card-btn span {
           color: rgba(52,211,153,0.9) !important;
