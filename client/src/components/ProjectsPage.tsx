@@ -131,18 +131,6 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
         </div>
 
         <div className="relative z-10 flex items-center gap-4" style={{ padding: '16px 18px' }}>
-          <div className="flex items-center justify-center flex-shrink-0" style={{
-            width: 48, height: 48,
-            borderRadius: 14,
-            background: icon.grad,
-            border: '1px solid rgba(255,255,255,0.08)',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
-            fontSize: '22px',
-            lineHeight: 1,
-          }}>
-            {icon.emoji}
-          </div>
-
           <div className="flex-1 min-w-0">
             <h3
               data-testid={`text-title-${app.id}`}
