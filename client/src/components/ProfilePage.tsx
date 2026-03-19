@@ -4,43 +4,31 @@ import {
   User, 
   Settings, 
   MessageCircle, 
-  FileText, 
-  CreditCard, 
-  Home, 
-  Calculator, 
   Wrench, 
-  Edit, 
-  Crown, 
   Star, 
   Smartphone, 
   CheckCircle,
   ChevronRight,
-  Phone,
-  Mail,
-  Building,
   Bell,
   Shield,
   HelpCircle,
   ExternalLink,
   Package,
   Clock,
-  TrendingUp,
   Send,
   Instagram,
   Music,
-  Sparkles,
-  Rocket,
-  UserCircle2,
-  Plus,
   Users,
   Gift,
-  Coins
+  Coins,
+  Copy,
+  Share2,
+  UserPlus
 } from "lucide-react";
 import { useTelegram } from "../hooks/useTelegram";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/hooks/useTheme";
 import { useLanguage } from "../contexts/LanguageContext";
-import { Copy, Share2, UserPlus } from "lucide-react";
 
 // iOS 26 Design System Palette
 const createProfilePalette = (isDark: boolean) => ({
@@ -353,8 +341,9 @@ const ProjectsVirtualList = memo(({ projects, onNavigateConstructor, palette, t 
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
-                    <div 
-                      className="p-4 cursor-pointer transition-colors" 
+                    <button 
+                      type="button"
+                      className="p-4 cursor-pointer transition-colors w-full text-left" 
                       style={{ borderTop: `1px solid ${palette.divider}` }}
                       onClick={onNavigateConstructor}
                     >
@@ -368,7 +357,7 @@ const ProjectsVirtualList = memo(({ projects, onNavigateConstructor, palette, t 
                         </div>
                         <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
                       </div>
-                    </div>
+                    </button>
                   </div>
                 );
               }
@@ -463,7 +452,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
   const handleShareApp = useCallback(() => {
     console.log('[Profile] Share app clicked');
     
-    const result = shareApp('Check out WEB4TG - a platform for creating Telegram applications!');
+    const result = shareApp(t('profilePage.shareAppMessage'));
     
     if (result.success) {
       toast({
@@ -576,7 +565,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
 
   // Memoized navigation callbacks
   const handleNavigateConstructor = useCallback(() => onNavigate('constructor'), [onNavigate]);
-  const handleNavigatePricing = useCallback(() => onNavigate('constructor'), [onNavigate]);
+  const handleNavigatePricing = useCallback(() => onNavigate('projects'), [onNavigate]);
   const handleNavigateHelp = useCallback(() => onNavigate('help'), [onNavigate]);
   const handleNavigateReview = useCallback(() => onNavigate('review'), [onNavigate]);
   const handleNavigateReferral = useCallback(() => onNavigate('referral'), [onNavigate]);
@@ -603,8 +592,6 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
       <style>{`
         .ios26-profile .ios26-card {
           background: ${palette.cardBg};
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
           border-radius: 20px;
           border: 1px solid ${palette.cardBorder};
           box-shadow: ${palette.cardShadow};
@@ -632,6 +619,8 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         .ios26-profile .ios26-item {
           padding: 16px;
           transition: background 0.2s ease;
+          border: none;
+          background: transparent;
         }
         .ios26-profile .ios26-item:hover {
           background: ${palette.hoverBg};
@@ -664,8 +653,6 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         }
         .ios26-profile .ios26-stats-card {
           background: ${palette.cardBg};
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
           border-radius: 20px;
           border: 1px solid ${palette.cardBorder};
           box-shadow: ${palette.cardShadow};
@@ -747,6 +734,10 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           position: relative;
           cursor: pointer;
           transition: background 0.2s ease;
+          border: none;
+          padding: 0;
+          outline: none;
+          flex-shrink: 0;
         }
         .ios26-profile .ios26-switch.active {
           background: ${palette.switchActiveBg};
@@ -768,8 +759,6 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
         .ios26-profile .ios26-btn-glow {
           position: relative;
           background: ${palette.btnGlowBg};
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
           border: 1px solid ${palette.btnGlowBorder};
           border-radius: 14px;
           padding: 16px 24px;
@@ -1005,7 +994,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             <div className="ios26-header">{t('profilePage.bonusesAndRewards')}</div>
             
             <div className="ios26-card relative">
-              <div className="ios26-item cursor-pointer" onClick={handleNavigateReferral}>
+              <button type="button" className="ios26-item cursor-pointer w-full text-left" onClick={handleNavigateReferral}>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
                     <Users className="w-5 h-5 text-emerald-400" />
@@ -1014,12 +1003,12 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">{t('profilePage.referralProgram')}</div>
                     <div className="ios26-subtitle">{t('profilePage.inviteAndEarn')}</div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-white/40" />
+                  <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
                 </div>
-              </div>
+              </button>
               <div className="ios26-divider" />
 
-              <div className="ios26-item cursor-pointer" onClick={handleNavigateRewards}>
+              <button type="button" className="ios26-item cursor-pointer w-full text-left" onClick={handleNavigateRewards}>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
                     <Gift className="w-5 h-5 text-amber-400" />
@@ -1028,12 +1017,12 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">{t('profilePage.digitalRewards')}</div>
                     <div className="ios26-subtitle">{t('profilePage.achievementsLevelsBonuses')}</div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-white/40" />
+                  <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
                 </div>
-              </div>
+              </button>
               <div className="ios26-divider" />
 
-              <div className="ios26-item cursor-pointer" onClick={handleNavigateEarning}>
+              <button type="button" className="ios26-item cursor-pointer w-full text-left" onClick={handleNavigateEarning}>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
                     <Coins className="w-5 h-5 text-yellow-400" />
@@ -1042,9 +1031,9 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">{t('profilePage.coinEarning')}</div>
                     <div className="ios26-subtitle">{t('profilePage.completeTasksEarn')}</div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-white/40" />
+                  <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </section>
@@ -1074,12 +1063,15 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">{t('profilePage.autoSave')}</div>
                     <div className="ios26-subtitle">{t('profilePage.autoSaveDesc')}</div>
                   </div>
-                  <div 
-                    className={`ios-switch ${autoSave ? 'ios-switch-active' : ''} cursor-pointer`}
+                  <button 
+                    type="button"
+                    role="switch"
+                    aria-checked={autoSave}
+                    className={`ios26-switch ${autoSave ? 'active' : ''} cursor-pointer`}
                     onClick={toggleAutoSave}
                   >
-                    <div className="ios-switch-thumb"></div>
-                  </div>
+                    <div className="ios26-switch-thumb"></div>
+                  </button>
                 </div>
               </div>
               <div className="ios26-divider" />
@@ -1093,12 +1085,15 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">{t('profilePage.backupCopies')}</div>
                     <div className="ios26-subtitle">{t('profilePage.backupDesc')}</div>
                   </div>
-                  <div 
-                    className={`ios-switch ${backupEnabled ? 'ios-switch-active' : ''} cursor-pointer`}
+                  <button 
+                    type="button"
+                    role="switch"
+                    aria-checked={backupEnabled}
+                    className={`ios26-switch ${backupEnabled ? 'active' : ''} cursor-pointer`}
                     onClick={toggleBackup}
                   >
-                    <div className="ios-switch-thumb"></div>
-                  </div>
+                    <div className="ios26-switch-thumb"></div>
+                  </button>
                 </div>
               </div>
               <div className="ios26-divider" />
@@ -1112,17 +1107,20 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">{t('profilePage.statusNotifications')}</div>
                     <div className="ios26-subtitle">{t('profilePage.statusNotificationsDesc')}</div>
                   </div>
-                  <div 
-                    className={`ios-switch ${notificationsEnabled ? 'ios-switch-active' : ''} cursor-pointer`}
+                  <button 
+                    type="button"
+                    role="switch"
+                    aria-checked={notificationsEnabled}
+                    className={`ios26-switch ${notificationsEnabled ? 'active' : ''} cursor-pointer`}
                     onClick={toggleNotifications}
                   >
-                    <div className="ios-switch-thumb"></div>
-                  </div>
+                    <div className="ios26-switch-thumb"></div>
+                  </button>
                 </div>
               </div>
               <div className="ios26-divider" />
 
-              <div className="ios26-item cursor-pointer">
+              <div className="ios26-item">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-system-orange/20 rounded-xl flex items-center justify-center">
                     <Settings className="w-5 h-5 text-system-orange" />
@@ -1131,13 +1129,14 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">{t('profilePage.themeSettings')}</div>
                     <div className="ios26-subtitle">{t('profilePage.darkThemeAuto')}</div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-white/40" />
+                  <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
                 </div>
               </div>
               <div className="ios26-divider" />
 
-              <div 
-                className="ios26-item cursor-pointer"
+              <button 
+                type="button"
+                className="ios26-item cursor-pointer w-full text-left"
                 onClick={() => {
                   if (homeScreen) {
                     try {
@@ -1170,9 +1169,9 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">{t('profilePage.addToHomeScreen')}</div>
                     <div className="ios26-subtitle">{t('profilePage.quickAccess')}</div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-white/40" />
+                  <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </section>
@@ -1183,7 +1182,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
             <div className="ios26-header">{t('profilePage.support')}</div>
             
             <div className="ios26-card relative">
-              <div className="ios26-item cursor-pointer" onClick={handleTelegramClick}>
+              <button type="button" className="ios26-item cursor-pointer w-full text-left" onClick={handleTelegramClick}>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
                     <MessageCircle className="w-5 h-5 text-system-blue" />
@@ -1192,12 +1191,12 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">{t('profilePage.contactUs')}</div>
                     <div className="ios26-subtitle">{t('profilePage.support247')}</div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-white/40" />
+                  <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
                 </div>
-              </div>
+              </button>
               <div className="ios26-divider" />
               
-              <div className="ios26-item cursor-pointer" onClick={handleTelegramClick}>
+              <button type="button" className="ios26-item cursor-pointer w-full text-left" onClick={handleTelegramClick}>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-system-blue/20 rounded-xl flex items-center justify-center">
                     <Send className="w-5 h-5 text-system-blue" />
@@ -1206,12 +1205,12 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">Telegram</div>
                     <div className="ios26-subtitle">@web4tgs</div>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-white/40" />
+                  <ExternalLink className="w-4 h-4" style={{ color: palette.textQuaternary }} />
                 </div>
-              </div>
+              </button>
               <div className="ios26-divider" />
               
-              <div className="ios26-item cursor-pointer" onClick={handleInstagramClick}>
+              <button type="button" className="ios26-item cursor-pointer w-full text-left" onClick={handleInstagramClick}>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: palette.iconBg, border: `1px solid ${palette.iconBorder}` }}>
                     <Instagram className="w-5 h-5" style={{ color: palette.textSecondary }} />
@@ -1220,26 +1219,26 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">Instagram</div>
                     <div className="ios26-subtitle">@web4tg</div>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-white/40" />
+                  <ExternalLink className="w-4 h-4" style={{ color: palette.textQuaternary }} />
                 </div>
-              </div>
+              </button>
               <div className="ios26-divider" />
               
-              <div className="ios26-item cursor-pointer" onClick={handleTikTokClick}>
+              <button type="button" className="ios26-item cursor-pointer w-full text-left" onClick={handleTikTokClick}>
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/20">
-                    <Music className="w-5 h-5 text-white/90" />
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: palette.iconBg, border: `1px solid ${palette.iconBorder}` }}>
+                    <Music className="w-5 h-5" style={{ color: palette.textSecondary }} />
                   </div>
                   <div className="flex-1">
                     <div className="ios26-title">TikTok</div>
                     <div className="ios26-subtitle">@web4tg</div>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-white/40" />
+                  <ExternalLink className="w-4 h-4" style={{ color: palette.textQuaternary }} />
                 </div>
-              </div>
+              </button>
               <div className="ios26-divider" />
               
-              <div className="ios26-item cursor-pointer" onClick={handleNavigateHelp}>
+              <button type="button" className="ios26-item cursor-pointer w-full text-left" onClick={handleNavigateHelp}>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-system-green/20 rounded-xl flex items-center justify-center">
                     <HelpCircle className="w-5 h-5 text-system-green" />
@@ -1248,12 +1247,12 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">{t('profilePage.helpCenter')}</div>
                     <div className="ios26-subtitle">{t('profilePage.faqAndGuides')}</div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-white/40" />
+                  <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
                 </div>
-              </div>
+              </button>
               <div className="ios26-divider" />
               
-              <div className="ios26-item cursor-pointer" onClick={handleNavigateReview}>
+              <button type="button" className="ios26-item cursor-pointer w-full text-left" onClick={handleNavigateReview}>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-system-orange/20 rounded-xl flex items-center justify-center">
                     <Star className="w-5 h-5 text-system-orange" />
@@ -1262,17 +1261,17 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                     <div className="ios26-title">{t('profilePage.leaveReview')}</div>
                     <div className="ios26-subtitle">{t('profilePage.rateOurService')}</div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-white/40" />
+                  <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </section>
 
         {/* App Info */}
         <section className="text-center space-y-2 pb-4">
-          <div className="ios-footnote text-white/40 font-medium">WEB4TG Platform</div>
-          <div className="ios-footnote text-white/40">{t('profilePage.version')} 1.0.0</div>
+          <div className="ios-footnote font-medium" style={{ color: palette.textQuaternary }}>WEB4TG Platform</div>
+          <div className="ios-footnote" style={{ color: palette.textQuaternary }}>{t('profilePage.version')} 1.0.0</div>
         </section>
       </div>
     </div>
