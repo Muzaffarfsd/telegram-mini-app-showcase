@@ -219,21 +219,16 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, ease: EASE, delay: 0.6 }}
-                className="mt-7 flex items-center gap-4"
+                className="mt-8 flex items-center gap-5"
               >
-                <div className="scroll-indicator" style={{
-                  width: 24, height: 40,
-                  borderRadius: 12,
-                  border: `1.5px solid rgba(52,211,153,0.35)`,
-                  position: 'relative',
-                  background: 'rgba(52,211,153,0.04)',
-                }}>
-                  <div className="scroll-indicator-dot" />
+                <div className="scroll-line-indicator">
+                  <div className="scroll-line-track" />
+                  <div className="scroll-line-glow" />
                 </div>
                 <span style={{
-                  fontFamily: SYNE, fontSize: '0.75rem',
-                  fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const,
-                  color: EMERALD, opacity: 0.85,
+                  fontFamily: SYNE, fontSize: '0.7rem',
+                  fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const,
+                  color: 'rgba(255,255,255,0.45)',
                 }}>
                   {t('projectsPage.viewExamples')}
                 </span>
@@ -439,22 +434,34 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
       </div>
 
       <style>{`
-        .scroll-indicator-dot {
-          width: 6px;
-          height: 6px;
-          background: #34d399;
-          border-radius: 50%;
-          position: absolute;
-          left: 50%;
-          top: 8px;
-          transform: translateX(-50%);
-          animation: scrollFloat 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-          box-shadow: 0 0 8px rgba(52,211,153,0.5);
+        .scroll-line-indicator {
+          position: relative;
+          width: 1px;
+          height: 48px;
+          overflow: hidden;
         }
-        @keyframes scrollFloat {
-          0%, 10% { opacity: 1; transform: translateX(-50%) translateY(0); }
-          50% { opacity: 0.6; transform: translateX(-50%) translateY(18px); }
-          100% { opacity: 0; transform: translateX(-50%) translateY(18px); }
+        .scroll-line-track {
+          position: absolute;
+          inset: 0;
+          background: rgba(255,255,255,0.08);
+        }
+        .scroll-line-glow {
+          position: absolute;
+          top: -100%;
+          left: -1px;
+          width: 3px;
+          height: 50%;
+          background: linear-gradient(to bottom, transparent, ${EMERALD}, transparent);
+          border-radius: 2px;
+          animation: lineTravel 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          filter: blur(0.5px);
+          box-shadow: 0 0 6px rgba(52,211,153,0.4);
+        }
+        @keyframes lineTravel {
+          0% { top: -50%; opacity: 0; }
+          15% { opacity: 1; }
+          85% { opacity: 1; }
+          100% { top: 100%; opacity: 0; }
         }
       `}</style>
     </div>
