@@ -76,14 +76,37 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
     <Cin delay={index * 0.03}>
       <div
         onClick={handleCardClick}
-        className="group cursor-pointer rounded-2xl p-4 transition-all duration-300 active:scale-[0.97]"
+        className="group cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 active:scale-[0.97]"
         style={{
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.04)',
+          position: 'relative',
+          border: '1px solid rgba(255,255,255,0.06)',
+          background: '#0a0a0a',
         }}
         data-testid={`card-app-${app.id}`}
       >
-        <div className="flex items-center justify-between gap-4">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ borderRadius: 'inherit' }}>
+          <div style={{
+            position: 'absolute',
+            top: '-30%',
+            right: '-20%',
+            width: '70%',
+            height: '160%',
+            backgroundImage: `url(${app.image})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.12,
+            transform: 'rotate(-12deg)',
+            filter: 'blur(1px) saturate(0.6)',
+            transition: 'opacity 0.5s ease',
+          }} />
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(105deg, #0a0a0a 40%, transparent 100%)',
+          }} />
+        </div>
+
+        <div className="relative z-10 flex items-center justify-between gap-4 p-4">
           <div className="flex-1 min-w-0">
             <h3
               data-testid={`text-title-${app.id}`}
@@ -92,7 +115,7 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
                 fontSize: '0.85rem',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
-                color: 'rgba(255,255,255,0.85)',
+                color: '#fff',
                 marginBottom: 3,
               }}
             >
@@ -104,7 +127,7 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
                 fontFamily: INTER,
                 fontSize: '0.7rem',
                 lineHeight: '1.5',
-                color: 'rgba(255,255,255,0.35)',
+                color: 'rgba(255,255,255,0.4)',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -119,8 +142,9 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
             <button
               className="flex items-center gap-1.5 rounded-full px-3.5 py-2 transition-all duration-300 active:scale-[0.95]"
               style={{
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                backdropFilter: 'blur(8px)',
               }}
               data-testid={`button-open-${app.id}`}
             >
@@ -128,11 +152,11 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
                 fontFamily: INTER,
                 fontSize: '0.7rem',
                 fontWeight: 600,
-                color: 'rgba(255,255,255,0.55)',
+                color: 'rgba(255,255,255,0.7)',
               }}>
                 {t('projectsPage.open')}
               </span>
-              <ArrowUpRight className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.35)' }} strokeWidth={2.5} />
+              <ArrowUpRight className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.45)' }} strokeWidth={2.5} />
             </button>
           </div>
         </div>
