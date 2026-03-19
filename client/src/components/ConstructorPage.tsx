@@ -124,7 +124,7 @@ const HeroSection = memo(({ t }: { t: (key: string) => string }) => {
       <Cin delay={0.22}>
         <p style={{
           fontFamily: INTER, fontSize: '0.82rem', lineHeight: 1.65,
-          color: 'rgba(255,255,255,0.38)', textAlign: 'center',
+          color: 'rgba(255,255,255,0.48)', textAlign: 'center',
           maxWidth: 360, margin: '20px auto 0',
           letterSpacing: '-0.01em',
         }}>
@@ -237,7 +237,7 @@ const PaymentTimeline = memo(({ t }: { t: (key: string) => string }) => {
                 </div>
 
                 <p style={{
-                  fontFamily: INTER, fontSize: '0.74rem', color: 'rgba(255,255,255,0.35)',
+                  fontFamily: INTER, fontSize: '0.74rem', color: 'rgba(255,255,255,0.45)',
                   lineHeight: 1.55, marginBottom: 16, letterSpacing: '-0.01em',
                 }}>
                   {s.desc}
@@ -510,7 +510,8 @@ const TemplateCard = memo(({ template, onSelect, t, index }: any) => {
 
   return (
     <Cin delay={0.06 * index}>
-      <div
+      <button
+        type="button"
         onClick={onSelect}
         className="cursor-pointer active:scale-[0.97]"
         style={{
@@ -522,6 +523,8 @@ const TemplateCard = memo(({ template, onSelect, t, index }: any) => {
           transition: 'transform 0.3s cubic-bezier(0.22,1,0.36,1), border-color 0.3s ease',
           position: 'relative',
           overflow: 'hidden',
+          width: '100%', textAlign: 'left',
+          outline: 'none',
         }}
         data-testid={`template-${template.id}`}
       >
@@ -555,7 +558,7 @@ const TemplateCard = memo(({ template, onSelect, t, index }: any) => {
               )}
             </div>
             <p style={{
-              fontFamily: INTER, fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)',
+              fontFamily: INTER, fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)',
               lineHeight: 1.45, marginBottom: 10, letterSpacing: '-0.01em',
             }}>
               {template.description}
@@ -593,7 +596,7 @@ const TemplateCard = memo(({ template, onSelect, t, index }: any) => {
             <ArrowRight size={12} style={{ color: 'rgba(255,255,255,0.25)' }} />
           </div>
         </div>
-      </div>
+      </button>
     </Cin>
   );
 });
@@ -677,8 +680,6 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
     ...f, name: t(f.nameKey), category: t(f.categoryKey)
   })), [t]);
 
-  const categories = useMemo(() => categoryKeys.map(key => t(key)), [t]);
-
   const subscriptionPlans = useMemo(() => subscriptionPlansBase.map(plan => ({
     ...plan, name: t(plan.nameKey), description: t(plan.descriptionKey),
     features: plan.featuresKeys.map(key => t(key))
@@ -686,7 +687,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
 
   const [selectedTemplate, setSelectedTemplate] = useState<typeof appTemplates[0] | null>(null);
   const [selectedFeatures, setSelectedFeatures] = useState<SelectedFeature[]>([]);
-  const [activeCategory, setActiveCategory] = useState(t('constructor.basicFeatures'));
+  const [activeCategoryKey, setActiveCategoryKey] = useState('constructor.basicFeatures');
   const [projectName, setProjectName] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedSubscription, setSelectedSubscription] = useState<typeof subscriptionPlans[0]>(subscriptionPlans[1]);
@@ -749,8 +750,9 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
 
   const goToStep = useCallback((step: number) => setCurrentStep(step), []);
 
+  const activeCategory = t(activeCategoryKey);
   const filteredFeatures = useMemo(() =>
-    availableFeatures.filter(f => f.category === activeCategory), [activeCategory]);
+    availableFeatures.filter(f => f.category === activeCategory), [activeCategory, availableFeatures]);
 
   const templateHandlers = useMemo(() =>
     appTemplates.map(template => ({ id: template.id, handler: () => selectTemplate(template) })), [selectTemplate]);
@@ -772,7 +774,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
   ];
 
   return (
-    <div className="min-h-screen select-none overflow-x-hidden" style={{ backgroundColor: '#050505', paddingTop: 120, paddingBottom: 160 }}>
+    <div className="min-h-screen select-none overflow-x-hidden" style={{ backgroundColor: '#050505', paddingTop: 120, paddingBottom: 160, position: 'relative' }}>
       <div className="mx-auto w-full px-5" style={{ maxWidth: 540 }}>
 
         <HeroSection t={t} />
@@ -805,7 +807,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               {t('constructor.buildYourApp')}
             </h2>
             <p style={{
-              fontFamily: INTER, fontSize: '0.78rem', color: 'rgba(255,255,255,0.3)',
+              fontFamily: INTER, fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)',
               lineHeight: 1.55, letterSpacing: '-0.01em',
             }}>
               {t('constructor.constructorDesc')}
@@ -950,23 +952,27 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 paddingBottom: 10, marginBottom: 18,
                 scrollbarWidth: 'none', msOverflowStyle: 'none',
               }} className="cat-scroll">
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setActiveCategory(category)}
-                    style={{
-                      padding: '8px 16px', borderRadius: 12, whiteSpace: 'nowrap',
-                      fontFamily: INTER, fontSize: '0.68rem', fontWeight: 600,
-                      letterSpacing: '-0.01em', border: 'none', cursor: 'pointer', flexShrink: 0,
-                      transition: 'all 0.3s cubic-bezier(0.22,1,0.36,1)',
-                      background: activeCategory === category ? `${EMERALD}14` : 'rgba(255,255,255,0.03)',
-                      color: activeCategory === category ? EMERALD : 'rgba(255,255,255,0.3)',
-                      borderBottom: activeCategory === category ? `2px solid ${EMERALD}60` : '2px solid transparent',
-                    }}
-                  >
-                    {category}
-                  </button>
-                ))}
+                {categoryKeys.map((key) => {
+                  const label = t(key);
+                  const isActive = activeCategoryKey === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setActiveCategoryKey(key)}
+                      style={{
+                        padding: '8px 16px', borderRadius: 12, whiteSpace: 'nowrap',
+                        fontFamily: INTER, fontSize: '0.68rem', fontWeight: 600,
+                        letterSpacing: '-0.01em', border: 'none', cursor: 'pointer', flexShrink: 0,
+                        transition: 'all 0.3s cubic-bezier(0.22,1,0.36,1)',
+                        background: isActive ? `${EMERALD}14` : 'rgba(255,255,255,0.03)',
+                        color: isActive ? EMERALD : 'rgba(255,255,255,0.3)',
+                        borderBottom: isActive ? `2px solid ${EMERALD}60` : '2px solid transparent',
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </Cin>
 
@@ -980,7 +986,8 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                   const isIncludedInAny = isIncluded || isInTemplate;
 
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={feature.id}
                       className={!isIncludedInAny ? 'cursor-pointer active:scale-[0.98]' : ''}
                       onClick={() => !isIncludedInAny && toggleFeature(feature)}
@@ -993,6 +1000,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                         border: `1px solid ${isSelected || isIncludedInAny ? `${EMERALD}18` : 'rgba(255,255,255,0.05)'}`,
                         display: 'flex', alignItems: 'center', gap: 12,
                         transition: 'all 0.3s cubic-bezier(0.22,1,0.36,1)',
+                        width: '100%', textAlign: 'left', outline: 'none',
                       }}
                     >
                       <div style={{
@@ -1034,7 +1042,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                       }}>
                         {isIncludedInAny ? t('constructor.included') : `+${feature.price.toLocaleString()} ₽`}
                       </span>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -1061,7 +1069,8 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 {subscriptionPlans.map((plan) => {
                   const isSelected = selectedSubscription.id === plan.id;
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={plan.id}
                       className="cursor-pointer active:scale-[0.98]"
                       onClick={() => setSelectedSubscription(plan)}
@@ -1074,6 +1083,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                         border: `1.5px solid ${isSelected ? `${plan.color}30` : 'rgba(255,255,255,0.05)'}`,
                         display: 'flex', alignItems: 'center', gap: 14,
                         transition: 'all 0.3s cubic-bezier(0.22,1,0.36,1)',
+                        width: '100%', textAlign: 'left', outline: 'none',
                       }}
                     >
                       <div style={{
@@ -1129,7 +1139,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                           {t('constructor.perMonth')}
                         </span>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
