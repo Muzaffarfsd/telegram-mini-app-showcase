@@ -219,27 +219,21 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, ease: EASE, delay: 0.6 }}
-                className="mt-5 flex items-center gap-3"
+                className="mt-7 flex items-center gap-4"
               >
-                <div style={{
-                  width: 20, height: 32,
-                  border: `2px solid ${EMERALD}`,
-                  borderRadius: 10,
+                <div className="scroll-indicator" style={{
+                  width: 24, height: 40,
+                  borderRadius: 12,
+                  border: `1.5px solid rgba(52,211,153,0.35)`,
                   position: 'relative',
+                  background: 'rgba(52,211,153,0.04)',
                 }}>
-                  <div className="scroll-dot" style={{
-                    width: 4, height: 6,
-                    background: EMERALD,
-                    borderRadius: 2,
-                    position: 'absolute',
-                    top: 6, left: '50%',
-                    transform: 'translateX(-50%)',
-                    animation: 'scrollPulse 2s ease-in-out infinite',
-                  }} />
+                  <div className="scroll-indicator-dot" />
                 </div>
                 <span style={{
-                  fontFamily: INTER, fontSize: '0.8125rem',
-                  color: EMERALD, fontWeight: 500,
+                  fontFamily: SYNE, fontSize: '0.75rem',
+                  fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const,
+                  color: EMERALD, opacity: 0.85,
                 }}>
                   {t('projectsPage.viewExamples')}
                 </span>
@@ -445,9 +439,22 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
       </div>
 
       <style>{`
-        @keyframes scrollPulse {
-          0%, 20% { opacity: 1; transform: translateX(-50%) translateY(0); }
-          80%, 100% { opacity: 0; transform: translateX(-50%) translateY(14px); }
+        .scroll-indicator-dot {
+          width: 6px;
+          height: 6px;
+          background: #34d399;
+          border-radius: 50%;
+          position: absolute;
+          left: 50%;
+          top: 8px;
+          transform: translateX(-50%);
+          animation: scrollFloat 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          box-shadow: 0 0 8px rgba(52,211,153,0.5);
+        }
+        @keyframes scrollFloat {
+          0%, 10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+          50% { opacity: 0.6; transform: translateX(-50%) translateY(18px); }
+          100% { opacity: 0; transform: translateX(-50%) translateY(18px); }
         }
       `}</style>
     </div>
