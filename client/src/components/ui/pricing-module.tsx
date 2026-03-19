@@ -49,6 +49,35 @@ export function PricingModule({
   recommendedLabel = "Recommended",
 }: PricingModuleProps) {
   const [isAnnual, setIsAnnual] = React.useState(defaultAnnual);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = React.useState(
+    Math.max(plans.findIndex(p => p.recommended), 0)
+  );
+
+  React.useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const target = el.children[activeIdx] as HTMLElement;
+    if (target) {
+      const offset = target.offsetLeft - (el.clientWidth - target.offsetWidth) / 2;
+      el.scrollTo({ left: offset, behavior: 'smooth' });
+    }
+  }, []);
+
+  const handleScroll = React.useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const center = el.scrollLeft + el.clientWidth / 2;
+    let closest = 0;
+    let minDist = Infinity;
+    for (let i = 0; i < el.children.length; i++) {
+      const child = el.children[i] as HTMLElement;
+      const childCenter = child.offsetLeft + child.offsetWidth / 2;
+      const dist = Math.abs(center - childCenter);
+      if (dist < minDist) { minDist = dist; closest = i; }
+    }
+    setActiveIdx(closest);
+  }, []);
 
   return (
     <div style={{ width: "100%", paddingTop: "8px" }}>
@@ -117,7 +146,25 @@ export function PricingModule({
         </label>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        style={{
+          display: "flex",
+          gap: "14px",
+          overflowX: "auto",
+          scrollSnapType: "x mandatory",
+          WebkitOverflowScrolling: "touch",
+          paddingBottom: "8px",
+          paddingLeft: "20px",
+          paddingRight: "20px",
+          marginLeft: "-20px",
+          marginRight: "-20px",
+          msOverflowStyle: "none",
+          scrollbarWidth: "none",
+        }}
+        className="pricing-scroll-container"
+      >
         {plans.map((plan) => (
           <div
             key={plan.id}
@@ -130,12 +177,14 @@ export function PricingModule({
               background: plan.recommended
                 ? "rgba(90, 200, 250, 0.06)"
                 : "rgba(255, 255, 255, 0.05)",
-              backdropFilter: "blur(16px)",
               transition: "all 0.2s",
-              transform: plan.recommended ? "scale(1.02)" : "scale(1)",
               boxShadow: plan.recommended
                 ? "0 0 20px rgba(90, 200, 250, 0.1)"
                 : "0 2px 8px rgba(0,0,0,0.2)",
+              minWidth: "260px",
+              maxWidth: "280px",
+              flexShrink: 0,
+              scrollSnapAlign: "center",
             }}
           >
             {plan.recommended && (
@@ -269,6 +318,30 @@ export function PricingModule({
           </div>
         ))}
       </div>
+
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: "6px",
+        marginTop: "14px",
+      }}>
+        {plans.map((_, i) => (
+          <div
+            key={i}
+            style={{
+              width: i === activeIdx ? 20 : 6,
+              height: 6,
+              borderRadius: 3,
+              background: i === activeIdx ? "#5AC8FA" : "rgba(255,255,255,0.2)",
+              transition: "all 0.3s ease",
+            }}
+          />
+        ))}
+      </div>
+
+      <style>{`
+        .pricing-scroll-container::-webkit-scrollbar { display: none; }
+      `}</style>
     </div>
   );
 }
