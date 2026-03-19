@@ -76,37 +76,65 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
     <Cin delay={index * 0.03}>
       <div
         onClick={handleCardClick}
-        className="group cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 active:scale-[0.97]"
+        className="app-card group cursor-pointer overflow-hidden transition-all duration-500 active:scale-[0.97]"
         style={{
           position: 'relative',
-          border: '1px solid rgba(255,255,255,0.06)',
-          background: '#0a0a0a',
+          borderRadius: 20,
+          border: '1px solid rgba(255,255,255,0.05)',
+          background: 'rgba(255,255,255,0.02)',
         }}
         data-testid={`card-app-${app.id}`}
       >
         <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ borderRadius: 'inherit' }}>
-          <div style={{
+          <div className="app-card-img" style={{
             position: 'absolute',
-            top: '-30%',
-            right: '-20%',
-            width: '70%',
-            height: '160%',
+            top: '-40%',
+            right: '-25%',
+            width: '75%',
+            height: '180%',
             backgroundImage: `url(${app.image})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: 0.12,
-            transform: 'rotate(-12deg)',
-            filter: 'blur(1px) saturate(0.6)',
-            transition: 'opacity 0.5s ease',
+            opacity: 0.08,
+            transform: 'rotate(-15deg) scale(1)',
+            filter: 'blur(0.5px) saturate(0.5)',
+            transition: 'opacity 0.6s ease, transform 0.6s ease',
           }} />
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(105deg, #0a0a0a 40%, transparent 100%)',
+            background: 'linear-gradient(110deg, rgba(10,10,10,1) 35%, rgba(10,10,10,0.7) 65%, rgba(10,10,10,0.4) 100%)',
+          }} />
+          <div className="app-card-shine" style={{
+            position: 'absolute',
+            top: 0, left: '-100%',
+            width: '50%', height: '100%',
+            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent)',
+            transform: 'skewX(-15deg)',
+            transition: 'left 0.8s ease',
           }} />
         </div>
 
-        <div className="relative z-10 flex items-center justify-between gap-4 p-4">
+        <div className="relative z-10 flex items-center gap-4" style={{ padding: '16px 18px' }}>
+          <div style={{
+            width: 44, height: 44,
+            borderRadius: 12,
+            overflow: 'hidden',
+            flexShrink: 0,
+            border: '1px solid rgba(255,255,255,0.08)',
+          }}>
+            <img
+              src={app.image}
+              alt=""
+              loading="lazy"
+              style={{
+                width: '100%', height: '100%',
+                objectFit: 'cover',
+                filter: 'brightness(0.9)',
+              }}
+            />
+          </div>
+
           <div className="flex-1 min-w-0">
             <h3
               data-testid={`text-title-${app.id}`}
@@ -116,7 +144,7 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
                 color: '#fff',
-                marginBottom: 3,
+                marginBottom: 2,
               }}
             >
               {app.title}
@@ -125,9 +153,9 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
               data-testid={`text-description-${app.id}`}
               style={{
                 fontFamily: INTER,
-                fontSize: '0.7rem',
-                lineHeight: '1.5',
-                color: 'rgba(255,255,255,0.4)',
+                fontSize: '0.68rem',
+                lineHeight: '1.4',
+                color: 'rgba(255,255,255,0.35)',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -139,25 +167,20 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
 
           <div className="flex items-center gap-2 flex-shrink-0">
             <FavoriteButton demoId={app.id} size="md" />
-            <button
-              className="flex items-center gap-1.5 rounded-full px-3.5 py-2 transition-all duration-300 active:scale-[0.95]"
+            <div
+              className="flex items-center justify-center"
               style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(8px)',
+                width: 36, height: 36,
+                borderRadius: 10,
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                backdropFilter: 'blur(12px)',
+                transition: 'background 0.3s ease',
               }}
               data-testid={`button-open-${app.id}`}
             >
-              <span style={{
-                fontFamily: INTER,
-                fontSize: '0.7rem',
-                fontWeight: 600,
-                color: 'rgba(255,255,255,0.7)',
-              }}>
-                {t('projectsPage.open')}
-              </span>
-              <ArrowUpRight className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.45)' }} strokeWidth={2.5} />
-            </button>
+              <ArrowUpRight className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.55)' }} strokeWidth={2} />
+            </div>
           </div>
         </div>
       </div>
@@ -418,6 +441,14 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
       </div>
 
       <style>{`
+        .app-card:hover .app-card-img,
+        .app-card:active .app-card-img {
+          opacity: 0.18 !important;
+          transform: rotate(-15deg) scale(1.05) !important;
+        }
+        .app-card:hover .app-card-shine {
+          left: 120% !important;
+        }
         .scroll-line-indicator {
           position: relative;
           width: 1px;
