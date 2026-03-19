@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef } from "react"
 import { m } from "@/utils/LazyMotionProvider"
-import type { PanInfo } from "framer-motion"
 
 export type VerticalImageItem = {
   id: number
@@ -25,6 +24,8 @@ export function VerticalImageStack({
   const lastNavigationTime = useRef(0)
   const navigationCooldown = 400
 
+  const touchStart = useRef<{ y: number; t: number } | null>(null)
+
   const navigate = useCallback((newDirection: number) => {
     const now = Date.now()
     if (now - lastNavigationTime.current < navigationCooldown) return
@@ -38,14 +39,21 @@ export function VerticalImageStack({
     })
   }, [images.length])
 
-  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const threshold = 50
-    if (info.offset.y < -threshold) {
-      navigate(1)
-    } else if (info.offset.y > threshold) {
-      navigate(-1)
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStart.current = { y: e.touches[0].clientY, t: Date.now() }
+  }, [])
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!touchStart.current) return
+    const dy = e.changedTouches[0].clientY - touchStart.current.y
+    const dt = Date.now() - touchStart.current.t
+    touchStart.current = null
+
+    if (dt < 300 && Math.abs(dy) > 40) {
+      e.preventDefault()
+      navigate(dy < 0 ? 1 : -1)
     }
-  }
+  }, [navigate])
 
   const getCardStyle = (index: number) => {
     const total = images.length
@@ -77,7 +85,12 @@ export function VerticalImageStack({
   }
 
   return (
-    <div className="relative flex w-full items-center justify-center overflow-hidden" style={{ height }}>
+    <div
+      className="relative flex w-full items-center justify-center overflow-hidden"
+      style={{ height, touchAction: 'pan-y' }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <div 
         className="relative flex items-center justify-center" 
         style={{ height: height, width: cardWidth, perspective: "1200px" }}
@@ -90,7 +103,7 @@ export function VerticalImageStack({
           return (
             <m.div
               key={image.id}
-              className="absolute cursor-grab active:cursor-grabbing"
+              className="absolute"
               animate={{
                 y: style.y,
                 scale: style.scale,
@@ -104,10 +117,6 @@ export function VerticalImageStack({
                 damping: 30,
                 mass: 1,
               }}
-              drag={isCurrent ? "y" : false}
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={0.2}
-              onDragEnd={handleDragEnd}
               style={{
                 transformStyle: "preserve-3d",
                 zIndex: style.zIndex,
