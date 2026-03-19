@@ -1685,14 +1685,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center">
             <p style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              letterSpacing: '0.14em',
-              color: isDark ? '#FAFAFA' : '#000000',
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              fontSize: '14px',
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              color: isDark ? 'rgba(255,255,255,0.4)' : '#000000',
+              fontFamily: '"Syne", system-ui, sans-serif',
               textShadow: isDark ? '0 0 20px rgba(255,255,255,0.1)' : 'none'
             }}>
-              WEB4TG STUDIO
+              WEB4TG
             </p>
           </div>
           

@@ -180,23 +180,6 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
       <div className="relative z-10">
         <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
 
-          {/* ═══════ HEADER BAR ═══════ */}
-          <div className="px-6 pt-6 pb-2">
-            <m.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: EASE }}
-            >
-              <span style={{
-                fontFamily: SYNE, fontSize: '0.8rem',
-                fontWeight: 800, letterSpacing: '-0.03em',
-                color: 'rgba(255,255,255,0.4)',
-              }}>
-                WEB4TG
-              </span>
-            </m.div>
-          </div>
-
           {/* ═══════ HERO ═══════ */}
           <header className="relative px-6 pt-6 pb-10 overflow-hidden">
             <div className="absolute inset-0 z-0 overflow-hidden">
