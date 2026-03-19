@@ -40,6 +40,7 @@ function parseHash(): Route {
     '/earning': 'earning',
     '/notifications': 'notifications',
     '/analytics': 'analytics',
+    '/premium-apps': 'premiumApps',
   };
   
   return {

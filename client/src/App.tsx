@@ -57,6 +57,7 @@ const LazyMotionProvider = lazy(() => import("./utils/LazyMotionProvider").then(
 
 // Lazy load ALL pages with retry logic for chunk loading failures after deploys
 const ShowcasePage = lazyWithRetry(() => import("./components/ShowcasePage"));
+const PremiumAppsPage = lazyWithRetry(() => import("./components/PremiumAppsPage"));
 const ProjectsPage = lazyWithRetry(() => import("./components/ProjectsPage"));
 const AboutPage = lazyWithRetry(() => import("./components/AboutPage"));
 const DemoAppLanding = lazyWithRetry(() => import("./components/DemoAppLanding"));
@@ -295,6 +296,8 @@ function App() {
         return <NotificationsPage />;
       case 'analytics':
         return <AnalyticsPage />;
+      case 'premiumApps':
+        return <PremiumAppsPage onNavigate={handleNavigate} />;
       case 'notFound':
         return <NotFoundPage />;
       default:
