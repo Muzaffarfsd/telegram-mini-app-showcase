@@ -219,7 +219,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
         <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
 
           {/* ═══════ HERO ═══════ */}
-          <header className="relative px-6 pt-20 pb-10 overflow-hidden">
+          <header className="relative px-6 pt-32 pb-10 overflow-hidden">
             <div className="absolute inset-0 z-0 overflow-hidden">
               <div className="absolute inset-0" style={{
                 background: `radial-gradient(ellipse at 50% 0%, ${EMERALD}06 0%, transparent 60%)`,
