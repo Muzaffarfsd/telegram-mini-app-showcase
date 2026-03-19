@@ -338,7 +338,7 @@ function App() {
                   {visitedTabs.has('showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={null}>
-                        <ShowcasePage onOpenDemo={handleOpenDemo} onNavigate={handleNavigate} />
+                        <PremiumAppsPage onNavigate={handleNavigate} />
                       </Suspense>
                     </div>
                   )}
