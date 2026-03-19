@@ -1,5 +1,5 @@
-import { memo, useCallback, useEffect, useRef, useMemo, useState } from "react";
-import {
+import { memo, useCallback, useEffect } from "react";
+import { 
   Check,
   MessageSquare,
   Smartphone,
@@ -7,1019 +7,644 @@ import {
   Bot,
   Sparkles,
   ArrowRight,
-  Zap,
-  Globe,
-  BellRing,
-  Brain,
-  BarChart3,
-  Shield,
-  Users,
+  Zap
 } from "lucide-react";
-import { useLanguage } from "../contexts/LanguageContext";
-import { SplineScene } from "./ui/spline-scene";
-import { m, useInView } from "@/utils/LazyMotionProvider";
+import { useLanguage } from '../contexts/LanguageContext';
+import { SplineScene } from './ui/spline-scene';
 
-const SPLINE_SCENE_URL =
-  "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode";
-
-const SYNE = '"Syne", system-ui, sans-serif';
-const INSTRUMENT = '"Instrument Serif", Georgia, serif';
-const INTER = '"Inter", -apple-system, system-ui, sans-serif';
-const EMERALD = "#34d399";
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const prefersReducedMotion = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-function Cin({
-  children,
-  className = "",
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const r = useRef(null);
-  const v = useInView(r, { once: true, margin: "-60px" });
-  const rm = prefersReducedMotion();
-  return (
-    <m.div
-      ref={r}
-      initial={rm ? { opacity: 1 } : { opacity: 0, y: 32 }}
-      animate={v ? { opacity: 1, y: 0 } : {}}
-      transition={{
-        duration: rm ? 0 : 0.9,
-        ease: EASE,
-        delay: rm ? 0 : delay,
-      }}
-      className={className}
-    >
-      {children}
-    </m.div>
-  );
-}
-
-function Ct({ to, suffix = "" }: { to: number; suffix?: string }) {
-  const r = useRef(null);
-  const v = useInView(r, { once: true });
-  const rm = prefersReducedMotion();
-  const [n, setN] = useState(rm ? to : 0);
-  useEffect(() => {
-    if (!v || rm) {
-      setN(to);
-      return;
-    }
-    let dead = false;
-    const s = performance.now();
-    const loop = (t: number) => {
-      if (dead) return;
-      const p = Math.min((t - s) / 1600, 1);
-      setN(Math.round((1 - Math.pow(1 - p, 5)) * to));
-      if (p < 1) requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
-    return () => {
-      dead = true;
-    };
-  }, [v, to, rm]);
-  return (
-    <span ref={r}>
-      {n}
-      {suffix}
-    </span>
-  );
-}
+const SPLINE_SCENE_URL = "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode";
 
 interface AIProcessPageProps {
   onNavigate: (path: string) => void;
 }
 
-const AIProcessPage = memo(({ onNavigate: _ }: AIProcessPageProps) => {
-  const { t } = useLanguage();
+const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
+  const { t, language } = useLanguage();
 
+  // Sync Telegram Main Button with language changes
   useEffect(() => {
     try {
       const tg = (window as any).Telegram?.WebApp;
       if (tg?.MainButton) {
-        tg.MainButton.setText(t("showcase.orderProject"));
+        tg.MainButton.setText(t('showcase.orderProject'));
       }
-    } catch (_e) {
-      void _e;
-    }
-  }, [t]);
-
+    } catch (e) {}
+  }, [language, t]);
+  
   const handleGetConsultation = useCallback(() => {
-    window.open("https://t.me/web4tgs", "_blank");
+    window.open('https://t.me/web4tgs', '_blank');
   }, []);
 
-  const steps = useMemo(
-    () => [
-      {
-        icon: <Smartphone className="w-5 h-5" aria-hidden="true" />,
-        accent: "#60a5fa",
-        glow: "rgba(96,165,250,0.15)",
-        titleKey: "step1Title" as const,
-        descKey: "step1Desc" as const,
-        durKey: "step1Duration" as const,
-        features: ["step1Feature1", "step1Feature2", "step1Feature3"] as const,
-      },
-      {
-        icon: <Brain className="w-5 h-5" aria-hidden="true" />,
-        accent: "#a78bfa",
-        glow: "rgba(167,139,250,0.15)",
-        titleKey: "step2Title" as const,
-        descKey: "step2Desc" as const,
-        durKey: "step2Duration" as const,
-        features: ["step2Feature1", "step2Feature2", "step2Feature3"] as const,
-      },
-      {
-        icon: <Zap className="w-5 h-5" aria-hidden="true" />,
-        accent: "#fbbf24",
-        glow: "rgba(251,191,36,0.15)",
-        titleKey: "step3Title" as const,
-        descKey: "step3Desc" as const,
-        durKey: "step3Duration" as const,
-        features: ["step3Feature1", "step3Feature2", "step3Feature3"] as const,
-      },
-      {
-        icon: <Rocket className="w-5 h-5" aria-hidden="true" />,
-        accent: EMERALD,
-        glow: "rgba(52,211,153,0.15)",
-        titleKey: "step4Title" as const,
-        descKey: "step4Desc" as const,
-        durKey: "step4Duration" as const,
-        features: ["step4Feature1", "step4Feature2", "step4Feature3"] as const,
-      },
-    ],
-    []
-  );
-
-  const whyCards = useMemo(
-    () => [
-      {
-        icon: <Globe className="w-5 h-5" aria-hidden="true" />,
-        accent: "#60a5fa",
-        titleKey: "feature1Title" as const,
-        descKey: "feature1Desc" as const,
-      },
-      {
-        icon: <Zap className="w-5 h-5" aria-hidden="true" />,
-        accent: "#fbbf24",
-        titleKey: "feature2Title" as const,
-        descKey: "feature2Desc" as const,
-      },
-      {
-        icon: <BellRing className="w-5 h-5" aria-hidden="true" />,
-        accent: "#a78bfa",
-        titleKey: "feature3Title" as const,
-        descKey: "feature3Desc" as const,
-      },
-    ],
-    []
-  );
-
-  const capabilities = useMemo(
-    () => [
-      {
-        icon: <Bot className="w-5 h-5" aria-hidden="true" />,
-        accent: EMERALD,
-        titleKey: "capNlp" as const,
-        descKey: "capNlpDesc" as const,
-      },
-      {
-        icon: <BarChart3 className="w-5 h-5" aria-hidden="true" />,
-        accent: "#60a5fa",
-        titleKey: "capAnalytics" as const,
-        descKey: "capAnalyticsDesc" as const,
-      },
-      {
-        icon: <Shield className="w-5 h-5" aria-hidden="true" />,
-        accent: "#a78bfa",
-        titleKey: "capSecurity" as const,
-        descKey: "capSecurityDesc" as const,
-      },
-      {
-        icon: <Users className="w-5 h-5" aria-hidden="true" />,
-        accent: "#fbbf24",
-        titleKey: "capScale" as const,
-        descKey: "capScaleDesc" as const,
-      },
-    ],
-    []
-  );
-
   return (
-    <div
-      className="relative min-h-screen"
-      style={{ background: "#050505", position: "relative", overflow: "hidden" }}
-    >
-      <style>{`
-        @keyframes ai-gradient-shift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        @keyframes ai-float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
-        }
-        @keyframes ai-pulse-ring {
-          0% { transform: scale(1); opacity: 0.4; }
-          100% { transform: scale(1.8); opacity: 0; }
-        }
-        .ai-gradient-text {
-          background: linear-gradient(135deg, #34d399 0%, #60a5fa 50%, #a78bfa 100%);
-          background-size: 200% 200%;
-          animation: ai-gradient-shift 6s ease infinite;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .ai-card-glow {
-          position: relative;
-        }
-        .ai-card-glow::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          padding: 1px;
-          background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(96,165,250,0.1), rgba(167,139,250,0.2));
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          pointer-events: none;
-        }
-        .ai-noise {
-          position: fixed;
-          inset: 0;
-          z-index: 2;
-          pointer-events: none;
-          opacity: 0.025;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-          background-repeat: repeat;
-          background-size: 256px 256px;
-        }
-      `}</style>
-
-      <div className="ai-noise" />
-
-      <div
+    <div className="relative min-h-screen bg-black">
+      {/* Spline 3D Background - purely decorative, no interaction */}
+      <div 
         className="fixed inset-0 z-0 pointer-events-none"
-        style={{ paddingTop: "60px" }}
+        style={{ paddingTop: '80px' }}
       >
-        <SplineScene scene={SPLINE_SCENE_URL} className="w-full h-full" />
+        <SplineScene 
+          scene={SPLINE_SCENE_URL}
+          className="w-full h-full"
+        />
       </div>
-
-      <div
-        className="absolute inset-0 z-[1] pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(180deg, transparent 15%, rgba(5,5,5,0.3) 35%, rgba(5,5,5,0.75) 48%, #050505 58%)",
-        }}
-      />
-
-      <div
-        className="relative z-10 min-h-screen pb-32"
-        style={{ paddingTop: "100px" }}
+      
+      {/* Content layer - scrollable */}
+      <div 
+        className="relative z-10 min-h-screen pb-24"
+        style={{ paddingTop: '100px' }}
       >
-        <div className="max-w-[540px] mx-auto px-5">
-          <section className="pt-0 pb-0">
-            <div className="h-[280px]" />
-          </section>
+        <div className="max-w-md mx-auto">
+        
+        {/* Hero section - robot visible */}
+        <section className="relative px-5 pt-0 pb-4">
+          {/* Robot viewing area - empty space for robot */}
+          <div className="h-[320px]" />
+        </section>
 
-          <Cin>
-            <div className="flex justify-center mb-6">
-              <div
+        {/* Main content section - cards below robot */}
+        <section className="relative px-4 pt-4 pb-16">
+          {/* iOS 26 Liquid Glass Hero Card */}
+          <div 
+            className="rounded-[28px] px-6 py-7 mb-5 relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+              border: '0.5px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.08)'
+            }}
+          >
+            {/* Specular highlight */}
+            <div 
+              className="absolute top-0 left-0 right-0 h-[60%] pointer-events-none rounded-t-[28px]"
+              style={{
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)'
+              }}
+            />
+            
+            {/* Badge pill */}
+            <div className="flex justify-center mb-5 relative">
+              <span 
+                className="px-4 py-2 rounded-full text-[12px] font-semibold tracking-wide"
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "7px 16px",
-                  borderRadius: "100px",
-                  background: "rgba(52,211,153,0.08)",
-                  border: "1px solid rgba(52,211,153,0.15)",
-                  position: "relative",
+                  background: 'rgba(255,255,255,0.08)',
+                  color: 'rgba(255,255,255,0.85)',
+                  border: '0.5px solid rgba(255,255,255,0.08)',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.15)'
                 }}
               >
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    borderRadius: "inherit",
-                    animation: "ai-pulse-ring 2.5s ease-out infinite",
-                    border: "1px solid rgba(52,211,153,0.2)",
-                  }}
-                />
-                <Sparkles
-                  className="w-3.5 h-3.5"
-                  style={{ color: EMERALD }}
-                  aria-hidden="true"
-                />
-                <span
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase" as const,
-                    color: EMERALD,
-                    fontFamily: INTER,
-                  }}
-                >
-                  {t("aiProcess.badge")}
-                </span>
-              </div>
-            </div>
-          </Cin>
-
-          <Cin delay={0.08}>
-            <h1 className="text-center" style={{ marginBottom: "20px" }}>
-              <span
-                className="ai-gradient-text"
-                style={{
-                  display: "block",
-                  fontFamily: SYNE,
-                  fontWeight: 800,
-                  fontSize: "40px",
-                  lineHeight: 1.05,
-                  letterSpacing: "-0.04em",
-                }}
-              >
-                {t("aiProcess.heroTitle1")}
+                ✦ AI Powered
               </span>
-              <span
-                style={{
-                  display: "block",
-                  fontFamily: INSTRUMENT,
-                  fontStyle: "italic",
-                  fontWeight: 400,
-                  fontSize: "36px",
-                  lineHeight: 1.15,
-                  letterSpacing: "-0.02em",
-                  color: "rgba(255,255,255,0.45)",
-                  marginTop: "2px",
+            </div>
+            
+            {/* Title - iOS 26 SF Pro Display */}
+            <h1 className="text-center mb-4 relative">
+              <span 
+                className="block text-[28px] leading-[1.15] font-semibold"
+                style={{ 
+                  color: '#ffffff', 
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
+                  letterSpacing: '-0.02em'
                 }}
               >
-                {t("aiProcess.heroTitle2")} {t("aiProcess.heroTitle3")}
+                {t('aiProcess.heroTitle1')}
+              </span>
+              <span 
+                className="block text-[28px] leading-[1.15] font-semibold mt-0.5"
+                style={{ 
+                  color: 'rgba(255,255,255,0.7)',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
+                  letterSpacing: '-0.02em'
+                }}
+              >
+                {t('aiProcess.heroTitle2')} {t('aiProcess.heroTitle3')}
               </span>
             </h1>
-          </Cin>
-
-          <Cin delay={0.14}>
-            <p
-              className="text-center"
-              style={{
-                fontFamily: INTER,
-                fontSize: "15px",
-                lineHeight: 1.65,
-                color: "rgba(255,255,255,0.45)",
-                maxWidth: "320px",
-                margin: "0 auto 32px",
+            
+            {/* Subtitle - SF Pro Text */}
+            <p 
+              className="text-center text-[15px] leading-[1.47] font-normal relative"
+              style={{ 
+                color: 'rgba(255,255,255,0.8)',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
               }}
             >
-              {t("aiProcess.heroSubtitle1")}
-              <br />
-              {t("aiProcess.heroSubtitle2")}
+              {t('aiProcess.heroSubtitle1')}
             </p>
-          </Cin>
+            <p 
+              className="text-center text-[13px] leading-[1.38] mt-2 relative"
+              style={{ 
+                color: 'rgba(255,255,255,0.5)',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
+              }}
+            >
+              {t('aiProcess.heroSubtitle2')}
+            </p>
+          </div>
 
-          <Cin delay={0.18}>
-            <div className="flex justify-center mb-12">
-              <a
-                href="https://t.me/web4tgs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="active:scale-[0.97]"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  padding: "15px 32px",
-                  borderRadius: "16px",
-                  background: `linear-gradient(135deg, ${EMERALD}, #2dd4bf)`,
-                  color: "#050505",
-                  fontFamily: INTER,
-                  fontSize: "15px",
-                  fontWeight: 600,
-                  letterSpacing: "-0.01em",
-                  textDecoration: "none",
-                  transition: "transform 0.2s ease, box-shadow 0.3s ease",
-                  boxShadow: `0 0 0 1px rgba(52,211,153,0.3), 0 8px 32px rgba(52,211,153,0.25), 0 2px 8px rgba(0,0,0,0.3)`,
+          {/* CTA Button - iOS 26 Liquid Glass floating button */}
+          <div className="flex items-center gap-2 mb-5">
+            <a
+              href="https://t.me/web4tgs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2.5 rounded-[16px] transition-all duration-300 active:scale-[0.98]"
+              style={{ 
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)',
+                height: '54px',
+                paddingLeft: '20px',
+                paddingRight: '16px',
+                border: '0.5px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.1)'
+              }}
+            >
+              <MessageSquare className="w-[18px] h-[18px] text-white/90 flex-shrink-0" />
+              <span 
+                className="text-[15px] font-semibold text-white"
+                style={{ 
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
                 }}
               >
-                <MessageSquare className="w-[17px] h-[17px]" aria-hidden="true" />
-                {t("aiProcess.getConsultation")}
-                <ArrowRight className="w-4 h-4 opacity-50" aria-hidden="true" />
-              </a>
-            </div>
-          </Cin>
-
-          <Cin delay={0.22}>
-            <div
-              className="grid grid-cols-3 gap-3 mb-16"
-              role="list"
-              aria-label={t("aiProcess.statsLabel")}
-            >
-              {[
-                {
-                  value: 900,
-                  suffix: "M+",
-                  label: t("aiProcess.stats.users"),
-                },
-                {
-                  raw: "24/7",
-                  label: t("aiProcess.stats.support"),
-                },
-                {
-                  value: 100,
-                  suffix: "%",
-                  label: t("aiProcess.stats.automation"),
-                },
-              ].map((stat, i) => (
-                <div
-                  key={i}
-                  role="listitem"
-                  className="ai-card-glow"
-                  style={{
-                    padding: "20px 8px",
-                    borderRadius: "18px",
-                    textAlign: "center",
-                    background:
-                      "linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.01) 100%)",
-                  }}
-                >
-                  <span
-                    style={{
-                      display: "block",
-                      fontFamily: SYNE,
-                      fontWeight: 800,
-                      fontSize: "24px",
-                      letterSpacing: "-0.03em",
-                      color: "#fff",
-                      marginBottom: "6px",
-                    }}
-                  >
-                    {"value" in stat && stat.value !== undefined ? (
-                      <Ct to={stat.value} suffix={stat.suffix} />
-                    ) : (
-                      stat.raw
-                    )}
-                  </span>
-                  <span
-                    style={{
-                      display: "block",
-                      fontFamily: INTER,
-                      fontSize: "10px",
-                      fontWeight: 500,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase" as const,
-                      color: "rgba(255,255,255,0.3)",
-                    }}
-                  >
-                    {stat.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Cin>
-
-          <Cin>
-            <SectionHeading
-              line1={t("aiProcess.capabilitiesTitle1")}
-              line2={t("aiProcess.capabilitiesTitle2")}
-            />
-          </Cin>
-
-          <div className="grid grid-cols-2 gap-3 mb-16">
-            {capabilities.map((cap, i) => (
-              <Cin key={cap.titleKey} delay={i * 0.06}>
-                <div
-                  className="ai-card-glow"
-                  style={{
-                    borderRadius: "20px",
-                    padding: "20px 16px",
-                    background:
-                      "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.008) 100%)",
-                    height: "100%",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "12px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      background: `${cap.accent}12`,
-                      color: cap.accent,
-                      marginBottom: "14px",
-                    }}
-                  >
-                    {cap.icon}
-                  </div>
-                  <h3
-                    style={{
-                      fontFamily: SYNE,
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      letterSpacing: "-0.02em",
-                      color: "#fff",
-                      marginBottom: "6px",
-                      lineHeight: 1.3,
-                    }}
-                  >
-                    {t(`aiProcess.capabilities.${cap.titleKey}`)}
-                  </h3>
-                  <p
-                    style={{
-                      fontFamily: INTER,
-                      fontSize: "12px",
-                      lineHeight: 1.5,
-                      color: "rgba(255,255,255,0.35)",
-                    }}
-                  >
-                    {t(`aiProcess.capabilities.${cap.descKey}`)}
-                  </p>
-                </div>
-              </Cin>
-            ))}
-          </div>
-
-          <Cin>
-            <SectionHeading
-              line1={t("aiProcess.benefitsTitle1")}
-              line2={t("aiProcess.benefitsTitle2")}
-            />
-          </Cin>
-
-          <div className="space-y-2.5 mb-16">
-            {(
-              [
-                "benefit1",
-                "benefit2",
-                "benefit3",
-                "benefit4",
-                "benefit5",
-                "benefit6",
-              ] as const
-            ).map((key, i) => (
-              <Cin key={key} delay={i * 0.05}>
-                <BenefitRow text={t(`aiProcess.benefits.${key}`)} index={i} />
-              </Cin>
-            ))}
-          </div>
-
-          <Cin>
-            <SectionHeading
-              line1={t("aiProcess.howItWorksTitle1")}
-              line2={t("aiProcess.howItWorksTitle2")}
-            />
-          </Cin>
-
-          <div className="relative mb-16">
-            <div
-              style={{
-                position: "absolute",
-                left: "31px",
-                top: "28px",
-                bottom: "28px",
-                width: "1px",
-                background: `linear-gradient(180deg, ${EMERALD}40, rgba(96,165,250,0.2), rgba(167,139,250,0.2), ${EMERALD}40)`,
-              }}
-              aria-hidden="true"
-            />
-
-            <div className="space-y-3">
-              {steps.map((step, i) => (
-                <Cin key={step.titleKey} delay={i * 0.08}>
-                  <StepCard
-                    stepNumber={i + 1}
-                    icon={step.icon}
-                    accent={step.accent}
-                    glow={step.glow}
-                    title={t(`aiProcess.steps.${step.titleKey}`)}
-                    description={t(`aiProcess.steps.${step.descKey}`)}
-                    duration={t(`aiProcess.steps.${step.durKey}`)}
-                    features={step.features.map((fk) =>
-                      t(`aiProcess.steps.${fk}`)
-                    )}
-                  />
-                </Cin>
-              ))}
-            </div>
-          </div>
-
-          <Cin>
-            <SectionHeading
-              line1={t("aiProcess.whyTelegramTitle1")}
-              line2={t("aiProcess.whyTelegramTitle2")}
-            />
-          </Cin>
-
-          <div className="space-y-3 mb-16">
-            {whyCards.map((card, i) => (
-              <Cin key={card.titleKey} delay={i * 0.08}>
-                <WhyCard
-                  icon={card.icon}
-                  accent={card.accent}
-                  title={t(`aiProcess.whyTelegram.${card.titleKey}`)}
-                  description={t(`aiProcess.whyTelegram.${card.descKey}`)}
-                />
-              </Cin>
-            ))}
-          </div>
-
-          <Cin>
-            <div
-              className="ai-card-glow"
-              style={{
-                borderRadius: "28px",
-                padding: "40px 24px",
-                textAlign: "center",
-                background:
-                  "linear-gradient(180deg, rgba(52,211,153,0.06) 0%, rgba(52,211,153,0.015) 100%)",
-                position: "relative",
-                overflow: "hidden",
-                marginBottom: "32px",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  top: "-60px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: "300px",
-                  height: "200px",
-                  background: `radial-gradient(ellipse, ${EMERALD}12, transparent 70%)`,
-                  pointerEvents: "none",
-                }}
-                aria-hidden="true"
-              />
-
-              <div style={{ position: "relative" }}>
-                <h2
-                  style={{
-                    fontFamily: SYNE,
-                    fontWeight: 800,
-                    fontSize: "30px",
-                    letterSpacing: "-0.04em",
-                    color: "#fff",
-                    marginBottom: "10px",
-                    lineHeight: 1.1,
-                  }}
-                >
-                  {t("aiProcess.ctaTitle")}
-                </h2>
-                <p
-                  style={{
-                    fontFamily: INTER,
-                    fontSize: "14px",
-                    lineHeight: 1.65,
-                    color: "rgba(255,255,255,0.4)",
-                    marginBottom: "28px",
-                    maxWidth: "300px",
-                    marginLeft: "auto",
-                    marginRight: "auto",
-                  }}
-                >
-                  {t("aiProcess.ctaSubtitle1")}
-                  <br />
-                  {t("aiProcess.ctaSubtitle2")}
-                </p>
-
-                <button
-                  type="button"
-                  onClick={handleGetConsultation}
-                  className="active:scale-[0.97]"
-                  style={{
-                    width: "100%",
-                    padding: "16px 24px",
-                    borderRadius: "16px",
-                    border: "none",
-                    background: `linear-gradient(135deg, ${EMERALD}, #2dd4bf)`,
-                    color: "#050505",
-                    fontFamily: INTER,
-                    fontSize: "15px",
-                    fontWeight: 600,
-                    letterSpacing: "-0.01em",
-                    cursor: "pointer",
-                    transition: "transform 0.2s ease, box-shadow 0.3s ease",
-                    boxShadow: `0 8px 32px rgba(52,211,153,0.25), 0 2px 8px rgba(0,0,0,0.3)`,
-                    marginBottom: "18px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                  }}
-                >
-                  {t("aiProcess.ctaButton")}
-                  <ArrowRight className="w-4 h-4 opacity-50" aria-hidden="true" />
-                </button>
-
-                <p
-                  style={{
-                    fontFamily: INTER,
-                    fontSize: "11px",
-                    color: "rgba(255,255,255,0.25)",
-                    lineHeight: 1.5,
-                    letterSpacing: "0.02em",
-                  }}
-                >
-                  {t("aiProcess.ctaFooter")}
-                </p>
-              </div>
-            </div>
-          </Cin>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-AIProcessPage.displayName = "AIProcessPage";
-
-const SectionHeading = memo(
-  ({ line1, line2 }: { line1: string; line2: string }) => (
-    <h2 className="text-center mb-10">
-      <span
-        style={{
-          display: "block",
-          fontFamily: SYNE,
-          fontWeight: 800,
-          fontSize: "30px",
-          letterSpacing: "-0.04em",
-          color: "#fff",
-          lineHeight: 1.1,
-        }}
-      >
-        {line1}
-      </span>
-      <span
-        style={{
-          display: "block",
-          fontFamily: INSTRUMENT,
-          fontStyle: "italic",
-          fontWeight: 400,
-          fontSize: "28px",
-          letterSpacing: "-0.02em",
-          color: "rgba(255,255,255,0.35)",
-          lineHeight: 1.25,
-          marginTop: "2px",
-        }}
-      >
-        {line2}
-      </span>
-    </h2>
-  )
-);
-SectionHeading.displayName = "SectionHeading";
-
-const StepCard = memo(
-  ({
-    stepNumber,
-    icon,
-    accent,
-    glow,
-    title,
-    description,
-    duration,
-    features,
-  }: {
-    stepNumber: number;
-    icon: React.ReactNode;
-    accent: string;
-    glow: string;
-    title: string;
-    description: string;
-    duration: string;
-    features: string[];
-  }) => (
-    <div
-      className="ai-card-glow"
-      style={{
-        borderRadius: "22px",
-        padding: "20px",
-        background: `linear-gradient(180deg, ${glow} 0%, rgba(255,255,255,0.008) 100%)`,
-        transition: "transform 0.25s ease",
-      }}
-    >
-      <div className="flex items-start gap-4">
-        <div className="flex flex-col items-center gap-2 flex-shrink-0">
-          <div
-            style={{
-              width: "22px",
-              height: "22px",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: accent,
-              fontFamily: INTER,
-              fontSize: "11px",
-              fontWeight: 700,
-              color: "#050505",
-            }}
-          >
-            {stepNumber}
-          </div>
-          <div
-            style={{
-              width: "42px",
-              height: "42px",
-              borderRadius: "13px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: `${accent}15`,
-              border: `1px solid ${accent}20`,
-              color: accent,
-            }}
-          >
-            {icon}
-          </div>
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1.5">
-            <h3
-              style={{
-                fontFamily: SYNE,
-                fontWeight: 700,
-                fontSize: "15px",
-                letterSpacing: "-0.02em",
-                color: "#fff",
-                lineHeight: 1.3,
-              }}
-            >
-              {title}
-            </h3>
-            <span
-              style={{
-                flexShrink: 0,
-                marginLeft: "8px",
-                padding: "4px 10px",
-                borderRadius: "100px",
-                background: `${accent}10`,
-                border: `1px solid ${accent}18`,
-                fontFamily: INTER,
-                fontSize: "10px",
-                fontWeight: 600,
-                color: `${accent}bb`,
-                letterSpacing: "0.02em",
-              }}
-            >
-              {duration}
-            </span>
-          </div>
-          <p
-            style={{
-              fontFamily: INTER,
-              fontSize: "13px",
-              lineHeight: 1.55,
-              color: "rgba(255,255,255,0.38)",
-              marginBottom: "12px",
-            }}
-          >
-            {description}
-          </p>
-
-          <div className="flex flex-wrap gap-1.5">
-            {features.map((f, i) => (
-              <span
-                key={i}
-                style={{
-                  padding: "5px 11px",
-                  borderRadius: "9px",
-                  background: `${accent}0c`,
-                  border: `1px solid ${accent}15`,
-                  fontFamily: INTER,
-                  fontSize: "11px",
-                  fontWeight: 500,
-                  color: `${accent}cc`,
-                  letterSpacing: "0.01em",
-                }}
-              >
-                {f}
+                {t('aiProcess.getConsultation')}
               </span>
+              <ArrowRight className="w-[18px] h-[18px] text-white/60 flex-shrink-0" />
+            </a>
+          </div>
+
+          {/* Stats row - iOS 26 Liquid Glass floating cards */}
+          <div className="grid grid-cols-3 gap-2.5 mb-6">
+            {[
+              { value: '900M+', label: t('aiProcess.stats.users') },
+              { value: '24/7', label: t('aiProcess.stats.support') },
+              { value: '100%', label: t('aiProcess.stats.automation') }
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className="py-4 px-2 rounded-[14px] text-center relative overflow-hidden"
+                style={{ 
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+                  border: '0.5px solid rgba(255,255,255,0.06)',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.1)'
+                }}
+              >
+                <span 
+                  className="text-[18px] font-bold block"
+                  style={{ 
+                    color: '#ffffff',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
+                    letterSpacing: '-0.02em'
+                  }}
+                >
+                  {stat.value}
+                </span>
+                <span 
+                  className="text-[10px] font-medium uppercase tracking-wide"
+                  style={{ 
+                    color: 'rgba(255,255,255,0.5)',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
+                  }}
+                >
+                  {stat.label}
+                </span>
+              </div>
             ))}
           </div>
+        </section>
+
+        <section className="px-4 py-4 space-y-3">
+          
+          <ProcessStepPremium
+            number="1"
+            title={t('aiProcess.steps.step1Title')}
+            description={t('aiProcess.steps.step1Desc')}
+            duration={t('aiProcess.steps.step1Duration')}
+            accentGradient="linear-gradient(135deg, #007AFF 0%, #0051D5 100%)"
+            icon={<Smartphone className="w-6 h-6" />}
+            features={[
+              t('aiProcess.steps.step1Feature1'),
+              t('aiProcess.steps.step1Feature2'),
+              t('aiProcess.steps.step1Feature3')
+            ]}
+          />
+
+          <ProcessStepPremium
+            number="2"
+            title={t('aiProcess.steps.step2Title')}
+            description={t('aiProcess.steps.step2Desc')}
+            duration={t('aiProcess.steps.step2Duration')}
+            accentGradient="linear-gradient(135deg, #BF5AF2 0%, #8E2DE2 100%)"
+            icon={<Bot className="w-6 h-6" />}
+            features={[
+              t('aiProcess.steps.step2Feature1'),
+              t('aiProcess.steps.step2Feature2'),
+              t('aiProcess.steps.step2Feature3')
+            ]}
+          />
+
+          <ProcessStepPremium
+            number="3"
+            title={t('aiProcess.steps.step3Title')}
+            description={t('aiProcess.steps.step3Desc')}
+            duration={t('aiProcess.steps.step3Duration')}
+            accentGradient="linear-gradient(135deg, #FF9F0A 0%, #FF6B00 100%)"
+            icon={<Zap className="w-6 h-6" />}
+            features={[
+              t('aiProcess.steps.step3Feature1'),
+              t('aiProcess.steps.step3Feature2'),
+              t('aiProcess.steps.step3Feature3')
+            ]}
+          />
+
+          <ProcessStepPremium
+            number="4"
+            title={t('aiProcess.steps.step4Title')}
+            description={t('aiProcess.steps.step4Desc')}
+            duration={t('aiProcess.steps.step4Duration')}
+            accentGradient="linear-gradient(135deg, #34C759 0%, #30D158 100%)"
+            icon={<Rocket className="w-6 h-6" />}
+            features={[
+              t('aiProcess.steps.step4Feature1'),
+              t('aiProcess.steps.step4Feature2'),
+              t('aiProcess.steps.step4Feature3')
+            ]}
+          />
+
+        </section>
+
+        <section className="px-4 py-6">
+          <h2 
+            className="text-center mb-6"
+            style={{
+              fontSize: '24px',
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
+              color: '#ffffff',
+              lineHeight: '1.15',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
+            }}
+          >
+            {t('aiProcess.benefitsTitle1')}
+            <br />
+            <span style={{ color: 'rgba(255,255,255,0.6)' }}>{t('aiProcess.benefitsTitle2')}</span>
+          </h2>
+          
+          <div 
+            className="rounded-[20px] p-6 space-y-4"
+            style={{
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+              border: '0.5px solid rgba(255,255,255,0.08)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.06)'
+            }}
+          >
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit1')} />
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit2')} />
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit3')} />
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit4')} />
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit5')} />
+            <BenefitItemPremium text={t('aiProcess.benefits.benefit6')} />
+          </div>
+        </section>
+
+        <section className="px-4 py-6">
+          <h2 
+            className="text-center mb-6"
+            style={{
+              fontSize: '24px',
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
+              color: '#ffffff',
+              lineHeight: '1.15',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
+            }}
+          >
+            {t('aiProcess.whyTelegramTitle1')}
+            <br />
+            <span style={{ color: 'rgba(255,255,255,0.6)' }}>{t('aiProcess.whyTelegramTitle2')}</span>
+          </h2>
+          
+          <div className="space-y-3">
+            <WhyFeatureCard
+              icon="🌍"
+              title={t('aiProcess.whyTelegram.feature1Title')}
+              description={t('aiProcess.whyTelegram.feature1Desc')}
+            />
+            <WhyFeatureCard
+              icon="⚡️"
+              title={t('aiProcess.whyTelegram.feature2Title')}
+              description={t('aiProcess.whyTelegram.feature2Desc')}
+            />
+            <WhyFeatureCard
+              icon="🔔"
+              title={t('aiProcess.whyTelegram.feature3Title')}
+              description={t('aiProcess.whyTelegram.feature3Desc')}
+            />
+          </div>
+        </section>
+
+        <section className="px-4 py-8">
+          <div 
+            className="rounded-[20px] p-6 text-center relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+              border: '0.5px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.08)'
+            }}
+          >
+            {/* Specular highlight */}
+            <div 
+              className="absolute top-0 left-0 right-0 h-[50%] pointer-events-none rounded-t-[20px]"
+              style={{
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)'
+              }}
+            />
+            
+            <div className="relative z-10">
+              <h3 
+                style={{
+                  fontSize: '22px',
+                  fontWeight: 600,
+                  letterSpacing: '-0.02em',
+                  color: '#ffffff',
+                  marginBottom: '8px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
+                }}
+              >
+                {t('aiProcess.ctaTitle')}
+              </h3>
+              
+              <p 
+                style={{
+                  fontSize: '15px',
+                  lineHeight: '1.47',
+                  color: 'rgba(255,255,255,0.6)',
+                  marginBottom: '20px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
+                }}
+              >
+                {t('aiProcess.ctaSubtitle1')}
+                <br />
+                {t('aiProcess.ctaSubtitle2')}
+              </p>
+
+              <button
+                onClick={handleGetConsultation}
+                className="w-full py-3.5 font-semibold rounded-[14px] transition-all duration-200 active:scale-[0.97] mb-3"
+                style={{
+                  fontSize: '16px',
+                  letterSpacing: '-0.01em',
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)',
+                  color: '#000000',
+                  boxShadow: '0 4px 20px rgba(255,255,255,0.2)',
+                  border: 'none',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
+                }}
+                data-testid="button-get-consultation"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  {t('aiProcess.ctaButton')}
+                  <ArrowRight className="w-4.5 h-4.5" />
+                </span>
+              </button>
+              
+              <p 
+                style={{
+                  fontSize: '12px',
+                  color: 'rgba(255,255,255,0.4)',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
+                }}
+              >
+                {t('aiProcess.ctaFooter')}
+              </p>
+            </div>
+          </div>
+        </section>
+
         </div>
       </div>
     </div>
-  )
-);
-StepCard.displayName = "StepCard";
-
-const BENEFIT_ACCENTS = [EMERALD, "#60a5fa", "#a78bfa", "#fbbf24", EMERALD, "#60a5fa"];
-
-const BenefitRow = memo(({ text, index }: { text: string; index: number }) => {
-  const accent = BENEFIT_ACCENTS[index % BENEFIT_ACCENTS.length];
-  return (
-    <div
-      className="flex items-center gap-3.5 ai-card-glow"
-      style={{
-        padding: "15px 16px",
-        borderRadius: "16px",
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.008) 100%)",
-      }}
-    >
-      <div
-        className="flex-shrink-0 flex items-center justify-center"
-        style={{
-          width: "30px",
-          height: "30px",
-          borderRadius: "10px",
-          background: `${accent}12`,
-          border: `1px solid ${accent}20`,
-        }}
-      >
-        <Check className="w-3.5 h-3.5" style={{ color: accent }} aria-hidden="true" />
-      </div>
-      <p
-        style={{
-          fontFamily: INTER,
-          fontSize: "14px",
-          lineHeight: 1.5,
-          color: "rgba(255,255,255,0.65)",
-          fontWeight: 400,
-        }}
-      >
-        {text}
-      </p>
-    </div>
   );
 });
-BenefitRow.displayName = "BenefitRow";
 
-const WhyCard = memo(
-  ({
-    icon,
-    accent,
-    title,
-    description,
-  }: {
-    icon: React.ReactNode;
-    accent: string;
-    title: string;
-    description: string;
-  }) => (
-    <div
-      className="ai-card-glow"
+AIProcessPage.displayName = 'AIProcessPage';
+
+const StatBadge = memo(({ number, label }: { number: string; label: string }) => (
+  <div className="text-center" style={{ minWidth: '80px', flex: '1 1 0' }}>
+    <div 
       style={{
-        borderRadius: "22px",
-        padding: "22px",
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.008) 100%)",
-        transition: "transform 0.25s ease",
+        fontSize: '24px',
+        fontWeight: 700,
+        letterSpacing: '-0.03em',
+        color: 'var(--text-primary)',
+        lineHeight: '1',
+        marginBottom: '4px',
+        minHeight: '24px'
       }}
     >
-      <div className="flex gap-4">
-        <div
-          className="flex-shrink-0 flex items-center justify-center"
-          style={{
-            width: "44px",
-            height: "44px",
-            borderRadius: "14px",
-            background: `${accent}12`,
-            border: `1px solid ${accent}18`,
-            color: accent,
-          }}
-        >
+      {number}
+    </div>
+    <div 
+      style={{
+        fontSize: '10px',
+        color: 'var(--text-quaternary)',
+        letterSpacing: '0.02em',
+        textTransform: 'uppercase',
+        minHeight: '14px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }}
+    >
+      {label}
+    </div>
+  </div>
+));
+StatBadge.displayName = 'StatBadge';
+
+const ProcessStepPremium = memo(({ 
+  number,
+  title,
+  description,
+  duration,
+  accentGradient,
+  icon,
+  features
+}: { 
+  number: string;
+  title: string;
+  description: string;
+  duration: string;
+  accentGradient: string;
+  icon: React.ReactNode;
+  features: string[];
+}) => (
+  <div 
+    className="rounded-[20px] p-5 relative overflow-hidden group active:scale-[0.98]"
+    style={{
+      background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+      border: '0.5px solid rgba(255,255,255,0.08)',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.06)',
+      transition: 'transform 0.2s ease'
+    }}
+  >
+    <div className="flex items-start gap-4">
+      <div 
+        className="flex-shrink-0 flex items-center justify-center rounded-[14px]"
+        style={{
+          width: '48px',
+          height: '48px',
+          background: accentGradient,
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+        }}
+      >
+        <div style={{ color: 'white' }}>
           {icon}
         </div>
-        <div className="flex-1">
-          <h3
+      </div>
+      
+      <div className="flex-1">
+        <div className="flex items-center justify-between mb-1.5">
+          <h3 
             style={{
-              fontFamily: SYNE,
-              fontWeight: 700,
-              fontSize: "15px",
-              letterSpacing: "-0.02em",
-              color: "#fff",
-              marginBottom: "5px",
-              lineHeight: 1.3,
+              fontSize: '17px',
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
+              color: '#ffffff',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
             }}
           >
             {title}
           </h3>
-          <p
+          <div 
+            className="px-2.5 py-1 rounded-full shrink-0"
             style={{
-              fontFamily: INTER,
-              fontSize: "13px",
-              lineHeight: 1.55,
-              color: "rgba(255,255,255,0.38)",
+              background: 'rgba(255,255,255,0.08)',
+              fontSize: '12px',
+              color: 'rgba(255,255,255,0.6)',
+              fontWeight: 500,
+              border: '0.5px solid rgba(255,255,255,0.05)'
             }}
           >
-            {description}
-          </p>
+            {duration}
+          </div>
+        </div>
+        <p 
+          style={{
+            fontSize: '14px',
+            lineHeight: '1.47',
+            color: 'rgba(255,255,255,0.6)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
+            marginBottom: '12px'
+          }}
+        >
+          {description}
+        </p>
+
+        <div className="space-y-1.5">
+          {features.map((feature, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <div 
+                className="w-1 h-1 rounded-full"
+                style={{ background: accentGradient }}
+              />
+              <span 
+                style={{
+                  fontSize: '13px',
+                  color: 'rgba(255,255,255,0.5)',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
+                }}
+              >
+                {feature}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
-  )
-);
-WhyCard.displayName = "WhyCard";
+  </div>
+));
+ProcessStepPremium.displayName = 'ProcessStepPremium';
+
+const BenefitItemPremium = memo(({ text }: { text: string }) => (
+  <div className="flex items-center gap-3">
+    <div 
+      className="flex-shrink-0 flex items-center justify-center rounded-full"
+      style={{
+        width: '24px',
+        height: '24px',
+        background: 'rgba(52, 199, 89, 0.15)',
+        border: '0.5px solid rgba(52, 199, 89, 0.2)'
+      }}
+    >
+      <Check className="w-3.5 h-3.5 text-[#34C759]" />
+    </div>
+    <p 
+      style={{
+        fontSize: '15px',
+        lineHeight: '1.47',
+        color: 'rgba(255,255,255,0.85)',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
+        fontWeight: 400
+      }}
+    >
+      {text}
+    </p>
+  </div>
+));
+BenefitItemPremium.displayName = 'BenefitItemPremium';
+
+const WhyFeatureCard = memo(({ 
+  icon, 
+  title, 
+  description 
+}: { 
+  icon: string; 
+  title: string; 
+  description: string;
+}) => (
+  <div 
+    className="rounded-[20px] p-5 active:scale-[0.98]"
+    style={{
+      background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+      border: '0.5px solid rgba(255,255,255,0.08)',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.06)',
+      transition: 'transform 0.2s ease'
+    }}
+  >
+    <div className="flex gap-4">
+      <div 
+        style={{
+          fontSize: '28px',
+          lineHeight: '1',
+          flexShrink: 0
+        }}
+      >
+        {icon}
+      </div>
+      <div className="flex-1">
+        <h4 
+          style={{
+            fontSize: '16px',
+            fontWeight: 600,
+            color: '#ffffff',
+            marginBottom: '4px',
+            letterSpacing: '-0.02em',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif'
+          }}
+        >
+          {title}
+        </h4>
+        <p 
+          style={{
+            fontSize: '14px',
+            lineHeight: '1.47',
+            color: 'rgba(255,255,255,0.6)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif'
+          }}
+        >
+          {description}
+        </p>
+      </div>
+    </div>
+  </div>
+));
+WhyFeatureCard.displayName = 'WhyFeatureCard';
 
 export default AIProcessPage;
