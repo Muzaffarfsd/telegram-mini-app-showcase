@@ -66,8 +66,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[28px] px-6 py-7 mb-5 relative overflow-hidden"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.06)'
+              background: '#111111',
+              border: '1px solid #1a1a1a'
             }}
           >
             
@@ -76,9 +76,9 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               <span 
                 className="px-4 py-2 rounded-full text-[12px] font-semibold tracking-wide"
                 style={{
-                  background: 'rgba(255,255,255,0.06)',
+                  background: '#1a1a1a',
                   color: 'rgba(255,255,255,0.85)',
-                  border: '1px solid rgba(255,255,255,0.06)'
+                  border: '1px solid #222222'
                 }}
               >
                 ✦ AI Powered
@@ -137,11 +137,11 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-2.5 rounded-[16px] transition-all duration-300 active:scale-[0.98]"
               style={{ 
-                background: 'rgba(255,255,255,0.05)',
+                background: '#111111',
                 height: '54px',
                 paddingLeft: '20px',
                 paddingRight: '16px',
-                border: '1px solid rgba(255,255,255,0.08)'
+                border: '1px solid #1a1a1a'
               }}
             >
               <MessageSquare className="w-[18px] h-[18px] text-white/90 flex-shrink-0" />
@@ -167,8 +167,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                 key={i}
                 className="py-4 px-2 rounded-[14px] text-center relative overflow-hidden"
                 style={{ 
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)'
+                  background: '#111111',
+                  border: '1px solid #1a1a1a'
                 }}
               >
                 <span 
@@ -275,8 +275,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[20px] p-6 space-y-4"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.06)'
+              background: '#111111',
+              border: '1px solid #1a1a1a'
             }}
           >
             <BenefitItemPremium text={t('aiProcess.benefits.benefit1')} />
@@ -328,8 +328,8 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           <div 
             className="rounded-[20px] p-6 text-center relative overflow-hidden"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.06)'
+              background: '#111111',
+              border: '1px solid #1a1a1a'
             }}
           >
             
@@ -454,8 +454,8 @@ const ProcessStepPremium = memo(({
   <div 
     className="rounded-[20px] p-5 relative overflow-hidden group active:scale-[0.98]"
     style={{
-      background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.06)',
+      background: '#111111',
+      border: '1px solid #1a1a1a',
       transition: 'transform 0.2s ease'
     }}
   >
@@ -490,11 +490,11 @@ const ProcessStepPremium = memo(({
           <div 
             className="px-2.5 py-1 rounded-full shrink-0"
             style={{
-              background: 'rgba(255,255,255,0.06)',
+              background: '#1a1a1a',
               fontSize: '12px',
               color: 'rgba(255,255,255,0.6)',
               fontWeight: 500,
-              border: '1px solid rgba(255,255,255,0.06)'
+              border: '1px solid #222222'
             }}
           >
             {duration}
@@ -577,8 +577,8 @@ const WhyFeatureCard = memo(({
   <div 
     className="rounded-[20px] p-5 active:scale-[0.98]"
     style={{
-      background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.06)',
+      background: '#111111',
+      border: '1px solid #1a1a1a',
       transition: 'transform 0.2s ease'
     }}
   >
