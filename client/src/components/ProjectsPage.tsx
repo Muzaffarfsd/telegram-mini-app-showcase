@@ -234,32 +234,6 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                 </span>
               </m.div>
 
-              <m.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.8 }}
-                className="mt-7 rounded-2xl p-5"
-                style={{
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.05)',
-                }}
-              >
-                <p style={{
-                  fontFamily: INTER, fontSize: '0.8125rem',
-                  fontWeight: 500, letterSpacing: '-0.01em',
-                  color: 'rgba(255,255,255,0.5)', lineHeight: 1.65,
-                }}>
-                  {t('projectsPage.fomoLine1')}
-                  <br />
-                  <span style={{ color: EMERALD, fontWeight: 600 }}>
-                    {t('projectsPage.fomoLine2')}
-                  </span>
-                  <br />
-                  <span style={{ color: 'rgba(255,255,255,0.35)' }}>
-                    {t('projectsPage.fomoLine3')}
-                  </span>
-                </p>
-              </m.div>
             </div>
           </header>
 
