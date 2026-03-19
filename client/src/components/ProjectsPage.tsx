@@ -62,6 +62,23 @@ function Ct({ to, suffix = "" }: { to: number; suffix?: string }) {
 const CATEGORIES_RU = ['Все', 'E-Commerce', 'Финтех', 'Еда', 'Букинг', 'AI', 'Крипто'];
 const CATEGORIES_EN = ['All', 'E-Commerce', 'Fintech', 'Food', 'Booking', 'AI', 'Crypto'];
 
+const APP_ICONS: Record<string, { emoji: string; grad: string }> = {
+  'clothing-store':    { emoji: '👗', grad: 'linear-gradient(135deg, #1a1a2e, #16213e)' },
+  'electronics':       { emoji: '⚡', grad: 'linear-gradient(135deg, #0a1628, #1a2744)' },
+  'beauty':            { emoji: '✨', grad: 'linear-gradient(135deg, #1e0a1e, #2a1230)' },
+  'restaurant':        { emoji: '🍽', grad: 'linear-gradient(135deg, #1a1408, #2a2010)' },
+  'luxury-watches':    { emoji: '⌚', grad: 'linear-gradient(135deg, #1a1610, #2a2418)' },
+  'sneaker-store':     { emoji: '👟', grad: 'linear-gradient(135deg, #0a1a0a, #142814)' },
+  'luxury-perfume':    { emoji: '🌸', grad: 'linear-gradient(135deg, #1e0a18, #2a1224)' },
+  'futuristic-fashion-1': { emoji: '🔮', grad: 'linear-gradient(135deg, #120a1e, #1a1230)' },
+  'futuristic-fashion-2': { emoji: '🖤', grad: 'linear-gradient(135deg, #0a0a0a, #1a1a1a)' },
+  'futuristic-fashion-3': { emoji: '◻️', grad: 'linear-gradient(135deg, #121212, #1e1e1e)' },
+  'futuristic-fashion-4': { emoji: '💎', grad: 'linear-gradient(135deg, #0a0e1a, #141e30)' },
+  'florist':           { emoji: '🌺', grad: 'linear-gradient(135deg, #1a0e10, #2a1618)' },
+  'medical':           { emoji: '🏥', grad: 'linear-gradient(135deg, #0a1a1a, #0e2828)' },
+};
+const DEFAULT_ICON = { emoji: '📱', grad: 'linear-gradient(135deg, #111, #1a1a1a)' };
+
 const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id: string) => void, t: any, index: number }) => {
   const handleCardClick = () => {
     try {
@@ -71,6 +88,8 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
     } catch (e) {}
     onOpenDemo(app.id);
   };
+
+  const icon = APP_ICONS[app.id] || DEFAULT_ICON;
 
   return (
     <Cin delay={index * 0.04}>
@@ -85,39 +104,20 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
       >
         <div className="absolute inset-0 pointer-events-none" style={{
           borderRadius: 'inherit',
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02))',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06)',
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015))',
+          border: '1px solid rgba(255,255,255,0.07)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05)',
         }} />
 
         <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ borderRadius: 'inherit' }}>
-          <div className="app-card-img" style={{
-            position: 'absolute',
-            top: '-50%', right: '-30%',
-            width: '80%', height: '200%',
-            backgroundImage: `url(${app.image})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            opacity: 0.06,
-            transform: 'rotate(-18deg) scale(1)',
-            filter: 'saturate(0.4)',
-            transition: 'opacity 0.7s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1)',
-          }} />
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(115deg, rgba(8,8,8,0.95) 30%, rgba(8,8,8,0.6) 60%, rgba(8,8,8,0.3) 100%)',
-          }} />
           <div className="app-card-shine" style={{
             position: 'absolute',
             top: 0, left: '-120%',
             width: '60%', height: '100%',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%)',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.035) 50%, transparent 100%)',
             transform: 'skewX(-20deg)',
             transition: 'left 0.9s cubic-bezier(0.22,1,0.36,1)',
           }} />
-
           <div style={{
             position: 'absolute',
             bottom: -20, right: 30,
@@ -130,32 +130,17 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
           }} className="app-card-glow" />
         </div>
 
-        <div className="absolute inset-0 pointer-events-none" style={{
-          borderRadius: 'inherit',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E")`,
-          backgroundRepeat: 'repeat',
-          opacity: 0.6,
-          mixBlendMode: 'overlay' as any,
-        }} />
-
-        <div className="relative z-10 flex items-center gap-4" style={{ padding: '18px 20px' }}>
-          <div style={{
+        <div className="relative z-10 flex items-center gap-4" style={{ padding: '16px 18px' }}>
+          <div className="flex items-center justify-center flex-shrink-0" style={{
             width: 48, height: 48,
             borderRadius: 14,
-            overflow: 'hidden',
-            flexShrink: 0,
-            border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            background: icon.grad,
+            border: '1px solid rgba(255,255,255,0.08)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
+            fontSize: '22px',
+            lineHeight: 1,
           }}>
-            <img
-              src={app.image}
-              alt=""
-              loading="lazy"
-              style={{
-                width: '100%', height: '100%',
-                objectFit: 'cover',
-              }}
-            />
+            {icon.emoji}
           </div>
 
           <div className="flex-1 min-w-0">
@@ -191,21 +176,28 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
 
           <div className="flex items-center gap-2.5 flex-shrink-0">
             <FavoriteButton demoId={app.id} size="md" />
-            <div
-              className="app-card-btn flex items-center justify-center"
+            <button
+              className="app-card-btn flex items-center gap-1.5 rounded-full transition-all duration-400 active:scale-[0.95]"
               style={{
-                width: 38, height: 38,
-                borderRadius: 11,
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04))',
-                border: '1px solid rgba(255,255,255,0.1)',
+                padding: '8px 14px',
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
+                border: '1px solid rgba(255,255,255,0.09)',
                 backdropFilter: 'blur(12px)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
-                transition: 'all 0.35s ease',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
               }}
               data-testid={`button-open-${app.id}`}
             >
-              <ArrowUpRight className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.6)' }} strokeWidth={2.2} />
-            </div>
+              <span style={{
+                fontFamily: INTER,
+                fontSize: '0.68rem',
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.6)',
+                letterSpacing: '-0.01em',
+              }}>
+                {t('projectsPage.open')}
+              </span>
+              <ArrowUpRight className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.4)' }} strokeWidth={2.2} />
+            </button>
           </div>
         </div>
       </div>
@@ -466,11 +458,6 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
       </div>
 
       <style>{`
-        .app-card:hover .app-card-img,
-        .app-card:active .app-card-img {
-          opacity: 0.15 !important;
-          transform: rotate(-18deg) scale(1.08) !important;
-        }
         .app-card:hover .app-card-shine {
           left: 130% !important;
         }
@@ -478,12 +465,14 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
           opacity: 1 !important;
         }
         .app-card:hover .app-card-btn {
-          background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(52,211,153,0.08)) !important;
-          border-color: rgba(52,211,153,0.25) !important;
-          box-shadow: 0 0 16px rgba(52,211,153,0.12), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+          background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(52,211,153,0.06)) !important;
+          border-color: rgba(52,211,153,0.2) !important;
+        }
+        .app-card:hover .app-card-btn span {
+          color: rgba(52,211,153,0.9) !important;
         }
         .app-card:hover .app-card-btn svg {
-          color: #34d399 !important;
+          color: rgba(52,211,153,0.7) !important;
         }
         .scroll-line-indicator {
           position: relative;
