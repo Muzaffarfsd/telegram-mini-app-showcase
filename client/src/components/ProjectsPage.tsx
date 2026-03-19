@@ -206,21 +206,6 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
             </div>
 
             <div className="relative z-10">
-              <m.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
-                className="mb-5"
-              >
-                <span style={{
-                  fontFamily: SYNE, fontSize: '0.6875rem',
-                  fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' as const,
-                  color: 'rgba(255,255,255,0.25)',
-                }}>
-                  {t('projectsPage.eyebrow')}
-                </span>
-              </m.div>
-
               <m.h1
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
