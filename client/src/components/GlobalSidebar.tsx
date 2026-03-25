@@ -843,49 +843,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           transform: scale(0.97);
         }
         
-        /* ═══════════════════════════════════════════════════════════════
-           CLOSE BUTTON - PROFESSIONAL
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .close-btn {
-          width: 44px;
-          height: 44px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 14px;
-          background: rgba(255, 255, 255, 0.06);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          cursor: pointer;
-          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
-          flex-shrink: 0;
-          -webkit-tap-highlight-color: transparent;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .close-btn::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            circle at 30% 30%,
-            rgba(255, 255, 255, 0.08) 0%,
-            transparent 50%
-          );
-          pointer-events: none;
-        }
-        
-        .close-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
-          transform: rotate(90deg) scale(1.05);
-        }
-        
-        .close-btn:active {
-          transform: rotate(90deg) scale(0.9);
-        }
         
         /* ═══════════════════════════════════════════════════════════════
            PROGRESS BAR - ANIMATED
@@ -944,8 +901,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           .sidebar-overlay,
           .sidebar-panel,
           .sidebar-gradient-line,
-          .progress-fill,
-          .close-btn {
+          .progress-fill {
             transition: none !important;
             animation: none !important;
           }
@@ -1126,7 +1082,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                     </span>
                   </div>
                   
-                  <div className="progress-bar">
+                  <div className="progress-bar" role="progressbar" aria-valuenow={0} aria-valuemin={0} aria-valuemax={100} aria-label={`${t('sidebar.xpProgress')} 0%`}>
                     <div className="progress-fill" />
                   </div>
                 </div>

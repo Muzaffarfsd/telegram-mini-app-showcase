@@ -27,6 +27,10 @@ This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional dem
 - **INP Optimization**: `useTransition` in filters for non-blocking category changes; INP measured at 40ms
 - **Performance Detection**: `usePerformanceClass` hook for adaptive animations based on device capability
 - **Tab Caching**: 5 main tabs (showcase, projects, aiProcess, constructor, profile) stay mounted via CSS `display:none` — instant tab switching, preserved scroll position
+- **PageTransition**: AnimatePresence-powered enter/exit with `m.div` (fade + 6px slideUp, 220ms enter / 120ms exit, ease `[0.22,1,0.36,1]`). Uses `@/utils/LazyMotionProvider` for tree-shaken bundle. Hardware-accelerated via `gpu-layer` class.
+- **Accessibility**: ProjectsPage cards have `role="button"`, `tabIndex={0}`, keyboard Enter/Space with `e.target === e.currentTarget` guard; HelpPage FAQ buttons have `aria-expanded` + `aria-controls`; GlobalSidebar progress bar has `role="progressbar"` + `aria-valuenow/min/max`.
+- **prefers-reduced-motion**: Global CSS guard (`* { animation-duration: 0.01ms; transition-duration: 0.01ms }`) plus named class overrides. GlobalSidebar has component-level reduced-motion block covering all animated elements.
+- **Demo Store Memoization**: Electronics and SneakerVault filtering wrapped in `useMemo` with proper dependency arrays.
 - **Eager Critical Components**: GlobalSidebar and PageTransition loaded eagerly (not lazy) for faster first paint
 - **CSS Performance**: All `transition: all` replaced with specific properties (transform, opacity, box-shadow); durations reduced to 100-200ms
 - **Touch Response**: Global `button:active` scale(0.97) at 60ms; `touch-action: manipulation` on all interactive elements

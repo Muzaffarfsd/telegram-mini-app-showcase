@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, useMemo, memo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { 
   Smartphone, 
@@ -298,7 +298,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
     }
   }, [activeTab]);
 
-  const filteredProducts = filteredItems.filter(p => {
+  const filteredProducts = useMemo(() => filteredItems.filter(p => {
     const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
     
     if (activeTab === 'home') {
@@ -310,7 +310,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
     }
     
     return categoryMatch;
-  });
+  }), [filteredItems, selectedCategory, activeTab, selectedFilter]);
 
   const handleImageLoad = (productId: number) => {
     setLoadedImages(prev => new Set(prev).add(productId));

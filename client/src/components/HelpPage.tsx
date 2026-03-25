@@ -264,6 +264,8 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
                 >
                   <button
                     onClick={() => setExpanded(isOpen ? null : index)}
+                    aria-expanded={isOpen}
+                    aria-controls={`faq-answer-${index}`}
                     style={{
                       width: '100%',
                       display: 'flex',
@@ -306,7 +308,7 @@ const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
                   </button>
                   
                   {isOpen && (
-                    <div style={{ padding: '0 20px 18px 70px' }}>
+                    <div id={`faq-answer-${index}`} style={{ padding: '0 20px 18px 70px' }}>
                       <p style={{
                         fontSize: '13px',
                         color: '#71717A',

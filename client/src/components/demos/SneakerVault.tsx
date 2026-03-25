@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo } from "react";
+import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus, Truck, Shield } from "lucide-react";
@@ -338,7 +338,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
     }
   }, [activeTab]);
 
-  const filteredSneakers = sneakers.filter(s => {
+  const filteredSneakers = useMemo(() => sneakers.filter(s => {
     const categoryMatch = selectedCategory === 'Все' || s.category === selectedCategory;
     
     if (activeTab === 'home') {
@@ -352,7 +352,7 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
     }
     
     return categoryMatch;
-  });
+  }), [sneakers, selectedCategory, activeTab, selectedGender, catalogSearch]);
 
   const handleToggleFavorite = (sneakerId: number) => {
     toggleFavoriteHook(String(sneakerId));

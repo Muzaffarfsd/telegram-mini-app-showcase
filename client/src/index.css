@@ -221,20 +221,23 @@ button.gpu-layer:focus-visible {
   border-radius: 14px;
 }
 
-/* Reduced motion: disable all nav animations */
+/* Reduced motion: disable all animations globally */
 @media (prefers-reduced-motion: reduce) {
-  .nav-tab-icon,
-  .nav-button-instant {
-    transition: none !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .page-enter,
+  .animate-blur-in,
+  .animate-premium-reveal,
+  .animate-shimmer {
     animation: none !important;
-  }
-
-  button.gpu-layer {
-    transition: none !important;
-  }
-
-  button.gpu-layer span {
-    transition: none !important;
+    opacity: 1 !important;
   }
 }
 

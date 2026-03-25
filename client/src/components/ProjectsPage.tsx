@@ -95,13 +95,17 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
     <Cin delay={index * 0.04}>
       <div
         onClick={handleCardClick}
-        className="app-card group cursor-pointer active:scale-[0.97]"
+        onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) { e.preventDefault(); handleCardClick(); } }}
+        role="button"
+        tabIndex={0}
+        className="app-card group cursor-pointer active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
         style={{
           position: 'relative',
           borderRadius: 24,
           willChange: 'transform',
           transform: 'translateZ(0)',
         }}
+        aria-label={app.title}
         data-testid={`card-app-${app.id}`}
       >
         <div className="app-card-glass absolute inset-0 pointer-events-none" style={{
