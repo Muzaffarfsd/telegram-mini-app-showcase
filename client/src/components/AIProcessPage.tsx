@@ -10,6 +10,9 @@ import {
   Zap
 } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
+import { SplineScene } from './ui/spline-scene';
+
+const SPLINE_SCENE_URL = "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode";
 
 interface AIProcessPageProps {
   onNavigate: (path: string) => void;
@@ -33,22 +36,18 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
   return (
     <div className="relative min-h-screen bg-black">
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse at 50% 30%, rgba(139,92,246,0.15) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(59,130,246,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, rgba(168,85,247,0.06) 0%, transparent 40%)',
-        }} />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{
-          width: 280, height: 280, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, rgba(139,92,246,0.05) 40%, transparent 70%)',
-          filter: 'blur(40px)',
-          animation: 'pulse 4s ease-in-out infinite',
-        }} />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{
-          width: 120, height: 120, borderRadius: '50%',
-          border: '1px solid rgba(139,92,246,0.2)',
-          animation: 'pulse 3s ease-in-out infinite',
-        }} />
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{ paddingTop: '80px' }}
+      >
+        <SplineScene 
+          scene={SPLINE_SCENE_URL}
+          className="w-full h-full"
+        />
       </div>
+      <div className="fixed inset-0 z-[1] pointer-events-none" style={{
+        background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.95) 100%)',
+      }} />
       
       <div 
         className="relative z-10 min-h-screen pb-24"
