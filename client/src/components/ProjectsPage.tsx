@@ -438,38 +438,8 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
       </div>
 
       <style>{`
-        .app-card {
-          transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
-        }
-        .app-card-glass {
-          transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        }
         .app-card-shine {
-          transition: left 0.8s cubic-bezier(0.22,1,0.36,1);
-        }
-        .app-card-btn {
-          transition: background 0.25s ease, border-color 0.25s ease;
-        }
-        .app-card-btn span, .app-card-btn svg {
-          transition: color 0.25s ease;
-        }
-        .app-card:hover .app-card-glass {
-          background: linear-gradient(165deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.07) 100%) !important;
-          border-color: rgba(255,255,255,0.13) !important;
-          box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 12px 32px -6px rgba(0,0,0,0.35) !important;
-        }
-        .app-card:hover .app-card-shine {
-          left: 140% !important;
-        }
-        .app-card:hover .app-card-btn {
-          background: linear-gradient(135deg, rgba(52,211,153,0.12), rgba(52,211,153,0.04)) !important;
-          border-color: rgba(52,211,153,0.18) !important;
-        }
-        .app-card:hover .app-card-btn span {
-          color: rgba(52,211,153,0.9) !important;
-        }
-        .app-card:hover .app-card-btn svg {
-          color: rgba(52,211,153,0.7) !important;
+          display: none;
         }
         .scroll-line-indicator {
           position: relative;
