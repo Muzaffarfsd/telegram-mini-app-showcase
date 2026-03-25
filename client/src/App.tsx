@@ -119,7 +119,7 @@ interface NavTabProps {
 const NavTab = ({ onClick, isActive, ariaLabel, testId, label, children }: NavTabProps) => (
   <button
     type="button"
-    className="relative flex items-center justify-center rounded-[18px] gpu-layer"
+    className="relative z-30 flex items-center justify-center rounded-[18px] gpu-layer"
     style={{
       height: '44px',
       appearance: 'none',
@@ -191,7 +191,7 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
           aria-label={language === 'ru' ? 'Главное меню' : 'Main menu'}
         >
           <div 
-            className="absolute inset-0 z-0 overflow-hidden rounded-3xl"
+            className="absolute inset-0 z-0 overflow-hidden rounded-3xl pointer-events-none"
             style={{
               backdropFilter: 'blur(40px)',
               WebkitBackdropFilter: 'blur(40px)',
@@ -200,7 +200,7 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
             }}
           />
           <div 
-            className="absolute inset-0 z-10 rounded-3xl"
+            className="absolute inset-0 z-10 rounded-3xl pointer-events-none"
             style={{ background: 'rgba(255, 255, 255, 0.12)' }}
           />
           <div 
