@@ -119,30 +119,23 @@ interface NavTabProps {
 const NavTab = ({ onClick, isActive, ariaLabel, testId, label, children }: NavTabProps) => (
   <button
     type="button"
-    className="relative z-30 flex items-center justify-center rounded-[18px] gpu-layer"
+    className="relative z-30 flex items-center justify-center rounded-[16px] gpu-layer"
     style={{
       height: '44px',
       appearance: 'none',
       border: 'none',
-      background: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
+      background: isActive ? 'rgba(255,255,255,0.10)' : 'transparent',
       padding: isActive ? '0 14px' : '0 12px',
       outline: 'none',
       cursor: 'pointer',
-      gap: isActive ? '8px' : '0',
-      transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2)',
-      boxShadow: isActive ? 'inset 1px 1px 0 rgba(255,255,255,0.15), inset -1px -1px 0 rgba(255,255,255,0.08)' : 'none',
+      gap: isActive ? '7px' : '0',
+      transition: 'background 0.25s ease, padding 0.3s ease, gap 0.3s ease',
     }}
     onClick={onClick}
     aria-label={ariaLabel}
     data-testid={testId}
   >
-    <div 
-      className="relative z-10 flex-shrink-0"
-      style={{
-        transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2)',
-        animation: isActive ? 'iconBounce 0.5s ease' : 'none',
-      }}
-    >
+    <div className="relative z-10 flex-shrink-0">
       {children}
     </div>
     <span 
@@ -154,7 +147,7 @@ const NavTab = ({ onClick, isActive, ariaLabel, testId, label, children }: NavTa
         color: '#fff',
         maxWidth: isActive ? '80px' : '0',
         opacity: isActive ? 1 : 0,
-        transition: 'max-width 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2), opacity 0.3s ease',
+        transition: 'max-width 0.3s ease, opacity 0.2s ease',
       }}
     >
       {label}
