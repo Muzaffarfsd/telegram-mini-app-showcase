@@ -1421,6 +1421,14 @@ html.light :root,
     50% { transform: scale(1.05); }
   }
 
+  @keyframes iconBounce {
+    0%, 100% { transform: translateY(0); }
+    20% { transform: translateY(-0.3em); }
+    40% { transform: translateY(0); }
+    60% { transform: translateY(-0.1em); }
+    80% { transform: translateY(0); }
+  }
+
   @keyframes heart-pop {
     0% { transform: scale(1); }
     30% { transform: scale(1.3); }

@@ -119,41 +119,42 @@ interface NavTabProps {
 const NavTab = ({ onClick, isActive, ariaLabel, testId, label, children }: NavTabProps) => (
   <button
     type="button"
-    className="nav-button-instant relative flex flex-col items-center justify-center gap-0.5 rounded-2xl gpu-layer"
+    className="relative flex items-center justify-center rounded-[18px] gpu-layer"
     style={{
-      width: '56px',
-      height: '50px',
+      height: '44px',
       appearance: 'none',
       border: 'none',
-      background: 'transparent',
-      padding: 0,
+      background: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
+      padding: isActive ? '0 14px' : '0 12px',
       outline: 'none',
       cursor: 'pointer',
-      transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 2.2)',
-      transform: isActive ? 'scale(1.08)' : 'scale(1)',
+      gap: isActive ? '8px' : '0',
+      transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2)',
+      boxShadow: isActive ? 'inset 1px 1px 0 rgba(255,255,255,0.15), inset -1px -1px 0 rgba(255,255,255,0.08)' : 'none',
     }}
     onClick={onClick}
     aria-label={ariaLabel}
     data-testid={testId}
   >
-    {isActive && (
-      <div 
-        className="absolute inset-0 rounded-2xl pointer-events-none"
-        style={{
-          background: 'rgba(255,255,255,0.12)',
-          boxShadow: 'inset 1px 1px 0 rgba(255,255,255,0.2), inset -1px -1px 0 rgba(255,255,255,0.1)',
-        }}
-      />
-    )}
-    <div className="relative z-10">{children}</div>
-    <span 
-      className="relative z-10 leading-none"
+    <div 
+      className="relative z-10 flex-shrink-0"
       style={{
-        fontSize: '9px',
-        fontWeight: isActive ? 700 : 500,
-        letterSpacing: '0.02em',
-        color: isActive ? '#fff' : 'rgba(255,255,255,0.55)',
-        transition: 'all 0.3s ease',
+        transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2)',
+        animation: isActive ? 'iconBounce 0.5s ease' : 'none',
+      }}
+    >
+      {children}
+    </div>
+    <span 
+      className="relative z-10 leading-none overflow-hidden whitespace-nowrap"
+      style={{
+        fontSize: '12px',
+        fontWeight: 600,
+        letterSpacing: '0.01em',
+        color: '#fff',
+        maxWidth: isActive ? '80px' : '0',
+        opacity: isActive ? 1 : 0,
+        transition: 'max-width 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2), opacity 0.3s ease',
       }}
     >
       {label}
