@@ -151,7 +151,7 @@ export function usePerformanceClass(): UsePerformanceClassResult {
           supportsWebGL,
           supportsHeavyAnimations: !prefersReducedMotion,
           supportsParallax: !prefersReducedMotion,
-          supportsBlur: true,
+          supportsBlur: false,
           supportsVideoBackground: false,
           maxParticles: 50,
           animationFPS: 30,

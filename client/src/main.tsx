@@ -8,7 +8,7 @@ const injectCriticalCSS = () => {
   const style = document.createElement('style');
   style.id = 'critical-inline';
   style.textContent = `
-    .gpu-layer{transform:translateZ(0);will-change:transform;backface-visibility:hidden}
+    .gpu-layer{transform:translateZ(0);backface-visibility:hidden}
     .instant-tap{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
     [data-prefetch]{content-visibility:auto;contain-intrinsic-size:auto 200px}
   `;

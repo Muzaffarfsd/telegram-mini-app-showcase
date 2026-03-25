@@ -20,10 +20,25 @@ const WebGLBackground = memo(function WebGLBackground({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const glRef = useRef<WebGLRenderingContext | null>(null);
+  const isVisibleRef = useRef(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    let observer: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver(
+        ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
+        { threshold: 0 }
+      );
+      observer.observe(canvas);
+    }
+
+    const handleVisibility = () => {
+      isVisibleRef.current = document.visibilityState === 'visible';
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
 
     const gl = canvas.getContext('webgl', {
       alpha: true,
@@ -36,7 +51,8 @@ const WebGLBackground = memo(function WebGLBackground({
     });
 
     if (!gl) {
-      console.warn('[WebGL] Not supported, falling back to CSS');
+      observer?.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibility);
       return;
     }
 
@@ -168,13 +184,14 @@ const WebGLBackground = memo(function WebGLBackground({
     let lastFrameTime = startTime;
 
     const render = () => {
+      animationRef.current = requestAnimationFrame(render);
+
+      if (!isVisibleRef.current) return;
+
       const now = performance.now();
       const deltaTime = now - lastFrameTime;
       
-      if (deltaTime < 33) {
-        animationRef.current = requestAnimationFrame(render);
-        return;
-      }
+      if (deltaTime < 50) return;
       
       lastFrameTime = now;
       
@@ -182,13 +199,13 @@ const WebGLBackground = memo(function WebGLBackground({
       gl.uniform1f(timeLocation, time);
       
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      
-      animationRef.current = requestAnimationFrame(render);
     };
 
     render();
 
     return () => {
+      observer?.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('resize', handleResize);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);

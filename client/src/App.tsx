@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy, useCallback, useEffect } from "react";
+import { useState, Suspense, lazy, useCallback, useEffect, memo, useMemo } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -13,8 +13,8 @@ import { useRouting, navigate } from "./hooks/useRouting";
 import { useScrollHaptic } from "./hooks/useScrollHaptic";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import { useNavigationTracking } from "./hooks/usePredictivePrefetch";
+import { usePerformanceClass } from "./hooks/usePerformanceClass";
 
-// Retry wrapper for dynamic imports - handles chunk loading failures after deploys
 function lazyWithRetry<T extends { default: any }>(
   importFn: () => Promise<T>,
   retries = 2
@@ -22,14 +22,11 @@ function lazyWithRetry<T extends { default: any }>(
   return lazy(() =>
     importFn().catch((error) => {
       if (retries > 0 && error.message?.includes('Failed to fetch dynamically imported module')) {
-        console.warn('[Lazy] Retrying chunk load...', retries);
         return new Promise<T>((resolve) => {
           setTimeout(() => resolve(lazyWithRetry(importFn, retries - 1) as any), 500);
         });
       }
-      // Last resort: reload page to get fresh chunks
       if (error.message?.includes('Failed to fetch dynamically imported module')) {
-        console.error('[Lazy] Chunk load failed, reloading page');
         window.location.reload();
       }
       throw error;
@@ -37,7 +34,6 @@ function lazyWithRetry<T extends { default: any }>(
   );
 }
 
-// Sentry init deferred to after first paint
 const initSentry = () => {
   if (import.meta.env.VITE_SENTRY_DSN) {
     import('@sentry/react').then(Sentry => {
@@ -50,12 +46,10 @@ const initSentry = () => {
   }
 };
 
-// Lazy load providers - not needed for first paint
 const LazyRewardsProvider = lazy(() => import("./contexts/RewardsContext").then(m => ({ default: m.RewardsProvider })));
 const LazyXPNotificationProvider = lazy(() => import("./contexts/XPNotificationContext").then(m => ({ default: m.XPNotificationProvider })));
 const LazyMotionProvider = lazy(() => import("./utils/LazyMotionProvider").then(m => ({ default: m.LazyMotionProvider })));
 
-// Lazy load ALL pages with retry logic for chunk loading failures after deploys
 const ShowcasePage = lazyWithRetry(() => import("./components/ShowcasePage"));
 const PremiumAppsPage = lazyWithRetry(() => import("./components/PremiumAppsPage"));
 const ProjectsPage = lazyWithRetry(() => import("./components/ProjectsPage"));
@@ -79,15 +73,15 @@ const AnalyticsPage = lazyWithRetry(() => import("./pages/analytics"));
 
 import GlobalSidebar from "./components/GlobalSidebar";
 import { PageTransition } from "./components/PageTransition";
-const OnboardingTutorial = lazy(() => import("./components/OnboardingTutorial").then(m => ({ default: m.OnboardingTutorial })));
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 
-const goBack = () => {
-  window.history.back();
-};
+const CACHED_TABS = ['showcase', 'projects', 'aiProcess', 'constructor', 'profile'] as const;
+type CachedTab = typeof CACHED_TABS[number];
 
-// Liquid Glass SVG Filter — subtle refraction (iOS 26 level)
-const LiquidGlassFilter = () => (
+const isCachedTabCheck = (component: string): component is CachedTab =>
+  CACHED_TABS.includes(component as CachedTab);
+
+const LiquidGlassFilter = memo(() => (
   <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
     <filter id="glass-distortion" x="-5%" y="-5%" width="110%" height="110%" filterUnits="objectBoundingBox">
       <feTurbulence type="fractalNoise" baseFrequency="0.02 0.015" numOctaves="2" seed="17" result="turbulence" />
@@ -95,9 +89,8 @@ const LiquidGlassFilter = () => (
       <feDisplacementMap in="SourceGraphic" in2="softMap" scale="6" xChannelSelector="R" yChannelSelector="G" />
     </filter>
   </svg>
-);
+));
 
-// Liquid Glass Nav Tab
 interface NavTabProps {
   onClick: () => void;
   isActive: boolean;
@@ -107,7 +100,7 @@ interface NavTabProps {
   children: React.ReactNode;
 }
 
-const NavTab = ({ onClick, isActive, ariaLabel, testId, label, children }: NavTabProps) => (
+const NavTab = memo(({ onClick, isActive, ariaLabel, testId, label, children }: NavTabProps) => (
   <button
     type="button"
     className="relative z-30 flex items-center justify-center rounded-[14px] gpu-layer"
@@ -121,7 +114,6 @@ const NavTab = ({ onClick, isActive, ariaLabel, testId, label, children }: NavTa
       outline: 'none',
       cursor: 'pointer',
       gap: isActive ? '7px' : '0',
-      willChange: 'background, padding, gap',
       transition: 'background 0.22s ease-out, padding 0.28s ease-out, gap 0.28s ease-out',
       WebkitTapHighlightColor: 'transparent',
     }}
@@ -141,19 +133,28 @@ const NavTab = ({ onClick, isActive, ariaLabel, testId, label, children }: NavTa
         color: '#fff',
         maxWidth: isActive ? '80px' : '0',
         opacity: isActive ? 1 : 0,
-        willChange: 'max-width, opacity',
         transition: 'max-width 0.28s ease-out, opacity 0.18s ease-out',
       }}
     >
       {label}
     </span>
   </button>
-);
+));
 
-const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any; hapticFeedback: any }) => {
+const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user: any; hapticFeedback: any }) => {
   const { language } = useLanguage();
+  const { capabilities } = usePerformanceClass();
   const isAI = route.component === 'aiProcess' || route.component === 'aiAgent';
   const isProfile = ['profile', 'referral', 'rewards', 'earning'].includes(route.component);
+
+  const navAction = useCallback((path: string) => {
+    navigate(path);
+    queueMicrotask(() => hapticFeedback.light());
+  }, [hapticFeedback]);
+
+  const blurStyle = capabilities.supportsBlur
+    ? { backdropFilter: 'blur(40px) saturate(1.4)', WebkitBackdropFilter: 'blur(40px) saturate(1.4)', filter: 'url(#glass-distortion)' }
+    : { background: 'rgba(20, 20, 22, 0.92)' };
 
   return (
     <>
@@ -181,11 +182,7 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
         >
           <div 
             className="absolute inset-0 z-0 rounded-[22px] pointer-events-none"
-            style={{
-              backdropFilter: 'blur(40px) saturate(1.4)',
-              WebkitBackdropFilter: 'blur(40px) saturate(1.4)',
-              filter: 'url(#glass-distortion)',
-            }}
+            style={blurStyle}
           />
           <div 
             className="absolute inset-0 z-10 rounded-[22px] pointer-events-none"
@@ -196,7 +193,7 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
           />
 
           <NavTab
-            onClick={() => {navigate('/'); hapticFeedback.light();}}
+            onClick={() => navAction('/')}
             isActive={route.component === 'showcase'}
             ariaLabel={language === 'ru' ? 'Главная' : 'Home'}
             testId="nav-showcase"
@@ -213,7 +210,7 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
           </NavTab>
           
           <NavTab
-            onClick={() => {navigate('/ai-process'); hapticFeedback.light();}}
+            onClick={() => navAction('/ai-process')}
             isActive={isAI}
             ariaLabel={language === 'ru' ? 'ИИ агент' : 'AI Agent'}
             testId="nav-ai"
@@ -230,7 +227,7 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
           </NavTab>
           
           <NavTab
-            onClick={() => {navigate('/projects'); hapticFeedback.light();}}
+            onClick={() => navAction('/projects')}
             isActive={route.component === 'projects'}
             ariaLabel={language === 'ru' ? 'Проекты' : 'Projects'}
             testId="nav-projects"
@@ -247,7 +244,7 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
           </NavTab>
           
           <NavTab
-            onClick={() => {navigate('/constructor'); hapticFeedback.light();}}
+            onClick={() => navAction('/constructor')}
             isActive={route.component === 'constructor'}
             ariaLabel={language === 'ru' ? 'Заказать' : 'Order'}
             testId="nav-constructor"
@@ -264,7 +261,7 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
           </NavTab>
           
           <NavTab
-            onClick={() => {navigate('/profile'); hapticFeedback.light();}}
+            onClick={() => navAction('/profile')}
             isActive={isProfile}
             ariaLabel={language === 'ru' ? 'Профиль' : 'Profile'}
             testId="nav-profile"
@@ -283,94 +280,145 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
       </div>
     </>
   );
-};
+});
 
-// Component to sync Telegram buttons with language (must be inside LanguageProvider)
 const TelegramButtonsSync = ({ routeComponent }: { routeComponent: string }) => {
   useTelegramButtons(routeComponent as any);
   return null;
 };
 
-function App() {
+const NonCachedRoute = memo(({ 
+  route, 
+  handleNavigate, 
+  handleCloseDemo, 
+  handleCheckoutBack, 
+  handlePaymentSuccess, 
+  orderData 
+}: {
+  route: any;
+  handleNavigate: (section: string, data?: any) => void;
+  handleCloseDemo: () => void;
+  handleCheckoutBack: () => void;
+  handlePaymentSuccess: () => void;
+  orderData: any;
+}) => {
+  switch (route.component) {
+    case 'about':
+      return <AboutPage onNavigate={handleNavigate} />;
+    case 'demoLanding': {
+      const demoId = route.params?.id;
+      if (!demoId) {
+        return (
+          <div className="max-w-md mx-auto px-4 py-6">
+            <h1 className="ios-title font-bold mb-4">Ошибка</h1>
+            <p className="ios-body text-secondary-label">ID демо не указан</p>
+            <button onClick={() => navigate('/')} className="mt-4 ios-button-filled">Назад к главной</button>
+          </div>
+        );
+      }
+      return <DemoAppLanding demoId={demoId} />;
+    }
+    case 'demoApp':
+      return <DemoAppShell demoId={route.params?.id!} onClose={handleCloseDemo} />;
+    case 'help':
+      return <HelpPage onBack={() => navigate('/profile')} />;
+    case 'review':
+      return <ReviewPage onBack={() => navigate('/profile')} />;
+    case 'checkout':
+      if (!orderData) { navigate('/constructor'); return null; }
+      return (
+        <CheckoutPage 
+          selectedFeatures={orderData.selectedFeatures || []}
+          projectName={orderData.projectName || ''}
+          totalAmount={orderData.totalAmount || 0}
+          onBack={handleCheckoutBack}
+          onSuccess={handlePaymentSuccess}
+        />
+      );
+    case 'aiAgent':
+      return <AIAgentPage onNavigate={handleNavigate} />;
+    case 'photoGallery':
+      return <PhotoGallery />;
+    case 'referral':
+      return <ReferralProgram />;
+    case 'rewards':
+      return <GamificationHub />;
+    case 'earning':
+      return <EarningPage onNavigate={handleNavigate} />;
+    case 'notifications':
+      return <NotificationsPage />;
+    case 'analytics':
+      return <AnalyticsPage />;
+    case 'premiumApps':
+      return <PremiumAppsPage onNavigate={handleNavigate} />;
+    case 'notFound':
+      return <NotFoundPage />;
+    default:
+      return null;
+  }
+});
+
+function AppContent() {
   const [orderData, setOrderData] = useState<any>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
   const { hapticFeedback, user } = useTelegram();
   
-  // Custom hooks for cleaner code
   const { route } = useRouting();
   const { trackNavigation } = useNavigationTracking();
   
-  // Scroll haptics hook available for manual edge bounce triggers (auto-detection removed to prevent conflicts)
   useScrollHaptic();
   
-  // Track navigation for predictive prefetching
   useEffect(() => {
     if (route && route.component) {
       trackNavigation(route.component);
     }
   }, [route?.component, trackNavigation]);
   
-  // Deferred initialization after first paint
   useEffect(() => {
-    setIsHydrated(true);
-    // Init Sentry after hydration
     initSentry();
-
-    // Optimization for Telegram Mini App performance
     if (window.Telegram?.WebApp) {
       document.body.classList.add('tg-app-optimized');
     }
   }, []);
 
-  // Navigation handlers - memoized for better performance with React.memo children
   const handleNavigate = useCallback((section: string, data?: any) => {
     if (data) {
       setOrderData(data);
     } else if (section !== 'checkout') {
       setOrderData(null);
     }
-    
     navigate(`/${section}`);
-    hapticFeedback.light();
+    queueMicrotask(() => hapticFeedback.light());
   }, [hapticFeedback]);
 
   const handleOpenDemo = useCallback((demoId: string) => {
     navigate(`/demos/${demoId}/app`);
-    hapticFeedback.medium();
-    // Track demo view for gamification
+    queueMicrotask(() => hapticFeedback.medium());
     trackDemoView();
   }, [hapticFeedback]);
 
-  const handleOpenDemoApp = useCallback((demoId: string) => {
-    navigate(`/demos/${demoId}/app`);
-    hapticFeedback.medium();
-  }, [hapticFeedback]);
-
   const handleCloseDemo = useCallback(() => {
-    // Navigate back to the main showcase page
     navigate('/');
-    hapticFeedback.light();
+    queueMicrotask(() => hapticFeedback.light());
   }, [hapticFeedback]);
 
   const handleCheckoutBack = useCallback(() => {
     setOrderData(null);
     navigate('/constructor');
-    hapticFeedback.light();
+    queueMicrotask(() => hapticFeedback.light());
   }, [hapticFeedback]);
 
   const handlePaymentSuccess = useCallback(() => {
     setOrderData(null);
     navigate('/profile');
-    hapticFeedback.medium();
+    queueMicrotask(() => hapticFeedback.medium());
   }, [hapticFeedback]);
 
-  const cachedTabs = ['showcase', 'projects', 'aiProcess', 'constructor', 'profile'] as const;
-  const isCachedTab = cachedTabs.includes(route.component as any);
+  const isCachedTab = isCachedTabCheck(route.component);
 
   const [visitedTabs, setVisitedTabs] = useState<Set<string>>(() => new Set(['showcase']));
 
   useEffect(() => {
-    if (cachedTabs.includes(route.component as any)) {
+    if (isCachedTabCheck(route.component)) {
       setVisitedTabs(prev => {
         if (prev.has(route.component)) return prev;
         const next = new Set(prev);
@@ -380,73 +428,11 @@ function App() {
     }
   }, [route.component]);
 
-  const renderNonCachedRoute = () => {
-    if (isCachedTab) return null;
-    switch (route.component) {
-      case 'about':
-        return <AboutPage onNavigate={handleNavigate} />;
-      case 'demoLanding':
-        const demoId = route.params?.id;
-        if (!demoId) {
-          return (
-            <div className="max-w-md mx-auto px-4 py-6">
-              <h1 className="ios-title font-bold mb-4">Ошибка</h1>
-              <p className="ios-body text-secondary-label">ID демо не указан</p>
-              <button onClick={() => navigate('/')} className="mt-4 ios-button-filled">Назад к главной</button>
-            </div>
-          );
-        }
-        return <DemoAppLanding demoId={demoId} />;
-      case 'demoApp':
-        return <DemoAppShell demoId={route.params?.id!} onClose={handleCloseDemo} />;
-      case 'help':
-        return <HelpPage onBack={() => navigate('/profile')} />;
-      case 'review':
-        return <ReviewPage onBack={() => navigate('/profile')} />;
-      case 'checkout':
-        if (!orderData) { navigate('/constructor'); return null; }
-        return (
-          <CheckoutPage 
-            selectedFeatures={orderData.selectedFeatures || []}
-            projectName={orderData.projectName || ''}
-            totalAmount={orderData.totalAmount || 0}
-            onBack={handleCheckoutBack}
-            onSuccess={handlePaymentSuccess}
-          />
-        );
-      case 'aiAgent':
-        return <AIAgentPage onNavigate={handleNavigate} />;
-      case 'photoGallery':
-        return <PhotoGallery />;
-      case 'referral':
-        return <ReferralProgram />;
-      case 'rewards':
-        return <GamificationHub />;
-      case 'earning':
-        return <EarningPage onNavigate={handleNavigate} />;
-      case 'notifications':
-        return <NotificationsPage />;
-      case 'analytics':
-        return <AnalyticsPage />;
-      case 'premiumApps':
-        return <PremiumAppsPage onNavigate={handleNavigate} />;
-      case 'notFound':
-        return <NotFoundPage />;
-      default:
-        return null;
-    }
-  };
-
-  // Check if we should show bottom navigation
   const shouldShowBottomNav = !route.component.includes('demo') && route.component !== 'notFound';
-  
-  // Pages that should show the global sidebar (all except demo apps)
   const shouldShowSidebar = !route.component.includes('demo') && route.component !== 'notFound';
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-      {/* Sync Telegram native buttons with language changes */}
+    <>
       <TelegramButtonsSync routeComponent={route.component} />
       <Suspense fallback={<div style={{minHeight:'1px'}} />}>
         <LazyMotionProvider>
@@ -455,7 +441,6 @@ function App() {
               <div className="relative min-h-screen">
                 <div className="floating-elements"></div>
                 
-                {/* Global Sidebar for all pages except demo apps */}
                 {shouldShowSidebar && (
                   <ErrorBoundary fallback={null}>
                     <GlobalSidebar 
@@ -506,7 +491,14 @@ function App() {
                     <PageTransition routeKey={`${route.component}-${route.params?.id || ''}`}>
                       <ErrorBoundary>
                         <Suspense fallback={null}>
-                          {renderNonCachedRoute()}
+                          <NonCachedRoute
+                            route={route}
+                            handleNavigate={handleNavigate}
+                            handleCloseDemo={handleCloseDemo}
+                            handleCheckoutBack={handleCheckoutBack}
+                            handlePaymentSuccess={handlePaymentSuccess}
+                            orderData={orderData}
+                          />
                         </Suspense>
                       </ErrorBoundary>
                     </PageTransition>
@@ -514,7 +506,6 @@ function App() {
                 </div>
               </div>
             
-              {/* SVG Filter for Liquid Glass Refraction Effect */}
               <svg className="absolute" style={{ width: 0, height: 0 }}>
                 <defs>
                   <filter id="liquid-refraction" x="-20%" y="-20%" width="140%" height="140%">
@@ -524,30 +515,31 @@ function App() {
                 </defs>
               </svg>
 
-              {/* Bottom Navigation - iOS 26 Liquid Glass */}
               {shouldShowBottomNav && (
                 <ErrorBoundary fallback={null}>
                   <LiquidGlassNav route={route} user={user} hapticFeedback={hapticFeedback} />
                 </ErrorBoundary>
               )}
 
-          
               <Toaster />
               
-              {/* Offline status indicator - lazy loaded */}
               <Suspense fallback={null}>
                 <OfflineIndicator />
               </Suspense>
-              
-              {/* Onboarding tutorial for new users - lazy loaded */}
-              {/* <Suspense fallback={null}>
-                <OnboardingTutorial />
-              </Suspense> */}
             </LazyXPNotificationProvider>
           </LazyRewardsProvider>
         </LazyMotionProvider>
       </Suspense>
-    </LanguageProvider>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
+        <AppContent />
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

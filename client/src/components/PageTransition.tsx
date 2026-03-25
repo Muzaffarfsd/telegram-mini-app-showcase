@@ -8,24 +8,25 @@ interface PageTransitionProps {
   className?: string;
 }
 
-const ease = [0.22, 1, 0.36, 1] as const;
+const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const variants = {
   initial: { opacity: 0, y: 6 },
   animate: { 
     opacity: 1, 
     y: 0,
-    transition: { duration: 0.22, ease: ease as unknown as [number, number, number, number] }
+    transition: { duration: 0.18, ease }
   },
   exit: { 
     opacity: 0,
-    transition: { duration: 0.12, ease: ease as unknown as [number, number, number, number] }
+    y: -4,
+    transition: { duration: 0.08, ease }
   },
 };
 
 export function PageTransition({ children, routeKey, className = '' }: PageTransitionProps) {
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="popLayout" initial={false}>
       <m.div
         key={routeKey}
         className={`h-full w-full gpu-layer ${className}`}

@@ -195,7 +195,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           </div>
         </section>
 
-        <section className="px-4 py-4 space-y-3">
+        <section className="px-4 py-4 space-y-3" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 500px' }}>
           
           <ProcessStepPremium
             number="1"
@@ -255,7 +255,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
         </section>
 
-        <section className="px-4 py-6">
+        <section className="px-4 py-6" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}>
           <h2 
             className="text-center mb-6"
             style={{
@@ -288,7 +288,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           </div>
         </section>
 
-        <section className="px-4 py-6">
+        <section className="px-4 py-6" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}>
           <h2 
             className="text-center mb-6"
             style={{
@@ -324,7 +324,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           </div>
         </section>
 
-        <section className="px-4 py-8">
+        <section className="px-4 py-8" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 350px' }}>
           <div 
             className="rounded-[20px] p-6 text-center relative overflow-hidden"
             style={{

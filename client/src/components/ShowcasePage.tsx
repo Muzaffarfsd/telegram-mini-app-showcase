@@ -418,7 +418,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           </Cin>
 
           {/* ═══════ FEATURES ═══════ */}
-          <section className="px-6 py-12" aria-label={ru ? 'Возможности' : 'Features'}>
+          <section className="px-6 py-12" aria-label={ru ? 'Возможности' : 'Features'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 600px' }}>
             <Cin>
               <h2 className="mb-8" style={{
                 fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
@@ -458,7 +458,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           </section>
 
           {/* ═══════ BIG NUMBERS ═══════ */}
-          <section className="px-6 py-16" aria-label={ru ? 'Метрики' : 'Metrics'}>
+          <section className="px-6 py-16" aria-label={ru ? 'Метрики' : 'Metrics'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 500px' }}>
             <div className="space-y-14">
               {[
                 { num: 900, sfx: 'M+', title: ru ? 'пользователей Telegram' : 'Telegram users', desc: ru ? 'Ваш магазин — прямо у них в кармане. Без скачиваний, без App Store.' : 'Your store — right in their pocket. No downloads, no App Store.' },
@@ -544,7 +544,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           </section>
 
           {/* ═══════ COMPARISON — До / После ═══════ */}
-          <section className="px-6 py-14" aria-label={ru ? 'Сравнение' : 'Comparison'}>
+          <section className="px-6 py-14" aria-label={ru ? 'Сравнение' : 'Comparison'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}>
             <Cin>
               <h2 className="mb-6" style={{
                 fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
@@ -583,7 +583,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           </section>
 
           {/* ═══════ PROCESS ═══════ */}
-          <section className="px-6 py-14" aria-label={ru ? 'Процесс' : 'Process'}>
+          <section className="px-6 py-14" aria-label={ru ? 'Процесс' : 'Process'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 600px' }}>
             <Cin>
               <span style={{
                 fontFamily: SYNE, fontSize: '0.6875rem',
@@ -659,7 +659,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           </Cin>
 
           {/* ═══════ FINAL CTA ═══════ */}
-          <section className="px-6 pt-6 pb-8" aria-label="CTA">
+          <section className="px-6 pt-6 pb-8" aria-label="CTA" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 350px' }}>
             <Cin>
               <div className="relative overflow-hidden rounded-2xl py-12 px-6 text-center" style={{ border: '1px solid rgba(255,255,255,0.04)' }}>
                 <div className="absolute inset-0 pointer-events-none" style={{

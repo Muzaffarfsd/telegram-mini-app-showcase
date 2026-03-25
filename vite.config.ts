@@ -9,6 +9,11 @@ export default defineConfig({
   plugins: [
     react({
       jsxRuntime: 'automatic',
+      babel: {
+        plugins: [
+          ['babel-plugin-react-compiler', {}],
+        ],
+      },
     }),
     
     // Brotli compression
