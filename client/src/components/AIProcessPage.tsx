@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { 
   Check,
   MessageSquare,
@@ -10,6 +10,7 @@ import {
   Zap
 } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
+import { usePerformanceClass } from '../hooks/usePerformanceClass';
 import { SplineScene } from './ui/spline-scene';
 
 const SPLINE_SCENE_URL = "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode";
@@ -20,8 +21,34 @@ interface AIProcessPageProps {
 
 const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   const { t, language } = useLanguage();
+  const { isHighEnd } = usePerformanceClass();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const splineIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const [splineVisible, setSplineVisible] = useState(true);
 
-  // Sync Telegram Main Button with language changes
+  const handleSplineIframeRef = useCallback((iframe: HTMLIFrameElement | null) => {
+    splineIframeRef.current = iframe;
+  }, []);
+
+  useEffect(() => {
+    if (!isHighEnd || !heroRef.current) return;
+    const el = heroRef.current;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        setSplineVisible(entry.isIntersecting);
+        if (splineIframeRef.current?.contentWindow) {
+          splineIframeRef.current.contentWindow.postMessage(
+            { type: entry.isIntersecting ? 'spline-play' : 'spline-stop' },
+            '*'
+          );
+        }
+      },
+      { rootMargin: '100px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [isHighEnd]);
+
   useEffect(() => {
     try {
       const tg = (window as any).Telegram?.WebApp;
@@ -37,28 +64,30 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
   return (
     <div className="relative min-h-screen bg-black">
-      {/* Spline 3D Background - purely decorative, no interaction */}
-      <div 
-        className="fixed inset-0 z-0 pointer-events-none"
-        style={{ paddingTop: '80px' }}
-      >
-        <SplineScene 
-          scene={SPLINE_SCENE_URL}
-          className="w-full h-full"
-        />
-      </div>
+      {isHighEnd && (
+        <div 
+          className="fixed inset-0 z-0 pointer-events-none"
+          style={{ 
+            paddingTop: '80px',
+            visibility: splineVisible ? 'visible' : 'hidden',
+          }}
+        >
+          <SplineScene 
+            scene={SPLINE_SCENE_URL}
+            className="w-full h-full"
+            iframeRefCallback={handleSplineIframeRef}
+          />
+        </div>
+      )}
       
-      {/* Content layer - scrollable */}
       <div 
         className="relative z-10 min-h-screen pb-24"
         style={{ paddingTop: '100px' }}
       >
         <div className="max-w-md mx-auto">
         
-        {/* Hero section - robot visible */}
         <section className="relative px-5 pt-0 pb-4">
-          {/* Robot viewing area - empty space for robot */}
-          <div className="h-[320px]" />
+          <div ref={heroRef} className="h-[320px]" />
         </section>
 
         {/* Main content section - cards below robot */}

@@ -1,11 +1,12 @@
 'use client'
 
-import { memo, useState, useCallback, useRef, useEffect } from 'react'
+import { memo, useState, useRef, useEffect } from 'react'
 
 interface SplineSceneProps {
   scene: string
   className?: string
   onLoad?: () => void
+  iframeRefCallback?: (iframe: HTMLIFrameElement | null) => void
 }
 
 function SplineLoadingSkeleton() {
@@ -30,19 +31,19 @@ function SplineLoadingSkeleton() {
   )
 }
 
-function SplineSceneInner({ scene, className, onLoad }: SplineSceneProps) {
+function SplineSceneInner({ scene, className, onLoad, iframeRefCallback }: SplineSceneProps) {
   const [isReady, setIsReady] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
 
   useEffect(() => {
     if (!containerRef.current) return
-    console.log('[Spline] Mounting scene in iframe:', scene)
 
     const iframe = document.createElement('iframe')
     iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;background:transparent;'
     iframe.setAttribute('tabindex', '-1')
     iframe.setAttribute('aria-hidden', 'true')
+    iframe.setAttribute('loading', 'lazy')
     iframeRef.current = iframe
 
     const html = `<!DOCTYPE html>
@@ -58,15 +59,20 @@ const app = new Application(canvas);
 app.load('${scene}').then(() => {
   window.parent.postMessage({type:'spline-loaded'},'*');
 }).catch(err => console.error('[Spline iframe] Error:', err));
+window.addEventListener('message', (e) => {
+  if (e.data?.type === 'spline-stop') { try { app.stop(); } catch(ex){} }
+  if (e.data?.type === 'spline-play') { try { app.play(); } catch(ex){} }
+});
 <\/script>
 </body></html>`
 
     iframe.srcdoc = html
     containerRef.current.appendChild(iframe)
+    iframeRefCallback?.(iframe)
 
     const handleMessage = (e: MessageEvent) => {
+      if (e.source !== iframeRef.current?.contentWindow) return
       if (e.data?.type === 'spline-loaded') {
-        console.log('[Spline] Scene loaded in iframe')
         setIsReady(true)
         onLoad?.()
       }
@@ -75,12 +81,16 @@ app.load('${scene}').then(() => {
 
     return () => {
       window.removeEventListener('message', handleMessage)
+      iframeRefCallback?.(null)
+      if (iframeRef.current?.contentWindow) {
+        try { iframeRef.current.contentWindow.postMessage({ type: 'spline-stop' }, '*') } catch(e) {}
+      }
       if (iframeRef.current?.parentNode) {
         try { iframeRef.current.parentNode.removeChild(iframeRef.current) } catch(e) {}
       }
       iframeRef.current = null
     }
-  }, [scene, onLoad])
+  }, [scene, onLoad, iframeRefCallback])
 
   return (
     <div ref={containerRef} className={`relative ${className || ''}`} style={{ width: '100%', height: '100%' }}>
