@@ -205,6 +205,24 @@ button:active, a:active, [role="button"]:active, .interactive:active {
   opacity: 0.9;
 }
 
+/* Liquid Glass Nav Tab — press state */
+.nav-tab-icon {
+  transition: transform 0.15s ease-out;
+}
+
+button:active .nav-tab-icon {
+  transform: scale(0.88);
+}
+
+/* Reduced motion: disable all nav animations */
+@media (prefers-reduced-motion: reduce) {
+  .nav-tab-icon,
+  .nav-button-instant {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
 /* === PERFORMANCE OPTIMIZATIONS FOR TELEGRAM === */
 
 /* CRITICAL: Telegram Mini App scroll hierarchy 

@@ -86,22 +86,13 @@ const goBack = () => {
   window.history.back();
 };
 
-// Liquid Glass SVG Filter
+// Liquid Glass SVG Filter — subtle refraction (iOS 26 level)
 const LiquidGlassFilter = () => (
-  <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}>
-    <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
-      <feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence" />
-      <feComponentTransfer in="turbulence" result="mapped">
-        <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
-        <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
-        <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
-      </feComponentTransfer>
-      <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
-      <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lightingColor="white" result="specLight">
-        <fePointLight x="-200" y="-200" z="300" />
-      </feSpecularLighting>
-      <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
-      <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
+  <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+    <filter id="glass-distortion" x="-5%" y="-5%" width="110%" height="110%" filterUnits="objectBoundingBox">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02 0.015" numOctaves="2" seed="17" result="turbulence" />
+      <feGaussianBlur in="turbulence" stdDeviation="4" result="softMap" />
+      <feDisplacementMap in="SourceGraphic" in2="softMap" scale="6" xChannelSelector="R" yChannelSelector="G" />
     </filter>
   </svg>
 );
@@ -119,9 +110,10 @@ interface NavTabProps {
 const NavTab = ({ onClick, isActive, ariaLabel, testId, label, children }: NavTabProps) => (
   <button
     type="button"
-    className="relative z-30 flex items-center justify-center rounded-[16px] gpu-layer"
+    className="relative z-30 flex items-center justify-center rounded-[14px] gpu-layer"
     style={{
       height: '44px',
+      minWidth: '44px',
       appearance: 'none',
       border: 'none',
       background: isActive ? 'rgba(255,255,255,0.10)' : 'transparent',
@@ -129,13 +121,15 @@ const NavTab = ({ onClick, isActive, ariaLabel, testId, label, children }: NavTa
       outline: 'none',
       cursor: 'pointer',
       gap: isActive ? '7px' : '0',
-      transition: 'background 0.25s ease, padding 0.3s ease, gap 0.3s ease',
+      willChange: 'background, padding, gap',
+      transition: 'background 0.22s ease-out, padding 0.28s ease-out, gap 0.28s ease-out',
+      WebkitTapHighlightColor: 'transparent',
     }}
     onClick={onClick}
     aria-label={ariaLabel}
     data-testid={testId}
   >
-    <div className="relative z-10 flex-shrink-0">
+    <div className="relative z-10 flex-shrink-0 nav-tab-icon">
       {children}
     </div>
     <span 
@@ -147,7 +141,8 @@ const NavTab = ({ onClick, isActive, ariaLabel, testId, label, children }: NavTa
         color: '#fff',
         maxWidth: isActive ? '80px' : '0',
         opacity: isActive ? 1 : 0,
-        transition: 'max-width 0.3s ease, opacity 0.2s ease',
+        willChange: 'max-width, opacity',
+        transition: 'max-width 0.28s ease-out, opacity 0.18s ease-out',
       }}
     >
       {label}
@@ -174,38 +169,29 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
         }}
       >
         <nav 
-          className="relative flex items-center overflow-hidden rounded-3xl gpu-layer"
+          className="relative flex items-center rounded-[22px] gpu-layer"
           style={{
-            padding: '6px 8px',
+            padding: '5px 6px',
             gap: '2px',
-            boxShadow: '0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25), 0 0 1px rgba(0,0,0,0.1)',
+            background: 'rgba(20, 20, 22, 0.65)',
           }}
           role="navigation"
           aria-label={language === 'ru' ? 'Главное меню' : 'Main menu'}
         >
           <div 
-            className="absolute inset-0 z-0 overflow-hidden rounded-3xl pointer-events-none"
+            className="absolute inset-0 z-0 rounded-[22px] pointer-events-none"
             style={{
-              backdropFilter: 'blur(40px)',
-              WebkitBackdropFilter: 'blur(40px)',
+              backdropFilter: 'blur(40px) saturate(1.4)',
+              WebkitBackdropFilter: 'blur(40px) saturate(1.4)',
               filter: 'url(#glass-distortion)',
-              isolation: 'isolate',
             }}
           />
           <div 
-            className="absolute inset-0 z-10 rounded-3xl pointer-events-none"
-            style={{ background: 'rgba(255, 255, 255, 0.12)' }}
-          />
-          <div 
-            className="absolute inset-0 z-20 rounded-3xl overflow-hidden pointer-events-none"
+            className="absolute inset-0 z-10 rounded-[22px] pointer-events-none"
             style={{
-              boxShadow: 'inset 2px 2px 1px 0 rgba(255,255,255,0.25), inset -1px -1px 1px 1px rgba(255,255,255,0.15)',
-            }}
-          />
-          <div 
-            className="absolute inset-x-6 top-0 h-[1px] z-20 pointer-events-none"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%)',
+              boxShadow: 'inset 0 0.5px 0 rgba(255,255,255,0.10), inset 0 -0.5px 0 rgba(255,255,255,0.04)',
+              border: '0.5px solid rgba(255,255,255,0.08)',
             }}
           />
 
@@ -217,12 +203,12 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
             label={language === 'ru' ? 'Главная' : 'Home'}
           >
             <Home
-              className="w-[22px] h-[22px] transition-all duration-300"
+              className="w-[21px] h-[21px]"
               style={{
-                color: route.component === 'showcase' ? '#fff' : 'rgba(255,255,255,0.5)',
-                filter: route.component === 'showcase' ? 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' : 'none',
+                color: route.component === 'showcase' ? '#fff' : 'rgba(255,255,255,0.45)',
+                transition: 'color 0.2s ease-out',
               }}
-              strokeWidth={route.component === 'showcase' ? 2.2 : 1.5}
+              strokeWidth={route.component === 'showcase' ? 2 : 1.5}
             />
           </NavTab>
           
@@ -234,12 +220,12 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
             label={language === 'ru' ? 'ИИ' : 'AI'}
           >
             <Bot
-              className="w-[22px] h-[22px] transition-all duration-300"
+              className="w-[21px] h-[21px]"
               style={{
-                color: isAI ? '#fff' : 'rgba(255,255,255,0.5)',
-                filter: isAI ? 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' : 'none',
+                color: isAI ? '#fff' : 'rgba(255,255,255,0.45)',
+                transition: 'color 0.2s ease-out',
               }}
-              strokeWidth={isAI ? 2.2 : 1.5}
+              strokeWidth={isAI ? 2 : 1.5}
             />
           </NavTab>
           
@@ -251,12 +237,12 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
             label={language === 'ru' ? 'Кейсы' : 'Cases'}
           >
             <Briefcase
-              className="w-[22px] h-[22px] transition-all duration-300"
+              className="w-[21px] h-[21px]"
               style={{
-                color: route.component === 'projects' ? '#fff' : 'rgba(255,255,255,0.5)',
-                filter: route.component === 'projects' ? 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' : 'none',
+                color: route.component === 'projects' ? '#fff' : 'rgba(255,255,255,0.45)',
+                transition: 'color 0.2s ease-out',
               }}
-              strokeWidth={route.component === 'projects' ? 2.2 : 1.5}
+              strokeWidth={route.component === 'projects' ? 2 : 1.5}
             />
           </NavTab>
           
@@ -268,12 +254,12 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
             label={language === 'ru' ? 'Заказ' : 'Order'}
           >
             <ShoppingCart
-              className="w-[22px] h-[22px] transition-all duration-300"
+              className="w-[21px] h-[21px]"
               style={{
-                color: route.component === 'constructor' ? '#fff' : 'rgba(255,255,255,0.5)',
-                filter: route.component === 'constructor' ? 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' : 'none',
+                color: route.component === 'constructor' ? '#fff' : 'rgba(255,255,255,0.45)',
+                transition: 'color 0.2s ease-out',
               }}
-              strokeWidth={route.component === 'constructor' ? 2.2 : 1.5}
+              strokeWidth={route.component === 'constructor' ? 2 : 1.5}
             />
           </NavTab>
           
@@ -288,8 +274,8 @@ const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any
               photoUrl={user?.photo_url}
               firstName={user?.first_name}
               size="sm"
-              className={`w-6 h-6 transition-all duration-300 ${
-                isProfile ? 'ring-[1.5px] ring-white/50' : 'opacity-60'
+              className={`w-6 h-6 ${
+                isProfile ? 'ring-[1.5px] ring-white/40' : 'opacity-45'
               }`}
             />
           </NavTab>
