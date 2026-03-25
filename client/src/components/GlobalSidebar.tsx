@@ -1107,7 +1107,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                           color: colors.accent,
                           letterSpacing: '0.02em'
                         }}>
-                          LVL 1
+                          {t('sidebar.level')} 1
                         </span>
                       </div>
                       <span style={{
@@ -1122,7 +1122,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                       fontWeight: 600,
                       color: colors.textSecondary
                     }}>
-                      0/100 XP
+                      0/100 {t('sidebar.xpProgress')}
                     </span>
                   </div>
                   
@@ -1487,14 +1487,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   color: colors.textSecondary
                 }}
               >
-                Web4TG Studio
+                {t('sidebar.studioName')}
               </p>
               <p style={{
                 fontSize: '11px',
                 color: colors.textMuted,
                 marginTop: '2px'
               }}>
-                2025
+                {t('sidebar.studioYear')}
               </p>
             </div>
             <div style={{
@@ -1509,7 +1509,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 color: colors.success,
                 letterSpacing: '0.02em'
               }}>
-                ONLINE
+                {t('sidebar.online')}
               </p>
             </div>
           </div>

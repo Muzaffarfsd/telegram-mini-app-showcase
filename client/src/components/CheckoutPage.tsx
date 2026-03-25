@@ -120,7 +120,7 @@ const CheckoutForm = ({ totalAmount, projectName, selectedFeatures, onSuccess }:
         data-testid="button-pay"
       >
         <CreditCard className="w-4 h-4 mr-2" />
-        {isProcessing ? t('checkout.processing') : `${t('checkout.pay')} ${totalAmount.toLocaleString()} ₽`}
+        {isProcessing ? t('checkout.processing') : `${t('checkout.pay')} ${totalAmount.toLocaleString()} ${t('sidebar.currencySymbol')}`}
       </button>
     </form>
   );
@@ -258,7 +258,7 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
               {selectedFeatures.map((feature) => (
                 <div key={feature.id} className="flex justify-between ios-footnote">
                   <span className="text-white/70">{feature.name}</span>
-                  <span className="text-system-blue font-semibold">{feature.price.toLocaleString()} ₽</span>
+                  <span className="text-system-blue font-semibold">{feature.price.toLocaleString()} {t('sidebar.currencySymbol')}</span>
                 </div>
               ))}
             </div>
@@ -266,7 +266,7 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
             <div className="border-t border-white/10 pt-2">
               <div className="flex justify-between ios-body font-bold">
                 <span className="text-white">{t('checkout.total')}</span>
-                <span className="text-system-blue">{totalAmount.toLocaleString()} ₽</span>
+                <span className="text-system-blue">{totalAmount.toLocaleString()} {t('sidebar.currencySymbol')}</span>
               </div>
               <p className="ios-caption2 text-white/70 mt-1">
                 {t('checkout.developmentTime')}

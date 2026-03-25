@@ -81,7 +81,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
                   border: '1px solid rgba(255,255,255,0.06)'
                 }}
               >
-                ✦ AI Powered
+                {t('sidebar.aiBadge')} Powered
               </span>
             </div>
             

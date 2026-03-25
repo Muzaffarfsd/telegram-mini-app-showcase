@@ -583,7 +583,7 @@ const TemplateCard = memo(({ template, onSelect, t, index }: any) => {
                 fontFamily: SYNE, fontSize: '0.72rem', fontWeight: 700,
                 color: 'rgba(255,255,255,0.5)', letterSpacing: '-0.02em',
               }}>
-                {t('constructor.from')} {template.estimatedPrice.toLocaleString()} ₽
+                {t('constructor.from')} {template.estimatedPrice.toLocaleString()} {t('sidebar.currencySymbol')}
               </span>
             </div>
           </div>
@@ -1040,7 +1040,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                         color: isIncludedInAny ? EMERALD : 'rgba(255,255,255,0.45)',
                         letterSpacing: '-0.02em', flexShrink: 0,
                       }}>
-                        {isIncludedInAny ? t('constructor.included') : `+${feature.price.toLocaleString()} ₽`}
+                        {isIncludedInAny ? t('constructor.included') : `+${feature.price.toLocaleString()} ${t('sidebar.currencySymbol')}`}
                       </span>
                     </button>
                   );
@@ -1278,7 +1278,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                         fontFamily: SYNE, fontSize: '0.85rem', fontWeight: 700,
                         color: '#fff', letterSpacing: '-0.02em',
                       }}>
-                        {selectedTemplate.estimatedPrice.toLocaleString()} ₽
+                        {selectedTemplate.estimatedPrice.toLocaleString()} {t('sidebar.currencySymbol')}
                       </span>
                     </div>
 
@@ -1293,7 +1293,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                           fontFamily: SYNE, fontSize: '0.85rem', fontWeight: 700,
                           color: '#fff', letterSpacing: '-0.02em',
                         }}>
-                          +{additionalFeaturesPrice.toLocaleString()} ₽
+                          +{additionalFeaturesPrice.toLocaleString()} {t('sidebar.currencySymbol')}
                         </span>
                       </div>
                     )}
@@ -1318,7 +1318,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                       WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                       letterSpacing: '-0.04em',
                     }}>
-                      {totalPrice.toLocaleString()} ₽
+                      {totalPrice.toLocaleString()} {t('sidebar.currencySymbol')}
                     </span>
                   </div>
 
@@ -1373,7 +1373,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   }}
                 >
-                  {t('constructor.orderFor')} {totalPrice.toLocaleString()} ₽
+                  {t('constructor.orderFor')} {totalPrice.toLocaleString()} {t('sidebar.currencySymbol')}
                   <ArrowRight size={16} />
                 </button>
                 <button
@@ -1443,7 +1443,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                   letterSpacing: '-0.03em',
                 }}>
-                  {totalPrice.toLocaleString()} ₽
+                  {totalPrice.toLocaleString()} {t('sidebar.currencySymbol')}
                 </p>
               </div>
               <div style={{

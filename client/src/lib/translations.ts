@@ -79,6 +79,13 @@ export const translations = {
       contactUs: 'Связаться с нами',
       enableLightTheme: 'Включить светлую тему',
       enableDarkTheme: 'Включить тёмную тему',
+      level: 'УР',
+      xpProgress: 'XP',
+      online: 'В СЕТИ',
+      studioName: 'Web4TG Studio',
+      studioYear: '2025',
+      currencySymbol: '₽',
+      aiBadge: '✦ AI',
     },
     
     // Errors
@@ -1716,6 +1723,13 @@ export const translations = {
       contactUs: 'Contact us',
       enableLightTheme: 'Enable light theme',
       enableDarkTheme: 'Enable dark theme',
+      level: 'LVL',
+      xpProgress: 'XP',
+      online: 'ONLINE',
+      studioName: 'Web4TG Studio',
+      studioYear: '2025',
+      currencySymbol: '₽',
+      aiBadge: '✦ AI',
     },
     
     // Errors
