@@ -351,11 +351,11 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     >
                       {c.vid ? (
                         <video ref={i === 0 ? videoRef : undefined} src={c.src} loop muted playsInline autoPlay
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-105"
+                          className="absolute inset-0 w-full h-full object-cover"
                           style={{ filter: 'brightness(0.8) saturate(0.9)' }} />
                       ) : (
                         <img src={c.src} alt={c.label} loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-105"
+                          className="absolute inset-0 w-full h-full object-cover"
                           style={{ filter: 'brightness(0.8) saturate(0.9)' }} />
                       )}
 
@@ -437,7 +437,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                       className="flex items-start gap-4 rounded-2xl p-4 transition-all duration-400 group"
                       style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}
                     >
-                      <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{ background: `${f.color}12` }}>
+                      <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${f.color}12` }}>
                         <Icon className="w-5 h-5" style={{ color: f.color }} strokeWidth={1.8} />
                       </div>
                       <div className="flex-1 min-w-0">
