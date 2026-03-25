@@ -6,7 +6,9 @@ export const translations = {
       demos: 'Демо',
       constructor: 'Конструктор',
       cart: 'Корзина',
+      catalog: 'Каталог',
       profile: 'Профиль',
+      navigation: 'Навигация',
     },
     
     // Header
@@ -1640,7 +1642,9 @@ export const translations = {
       demos: 'Demos',
       constructor: 'Constructor',
       cart: 'Cart',
+      catalog: 'Catalog',
       profile: 'Profile',
+      navigation: 'Navigation',
     },
     
     // Header

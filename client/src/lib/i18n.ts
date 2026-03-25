@@ -23,6 +23,9 @@ type TranslationKeys = {
   'nav.projects': string;
   'nav.aiAgent': string;
   'nav.profile': string;
+  'nav.catalog': string;
+  'nav.cart': string;
+  'demo.navigation': string;
   
   // Hero
   'hero.title': string;
@@ -92,6 +95,9 @@ const translations: Record<Language, TranslationKeys> = {
     'nav.projects': 'Проекты',
     'nav.aiAgent': 'AI Агент',
     'nav.profile': 'Профиль',
+    'nav.catalog': 'Каталог',
+    'nav.cart': 'Корзина',
+    'demo.navigation': 'Навигация',
     
     // Hero
     'hero.title': 'Запустите бизнес в Telegram за 24 часа',
@@ -160,6 +166,9 @@ const translations: Record<Language, TranslationKeys> = {
     'nav.projects': 'Projects',
     'nav.aiAgent': 'AI Agent',
     'nav.profile': 'Profile',
+    'nav.catalog': 'Catalog',
+    'nav.cart': 'Cart',
+    'demo.navigation': 'Navigation',
     
     // Hero
     'hero.title': 'Launch Your Business in Telegram in 24 Hours',

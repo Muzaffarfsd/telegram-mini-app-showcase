@@ -15,117 +15,116 @@ interface DemoAppShellProps {
 
 type TabType = 'home' | 'catalog' | 'cart' | 'profile';
 
-// Theme configuration for all demo apps
 interface DemoTheme {
   background: string;
   isDark: boolean;
-  navBackground: string;
-  navBorder: string;
-  navShadow: string;
-  activeColor: string;
-  inactiveColor: string;
+  activeIconColor: string;
+  inactiveIconColor: string;
+  navOverlay: string;
 }
 
-// Default dark theme (emerald accent)
 const darkTheme: DemoTheme = {
   background: '#0A0A0A',
   isDark: true,
-  navBackground: 'rgba(35, 35, 40, 0.6)',
-  navBorder: 'rgba(255, 255, 255, 0.1)',
-  navShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-  activeColor: 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]',
-  inactiveColor: 'text-white/80',
+  activeIconColor: '#fff',
+  inactiveIconColor: 'rgba(255,255,255,0.45)',
+  navOverlay: 'rgba(20, 20, 22, 0.65)',
 };
 
-// Theme configurations for each demo
+const lightTheme: DemoTheme = {
+  background: '#F5F3F0',
+  isDark: false,
+  activeIconColor: 'rgba(0,0,0,0.85)',
+  inactiveIconColor: 'rgba(0,0,0,0.35)',
+  navOverlay: 'rgba(255, 255, 255, 0.65)',
+};
+
 const demoThemes: Record<string, Partial<DemoTheme>> = {
-  // Light theme demos
-  'florist': {
-    background: '#FDF8F5',
-    isDark: false,
-    navBackground: 'rgba(255, 255, 255, 0.85)',
-    navBorder: 'rgba(244, 114, 182, 0.3)',
-    navShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-    activeColor: 'text-pink-500 drop-shadow-[0_0_8px_rgba(244,114,182,0.5)]',
-    inactiveColor: 'text-gray-500',
-  },
-  'tea-house': {
-    background: '#FAF6F1',
-    isDark: false,
-    navBackground: 'rgba(255, 255, 255, 0.85)',
-    navBorder: 'rgba(180, 130, 80, 0.3)',
-    navShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-    activeColor: 'text-amber-600 drop-shadow-[0_0_8px_rgba(180,130,80,0.5)]',
-    inactiveColor: 'text-stone-500',
-  },
-  'interior-lux': {
-    background: '#F5F3F0',
-    isDark: false,
-    navBackground: 'rgba(255, 255, 255, 0.85)',
-    navBorder: 'rgba(120, 113, 108, 0.3)',
-    navShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-    activeColor: 'text-stone-700 drop-shadow-[0_0_8px_rgba(120,113,108,0.5)]',
-    inactiveColor: 'text-stone-400',
-  },
-  // Dark theme demos with custom accent colors
-  'clothing-store': {
-    background: '#0A0A0A',
-    isDark: true,
-  },
-  'electronics': {
-    background: '#0A0A0A',
-    isDark: true,
-    activeColor: 'text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]',
-  },
-  'beauty': {
-    background: '#0A0A0A',
-    isDark: true,
-    activeColor: 'text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.5)]',
-  },
-  'restaurant': {
-    background: '#0A0A0A',
-    isDark: true,
-    activeColor: 'text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.5)]',
-  },
-  'luxury-watches': {
-    background: '#0A0A0A',
-    isDark: true,
-    activeColor: 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]',
-  },
-  'sneaker-store': {
-    background: '#0A0A0A',
-    isDark: true,
-    activeColor: 'text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]',
-  },
-  'luxury-perfume': {
-    background: '#0A0A0A',
-    isDark: true,
-    activeColor: 'text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.5)]',
-  },
-  'futuristic-fashion-1': {
-    background: '#0A0A0A',
-    isDark: true,
-    activeColor: 'text-lime-400 drop-shadow-[0_0_8px_rgba(163,230,53,0.5)]',
-  },
-  'futuristic-fashion-2': {
-    background: '#000000',
-    isDark: true,
-  },
-  'futuristic-fashion-3': {
-    background: '#0A0A0A',
-    isDark: true,
-  },
-  'futuristic-fashion-4': {
-    background: '#0A0A0A',
-    isDark: true,
-  },
+  'florist': { background: '#FDF8F5', isDark: false },
+  'tea-house': { background: '#FAF6F1', isDark: false },
+  'interior-lux': { background: '#F5F3F0', isDark: false },
+  'clothing-store': { background: '#0A0A0A', isDark: true },
+  'electronics': { background: '#0A0A0A', isDark: true },
+  'beauty': { background: '#0A0A0A', isDark: true },
+  'restaurant': { background: '#0A0A0A', isDark: true },
+  'luxury-watches': { background: '#0A0A0A', isDark: true },
+  'sneaker-store': { background: '#0A0A0A', isDark: true },
+  'luxury-perfume': { background: '#0A0A0A', isDark: true },
+  'futuristic-fashion-1': { background: '#0A0A0A', isDark: true },
+  'futuristic-fashion-2': { background: '#000000', isDark: true },
+  'futuristic-fashion-3': { background: '#0A0A0A', isDark: true },
+  'futuristic-fashion-4': { background: '#0A0A0A', isDark: true },
 };
 
-// Get theme for a demo
 const getTheme = (demoId: string): DemoTheme => {
-  const customTheme = demoThemes[demoId] || {};
-  return { ...darkTheme, ...customTheme };
+  const custom = demoThemes[demoId] || {};
+  const base = custom.isDark === false ? lightTheme : darkTheme;
+  return { ...base, ...custom };
 };
+
+const DemoLiquidGlassFilter = () => (
+  <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+    <filter id="demo-glass-distortion" x="-5%" y="-5%" width="110%" height="110%" filterUnits="objectBoundingBox">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02 0.015" numOctaves="2" seed="23" result="turbulence" />
+      <feGaussianBlur in="turbulence" stdDeviation="4" result="softMap" />
+      <feDisplacementMap in="SourceGraphic" in2="softMap" scale="6" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+);
+
+interface DemoNavTabProps {
+  onClick: () => void;
+  isActive: boolean;
+  ariaLabel: string;
+  testId: string;
+  label: string;
+  activeColor: string;
+  inactiveColor: string;
+  children: React.ReactNode;
+}
+
+const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, inactiveColor, children }: DemoNavTabProps) => (
+  <button
+    type="button"
+    className="relative z-30 flex items-center justify-center rounded-[14px] gpu-layer"
+    style={{
+      height: '44px',
+      minWidth: '44px',
+      appearance: 'none',
+      border: 'none',
+      background: isActive ? (activeColor === '#fff' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.06)') : 'transparent',
+      padding: isActive ? '0 14px' : '0 12px',
+      outline: 'none',
+      cursor: 'pointer',
+      gap: isActive ? '7px' : '0',
+      willChange: 'background, padding, gap',
+      transition: 'background 0.22s ease-out, padding 0.28s ease-out, gap 0.28s ease-out',
+      WebkitTapHighlightColor: 'transparent',
+    }}
+    onClick={onClick}
+    aria-label={ariaLabel}
+    data-testid={testId}
+  >
+    <div className="relative z-10 flex-shrink-0 nav-tab-icon">
+      {children}
+    </div>
+    <span
+      className="relative z-10 leading-none overflow-hidden whitespace-nowrap"
+      style={{
+        fontSize: '12px',
+        fontWeight: 600,
+        letterSpacing: '0.01em',
+        color: activeColor,
+        maxWidth: isActive ? '80px' : '0',
+        opacity: isActive ? 1 : 0,
+        willChange: 'max-width, opacity',
+        transition: 'max-width 0.28s ease-out, opacity 0.18s ease-out',
+      }}
+    >
+      {label}
+    </span>
+  </button>
+);
 
 const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShellProps) {
   const [activeTab, setActiveTab] = useState<TabType>('home');
@@ -262,7 +261,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       {/* Fixed UI via Portal - bypasses all transform/contain ancestors */}
       {createPortal(
         <>
-          {/* Fixed Home Button - right side of app container, above bottom nav */}
+          <DemoLiquidGlassFilter />
+
+          {/* Fixed Home Button */}
           <div 
             className="fixed z-[9999] pointer-events-none flex justify-end"
             style={{
@@ -278,147 +279,122 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
             </div>
           </div>
 
-          {/* Bottom Navigation - Premium Glass (via Portal for true fixed positioning) */}
+          {/* Bottom Navigation — Liquid Glass */}
           <div 
-            className="fixed bottom-6 left-0 right-0 flex justify-center z-[9999]"
-            style={{ isolation: 'isolate' }}
+            className="fixed bottom-0 left-0 right-0 flex justify-center z-[9999]"
+            style={{ 
+              isolation: 'isolate',
+              paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+              paddingLeft: '12px',
+              paddingRight: '12px',
+              paddingTop: '8px',
+            }}
           >
-            <div className="relative">
-              {/* Subtle outer glow */}
+            <nav 
+              className="relative flex items-center rounded-[22px] gpu-layer"
+              style={{
+                padding: '5px 6px',
+                gap: '2px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25), 0 0 1px rgba(0,0,0,0.1)',
+                background: theme.navOverlay,
+              }}
+              role="navigation" 
+              aria-label={t('nav.navigation')}
+            >
               <div 
-                className="absolute -inset-2 rounded-[36px] pointer-events-none"
+                className="absolute inset-0 z-0 rounded-[22px] pointer-events-none"
                 style={{
-                  boxShadow: '0 0 40px 5px rgba(16, 185, 129, 0.08)',
+                  backdropFilter: 'blur(40px) saturate(1.4)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(1.4)',
+                  filter: 'url(#demo-glass-distortion)',
                 }}
               />
-              
-              {/* Deep shadow */}
               <div 
-                className="absolute inset-0 rounded-[28px] pointer-events-none"
+                className="absolute inset-0 z-10 rounded-[22px] pointer-events-none"
                 style={{
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
-                  transform: 'translateY(4px)',
+                  boxShadow: theme.isDark
+                    ? 'inset 0 0.5px 0 rgba(255,255,255,0.10), inset 0 -0.5px 0 rgba(255,255,255,0.04)'
+                    : 'inset 0 0.5px 0 rgba(255,255,255,0.40), inset 0 -0.5px 0 rgba(0,0,0,0.04)',
+                  border: theme.isDark ? '0.5px solid rgba(255,255,255,0.08)' : '0.5px solid rgba(0,0,0,0.06)',
                 }}
               />
-              
-              {/* Main Glass Container */}
-              <nav 
-                className="relative flex items-center justify-center gap-1 rounded-[28px] px-3 py-2"
-                style={{
-                  background: theme.navBackground,
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: `1px solid ${theme.navBorder}`,
-                  boxShadow: theme.navShadow,
-                }}
-                role="navigation" 
-                aria-label={t('demo.navigation')}
+
+              <DemoNavTab
+                onClick={() => handleTabSwitch('home')}
+                isActive={activeTab === 'home'}
+                ariaLabel={t('nav.home')}
+                testId="nav-home"
+                label={t('nav.home')}
+                activeColor={theme.activeIconColor}
+                inactiveColor={theme.inactiveIconColor}
               >
-                {/* Top highlight line */}
-                <div 
-                  className="absolute inset-x-4 top-0 h-[1px] pointer-events-none"
+                <Home
+                  className="w-[21px] h-[21px]"
                   style={{
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)',
+                    color: activeTab === 'home' ? theme.activeIconColor : theme.inactiveIconColor,
+                    transition: 'color 0.2s ease-out',
                   }}
+                  strokeWidth={activeTab === 'home' ? 2 : 1.5}
                 />
-              
-                {/* Home */}
-                <button
-                  onClick={() => handleTabSwitch('home')}
-                  className="relative flex items-center justify-center w-12 h-12 rounded-full"
-                  aria-label={t('nav.home')}
-                  data-testid="nav-home"
-                >
-                  {activeTab === 'home' && (
-                    <div 
-                      className="absolute inset-0 rounded-full pointer-events-none"
-                      style={{
-                        background: 'rgba(16, 185, 129, 0.15)',
-                        boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
-                      }}
-                    />
-                  )}
-                  <Home
-                    className={`w-6 h-6 transition-all duration-200 ${
-                      activeTab === 'home' ? theme.activeColor : theme.inactiveColor
-                    }`}
-                    strokeWidth={activeTab === 'home' ? 2.5 : 1.75}
-                  />
-                </button>
-                
-                {/* Catalog */}
-                <button
-                  onClick={() => handleTabSwitch('catalog')}
-                  className="relative flex items-center justify-center w-12 h-12 rounded-full"
-                  aria-label={t('nav.demos')}
-                  data-testid="nav-catalog"
-                >
-                  {activeTab === 'catalog' && (
-                    <div 
-                      className="absolute inset-0 rounded-full pointer-events-none"
-                      style={{
-                        background: 'rgba(16, 185, 129, 0.15)',
-                        boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
-                      }}
-                    />
-                  )}
-                  <Grid3X3
-                    className={`w-6 h-6 transition-all duration-200 ${
-                      activeTab === 'catalog' ? theme.activeColor : theme.inactiveColor
-                    }`}
-                    strokeWidth={activeTab === 'catalog' ? 2.5 : 1.75}
-                  />
-                </button>
-                
-                {/* Cart */}
-                <button
-                  onClick={() => handleTabSwitch('cart')}
-                  className="relative flex items-center justify-center w-12 h-12 rounded-full"
-                  aria-label={t('nav.cart')}
-                  data-testid="nav-cart"
-                >
-                  {activeTab === 'cart' && (
-                    <div 
-                      className="absolute inset-0 rounded-full pointer-events-none"
-                      style={{
-                        background: 'rgba(16, 185, 129, 0.15)',
-                        boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
-                      }}
-                    />
-                  )}
-                  <ShoppingCart
-                    className={`w-6 h-6 transition-all duration-200 ${
-                      activeTab === 'cart' ? theme.activeColor : theme.inactiveColor
-                    }`}
-                    strokeWidth={activeTab === 'cart' ? 2.5 : 1.75}
-                  />
-                </button>
-                
-                {/* Profile */}
-                <button
-                  onClick={() => handleTabSwitch('profile')}
-                  className="relative flex items-center justify-center w-12 h-12 rounded-full"
-                  aria-label={t('nav.profile')}
-                  data-testid="nav-profile"
-                >
-                  {activeTab === 'profile' && (
-                    <div 
-                      className="absolute inset-0 rounded-full pointer-events-none"
-                      style={{
-                        background: 'rgba(16, 185, 129, 0.15)',
-                        boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
-                      }}
-                    />
-                  )}
-                  <User
-                    className={`w-6 h-6 transition-all duration-200 ${
-                      activeTab === 'profile' ? theme.activeColor : theme.inactiveColor
-                    }`}
-                    strokeWidth={activeTab === 'profile' ? 2.5 : 1.75}
-                  />
-                </button>
-              </nav>
-            </div>
+              </DemoNavTab>
+
+              <DemoNavTab
+                onClick={() => handleTabSwitch('catalog')}
+                isActive={activeTab === 'catalog'}
+                ariaLabel={t('nav.catalog')}
+                testId="nav-catalog"
+                label={t('nav.catalog')}
+                activeColor={theme.activeIconColor}
+                inactiveColor={theme.inactiveIconColor}
+              >
+                <Grid3X3
+                  className="w-[21px] h-[21px]"
+                  style={{
+                    color: activeTab === 'catalog' ? theme.activeIconColor : theme.inactiveIconColor,
+                    transition: 'color 0.2s ease-out',
+                  }}
+                  strokeWidth={activeTab === 'catalog' ? 2 : 1.5}
+                />
+              </DemoNavTab>
+
+              <DemoNavTab
+                onClick={() => handleTabSwitch('cart')}
+                isActive={activeTab === 'cart'}
+                ariaLabel={t('nav.cart')}
+                testId="nav-cart"
+                label={t('nav.cart')}
+                activeColor={theme.activeIconColor}
+                inactiveColor={theme.inactiveIconColor}
+              >
+                <ShoppingCart
+                  className="w-[21px] h-[21px]"
+                  style={{
+                    color: activeTab === 'cart' ? theme.activeIconColor : theme.inactiveIconColor,
+                    transition: 'color 0.2s ease-out',
+                  }}
+                  strokeWidth={activeTab === 'cart' ? 2 : 1.5}
+                />
+              </DemoNavTab>
+
+              <DemoNavTab
+                onClick={() => handleTabSwitch('profile')}
+                isActive={activeTab === 'profile'}
+                ariaLabel={t('nav.profile')}
+                testId="nav-profile"
+                label={t('nav.profile')}
+                activeColor={theme.activeIconColor}
+                inactiveColor={theme.inactiveIconColor}
+              >
+                <User
+                  className="w-[21px] h-[21px]"
+                  style={{
+                    color: activeTab === 'profile' ? theme.activeIconColor : theme.inactiveIconColor,
+                    transition: 'color 0.2s ease-out',
+                  }}
+                  strokeWidth={activeTab === 'profile' ? 2 : 1.5}
+                />
+              </DemoNavTab>
+            </nav>
           </div>
         </>,
         document.body
