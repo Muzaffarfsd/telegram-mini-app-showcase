@@ -4,8 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { useTelegram } from "./hooks/useTelegram";
 import { useTelegramButtons } from "./hooks/useTelegramButtons";
-import { Home, ShoppingCart, Briefcase, Bot, Sun, Moon, Languages } from "lucide-react";
-import { useTheme } from "./hooks/useTheme";
+import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
+
 import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -86,68 +86,222 @@ const goBack = () => {
   window.history.back();
 };
 
-// Premium Glass navigation button with spring physics
-interface NavButtonProps {
+// Liquid Glass SVG Filter
+const LiquidGlassFilter = () => (
+  <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}>
+    <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
+      <feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence" />
+      <feComponentTransfer in="turbulence" result="mapped">
+        <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
+        <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
+        <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
+      </feComponentTransfer>
+      <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
+      <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lightingColor="white" result="specLight">
+        <fePointLight x="-200" y="-200" z="300" />
+      </feSpecularLighting>
+      <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
+      <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+);
+
+// Liquid Glass Nav Tab
+interface NavTabProps {
   onClick: () => void;
   isActive: boolean;
   ariaLabel: string;
   testId: string;
+  label: string;
   children: React.ReactNode;
 }
 
-const NavButton = ({ onClick, isActive, ariaLabel, testId, children }: NavButtonProps) => {
-  // INP Optimization: Use CSS transitions for instant visual feedback instead of spring physics
-  // This ensures immediate visual response on touch/click without waiting for JS animation frames
-  
-  return (
-    <button
-      className="nav-button-instant relative flex items-center justify-center w-12 h-12 rounded-full gpu-layer"
-      onClick={onClick}
-      aria-label={ariaLabel}
-      data-testid={testId}
-    >
-      {/* Active background */}
-      {isActive && (
-        <div 
-          className="absolute inset-0 rounded-full pointer-events-none"
-          style={{
-            background: 'rgba(16, 185, 129, 0.15)',
-            boxShadow: 'inset 0 0 8px rgba(16, 185, 129, 0.2)',
-          }}
-        />
-      )}
-      
-      {/* Icon */}
-      {children}
-    </button>
-  );
-};
-
-// Language toggle button component
-const LanguageToggleButton = () => {
-  const { language, setLanguage } = useLanguage();
-  const { hapticFeedback } = useTelegram();
-  
-  const toggleLanguage = () => {
-    setLanguage(language === 'ru' ? 'en' : 'ru');
-    hapticFeedback.light();
-  };
-  
-  return (
-    <button
-      onClick={toggleLanguage}
-      className="relative flex items-center justify-center w-10 h-10 rounded-full nav-button-instant"
+const NavTab = ({ onClick, isActive, ariaLabel, testId, label, children }: NavTabProps) => (
+  <button
+    type="button"
+    className="nav-button-instant relative flex flex-col items-center justify-center gap-0.5 rounded-2xl gpu-layer"
+    style={{
+      width: '56px',
+      height: '50px',
+      appearance: 'none',
+      border: 'none',
+      background: 'transparent',
+      padding: 0,
+      outline: 'none',
+      cursor: 'pointer',
+      transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 2.2)',
+      transform: isActive ? 'scale(1.08)' : 'scale(1)',
+    }}
+    onClick={onClick}
+    aria-label={ariaLabel}
+    data-testid={testId}
+  >
+    {isActive && (
+      <div 
+        className="absolute inset-0 rounded-2xl pointer-events-none"
+        style={{
+          background: 'rgba(255,255,255,0.12)',
+          boxShadow: 'inset 1px 1px 0 rgba(255,255,255,0.2), inset -1px -1px 0 rgba(255,255,255,0.1)',
+        }}
+      />
+    )}
+    <div className="relative z-10">{children}</div>
+    <span 
+      className="relative z-10 leading-none"
       style={{
-        background: 'rgba(99, 102, 241, 0.15)',
-        border: '1px solid rgba(99, 102, 241, 0.3)',
+        fontSize: '9px',
+        fontWeight: isActive ? 700 : 500,
+        letterSpacing: '0.02em',
+        color: isActive ? '#fff' : 'rgba(255,255,255,0.55)',
+        transition: 'all 0.3s ease',
       }}
-      aria-label={language === 'ru' ? 'Switch to English' : 'Переключить на русский'}
-      data-testid="button-language-toggle"
     >
-      <span className="text-xs font-bold text-white/90 uppercase tracking-wide">
-        {language === 'ru' ? 'EN' : 'RU'}
-      </span>
-    </button>
+      {label}
+    </span>
+  </button>
+);
+
+const LiquidGlassNav = ({ route, user, hapticFeedback }: { route: any; user: any; hapticFeedback: any }) => {
+  const { language } = useLanguage();
+  const isAI = route.component === 'aiProcess' || route.component === 'aiAgent';
+  const isProfile = ['profile', 'referral', 'rewards', 'earning'].includes(route.component);
+
+  return (
+    <>
+      <LiquidGlassFilter />
+      <div 
+        className="fixed bottom-0 left-0 right-0 flex justify-center z-50 animate-in slide-in-from-bottom-4 duration-300"
+        style={{ 
+          isolation: 'isolate',
+          paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+          paddingLeft: '12px',
+          paddingRight: '12px',
+          paddingTop: '8px',
+        }}
+      >
+        <nav 
+          className="relative flex items-center overflow-hidden rounded-3xl gpu-layer"
+          style={{
+            padding: '6px 8px',
+            gap: '2px',
+            boxShadow: '0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1)',
+          }}
+          role="navigation"
+          aria-label={language === 'ru' ? 'Главное меню' : 'Main menu'}
+        >
+          <div 
+            className="absolute inset-0 z-0 overflow-hidden rounded-3xl"
+            style={{
+              backdropFilter: 'blur(40px)',
+              WebkitBackdropFilter: 'blur(40px)',
+              filter: 'url(#glass-distortion)',
+              isolation: 'isolate',
+            }}
+          />
+          <div 
+            className="absolute inset-0 z-10 rounded-3xl"
+            style={{ background: 'rgba(255, 255, 255, 0.12)' }}
+          />
+          <div 
+            className="absolute inset-0 z-20 rounded-3xl overflow-hidden pointer-events-none"
+            style={{
+              boxShadow: 'inset 2px 2px 1px 0 rgba(255,255,255,0.25), inset -1px -1px 1px 1px rgba(255,255,255,0.15)',
+            }}
+          />
+          <div 
+            className="absolute inset-x-6 top-0 h-[1px] z-20 pointer-events-none"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%)',
+            }}
+          />
+
+          <NavTab
+            onClick={() => {navigate('/'); hapticFeedback.light();}}
+            isActive={route.component === 'showcase'}
+            ariaLabel={language === 'ru' ? 'Главная' : 'Home'}
+            testId="nav-showcase"
+            label={language === 'ru' ? 'Главная' : 'Home'}
+          >
+            <Home
+              className="w-[22px] h-[22px] transition-all duration-300"
+              style={{
+                color: route.component === 'showcase' ? '#fff' : 'rgba(255,255,255,0.5)',
+                filter: route.component === 'showcase' ? 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' : 'none',
+              }}
+              strokeWidth={route.component === 'showcase' ? 2.2 : 1.5}
+            />
+          </NavTab>
+          
+          <NavTab
+            onClick={() => {navigate('/ai-process'); hapticFeedback.light();}}
+            isActive={isAI}
+            ariaLabel={language === 'ru' ? 'ИИ агент' : 'AI Agent'}
+            testId="nav-ai"
+            label={language === 'ru' ? 'ИИ' : 'AI'}
+          >
+            <Bot
+              className="w-[22px] h-[22px] transition-all duration-300"
+              style={{
+                color: isAI ? '#fff' : 'rgba(255,255,255,0.5)',
+                filter: isAI ? 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' : 'none',
+              }}
+              strokeWidth={isAI ? 2.2 : 1.5}
+            />
+          </NavTab>
+          
+          <NavTab
+            onClick={() => {navigate('/projects'); hapticFeedback.light();}}
+            isActive={route.component === 'projects'}
+            ariaLabel={language === 'ru' ? 'Проекты' : 'Projects'}
+            testId="nav-projects"
+            label={language === 'ru' ? 'Кейсы' : 'Cases'}
+          >
+            <Briefcase
+              className="w-[22px] h-[22px] transition-all duration-300"
+              style={{
+                color: route.component === 'projects' ? '#fff' : 'rgba(255,255,255,0.5)',
+                filter: route.component === 'projects' ? 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' : 'none',
+              }}
+              strokeWidth={route.component === 'projects' ? 2.2 : 1.5}
+            />
+          </NavTab>
+          
+          <NavTab
+            onClick={() => {navigate('/constructor'); hapticFeedback.light();}}
+            isActive={route.component === 'constructor'}
+            ariaLabel={language === 'ru' ? 'Заказать' : 'Order'}
+            testId="nav-constructor"
+            label={language === 'ru' ? 'Заказ' : 'Order'}
+          >
+            <ShoppingCart
+              className="w-[22px] h-[22px] transition-all duration-300"
+              style={{
+                color: route.component === 'constructor' ? '#fff' : 'rgba(255,255,255,0.5)',
+                filter: route.component === 'constructor' ? 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' : 'none',
+              }}
+              strokeWidth={route.component === 'constructor' ? 2.2 : 1.5}
+            />
+          </NavTab>
+          
+          <NavTab
+            onClick={() => {navigate('/profile'); hapticFeedback.light();}}
+            isActive={isProfile}
+            ariaLabel={language === 'ru' ? 'Профиль' : 'Profile'}
+            testId="nav-profile"
+            label={language === 'ru' ? 'Профиль' : 'Profile'}
+          >
+            <UserAvatar
+              photoUrl={user?.photo_url}
+              firstName={user?.first_name}
+              size="sm"
+              className={`w-6 h-6 transition-all duration-300 ${
+                isProfile ? 'ring-[1.5px] ring-white/50' : 'opacity-60'
+              }`}
+            />
+          </NavTab>
+        </nav>
+      </div>
+    </>
   );
 };
 
@@ -161,8 +315,6 @@ function App() {
   const [orderData, setOrderData] = useState<any>(null);
   const [isHydrated, setIsHydrated] = useState(false);
   const { hapticFeedback, user } = useTelegram();
-  const { theme, toggleTheme } = useTheme();
-  const isDark = theme === 'dark';
   
   // Custom hooks for cleaner code
   const { route } = useRouting();
@@ -392,238 +544,10 @@ function App() {
                 </defs>
               </svg>
 
-              {/* Bottom Navigation - Premium Glass */}
+              {/* Bottom Navigation - iOS 26 Liquid Glass */}
               {shouldShowBottomNav && (
                 <ErrorBoundary fallback={null}>
-                  <div 
-                    className="fixed bottom-6 left-0 right-0 flex justify-center z-50 animate-in slide-in-from-bottom-4 duration-300"
-                    style={{ isolation: 'isolate' }}
-                  >
-                  <div className="relative">
-                    {/* Subtle outer glow */}
-                    <div 
-                      className="absolute -inset-2 rounded-[32px] pointer-events-none"
-                      style={{
-                        boxShadow: isDark ? '0 0 40px 5px rgba(16, 185, 129, 0.08)' : '0 0 30px 5px rgba(16, 185, 129, 0.05)',
-                      }}
-                    />
-                    
-                    {/* Deep shadow */}
-                    <div 
-                      className="absolute inset-0 rounded-[24px] pointer-events-none"
-                      style={{
-                        boxShadow: isDark ? '0 25px 50px -12px rgba(0, 0, 0, 0.7)' : '0 15px 35px -10px rgba(0, 0, 0, 0.15)',
-                        transform: 'translateY(4px)',
-                      }}
-                    />
-                    
-                    {/* Main Glass Container */}
-                    <nav 
-                      className="relative flex items-center gap-0.5 rounded-[24px] px-2 py-1.5 gpu-layer"
-                      style={{
-                        background: isDark ? 'rgba(30, 30, 35, 0.85)' : 'rgba(255, 255, 255, 0.92)',
-                        backdropFilter: 'blur(16px)',
-                        WebkitBackdropFilter: 'blur(16px)',
-                        border: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)',
-                        boxShadow: isDark 
-                          ? 'inset 0 1px 1px rgba(255, 255, 255, 0.12), inset 0 -1px 1px rgba(0, 0, 0, 0.15)'
-                          : '0 4px 24px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.8)',
-                      }}
-                      role="navigation" 
-                      aria-label="Главное меню"
-                    >
-                      {/* Top highlight line */}
-                      <div 
-                        className="absolute inset-x-4 top-0 h-[1px] pointer-events-none"
-                        style={{
-                          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)',
-                        }}
-                      />
-                    
-                    {/* Главная */}
-                    <NavButton
-                      onClick={() => {navigate('/'); hapticFeedback.light();}}
-                      isActive={route.component === 'showcase'}
-                      ariaLabel="Главная страница"
-                      testId="nav-showcase"
-                    >
-                      <Home
-                        className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'showcase' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : isDark ? 'text-white/80' : 'text-slate-600'
-                        }`}
-                        strokeWidth={route.component === 'showcase' ? 2.5 : 1.75}
-                      />
-                    </NavButton>
-                    
-                    {/* ИИ Агент */}
-                    <NavButton
-                      onClick={() => {navigate('/ai-process'); hapticFeedback.light();}}
-                      isActive={route.component === 'aiProcess' || route.component === 'aiAgent'}
-                      ariaLabel="ИИ агенты для бизнеса"
-                      testId="nav-ai"
-                    >
-                      <Bot
-                        className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'aiProcess' || route.component === 'aiAgent' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : isDark ? 'text-white/80' : 'text-slate-600'
-                        }`}
-                        strokeWidth={route.component === 'aiProcess' || route.component === 'aiAgent' ? 2.5 : 1.75}
-                      />
-                    </NavButton>
-                    
-                    {/* Витрина */}
-                    <NavButton
-                      onClick={() => {navigate('/projects'); hapticFeedback.light();}}
-                      isActive={route.component === 'projects'}
-                      ariaLabel="Витрина проектов"
-                      testId="nav-projects"
-                    >
-                      <Briefcase
-                        className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'projects' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : isDark ? 'text-white/80' : 'text-slate-600'
-                        }`}
-                        strokeWidth={route.component === 'projects' ? 2.5 : 1.75}
-                      />
-                    </NavButton>
-                    
-                    {/* Заказать */}
-                    <NavButton
-                      onClick={() => {navigate('/constructor'); hapticFeedback.light();}}
-                      isActive={route.component === 'constructor'}
-                      ariaLabel="Заказать проект"
-                      testId="nav-constructor"
-                    >
-                      <ShoppingCart
-                        className={`w-6 h-6 transition-all duration-200 ${
-                          route.component === 'constructor' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : isDark ? 'text-white/80' : 'text-slate-600'
-                        }`}
-                        strokeWidth={route.component === 'constructor' ? 2.5 : 1.75}
-                      />
-                    </NavButton>
-                    
-                    {/* Профиль */}
-                    <NavButton
-                      onClick={() => {navigate('/profile'); hapticFeedback.light();}}
-                      isActive={['profile', 'referral', 'rewards', 'earning'].includes(route.component)}
-                      ariaLabel="Профиль пользователя"
-                      testId="nav-profile"
-                    >
-                      <UserAvatar
-                        photoUrl={user?.photo_url}
-                        firstName={user?.first_name}
-                        size="sm"
-                        className={`w-7 h-7 transition-all duration-200 ${
-                          ['profile', 'referral', 'rewards', 'earning'].includes(route.component) ? 'ring-2 ring-emerald-400/40' : 'opacity-80'
-                        }`}
-                      />
-                    </NavButton>
-                    
-                    {/* Разделитель */}
-                    <div className="w-px h-8 mx-1" style={{ background: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.2)' }} />
-                    
-                    {/* Language Toggle */}
-                    <LanguageToggleButton />
-                    
-                    {/* iOS 26 Liquid Glass разделитель */}
-                    <div 
-                      className="flex items-center justify-center mx-1"
-                      style={{ width: '3px', height: '20px' }}
-                    >
-                      <div 
-                        style={{ 
-                          width: '3px', 
-                          height: '3px', 
-                          borderRadius: '50%',
-                          background: isDark 
-                            ? 'rgba(255,255,255,0.4)' 
-                            : 'rgba(0,0,0,0.25)',
-                          boxShadow: isDark 
-                            ? '0 0 6px rgba(255,255,255,0.3)' 
-                            : '0 0 4px rgba(0,0,0,0.15)'
-                        }} 
-                      />
-                    </div>
-                    
-                    {/* Переключатель темы - яркий и заметный */}
-                    <button
-                      onClick={() => { toggleTheme(); hapticFeedback.medium(); }}
-                      className="relative flex items-center justify-center w-10 h-10 rounded-full"
-                      style={{
-                        background: isDark 
-                          ? 'linear-gradient(145deg, rgba(99,102,241,0.3) 0%, rgba(139,92,246,0.2) 100%)' 
-                          : 'linear-gradient(145deg, rgba(251,191,36,0.5) 0%, rgba(245,158,11,0.4) 100%)',
-                        border: isDark 
-                          ? '1px solid rgba(139,92,246,0.4)' 
-                          : '1px solid rgba(245,158,11,0.6)',
-                        boxShadow: isDark 
-                          ? '0 0 12px rgba(139,92,246,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' 
-                          : '0 0 12px rgba(251,191,36,0.5), inset 0 1px 0 rgba(255,255,255,0.3)',
-                      }}
-                      aria-label="Переключить тему"
-                      data-testid="button-theme-toggle-mobile"
-                    >
-                      <div className="relative w-5 h-5">
-                        {/* Солнце */}
-                        <Sun 
-                          className="absolute inset-0 w-5 h-5"
-                          style={{
-                            color: '#FBBF24',
-                            opacity: isDark ? 0 : 1,
-                            filter: isDark ? 'none' : 'drop-shadow(0 0 4px rgba(251,191,36,0.6))',
-                            transition: 'opacity 0.15s ease-out',
-                          }}
-                          strokeWidth={2.5}
-                        />
-                        {/* Луна */}
-                        <Moon 
-                          className="absolute inset-0 w-5 h-5"
-                          style={{
-                            color: '#C4B5FD',
-                            opacity: isDark ? 1 : 0,
-                            filter: 'drop-shadow(0 0 4px rgba(196,181,253,0.6))',
-                            transition: 'opacity 0.15s ease-out',
-                          }}
-                          strokeWidth={2.5}
-                        />
-                      </div>
-                      {/* Twinkling stars - visible in dark mode */}
-                      {isDark && (
-                        <>
-                          {[
-                            { size: 3, top: 8, left: 8 },
-                            { size: 2.5, top: 28, left: 10 },
-                            { size: 2, top: 18, left: 6 },
-                            { size: 2.5, top: 12, left: 32 },
-                            { size: 2, top: 26, left: 30 },
-                          ].map((star, i) => (
-                            <span
-                              key={i}
-                              style={{
-                                position: 'absolute',
-                                width: `${star.size}px`,
-                                height: `${star.size}px`,
-                                background: '#FFFFFF',
-                                borderRadius: '50%',
-                                top: `${star.top}px`,
-                                left: `${star.left}px`,
-                                boxShadow: `0 0 ${star.size * 2}px rgba(255,255,255,0.9)`,
-                                animation: `twinkleMobile ${1.8 + i * 0.3}s ease-in-out infinite`,
-                                animationDelay: `${i * 0.2}s`,
-                                pointerEvents: 'none',
-                              }}
-                            />
-                          ))}
-                        </>
-                      )}
-                      <style>{`
-                        @keyframes twinkleMobile {
-                          0%, 100% { opacity: 0.2; transform: scale(0.8); }
-                          50% { opacity: 1; transform: scale(1.2); }
-                        }
-                      `}</style>
-                    </button>
-                    </nav>
-                  </div>
-                  </div>
+                  <LiquidGlassNav route={route} user={user} hapticFeedback={hapticFeedback} />
                 </ErrorBoundary>
               )}
 
