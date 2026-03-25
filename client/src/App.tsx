@@ -155,7 +155,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
   }, [hapticFeedback]);
 
   const blurStyle = capabilities.supportsBlur
-    ? { backdropFilter: 'blur(40px) saturate(1.4)', WebkitBackdropFilter: 'blur(40px) saturate(1.4)', filter: 'url(#glass-distortion)' }
+    ? { backdropFilter: 'blur(24px) saturate(1.3)', WebkitBackdropFilter: 'blur(24px) saturate(1.3)' }
     : { background: 'rgba(20, 20, 22, 0.92)' };
 
   return (

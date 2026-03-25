@@ -24,17 +24,33 @@ const prefersReducedMotion = () =>
 function Cin({ children, className = "", delay = 0 }: {
   children: React.ReactNode; className?: string; delay?: number;
 }) {
-  const r = useRef(null);
-  const v = useInView(r, { once: true, margin: "-80px" });
+  const r = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
   const rm = prefersReducedMotion();
+
+  useEffect(() => {
+    if (rm || !r.current) { setVisible(true); return; }
+    const el = r.current;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); io.disconnect(); } },
+      { rootMargin: '-40px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [rm]);
+
   return (
-    <m.div ref={r}
-      initial={rm ? { opacity: 1 } : { opacity: 0, y: 40 }}
-      animate={v ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: rm ? 0 : 0.8, ease: EASE, delay: rm ? 0 : delay }}
-      className={className}>
+    <div
+      ref={r}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible || rm ? 'translateY(0)' : 'translateY(24px)',
+        transition: rm ? 'none' : `opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`,
+      }}
+    >
       {children}
-    </m.div>
+    </div>
   );
 }
 
@@ -102,8 +118,6 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
         style={{
           position: 'relative',
           borderRadius: 24,
-          willChange: 'transform',
-          transform: 'translateZ(0)',
         }}
         aria-label={app.title}
         data-testid={`card-app-${app.id}`}
@@ -273,11 +287,9 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
 
           {/* ═══════ MARQUEE ═══════ */}
           <div className="py-4 overflow-hidden" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-            <m.div
-              animate={prefersReducedMotion() ? {} : { x: ['0%', '-50%'] }}
-              transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-              className="flex items-center gap-8 whitespace-nowrap"
-              style={{ width: 'max-content' }}
+            <div
+              className={prefersReducedMotion() ? '' : 'projects-marquee'}
+              style={{ display: 'flex', alignItems: 'center', gap: 32, whiteSpace: 'nowrap', width: 'max-content' }}
             >
               {[0, 1].map(rep => (
                 <div key={rep} className="flex items-center gap-8">
@@ -296,7 +308,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                   ))}
                 </div>
               ))}
-            </m.div>
+            </div>
           </div>
 
           {/* ═══════ IMAGE STACK ═══════ */}
@@ -465,14 +477,20 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
           background: linear-gradient(to bottom, transparent, ${EMERALD}, transparent);
           border-radius: 2px;
           animation: lineTravel 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-          filter: blur(0.5px);
-          box-shadow: 0 0 6px rgba(52,211,153,0.4);
         }
         @keyframes lineTravel {
           0% { top: -50%; opacity: 0; }
           15% { opacity: 1; }
           85% { opacity: 1; }
           100% { top: 100%; opacity: 0; }
+        }
+        .projects-marquee {
+          animation: marqueeScroll 25s linear infinite;
+          will-change: transform;
+        }
+        @keyframes marqueeScroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
       `}</style>
     </div>

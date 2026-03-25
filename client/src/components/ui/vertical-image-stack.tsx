@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef } from "react"
-import { m } from "@/utils/LazyMotionProvider"
 
 export type VerticalImageItem = {
   id: number
@@ -97,29 +96,19 @@ export function VerticalImageStack({
       >
         {images.map((image, index) => {
           if (!isVisible(index)) return null
-          const style = getCardStyle(index)
+          const s = getCardStyle(index)
           const isCurrent = index === currentIndex
 
           return (
-            <m.div
+            <div
               key={image.id}
               className="absolute"
-              animate={{
-                y: style.y,
-                scale: style.scale,
-                opacity: style.opacity,
-                rotateX: style.rotateX,
-                zIndex: style.zIndex,
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 300,
-                damping: 30,
-                mass: 1,
-              }}
               style={{
+                transform: `translateY(${s.y}px) scale(${s.scale}) rotateX(${s.rotateX}deg)`,
+                opacity: s.opacity,
+                zIndex: s.zIndex,
                 transformStyle: "preserve-3d",
-                zIndex: style.zIndex,
+                transition: 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease',
               }}
             >
               <div
@@ -144,7 +133,7 @@ export function VerticalImageStack({
 
                 <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 to-transparent" />
               </div>
-            </m.div>
+            </div>
           )
         })}
       </div>

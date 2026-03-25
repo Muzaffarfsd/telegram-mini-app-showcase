@@ -49,7 +49,8 @@ This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional dem
 - **Eager Critical Components**: GlobalSidebar and PageTransition loaded eagerly (not lazy) for faster first paint
 - **CSS Performance**: All `transition: all` replaced with specific properties (transform, opacity, box-shadow); durations reduced to 100-200ms
 - **Touch Response**: Global `button:active` scale(0.97) at 60ms; `touch-action: manipulation` on all interactive elements
-- **Blur Budget**: Max blur(16-20px) on key elements; blur(40-60px) eliminated from navigation, sidebar, cards
+- **Blur Budget**: Max blur(16-20px) on key elements; blur(40-60px) eliminated from navigation, sidebar, cards. LiquidGlassNav uses blur(24px) without SVG distortion filter for mobile scroll perf.
+- **ProjectsPage Mobile Scroll Fix**: Replaced framer-motion `Cin` with CSS transitions + vanilla IntersectionObserver, marquee with CSS `@keyframes`, VerticalImageStack with CSS transitions instead of spring animations. Removed `willChange: 'transform'` from AppCard. Removed `backdropFilter` from FavoritesSection and `filter: blur()` from decorative elements.
 - **User-Generated Stories**: Users can create and upload stories with 8 content types: My Business, App Idea, Review, Before/After, Looking For Partner, Lifehack, Achievement, Question. Stories require moderation before public display. Features include:
   - **Reactions System**: 5 reaction types (like, fire, clap, heart_eyes, rocket) with optimistic UI updates
   - **Hashtags**: Up to 10 hashtags per story for discoverability

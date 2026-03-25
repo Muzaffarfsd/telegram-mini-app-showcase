@@ -52,8 +52,6 @@ export const FavoritesSection = memo(function FavoritesSection({
         className="relative overflow-hidden rounded-[20px]"
         style={{
           background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.08) 0%, rgba(139, 92, 246, 0.04) 50%, rgba(59, 130, 246, 0.06) 100%)',
-          backdropFilter: 'blur(16px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(16px) saturate(150%)',
           border: '1px solid rgba(167, 139, 250, 0.15)',
           boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
         }}
@@ -68,8 +66,7 @@ export const FavoritesSection = memo(function FavoritesSection({
         <div 
           className="absolute -top-20 -right-20 w-40 h-40 rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, transparent 70%)',
-            filter: 'blur(20px)',
+            background: 'radial-gradient(circle, rgba(167, 139, 250, 0.10) 0%, transparent 70%)',
           }}
         />
 
