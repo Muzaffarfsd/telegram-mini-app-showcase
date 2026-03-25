@@ -340,10 +340,10 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             <div className="overflow-x-auto scrollbar-hide">
               <div className="flex gap-3.5 px-6" style={{ width: 'max-content', paddingRight: 24 }}>
                 {cases.map((c, i) => (
-                  <Cin key={c.id} delay={i * 0.08}>
                     <article
-                      className="relative flex-shrink-0 rounded-2xl overflow-hidden group cursor-pointer transition-transform duration-500 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
-                      style={{ width: 260, height: 380 }}
+                      key={c.id}
+                      className="relative flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+                      style={{ width: 260, height: 380, transition: 'transform 0.15s ease', touchAction: 'pan-x' }}
                       role="button" tabIndex={0}
                       aria-label={`${ru ? 'Открыть' : 'Open'} ${c.label}`}
                       onClick={() => openDemo(c.id)}
@@ -354,7 +354,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                           className="absolute inset-0 w-full h-full object-cover"
                           style={{ filter: 'brightness(0.8) saturate(0.9)' }} />
                       ) : (
-                        <img src={c.src} alt={c.label} loading="lazy"
+                        <img src={c.src} alt={c.label} loading="lazy" draggable={false}
                           className="absolute inset-0 w-full h-full object-cover"
                           style={{ filter: 'brightness(0.8) saturate(0.9)' }} />
                       )}
@@ -387,7 +387,6 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                         }}>{c.sub}</p>
                       </div>
                     </article>
-                  </Cin>
                 ))}
               </div>
             </div>
