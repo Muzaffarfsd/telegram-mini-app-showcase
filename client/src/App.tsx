@@ -70,8 +70,10 @@ const GamificationHub = lazy(() => import("./components/GamificationHub").then(m
 const EarningPage = lazy(() => import("./components/EarningPage").then(m => ({ default: m.EarningPage })));
 const NotificationsPage = lazyWithRetry(() => import("./pages/notifications"));
 const AnalyticsPage = lazyWithRetry(() => import("./pages/analytics"));
+const CoinShopPage = lazyWithRetry(() => import("./components/CoinShopPage"));
 
 import GlobalSidebar from "./components/GlobalSidebar";
+import OnboardingFlow, { useOnboarding } from "./components/OnboardingFlow";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 
@@ -349,6 +351,8 @@ const NonCachedRoute = memo(({
       return <NotificationsPage />;
     case 'analytics':
       return <AnalyticsPage />;
+    case 'coinshop':
+      return <CoinShopPage onNavigate={handleNavigate} />;
     case 'premiumApps':
       return <PremiumAppsPage onNavigate={handleNavigate} />;
     case 'notFound':
@@ -361,6 +365,7 @@ const NonCachedRoute = memo(({
 function AppContent() {
   const [orderData, setOrderData] = useState<any>(null);
   const { hapticFeedback, user } = useTelegram();
+  const { showOnboarding, completeOnboarding } = useOnboarding();
   
   const { route } = useRouting();
   const { trackNavigation } = useNavigationTracking();
@@ -526,6 +531,16 @@ function AppContent() {
               <Suspense fallback={null}>
                 <OfflineIndicator />
               </Suspense>
+
+              {showOnboarding && (
+                <OnboardingFlow
+                  onNavigate={(section) => {
+                    navigate(`/${section}`);
+                    queueMicrotask(() => hapticFeedback.light());
+                  }}
+                  onComplete={completeOnboarding}
+                />
+              )}
             </LazyXPNotificationProvider>
           </LazyRewardsProvider>
         </LazyMotionProvider>

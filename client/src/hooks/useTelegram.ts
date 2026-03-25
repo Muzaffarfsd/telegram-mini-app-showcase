@@ -578,6 +578,57 @@ export function useTelegram() {
     }
   };
 
+  const shareToStory = (mediaUrl: string, params?: {
+    text?: string;
+    widget_link?: { url: string; name?: string };
+  }): { success: boolean; method: string } => {
+    console.log('[TG API] shareToStory called:', { mediaUrl, params });
+
+    try {
+      if (webApp?.shareToStory) {
+        webApp.shareToStory(mediaUrl, params);
+        hapticFeedback.medium();
+        return { success: true, method: 'native' };
+      }
+
+      console.warn('[TG API] shareToStory not available (requires Bot API 7.8+)');
+      return { success: false, method: 'unsupported' };
+    } catch (error) {
+      console.error('[TG API] shareToStory error:', error);
+      return { success: false, method: 'error' };
+    }
+  };
+
+  const requestContact = (): Promise<{ success: boolean; contact?: any }> => {
+    console.log('[TG API] requestContact called');
+
+    return new Promise((resolve) => {
+      try {
+        if (webApp?.requestContact) {
+          webApp.requestContact((sent: boolean, event?: any) => {
+            if (sent) {
+              hapticFeedback.light();
+              console.log('[TG API] Contact shared successfully');
+              resolve({
+                success: true,
+                contact: event?.responseUnsafe?.result || null,
+              });
+            } else {
+              console.log('[TG API] Contact sharing declined');
+              resolve({ success: false });
+            }
+          });
+        } else {
+          console.warn('[TG API] requestContact not available (requires Bot API 6.9+)');
+          resolve({ success: false });
+        }
+      } catch (error) {
+        console.error('[TG API] requestContact error:', error);
+        resolve({ success: false });
+      }
+    });
+  };
+
   // Open external link
   const openLink = (url: string, instantView?: boolean) => {
     if (webApp?.openLink) {
@@ -622,6 +673,8 @@ export function useTelegram() {
     // Share & Download
     shareApp,
     inviteFriend,
+    shareToStory,
+    requestContact,
     downloadFile,
     openLink,
     openTelegramLink,

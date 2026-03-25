@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, memo } from "react";
+import { useState, useEffect, useMemo, memo, useCallback } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { m, AnimatePresence } from "framer-motion";
 import { 
   Smartphone, 
@@ -232,12 +233,17 @@ const products: Product[] = [
   },
 ];
 
-const categories = ['Все', 'Смартфоны', 'Ноутбуки', 'Планшеты', 'Наушники', 'Камеры'];
+const categoriesRu = ['Все', 'Смартфоны', 'Ноутбуки', 'Планшеты', 'Наушники', 'Камеры'];
+const categoriesEn = ['All', 'Smartphones', 'Laptops', 'Tablets', 'Headphones', 'Cameras'];
+const elecCategoryMap: Record<string, string> = { 'All': 'Все', 'Smartphones': 'Смартфоны', 'Laptops': 'Ноутбуки', 'Tablets': 'Планшеты', 'Headphones': 'Наушники', 'Cameras': 'Камеры' };
 const genderFilters = ['All', 'Popular', 'New', 'Sale'];
 
 const Electronics = memo(function Electronics({ activeTab, onTabChange }: ElectronicsProps) {
+  const { t, language } = useLanguage();
+  const isRu = language === 'ru';
+  const categories = isRu ? categoriesRu : categoriesEn;
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -275,13 +281,13 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
   }, [activeTab]);
 
   const sidebarMenuItems = [
-    { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
-    { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
-    { icon: <Heart className="w-5 h-5" />, label: 'Избранное' },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина' },
-    { icon: <Tag className="w-5 h-5" />, label: 'Акции' },
-    { icon: <User className="w-5 h-5" />, label: 'Профиль' },
-    { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
+    { icon: <Home className="w-5 h-5" />, label: t('demos.electronics.home'), active: activeTab === 'home' },
+    { icon: <Grid className="w-5 h-5" />, label: t('demos.electronics.catalog'), active: activeTab === 'catalog' },
+    { icon: <Heart className="w-5 h-5" />, label: t('demos.electronics.favorites') },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: t('demos.electronics.cart') },
+    { icon: <Tag className="w-5 h-5" />, label: isRu ? 'Акции' : 'Sales' },
+    { icon: <User className="w-5 h-5" />, label: t('demos.electronics.profile') },
+    { icon: <Settings className="w-5 h-5" />, label: isRu ? 'Настройки' : 'Settings' },
   ];
 
   const { filteredItems, searchQuery, handleSearch } = useFilter({
@@ -299,7 +305,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
   }, [activeTab]);
 
   const filteredProducts = useMemo(() => filteredItems.filter(p => {
-    const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
+    const rawCat = isRu ? selectedCategory : (elecCategoryMap[selectedCategory] || selectedCategory);
+    const categoryMatch = selectedCategory === categories[0] || p.category === rawCat;
     
     if (activeTab === 'home') {
       const filterMatch = selectedFilter === 'All' || 
@@ -320,7 +327,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
     const wasInFavorites = isFavorite(String(productId));
     toggleFavoriteHook(String(productId));
     toast({
-      title: !wasInFavorites ? 'Добавлено в избранное' : 'Удалено из избранного',
+      title: !wasInFavorites ? (isRu ? 'Добавлено в избранное' : 'Added to favorites') : (isRu ? 'Удалено из избранного' : 'Removed from favorites'),
       duration: 1500
     });
   };
@@ -383,7 +390,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
     setIsCheckoutOpen(false);
     
     toast({
-      title: 'Заказ успешно оформлен!',
+      title: t('demos.electronics.orderSuccess'),
       description: `На сумму ${formatPrice(totalAmount)}`,
       duration: 3000
     });
@@ -1270,7 +1277,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               <Search className="w-5 h-5 text-white/50" />
               <input
                 type="text"
-                placeholder="Поиск гаджетов..."
+                placeholder={t('demos.electronics.searchGadgets')}
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
@@ -1592,12 +1599,12 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
       <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <h1 className="text-2xl font-bold">Каталог</h1>
+            <h1 className="text-2xl font-bold">{t('demos.electronics.catalog')}</h1>
             <div className="flex items-center gap-3">
-              <button className="p-2" aria-label="Поиск" data-testid="button-view-search">
+              <button className="p-2" aria-label={t('demos.electronics.searchGadgets')} data-testid="button-view-search">
                 <Search className="w-6 h-6" />
               </button>
-              <button className="p-2" aria-label="Фильтр" data-testid="button-view-filter">
+              <button className="p-2" aria-label={t('demos.electronics.filter')} data-testid="button-view-filter">
                 <Filter className="w-6 h-6" />
               </button>
             </div>
@@ -1853,12 +1860,12 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
     return (
       <div className="min-h-screen bg-[var(--theme-background)] text-white pb-32 smooth-scroll-page">
         <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Корзина</h1>
+          <h1 className="text-2xl font-bold mb-6">{t('demos.electronics.cart')}</h1>
 
           {cartItems.length === 0 ? (
             <EmptyState
               type="cart"
-              actionLabel="В каталог"
+              actionLabel={isRu ? 'В каталог' : 'Go to catalog'}
               onAction={() => onTabChange?.('catalog')}
               className="py-20"
             />
@@ -1914,7 +1921,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               <TrustBadges />
               <div className="fixed bottom-24 left-0 right-0 p-6 bg-[var(--theme-background)] border-t border-white/10">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold">Итого:</span>
+                  <span className="text-lg font-semibold">{isRu ? 'Итого:' : 'Total:'}</span>
                   <span className="text-2xl font-bold">{formatPrice(totalAmount)}</span>
                 </div>
                 <button
@@ -1922,7 +1929,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all min-h-[48px]"
                   data-testid="button-checkout"
                 >
-                  Оформить заказ
+                  {t('demos.electronics.checkout')}
                 </button>
               </div>
               
@@ -1967,11 +1974,11 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
 
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Заказы</p>
+              <p className="text-sm text-white/70 mb-1">{t('demos.electronics.orders')}</p>
               <p className="text-2xl font-bold">{ordersCount}</p>
             </div>
             <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Избранное</p>
+              <p className="text-sm text-white/70 mb-1">{t('demos.electronics.favorites')}</p>
               <p className="text-2xl font-bold">{favoritesCount}</p>
             </div>
           </div>

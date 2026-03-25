@@ -1,4 +1,5 @@
-import React, { useState, useEffect, memo, useRef } from "react";
+import React, { useState, useEffect, memo, useRef, useMemo } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus, Eye, Truck, RotateCcw, ShieldCheck } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
@@ -248,11 +249,13 @@ const genderFilters = ['Все', 'Мужское', 'Женское', 'Детск
 const genderMap: Record<string, string> = { 'Мужское': 'Men', 'Женское': 'Woman', 'Детское': 'Children' };
 
 function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProps) {
+  const { t, language } = useLanguage();
+  const isRu = language === 'ru';
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Все');
-  const [selectedGender, setSelectedGender] = useState<string>('Все');
+  const [selectedCategory, setSelectedCategory] = useState<string>(isRu ? 'Все' : 'All');
+  const [selectedGender, setSelectedGender] = useState<string>(isRu ? 'Все' : 'All');
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -351,13 +354,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
   } = usePersistentOrders({ storageKey: 'radiance_orders' });
   
   const sidebarMenuItems = [
-    { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
-    { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
-    { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: 'var(--theme-primary)' },
-    { icon: <Tag className="w-5 h-5" />, label: 'Акции' },
-    { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
-    { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
+    { icon: <Home className="w-5 h-5" />, label: t('demos.fashion.home'), active: activeTab === 'home' },
+    { icon: <Grid className="w-5 h-5" />, label: t('demos.fashion.catalog'), active: activeTab === 'catalog' },
+    { icon: <Heart className="w-5 h-5" />, label: t('demos.fashion.favorites'), badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: t('demos.fashion.cart'), badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: 'var(--theme-primary)' },
+    { icon: <Tag className="w-5 h-5" />, label: isRu ? 'Акции' : 'Sales' },
+    { icon: <User className="w-5 h-5" />, label: t('demos.fashion.profile'), active: activeTab === 'profile' },
+    { icon: <Settings className="w-5 h-5" />, label: isRu ? 'Настройки' : 'Settings' },
   ];
 
   const { filteredItems, searchQuery, handleSearch } = useFilter({
@@ -394,7 +397,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     toggleFavorite(productId);
     const isNowFavorite = !isFavorite(productId);
     toast({
-      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
+      title: isNowFavorite ? (isRu ? 'Добавлено в избранное' : 'Added to favorites') : (isRu ? 'Удалено из избранного' : 'Removed from favorites'),
       duration: 1500,
     });
   };
@@ -479,7 +482,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
     setIsCheckoutOpen(false);
     
     toast({
-      title: 'Заказ оформлен!',
+      title: t('demos.fashion.orderSuccess'),
       description: `Номер заказа: ${orderId}`,
       duration: 3000,
     });
@@ -1787,7 +1790,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             <Search className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.35)' }} />
             <input
               type="text"
-              placeholder="Поиск товаров, брендов..."
+              placeholder={t('demos.fashion.searchProducts')}
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className="bg-transparent text-white placeholder:text-white/35 outline-none flex-1 text-sm"
@@ -2576,14 +2579,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   fontStyle: 'italic',
                 }}
               >
-                Каталог
+                {t('demos.fashion.catalog')}
               </h1>
             </div>
             <div className="flex items-center gap-2">
               <button
                 className="w-10 h-10 rounded-full flex items-center justify-center"
                 style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
-                aria-label="Поиск"
+                aria-label={isRu ? 'Поиск' : 'Search'}
                 data-testid="button-view-search"
               >
                 <Search className="w-4.5 h-4.5" />
@@ -2591,7 +2594,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               <button
                 className="w-10 h-10 rounded-full flex items-center justify-center"
                 style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
-                aria-label="Фильтр"
+                aria-label={isRu ? 'Фильтр' : 'Filter'}
                 data-testid="button-view-filter"
               >
                 <Filter className="w-4.5 h-4.5" />
@@ -3043,7 +3046,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 fontStyle: 'italic',
               }}
             >
-              Корзина
+              {t('demos.fashion.cart')}
             </h1>
             {cart.length > 0 && (
               <span
@@ -3054,7 +3057,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   border: '0.5px solid rgba(255,255,255,0.12)',
                 }}
               >
-                {cart.length} {cart.length === 1 ? 'товар' : cart.length < 5 ? 'товара' : 'товаров'}
+                {cart.length} {isRu ? (cart.length === 1 ? 'товар' : cart.length < 5 ? 'товара' : 'товаров') : (cart.length === 1 ? 'item' : 'items')}
               </span>
             )}
           </div>
@@ -3276,7 +3279,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 }}
                 data-testid="button-checkout"
               >
-                Оформить заказ · {formatPrice(finalTotal)}
+                {t('demos.fashion.checkout')} · {formatPrice(finalTotal)}
               </button>
             </div>
 
@@ -3334,7 +3337,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               fontStyle: 'italic',
             }}
           >
-            Профиль
+            {t('demos.fashion.profile')}
           </h1>
         </div>
 
@@ -3458,7 +3461,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 className="text-[9px] font-semibold tracking-[0.2em] uppercase mb-1"
                 style={{ color: 'rgba(255,255,255,0.4)' }}
               >
-                Заказы
+                {t('demos.fashion.orders')}
               </p>
               <p
                 className="text-[32px] font-black leading-none"
@@ -3478,7 +3481,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 className="text-[9px] font-semibold tracking-[0.2em] uppercase mb-1"
                 style={{ color: 'rgba(255,255,255,0.4)' }}
               >
-                Избранное
+                {t('demos.fashion.favorites')}
               </p>
               <p
                 className="text-[32px] font-black leading-none"

@@ -1,5 +1,6 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Search, Menu, ChevronUp, ChevronDown, Check, Plus, Minus } from "lucide-react";
 import { ConfirmDrawer } from "../ui/modern-drawer";
@@ -250,7 +251,9 @@ const products: Product[] = [
   },
 ];
 
-const categories = ['Все', 'Верхняя одежда', 'Обувь', 'Аксессуары'];
+const categoriesRu = ['Все', 'Верхняя одежда', 'Обувь', 'Аксессуары'];
+const categoriesEn = ['All', 'Outerwear', 'Footwear', 'Accessories'];
+const categoryMap: Record<string, string> = { 'All': 'Все', 'Outerwear': 'Верхняя одежда', 'Footwear': 'Обувь', 'Accessories': 'Аксессуары' };
 
 const getDelayClass = (index: number) => {
   const delays = ['scroll-fade-in', 'scroll-fade-in-delay-1', 'scroll-fade-in-delay-2', 'scroll-fade-in-delay-3', 'scroll-fade-in-delay-4', 'scroll-fade-in-delay-5'];
@@ -258,10 +261,13 @@ const getDelayClass = (index: number) => {
 };
 
 function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
+  const { t, language } = useLanguage();
+  const isRu = language === 'ru';
+  const categories = isRu ? categoriesRu : categoriesEn;
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Все');
+  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
@@ -306,7 +312,8 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
   }, [activeTab]);
 
   const filteredProducts = filteredItems.filter(p => {
-    const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
+    const rawCat = isRu ? selectedCategory : (categoryMap[selectedCategory] || selectedCategory);
+    const categoryMatch = selectedCategory === categories[0] || p.category === rawCat;
     return categoryMatch;
   });
 
@@ -314,7 +321,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
     toggleFavoriteHook(String(productId));
     const isNowFavorite = !isFavorite(String(productId));
     toast({
-      title: isNowFavorite ? 'Добавлено в избранное' : 'Удалено из избранного',
+      title: isNowFavorite ? (isRu ? 'Добавлено в избранное' : 'Added to favorites') : (isRu ? 'Удалено из избранного' : 'Removed from favorites'),
       duration: 1500,
     });
   };
