@@ -179,14 +179,21 @@ export function useOnboarding() {
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
+    let usedCloudStorage = false;
     if (webApp?.CloudStorage) {
-      webApp.CloudStorage.getItem(STORAGE_KEY, (err: Error | null, val: string | null) => {
-        if (!err && val !== 'true') {
-          setShowOnboarding(true);
-        }
-        setChecked(true);
-      });
-    } else {
+      try {
+        webApp.CloudStorage.getItem(STORAGE_KEY, (err: Error | null, val: string | null) => {
+          if (!err && val !== 'true') {
+            setShowOnboarding(true);
+          }
+          setChecked(true);
+        });
+        usedCloudStorage = true;
+      } catch {
+        usedCloudStorage = false;
+      }
+    }
+    if (!usedCloudStorage) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored !== 'true') {
         setShowOnboarding(true);
@@ -199,7 +206,11 @@ export function useOnboarding() {
     setShowOnboarding(false);
     const webApp = window.Telegram?.WebApp;
     if (webApp?.CloudStorage) {
-      webApp.CloudStorage.setItem(STORAGE_KEY, 'true');
+      try {
+        webApp.CloudStorage.setItem(STORAGE_KEY, 'true');
+      } catch {
+        localStorage.setItem(STORAGE_KEY, 'true');
+      }
     } else {
       localStorage.setItem(STORAGE_KEY, 'true');
     }
