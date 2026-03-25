@@ -67,9 +67,7 @@ const AnimatedHamburgerIcon = memo(forwardRef<HTMLButtonElement, AnimatedHamburg
         aria-expanded={isOpen}
         data-testid="button-hamburger"
       >
-        <div className="hamburger-glow" />
         <div className="hamburger-shine" />
-        <div className="hamburger-border-glow" />
         <span ref={rippleRef} className="hamburger-ripple" />
         
         <div className="hamburger-icon">
@@ -485,60 +483,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           backface-visibility: hidden;
         }
         
-        /* Ambient Glow Effect */
-        .hamburger-glow {
-          position: absolute;
-          inset: -50%;
-          background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          pointer-events: none;
-          z-index: 0;
-          transform: translate3d(0, 0, 0);
-        }
-        
-        .hamburger-btn.hovered .hamburger-glow,
-        .hamburger-btn.open .hamburger-glow {
-          opacity: 1;
-          animation: pulse-glow 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulse-glow {
-          0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.8; }
-          50% { transform: translate3d(0, 0, 0) scale(1.1); opacity: 1; }
-        }
-        
-        /* Glass Shine Effect */
+        /* Subtle glass shine — single layer */
         .hamburger-shine {
           position: absolute;
           inset: 0;
-          border-radius: 18px;
-          background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.08) 25%, transparent 50%, rgba(255,255,255,0.02) 75%, rgba(255,255,255,0.08) 100%);
+          border-radius: 14px;
+          background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%);
           pointer-events: none;
           z-index: 1;
-        }
-        
-        /* Animated Border Glow */
-        .hamburger-border-glow {
-          position: absolute;
-          inset: -6px;
-          border-radius: 24px;
-          background: conic-gradient(from 0deg, transparent 0deg, rgba(139,92,246,0.6) 60deg, rgba(167,139,250,0.9) 120deg, transparent 180deg, rgba(139,92,246,0.6) 240deg, rgba(167,139,250,0.7) 300deg, transparent 360deg);
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          pointer-events: none;
-          z-index: 0;
-          filter: blur(6px);
-          transform: translate3d(0, 0, 0);
-        }
-        
-        .hamburger-btn.open .hamburger-border-glow {
-          opacity: 1;
-          animation: rotate-border 3s linear infinite;
-        }
-        
-        @keyframes rotate-border {
-          to { transform: translate3d(0, 0, 0) rotate(360deg); }
         }
         
         /* Ripple Effect - Single reusable element */
@@ -634,8 +586,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .hamburger-line.line-1.open {
           transform: translate3d(0, 5.5px, 0) rotate(45deg);
           width: 100%;
-          background: linear-gradient(90deg, #A78BFA 0%, #C4B5FD 50%, #A78BFA 100%);
-          box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
         }
         
         .hamburger-line.line-2.open {
@@ -646,8 +596,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .hamburger-line.line-3.open {
           transform: translate3d(0, -5.5px, 0) rotate(-45deg);
           width: 100%;
-          background: linear-gradient(90deg, #A78BFA 0%, #C4B5FD 50%, #A78BFA 100%);
-          box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
         }
         
         /* ═══════════════════════════════════════════════════════════════
@@ -763,31 +711,17 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           border-color: rgba(139, 92, 246, 0.2);
         }
         
-        /* Active Indicator Glow */
+        /* Active Indicator */
         .menu-item-glow {
           position: absolute;
           left: 0;
           top: 50%;
           transform: translate3d(0, -50%, 0);
           width: 3px;
-          height: 28px;
-          border-radius: 0 6px 6px 0;
-          background: linear-gradient(180deg, #C4B5FD 0%, #A78BFA 30%, #8B5CF6 70%, #7C3AED 100%);
-          box-shadow: 0 0 16px rgba(139, 92, 246, 0.7);
-          animation: glow-pulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes glow-pulse {
-          0%, 100% { 
-            box-shadow: 
-              0 0 20px rgba(139, 92, 246, 0.8),
-              0 0 40px rgba(139, 92, 246, 0.4);
-          }
-          50% { 
-            box-shadow: 
-              0 0 30px rgba(139, 92, 246, 1),
-              0 0 60px rgba(139, 92, 246, 0.6);
-          }
+          height: 24px;
+          border-radius: 0 4px 4px 0;
+          background: linear-gradient(180deg, #C4B5FD 0%, #8B5CF6 100%);
+          box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
         }
         
         /* Icon Container */
@@ -824,15 +758,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         
         .menu-item.active .menu-icon-wrap {
-          background: linear-gradient(
-            135deg,
-            rgba(139, 92, 246, 0.25) 0%,
-            rgba(167, 139, 250, 0.15) 100%
-          );
-          border-color: rgba(139, 92, 246, 0.35);
-          box-shadow: 
-            0 4px 20px rgba(139, 92, 246, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+          background: rgba(139, 92, 246, 0.15);
+          border-color: rgba(139, 92, 246, 0.25);
         }
         
         /* ═══════════════════════════════════════════════════════════════
@@ -888,76 +815,28 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .boost-btn {
           position: relative;
           width: 100%;
-          padding: 18px 24px;
-          border-radius: 16px;
-          background: linear-gradient(
-            135deg, 
-            #7C3AED 0%, 
-            #8B5CF6 35%, 
-            #A78BFA 65%, 
-            #8B5CF6 100%
-          );
-          background-size: 200% 200%;
+          padding: 14px 20px;
+          border-radius: 14px;
+          background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 50%, #A78BFA 100%);
           border: none;
           cursor: pointer;
-          transition: 
-            transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-            box-shadow 0.35s ease;
+          transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
           -webkit-tap-highlight-color: transparent;
-          box-shadow: 
-            0 6px 30px rgba(139, 92, 246, 0.5),
-            0 2px 10px rgba(139, 92, 246, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.25),
-            inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
           overflow: hidden;
-          animation: gradient-shift 4s ease infinite;
-        }
-        
-        @keyframes gradient-shift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
         }
         
         .boost-btn::before {
           content: '';
           position: absolute;
           inset: 0;
-          background: linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.3) 0%,
-            rgba(255, 255, 255, 0.1) 30%,
-            transparent 60%
-          );
+          background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
           pointer-events: none;
-        }
-        
-        .boost-btn::after {
-          content: '';
-          position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: linear-gradient(
-            45deg,
-            transparent 40%,
-            rgba(255, 255, 255, 0.15) 50%,
-            transparent 60%
-          );
-          animation: shine-sweep 3s ease-in-out infinite;
-          pointer-events: none;
-        }
-        
-        @keyframes shine-sweep {
-          0% { transform: translateX(-100%) rotate(45deg); }
-          100% { transform: translateX(100%) rotate(45deg); }
         }
         
         .boost-btn:hover {
-          transform: translateY(-2px) scale(1.02);
-          box-shadow: 
-            0 10px 40px rgba(139, 92, 246, 0.6),
-            0 4px 15px rgba(139, 92, 246, 0.4);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
         }
         
         .boost-btn:active {
@@ -1029,37 +908,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           height: 100%;
           width: 5%;
           border-radius: 6px;
-          background: linear-gradient(
-            90deg, 
-            #7C3AED 0%, 
-            #8B5CF6 30%, 
-            #A78BFA 60%, 
-            #C4B5FD 100%
-          );
-          box-shadow: 
-            0 0 20px rgba(139, 92, 246, 0.7),
-            0 0 40px rgba(139, 92, 246, 0.4);
-          transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        
-        .progress-shimmer {
-          position: absolute;
-          left: 0;
-          top: 0;
-          height: 100%;
-          width: 100%;
-          background: linear-gradient(
-            90deg, 
-            transparent 0%, 
-            rgba(255, 255, 255, 0.2) 50%, 
-            transparent 100%
-          );
-          animation: shimmer 2s ease-in-out infinite;
-        }
-        
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+          background: linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%);
+          transition: width 0.6s ease-out;
         }
         
         /* ═══════════════════════════════════════════════════════════════
@@ -1081,16 +931,24 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         
         /* ═══════════════════════════════════════════════════════════════
-           BREATHING ANIMATION FOR IDLE STATE
+           REDUCED MOTION
            ═══════════════════════════════════════════════════════════════ */
         
-        @keyframes subtle-breathe {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.02); }
-        }
-        
-        .hamburger-btn:not(.open):not(.hovered):not(:active) {
-          animation: subtle-breathe 4s ease-in-out infinite;
+        @media (prefers-reduced-motion: reduce) {
+          .hamburger-btn,
+          .hamburger-line,
+          .menu-item,
+          .menu-icon-wrap,
+          .social-link,
+          .boost-btn,
+          .sidebar-overlay,
+          .sidebar-panel,
+          .sidebar-gradient-line,
+          .progress-fill,
+          .close-btn {
+            transition: none !important;
+            animation: none !important;
+          }
         }
         
         /* ═══════════════════════════════════════════════════════════════
@@ -1155,10 +1013,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           background: rgba(0, 0, 0, 0.08);
         }
         
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.3; filter: brightness(0.8); }
-          50% { opacity: 1; filter: brightness(1.2); }
-        }
       `}</style>
 
       <div 
@@ -1274,7 +1128,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                   
                   <div className="progress-bar">
                     <div className="progress-fill" />
-                    <div className="progress-shimmer" />
                   </div>
                 </div>
               </div>
@@ -1553,7 +1406,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 fontWeight: 600,
                 color: colors.textPrimary
               }}>
-                Boost with <span style={{ color: colors.accent }}>AI</span>
+                {t('sidebar.boostWithAi')} <span style={{ color: colors.accent }}>AI</span>
               </span>
             </div>
             <p style={{
@@ -1570,7 +1423,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               className="boost-btn"
               data-testid="button-upgrade-pro"
             >
-              <div className="boost-btn-glow" />
               <span style={{
                 position: 'relative',
                 fontSize: '14px',
@@ -1616,14 +1468,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 className="social-link"
                 aria-label={social.label}
                 data-testid={`link-social-${social.label.toLowerCase().replace(' ', '-')}`}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-                  e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)';
-                  e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-                }}
               >
                 <social.icon size={20} color={socialIconColor} />
               </a>
