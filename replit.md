@@ -5,9 +5,22 @@ This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional dem
 ## 2026 Q1 Strategic Audit (March 2026)
 - **Server Routes Modularization (T001)**: Split `server/routes.ts` from 3,972 lines into 12 modular routers in `server/routes/`: shared.ts (auth, CSRF, Zod schemas, Stripe), telegram.ts, payments.ts, projects.ts, photos.ts, stories.ts, tasks.ts, referrals.ts, gamification.ts, reviews.ts, notifications.ts, analytics.ts, coinshop.ts. Main routes.ts is now ~130 lines importing and mounting sub-routers.
 - **Coin Shop / Discount System (T002)**: New `server/routes/coinshop.ts` with 5 discount tiers (5%-50%, 500-10000 coins). Endpoints: GET `/api/coinshop/tiers`, POST `/api/coinshop/redeem`, GET `/api/coinshop/balance`. New `CoinShopPage.tsx` component with tier list, balance display, redemption flow, and discount code generation. Wired into App.tsx at `/coinshop` route.
-- **Onboarding Tour (T003)**: New `OnboardingFlow.tsx` with 3-step flow (Welcome → Constructor → Earn Coins). Full-screen overlay with step indicators, CTA buttons, skip option. Persists completion via Telegram CloudStorage (falls back to localStorage). `useOnboarding()` hook checks completion status on mount. Integrated in AppContent.
+- **Onboarding Tour (T003)**: REMOVED — blocking fullscreen overlay deleted. App loads directly to content.
 - **Telegram API Extensions (T004)**: Added `shareToStory(mediaUrl, params)` and `requestContact()` to `useTelegram.ts` return object. Both have version checks (Bot API 7.8+ / 6.9+) and graceful degradation. shareToStory supports widget_link for viral growth. requestContact returns Promise with contact data.
 - **Demo Localization (T005)**: Added i18n translations for PremiumFashionStore, Electronics, and NikeACG demos. New translation keys under `demos.fashion.*`, `demos.electronics.*`, `demos.nikeacg.*` in both ru/en. Replaced hardcoded Russian UI strings (nav labels, section headers, search placeholders, toast messages, category filters, cart/checkout/profile labels) with `t()` calls. Category filtering uses language-aware maps to match product data.
+
+## Phase 1 Audit Execution (March 2026)
+- **GlobalSidebar Deleted**: Removed 1,579-line GlobalSidebar.tsx + CSS styles from index.css. Navigation consolidated to bottom tabs only.
+- **Onboarding Removed**: Deleted OnboardingFlow.tsx and OnboardingTutorial.tsx. No blocking overlays.
+- **Tab Caching Removed**: Replaced display:none 5-tab caching with single active RouteRenderer. Only one page rendered at a time.
+- **Spline 3D Removed**: Replaced ~2.5MB @splinetool/react-spline in AIProcessPage with CSS gradient animation.
+- **App.tsx Decomposed**: 563 → 97 lines. Extracted RouteRenderer to `client/src/router/RouteRenderer.tsx`, lazy imports to `client/src/router/lazyRoutes.ts`, navigation handlers to `client/src/hooks/useAppNavigation.ts`.
+- **DRY Refactor**: Created shared `client/src/lib/designTokens.ts` (SYNE/INTER/INSTRUMENT/EMERALD/EASE/prefersReducedMotion), `Cin.tsx`, `Ct.tsx`.
+- **Static Hero**: Removed Cin scroll-trigger wrappers from above-fold content on ShowcasePage and ConstructorPage hero sections.
+- **Dead Code Cleanup**: Deleted server.js, 15 deployment .md files, spline-scene.tsx, OnboardingFlow.tsx.
+- **Desktop Responsive**: Replaced `max-w-md` with `max-w-[540px] lg:max-w-2xl` across all major pages.
+- **npm Audit**: Fixed 11 of 21 vulnerabilities. Remaining 10 (5 low, 5 moderate) are in dev dependencies (vite/drizzle-kit/esbuild chain) requiring breaking upgrades.
+- **BottomNav Extracted**: Standalone component at `client/src/components/Navigation/BottomNav.tsx`.
 
 ## 2026 Q1 Updates (March 2026)
 - **Bottom Navigation — iOS 26 Liquid Glass**: Rewrote bottom nav bar with liquid glass effect from iOS 26 reference. SVG `#glass-distortion` filter (feTurbulence + feSpecularLighting + feDisplacementMap), triple glass layers (backdrop blur 40px, white overlay 12%, inset highlights), bounce transitions `cubic-bezier(0.175, 0.885, 0.32, 2.2)`. 5 tabs only (Home, AI, Cases, Order, Profile) with text labels and i18n. Removed language toggle and theme toggle from nav (belong in Profile). Safe area padding via `env(safe-area-inset-bottom)`. NavTab buttons have full reset (`type="button"`, `appearance: none`, `border: none`). Extracted as `LiquidGlassNav` component inside `LanguageProvider`. No unused imports (Sun, Moon, Languages, useTheme removed).
@@ -33,7 +46,7 @@ This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional dem
 - **View Transitions**: CSS View Transitions API (60ms fade, no scale) for instant page transitions
 - **INP Optimization**: `useTransition` in filters for non-blocking category changes; INP measured at 40ms
 - **Performance Detection**: `usePerformanceClass` hook for adaptive animations based on device capability
-- **Tab Caching**: 5 main tabs (showcase, projects, aiProcess, constructor, profile) stay mounted via CSS `display:none` — instant tab switching, preserved scroll position
+- **Tab Routing**: Single active RouteRenderer renders only the current route (no display:none caching). Lazy-loaded pages via lazyWithRetry.
 - **PageTransition**: AnimatePresence `mode="popLayout"` — old/new pages animate simultaneously (no blocking wait). Enter: 180ms fade+slideUp(6px), exit: 80ms fade+slideUp(-4px), ease `[0.22,1,0.36,1]`. Uses `@/utils/LazyMotionProvider` for tree-shaken bundle. Hardware-accelerated via `gpu-layer` class.
 - **React Compiler**: `babel-plugin-react-compiler` enabled in Vite config — automatic memoization of components, eliminating need for manual `memo()`/`useMemo`/`useCallback` in most cases.
 - **App Architecture**: Split into `App` (stable providers: QueryClient, LanguageProvider) and `AppContent` (reactive: routing, state). Prevents cascading re-renders of providers on navigation. `NonCachedRoute` extracted as memoized component. `CACHED_TABS` extracted as module-level constant.

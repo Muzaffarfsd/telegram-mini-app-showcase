@@ -11,31 +11,8 @@ import {
 } from "lucide-react";
 import { PricingModule } from "@/components/ui/pricing-module";
 
-const SYNE = '"Syne", system-ui, sans-serif';
-const INSTRUMENT = '"Instrument Serif", Georgia, serif';
-const INTER = '"Inter", -apple-system, system-ui, sans-serif';
-const EMERALD = '#34d399';
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-function Cin({ children, className = "", delay = 0 }: {
-  children: React.ReactNode; className?: string; delay?: number;
-}) {
-  const r = useRef<HTMLDivElement>(null);
-  const v = useInView(r, { once: true, margin: "-60px" });
-  const rm = prefersReducedMotion();
-  return (
-    <m.div ref={r}
-      initial={rm ? { opacity: 1 } : { opacity: 0, y: 32 }}
-      animate={v ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: rm ? 0 : 0.7, ease: EASE, delay: rm ? 0 : delay }}
-      className={className}>
-      {children}
-    </m.div>
-  );
-}
+import { SYNE, INSTRUMENT, INTER, EMERALD, EASE, prefersReducedMotion } from '@/lib/designTokens';
+import { Cin } from '@/components/ui/Cin';
 
 interface ConstructorPageProps {
   onNavigate: (section: string, data?: any) => void;
@@ -64,89 +41,79 @@ const HeroSection = memo(({ t }: { t: (key: string) => string }) => {
         pointerEvents: 'none',
       }} />
 
-      <Cin>
-        <div style={{ textAlign: 'center', position: 'relative' }}>
+      <div style={{ textAlign: 'center', position: 'relative' }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          padding: '5px 14px 5px 8px', borderRadius: 100,
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          marginBottom: 28,
+        }}>
           <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            padding: '5px 14px 5px 8px', borderRadius: 100,
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            marginBottom: 28,
+            width: 6, height: 6, borderRadius: '50%',
+            background: EMERALD,
+            boxShadow: `0 0 8px ${EMERALD}60`,
+          }} />
+          <span style={{
+            fontFamily: INTER, fontSize: '0.65rem', fontWeight: 500,
+            color: 'rgba(255,255,255,0.45)', letterSpacing: '0.04em',
           }}>
-            <div style={{
-              width: 6, height: 6, borderRadius: '50%',
-              background: EMERALD,
-              boxShadow: `0 0 8px ${EMERALD}60`,
-            }} />
-            <span style={{
-              fontFamily: INTER, fontSize: '0.65rem', fontWeight: 500,
-              color: 'rgba(255,255,255,0.45)', letterSpacing: '0.04em',
-            }}>
-              {t('constructor.paymentSection')}
-            </span>
-          </div>
+            {t('constructor.paymentSection')}
+          </span>
         </div>
-      </Cin>
+      </div>
 
-      <Cin delay={0.08}>
-        <h1 style={{
-          fontFamily: SYNE, fontSize: 'clamp(2rem, 8vw, 2.6rem)',
-          fontWeight: 800, letterSpacing: '-0.045em', lineHeight: 1.05,
-          color: '#fff', textAlign: 'center', margin: 0,
-        }}>
-          {t('constructor.payHeadline')}
-        </h1>
-      </Cin>
+      <h1 style={{
+        fontFamily: SYNE, fontSize: 'clamp(2rem, 8vw, 2.6rem)',
+        fontWeight: 800, letterSpacing: '-0.045em', lineHeight: 1.05,
+        color: '#fff', textAlign: 'center', margin: 0,
+      }}>
+        {t('constructor.payHeadline')}
+      </h1>
 
-      <Cin delay={0.14}>
-        <div style={{ height: 48, overflow: 'hidden', marginTop: 4, textAlign: 'center' }}>
-          <AnimatePresence mode="wait">
-            <m.div
-              key={wordIdx}
-              initial={{ y: 48, opacity: 0, filter: 'blur(6px)' }}
-              animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
-              exit={{ y: -48, opacity: 0, filter: 'blur(6px)' }}
-              transition={{ duration: 0.5, ease: EASE }}
-            >
-              <span style={{
-                fontFamily: INSTRUMENT, fontStyle: 'italic',
-                fontSize: 'clamp(2rem, 8vw, 2.6rem)',
-                fontWeight: 400, color: words[wordIdx].color,
-                letterSpacing: '-0.02em',
-              }}>
-                {words[wordIdx].text}
-              </span>
-            </m.div>
-          </AnimatePresence>
-        </div>
-      </Cin>
-
-      <Cin delay={0.22}>
-        <p style={{
-          fontFamily: INTER, fontSize: '0.82rem', lineHeight: 1.65,
-          color: 'rgba(255,255,255,0.48)', textAlign: 'center',
-          maxWidth: 360, margin: '20px auto 0',
-          letterSpacing: '-0.01em',
-        }}>
-          {t('constructor.noHiddenFees')}
-        </p>
-      </Cin>
-
-      <Cin delay={0.3}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+      <div style={{ height: 48, overflow: 'hidden', marginTop: 4, textAlign: 'center' }}>
+        <AnimatePresence mode="wait">
           <m.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            style={{
-              width: 32, height: 32, borderRadius: 10,
-              border: '1px solid rgba(255,255,255,0.08)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
+            key={wordIdx}
+            initial={{ y: 48, opacity: 0, filter: 'blur(6px)' }}
+            animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+            exit={{ y: -48, opacity: 0, filter: 'blur(6px)' }}
+            transition={{ duration: 0.5, ease: EASE }}
           >
-            <ChevronDown size={14} style={{ color: 'rgba(255,255,255,0.2)' }} />
+            <span style={{
+              fontFamily: INSTRUMENT, fontStyle: 'italic',
+              fontSize: 'clamp(2rem, 8vw, 2.6rem)',
+              fontWeight: 400, color: words[wordIdx].color,
+              letterSpacing: '-0.02em',
+            }}>
+              {words[wordIdx].text}
+            </span>
           </m.div>
-        </div>
-      </Cin>
+        </AnimatePresence>
+      </div>
+
+      <p style={{
+        fontFamily: INTER, fontSize: '0.82rem', lineHeight: 1.65,
+        color: 'rgba(255,255,255,0.48)', textAlign: 'center',
+        maxWidth: 360, margin: '20px auto 0',
+        letterSpacing: '-0.01em',
+      }}>
+        {t('constructor.noHiddenFees')}
+      </p>
+
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+        <m.div
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            width: 32, height: 32, borderRadius: 10,
+            border: '1px solid rgba(255,255,255,0.08)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <ChevronDown size={14} style={{ color: 'rgba(255,255,255,0.2)' }} />
+        </m.div>
+      </div>
     </section>
   );
 });
@@ -775,7 +742,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
 
   return (
     <div className="min-h-screen select-none overflow-x-hidden" style={{ backgroundColor: '#050505', paddingTop: 120, paddingBottom: 160, position: 'relative' }}>
-      <div className="mx-auto w-full px-5" style={{ maxWidth: 540 }}>
+      <div className="mx-auto w-full px-5 max-w-[540px] lg:max-w-2xl">
 
         <HeroSection t={t} />
 
@@ -1414,7 +1381,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
           position: 'fixed', bottom: 76, left: 0, right: 0,
           padding: '0 16px', zIndex: 40,
         }} data-testid="summary-bar">
-          <div className="mx-auto" style={{ maxWidth: 540 }}>
+          <div className="mx-auto max-w-[540px] lg:max-w-2xl">
             <m.div
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}

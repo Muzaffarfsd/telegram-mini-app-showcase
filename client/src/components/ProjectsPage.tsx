@@ -12,52 +12,9 @@ interface ProjectsPageProps {
   onOpenDemo: (demoId: string) => void;
 }
 
-const SYNE = '"Syne", system-ui, sans-serif';
-const INSTRUMENT = '"Instrument Serif", Georgia, serif';
-const INTER = '"Inter", -apple-system, system-ui, sans-serif';
-const EMERALD = '#34d399';
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-function Cin({ children, className = "", delay = 0 }: {
-  children: React.ReactNode; className?: string; delay?: number;
-}) {
-  const r = useRef(null);
-  const v = useInView(r, { once: true, margin: "-80px" });
-  const rm = prefersReducedMotion();
-  return (
-    <m.div ref={r}
-      initial={rm ? { opacity: 1 } : { opacity: 0, y: 40 }}
-      animate={v ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: rm ? 0 : 0.8, ease: EASE, delay: rm ? 0 : delay }}
-      className={className}>
-      {children}
-    </m.div>
-  );
-}
-
-function Ct({ to, suffix = "" }: { to: number; suffix?: string }) {
-  const r = useRef(null);
-  const v = useInView(r, { once: true });
-  const rm = prefersReducedMotion();
-  const [n, setN] = useState(rm ? to : 0);
-  useEffect(() => {
-    if (!v || rm) { setN(to); return; }
-    let dead = false;
-    const s = performance.now();
-    const loop = (t: number) => {
-      if (dead) return;
-      const p = Math.min((t - s) / 1600, 1);
-      setN(Math.round((1 - Math.pow(1 - p, 5)) * to));
-      if (p < 1) requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
-    return () => { dead = true; };
-  }, [v, to, rm]);
-  return <span ref={r}>{n}{suffix}</span>;
-}
+import { SYNE, INSTRUMENT, INTER, EMERALD, EASE, prefersReducedMotion } from '@/lib/designTokens';
+import { Cin } from '@/components/ui/Cin';
+import { Ct } from '@/components/ui/Ct';
 
 const CATEGORIES_RU = ['Все', 'E-Commerce', 'Финтех', 'Еда', 'Букинг', 'AI', 'Крипто'];
 const CATEGORIES_EN = ['All', 'E-Commerce', 'Fintech', 'Food', 'Booking', 'AI', 'Crypto'];
@@ -212,7 +169,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
       style={{ backgroundColor: '#050505' }}
     >
       <div className="relative z-10">
-        <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
+        <div className="mx-auto w-full max-w-[540px] lg:max-w-2xl">
 
           {/* ═══════ HERO ═══════ */}
           <header className="relative px-6 pt-32 pb-10 overflow-hidden">

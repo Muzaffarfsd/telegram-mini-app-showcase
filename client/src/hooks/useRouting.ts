@@ -41,11 +41,12 @@ function parseHash(): Route {
     '/notifications': 'notifications',
     '/analytics': 'analytics',
     '/premium-apps': 'premiumApps',
+    '/coinshop': 'coinshop',
   };
   
   return {
     path,
-    component: routes[path] || 'showcase',
+    component: routes[path] || 'notFound',
     params: {}
   };
 }
