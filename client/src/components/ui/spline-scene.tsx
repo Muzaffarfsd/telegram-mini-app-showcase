@@ -37,6 +37,7 @@ function SplineSceneInner({ scene, className, onLoad }: SplineSceneProps) {
 
   useEffect(() => {
     if (!containerRef.current) return
+    console.log('[Spline] Mounting scene in iframe:', scene)
 
     const iframe = document.createElement('iframe')
     iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;background:transparent;'
@@ -65,6 +66,7 @@ app.load('${scene}').then(() => {
 
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type === 'spline-loaded') {
+        console.log('[Spline] Scene loaded in iframe')
         setIsReady(true)
         onLoad?.()
       }

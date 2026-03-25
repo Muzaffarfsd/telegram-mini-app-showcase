@@ -1,8 +1,0 @@
-uploads = []
-generated = []
-
-[[outputs]]
-id = "N7w_lxBYcGGViuqTBlEP6"
-uri = "file://AUDIT_WEB4TG_2026.md"
-type = "text"
-title = "WEB4TG — Молекулярный аудит продукта | Весна 2026"

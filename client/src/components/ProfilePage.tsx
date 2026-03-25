@@ -803,7 +803,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
           }
         }
       `}</style>
-      <div className="max-w-[540px] lg:max-w-2xl mx-auto px-4 pt-4 pb-6 space-y-6">
+      <div className="max-w-md mx-auto px-4 pt-4 pb-6 space-y-6">
         
         {/* User Profile Card */}
         <div className="scroll-fade-in">

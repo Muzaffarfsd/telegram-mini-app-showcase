@@ -21,6 +21,7 @@ interface AIProcessPageProps {
 const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
   const { t, language } = useLanguage();
 
+  // Sync Telegram Main Button with language changes
   useEffect(() => {
     try {
       const tg = (window as any).Telegram?.WebApp;
@@ -36,6 +37,7 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
 
   return (
     <div className="relative min-h-screen bg-black">
+      {/* Spline 3D Background - purely decorative, no interaction */}
       <div 
         className="fixed inset-0 z-0 pointer-events-none"
         style={{ paddingTop: '80px' }}
@@ -45,16 +47,21 @@ const AIProcessPage = memo(({ onNavigate }: AIProcessPageProps) => {
           className="w-full h-full"
         />
       </div>
-      <div className="fixed inset-0 z-[1] pointer-events-none" style={{
-        background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.95) 100%)',
-      }} />
       
+      {/* Content layer - scrollable */}
       <div 
         className="relative z-10 min-h-screen pb-24"
         style={{ paddingTop: '100px' }}
       >
-        <div className="max-w-lg mx-auto lg:max-w-2xl">
+        <div className="max-w-md mx-auto">
         
+        {/* Hero section - robot visible */}
+        <section className="relative px-5 pt-0 pb-4">
+          {/* Robot viewing area - empty space for robot */}
+          <div className="h-[320px]" />
+        </section>
+
+        {/* Main content section - cards below robot */}
         <section className="relative px-4 pt-4 pb-16">
           <div 
             className="rounded-[28px] px-6 py-7 mb-5 relative overflow-hidden"

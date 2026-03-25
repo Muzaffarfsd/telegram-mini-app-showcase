@@ -6464,6 +6464,118 @@ html.light .active-press:active {
   opacity: 0.9;
 }
 
+/* === GlobalSidebar Light Theme - Professional iOS 26 Design === */
+html.light .global-sidebar-panel {
+  background: #FFFFFF !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 
+    4px 0 24px rgba(0, 0, 0, 0.08),
+    12px 0 48px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Sidebar panel background - pure white */
+html.light .sidebar-panel {
+  background: #FFFFFF !important;
+}
+
+/* Override all text colors in sidebar for readability */
+html.light .global-sidebar-panel [style*="color: #FFFFFF"],
+html.light .global-sidebar-panel [style*="color:#FFFFFF"],
+html.light .global-sidebar-panel [style*="color: rgba(255"],
+html.light .global-sidebar-panel [style*="color:rgba(255"] {
+  color: #1C1C1E !important;
+}
+
+/* Menu item labels - dark and readable */
+html.light .global-sidebar-panel .menu-item span:first-of-type {
+  color: #1C1C1E !important;
+}
+
+/* Menu item descriptions - medium gray */
+html.light .global-sidebar-panel .menu-item span:last-of-type {
+  color: #636366 !important;
+}
+
+/* Section labels */
+html.light .global-sidebar-panel [style*="letterSpacing: '0.15em'"],
+html.light .global-sidebar-panel [style*="letter-spacing: 0.15em"] {
+  color: #8E8E93 !important;
+}
+
+html.light .global-sidebar-item {
+  border-radius: 12px !important;
+  transition: transform 0.15s ease, background 0.15s ease !important;
+}
+
+html.light .global-sidebar-item:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .global-sidebar-item:active {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light .global-sidebar-item.active {
+  background: rgba(0, 122, 255, 0.12) !important;
+}
+
+html.light .global-sidebar-item.active span:first-of-type {
+  color: #007AFF !important;
+}
+
+/* Progress bar background */
+html.light .global-sidebar-panel [style*="background: rgba(255, 255, 255, 0.1)"],
+html.light .global-sidebar-panel [style*="background:rgba(255, 255, 255, 0.1)"] {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Card backgrounds inside sidebar */
+html.light .global-sidebar-panel [style*="background: rgba(255, 255, 255, 0.04)"],
+html.light .global-sidebar-panel [style*="background:rgba(255, 255, 255, 0.04)"] {
+  background: #F2F2F7 !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Social links */
+html.light .global-sidebar-panel .social-link {
+  background: #F2F2F7 !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  color: #1C1C1E !important;
+}
+
+html.light .global-sidebar-panel .social-link:hover {
+  background: #E5E5EA !important;
+}
+
+/* Gradient line at top */
+html.light .global-sidebar-panel .sidebar-gradient-line {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(0, 122, 255, 0.3) 50%, 
+    transparent 100%
+  ) !important;
+}
+
+/* Dividers */
+html.light .global-sidebar-panel [style*="linear-gradient(90deg, transparent 0%, rgba(255,255,255"] {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(0, 0, 0, 0.08) 50%, 
+    transparent 100%
+  ) !important;
+}
+
+/* Chevron icons only - menu icons have their own colors */
+html.light .global-sidebar-panel button > svg:last-of-type {
+  color: #C7C7CC !important;
+}
+
+html.light .global-sidebar-item.active > svg:last-of-type {
+  color: #007AFF !important;
+}
+
 /* === Improved Luminous Highlight for Light Theme === */
 html.light .ios26-luminous::before {
   content: '';
