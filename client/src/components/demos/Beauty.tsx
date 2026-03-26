@@ -5,7 +5,7 @@ import {
   Gift, MapPin, Search, ShoppingBag, Settings,
   Home, Grid, Tag, Scissors, Droplets, Flower2, Hand,
   Truck, ShieldCheck, RotateCcw, X, Check, Phone, ArrowUpDown,
-  Award, Crown, ChevronDown
+  Award, Crown, ChevronDown, Filter
 } from "lucide-react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { LazyImage, DemoThemeProvider } from "@/components/shared";
@@ -1135,96 +1135,67 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
       <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ backgroundColor: BG }}>
         <DemoSidebar menuItems={sidebarMenuItems} isOpen={sidebar.isOpen} onClose={sidebar.close} onOpen={sidebar.open} accentColor={ACCENT} title="GLOW SPA" subtitle="Салон красоты" />
 
-        <div className="px-5 pt-4 pb-3 demo-nav-safe">
+        <div className="px-5 pt-5 pb-3 demo-nav-safe">
           <div className="flex items-center justify-between mb-4">
-            <h1 style={{ fontFamily: CORMORANT, fontSize: '1.6rem', fontWeight: 400, color: '#fff' }}>Каталог <span style={{ fontStyle: 'italic' }}>услуг</span></h1>
-            <button onClick={sidebar.open} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)' }}>
-              <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><rect width="16" height="1.2" rx="0.6" fill="white" fillOpacity="0.5" /><rect y="4" width="10" height="1.2" rx="0.6" fill="white" fillOpacity="0.5" /><rect y="8" width="13" height="1.2" rx="0.6" fill="white" fillOpacity="0.5" /></svg>
-            </button>
+            <div>
+              <p className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>GLOW SPA</p>
+              <h1 style={{ fontFamily: CORMORANT, fontSize: '30px', fontWeight: 300, letterSpacing: '0.06em', fontStyle: 'italic' }}>Каталог</h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSearchQuery(searchQuery ? '' : ' ')}
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+              >
+                <Search className="w-4.5 h-4.5" />
+              </button>
+              <button
+                onClick={sidebar.open}
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
+              >
+                <Filter className="w-4.5 h-4.5" />
+              </button>
+            </div>
           </div>
 
-          <div className="relative mb-3">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(255,255,255,0.3)' }} />
-            <input
-              type="text"
-              placeholder="Поиск по услугам или мастеру..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-1"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.06)', fontFamily: INTER, fontSize: '0.8rem', '--tw-ring-color': `${ACCENT}40` } as any}
-            />
-            {searchQuery && (
+          {searchQuery && (
+            <div className="relative mb-3">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(255,255,255,0.3)' }} />
+              <input
+                type="text"
+                placeholder="Поиск по услугам..."
+                value={searchQuery === ' ' ? '' : searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value || ' ')}
+                autoFocus
+                className="w-full pl-10 pr-10 py-2.5 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-1"
+                style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.06)', fontFamily: INTER, fontSize: '0.8rem', '--tw-ring-color': `${ACCENT}40` } as any}
+              />
               <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2">
                 <X className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.3)' }} />
               </button>
-            )}
-          </div>
+            </div>
+          )}
 
-          <div className="flex gap-2 overflow-x-auto pb-3 -mx-5 px-5 scrollbar-hide">
-            {categories.map((cat) => {
-              const cfg = categoryConfig[cat];
-              const CatIcon = cfg?.icon;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className="px-3.5 py-2 rounded-full whitespace-nowrap transition-all duration-200 flex items-center gap-1.5"
-                  style={{
-                    fontFamily: INTER, fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.04em',
-                    background: selectedCategory === cat ? ACCENT : 'rgba(255,255,255,0.04)',
-                    color: selectedCategory === cat ? BG : 'rgba(255,255,255,0.5)',
-                    border: selectedCategory === cat ? 'none' : '0.5px solid rgba(255,255,255,0.06)',
-                  }}
-                >
-                  {CatIcon && <CatIcon className="w-3.5 h-3.5" />}
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="px-5 flex items-center justify-between mb-3">
-          <span style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)' }}>
-            {filteredServices.length === 0 ? 'Ничего не найдено' : `${filteredServices.length} ${filteredServices.length === 1 ? 'услуга' : filteredServices.length < 5 ? 'услуги' : 'услуг'}`}
-          </span>
-          <div className="relative">
-            <button
-              onClick={() => setShowSortMenu(!showSortMenu)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.06)' }}
-            >
-              <ArrowUpDown className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.4)' }} />
-              <span style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)' }}>{sortLabels[sortMode]}</span>
-              <ChevronDown className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.3)' }} />
-            </button>
-            <AnimatePresence>
-              {showSortMenu && (
-                <m.div
-                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-full mt-1 z-30 rounded-xl overflow-hidden"
-                  style={{ background: 'rgba(30,28,27,0.98)', border: '0.5px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', minWidth: 140 }}
-                >
-                  {(Object.keys(sortLabels) as SortMode[]).map(mode => (
-                    <button
-                      key={mode}
-                      onClick={() => { setSortMode(mode); setShowSortMenu(false); }}
-                      className="w-full px-4 py-2.5 text-left"
-                      style={{
-                        fontFamily: INTER, fontSize: '0.72rem',
-                        color: sortMode === mode ? ACCENT : 'rgba(255,255,255,0.6)',
-                        background: sortMode === mode ? `${ACCENT}08` : 'transparent',
-                      }}
-                    >
-                      {sortLabels[mode]}
-                    </button>
-                  ))}
-                </m.div>
-              )}
-            </AnimatePresence>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className="flex-shrink-0 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all active:scale-95"
+                style={{
+                  background: selectedCategory === cat ? ACCENT : 'rgba(255,255,255,0.07)',
+                  color: selectedCategory === cat ? BG : 'rgba(255,255,255,0.6)',
+                  border: selectedCategory === cat ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
+                  fontSize: '11px',
+                  fontWeight: selectedCategory === cat ? 700 : 500,
+                  letterSpacing: '0.04em',
+                  fontFamily: INTER,
+                }}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -1233,52 +1204,140 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
             <EmptyState type="search" title="Ничего не найдено" description="Попробуйте изменить запрос или выбрать другую категорию" actionLabel="Сбросить фильтры" onAction={() => { setSearchQuery(''); setSelectedCategory('Все'); }} />
           </div>
         ) : (
-          <div className="px-5 grid grid-cols-2 gap-3">
-            {filteredServices.map((service, idx) => {
-              return (
-                <m.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.04, duration: 0.3 }}
-                  className="cursor-pointer active:scale-[0.97]"
-                  style={{ transition: 'transform 0.15s ease' }}
-                  onClick={() => openService(service)}
-                >
-                  <div className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: idx % 3 === 0 ? '3/4.5' : '3/4' }}>
-                    <LazyImage src={service.image} alt={service.name} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+          <div className="px-4 space-y-3 pb-2">
+            {(() => {
+              const rows: React.ReactNode[] = [];
+              let i = 0;
+              let groupIdx = 0;
+              while (i < filteredServices.length) {
+                const featured = filteredServices[i];
+                const catCfg = categoryConfig[featured.category];
+                rows.push(
+                  <m.div
+                    key={`featured-${featured.id}`}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: groupIdx * 0.1 }}
+                    whileTap={{ scale: 0.985 }}
+                    onClick={() => openService(featured)}
+                    className="relative cursor-pointer rounded-[20px] overflow-hidden"
+                    style={{ height: '280px' }}
+                  >
+                    <LazyImage src={featured.image} alt={featured.name} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-                    {service.isNew && (
-                      <div className="absolute top-2 left-2">
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase" style={{ background: ACCENT, color: BG }}>New</span>
-                      </div>
-                    )}
+                    <div className="absolute top-3.5 left-3.5 flex gap-1.5">
+                      {featured.isNew && (
+                        <span className="px-2 py-1 text-[9px] font-black rounded-full tracking-[0.08em] uppercase" style={{ background: ACCENT, color: BG }}>NEW</span>
+                      )}
+                      <span className="px-2 py-1 text-[9px] font-medium rounded-full" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)', color: 'rgba(255,255,255,0.75)', border: '0.5px solid rgba(255,255,255,0.15)' }}>
+                        {featured.category}
+                      </span>
+                    </div>
 
-                    <div className="absolute top-2 right-2" onClick={e => e.stopPropagation()}>
-                      <button onClick={() => handleToggleFavorite(service.id)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)' }}>
-                        <Heart className="w-3.5 h-3.5" style={isFavorite(String(service.id)) ? { fill: ACCENT, color: ACCENT } : { color: 'white' }} />
+                    <div className="absolute top-3.5 right-3.5" onClick={e => e.stopPropagation()}>
+                      <button
+                        onClick={() => handleToggleFavorite(featured.id)}
+                        className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                        style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
+                      >
+                        <Heart className="w-3.5 h-3.5" style={isFavorite(String(featured.id)) ? { fill: ACCENT, color: ACCENT } : { color: 'white' }} />
                       </button>
                     </div>
 
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <p style={{ fontFamily: CORMORANT, fontSize: '0.9rem', fontWeight: 500, color: '#fff' }} className="truncate">{service.name}</p>
-                      <div className="flex items-center justify-between mt-1">
-                        <span style={{ fontFamily: INTER, fontSize: '0.75rem', fontWeight: 600, color: ACCENT }}>{formatPrice(service.price)}</span>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3" style={{ fill: '#F59E0B', color: '#F59E0B' }} />
-                          <span style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.5)' }}>{service.rating}</span>
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <div className="flex items-end justify-between">
+                        <div className="flex-1 mr-3">
+                          <p className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-1" style={{ color: catCfg?.color ?? ACCENT }}>{featured.category}</p>
+                          <p style={{ fontFamily: CORMORANT, fontSize: '1.2rem', fontWeight: 500, lineHeight: 1.15, color: '#fff' }}>{featured.name}</p>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: INTER }}>{featured.duration}</span>
+                            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>·</span>
+                            <div className="flex items-center gap-0.5">
+                              {[1,2,3,4,5].map(s => (
+                                <div key={s} className="w-1.5 h-1.5 rounded-full" style={{ background: s <= Math.round(featured.rating) ? ACCENT : 'rgba(255,255,255,0.15)' }} />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-base font-bold" style={{ fontFamily: INTER, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: '#fff' }}>
+                            {formatPrice(featured.price)}
+                          </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <Clock className="w-2.5 h-2.5" style={{ color: 'rgba(255,255,255,0.35)' }} />
-                        <span style={{ fontFamily: INTER, fontSize: '0.55rem', color: 'rgba(255,255,255,0.35)' }}>{service.duration}</span>
-                      </div>
                     </div>
-                  </div>
-                </m.div>
-              );
-            })}
+                  </m.div>
+                );
+                i++;
+
+                const pair = filteredServices.slice(i, i + 2);
+                if (pair.length > 0) {
+                  rows.push(
+                    <div key={`pair-${groupIdx}`} className="grid grid-cols-2 gap-3">
+                      {pair.map((service, colIdx) => {
+                        const sCatCfg = categoryConfig[service.category];
+                        return (
+                          <m.div
+                            key={service.id}
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: groupIdx * 0.1 + 0.04 + colIdx * 0.03 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => openService(service)}
+                            className="cursor-pointer"
+                          >
+                            <div className="relative rounded-[18px] overflow-hidden mb-2.5" style={{ height: colIdx === 0 ? '205px' : '175px' }}>
+                              <LazyImage src={service.image} alt={service.name} className="w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+
+                              <div className="absolute top-2 right-2">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(service.id); }}
+                                  className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                                  style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
+                                >
+                                  <Heart className="w-3 h-3" style={isFavorite(String(service.id)) ? { fill: ACCENT, color: ACCENT } : { color: 'white' }} />
+                                </button>
+                              </div>
+
+                              {service.isNew && (
+                                <div className="absolute top-2 left-2">
+                                  <span className="px-1.5 py-0.5 text-[9px] font-black rounded-md" style={{ background: ACCENT, color: BG }}>NEW</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div>
+                              <p className="text-[8px] font-semibold tracking-[0.22em] uppercase mb-0.5 truncate" style={{ color: sCatCfg?.color ?? 'rgba(255,255,255,0.38)' }}>
+                                {service.category}
+                              </p>
+                              <p className="text-[12px] font-semibold leading-tight mb-1 truncate" style={{ fontFamily: CORMORANT, fontSize: '0.85rem', fontWeight: 500, letterSpacing: '-0.01em' }}>
+                                {service.name}
+                              </p>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-[13px] font-bold" style={{ fontFamily: INTER, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em', color: ACCENT }}>
+                                  {formatPrice(service.price)}
+                                </span>
+                                <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: INTER }}>{service.duration}</span>
+                              </div>
+                              <div className="flex items-center gap-0.5 mt-1">
+                                {[1,2,3,4,5].map(s => (
+                                  <div key={s} className="w-1.5 h-1.5 rounded-full" style={{ background: s <= Math.round(service.rating) ? ACCENT : 'rgba(255,255,255,0.15)' }} />
+                                ))}
+                              </div>
+                            </div>
+                          </m.div>
+                        );
+                      })}
+                    </div>
+                  );
+                  i += pair.length;
+                }
+                groupIdx++;
+              }
+              return rows;
+            })()}
           </div>
         )}
       </div>
