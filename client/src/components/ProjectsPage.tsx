@@ -114,7 +114,6 @@ const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, ico
   const videoRef = useRef<HTMLVideoElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
   const rm = prefersReducedMotion();
 
   useEffect(() => {
@@ -126,12 +125,6 @@ const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, ico
     io.observe(cardRef.current);
     return () => io.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (isVisible && videoSrc && !videoLoaded) {
-      setVideoLoaded(true);
-    }
-  }, [isVisible, videoSrc, videoLoaded]);
 
   useEffect(() => {
     if (!videoRef.current || rm) return;
@@ -226,20 +219,17 @@ const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, ico
 
         <div className="relative flex-shrink-0" style={{ width: 140, overflow: 'hidden' }}>
           {videoSrc ? (
-            videoLoaded && !rm ? (
-              <video
-                ref={videoRef}
-                src={videoSrc}
-                muted
-                loop
-                playsInline
-                preload="none"
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ opacity: 0.85 }}
-              />
-            ) : (
-              <div className="absolute inset-0" style={{ background: gradient, opacity: 0.6 }} />
-            )
+            <video
+              ref={videoRef}
+              src={videoSrc}
+              muted
+              loop
+              playsInline
+              autoPlay
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ opacity: 0.85 }}
+            />
           ) : imageSrc ? (
             <div className="absolute inset-0">
               <img
