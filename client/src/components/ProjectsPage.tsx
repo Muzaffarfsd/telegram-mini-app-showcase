@@ -97,6 +97,7 @@ const DEFAULT_ICON = { emoji: '📱', grad: 'linear-gradient(135deg, #111, #1a1a
 
 interface FlagshipCardProps {
   title: string;
+  titleAccent?: string;
   subtitle: string;
   description: string;
   gradient: string;
@@ -108,9 +109,11 @@ interface FlagshipCardProps {
   onOpen: (id: string) => void;
   openLabel?: string;
   edgeColor?: string;
+  stat?: string;
+  statLabel?: string;
 }
 
-const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, icon, videoSrc, imageSrc, demoId, onOpen, openLabel = 'Open', edgeColor = '#1a2744' }: FlagshipCardProps) => {
+const FlagshipCard = memo(({ title, titleAccent, subtitle, description, gradient, accent, icon, videoSrc, imageSrc, demoId, onOpen, openLabel = 'Open', edgeColor = '#1a2744', stat, statLabel }: FlagshipCardProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -127,7 +130,8 @@ const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, ico
   }, []);
 
   useEffect(() => {
-    if (!videoRef.current || rm) return;
+    if (!videoRef.current) return;
+    if (rm) { videoRef.current.pause(); return; }
     if (isVisible) {
       videoRef.current.play().catch(() => {});
     } else {
@@ -180,86 +184,112 @@ const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, ico
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px -8px rgba(0,0,0,0.4)',
       }} />
 
-      <div className="relative z-10 flex" style={{ minHeight: 190 }}>
-        <div className="flex-1 flex flex-col justify-between" style={{ padding: '18px 0 18px 20px', minWidth: 0 }}>
+      <div className="relative z-10 flex" style={{ minHeight: 200 }}>
+        <div className="flex-1 flex flex-col justify-between" style={{ padding: '20px 0 18px 20px', minWidth: 0 }}>
           <div>
-            <div className="flex items-center gap-2.5 mb-3">
+            <div className="flex items-center gap-2 mb-2">
               <div style={{
-                width: 30, height: 30, borderRadius: 9,
-                background: `linear-gradient(135deg, ${accent}22, ${accent}0a)`,
-                border: `1px solid ${accent}30`,
+                width: 26, height: 26, borderRadius: 8,
+                background: `linear-gradient(135deg, ${accent}20, ${accent}08)`,
+                border: `1px solid ${accent}25`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: accent,
-                boxShadow: `0 0 12px ${accent}12`,
               }}>
                 {icon}
               </div>
               <span style={{
-                fontFamily: INTER, fontSize: '0.58rem', fontWeight: 600,
-                letterSpacing: '0.08em', textTransform: 'uppercase' as const,
-                color: accent, opacity: 0.85,
+                fontFamily: INTER, fontSize: '0.55rem', fontWeight: 600,
+                letterSpacing: '0.1em', textTransform: 'uppercase' as const,
+                color: accent, opacity: 0.7,
               }}>
                 {subtitle}
               </span>
+
+              {videoSrc && (
+                <div className="flex items-center gap-1 ml-auto mr-3">
+                  <div style={{
+                    width: 5, height: 5, borderRadius: '50%',
+                    background: accent,
+                    boxShadow: `0 0 6px ${accent}80`,
+                    animation: rm ? 'none' : 'flagship-pulse 2s ease-in-out infinite',
+                  }} />
+                  <span style={{
+                    fontFamily: INTER, fontSize: '0.48rem', fontWeight: 700,
+                    letterSpacing: '0.12em', color: 'rgba(255,255,255,0.3)',
+                  }}>
+                    LIVE
+                  </span>
+                </div>
+              )}
             </div>
 
             <h3 style={{
-              fontFamily: SYNE, fontSize: '1.2rem', fontWeight: 800,
-              color: '#fff', letterSpacing: '-0.04em', marginBottom: 6, lineHeight: 1.15,
+              fontFamily: SYNE, fontSize: '1.35rem', fontWeight: 800,
+              color: '#fff', letterSpacing: '-0.04em', lineHeight: 1.1,
+              marginBottom: 4,
             }}>
               {title}
+              {titleAccent && (
+                <span style={{
+                  fontFamily: INSTRUMENT, fontStyle: 'italic',
+                  fontWeight: 400, fontSize: '1.25rem',
+                  color: accent, marginLeft: 6,
+                }}>
+                  {titleAccent}
+                </span>
+              )}
             </h3>
 
             <p style={{
-              fontFamily: INTER, fontSize: '0.67rem', lineHeight: 1.55,
-              color: 'rgba(255,255,255,0.38)', letterSpacing: '-0.01em',
+              fontFamily: INTER, fontSize: '0.65rem', lineHeight: 1.6,
+              color: 'rgba(255,255,255,0.35)', letterSpacing: '-0.01em',
               display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const,
               overflow: 'hidden',
+              maxWidth: '90%',
             }}>
               {description}
             </p>
           </div>
 
-          <div className="mt-4 flex items-center gap-3">
+          <div className="mt-4 flex items-center justify-between" style={{ paddingRight: 16 }}>
             <div
               className="flex items-center gap-1.5"
               style={{
-                padding: '7px 15px', borderRadius: 20,
-                background: `linear-gradient(135deg, ${accent}18, ${accent}0a)`,
-                border: `1px solid ${accent}28`,
-                boxShadow: `0 0 10px ${accent}08`,
-                transition: rm ? 'none' : 'box-shadow 0.3s ease',
+                padding: '7px 16px', borderRadius: 20,
+                background: `linear-gradient(135deg, ${accent}18, ${accent}08)`,
+                border: `1px solid ${accent}22`,
               }}
             >
               <span style={{
-                fontFamily: INTER, fontSize: '0.64rem', fontWeight: 600,
+                fontFamily: INTER, fontSize: '0.62rem', fontWeight: 600,
                 color: accent,
               }}>
                 {openLabel}
               </span>
-              <ArrowUpRight className="w-3 h-3" style={{ color: accent }} strokeWidth={2.2} />
+              <ArrowUpRight className="w-3 h-3" style={{ color: accent, opacity: 0.7 }} strokeWidth={2.2} />
             </div>
 
-            {videoSrc && (
-              <div className="flex items-center gap-1.5">
+            {stat && statLabel && (
+              <div className="text-right">
                 <div style={{
-                  width: 5, height: 5, borderRadius: '50%',
-                  background: accent,
-                  boxShadow: `0 0 6px ${accent}80`,
-                  animation: rm ? 'none' : 'flagship-pulse 2s ease-in-out infinite',
-                }} />
-                <span style={{
-                  fontFamily: INTER, fontSize: '0.5rem', fontWeight: 700,
-                  letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)',
+                  fontFamily: SYNE, fontSize: '0.95rem', fontWeight: 800,
+                  color: '#fff', letterSpacing: '-0.03em', lineHeight: 1,
                 }}>
-                  LIVE
-                </span>
+                  {stat}
+                </div>
+                <div style={{
+                  fontFamily: INTER, fontSize: '0.48rem', fontWeight: 500,
+                  color: 'rgba(255,255,255,0.25)', letterSpacing: '0.04em',
+                  textTransform: 'uppercase' as const, marginTop: 1,
+                }}>
+                  {statLabel}
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        <div className="relative flex-shrink-0" style={{ width: 155, overflow: 'hidden' }}>
+        <div className="relative flex-shrink-0" style={{ width: 150, overflow: 'hidden' }}>
           {videoSrc ? (
             <video
               ref={videoRef}
@@ -267,8 +297,7 @@ const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, ico
               muted
               loop
               playsInline
-              autoPlay
-              preload="auto"
+              preload="metadata"
               className="absolute inset-0 w-full h-full object-cover"
               style={{ opacity: 0.9 }}
             />
@@ -283,15 +312,10 @@ const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, ico
           ) : null}
 
           <div className="absolute inset-0 pointer-events-none" style={{
-            background: `linear-gradient(90deg, ${edgeColor} 0%, ${edgeColor}99 20%, transparent 55%)`,
+            background: `linear-gradient(90deg, ${edgeColor} 0%, ${edgeColor}aa 18%, transparent 50%)`,
           }} />
-
           <div className="absolute inset-0 pointer-events-none" style={{
-            background: `linear-gradient(180deg, transparent 60%, ${edgeColor}cc 100%)`,
-          }} />
-
-          <div className="absolute inset-0 pointer-events-none" style={{
-            background: `linear-gradient(0deg, transparent 60%, ${edgeColor}99 100%)`,
+            background: `linear-gradient(180deg, ${edgeColor}90 0%, transparent 25%, transparent 75%, ${edgeColor}90 100%)`,
           }} />
         </div>
       </div>
@@ -540,144 +564,176 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
 
           {/* ═══════ OUR WORKS — FLAGSHIP DEMOS ═══════ */}
           <section className="px-5 py-10">
-            <Cin className="mb-6">
-              <div className="flex items-end justify-between">
-                <div>
+            <Cin className="mb-7">
+              <div>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div style={{
+                    width: 18, height: 2, borderRadius: 1,
+                    background: `linear-gradient(90deg, ${EMERALD}, transparent)`,
+                  }} />
                   <span style={{
-                    fontFamily: SYNE, fontSize: '0.6875rem',
-                    fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' as const,
-                    color: 'rgba(255,255,255,0.25)', display: 'block', marginBottom: 8,
+                    fontFamily: INTER, fontSize: '0.6rem',
+                    fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase' as const,
+                    color: EMERALD, opacity: 0.6,
                   }}>
-                    {ru ? 'наши работы' : 'our works'}
+                    {ru ? 'портфолио' : 'portfolio'}
                   </span>
-                  <h2 style={{
-                    fontFamily: SYNE, fontSize: 'clamp(1.3rem, 4.5vw, 1.7rem)',
-                    fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1.1,
-                  }}>
-                    {ru ? 'Флагманские' : 'Flagship'}
-                    <br />
-                    <span style={{
-                      fontFamily: INSTRUMENT, fontStyle: 'italic',
-                      background: `linear-gradient(135deg, ${EMERALD}, #a7f3d0)`,
-                      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                    }}>
-                      {ru ? 'проекты' : 'projects'}
-                    </span>
-                  </h2>
                 </div>
+                <h2 style={{
+                  fontFamily: SYNE, fontSize: 'clamp(1.5rem, 5vw, 2rem)',
+                  fontWeight: 800, color: '#fff', letterSpacing: '-0.045em', lineHeight: 1.05,
+                }}>
+                  {ru ? 'Наши' : 'Our'}{' '}
+                  <span style={{
+                    fontFamily: INSTRUMENT, fontStyle: 'italic',
+                    fontWeight: 400,
+                    background: `linear-gradient(135deg, ${EMERALD}, #6ee7b7)`,
+                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                  }}>
+                    {ru ? 'работы' : 'works'}
+                  </span>
+                </h2>
+                <p style={{
+                  fontFamily: INTER, fontSize: '0.7rem', lineHeight: 1.6,
+                  color: 'rgba(255,255,255,0.3)', marginTop: 8,
+                  letterSpacing: '-0.01em', maxWidth: 280,
+                }}>
+                  {ru ? 'Премиум Telegram Mini Apps для бизнеса мирового уровня' : 'Premium Telegram Mini Apps for world-class businesses'}
+                </p>
               </div>
             </Cin>
 
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               <Cin delay={0.05}>
                 <FlagshipCard
                   title="GlowSpa"
+                  titleAccent={ru ? 'beauty' : 'beauty'}
                   subtitle={ru ? 'Салон красоты' : 'Beauty Salon'}
                   description={ru ? 'Премиум запись на процедуры, портфолио мастеров и онлайн-консультации' : 'Premium booking, artist portfolios & online consultations'}
                   gradient="linear-gradient(145deg, #2a1230 0%, #1e0a1e 40%, #12061a 100%)"
                   accent="#e879a8"
-                  icon={<Sparkles className="w-4 h-4" />}
+                  icon={<Sparkles className="w-3.5 h-3.5" />}
                   videoSrc="/videos/glowspa_showreel.mp4"
                   edgeColor="#2a1230"
                   demoId="beauty"
                   onOpen={onOpenDemo}
-                  openLabel={ru ? 'Открыть' : 'Open'}
+                  openLabel={ru ? 'Смотреть' : 'Explore'}
+                  stat="24+"
+                  statLabel={ru ? 'процедур' : 'treatments'}
                 />
               </Cin>
 
               <Cin delay={0.1}>
                 <FlagshipCard
                   title="Radiance"
+                  titleAccent="store"
                   subtitle={ru ? 'Премиум мода' : 'Premium Fashion'}
                   description={ru ? 'Цифровая мода, эксклюзивные коллекции и персональный стилист' : 'Digital fashion, exclusive collections & personal stylist'}
                   gradient="linear-gradient(145deg, #16213e 0%, #1a1a2e 40%, #0e0e1a 100%)"
                   accent="#a78bfa"
-                  icon={<ShoppingBag className="w-4 h-4" />}
+                  icon={<ShoppingBag className="w-3.5 h-3.5" />}
                   videoSrc="/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4"
                   edgeColor="#1a1a2e"
                   demoId="clothing-store"
                   onOpen={onOpenDemo}
-                  openLabel={ru ? 'Открыть' : 'Open'}
+                  openLabel={ru ? 'Смотреть' : 'Explore'}
+                  stat="180+"
+                  statLabel={ru ? 'моделей' : 'items'}
                 />
               </Cin>
 
               <Cin delay={0.15}>
                 <FlagshipCard
                   title="TechStore"
+                  titleAccent="pro"
                   subtitle={ru ? 'Электроника' : 'Electronics'}
                   description={ru ? 'Каталог техники Apple, умные рекомендации и мгновенная оплата' : 'Apple catalog, smart recommendations & instant checkout'}
                   gradient="linear-gradient(145deg, #1a2744 0%, #0a1628 40%, #060e1a 100%)"
                   accent="#2997FF"
-                  icon={<Cpu className="w-4 h-4" />}
+                  icon={<Cpu className="w-3.5 h-3.5" />}
                   videoSrc="/videos/techstore_2025.mp4"
                   edgeColor="#1a2744"
                   demoId="electronics"
                   onOpen={onOpenDemo}
-                  openLabel={ru ? 'Открыть' : 'Open'}
+                  openLabel={ru ? 'Смотреть' : 'Explore'}
+                  stat="340+"
+                  statLabel={ru ? 'товаров' : 'products'}
                 />
               </Cin>
 
               <Cin delay={0.2}>
                 <FlagshipCard
-                  title="Bloom & Petals"
+                  title="Bloom"
+                  titleAccent="& petals"
                   subtitle={ru ? 'Магазин цветов' : 'Flower Shop'}
                   description={ru ? 'Дизайнерские букеты, доставка по городу и подписка на свежие цветы' : 'Designer bouquets, city delivery & fresh flower subscriptions'}
                   gradient="linear-gradient(145deg, #2a1618 0%, #1a0e10 40%, #120808 100%)"
                   accent="#f472b6"
-                  icon={<Flower2 className="w-4 h-4" />}
+                  icon={<Flower2 className="w-3.5 h-3.5" />}
                   videoSrc="/attached_assets/5d2ab0bb92c8c7530a889b407ef3d457_1765617456150.mp4"
                   edgeColor="#2a1618"
                   demoId="florist"
                   onOpen={onOpenDemo}
-                  openLabel={ru ? 'Открыть' : 'Open'}
+                  openLabel={ru ? 'Смотреть' : 'Explore'}
+                  stat="50+"
+                  statLabel={ru ? 'букетов' : 'bouquets'}
                 />
               </Cin>
 
               <Cin delay={0.25}>
                 <FlagshipCard
                   title="Essence"
+                  titleAccent="royale"
                   subtitle={ru ? 'Парфюмерия' : 'Perfumery'}
                   description={ru ? 'Нишевые ароматы, подбор по характеру и пробники с доставкой' : 'Niche fragrances, personality matching & sample delivery'}
                   gradient="linear-gradient(145deg, #2a1224 0%, #1e0a18 40%, #12060e 100%)"
                   accent="#fb7185"
-                  icon={<Droplets className="w-4 h-4" />}
+                  icon={<Droplets className="w-3.5 h-3.5" />}
                   videoSrc="/videos/luxury_fragrance.mp4"
                   edgeColor="#2a1224"
                   demoId="luxury-perfume"
                   onOpen={onOpenDemo}
-                  openLabel={ru ? 'Открыть' : 'Open'}
+                  openLabel={ru ? 'Смотреть' : 'Explore'}
+                  stat="120+"
+                  statLabel={ru ? 'ароматов' : 'fragrances'}
                 />
               </Cin>
 
               <Cin delay={0.3}>
                 <FlagshipCard
                   title="SneakerVault"
+                  titleAccent="drops"
                   subtitle={ru ? 'Кроссовки' : 'Sneakers'}
                   description={ru ? 'Лимитированные дропы, аутентификация и обмен коллекций' : 'Limited drops, authentication & collection exchange'}
                   gradient="linear-gradient(145deg, #142814 0%, #0a1a0a 40%, #060e06 100%)"
                   accent="#4ade80"
-                  icon={<Footprints className="w-4 h-4" />}
+                  icon={<Footprints className="w-3.5 h-3.5" />}
                   videoSrc="/videos/ae01958370d099047455d799eba60389_1762352751328.mp4"
                   edgeColor="#142814"
                   demoId="sneaker-store"
                   onOpen={onOpenDemo}
-                  openLabel={ru ? 'Открыть' : 'Open'}
+                  openLabel={ru ? 'Смотреть' : 'Explore'}
+                  stat="85+"
+                  statLabel={ru ? 'моделей' : 'models'}
                 />
               </Cin>
 
               <Cin delay={0.35}>
                 <FlagshipCard
                   title="TimeElite"
+                  titleAccent="luxe"
                   subtitle={ru ? 'Часы' : 'Watches'}
                   description={ru ? 'Rolex, Omega, Cartier — сертифицированные модели с гарантией' : 'Rolex, Omega, Cartier — certified models with warranty'}
                   gradient="linear-gradient(145deg, #2a2418 0%, #1a1610 40%, #100e08 100%)"
                   accent="#fbbf24"
-                  icon={<Watch className="w-4 h-4" />}
+                  icon={<Watch className="w-3.5 h-3.5" />}
                   videoSrc="/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4"
                   edgeColor="#2a2418"
                   demoId="luxury-watches"
                   onOpen={onOpenDemo}
-                  openLabel={ru ? 'Открыть' : 'Open'}
+                  openLabel={ru ? 'Смотреть' : 'Explore'}
+                  stat="200+"
+                  statLabel={ru ? 'часов' : 'watches'}
                 />
               </Cin>
             </div>
