@@ -16,6 +16,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import glowspaHeroImg from "@assets/glowspa_hero.jpg";
+import glowspaHeroVideo from "@assets/7c2c6d94385a0badd934f87f658b1f46_1774529512637.mp4";
 import glowspaHaircutImg from "@assets/glowspa_haircut.jpg";
 import glowspaAirtouchImg from "@assets/glowspa_airtouch.jpg";
 import glowspaBalayageImg from "@assets/glowspa_balayage.jpg";
@@ -726,11 +727,14 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
 
         <div className="relative overflow-hidden" style={{ height: '70vh', minHeight: 420 }}>
           <div className="absolute inset-0">
-            <LazyImage
-              src={glowspaHeroImg}
-              alt="GlowSpa Salon"
-              className="w-full h-full"
-              priority
+            <video
+              src={glowspaHeroVideo}
+              poster={glowspaHeroImg}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
             />
           </div>
           <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(12,10,9,0.3) 0%, rgba(12,10,9,0.1) 30%, rgba(12,10,9,0.6) 70%, #0C0A09 100%)' }} />
