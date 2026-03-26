@@ -120,7 +120,7 @@ const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, ico
     if (!cardRef.current) return;
     const io = new IntersectionObserver(
       ([entry]) => { setIsVisible(entry.isIntersecting); },
-      { threshold: 0.3 }
+      { threshold: 0.2 }
     );
     io.observe(cardRef.current);
     return () => io.disconnect();
@@ -151,73 +151,115 @@ const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, ico
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
-      className="group cursor-pointer active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
-      style={{ borderRadius: 20, overflow: 'hidden', position: 'relative' }}
+      className="flagship-card group cursor-pointer active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+      style={{
+        borderRadius: 22,
+        overflow: 'hidden',
+        position: 'relative',
+        transition: rm ? 'none' : 'transform 0.45s cubic-bezier(0.22,1,0.36,1), box-shadow 0.45s cubic-bezier(0.22,1,0.36,1)',
+      }}
     >
       <div className="absolute inset-0" style={{ background: gradient }} />
 
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'linear-gradient(165deg, rgba(255,255,255,0.06) 0%, transparent 40%)',
-        border: '1px solid rgba(255,255,255,0.08)',
+      <div className="absolute inset-0 pointer-events-none flagship-card-shine" style={{
         borderRadius: 'inherit',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          position: 'absolute', top: 0, left: '-140%',
+          width: '80%', height: '100%',
+          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.04) 55%, transparent 100%)',
+          transform: 'skewX(-20deg)',
+        }} />
+      </div>
+
+      <div className="absolute inset-0 pointer-events-none" style={{
+        borderRadius: 'inherit',
+        background: 'linear-gradient(165deg, rgba(255,255,255,0.07) 0%, transparent 35%)',
+        border: '1px solid rgba(255,255,255,0.09)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px -8px rgba(0,0,0,0.4)',
       }} />
 
-      <div className="relative z-10 flex" style={{ minHeight: 180 }}>
-        <div className="flex-1 flex flex-col justify-between p-5" style={{ minWidth: 0 }}>
+      <div className="relative z-10 flex" style={{ minHeight: 190 }}>
+        <div className="flex-1 flex flex-col justify-between" style={{ padding: '18px 0 18px 20px', minWidth: 0 }}>
           <div>
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2.5 mb-3">
               <div style={{
-                width: 28, height: 28, borderRadius: 8,
-                background: `${accent}18`, border: `1px solid ${accent}30`,
+                width: 30, height: 30, borderRadius: 9,
+                background: `linear-gradient(135deg, ${accent}22, ${accent}0a)`,
+                border: `1px solid ${accent}30`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: accent,
+                boxShadow: `0 0 12px ${accent}12`,
               }}>
                 {icon}
               </div>
               <span style={{
-                fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600,
+                fontFamily: INTER, fontSize: '0.58rem', fontWeight: 600,
                 letterSpacing: '0.08em', textTransform: 'uppercase' as const,
-                color: accent, opacity: 0.8,
+                color: accent, opacity: 0.85,
               }}>
                 {subtitle}
               </span>
             </div>
 
             <h3 style={{
-              fontFamily: SYNE, fontSize: '1.15rem', fontWeight: 800,
-              color: '#fff', letterSpacing: '-0.03em', marginBottom: 6,
+              fontFamily: SYNE, fontSize: '1.2rem', fontWeight: 800,
+              color: '#fff', letterSpacing: '-0.04em', marginBottom: 6, lineHeight: 1.15,
             }}>
               {title}
             </h3>
 
             <p style={{
-              fontFamily: INTER, fontSize: '0.68rem', lineHeight: 1.5,
-              color: 'rgba(255,255,255,0.4)', letterSpacing: '-0.01em',
+              fontFamily: INTER, fontSize: '0.67rem', lineHeight: 1.55,
+              color: 'rgba(255,255,255,0.38)', letterSpacing: '-0.01em',
+              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const,
+              overflow: 'hidden',
             }}>
               {description}
             </p>
           </div>
 
-          <div className="mt-4 flex items-center gap-2">
+          <div className="mt-4 flex items-center gap-3">
             <div
               className="flex items-center gap-1.5"
               style={{
-                padding: '7px 14px', borderRadius: 20,
-                background: `${accent}15`, border: `1px solid ${accent}25`,
+                padding: '7px 15px', borderRadius: 20,
+                background: `linear-gradient(135deg, ${accent}18, ${accent}0a)`,
+                border: `1px solid ${accent}28`,
+                boxShadow: `0 0 10px ${accent}08`,
+                transition: rm ? 'none' : 'box-shadow 0.3s ease',
               }}
             >
               <span style={{
-                fontFamily: INTER, fontSize: '0.65rem', fontWeight: 600,
+                fontFamily: INTER, fontSize: '0.64rem', fontWeight: 600,
                 color: accent,
               }}>
                 {openLabel}
               </span>
               <ArrowUpRight className="w-3 h-3" style={{ color: accent }} strokeWidth={2.2} />
             </div>
+
+            {videoSrc && (
+              <div className="flex items-center gap-1.5">
+                <div style={{
+                  width: 5, height: 5, borderRadius: '50%',
+                  background: accent,
+                  boxShadow: `0 0 6px ${accent}80`,
+                  animation: rm ? 'none' : 'flagship-pulse 2s ease-in-out infinite',
+                }} />
+                <span style={{
+                  fontFamily: INTER, fontSize: '0.5rem', fontWeight: 700,
+                  letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)',
+                }}>
+                  LIVE
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="relative flex-shrink-0" style={{ width: 140, overflow: 'hidden' }}>
+        <div className="relative flex-shrink-0" style={{ width: 155, overflow: 'hidden' }}>
           {videoSrc ? (
             <video
               ref={videoRef}
@@ -228,35 +270,29 @@ const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, ico
               autoPlay
               preload="auto"
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ opacity: 0.85 }}
+              style={{ opacity: 0.9 }}
             />
           ) : imageSrc ? (
-            <div className="absolute inset-0">
-              <img
-                src={imageSrc}
-                alt={title}
-                className="w-full h-full object-cover"
-                style={{ opacity: 0.7 }}
-                loading="lazy"
-              />
-            </div>
+            <img
+              src={imageSrc}
+              alt={title}
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ opacity: 0.75 }}
+              loading="lazy"
+            />
           ) : null}
 
           <div className="absolute inset-0 pointer-events-none" style={{
-            background: `linear-gradient(90deg, ${edgeColor} 0%, transparent 40%)`,
+            background: `linear-gradient(90deg, ${edgeColor} 0%, ${edgeColor}99 20%, transparent 55%)`,
           }} />
 
-          {videoSrc && (
-            <div className="absolute bottom-3 right-3 flex items-center gap-1 px-2 py-1" style={{
-              borderRadius: 12, background: 'rgba(0,0,0,0.5)',
-              border: '1px solid rgba(255,255,255,0.1)',
-            }}>
-              <Play className="w-2.5 h-2.5" style={{ color: accent }} fill={accent} />
-              <span style={{ fontFamily: INTER, fontSize: '0.55rem', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>
-                LIVE
-              </span>
-            </div>
-          )}
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background: `linear-gradient(180deg, transparent 60%, ${edgeColor}cc 100%)`,
+          }} />
+
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background: `linear-gradient(0deg, transparent 60%, ${edgeColor}99 100%)`,
+          }} />
         </div>
       </div>
     </div>

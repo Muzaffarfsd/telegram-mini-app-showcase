@@ -7475,3 +7475,23 @@ html:not(.light) .bottom-nav-premium {
 .animate-spotlight {
   animation: spotlight 2s ease 0.75s 1 forwards;
 }
+
+@keyframes flagship-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+@keyframes flagship-shine-sweep {
+  0% { left: -140%; }
+  100% { left: 180%; }
+}
+
+.flagship-card:hover .flagship-card-shine > div {
+  animation: flagship-shine-sweep 1.2s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flagship-card:hover .flagship-card-shine > div {
+    animation: none;
+  }
+}
