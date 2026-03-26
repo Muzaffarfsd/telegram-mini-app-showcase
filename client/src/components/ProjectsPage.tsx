@@ -589,7 +589,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                   gradient="linear-gradient(145deg, #2a1618 0%, #1a0e10 40%, #120808 100%)"
                   accent="#f472b6"
                   icon={<Flower2 className="w-4 h-4" />}
-                  imageSrc="https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=600&q=80"
+                  videoSrc="/attached_assets/5d2ab0bb92c8c7530a889b407ef3d457_1765617456150.mp4"
                   edgeColor="#2a1618"
                   demoId="florist"
                   onOpen={onOpenDemo}
@@ -605,7 +605,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                   gradient="linear-gradient(145deg, #16213e 0%, #1a1a2e 40%, #0e0e1a 100%)"
                   accent="#a78bfa"
                   icon={<ShoppingBag className="w-4 h-4" />}
-                  imageSrc="/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg"
+                  videoSrc="/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4"
                   edgeColor="#1a1a2e"
                   demoId="clothing-store"
                   onOpen={onOpenDemo}
@@ -637,7 +637,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                   gradient="linear-gradient(145deg, #142814 0%, #0a1a0a 40%, #060e06 100%)"
                   accent="#4ade80"
                   icon={<Footprints className="w-4 h-4" />}
-                  imageSrc="https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600&q=80"
+                  videoSrc="/videos/ae01958370d099047455d799eba60389_1762352751328.mp4"
                   edgeColor="#142814"
                   demoId="sneaker-store"
                   onOpen={onOpenDemo}
