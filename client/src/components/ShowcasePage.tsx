@@ -119,9 +119,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   const cases = useMemo(() => [
-    { id: 'electronics', vid: true, src: "/videos/techstore_2025.mp4", label: 'TechStore', sub: ru ? 'Электроника' : 'Electronics', growth: '+220%', cat: ru ? 'Техника' : 'Tech' },
-    { id: 'luxury-watches', vid: true, src: "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4", label: 'TimeElite', sub: ru ? 'Премиум часы' : 'Premium watches', growth: '+340%', cat: ru ? 'Люкс' : 'Luxury' },
-    { id: 'luxury-perfume', vid: true, src: "/videos/luxury_fragrance.mp4", label: 'FragranceRoyale', sub: ru ? 'Нишевая парфюмерия' : 'Niche perfumery', growth: '+290%', cat: ru ? 'Бьюти' : 'Beauty' },
+    { id: 'electronics', vid: true, src: "/videos/techstore_2025.mp4", poster: "/videos/techstore_2025_poster.jpg", label: 'TechStore', sub: ru ? 'Электроника' : 'Electronics', growth: '+220%', cat: ru ? 'Техника' : 'Tech' },
+    { id: 'luxury-watches', vid: true, src: "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4", poster: "/videos/timeelite_poster.jpg", label: 'TimeElite', sub: ru ? 'Премиум часы' : 'Premium watches', growth: '+340%', cat: ru ? 'Люкс' : 'Luxury' },
+    { id: 'luxury-perfume', vid: true, src: "/videos/luxury_fragrance.mp4", poster: "/videos/fragrance_poster.jpg", label: 'FragranceRoyale', sub: ru ? 'Нишевая парфюмерия' : 'Niche perfumery', growth: '+290%', cat: ru ? 'Бьюти' : 'Beauty' },
     { id: 'sneaker-store', vid: false, src: nikeGreenImage, label: 'SneakerVault', sub: ru ? 'Культ кроссовок' : 'Sneaker culture', growth: '+280%', cat: ru ? 'Мода' : 'Fashion' },
     { id: 'clothing-store', vid: false, src: rascalImage, label: 'Rascal', sub: ru ? 'Уличная мода' : 'Street fashion', growth: '+195%', cat: ru ? 'Мода' : 'Fashion' },
   ], [ru]);
@@ -351,6 +351,8 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     >
                       {c.vid ? (
                         <video ref={i === 0 ? videoRef : undefined} src={c.src} loop muted playsInline autoPlay
+                          preload={i === 0 ? 'auto' : 'metadata'}
+                          poster={c.poster}
                           className="absolute inset-0 w-full h-full object-cover"
                           style={{ filter: 'brightness(0.8) saturate(0.9)' }} />
                       ) : (
