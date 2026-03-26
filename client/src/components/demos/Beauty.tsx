@@ -476,9 +476,6 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
           onScroll={(e) => {
             const scrollTop = (e.target as HTMLDivElement).scrollTop;
             setShowStickyHeader(scrollTop > 280);
-            if (heroImageRef.current) {
-              heroImageRef.current.style.transform = `scale(${1 + scrollTop * 0.0005}) translateY(${scrollTop * 0.25}px)`;
-            }
           }}
         >
           <div className="relative" style={{ height: '65vh', minHeight: 380 }}>
