@@ -410,11 +410,14 @@ const Restaurant = memo(function Restaurant({ activeTab, onTabChange }: Restaura
   };
 
   const handleCheckoutComplete = (orderId: string) => {
-    const orderItems = cartItems.map(ci => ({ id: ci.id, name: ci.name, price: ci.price, quantity: ci.quantity, image: ci.image }));
-    createOrder(orderItems, totalAmount);
+    createOrder(
+      cartItems.map(ci => ({ id: ci.id, name: ci.name, price: ci.price, quantity: ci.quantity, image: ci.image })),
+      totalAmount,
+      { phone: '+7 (495) 123-45-67' }
+    );
     clearCart();
     setIsCheckoutOpen(false);
-    toast({ title: 'Заказ оформлен!', description: `Заказ ${orderId} создан` });
+    toast({ title: 'Заказ оформлен!', description: `Номер: ${orderId}`, duration: 3000 });
   };
 
   const sidebarMenuItems = useMemo(() => [

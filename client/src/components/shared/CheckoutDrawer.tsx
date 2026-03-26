@@ -23,13 +23,14 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 interface CartItem {
-  id: number;
+  id: string | number;
   name: string;
   price: number;
   quantity: number;
   size?: string;
   color?: string;
   image?: string;
+  [key: string]: any;
 }
 
 interface CheckoutDrawerProps {
