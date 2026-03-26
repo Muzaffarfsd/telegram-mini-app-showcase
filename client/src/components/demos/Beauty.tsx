@@ -30,6 +30,12 @@ import glowspaMassageFaceImg from "@assets/glowspa_massage_face.jpg";
 import glowspaLashesImg from "@assets/glowspa_lashes.jpg";
 import glowspaMassageBodyImg from "@assets/glowspa_massage_body.jpg";
 import glowspaStylingImg from "@assets/glowspa_styling.jpg";
+import masterAnnaImg from "@assets/glowspa_master_anna.jpg";
+import masterMariaImg from "@assets/glowspa_master_maria.jpg";
+import masterElenaImg from "@assets/glowspa_master_elena.jpg";
+import masterOlgaImg from "@assets/glowspa_master_olga.jpg";
+import masterYuliaImg from "@assets/glowspa_master_yulia.jpg";
+import masterOlga2Img from "@assets/glowspa_master_olga2.jpg";
 
 const STORE_KEY = 'glowspa-store';
 
@@ -381,12 +387,12 @@ const categoryConfig: Record<string, { icon: typeof Scissors; label: string; col
 };
 
 const masters = [
-  { name: 'Анна Смирнова', role: 'Стилист-колорист', exp: '12 лет', initials: 'АС', color: '#C9A89B' },
-  { name: 'Мария Петрова', role: 'Стилист', exp: '8 лет', initials: 'МП', color: '#D4A0A0' },
-  { name: 'Елена Козлова', role: 'Колорист', exp: '10 лет', initials: 'ЕК', color: '#A8C9B8' },
-  { name: 'Ольга Иванова', role: 'Мастер маникюра', exp: '6 лет', initials: 'ОИ', color: '#B8A8C9' },
-  { name: 'Юлия Титова', role: 'Косметолог', exp: '9 лет', initials: 'ЮТ', color: '#C9B8A8' },
-  { name: 'Ольга Смирнова', role: 'Массажист', exp: '15 лет', initials: 'ОС', color: '#A8B8C9' },
+  { name: 'Анна Смирнова', role: 'Стилист-колорист', exp: '12 лет', photo: masterAnnaImg, color: '#C9A89B' },
+  { name: 'Мария Петрова', role: 'Стилист', exp: '8 лет', photo: masterMariaImg, color: '#D4A0A0' },
+  { name: 'Елена Козлова', role: 'Колорист', exp: '10 лет', photo: masterElenaImg, color: '#A8C9B8' },
+  { name: 'Ольга Иванова', role: 'Мастер маникюра', exp: '6 лет', photo: masterOlgaImg, color: '#B8A8C9' },
+  { name: 'Юлия Титова', role: 'Косметолог', exp: '9 лет', photo: masterYuliaImg, color: '#C9B8A8' },
+  { name: 'Ольга Смирнова', role: 'Массажист', exp: '15 лет', photo: masterOlga2Img, color: '#A8B8C9' },
 ];
 
 const allReviews = [
@@ -1048,8 +1054,8 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
           <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-2 scrollbar-hide">
             {masters.map((master, i) => (
               <div key={i} className="flex-shrink-0 text-center" style={{ width: 100 }}>
-                <div className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${master.color}30, ${master.color}15)`, border: `1px solid ${master.color}25` }}>
-                  <span style={{ fontFamily: INTER, fontSize: '0.75rem', fontWeight: 700, color: master.color }}>{master.initials}</span>
+                <div className="w-16 h-16 rounded-full mx-auto mb-2 overflow-hidden" style={{ border: `2px solid ${master.color}40` }}>
+                  <img src={master.photo} alt={master.name} className="w-full h-full object-cover" />
                 </div>
                 <p style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{master.name.split(' ')[0]}</p>
                 <p style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{master.role}</p>
