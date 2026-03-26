@@ -1,6 +1,6 @@
 import { memo, useMemo, useRef, useState, useEffect, useCallback } from "react";
 import { demoApps } from "../data/demoApps";
-import { ArrowUpRight, ChevronRight, Play, Sparkles, UtensilsCrossed, Cpu } from "lucide-react";
+import { ArrowUpRight, ChevronRight, Play, Sparkles, UtensilsCrossed, Cpu, Flower2, ShoppingBag, Watch, Footprints, Droplets } from "lucide-react";
 import { FavoritesSection } from "./FavoritesSection";
 import { FavoriteButton } from "./FavoriteButton";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -576,6 +576,86 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                   videoSrc="/videos/techstore_2025.mp4"
                   edgeColor="#1a2744"
                   demoId="electronics"
+                  onOpen={onOpenDemo}
+                  openLabel={ru ? 'Открыть' : 'Open'}
+                />
+              </Cin>
+
+              <Cin delay={0.2}>
+                <FlagshipCard
+                  title="Bloom & Petals"
+                  subtitle={ru ? 'Магазин цветов' : 'Flower Shop'}
+                  description={ru ? 'Дизайнерские букеты, доставка по городу и подписка на свежие цветы' : 'Designer bouquets, city delivery & fresh flower subscriptions'}
+                  gradient="linear-gradient(145deg, #2a1618 0%, #1a0e10 40%, #120808 100%)"
+                  accent="#f472b6"
+                  icon={<Flower2 className="w-4 h-4" />}
+                  imageSrc="https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=600&q=80"
+                  edgeColor="#2a1618"
+                  demoId="florist"
+                  onOpen={onOpenDemo}
+                  openLabel={ru ? 'Открыть' : 'Open'}
+                />
+              </Cin>
+
+              <Cin delay={0.25}>
+                <FlagshipCard
+                  title="Radiance"
+                  subtitle={ru ? 'Премиум мода' : 'Premium Fashion'}
+                  description={ru ? 'Цифровая мода, эксклюзивные коллекции и персональный стилист' : 'Digital fashion, exclusive collections & personal stylist'}
+                  gradient="linear-gradient(145deg, #16213e 0%, #1a1a2e 40%, #0e0e1a 100%)"
+                  accent="#a78bfa"
+                  icon={<ShoppingBag className="w-4 h-4" />}
+                  imageSrc="/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg"
+                  edgeColor="#1a1a2e"
+                  demoId="clothing-store"
+                  onOpen={onOpenDemo}
+                  openLabel={ru ? 'Открыть' : 'Open'}
+                />
+              </Cin>
+
+              <Cin delay={0.3}>
+                <FlagshipCard
+                  title="Essence"
+                  subtitle={ru ? 'Парфюмерия' : 'Perfumery'}
+                  description={ru ? 'Нишевые ароматы, подбор по характеру и пробники с доставкой' : 'Niche fragrances, personality matching & sample delivery'}
+                  gradient="linear-gradient(145deg, #2a1224 0%, #1e0a18 40%, #12060e 100%)"
+                  accent="#fb7185"
+                  icon={<Droplets className="w-4 h-4" />}
+                  videoSrc="/videos/luxury_fragrance.mp4"
+                  edgeColor="#2a1224"
+                  demoId="luxury-perfume"
+                  onOpen={onOpenDemo}
+                  openLabel={ru ? 'Открыть' : 'Open'}
+                />
+              </Cin>
+
+              <Cin delay={0.35}>
+                <FlagshipCard
+                  title="SneakerVault"
+                  subtitle={ru ? 'Кроссовки' : 'Sneakers'}
+                  description={ru ? 'Лимитированные дропы, аутентификация и обмен коллекций' : 'Limited drops, authentication & collection exchange'}
+                  gradient="linear-gradient(145deg, #142814 0%, #0a1a0a 40%, #060e06 100%)"
+                  accent="#4ade80"
+                  icon={<Footprints className="w-4 h-4" />}
+                  imageSrc="https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600&q=80"
+                  edgeColor="#142814"
+                  demoId="sneaker-store"
+                  onOpen={onOpenDemo}
+                  openLabel={ru ? 'Открыть' : 'Open'}
+                />
+              </Cin>
+
+              <Cin delay={0.4}>
+                <FlagshipCard
+                  title="TimeElite"
+                  subtitle={ru ? 'Часы' : 'Watches'}
+                  description={ru ? 'Rolex, Omega, Cartier — сертифицированные модели с гарантией' : 'Rolex, Omega, Cartier — certified models with warranty'}
+                  gradient="linear-gradient(145deg, #2a2418 0%, #1a1610 40%, #100e08 100%)"
+                  accent="#fbbf24"
+                  icon={<Watch className="w-4 h-4" />}
+                  imageSrc="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=600&q=80"
+                  edgeColor="#2a2418"
+                  demoId="luxury-watches"
                   onOpen={onOpenDemo}
                   openLabel={ru ? 'Открыть' : 'Open'}
                 />
