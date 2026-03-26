@@ -551,15 +551,15 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
 
               <Cin delay={0.1}>
                 <FlagshipCard
-                  title="Deluxe Dine"
-                  subtitle={ru ? 'Ресторан' : 'Restaurant'}
-                  description={ru ? 'Бронирование столов, меню от шеф-повара и система лояльности' : 'Table reservations, chef menu & loyalty system'}
-                  gradient="linear-gradient(145deg, #2a2010 0%, #1a1408 40%, #100c04 100%)"
-                  accent="#f5c842"
-                  icon={<UtensilsCrossed className="w-4 h-4" />}
-                  imageSrc="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
-                  edgeColor="#2a2010"
-                  demoId="restaurant"
+                  title="Radiance"
+                  subtitle={ru ? 'Премиум мода' : 'Premium Fashion'}
+                  description={ru ? 'Цифровая мода, эксклюзивные коллекции и персональный стилист' : 'Digital fashion, exclusive collections & personal stylist'}
+                  gradient="linear-gradient(145deg, #16213e 0%, #1a1a2e 40%, #0e0e1a 100%)"
+                  accent="#a78bfa"
+                  icon={<ShoppingBag className="w-4 h-4" />}
+                  videoSrc="/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4"
+                  edgeColor="#1a1a2e"
+                  demoId="clothing-store"
                   onOpen={onOpenDemo}
                   openLabel={ru ? 'Открыть' : 'Open'}
                 />
@@ -599,22 +599,6 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
 
               <Cin delay={0.25}>
                 <FlagshipCard
-                  title="Radiance"
-                  subtitle={ru ? 'Премиум мода' : 'Premium Fashion'}
-                  description={ru ? 'Цифровая мода, эксклюзивные коллекции и персональный стилист' : 'Digital fashion, exclusive collections & personal stylist'}
-                  gradient="linear-gradient(145deg, #16213e 0%, #1a1a2e 40%, #0e0e1a 100%)"
-                  accent="#a78bfa"
-                  icon={<ShoppingBag className="w-4 h-4" />}
-                  videoSrc="/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4"
-                  edgeColor="#1a1a2e"
-                  demoId="clothing-store"
-                  onOpen={onOpenDemo}
-                  openLabel={ru ? 'Открыть' : 'Open'}
-                />
-              </Cin>
-
-              <Cin delay={0.3}>
-                <FlagshipCard
                   title="Essence"
                   subtitle={ru ? 'Парфюмерия' : 'Perfumery'}
                   description={ru ? 'Нишевые ароматы, подбор по характеру и пробники с доставкой' : 'Niche fragrances, personality matching & sample delivery'}
@@ -629,7 +613,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                 />
               </Cin>
 
-              <Cin delay={0.35}>
+              <Cin delay={0.3}>
                 <FlagshipCard
                   title="SneakerVault"
                   subtitle={ru ? 'Кроссовки' : 'Sneakers'}
@@ -645,7 +629,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                 />
               </Cin>
 
-              <Cin delay={0.4}>
+              <Cin delay={0.35}>
                 <FlagshipCard
                   title="TimeElite"
                   subtitle={ru ? 'Часы' : 'Watches'}
