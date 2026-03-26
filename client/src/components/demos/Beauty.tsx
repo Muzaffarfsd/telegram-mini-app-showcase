@@ -551,9 +551,6 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
   if (activeTab === 'catalog' && selectedService) {
     const catCfg = categoryConfig[selectedService.category];
     const accentColor = catCfg?.color ?? ACCENT;
-    const discountPct = selectedService.oldPrice
-      ? Math.round((1 - selectedService.price / selectedService.oldPrice) * 100)
-      : 0;
     const serviceReviews = getServiceReviews(selectedService);
 
     return (
@@ -619,11 +616,6 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                     <Sparkles className="w-3 h-3" /> NEW
                   </span>
                 )}
-                {discountPct > 0 && (
-                  <span className="px-2.5 py-1 rounded-full text-[11px] font-bold" style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444' }}>
-                    −{discountPct}%
-                  </span>
-                )}
               </div>
               <h1 style={{ fontFamily: CORMORANT, fontSize: 'clamp(1.8rem, 6vw, 2.4rem)', fontWeight: 500, color: '#fff', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
                 {selectedService.name}
@@ -640,12 +632,7 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
           >
             <m.div variants={contentItem} className="flex items-end justify-between mb-4 pt-2">
               <div>
-                <div className="flex items-center gap-2.5">
-                  <span style={{ fontFamily: CORMORANT, fontSize: '1.8rem', fontWeight: 600, color: ACCENT }}>{formatPrice(selectedService.price)}</span>
-                  {selectedService.oldPrice && (
-                    <span style={{ fontFamily: INTER, fontSize: '0.85rem', color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{formatPrice(selectedService.oldPrice)}</span>
-                  )}
-                </div>
+                <span style={{ fontFamily: CORMORANT, fontSize: '1.8rem', fontWeight: 600, color: ACCENT }}>{formatPrice(selectedService.price)}</span>
                 <div className="flex items-center gap-1.5 mt-1">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star key={i} className="w-3.5 h-3.5" style={{ fill: i < Math.floor(selectedService.rating) ? '#F59E0B' : 'rgba(255,255,255,0.1)', color: i < Math.floor(selectedService.rating) ? '#F59E0B' : 'rgba(255,255,255,0.1)' }} />
@@ -976,15 +963,10 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                 <div className="absolute inset-0"><LazyImage src={service.image} alt={service.name} className="w-full h-full" /></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                <div className="absolute top-3.5 left-3.5 flex gap-2">
+                <div className="absolute top-3.5 left-3.5">
                   <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1" style={{ background: ACCENT, color: BG }}>
                     <Sparkles className="w-3 h-3" /> NEW
                   </span>
-                  {service.oldPrice && (
-                    <span className="px-2 py-1 rounded-full text-[10px] font-bold" style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444', backdropFilter: 'blur(8px)' }}>
-                      −{Math.round((1 - service.price / service.oldPrice) * 100)}%
-                    </span>
-                  )}
                 </div>
 
                 <div className="absolute top-3.5 right-3.5" onClick={e => e.stopPropagation()}>
@@ -998,9 +980,6 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                   <h3 style={{ fontFamily: CORMORANT, fontSize: '1.4rem', fontWeight: 500, color: '#fff', marginBottom: 4 }}>{service.name}</h3>
                   <div className="flex items-center gap-3">
                     <span style={{ fontFamily: INTER, fontSize: '0.85rem', fontWeight: 600, color: ACCENT }}>{formatPrice(service.price)}</span>
-                    {service.oldPrice && (
-                      <span style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through' }}>{formatPrice(service.oldPrice)}</span>
-                    )}
                     <span style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>· {service.duration}</span>
                   </div>
                 </div>
@@ -1250,7 +1229,6 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
         ) : (
           <div className="px-5 grid grid-cols-2 gap-3">
             {filteredServices.map((service, idx) => {
-              const discountPct = service.oldPrice ? Math.round((1 - service.price / service.oldPrice) * 100) : 0;
               return (
                 <m.div
                   key={service.id}
@@ -1265,14 +1243,11 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                     <LazyImage src={service.image} alt={service.name} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-                    <div className="absolute top-2 left-2 flex gap-1.5 flex-wrap">
-                      {service.isNew && (
+                    {service.isNew && (
+                      <div className="absolute top-2 left-2">
                         <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase" style={{ background: ACCENT, color: BG }}>New</span>
-                      )}
-                      {discountPct > 0 && (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold" style={{ background: 'rgba(239,68,68,0.2)', color: '#EF4444' }}>−{discountPct}%</span>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                     <div className="absolute top-2 right-2" onClick={e => e.stopPropagation()}>
                       <button onClick={() => handleToggleFavorite(service.id)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)' }}>
@@ -1283,12 +1258,7 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                     <div className="absolute bottom-3 left-3 right-3">
                       <p style={{ fontFamily: CORMORANT, fontSize: '0.9rem', fontWeight: 500, color: '#fff' }} className="truncate">{service.name}</p>
                       <div className="flex items-center justify-between mt-1">
-                        <div className="flex items-center gap-1.5">
-                          <span style={{ fontFamily: INTER, fontSize: '0.75rem', fontWeight: 600, color: ACCENT }}>{formatPrice(service.price)}</span>
-                          {service.oldPrice && (
-                            <span style={{ fontFamily: INTER, fontSize: '0.55rem', color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{formatPrice(service.oldPrice)}</span>
-                          )}
-                        </div>
+                        <span style={{ fontFamily: INTER, fontSize: '0.75rem', fontWeight: 600, color: ACCENT }}>{formatPrice(service.price)}</span>
                         <div className="flex items-center gap-1">
                           <Star className="w-3 h-3" style={{ fill: '#F59E0B', color: '#F59E0B' }} />
                           <span style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.5)' }}>{service.rating}</span>
