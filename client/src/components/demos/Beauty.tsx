@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, memo } from "react";
+import { createPortal } from "react-dom";
 import { m, AnimatePresence } from "framer-motion";
 import {
   Heart, Star, ChevronLeft, ChevronRight, Sparkles, Calendar, Clock, User,
@@ -1133,6 +1134,7 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
   // ───────── CATALOG PAGE ─────────
   if (activeTab === 'catalog') {
     return (
+      <>
       <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ backgroundColor: BG }}>
         <DemoSidebar menuItems={sidebarMenuItems} isOpen={sidebar.isOpen} onClose={sidebar.close} onOpen={sidebar.open} accentColor={ACCENT} title="GLOW SPA" subtitle="Салон красоты" />
 
@@ -1356,6 +1358,9 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
           </div>
         )}
 
+      </div>
+
+      {createPortal(
         <AnimatePresence>
           {quickViewService && (
               <m.div
@@ -1500,8 +1505,10 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                 </m.div>
               </m.div>
           )}
-        </AnimatePresence>
-      </div>
+        </AnimatePresence>,
+        document.body
+      )}
+      </>
     );
   }
 
