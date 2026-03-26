@@ -996,6 +996,40 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
           </div>
         </div>
 
+        <div className="px-5 pt-6 pb-4">
+          <div className="flex items-end justify-between mb-5">
+            <div>
+              <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: ACCENT }}>Портфолио</span>
+              <h2 style={{ fontFamily: CORMORANT, fontSize: '1.6rem', fontWeight: 400, color: '#fff', marginTop: 4 }}>Наши <span style={{ fontStyle: 'italic' }}>работы</span></h2>
+            </div>
+          </div>
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="relative rounded-[20px] overflow-hidden cursor-pointer active:scale-[0.98]"
+            style={{ height: 220, transition: 'transform 0.15s ease' }}
+          >
+            <video
+              src={glowspaHeroVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            <div className="absolute bottom-4 left-4 right-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#EF4444' }} />
+                <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)' }}>Showreel</span>
+              </div>
+              <h3 style={{ fontFamily: CORMORANT, fontSize: '1.3rem', fontWeight: 500, color: '#fff', lineHeight: 1.2 }}>Атмосфера и стиль GlowSpa</h3>
+              <p style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>Уютный интерьер, профессиональная команда, результаты работ</p>
+            </div>
+          </m.div>
+        </div>
+
         <div className="px-5 py-8">
           <div className="flex items-end justify-between mb-5">
             <div>
