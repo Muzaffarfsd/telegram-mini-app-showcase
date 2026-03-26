@@ -15,6 +15,19 @@ import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
 import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
+import glowspaHeroImg from "@assets/glowspa_hero.jpg";
+import glowspaHaircutImg from "@assets/glowspa_haircut.jpg";
+import glowspaAirtouchImg from "@assets/glowspa_airtouch.jpg";
+import glowspaBalayageImg from "@assets/glowspa_balayage.jpg";
+import glowspaManicureImg from "@assets/glowspa_manicure.jpg";
+import glowspaFrenchImg from "@assets/glowspa_french.jpg";
+import glowspaPedicureImg from "@assets/glowspa_pedicure.jpg";
+import glowspaBotoxImg from "@assets/glowspa_botox.jpg";
+import glowspaFacialImg from "@assets/glowspa_facial.jpg";
+import glowspaMassageFaceImg from "@assets/glowspa_massage_face.jpg";
+import glowspaLashesImg from "@assets/glowspa_lashes.jpg";
+import glowspaMassageBodyImg from "@assets/glowspa_massage_body.jpg";
+import glowspaStylingImg from "@assets/glowspa_styling.jpg";
 
 const STORE_KEY = 'glowspa-store';
 
@@ -54,7 +67,7 @@ const services: Service[] = [
     name: 'Авторская стрижка',
     price: 4500,
     oldPrice: 5500,
-    image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=1200&fit=crop&q=90',
+    image: glowspaHaircutImg,
     description: 'Индивидуальный подбор формы с учётом типа лица, текстуры волос и образа жизни. Премиальная косметика Davines.',
     editorialNote: 'Каждая стрижка начинается с диалога. Мастер изучает структуру волос, овал лица, привычки укладки — и только потом берёт ножницы. Результат — форма, которая живёт и работает на вас.',
     category: 'Волосы',
@@ -72,7 +85,7 @@ const services: Service[] = [
     name: 'Окрашивание Airtouch',
     price: 12500,
     oldPrice: 15000,
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&h=1200&fit=crop&q=90',
+    image: glowspaAirtouchImg,
     description: 'Техника нового поколения. Воздушное осветление без резких границ. Естественные переливы и глубина цвета.',
     editorialNote: 'Airtouch — это искусство работы с воздухом. Мастер выдувает короткие волосы, оставляя только длинные для осветления. Результат — максимально натуральный, словно вы только вернулись из отпуска на побережье.',
     category: 'Волосы',
@@ -90,7 +103,7 @@ const services: Service[] = [
     id: 3,
     name: 'Балаяж',
     price: 9800,
-    image: 'https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=800&h=1200&fit=crop&q=90',
+    image: glowspaBalayageImg,
     description: 'Солнечные блики, созданные вручную. Авторская техника свободной руки для абсолютно натурального эффекта.',
     editorialNote: 'Балаяж в нашем салоне — это ручная живопись по волосам. Мастер наносит осветлитель широкими мазками, как художник — краску на холст. Каждая прядь уникальна.',
     category: 'Волосы',
@@ -109,7 +122,7 @@ const services: Service[] = [
     name: 'Люкс маникюр',
     price: 3200,
     oldPrice: 3800,
-    image: 'https://images.unsplash.com/photo-1604654894610-df63bc138bb9?w=800&h=1200&fit=crop&q=90',
+    image: glowspaManicureImg,
     description: 'Комбинированная техника с покрытием премиум гель-лаком. Стойкость до 4 недель. Бережный уход за кутикулой.',
     editorialNote: 'Мы не просто красим ногти — мы создаём завершённый образ. Каждый этап выполняется с хирургической точностью: от формирования архитектуры ногтя до финального слоя топа.',
     category: 'Ногти',
@@ -126,7 +139,7 @@ const services: Service[] = [
     id: 5,
     name: 'Френч ручной работы',
     price: 3800,
-    image: 'https://images.unsplash.com/photo-1610992015732-2449b2604950?w=800&h=1200&fit=crop&q=90',
+    image: glowspaFrenchImg,
     description: 'Безупречная линия улыбки, нарисованная вручную тонкой кистью. Классика, доведённая до совершенства.',
     editorialNote: 'Настоящий французский маникюр — это идеальная симметрия и белоснежная линия улыбки, которую можно нарисовать только рукой мастера. Никаких трафаретов, только опыт и точность.',
     category: 'Ногти',
@@ -142,7 +155,7 @@ const services: Service[] = [
     id: 6,
     name: 'SPA педикюр',
     price: 4200,
-    image: 'https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?w=800&h=1200&fit=crop&q=90',
+    image: glowspaPedicureImg,
     description: 'Полная программа ухода за стопами. Ароматерапия, пилинг, маска, массаж. Абсолютный комфорт.',
     editorialNote: 'SPA педикюр в GlowSpa — это 100 минут полного расслабления. Ванночка с эфирными маслами, пилинг с вулканической пемзой, питательная маска и массаж стоп.',
     category: 'Ногти',
@@ -160,7 +173,7 @@ const services: Service[] = [
     name: 'Ботокс для волос',
     price: 8500,
     oldPrice: 10000,
-    image: 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=800&h=1200&fit=crop&q=90',
+    image: glowspaBotoxImg,
     description: 'Интенсивная реконструкция повреждённых волос. Зеркальный блеск и шелковистость с первой процедуры.',
     editorialNote: 'Ботокс для волос — это не инъекции, а глубокое насыщение кератином и коллагеном. Состав проникает в структуру каждого волоса, заполняя пустоты и запечатывая кутикулу.',
     category: 'Волосы',
@@ -178,7 +191,7 @@ const services: Service[] = [
     name: 'Чистка лица HydraFacial',
     price: 6500,
     oldPrice: 7500,
-    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&h=1200&fit=crop&q=90',
+    image: glowspaFacialImg,
     description: 'Аппаратная чистка нового поколения. Глубокое очищение, увлажнение и защита за одну процедуру.',
     editorialNote: 'HydraFacial объединяет очищение, эксфолиацию, экстракцию и увлажнение в одном аппарате. Никакого покраснения, никакого восстановительного периода — только сияющая кожа сразу после процедуры.',
     category: 'Лицо',
@@ -195,7 +208,7 @@ const services: Service[] = [
     id: 9,
     name: 'Буккальный массаж',
     price: 5500,
-    image: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800&h=1200&fit=crop&q=90',
+    image: glowspaMassageFaceImg,
     description: 'Скульптурный массаж лица через ротовую полость. Мгновенный лифтинг без инъекций.',
     editorialNote: 'Буккальный массаж — это работа не только снаружи, но и изнутри. Мастер прорабатывает мышцы через щёки, снимая глубокие спазмы и возвращая овалу лица чёткость. Эффект виден после первого сеанса.',
     category: 'Лицо',
@@ -212,7 +225,7 @@ const services: Service[] = [
     id: 10,
     name: 'Наращивание ресниц',
     price: 5900,
-    image: 'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?w=800&h=1200&fit=crop&q=90',
+    image: glowspaLashesImg,
     description: 'Объём 2D–5D. Гипоаллергенные материалы. Естественный или драматический эффект на выбор.',
     editorialNote: 'Мы используем только шёлковые и норковые волокна премиум-класса. Каждая ресничка крепится индивидуально, повторяя направление роста натуральных ресниц.',
     category: 'Лицо',
@@ -229,7 +242,7 @@ const services: Service[] = [
     name: 'Массаж всего тела',
     price: 7500,
     oldPrice: 9000,
-    image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&h=1200&fit=crop&q=90',
+    image: glowspaMassageBodyImg,
     description: 'Классический расслабляющий массаж с натуральными маслами. Снятие мышечного напряжения и стресса.',
     editorialNote: 'Массаж в GlowSpa — это ритуал. Приглушённый свет, аромат эфирных масел, тёплые камни и руки мастера с 15-летним опытом. Вы забудете, где находитесь — и это лучший комплимент.',
     category: 'Тело',
@@ -246,7 +259,7 @@ const services: Service[] = [
     id: 12,
     name: 'Вечерняя укладка',
     price: 4500,
-    image: 'https://images.unsplash.com/photo-1560869713-7d0a29430803?w=800&h=1200&fit=crop&q=90',
+    image: glowspaStylingImg,
     description: 'Роскошный образ для особого случая. Стойкая фиксация. Консультация по стилю.',
     editorialNote: 'Свадьба, выпускной, гала-вечер — каждое событие заслуживает идеальной укладки. Мастер подберёт форму под наряд, украшения и формат мероприятия.',
     category: 'Волосы',
@@ -714,7 +727,7 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
         <div className="relative overflow-hidden" style={{ height: '70vh', minHeight: 420 }}>
           <div className="absolute inset-0">
             <LazyImage
-              src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1200&h=800&fit=crop&q=90"
+              src={glowspaHeroImg}
               alt="GlowSpa Salon"
               className="w-full h-full"
               priority
