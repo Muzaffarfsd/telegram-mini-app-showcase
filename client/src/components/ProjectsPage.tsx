@@ -1,6 +1,6 @@
-import { memo, useMemo, useRef, useState, useEffect } from "react";
+import { memo, useMemo, useRef, useState, useEffect, useCallback } from "react";
 import { demoApps } from "../data/demoApps";
-import { ArrowUpRight, ChevronRight } from "lucide-react";
+import { ArrowUpRight, ChevronRight, Play, Sparkles, UtensilsCrossed, Cpu } from "lucide-react";
 import { FavoritesSection } from "./FavoritesSection";
 import { FavoriteButton } from "./FavoriteButton";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -94,6 +94,186 @@ const APP_ICONS: Record<string, { emoji: string; grad: string }> = {
   'medical':           { emoji: '🏥', grad: 'linear-gradient(135deg, #0a1a1a, #0e2828)' },
 };
 const DEFAULT_ICON = { emoji: '📱', grad: 'linear-gradient(135deg, #111, #1a1a1a)' };
+
+interface FlagshipCardProps {
+  title: string;
+  subtitle: string;
+  description: string;
+  gradient: string;
+  accent: string;
+  icon: React.ReactNode;
+  videoSrc?: string;
+  imageSrc?: string;
+  demoId: string;
+  onOpen: (id: string) => void;
+  openLabel?: string;
+  edgeColor?: string;
+}
+
+const FlagshipCard = memo(({ title, subtitle, description, gradient, accent, icon, videoSrc, imageSrc, demoId, onOpen, openLabel = 'Open', edgeColor = '#1a2744' }: FlagshipCardProps) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const rm = prefersReducedMotion();
+
+  useEffect(() => {
+    if (!cardRef.current) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { setIsVisible(entry.isIntersecting); },
+      { threshold: 0.3 }
+    );
+    io.observe(cardRef.current);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (isVisible && videoSrc && !videoLoaded) {
+      setVideoLoaded(true);
+    }
+  }, [isVisible, videoSrc, videoLoaded]);
+
+  useEffect(() => {
+    if (!videoRef.current || rm) return;
+    if (isVisible) {
+      videoRef.current.play().catch(() => {});
+    } else {
+      videoRef.current.pause();
+    }
+  }, [isVisible, rm]);
+
+  const handleClick = useCallback(() => {
+    try {
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+      }
+    } catch (e) {}
+    onOpen(demoId);
+  }, [onOpen, demoId]);
+
+  return (
+    <div
+      ref={cardRef}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+      className="group cursor-pointer active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
+      style={{ borderRadius: 20, overflow: 'hidden', position: 'relative' }}
+    >
+      <div className="absolute inset-0" style={{ background: gradient }} />
+
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'linear-gradient(165deg, rgba(255,255,255,0.06) 0%, transparent 40%)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 'inherit',
+      }} />
+
+      <div className="relative z-10 flex" style={{ minHeight: 180 }}>
+        <div className="flex-1 flex flex-col justify-between p-5" style={{ minWidth: 0 }}>
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div style={{
+                width: 28, height: 28, borderRadius: 8,
+                background: `${accent}18`, border: `1px solid ${accent}30`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: accent,
+              }}>
+                {icon}
+              </div>
+              <span style={{
+                fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600,
+                letterSpacing: '0.08em', textTransform: 'uppercase' as const,
+                color: accent, opacity: 0.8,
+              }}>
+                {subtitle}
+              </span>
+            </div>
+
+            <h3 style={{
+              fontFamily: SYNE, fontSize: '1.15rem', fontWeight: 800,
+              color: '#fff', letterSpacing: '-0.03em', marginBottom: 6,
+            }}>
+              {title}
+            </h3>
+
+            <p style={{
+              fontFamily: INTER, fontSize: '0.68rem', lineHeight: 1.5,
+              color: 'rgba(255,255,255,0.4)', letterSpacing: '-0.01em',
+            }}>
+              {description}
+            </p>
+          </div>
+
+          <div className="mt-4 flex items-center gap-2">
+            <div
+              className="flex items-center gap-1.5"
+              style={{
+                padding: '7px 14px', borderRadius: 20,
+                background: `${accent}15`, border: `1px solid ${accent}25`,
+              }}
+            >
+              <span style={{
+                fontFamily: INTER, fontSize: '0.65rem', fontWeight: 600,
+                color: accent,
+              }}>
+                {openLabel}
+              </span>
+              <ArrowUpRight className="w-3 h-3" style={{ color: accent }} strokeWidth={2.2} />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative flex-shrink-0" style={{ width: 140, overflow: 'hidden' }}>
+          {videoSrc ? (
+            videoLoaded && !rm ? (
+              <video
+                ref={videoRef}
+                src={videoSrc}
+                muted
+                loop
+                playsInline
+                preload="none"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ opacity: 0.85 }}
+              />
+            ) : (
+              <div className="absolute inset-0" style={{ background: gradient, opacity: 0.6 }} />
+            )
+          ) : imageSrc ? (
+            <div className="absolute inset-0">
+              <img
+                src={imageSrc}
+                alt={title}
+                className="w-full h-full object-cover"
+                style={{ opacity: 0.7 }}
+                loading="lazy"
+              />
+            </div>
+          ) : null}
+
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background: `linear-gradient(90deg, ${edgeColor} 0%, transparent 40%)`,
+          }} />
+
+          {videoSrc && (
+            <div className="absolute bottom-3 right-3 flex items-center gap-1 px-2 py-1" style={{
+              borderRadius: 12, background: 'rgba(0,0,0,0.5)',
+              border: '1px solid rgba(255,255,255,0.1)',
+            }}>
+              <Play className="w-2.5 h-2.5" style={{ color: accent }} fill={accent} />
+              <span style={{ fontFamily: INTER, fontSize: '0.55rem', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>
+                LIVE
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+FlagshipCard.displayName = 'FlagshipCard';
 
 const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id: string) => void, t: any, index: number }) => {
   const handleCardClick = () => {
@@ -330,6 +510,87 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                 cardHeight={380}
               />
             </Cin>
+          </section>
+
+          {/* ═══════ OUR WORKS — FLAGSHIP DEMOS ═══════ */}
+          <section className="px-5 py-10">
+            <Cin className="mb-6">
+              <div className="flex items-end justify-between">
+                <div>
+                  <span style={{
+                    fontFamily: SYNE, fontSize: '0.6875rem',
+                    fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' as const,
+                    color: 'rgba(255,255,255,0.25)', display: 'block', marginBottom: 8,
+                  }}>
+                    {ru ? 'наши работы' : 'our works'}
+                  </span>
+                  <h2 style={{
+                    fontFamily: SYNE, fontSize: 'clamp(1.3rem, 4.5vw, 1.7rem)',
+                    fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1.1,
+                  }}>
+                    {ru ? 'Флагманские' : 'Flagship'}
+                    <br />
+                    <span style={{
+                      fontFamily: INSTRUMENT, fontStyle: 'italic',
+                      background: `linear-gradient(135deg, ${EMERALD}, #a7f3d0)`,
+                      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                    }}>
+                      {ru ? 'проекты' : 'projects'}
+                    </span>
+                  </h2>
+                </div>
+              </div>
+            </Cin>
+
+            <div className="space-y-3">
+              <Cin delay={0.05}>
+                <FlagshipCard
+                  title="GlowSpa"
+                  subtitle={ru ? 'Салон красоты' : 'Beauty Salon'}
+                  description={ru ? 'Премиум запись на процедуры, портфолио мастеров и онлайн-консультации' : 'Premium booking, artist portfolios & online consultations'}
+                  gradient="linear-gradient(145deg, #2a1230 0%, #1e0a1e 40%, #12061a 100%)"
+                  accent="#e879a8"
+                  icon={<Sparkles className="w-4 h-4" />}
+                  videoSrc="/videos/glowspa_showreel.mp4"
+                  edgeColor="#2a1230"
+                  demoId="beauty"
+                  onOpen={onOpenDemo}
+                  openLabel={ru ? 'Открыть' : 'Open'}
+                />
+              </Cin>
+
+              <Cin delay={0.1}>
+                <FlagshipCard
+                  title="Deluxe Dine"
+                  subtitle={ru ? 'Ресторан' : 'Restaurant'}
+                  description={ru ? 'Бронирование столов, меню от шеф-повара и система лояльности' : 'Table reservations, chef menu & loyalty system'}
+                  gradient="linear-gradient(145deg, #2a2010 0%, #1a1408 40%, #100c04 100%)"
+                  accent="#f5c842"
+                  icon={<UtensilsCrossed className="w-4 h-4" />}
+                  imageSrc="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80"
+                  edgeColor="#2a2010"
+                  demoId="restaurant"
+                  onOpen={onOpenDemo}
+                  openLabel={ru ? 'Открыть' : 'Open'}
+                />
+              </Cin>
+
+              <Cin delay={0.15}>
+                <FlagshipCard
+                  title="TechStore"
+                  subtitle={ru ? 'Электроника' : 'Electronics'}
+                  description={ru ? 'Каталог техники Apple, умные рекомендации и мгновенная оплата' : 'Apple catalog, smart recommendations & instant checkout'}
+                  gradient="linear-gradient(145deg, #1a2744 0%, #0a1628 40%, #060e1a 100%)"
+                  accent="#2997FF"
+                  icon={<Cpu className="w-4 h-4" />}
+                  videoSrc="/videos/techstore_2025.mp4"
+                  edgeColor="#1a2744"
+                  demoId="electronics"
+                  onOpen={onOpenDemo}
+                  openLabel={ru ? 'Открыть' : 'Open'}
+                />
+              </Cin>
+            </div>
           </section>
 
           {/* ═══════ SOCIAL PROOF STRIP ═══════ */}
