@@ -653,7 +653,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
                   gradient="linear-gradient(145deg, #2a2418 0%, #1a1610 40%, #100e08 100%)"
                   accent="#fbbf24"
                   icon={<Watch className="w-4 h-4" />}
-                  imageSrc="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=600&q=80"
+                  videoSrc="/videos/timeelite_hero.mp4"
                   edgeColor="#2a2418"
                   demoId="luxury-watches"
                   onOpen={onOpenDemo}
