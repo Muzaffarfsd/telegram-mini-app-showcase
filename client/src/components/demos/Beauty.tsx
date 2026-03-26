@@ -1357,11 +1357,9 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
         )}
 
         <AnimatePresence>
-          {quickViewService && (() => {
-            const qvCatCfg = categoryConfig[quickViewService.category];
-            const qvAccent = qvCatCfg?.color ?? ACCENT;
-            return (
+          {quickViewService && (
               <m.div
+                key="quickview-overlay"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -1405,7 +1403,7 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                         <LazyImage src={quickViewService.image} alt={quickViewService.name} className="w-full h-full object-cover" />
                       </div>
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: '2px', minWidth: 0 }}>
-                        <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: qvAccent, marginBottom: '7px', fontFamily: INTER }}>
+                        <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: categoryConfig[quickViewService.category]?.color ?? ACCENT, marginBottom: '7px', fontFamily: INTER }}>
                           {quickViewService.category}
                         </p>
                         <h3 style={{ fontSize: '21px', fontWeight: 300, fontStyle: 'italic', fontFamily: CORMORANT, letterSpacing: '0.03em', color: 'rgba(255,255,255,0.95)', lineHeight: 1.15, marginBottom: '10px' }}>
@@ -1438,7 +1436,7 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                       </p>
                       <div className="grid grid-cols-3 gap-2">
                         <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
-                          <Clock className="w-4 h-4 mx-auto mb-1.5" style={{ color: qvAccent }} />
+                          <Clock className="w-4 h-4 mx-auto mb-1.5" style={{ color: categoryConfig[quickViewService.category]?.color ?? ACCENT }} />
                           <p style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.8)', fontFamily: INTER }}>{quickViewService.duration}</p>
                           <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', fontFamily: INTER, marginTop: 2 }}>Время</p>
                         </div>
@@ -1501,8 +1499,7 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                   </div>
                 </m.div>
               </m.div>
-            );
-          })()}
+          )}
         </AnimatePresence>
       </div>
     );
