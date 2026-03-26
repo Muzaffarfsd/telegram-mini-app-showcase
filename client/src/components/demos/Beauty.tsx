@@ -5,7 +5,7 @@ import {
   Gift, MapPin, Search, ShoppingBag, Settings,
   Home, Grid, Tag, Scissors, Droplets, Flower2, Hand,
   Truck, ShieldCheck, RotateCcw, X, Check, Phone, ArrowUpDown,
-  Award, Crown, ChevronDown, Filter
+  Award, Crown, ChevronDown, Filter, Eye
 } from "lucide-react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { LazyImage, DemoThemeProvider } from "@/components/shared";
@@ -440,6 +440,7 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('popular');
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [quickViewService, setQuickViewService] = useState<typeof services[0] | null>(null);
   const productScrollRef = useRef<HTMLDivElement>(null);
   const heroImageRef = useRef<HTMLDivElement>(null);
 
@@ -1235,7 +1236,14 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                       </span>
                     </div>
 
-                    <div className="absolute top-3.5 right-3.5" onClick={e => e.stopPropagation()}>
+                    <div className="absolute top-3.5 right-3.5 flex gap-1.5" onClick={e => e.stopPropagation()}>
+                      <button
+                        onClick={() => setQuickViewService(featured)}
+                        className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                        style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
+                      >
+                        <Eye className="w-3.5 h-3.5 text-white" />
+                      </button>
                       <button
                         onClick={() => handleToggleFavorite(featured.id)}
                         className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
@@ -1291,13 +1299,20 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                               <LazyImage src={service.image} alt={service.name} className="w-full h-full object-cover" />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
 
-                              <div className="absolute top-2 right-2">
+                              <div className="absolute top-2 right-2 flex flex-col gap-1.5">
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleToggleFavorite(service.id); }}
                                   className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
                                   style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
                                 >
                                   <Heart className="w-3 h-3" style={isFavorite(String(service.id)) ? { fill: ACCENT, color: ACCENT } : { color: 'white' }} />
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setQuickViewService(service); }}
+                                  className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                                  style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
+                                >
+                                  <Eye className="w-3 h-3 text-white" />
                                 </button>
                               </div>
 
@@ -1340,6 +1355,155 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
             })()}
           </div>
         )}
+
+        <AnimatePresence>
+          {quickViewService && (() => {
+            const qvCatCfg = categoryConfig[quickViewService.category];
+            const qvAccent = qvCatCfg?.color ?? ACCENT;
+            return (
+              <m.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 z-[100] flex items-end justify-center"
+                style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+                onClick={() => setQuickViewService(null)}
+              >
+                <m.div
+                  initial={{ opacity: 0, y: 100, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 100, scale: 0.95 }}
+                  transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] as number[] }}
+                  className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    border: '0.5px solid rgba(255,255,255,0.15)',
+                    boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
+                    maxHeight: '70vh',
+                    paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 140px)',
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex justify-center pt-3 pb-2">
+                    <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.3)' }} />
+                  </div>
+
+                  <button
+                    onClick={() => setQuickViewService(null)}
+                    className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10"
+                    style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}
+                  >
+                    <X className="w-4 h-4 text-white" />
+                  </button>
+
+                  <div className="px-5 pb-6 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 60px)' }}>
+                    <div style={{ display: 'flex', gap: '14px', marginBottom: '20px' }}>
+                      <div style={{ width: '110px', flexShrink: 0, borderRadius: '16px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', aspectRatio: '2/3' }}>
+                        <LazyImage src={quickViewService.image} alt={quickViewService.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: '2px', minWidth: 0 }}>
+                        <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: qvAccent, marginBottom: '7px', fontFamily: INTER }}>
+                          {quickViewService.category}
+                        </p>
+                        <h3 style={{ fontSize: '21px', fontWeight: 300, fontStyle: 'italic', fontFamily: CORMORANT, letterSpacing: '0.03em', color: 'rgba(255,255,255,0.95)', lineHeight: 1.15, marginBottom: '10px' }}>
+                          {quickViewService.name}
+                        </h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginBottom: '14px' }}>
+                          {[1,2,3,4,5].map(s => (
+                            <Star key={s} style={{ width: '11px', height: '11px' }}
+                              fill={s <= Math.round(quickViewService.rating) ? 'rgba(255,255,255,0.85)' : 'transparent'}
+                              stroke={s <= Math.round(quickViewService.rating) ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
+                            />
+                          ))}
+                          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginLeft: '3px', fontFamily: INTER }}>
+                            {quickViewService.rating}
+                          </span>
+                        </div>
+                        <div style={{ marginTop: 'auto' }}>
+                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: INTER, color: '#fff' }}>
+                            {formatPrice(quickViewService.price)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', marginBottom: '18px' }} />
+
+                    <div style={{ marginBottom: '16px' }}>
+                      <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: INTER }}>
+                        Детали
+                      </p>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
+                          <Clock className="w-4 h-4 mx-auto mb-1.5" style={{ color: qvAccent }} />
+                          <p style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.8)', fontFamily: INTER }}>{quickViewService.duration}</p>
+                          <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', fontFamily: INTER, marginTop: 2 }}>Время</p>
+                        </div>
+                        <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
+                          <Star className="w-4 h-4 mx-auto mb-1.5" style={{ color: '#F59E0B' }} />
+                          <p style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.8)', fontFamily: INTER }}>{quickViewService.rating}</p>
+                          <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', fontFamily: INTER, marginTop: 2 }}>Рейтинг</p>
+                        </div>
+                        <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
+                          <Heart className="w-4 h-4 mx-auto mb-1.5" style={{ color: '#EF4444' }} />
+                          <p style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.8)', fontFamily: INTER }}>{quickViewService.reviewCount}</p>
+                          <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', fontFamily: INTER, marginTop: 2 }}>Отзывы</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: '22px' }}>
+                      <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: INTER }}>
+                        Описание
+                      </p>
+                      <p style={{ fontSize: '13px', lineHeight: 1.6, color: 'rgba(255,255,255,0.6)', fontFamily: INTER }}>
+                        {quickViewService.description}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        addToCartPersistent({
+                          id: String(quickViewService.id),
+                          name: quickViewService.name,
+                          price: quickViewService.price,
+                          image: quickViewService.image,
+                          color: quickViewService.category,
+                        });
+                        toast({ title: 'Добавлено в записи', description: `${quickViewService.name} • ${quickViewService.duration}`, duration: 2000 });
+                        setQuickViewService(null);
+                      }}
+                      className="w-full active:scale-[0.98] transition-all"
+                      style={{
+                        height: '52px', borderRadius: '14px', background: ACCENT, color: BG,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                        boxShadow: `0 4px 20px ${ACCENT}40`,
+                        marginBottom: '10px',
+                      }}
+                    >
+                      <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: INTER }}>ЗАПИСАТЬСЯ</span>
+                      <span style={{ width: '1px', height: '16px', background: 'rgba(0,0,0,0.2)' }} />
+                      <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', fontFamily: INTER }}>
+                        {formatPrice(quickViewService.price)}
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => { openService(quickViewService); setQuickViewService(null); }}
+                      className="w-full py-3 transition-all active:opacity-70"
+                      style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontFamily: INTER, letterSpacing: '0.02em' }}
+                    >
+                      Смотреть полностью →
+                    </button>
+                  </div>
+                </m.div>
+              </m.div>
+            );
+          })()}
+        </AnimatePresence>
       </div>
     );
   }
