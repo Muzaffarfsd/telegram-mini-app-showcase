@@ -712,11 +712,14 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
         <DemoSidebar menuItems={sidebarMenuItems} isOpen={sidebar.isOpen} onClose={sidebar.close} onOpen={sidebar.open} accentColor={ACCENT} title="GLOW SPA" subtitle="Салон красоты" />
 
         <div className="relative overflow-hidden" style={{ height: '70vh', minHeight: 420 }}>
-          <LazyImage
-            src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1200&h=800&fit=crop&q=90"
-            alt="GlowSpa Salon"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <div className="absolute inset-0">
+            <LazyImage
+              src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1200&h=800&fit=crop&q=90"
+              alt="GlowSpa Salon"
+              className="w-full h-full"
+              priority
+            />
+          </div>
           <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(12,10,9,0.3) 0%, rgba(12,10,9,0.1) 30%, rgba(12,10,9,0.6) 70%, #0C0A09 100%)' }} />
 
           <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-5 demo-nav-safe">
@@ -774,7 +777,7 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
                 style={{ height: idx === 0 ? 320 : 240, transition: 'transform 0.15s ease' }}
                 onClick={() => openService(service)}
               >
-                <LazyImage src={service.image} alt={service.name} className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0"><LazyImage src={service.image} alt={service.name} className="w-full h-full" /></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                 <div className="absolute top-3.5 left-3.5 flex gap-2">
