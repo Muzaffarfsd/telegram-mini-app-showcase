@@ -1,60 +1,24 @@
-import { useState, useEffect, useMemo, memo, useCallback } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
+import React, { useState, useMemo, useRef, useEffect, memo } from "react";
+import { createPortal } from "react-dom";
 import { m, AnimatePresence } from "framer-motion";
-import { 
-  Smartphone, 
-  Heart, 
-  Star, 
-  ShoppingCart, 
-  X,
-  Zap,
-  TrendingUp,
-  Monitor,
-  Headphones,
-  Camera,
-  Sparkles,
-  Package,
-  User,
-  Settings,
-  LogOut,
-  CreditCard,
-  MapPin,
-  ChevronLeft,
-  Cpu,
-  Battery,
-  Wifi,
-  Search,
-  Filter,
-  Menu,
-  Home,
-  Grid,
-  Tag,
-  ShoppingBag,
-  Plus,
-  Minus,
-  Shield,
-  Check,
-  Box,
-  Eye,
-  Bluetooth,
-  Usb,
-  Nfc,
-  BarChart3,
-  ChevronDown,
-  ChevronUp
+import {
+  Heart, Star, ChevronRight, ChevronLeft, Clock, User,
+  Search, ShoppingBag, Settings,
+  Home, Grid, Smartphone, Monitor, Headphones, Camera,
+  X, Phone, Award, Crown, Eye, Package, Cpu, Battery,
+  Shield, Wifi, Zap, Box, Tablet, Watch, Speaker,
+  Gamepad2, Airplay, ChevronDown
 } from "lucide-react";
-import { ConfirmDrawer } from "../ui/modern-drawer";
-import { Skeleton } from "../ui/skeleton";
-import { useFilter } from "@/hooks/useFilter";
-import { scrollToTop } from "@/hooks/useScrollToTop";
+
+import { LazyImage, DemoThemeProvider } from "@/components/shared";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { usePersistentCart } from "@/hooks/usePersistentCart";
 import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
 import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
-import { EmptyState } from "@/components/shared/EmptyState";
-import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
+
 import iphone15ProMaxImage from "@assets/iphone_15_pro_max.jpg";
 import samsungS24UltraImage from "@assets/samsung_s24_ultra.jpg";
 import macbookPro16Image from "@assets/macbook_pro_16.jpg";
@@ -63,15 +27,31 @@ import ipadPro12Image from "@assets/ipad_pro_12.jpg";
 import sonyWh1000xm5Image from "@assets/sony_wh1000xm5.jpg";
 import airpodsPro2Image from "@assets/airpods_pro_2.jpg";
 import sonyAlphaA7ivImage from "@assets/sony_alpha_a7iv.jpg";
-
-const techStoreVideo = "/videos/techstore_2025.mp4";
+import techWatchImage from "@assets/tech_watch_ultra.jpg";
+import techVisionImage from "@assets/tech_vision_pro.jpg";
+import techAirpodsMaxImage from "@assets/tech_airpods_max.jpg";
+import techHomepodImage from "@assets/tech_homepod.jpg";
+import techPs5Image from "@assets/tech_ps5.jpg";
+import techDroneImage from "@assets/tech_drone.jpg";
+import techMacbookAirImage from "@assets/tech_macbook_air.jpg";
+import techSpeakerImage from "@assets/tech_speaker.jpg";
 
 interface ElectronicsProps {
   activeTab: 'home' | 'catalog' | 'cart' | 'profile';
   onTabChange?: (tab: string) => void;
 }
 
-const STORE_KEY = 'electronics-store';
+const SF = "'Inter', -apple-system, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif";
+const ACCENT = '#2997FF';
+const ACCENT_DARK = '#0071E3';
+const BG = '#000000';
+const BG_SEC = '#1D1D1F';
+const BG_CARD = '#161617';
+const GLASS = 'rgba(255,255,255,0.04)';
+const GLASS_BORDER = 'rgba(255,255,255,0.08)';
+const TEXT = '#F5F5F7';
+const TEXT_SEC = '#86868B';
+const TEXT_TER = '#6E6E73';
 
 interface Product {
   id: number;
@@ -79,1993 +59,1361 @@ interface Product {
   price: number;
   oldPrice?: number;
   image: string;
-  hoverImage: string;
   description: string;
+  tagline: string;
   category: string;
   brand: string;
-  inStock: number;
   rating: number;
-  specs: string[];
-  warranty: string;
-  connectivity: string[];
-  boxContents: string[];
+  specs: { label: string; value: string }[];
+  features: string[];
+  color: string;
   isNew?: boolean;
-  isTrending?: boolean;
+  isFeatured?: boolean;
 }
 
+const CATEGORY_MAP: Record<string, { icon: React.ElementType; emoji: string }> = {
+  'Смартфоны': { icon: Smartphone, emoji: '📱' },
+  'Ноутбуки': { icon: Monitor, emoji: '💻' },
+  'Планшеты': { icon: Tablet, emoji: '📟' },
+  'Наушники': { icon: Headphones, emoji: '🎧' },
+  'Камеры': { icon: Camera, emoji: '📷' },
+  'Часы': { icon: Watch, emoji: '⌚' },
+  'Аксессуары': { icon: Speaker, emoji: '🔊' },
+  'Гейминг': { icon: Gamepad2, emoji: '🎮' },
+};
+
 const products: Product[] = [
-  { 
-    id: 1, 
-    name: 'iPhone 15 Pro Max', 
-    price: 109900, 
-    oldPrice: 129900, 
-    image: iphone15ProMaxImage, 
-    hoverImage: iphone15ProMaxImage,
-    description: 'Флагманский смартфон с революционным процессором A17 Pro, открывающим эру мобильных игр AAA-класса с консольной графикой и рейтрейсингом. Дисплей Super Retina XDR 6.7 дюйма с технологией ProMotion обеспечивает плавность 120Hz и невероятную цветопередачу HDR с пиковой яркостью 2000 нит. Титановый корпус aerospace-класса на 19% легче стали при максимальной прочности, защищён керамическим покрытием Ceramic Shield. Профессиональная камера 48MP с сенсором нового поколения снимает в ProRAW и ProRes для кинематографического качества контента.', 
-    category: 'Смартфоны', 
-    brand: 'Apple', 
-    inStock: 15, 
-    rating: 4.9, 
-    specs: ['6.7" Super Retina XDR', 'A17 Pro чип', '256GB накопитель', '48MP камера', 'Титановый корпус'],
-    warranty: '2 года официальной гарантии Apple',
-    connectivity: ['5G', 'Wi-Fi 6E', 'Bluetooth 5.3', 'USB-C', 'NFC'],
-    boxContents: ['iPhone 15 Pro Max', 'Кабель USB-C', 'Документация'],
-    isNew: true, 
-    isTrending: true 
+  {
+    id: 1, name: 'iPhone 16 Pro Max', price: 129990, oldPrice: 149990, image: iphone15ProMaxImage,
+    tagline: 'Титан. Так закалён. Так Pro.',
+    description: 'Революционный чип A18 Pro с 3-нм техпроцессом открывает эру мобильного ИИ — от генеративных моделей прямо на устройстве до профессиональной съёмки пространственного видео для Apple Vision Pro. Камера 48MP Fusion с сенсором нового поколения Sony IMX903 захватывает на 40% больше света. Дисплей Super Retina XDR 6.9" с ProMotion 120Hz и яркостью 2000 нит в HDR. Титановый корпус Grade 5 — на 19% легче нержавеющей стали при максимальной прочности. USB-C с Thunderbolt 4 для профессиональных рабочих процессов.',
+    category: 'Смартфоны', brand: 'Apple', rating: 4.9, color: '#48484A',
+    specs: [
+      { label: 'Дисплей', value: '6.9" Super Retina XDR' },
+      { label: 'Чип', value: 'A18 Pro 3nm' },
+      { label: 'Камера', value: '48MP Fusion' },
+      { label: 'Память', value: '256GB — 1TB' },
+      { label: 'Батарея', value: 'До 33 часов' },
+      { label: 'Корпус', value: 'Титан Grade 5' }
+    ],
+    features: ['Apple Intelligence', 'ProRes 4K 120fps', 'Spatial Video', 'Action Button', 'Ceramic Shield', 'USB-C Thunderbolt'],
+    isNew: true, isFeatured: true
   },
-  { 
-    id: 2, 
-    name: 'Samsung Galaxy S24 Ultra', 
-    price: 99900, 
-    oldPrice: 119900, 
-    image: samsungS24UltraImage, 
-    hoverImage: samsungS24UltraImage,
-    description: 'Премиальный смартфон с интегрированным Galaxy AI, который мгновенно переводит разговоры в реальном времени и генерирует профессиональный контент по запросу. Дисплей Dynamic AMOLED 2X диагональю 6.8 дюйма с разрешением QHD+ и яркостью 2600 нит идеален для работы даже под прямыми солнечными лучами. Титановая рамка Grade 5 обеспечивает премиальную эстетику и исключительную долговечность при интенсивном ежедневном использовании. Камера 200MP с 100-кратным Space Zoom и продвинутой OIS снимает детализированные фото даже в условиях экстремально слабого освещения.', 
-    category: 'Смартфоны', 
-    brand: 'Samsung', 
-    inStock: 12, 
-    rating: 4.8, 
-    specs: ['6.8" Dynamic AMOLED', 'Snapdragon 8 Gen 3', '512GB памяти', '200MP камера', 'S Pen в комплекте'],
-    warranty: '2 года официальной гарантии Samsung',
-    connectivity: ['5G', 'Wi-Fi 7', 'Bluetooth 5.3', 'USB-C 3.2', 'UWB'],
-    boxContents: ['Galaxy S24 Ultra', 'S Pen', 'Кабель USB-C', 'Документация'],
-    isNew: true, 
-    isTrending: true 
+  {
+    id: 2, name: 'MacBook Pro 16" M4 Max', price: 299990, image: macbookPro16Image,
+    tagline: 'Безумная мощь. Безумная автономность.',
+    description: 'Чип M4 Max с 16-ядерным CPU и 40-ядерным GPU обеспечивает производительность уровня рабочей станции. Дисплей Liquid Retina XDR 16.2" с технологией nano-texture и яркостью 1600 нит HDR передаёт миллиард оттенков. Унифицированная память до 128GB и SSD до 8TB для работы с проектами 8K, нейросетями и 3D-рендерингом. До 24 часов автономной работы — полный рабочий марафон без розетки.',
+    category: 'Ноутбуки', brand: 'Apple', rating: 4.9, color: '#2D2D2D',
+    specs: [
+      { label: 'Дисплей', value: '16.2" Liquid Retina XDR' },
+      { label: 'Чип', value: 'M4 Max' },
+      { label: 'Память', value: 'До 128GB unified' },
+      { label: 'SSD', value: 'До 8TB' },
+      { label: 'Батарея', value: 'До 24 часов' },
+      { label: 'Порты', value: 'Thunderbolt 5 ×3' }
+    ],
+    features: ['Thunderbolt 5', 'HDMI 2.1', 'MagSafe 3', 'Wi-Fi 7', 'ProMotion 120Hz', 'Nano-texture'],
+    isFeatured: true
   },
-  { 
-    id: 3, 
-    name: 'MacBook Pro 16"', 
-    price: 249900, 
-    image: macbookPro16Image, 
-    hoverImage: macbookPro16Image,
-    description: 'Профессиональный ноутбук с чипом M3 Max, обеспечивающим производительность настольной рабочей станции в ультрапортативном корпусе весом 2.14 кг. Дисплей Liquid Retina XDR 16.2 дюйма с технологией ProMotion и яркостью 1600 нит HDR передаёт миллиард оттенков для профессиональной цветокоррекции. Унифицированная память 32GB и сверхбыстрый SSD 1TB позволяют работать с проектами 8K, нейросетями и 3D-рендерингом абсолютно без задержек. До 22 часов автономной работы — полный рабочий день без подзарядки даже при самых интенсивных вычислительных нагрузках.', 
-    category: 'Ноутбуки', 
-    brand: 'Apple', 
-    inStock: 8, 
-    rating: 4.9, 
-    specs: ['16.2" Liquid Retina XDR', 'M3 Max чип', '32GB unified memory', '1TB SSD', '22 часа работы'],
-    warranty: '1 год официальной гарантии Apple',
-    connectivity: ['Thunderbolt 4', 'HDMI 2.1', 'Wi-Fi 6E', 'Bluetooth 5.3', 'MagSafe 3'],
-    boxContents: ['MacBook Pro 16"', 'Адаптер питания 140W', 'Кабель USB-C', 'Документация'],
-    isTrending: true 
+  {
+    id: 3, name: 'iPad Pro M4', price: 119990, image: ipadPro12Image,
+    tagline: 'Невероятно тонкий. Невероятно мощный.',
+    description: 'Самый тонкий продукт Apple в истории — всего 5.1 мм. Чип M4 с 10-ядерным GPU опережает любой планшет на рынке. Дисплей Ultra Retina XDR с tandem OLED — яркость 1600 нит HDR и абсолютно чёрный цвет. Apple Pencil Pro с тактильной отдачей и сенсором сжатия для новых жестов. Thunderbolt/USB 4 для подключения внешних мониторов 6K и профессиональных аксессуаров.',
+    category: 'Планшеты', brand: 'Apple', rating: 4.8, color: '#3A3A3C',
+    specs: [
+      { label: 'Дисплей', value: '13" Ultra Retina XDR' },
+      { label: 'Чип', value: 'M4' },
+      { label: 'Толщина', value: '5.1 мм' },
+      { label: 'Камера', value: '12MP Ultra Wide' },
+      { label: 'Батарея', value: 'До 10 часов' },
+      { label: 'Стилус', value: 'Apple Pencil Pro' }
+    ],
+    features: ['tandem OLED', 'Face ID', 'Apple Pencil Pro', 'Magic Keyboard', 'Thunderbolt', 'LiDAR'],
+    isNew: true, isFeatured: true
   },
-  { 
-    id: 4, 
-    name: 'Dell XPS 15', 
-    price: 129900, 
-    image: dellXps15Image, 
-    hoverImage: dellXps15Image,
-    description: 'Ультрабук премиум-класса с OLED-дисплеем 3.5K, отображающим миллиард оттенков с бесконечной контрастностью и абсолютно чёрным цветом. Процессор Intel Core i7-13700H 13-го поколения с 14 ядрами обеспечивает молниеносную многозадачность и профессиональную производительность. Дискретная графика NVIDIA GeForce RTX 4050 справляется с видеомонтажом 4K, 3D-моделированием и современными играми в высоком разрешении. Цельноалюминиевый корпус с безрамочным дизайном InfinityEdge весит всего 1.86 кг, превращая полноценную рабочую станцию в мобильный офис.', 
-    category: 'Ноутбуки', 
-    brand: 'Dell', 
-    inStock: 10, 
-    rating: 4.7, 
-    specs: ['15.6" OLED 3.5K', 'Intel Core i7-13700H', '16GB DDR5', '512GB NVMe SSD', 'NVIDIA RTX 4050'],
-    warranty: '2 года официальной гарантии Dell',
-    connectivity: ['Thunderbolt 4', 'USB-C 3.2', 'Wi-Fi 6E', 'Bluetooth 5.3', 'SD-картридер'],
-    boxContents: ['Dell XPS 15', 'Адаптер питания 130W', 'USB-C кабель', 'Документация'] 
+  {
+    id: 4, name: 'AirPods Pro 2', price: 24990, image: airpodsPro2Image,
+    tagline: 'Адаптивное аудио. Магическое.',
+    description: 'Чип H2 с адаптивным шумоподавлением, которое в реальном времени подстраивается под окружающую среду. Пространственное аудио с персонализированным трекингом головы создаёт эффект Dolby Atmos вокруг вас. Адаптивная прозрачность подавляет резкие шумы мгновенно, сохраняя голоса собеседников. До 6 часов слушания + 30 часов с кейсом. USB-C кейс с точным поиском через Find My.',
+    category: 'Наушники', brand: 'Apple', rating: 4.8, color: '#E8E8ED',
+    specs: [
+      { label: 'Чип', value: 'Apple H2' },
+      { label: 'ANC', value: '2× эффективнее' },
+      { label: 'Батарея', value: '6ч + 30ч кейс' },
+      { label: 'Защита', value: 'IP54' },
+      { label: 'Зарядка', value: 'USB-C / MagSafe' },
+      { label: 'Аудио', value: 'Lossless с кабелем' }
+    ],
+    features: ['Adaptive Audio', 'Spatial Audio', 'Conversation Awareness', 'Personalized Volume', 'Find My', 'USB-C'],
+    isFeatured: true
   },
-  { 
-    id: 5, 
-    name: 'iPad Pro 12.9"', 
-    price: 109900, 
-    image: ipadPro12Image, 
-    hoverImage: ipadPro12Image,
-    description: 'Профессиональный планшет с чипом M2, превосходящим по мощности большинство ноутбуков и открывающим безграничные возможности для творчества. Дисплей Liquid Retina XDR 12.9 дюйма с mini-LED подсветкой обеспечивает яркость 1600 нит HDR и контрастность 1000000:1 для профессиональной работы с цветом и HDR-контентом. Поддержка Apple Pencil 2-го поколения с минимальной задержкой и распознаванием наклона превращает планшет в идеальный цифровой холст для художников и дизайнеров. Thunderbolt-порт USB-C позволяет подключать внешние мониторы 6K, профессиональные аудиоинтерфейсы и скоростные накопители со скоростью до 40 Гбит/с.', 
-    category: 'Планшеты', 
-    brand: 'Apple', 
-    inStock: 14, 
-    rating: 4.8, 
-    specs: ['12.9" Liquid Retina XDR', 'M2 чип', '128GB памяти', 'Apple Pencil (2-го поколения)', 'Face ID'],
-    warranty: '1 год официальной гарантии Apple',
-    connectivity: ['5G', 'Wi-Fi 6E', 'Bluetooth 5.3', 'USB-C Thunderbolt'],
-    boxContents: ['iPad Pro 12.9"', 'Кабель USB-C', 'Адаптер питания 20W', 'Документация'],
-    isNew: true 
+  {
+    id: 5, name: 'Samsung Galaxy S24 Ultra', price: 109990, oldPrice: 129990, image: samsungS24UltraImage,
+    tagline: 'Galaxy AI. Новая эра мобильности.',
+    description: 'Galaxy AI встроен в каждый аспект — мгновенный перевод звонков, генеративная обработка фото, умный поиск обведением экрана. Snapdragon 8 Gen 3 for Galaxy — эксклюзивная версия с усиленным NPU для ИИ-задач. Камера 200MP с 100× Space Zoom и ночной съёмкой нового поколения. Титановая рамка Grade 5 и S Pen с нулевой задержкой.',
+    category: 'Смартфоны', brand: 'Samsung', rating: 4.8, color: '#3C3C3E',
+    specs: [
+      { label: 'Дисплей', value: '6.8" Dynamic AMOLED 2X' },
+      { label: 'Чип', value: 'Snapdragon 8 Gen 3' },
+      { label: 'Камера', value: '200MP + 100× Zoom' },
+      { label: 'Память', value: '512GB' },
+      { label: 'Батарея', value: '5000 мАч' },
+      { label: 'Стилус', value: 'S Pen встроен' }
+    ],
+    features: ['Galaxy AI', 'Circle to Search', 'Live Translate', 'S Pen', '100× Space Zoom', 'Titanium Frame'],
+    isNew: true
   },
-  { 
-    id: 6, 
-    name: 'Sony WH-1000XM5', 
-    price: 35900, 
-    image: sonyWh1000xm5Image, 
-    hoverImage: sonyWh1000xm5Image,
-    description: 'Беспроводные наушники с активным шумоподавлением нового поколения на базе двух процессоров и восьми микрофонов для создания идеального кокона тишины. Кастомные 30-миллиметровые драйверы с диафрагмой из углеродного волокна воспроизводят частоты от 4Hz до 40kHz с кристальной чистотой и глубокими басами. Амбушюры из сверхмягкой синтетической кожи с эффектом памяти обеспечивают исключительный комфорт при многочасовых сессиях прослушивания без усталости. До 30 часов автономной работы с включенным ANC, а 3 минуты быстрой зарядки дают 3 часа воспроизведения для экстренных ситуаций.', 
-    category: 'Наушники', 
-    brand: 'Sony', 
-    inStock: 25, 
-    rating: 4.8, 
-    specs: ['30 часов работы', 'Bluetooth 5.2', 'HD шумоподавление', '8 микрофонов', 'Быстрая зарядка'],
-    warranty: '2 года официальной гарантии Sony',
-    connectivity: ['Bluetooth 5.2', 'LDAC', 'Multipoint', 'NFC', '3.5mm аудио'],
-    boxContents: ['WH-1000XM5', 'Чехол', 'Кабель USB-C', 'Аудиокабель 3.5mm', 'Адаптер для самолёта'],
-    isTrending: true 
+  {
+    id: 6, name: 'MacBook Air 15" M3', price: 159990, image: techMacbookAirImage,
+    tagline: 'Впечатляюще тонкий. Фантастически мощный.',
+    description: 'Самый популярный ноутбук в мире — теперь с 15.3" экраном и чипом M3. Liquid Retina дисплей с яркостью 500 нит, P3 wide color и True Tone. 18 часов автономной работы. Бесшумная система охлаждения без вентиляторов. Всего 11.5 мм толщиной и 1.51 кг — идеальный баланс мощности и портативности.',
+    category: 'Ноутбуки', brand: 'Apple', rating: 4.7, color: '#E3D4C0',
+    specs: [
+      { label: 'Дисплей', value: '15.3" Liquid Retina' },
+      { label: 'Чип', value: 'Apple M3' },
+      { label: 'Память', value: 'До 24GB unified' },
+      { label: 'SSD', value: 'До 2TB' },
+      { label: 'Батарея', value: 'До 18 часов' },
+      { label: 'Вес', value: '1.51 кг' }
+    ],
+    features: ['Безвентиляторный', 'MagSafe', 'Touch ID', '1080p камера', 'Spatial Audio', 'Wi-Fi 6E'],
   },
-  { 
-    id: 7, 
-    name: 'AirPods Pro 2', 
-    price: 24900, 
-    image: airpodsPro2Image, 
-    hoverImage: airpodsPro2Image,
-    description: 'Компактные TWS-наушники с чипом H2, обеспечивающим адаптивное шумоподавление, которое в реальном времени анализирует и подстраивается под окружающую звуковую среду. Пространственное аудио с динамическим отслеживанием движений головы создаёт эффект полного погружения в звук кинотеатра Dolby Atmos прямо в ваших ушах. Кастомный низкочастотный драйвер и высокодинамичный усилитель воспроизводят глубокие насыщенные басы и кристально чистые высокие частоты без искажений. До 6 часов активного прослушивания на одном заряде, а компактный MagSafe-кейс увеличивает автономность до 30 часов с функцией точного поиска через Find My.', 
-    category: 'Наушники', 
-    brand: 'Apple', 
-    inStock: 30, 
-    rating: 4.7, 
-    specs: ['H2 чип', '6 часов работы', 'Пространственный звук', 'Адаптивное шумоподавление', 'MagSafe зарядка'],
-    warranty: '1 год официальной гарантии Apple',
-    connectivity: ['Bluetooth 5.3', 'Apple H2', 'Spatial Audio', 'MagSafe'],
-    boxContents: ['AirPods Pro', 'MagSafe кейс', '4 пары амбушюр', 'Кабель USB-C', 'Документация'] 
+  {
+    id: 7, name: 'Sony WH-1000XM5', price: 35990, image: sonyWh1000xm5Image,
+    tagline: 'Тишина, которая вдохновляет.',
+    description: 'Два процессора QN1 и V1 управляют восемью микрофонами для создания идеального кокона тишины. Кастомные 30мм драйверы с углеродной диафрагмой воспроизводят частоты 4Hz–40kHz с кристальной чистотой. Амбушюры с эффектом памяти обеспечивают комфорт при многочасовых сессиях. 30 часов автономной работы с ANC, 3 минуты зарядки = 3 часа музыки.',
+    category: 'Наушники', brand: 'Sony', rating: 4.8, color: '#2C2C2E',
+    specs: [
+      { label: 'Батарея', value: '30 часов с ANC' },
+      { label: 'Драйвер', value: '30мм карбон' },
+      { label: 'ANC', value: '8 микрофонов' },
+      { label: 'Кодеки', value: 'LDAC / AAC' },
+      { label: 'Multipoint', value: '2 устройства' },
+      { label: 'Зарядка', value: 'USB-C быстрая' }
+    ],
+    features: ['Dual Processor ANC', 'LDAC Hi-Res', 'Multipoint', 'Speak-to-Chat', '30h Battery', 'Touch Controls'],
   },
-  { 
-    id: 8, 
-    name: 'Sony Alpha A7 IV', 
-    price: 249900, 
-    image: sonyAlphaA7ivImage, 
-    hoverImage: sonyAlphaA7ivImage,
-    description: 'Полнокадровая беззеркальная камера с матрицей 33 мегапикселя и процессором BIONZ XR для безупречной детализации и динамического диапазона в любых условиях съёмки. Гибридная система автофокуса с 759 точками фазовой детекции мгновенно отслеживает глаза людей, животных и птиц с невероятной точностью даже при движении. Запись видео 4K 60fps с 10-битной глубиной цвета 4:2:2 и профилями S-Log3/S-Cinetone открывает возможности для профессиональной кинематографической цветокоррекции. Пятиосевая оптическая стабилизация IBIS компенсирует до 5.5 ступеней экспозиции, позволяя снимать резкие кадры с рук даже в условиях слабого освещения.', 
-    category: 'Камеры', 
-    brand: 'Sony', 
-    inStock: 6, 
-    rating: 4.9, 
-    specs: ['33MP полнокадровая матрица', '4K 60p видео', '5-осевая стабилизация', '693 точки AF', '10fps серийная съёмка'],
-    warranty: '2 года официальной гарантии Sony',
-    connectivity: ['USB-C 3.2', 'HDMI Type-A', 'Wi-Fi 5', 'Bluetooth 4.2', 'Multi Interface Shoe'],
-    boxContents: ['Alpha A7 IV', 'Аккумулятор NP-FZ100', 'Зарядное устройство', 'Плечевой ремень', 'Документация'] 
+  {
+    id: 8, name: 'Dell XPS 15', price: 139990, image: dellXps15Image,
+    tagline: 'Кинематографический OLED в ультрабуке.',
+    description: 'OLED-дисплей 3.5K с бесконечной контрастностью, миллиардом оттенков и абсолютно чёрным цветом — каждый пиксель свой собственный источник света. Intel Core i7-14700H с 20 потоками для профессиональной многозадачности. NVIDIA RTX 4050 для видеомонтажа 4K, 3D и ML. Алюминиевый корпус 1.86 кг с InfinityEdge безрамочным дизайном.',
+    category: 'Ноутбуки', brand: 'Dell', rating: 4.7, color: '#1C1C1E',
+    specs: [
+      { label: 'Дисплей', value: '15.6" OLED 3.5K' },
+      { label: 'CPU', value: 'Intel Core i7-14700H' },
+      { label: 'GPU', value: 'NVIDIA RTX 4050' },
+      { label: 'RAM', value: '32GB DDR5' },
+      { label: 'SSD', value: '1TB NVMe' },
+      { label: 'Вес', value: '1.86 кг' }
+    ],
+    features: ['OLED HDR', 'Thunderbolt 4', 'Wi-Fi 6E', 'Fingerprint', 'InfinityEdge', 'CNC Aluminum'],
+  },
+  {
+    id: 9, name: 'Apple Watch Ultra 2', price: 79990, image: techWatchImage,
+    tagline: 'Для самых смелых приключений.',
+    description: 'Титановый корпус 49мм с сапфировым стеклом — самые прочные Apple Watch. Чип S9 SiP с нейродвижком 4-ядерным для жестов Double Tap. Дисплей 3000 нит — читается на ярком солнце. GPS L1/L5 двухчастотный для точного трекинга в лесах и каньонах. Глубиномер и датчик температуры воды до 40 метров. До 72 часов автономности в режиме экономии.',
+    category: 'Часы', brand: 'Apple', rating: 4.9, color: '#B8860B',
+    specs: [
+      { label: 'Корпус', value: '49мм Титан' },
+      { label: 'Чип', value: 'S9 SiP' },
+      { label: 'Дисплей', value: '3000 нит' },
+      { label: 'Батарея', value: 'До 72 часов' },
+      { label: 'Защита', value: 'WR100 / EN13319' },
+      { label: 'GPS', value: 'L1 + L5' }
+    ],
+    features: ['Double Tap', 'Precision Finding', 'Depth Gauge', 'Siren 86dB', 'Action Button', 'Titanium'],
+    isNew: true
+  },
+  {
+    id: 10, name: 'Sony Alpha A7 IV', price: 249990, image: sonyAlphaA7ivImage,
+    tagline: 'Полный кадр. Полная свобода.',
+    description: 'Полнокадровая матрица 33MP Exmor R с процессором BIONZ XR для безупречной детализации и динамического диапазона 15 EV. Гибридный AF с 759 точками мгновенно отслеживает глаза людей, животных и птиц. Видео 4K 60fps 10-bit 4:2:2 с S-Log3 и S-Cinetone для кинематографической цветокоррекции. IBIS 5.5 EV — резкие кадры с рук при любом освещении.',
+    category: 'Камеры', brand: 'Sony', rating: 4.9, color: '#1C1C1E',
+    specs: [
+      { label: 'Матрица', value: '33MP Full Frame' },
+      { label: 'Видео', value: '4K 60fps 10-bit' },
+      { label: 'AF', value: '759 точек фазового' },
+      { label: 'IBIS', value: '5.5 EV стабилизация' },
+      { label: 'ISO', value: '100 — 51200' },
+      { label: 'Серия', value: '10 кадров/с' }
+    ],
+    features: ['Real-time Eye AF', 'S-Cinetone', 'S-Log3', '4K 60p', 'IBIS 5-axis', 'Dual Card Slots'],
+    isFeatured: true
+  },
+  {
+    id: 11, name: 'Apple Vision Pro', price: 349990, image: techVisionImage,
+    tagline: 'Добро пожаловать в эру пространственных вычислений.',
+    description: 'Первый пространственный компьютер Apple. Чип M2 + R1 с обработкой данных от 12 камер, 5 сенсоров и 6 микрофонов за 12 миллисекунд. Дисплей micro-OLED 23 миллиона пикселей — больше, чем 4K на каждый глаз. EyeSight показывает ваши глаза окружающим. Управление взглядом, голосом и жестами. Бесконечный холст для приложений в вашем пространстве.',
+    category: 'Аксессуары', brand: 'Apple', rating: 4.7, color: '#48484A',
+    specs: [
+      { label: 'Чипы', value: 'M2 + R1' },
+      { label: 'Дисплей', value: 'micro-OLED 23M px' },
+      { label: 'Камеры', value: '12 камер' },
+      { label: 'Трекинг', value: 'Глаза + руки' },
+      { label: 'Аудио', value: 'Spatial Audio' },
+      { label: 'Батарея', value: '2 часа внешняя' }
+    ],
+    features: ['visionOS', 'EyeSight', 'Optic ID', 'Spatial Audio', 'Digital Crown', '4K+ per eye'],
+    isNew: true, isFeatured: true
+  },
+  {
+    id: 12, name: 'AirPods Max', price: 59990, image: techAirpodsMaxImage,
+    tagline: 'Высшая форма звука.',
+    description: 'Кастомный 40мм драйвер Apple с двойным неодимовым магнитом кольцевой формы воспроизводит богатейший и детализированный звук во всём диапазоне частот. Чип H2 с адаптивным ANC создаёт абсолютную тишину. Сетчатый навершник из нержавеющей стали с подушками из дышащей ткани. Digital Crown для точного управления. USB-C для зарядки и аудио.',
+    category: 'Наушники', brand: 'Apple', rating: 4.8, color: '#86868B',
+    specs: [
+      { label: 'Драйвер', value: '40мм кастомный' },
+      { label: 'Чип', value: 'Apple H2' },
+      { label: 'ANC', value: 'Активное адаптивное' },
+      { label: 'Батарея', value: '20 часов' },
+      { label: 'Зарядка', value: 'USB-C / Lightning' },
+      { label: 'Вес', value: '384.8 г' }
+    ],
+    features: ['Computational Audio', 'Spatial Audio', 'Adaptive EQ', 'Digital Crown', 'Transparency Mode', 'Find My'],
+  },
+  {
+    id: 13, name: 'HomePod (2nd Gen)', price: 29990, image: techHomepodImage,
+    tagline: 'Звук, который заполняет комнату.',
+    description: 'Вычислительное аудио с чипом S7 и акселерометром анализирует акустику комнаты и адаптирует звук в реальном времени. 5 твитеров с направленными лучами и сабвуфер с высоким ходом создают широкую звуковую сцену. Центр умного дома с Thread, Matter и UWB. Siri с распознаванием голосов для персонализированных ответов.',
+    category: 'Аксессуары', brand: 'Apple', rating: 4.6, color: '#1D1D1F',
+    specs: [
+      { label: 'Чип', value: 'S7' },
+      { label: 'Динамики', value: '5 твитеров + сабвуфер' },
+      { label: 'Связь', value: 'Thread / Matter' },
+      { label: 'Аудио', value: 'Spatial Audio' },
+      { label: 'Ассистент', value: 'Siri' },
+      { label: 'Высота', value: '168 мм' }
+    ],
+    features: ['Room Sensing', 'Computational Audio', 'Thread Border Router', 'Matter', 'Temperature Sensor', 'Intercom'],
+  },
+  {
+    id: 14, name: 'PlayStation 5 Pro', price: 69990, image: techPs5Image,
+    tagline: 'Следующий уровень игр.',
+    description: 'GPU с 67% большим количеством вычислительных юнитов для нативного 4K с трассировкой лучей. Технология PSSR (PlayStation Spectral Super Resolution) на основе ИИ для масштабирования изображения без потери качества. SSD 2TB с пропускной способностью 5.5 ГБ/с для мгновенной загрузки. Wi-Fi 7 для онлайн без задержек. Обратная совместимость с 8500+ играми PS4.',
+    category: 'Гейминг', brand: 'Sony', rating: 4.8, color: '#1C1C1E',
+    specs: [
+      { label: 'GPU', value: '16.7 TFLOPS' },
+      { label: 'SSD', value: '2TB NVMe' },
+      { label: 'RAM', value: '16GB GDDR6' },
+      { label: 'Видео', value: '4K 120Hz / 8K' },
+      { label: 'Аудио', value: 'Tempest 3D' },
+      { label: 'Связь', value: 'Wi-Fi 7 / BT 5.1' }
+    ],
+    features: ['PSSR AI Upscaling', 'Ray Tracing', '8K Output', 'DualSense Edge', 'VRR', 'Wi-Fi 7'],
+    isNew: true
+  },
+  {
+    id: 15, name: 'DJI Air 3', price: 89990, image: techDroneImage,
+    tagline: 'Воздух. Свобода. Кинематограф.',
+    description: 'Дуальная камера: широкоугольная 1/1.3" CMOS 48MP + телеобъектив 3× для кинематографических ракурсов. Видео 4K HDR 100fps с 10-bit D-Log M для профессиональной цветокоррекции. Время полёта 46 минут — рекорд в классе. Распознавание препятствий во всех направлениях с APAS 5.0. Дальность передачи O4 — до 20 км.',
+    category: 'Камеры', brand: 'DJI', rating: 4.7, color: '#636366',
+    specs: [
+      { label: 'Камера', value: '48MP Dual 1/1.3"' },
+      { label: 'Видео', value: '4K HDR 100fps' },
+      { label: 'Полёт', value: '46 минут' },
+      { label: 'Дальность', value: '20 км O4' },
+      { label: 'Вес', value: '720 г' },
+      { label: 'Обход', value: 'APAS 5.0 360°' }
+    ],
+    features: ['Dual Camera', 'D-Log M', 'Waypoint', 'MasterShots', 'Hyperlapse', '10-bit Color'],
+  },
+  {
+    id: 16, name: 'Sonos Era 300', price: 44990, image: techSpeakerImage,
+    tagline: 'Пространственный звук. Новое измерение.',
+    description: 'Первая колонка с нативным Dolby Atmos — 6 драйверов с направленными звуковыми лучами создают трёхмерную звуковую сцену. Верхний твитер направляет звук к потолку для эффекта высоты. Trueplay адаптирует звук под акустику комнаты. Wi-Fi 6, Bluetooth 5.0, AirPlay 2. Управление голосом через Alexa.',
+    category: 'Аксессуары', brand: 'Sonos', rating: 4.7, color: '#F5F5F7',
+    specs: [
+      { label: 'Драйверы', value: '6 кастомных' },
+      { label: 'Аудио', value: 'Dolby Atmos' },
+      { label: 'Связь', value: 'Wi-Fi 6 / BT 5.0' },
+      { label: 'AirPlay', value: 'AirPlay 2' },
+      { label: 'Трекинг', value: 'Trueplay' },
+      { label: 'Голос', value: 'Amazon Alexa' }
+    ],
+    features: ['Dolby Atmos', 'Trueplay', 'AirPlay 2', 'Spotify Connect', 'Voice Control', 'Multi-room'],
   },
 ];
 
-const categoriesRu = ['Все', 'Смартфоны', 'Ноутбуки', 'Планшеты', 'Наушники', 'Камеры'];
-const categoriesEn = ['All', 'Smartphones', 'Laptops', 'Tablets', 'Headphones', 'Cameras'];
-const elecCategoryMap: Record<string, string> = { 'All': 'Все', 'Smartphones': 'Смартфоны', 'Laptops': 'Ноутбуки', 'Tablets': 'Планшеты', 'Headphones': 'Наушники', 'Cameras': 'Камеры' };
-const genderFilters = ['All', 'Popular', 'New', 'Sale'];
+const categories = ['Все', 'Смартфоны', 'Ноутбуки', 'Планшеты', 'Наушники', 'Камеры', 'Часы', 'Аксессуары', 'Гейминг'];
+
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price);
+
+const mockReviews = [
+  { id: 1, name: 'Дмитрий К.', rating: 5, text: 'Невероятное качество сборки. Камера — лучшее, что было на рынке. Титановый корпус ощущается премиально.', date: '2 дня назад' },
+  { id: 2, name: 'Анна С.', rating: 5, text: 'Перешла с Android — ни секунды не жалею. Экосистема работает безупречно, батарея держит весь день.', date: '1 неделю назад' },
+  { id: 3, name: 'Максим В.', rating: 4, text: 'Отличный продукт, но цена, конечно, кусается. Впрочем, за качество приходится платить.', date: '2 недели назад' },
+];
+
+const contentStagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.055, delayChildren: 0.15 } },
+};
+
+const contentItem: import("framer-motion").Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
+};
+
+const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
 const Electronics = memo(function Electronics({ activeTab, onTabChange }: ElectronicsProps) {
-  const { t, language } = useLanguage();
-  const isRu = language === 'ru';
-  const categories = isRu ? categoriesRu : categoriesEn;
+  const [selectedCategory, setSelectedCategory] = useState('Все');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
-  const [selectedFilter, setSelectedFilter] = useState('All');
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [productExiting, setProductExiting] = useState(false);
   const [showStickyHeader, setShowStickyHeader] = useState(false);
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const sidebar = useDemoSidebar();
+  const [activeProductTab, setActiveProductTab] = useState<'specs' | 'tech' | 'reviews'>('specs');
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const { toast } = useToast();
-  
-  // Persistent hooks
-  const { 
-    cartItems, 
-    addToCart: addToCartHook, 
-    removeFromCart, 
-    updateQuantity, 
-    clearCart, 
-    totalAmount 
-  } = usePersistentCart({ storageKey: STORE_KEY });
-  
-  const { 
-    toggleFavorite: toggleFavoriteHook, 
-    isFavorite, 
-    favoritesCount 
-  } = usePersistentFavorites({ storageKey: STORE_KEY });
-  
-  const { 
-    orders, 
-    createOrder, 
-    ordersCount 
-  } = usePersistentOrders({ storageKey: STORE_KEY });
 
-  useEffect(() => {
-    scrollToTop();
-  }, [activeTab]);
+  const productScrollRef = useRef<HTMLDivElement>(null);
+  const heroImageRef = useRef<HTMLDivElement>(null);
 
-  const sidebarMenuItems = [
-    { icon: <Home className="w-5 h-5" />, label: t('demos.electronics.home'), active: activeTab === 'home' },
-    { icon: <Grid className="w-5 h-5" />, label: t('demos.electronics.catalog'), active: activeTab === 'catalog' },
-    { icon: <Heart className="w-5 h-5" />, label: t('demos.electronics.favorites') },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: t('demos.electronics.cart') },
-    { icon: <Tag className="w-5 h-5" />, label: isRu ? 'Акции' : 'Sales' },
-    { icon: <User className="w-5 h-5" />, label: t('demos.electronics.profile') },
-    { icon: <Settings className="w-5 h-5" />, label: isRu ? 'Настройки' : 'Settings' },
-  ];
+  const { cartItems, addToCart, removeFromCart, updateQuantity, clearCart, totalAmount, totalItems } = usePersistentCart({ storageKey: 'techstore-cart' });
+  const { favorites, toggleFavorite, isFavorite } = usePersistentFavorites({ storageKey: 'techstore-favorites' });
+  const { orders, createOrder } = usePersistentOrders({ storageKey: 'techstore-orders' });
+  const sidebar = useDemoSidebar();
 
-  const { filteredItems, searchQuery, handleSearch } = useFilter({
-    items: products,
-    searchFields: ['name', 'description', 'category', 'brand'] as (keyof Product)[],
-  });
-
-  useEffect(() => {
-    if (activeTab !== 'catalog') {
-      setSelectedProduct(null);
+  const filteredProducts = useMemo(() => {
+    let result = products;
+    if (selectedCategory !== 'Все') {
+      result = result.filter(p => p.category === selectedCategory);
     }
-    if (activeTab !== 'home') {
-      setSelectedFilter('All');
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.brand.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q) ||
+        p.features.some(f => f.toLowerCase().includes(q))
+      );
     }
-  }, [activeTab]);
+    return result;
+  }, [selectedCategory, searchQuery]);
 
-  const filteredProducts = useMemo(() => filteredItems.filter(p => {
-    const rawCat = isRu ? selectedCategory : (elecCategoryMap[selectedCategory] || selectedCategory);
-    const categoryMatch = selectedCategory === categories[0] || p.category === rawCat;
-    
-    if (activeTab === 'home') {
-      const filterMatch = selectedFilter === 'All' || 
-                         (selectedFilter === 'New' && p.isNew) ||
-                         (selectedFilter === 'Popular' && p.isTrending) ||
-                         (selectedFilter === 'Sale' && p.oldPrice);
-      return categoryMatch && filterMatch;
-    }
-    
-    return categoryMatch;
-  }), [filteredItems, selectedCategory, activeTab, selectedFilter]);
-
-  const handleImageLoad = (productId: number) => {
-    setLoadedImages(prev => new Set(prev).add(productId));
+  const handleAddToCart = (product: Product) => {
+    addToCart({ id: String(product.id), name: product.name, price: product.price, image: product.image });
+    toast({ title: 'Добавлено в корзину', description: product.name });
   };
 
-  const handleToggleFavorite = (productId: number) => {
-    const wasInFavorites = isFavorite(String(productId));
-    toggleFavoriteHook(String(productId));
-    toast({
-      title: !wasInFavorites ? (isRu ? 'Добавлено в избранное' : 'Added to favorites') : (isRu ? 'Удалено из избранного' : 'Removed from favorites'),
-      duration: 1500
-    });
+  const handleCheckoutComplete = (orderId: string) => {
+    createOrder(
+      cartItems.map(ci => ({ id: ci.id, name: ci.name, price: ci.price, quantity: ci.quantity, image: ci.image })),
+      totalAmount,
+      { phone: '+7 (800) 555-01-01' }
+    );
+    clearCart();
+    setIsCheckoutOpen(false);
+    toast({ title: 'Заказ оформлен', description: `Номер: ${orderId}`, duration: 3000 });
   };
 
   const openProduct = (product: Product) => {
     scrollToTop();
-    onTabChange?.('catalog');
     setSelectedProduct(product);
-    setCurrentImageIndex(0);
+    setActiveProductTab('specs');
+    setShowStickyHeader(false);
+    if (heroImageRef.current) heroImageRef.current.style.transform = '';
+    if (productScrollRef.current) productScrollRef.current.scrollTop = 0;
   };
 
-  const addToCart = () => {
-    if (!selectedProduct) return;
-    
-    addToCartHook({
-      id: String(selectedProduct.id),
-      name: selectedProduct.name,
-      price: selectedProduct.price,
-      quantity: 1,
-      image: selectedProduct.image,
-      size: 'Standard',
-      color: 'Default'
-    });
-    
-    toast({
-      title: 'Товар добавлен в корзину',
-      description: selectedProduct.name,
-      duration: 2000
-    });
-    
-    setSelectedProduct(null);
+  const handleProductBack = () => {
+    setProductExiting(true);
+    setTimeout(() => {
+      setProductExiting(false);
+      setSelectedProduct(null);
+    }, 340);
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
+  const handleToggleFavorite = (id: number) => {
+    toggleFavorite(id);
+    const isNow = !isFavorite(id);
+    toast({ title: isNow ? 'Добавлено в избранное' : 'Удалено из избранного', duration: 1500 });
   };
 
-  const handleCheckout = () => {
-    if (cartItems.length === 0) return;
-    
-    createOrder(
-      cartItems.map((item: typeof cartItems[0]) => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image,
-        size: item.size,
-        color: item.color
-      })),
-      totalAmount
-    );
-    
-    clearCart();
-    setIsCheckoutOpen(false);
-    
-    toast({
-      title: t('demos.electronics.orderSuccess'),
-      description: `На сумму ${formatPrice(totalAmount)}`,
-      duration: 3000
-    });
-  };
+  const sidebarMenuItems = useMemo(() => [
+    { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home', onClick: () => { onTabChange?.('home'); sidebar.close(); } },
+    { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog', onClick: () => { onTabChange?.('catalog'); sidebar.close(); } },
+    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Корзина', active: activeTab === 'cart', badge: totalItems > 0 ? String(totalItems) : undefined, onClick: () => { onTabChange?.('cart'); sidebar.close(); } },
+    { icon: <User className="w-5 h-5" />, label: 'Аккаунт', active: activeTab === 'profile', onClick: () => { onTabChange?.('profile'); sidebar.close(); } },
+    { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favorites.size > 0 ? String(favorites.size) : undefined, onClick: () => { onTabChange?.('catalog'); sidebar.close(); } },
+    { icon: <Settings className="w-5 h-5" />, label: 'Настройки', onClick: () => sidebar.close() },
+  ], [activeTab, onTabChange, totalItems, favorites.size, sidebar]);
 
-  // PRODUCT PAGE - iOS 2026 Premium Modular Design
-  if (activeTab === 'catalog' && selectedProduct) {
-    const bgColor = '#000000';
-    const recommendedProducts = products.filter(p => p.category === selectedProduct.category && p.id !== selectedProduct.id).slice(0, 8);
-    const productImages = [selectedProduct.image, selectedProduct.hoverImage];
-    
-    const glassCard = {
-      background: 'rgba(255,255,255,0.06)',
-      backdropFilter: 'blur(20px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-      border: '0.5px solid rgba(255,255,255,0.1)',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)',
-    };
-    
-    const getConnectivityIcon = (conn: string) => {
-      const lower = conn.toLowerCase();
-      if (lower.includes('wifi') || lower.includes('wi-fi')) return <Wifi className="w-3.5 h-3.5" />;
-      if (lower.includes('bluetooth')) return <Bluetooth className="w-3.5 h-3.5" />;
-      if (lower.includes('usb') || lower.includes('thunderbolt')) return <Usb className="w-3.5 h-3.5" />;
-      if (lower.includes('nfc')) return <Nfc className="w-3.5 h-3.5" />;
-      if (lower.includes('5g') || lower.includes('lte') || lower.includes('uwb')) return <Smartphone className="w-3.5 h-3.5" />;
-      if (lower.includes('hdmi') || lower.includes('magsafe')) return <Monitor className="w-3.5 h-3.5" />;
-      if (lower.includes('ldac') || lower.includes('spatial') || lower.includes('multipoint')) return <Headphones className="w-3.5 h-3.5" />;
-      return <Zap className="w-3.5 h-3.5" />;
-    };
-
-    const getHighlightIcon = (spec: string) => {
-      const lower = spec.toLowerCase();
-      if (lower.includes('дисплей') || lower.includes('retina') || lower.includes('amoled') || lower.includes('oled')) return <Monitor className="w-5 h-5" />;
-      if (lower.includes('чип') || lower.includes('процессор') || lower.includes('snapdragon') || lower.includes('intel') || lower.includes('m2') || lower.includes('m3')) return <Cpu className="w-5 h-5" />;
-      if (lower.includes('камер') || lower.includes('mp')) return <Camera className="w-5 h-5" />;
-      if (lower.includes('час') || lower.includes('батар') || lower.includes('работы') || lower.includes('ssd') || lower.includes('gb') || lower.includes('tb')) return <Battery className="w-5 h-5" />;
-      if (lower.includes('стабилиз') || lower.includes('af') || lower.includes('матриц')) return <Camera className="w-5 h-5" />;
-      return <Zap className="w-5 h-5" />;
-    };
-
-    const getHighlightLabel = (spec: string) => {
-      const lower = spec.toLowerCase();
-      if (lower.includes('дисплей') || lower.includes('retina') || lower.includes('amoled') || lower.includes('oled')) return 'Дисплей';
-      if (lower.includes('чип') || lower.includes('процессор') || lower.includes('snapdragon') || lower.includes('intel') || lower.includes('m2') || lower.includes('m3')) return 'Процессор';
-      if (lower.includes('камер') || lower.includes('mp')) return 'Камера';
-      if (lower.includes('час') || lower.includes('работы')) return 'Батарея';
-      if (lower.includes('ssd') || lower.includes('gb') || lower.includes('tb') || lower.includes('памят') || lower.includes('memory')) return 'Память';
-      if (lower.includes('стабилиз')) return 'Стабилизация';
-      if (lower.includes('af') || lower.includes('точ')) return 'Автофокус';
-      return 'Технология';
-    };
-    
-    const reviewCount = Math.floor(selectedProduct.rating * 50 + selectedProduct.id * 17);
-    
-    return (
-      <div className="h-screen text-white overflow-hidden relative flex flex-col" style={{ backgroundColor: bgColor }}>
-        
-        {/* FLOATING STICKY HEADER */}
-        <AnimatePresence>
-          {showStickyHeader && (
-            <m.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-              className="fixed top-0 left-0 right-0 z-[100]"
-              style={{
-                paddingTop: 'max(12px, env(safe-area-inset-top))',
-                paddingBottom: '12px',
-                paddingLeft: '16px',
-                paddingRight: '16px',
-              }}
-            >
-              <div 
-                className="flex items-center justify-between gap-3 px-4 py-3 rounded-[24px]"
-                style={{
-                  background: 'rgba(0,0,0,0.7)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: '0.5px solid rgba(255,255,255,0.15)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
-                }}
-              >
-                <button 
-                  onClick={() => setSelectedProduct(null)}
-                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all duration-300"
-                  style={{ background: 'rgba(255,255,255,0.1)' }}
-                  data-testid="button-sticky-back"
-                >
-                  <ChevronLeft className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.9)' }} strokeWidth={2.5} />
-                </button>
-                
-                <div className="flex-1 min-w-0 text-center">
-                  <p 
-                    className="text-[15px] font-semibold truncate"
-                    style={{ color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.02em' }}
-                  >
-                    {selectedProduct.name}
-                  </p>
-                  <p 
-                    className="text-[13px] font-medium"
-                    style={{ color: 'rgba(255,255,255,0.5)', fontVariantNumeric: 'tabular-nums' }}
-                  >
-                    {formatPrice(selectedProduct.price)}
-                  </p>
-                </div>
-                
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleToggleFavorite(selectedProduct.id);
-                  }}
-                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all duration-300"
-                  style={{ 
-                    background: isFavorite(String(selectedProduct.id)) 
-                      ? 'rgba(255,59,48,0.2)' 
-                      : 'rgba(255,255,255,0.1)' 
-                  }}
-                  data-testid="button-sticky-favorite"
-                >
-                  <Heart 
-                    className="w-5 h-5" 
-                    style={{ color: isFavorite(String(selectedProduct.id)) ? '#FF3B30' : 'rgba(255,255,255,0.9)' }}
-                    fill={isFavorite(String(selectedProduct.id)) ? '#FF3B30' : 'none'}
-                  />
-                </button>
-              </div>
-            </m.div>
-          )}
-        </AnimatePresence>
-        
-        {/* SCROLLABLE CONTENT CONTAINER */}
-        <div 
-          className="flex-1 overflow-y-auto" 
-          style={{ paddingBottom: '180px' }}
-          onScroll={(e) => setShowStickyHeader(e.currentTarget.scrollTop > 300)}
+  const renderCatalogGrid = () => {
+    const cards: React.ReactElement[] = [];
+    let i = 0;
+    while (i < filteredProducts.length) {
+      const featured = filteredProducts[i];
+      cards.push(
+        <m.div
+          key={`feat-${featured.id}`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.04 * cards.length, ease: [0.25, 1, 0.5, 1] }}
+          className="relative rounded-[24px] overflow-hidden cursor-pointer active:scale-[0.98]"
+          style={{ height: 320, background: BG_CARD, transition: 'transform 0.2s ease' }}
+          onClick={() => openProduct(featured)}
         >
-        
-        {/* HERO SECTION - 70vh */}
-        <div className="relative" style={{ height: '70vh', minHeight: '480px' }}>
-          {/* Full-bleed Image Gallery - iOS-style snap scroll */}
-          <div 
-            className="absolute inset-0 overflow-x-auto overflow-y-hidden scrollbar-hide"
-            style={{ 
-              scrollSnapType: 'x mandatory',
-              WebkitOverflowScrolling: 'touch',
-              scrollBehavior: 'smooth',
-            }}
+          <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(circle at 50% 60%, ${featured.color}20 0%, transparent 60%)` }}>
+            <div className="w-[65%] h-[55%] mt-4">
+              <LazyImage src={featured.image} alt={featured.name} className="w-full h-full object-contain" />
+            </div>
+          </div>
+          <div className="absolute top-3.5 left-3.5 right-3.5 flex items-start justify-between">
+            <div className="flex gap-1.5">
+              {featured.isNew && (
+                <span className="px-2.5 py-1 rounded-full"
+                  style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.03em' }}>
+                  Новинка
+                </span>
+              )}
+              {featured.isFeatured && !featured.isNew && (
+                <span className="px-2.5 py-1 rounded-full"
+                  style={{ background: 'rgba(255,149,0,0.15)', color: '#FF9500', fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, border: '1px solid rgba(255,149,0,0.25)' }}>
+                  Рекомендуем
+                </span>
+              )}
+            </div>
+            <button onClick={(e) => { e.stopPropagation(); toggleFavorite(featured.id); }}
+              className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
+              <Heart className="w-3.5 h-3.5" style={{ color: isFavorite(featured.id) ? '#FF375F' : 'rgba(255,255,255,0.6)', fill: isFavorite(featured.id) ? '#FF375F' : 'none' }} />
+            </button>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 p-4 pt-10" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
+            <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 500, color: ACCENT, letterSpacing: '0.03em', marginBottom: 3 }}>{featured.brand}</p>
+            <h3 style={{ fontFamily: SF, fontSize: '1.1rem', fontWeight: 600, color: TEXT, lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: 6 }}>
+              {featured.name}
+            </h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span style={{ fontFamily: SF, fontSize: '0.9rem', fontWeight: 600, color: TEXT }}>{formatPrice(featured.price)}</span>
+                {featured.oldPrice && (
+                  <span style={{ fontFamily: SF, fontSize: '0.65rem', color: TEXT_TER, textDecoration: 'line-through' }}>{formatPrice(featured.oldPrice)}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-1">
+                <Star className="w-3 h-3" style={{ color: '#FF9500', fill: '#FF9500' }} />
+                <span style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: TEXT_SEC }}>{featured.rating}</span>
+              </div>
+            </div>
+          </div>
+        </m.div>
+      );
+      i++;
+      if (i < filteredProducts.length) {
+        const pair: Product[] = [];
+        if (i < filteredProducts.length) { pair.push(filteredProducts[i]); i++; }
+        if (i < filteredProducts.length) { pair.push(filteredProducts[i]); i++; }
+        if (pair.length > 0) {
+          cards.push(
+            <div key={`pair-${pair[0].id}`} className="grid grid-cols-2 gap-3">
+              {pair.map((p, pairIdx) => (
+                <m.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.04 * cards.length + pairIdx * 0.06, ease: [0.25, 1, 0.5, 1] }}
+                  className="relative rounded-[20px] overflow-hidden cursor-pointer active:scale-[0.97]"
+                  style={{ height: pairIdx === 0 ? 220 : 190, background: BG_CARD, transition: 'transform 0.2s ease' }}
+                  onClick={() => openProduct(p)}
+                >
+                  <div className="absolute inset-0 flex items-center justify-center pt-2" style={{ background: `radial-gradient(circle at 50% 55%, ${p.color}15 0%, transparent 55%)` }}>
+                    <div className="w-[60%] h-[50%]">
+                      <LazyImage src={p.image} alt={p.name} className="w-full h-full object-contain" />
+                    </div>
+                  </div>
+                  {p.isNew && (
+                    <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full"
+                      style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.5rem', fontWeight: 600 }}>
+                      Новинка
+                    </span>
+                  )}
+                  <button onClick={(e) => { e.stopPropagation(); toggleFavorite(p.id); }}
+                    className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
+                    <Heart className="w-3 h-3" style={{ color: isFavorite(p.id) ? '#FF375F' : 'rgba(255,255,255,0.6)', fill: isFavorite(p.id) ? '#FF375F' : 'none' }} />
+                  </button>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 pt-8" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)' }}>
+                    <p style={{ fontFamily: SF, fontSize: '0.45rem', fontWeight: 500, color: ACCENT, letterSpacing: '0.02em', marginBottom: 2 }}>{p.brand}</p>
+                    <h4 style={{ fontFamily: SF, fontSize: '0.8rem', fontWeight: 600, color: TEXT, lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: 3 }}>
+                      {p.name}
+                    </h4>
+                    <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, color: TEXT }}>{formatPrice(p.price)}</span>
+                  </div>
+                </m.div>
+              ))}
+            </div>
+          );
+        }
+      }
+    }
+    return cards;
+  };
+
+  if (selectedProduct && (activeTab === 'home' || activeTab === 'catalog')) {
+    const recommended = products.filter(p => p.category === selectedProduct.category && p.id !== selectedProduct.id).slice(0, 4);
+    const productReviews = mockReviews;
+
+    return (
+      <>
+        <m.div
+          className="fixed inset-0 z-40 flex flex-col"
+          style={{ background: BG }}
+          initial={{ opacity: 0, x: 50 }}
+          animate={productExiting ? { opacity: 0, x: 50 } : { opacity: 1, x: 0 }}
+          transition={{ duration: productExiting ? 0.32 : 0.35, ease: productExiting ? [0.32, 0, 0.67, 0] : [0.22, 1, 0.36, 1] }}
+        >
+          <AnimatePresence>
+            {showStickyHeader && (
+              <m.div
+                initial={{ y: -60, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -60, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 demo-nav-safe"
+                style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px) saturate(1.2)', borderBottom: `0.5px solid ${GLASS_BORDER}` }}
+              >
+                <button onClick={handleProductBack} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <ChevronLeft className="w-5 h-5 text-white/80" />
+                </button>
+                <span style={{ fontFamily: SF, fontSize: '0.95rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.02em' }}>{selectedProduct.name}</span>
+                <button onClick={() => handleToggleFavorite(selectedProduct.id)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <Heart className="w-4 h-4" style={isFavorite(selectedProduct.id) ? { fill: '#FF375F', color: '#FF375F' } : { color: 'rgba(255,255,255,0.6)' }} />
+                </button>
+              </m.div>
+            )}
+          </AnimatePresence>
+
+          <div
+            ref={productScrollRef}
+            className="flex-1 overflow-y-auto overscroll-y-contain"
             onScroll={(e) => {
-              const container = e.currentTarget;
-              const scrollLeft = container.scrollLeft;
-              const width = container.offsetWidth;
-              const newIndex = Math.round(scrollLeft / width);
-              if (newIndex !== currentImageIndex && newIndex >= 0 && newIndex < productImages.length) {
-                setCurrentImageIndex(newIndex);
+              const st = (e.target as HTMLDivElement).scrollTop;
+              setShowStickyHeader(st > 240);
+              if (heroImageRef.current) {
+                heroImageRef.current.style.transform = `translateY(${st * 0.32}px)`;
               }
             }}
           >
-            <div className="flex h-full w-full">
-              {productImages.map((img, idx) => (
-                <div 
-                  key={idx} 
-                  className="min-w-full h-full flex-shrink-0 relative"
-                  style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
-                >
-                  <LazyImage
-                    src={img}
-                    alt={`${selectedProduct.name} - фото ${idx + 1}`}
-                    className="w-full h-full object-cover"
-                    priority={idx === 0}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Top Gradient */}
-          <div 
-            className="absolute top-0 left-0 right-0 pointer-events-none"
-            style={{
-              height: '140px',
-              background: 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)'
-            }}
-          />
-          
-          {/* Bottom Gradient for readability */}
-          <div 
-            className="absolute bottom-0 left-0 right-0 pointer-events-none"
-            style={{
-              height: '200px',
-              background: `linear-gradient(0deg, ${bgColor} 0%, ${bgColor}cc 40%, transparent 100%)`
-            }}
-          />
-
-          {/* iOS-style Page Dots in glass container */}
-          <div 
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2 px-3 py-2 rounded-full"
-            style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 100%)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              border: '0.5px solid rgba(255,255,255,0.5)',
-            }}
-          >
-            {productImages.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentImageIndex(idx)}
-                className="transition-all duration-300"
-                style={{
-                  width: currentImageIndex === idx ? '20px' : '7px',
-                  height: '7px',
-                  borderRadius: '4px',
-                  background: currentImageIndex === idx 
-                    ? 'rgba(0,0,0,0.8)' 
-                    : 'rgba(0,0,0,0.3)',
-                }}
-                data-testid={`gallery-dot-${idx}`}
-              />
-            ))}
-          </div>
-          
-          {/* Floating Glass Navigation Bar - Radiance style */}
-          <div 
-            className="absolute left-4 right-4 z-50 flex items-center justify-between"
-            style={{ top: 'calc(max(16px, env(safe-area-inset-top)) + 8px)' }}
-          >
-            {/* Back Button */}
-            <button 
-              onClick={() => setSelectedProduct(null)}
-              className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
-              style={{ 
-                background: 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: '0.5px solid rgba(255,255,255,0.6)',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7)'
-              }}
-              data-testid="button-back"
-            >
-              <ChevronLeft className="w-6 h-6" style={{ color: 'rgba(0,0,0,0.8)' }} strokeWidth={2.5} />
-            </button>
-            
-            {/* Image Counter Pill */}
-            <div 
-              className="px-4 py-1.5 rounded-full"
-              style={{
-                background: 'linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.2) 100%)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: '0.5px solid rgba(255,255,255,0.5)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)'
-              }}
-            >
-              <span className="text-xs font-semibold" style={{ color: 'rgba(0,0,0,0.7)' }}>
-                {currentImageIndex + 1} / {productImages.length}
-              </span>
-            </div>
-            
-            {/* Favorite Button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleFavorite(selectedProduct.id);
-              }}
-              className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
-              style={{ 
-                background: isFavorite(String(selectedProduct.id)) 
-                  ? 'linear-gradient(145deg, rgba(255,59,48,0.35) 0%, rgba(255,59,48,0.15) 100%)'
-                  : 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: isFavorite(String(selectedProduct.id)) 
-                  ? '0.5px solid rgba(255,59,48,0.5)'
-                  : '0.5px solid rgba(255,255,255,0.6)',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7)'
-              }}
-              aria-label={isFavorite(String(selectedProduct.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
-              data-testid={`button-favorite-${selectedProduct.id}`}
-            >
-              <Heart 
-                className="w-5 h-5"
-                style={{ color: isFavorite(String(selectedProduct.id)) ? '#FF3B30' : 'rgba(0,0,0,0.75)' }}
-                fill={isFavorite(String(selectedProduct.id)) ? '#FF3B30' : 'none'}
-                strokeWidth={2}
-              />
-            </button>
-          </div>
-        </div>
-
-        {/* CONTENT SHEET */}
-        <div className="relative" style={{ paddingBottom: '200px', marginTop: '-40px' }}>
-          <div 
-            className="relative rounded-t-[36px]"
-            style={{
-              padding: '24px 16px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px',
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              borderTop: '0.5px solid rgba(255,255,255,0.2)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15)',
-            }}
-          >
-            {/* Handle indicator */}
-            <div className="flex justify-center -mt-2 mb-2">
-              <div 
-                className="w-10 h-1 rounded-full"
-                style={{ background: 'rgba(255,255,255,0.2)' }}
-              />
-            </div>
-            
-            {/* a) HEADER CAPSULE */}
-            <div className="text-center">
-              <h1 
-                className="text-2xl font-bold mb-3"
-                style={{ 
-                  color: 'rgba(255,255,255,0.98)',
-                  letterSpacing: '-0.03em',
-                  lineHeight: 1.15
-                }}
-              >
-                {selectedProduct.name}
-              </h1>
-              
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <span 
-                  className="text-3xl font-bold"
-                  style={{ 
-                    color: 'rgba(255,255,255,0.98)', 
-                    fontVariantNumeric: 'tabular-nums',
-                    letterSpacing: '-0.02em'
-                  }}
-                >
-                  {formatPrice(selectedProduct.price)}
-                </span>
-                {selectedProduct.oldPrice && (
-                  <span 
-                    className="text-lg line-through"
-                    style={{ color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}
-                  >
-                    {formatPrice(selectedProduct.oldPrice)}
-                  </span>
-                )}
-              </div>
-              
-              {selectedProduct.oldPrice && (
-                <div 
-                  className="inline-block px-3 py-1 rounded-full text-xs font-semibold mb-4"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(52,199,89,0.25) 0%, rgba(52,199,89,0.1) 100%)',
-                    color: '#34C759',
-                    border: '0.5px solid rgba(52,199,89,0.3)',
-                    letterSpacing: '0.03em'
-                  }}
-                >
-                  -{Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100)}% скидка
-                </div>
-              )}
-              
-              <div className="flex items-center justify-center gap-2">
-                <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star 
-                      key={i} 
-                      className="w-4 h-4" 
-                      style={{ 
-                        color: i < Math.floor(selectedProduct.rating) ? '#FFD60A' : 'rgba(255,255,255,0.15)',
-                        fill: i < Math.floor(selectedProduct.rating) ? '#FFD60A' : 'transparent'
-                      }}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                  {selectedProduct.rating}
-                </span>
-                <span className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>•</span>
-                <span className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  {reviewCount} отзывов
-                </span>
-              </div>
-            </div>
-
-            {/* b) HIGHLIGHTS SECTION */}
-            <div 
-              className="rounded-2xl p-4"
-              style={glassCard}
-            >
-              <h3 
-                className="text-sm font-semibold mb-4 flex items-center gap-2"
-                style={{ color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.02em' }}
-              >
-                <Sparkles className="w-4 h-4" style={{ color: 'var(--theme-primary)' }} />
-                Ключевые особенности
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {selectedProduct.specs.slice(0, 4).map((spec, idx) => (
-                  <div 
-                    key={idx}
-                    className="rounded-xl p-3"
-                    style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '0.5px solid rgba(255,255,255,0.08)',
-                    }}
-                  >
-                    <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center mb-2"
-                      style={{ 
-                        background: 'linear-gradient(135deg, rgba(var(--theme-primary-rgb, 99,102,241),0.2) 0%, rgba(var(--theme-primary-rgb, 99,102,241),0.1) 100%)'
-                      }}
-                    >
-                      {getHighlightIcon(spec)}
-                    </div>
-                    <p className="text-[10px] font-medium mb-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                      {getHighlightLabel(spec)}
-                    </p>
-                    <p 
-                      className="text-xs font-semibold line-clamp-2"
-                      style={{ color: 'rgba(255,255,255,0.9)', lineHeight: 1.3 }}
-                    >
-                      {spec}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* c) ОПИСАНИЕ (expandable) */}
-            <div 
-              className="rounded-2xl p-4"
-              style={glassCard}
-            >
-              <p 
-                className="text-[14px] leading-relaxed"
-                style={{ color: 'rgba(255,255,255,0.7)' }}
-              >
-                {isDescriptionExpanded 
-                  ? selectedProduct.description 
-                  : selectedProduct.description.slice(0, 200) + (selectedProduct.description.length > 200 ? '...' : '')
-                }
-              </p>
-              {selectedProduct.description.length > 200 && (
-                <button
-                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                  className="flex items-center gap-1 mt-3 text-[13px] font-semibold transition-all duration-300"
-                  style={{ color: 'var(--theme-primary)' }}
-                  data-testid="button-expand-description"
-                >
-                  {isDescriptionExpanded ? 'Свернуть' : 'Читать далее'}
-                  {isDescriptionExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            <div className="relative" style={{ height: '50vh', minHeight: 300 }}>
+              <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 demo-nav-safe">
+                <button onClick={handleProductBack} className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)' }}>
+                  <ChevronLeft className="w-5 h-5 text-white" />
                 </button>
-              )}
-            </div>
+                <button onClick={() => handleToggleFavorite(selectedProduct.id)} className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)' }}>
+                  <Heart className="w-5 h-5" style={isFavorite(selectedProduct.id) ? { fill: '#FF375F', color: '#FF375F' } : { color: 'white' }} />
+                </button>
+              </div>
 
-            {/* d) ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ */}
-            <div 
-              className="rounded-2xl p-4"
-              style={glassCard}
-            >
-              <h3 
-                className="text-sm font-semibold mb-4 flex items-center gap-2"
-                style={{ color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.02em' }}
-              >
-                <Cpu className="w-4 h-4" style={{ color: 'var(--theme-primary)' }} />
-                Технологии
-              </h3>
-              <div className="space-y-3">
-                {selectedProduct.specs.map((spec, idx) => (
-                  <div 
-                    key={idx} 
-                    className="flex items-start gap-3 text-sm"
-                  >
-                    <div 
-                      className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                      style={{ background: 'rgba(var(--theme-primary-rgb, 99,102,241),0.15)' }}
-                    >
-                      <Zap className="w-3.5 h-3.5" style={{ color: 'var(--theme-primary)' }} />
-                    </div>
-                    <span style={{ color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>{spec}</span>
-                  </div>
-                ))}
+              <div ref={heroImageRef} className="absolute inset-0 will-change-transform flex items-center justify-center"
+                style={{ background: `radial-gradient(ellipse 70% 50% at 50% 50%, ${selectedProduct.color}25 0%, transparent 70%)` }}>
+                <div className="w-[55%] h-[60%]">
+                  <LazyImage src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-contain" />
+                </div>
+              </div>
+              <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${BG} 0%, transparent 50%)` }} />
+
+              <div className="absolute bottom-5 left-5 right-5 z-10">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <span className="px-3 py-1 rounded-full" style={{ background: `${ACCENT}20`, color: ACCENT, fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', border: `0.5px solid ${ACCENT}30` }}>
+                    {selectedProduct.category}
+                  </span>
+                  {selectedProduct.isNew && (
+                    <span className="px-2.5 py-1 rounded-full" style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.04em' }}>
+                      Новинка
+                    </span>
+                  )}
+                </div>
+                <h1 style={{ fontFamily: SF, fontSize: 'clamp(1.6rem, 5vw, 2.2rem)', fontWeight: 600, color: TEXT, lineHeight: 1.1, letterSpacing: '-0.03em' }}>
+                  {selectedProduct.name}
+                </h1>
               </div>
             </div>
 
-            {/* e) ПОДКЛЮЧЕНИЯ (Connectivity) */}
-            <div>
-              <h3 
-                className="text-sm font-semibold mb-3 px-1 flex items-center gap-2"
-                style={{ color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.02em' }}
-              >
-                <Wifi className="w-4 h-4" style={{ color: 'var(--theme-primary)' }} />
-                Connectivity
-              </h3>
-              <div 
-                className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide"
-                style={{ scrollSnapType: 'x mandatory', scrollBehavior: 'smooth' }}
-              >
-                {selectedProduct.connectivity.map((conn, idx) => (
-                  <div 
-                    key={idx}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-full flex-shrink-0"
+            <m.div
+              className="relative z-10 px-5 pb-32"
+              style={{ marginTop: -1 }}
+              variants={contentStagger}
+              initial="hidden"
+              animate="visible"
+            >
+              <m.div variants={contentItem} className="flex items-end justify-between mb-4 pt-2">
+                <div>
+                  <span style={{ fontFamily: SF, fontSize: '1.6rem', fontWeight: 600, color: TEXT, letterSpacing: '-0.02em' }}>{formatPrice(selectedProduct.price)}</span>
+                  {selectedProduct.oldPrice && (
+                    <span style={{ fontFamily: SF, fontSize: '0.85rem', color: TEXT_TER, textDecoration: 'line-through', marginLeft: 10 }}>{formatPrice(selectedProduct.oldPrice)}</span>
+                  )}
+                  <div className="flex items-center gap-1.5 mt-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5" style={{ fill: i < Math.floor(selectedProduct.rating) ? '#FF9500' : 'rgba(255,255,255,0.1)', color: i < Math.floor(selectedProduct.rating) ? '#FF9500' : 'rgba(255,255,255,0.1)' }} />
+                    ))}
+                    <span style={{ fontFamily: SF, fontSize: '0.75rem', color: TEXT_SEC, marginLeft: 4 }}>{selectedProduct.rating}</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span style={{ fontFamily: SF, fontSize: '0.55rem', color: TEXT_TER, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Бренд</span>
+                  <p style={{ fontFamily: SF, fontSize: '0.9rem', fontWeight: 600, color: ACCENT, letterSpacing: '-0.01em' }}>{selectedProduct.brand}</p>
+                </div>
+              </m.div>
+
+              <m.div variants={contentItem} className="grid grid-cols-3 gap-2.5 mb-5">
+                {selectedProduct.specs.slice(0, 3).map((spec, idx) => (
+                  <div key={idx} className="rounded-2xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${GLASS_BORDER}` }}>
+                    <Cpu className="w-4 h-4 mb-1.5" style={{ color: ACCENT }} />
+                    <p style={{ fontFamily: SF, fontSize: '0.55rem', color: TEXT_TER, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{spec.label}</p>
+                    <p style={{ fontFamily: SF, fontSize: '0.85rem', fontWeight: 600, color: TEXT, letterSpacing: '-0.01em' }}>{spec.value}</p>
+                  </div>
+                ))}
+              </m.div>
+
+              <m.div variants={contentItem} className="flex gap-0 mb-5 rounded-xl overflow-hidden" style={{ border: `0.5px solid ${GLASS_BORDER}` }}>
+                {(['specs', 'tech', 'reviews'] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveProductTab(tab)}
+                    className="flex-1 py-3 relative transition-colors duration-200"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(var(--theme-primary-rgb, 99,102,241),0.15) 0%, rgba(var(--theme-primary-rgb, 99,102,241),0.08) 100%)',
-                      border: '0.5px solid rgba(var(--theme-primary-rgb, 99,102,241),0.25)',
-                      scrollSnapAlign: 'start'
+                      fontFamily: SF,
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      color: activeProductTab === tab ? TEXT : TEXT_TER,
+                      background: activeProductTab === tab ? 'rgba(255,255,255,0.06)' : 'transparent',
                     }}
                   >
-                    <span style={{ color: 'var(--theme-primary)' }}>{getConnectivityIcon(conn)}</span>
-                    <span 
-                      className="text-xs font-medium whitespace-nowrap"
-                      style={{ color: 'rgba(255,255,255,0.85)' }}
-                    >
-                      {conn}
-                    </span>
-                  </div>
+                    {tab === 'specs' ? 'Характеристики' : tab === 'tech' ? 'Технологии' : `Отзывы (${productReviews.length})`}
+                    {activeProductTab === tab && (
+                      <m.div layoutId="tech-tab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: ACCENT }} />
+                    )}
+                  </button>
                 ))}
-              </div>
-            </div>
+              </m.div>
 
-            {/* f) ГАРАНТИЯ И СЕРВИС */}
-            <div className="grid grid-cols-2 gap-3">
-              <div 
-                className="rounded-2xl p-4"
-                style={glassCard}
-              >
-                <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
-                  style={{ background: 'rgba(52,199,89,0.15)' }}
-                >
-                  <Shield className="w-5 h-5" style={{ color: '#34C759' }} />
-                </div>
-                <h4 className="text-xs font-semibold mb-1" style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  Гарантия
-                </h4>
-                <p className="text-[11px] leading-snug" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                  {selectedProduct.warranty}
-                </p>
-              </div>
-              
-              <div 
-                className="rounded-2xl p-4"
-                style={glassCard}
-              >
-                <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
-                  style={{ background: 'rgba(var(--theme-primary-rgb, 99,102,241),0.15)' }}
-                >
-                  <Package className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
-                </div>
-                <h4 className="text-xs font-semibold mb-1" style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  Доставка
-                </h4>
-                <p className="text-[11px] leading-snug" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                  Бесплатная доставка от 5000₽
-                </p>
-              </div>
-            </div>
+              {activeProductTab === 'specs' && (
+                <m.div variants={contentStagger} initial="hidden" animate="visible">
+                  <m.p variants={contentItem} style={{ fontFamily: SF, fontSize: '0.9rem', lineHeight: 1.7, color: 'rgba(255,255,255,0.75)', letterSpacing: '-0.01em', marginBottom: 20 }}>
+                    {selectedProduct.description}
+                  </m.p>
 
-            {/* g) В КОМПЛЕКТЕ */}
-            <div 
-              className="rounded-2xl p-4"
-              style={glassCard}
-            >
-              <h3 
-                className="text-sm font-semibold mb-4 flex items-center gap-2"
-                style={{ color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.02em' }}
-              >
-                <Box className="w-4 h-4" style={{ color: 'var(--theme-primary)' }} />
-                Что в коробке
-              </h3>
-              <div className="space-y-2.5">
-                {selectedProduct.boxContents.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-3 text-sm">
-                    <div 
-                      className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
-                      style={{ background: 'rgba(52,199,89,0.15)' }}
-                    >
-                      <Check className="w-3 h-3" style={{ color: '#34C759' }} />
+                  <m.div variants={contentItem} className="rounded-2xl p-5 mb-5" style={{ background: 'rgba(255,255,255,0.02)', borderLeft: `2px solid ${ACCENT}40` }}>
+                    <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8 }}>Заметка эксперта</p>
+                    <p style={{ fontFamily: SF, fontSize: '0.85rem', fontStyle: 'italic', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, letterSpacing: '-0.01em' }}>
+                      «{selectedProduct.tagline} — {selectedProduct.brand} продолжает задавать стандарты индустрии.»
+                    </p>
+                  </m.div>
+
+                  <m.div variants={contentItem}>
+                    <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Полные характеристики</p>
+                    <div className="space-y-0">
+                      {selectedProduct.specs.map((spec, idx) => (
+                        <div key={idx} className="flex items-center justify-between py-3" style={{ borderBottom: `0.5px solid ${GLASS_BORDER}` }}>
+                          <span style={{ fontFamily: SF, fontSize: '0.8rem', color: TEXT_SEC }}>{spec.label}</span>
+                          <span style={{ fontFamily: SF, fontSize: '0.8rem', fontWeight: 600, color: TEXT }}>{spec.value}</span>
+                        </div>
+                      ))}
                     </div>
-                    <span style={{ color: 'rgba(255,255,255,0.75)' }}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  </m.div>
+                </m.div>
+              )}
 
-            {/* h) РЕКОМЕНДУЕМЫЕ ТОВАРЫ */}
-            {recommendedProducts.length > 0 && (
-              <div>
-                <h3 
-                  className="text-sm font-semibold mb-4 px-1"
-                  style={{ color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.02em' }}
-                >
-                  Вам также понравится
-                </h3>
-                <div 
-                  className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide"
-                  style={{ 
-                    scrollSnapType: 'x mandatory', 
-                    scrollBehavior: 'smooth',
-                    marginLeft: '-4px', 
-                    paddingLeft: '4px',
-                    marginRight: '-4px',
-                    paddingRight: '4px'
-                  }}
-                >
-                  {recommendedProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="flex-shrink-0 cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 active:scale-98"
-                      style={{
-                        width: '160px',
-                        ...glassCard,
-                        scrollSnapAlign: 'start'
-                      }}
-                      onClick={() => {
-                        setIsDescriptionExpanded(false);
-                        scrollToTop();
-                        setSelectedProduct(product);
-                      }}
-                      data-testid={`recommended-product-${product.id}`}
-                    >
-                      <div className="relative" style={{ height: '130px' }}>
-                        <LazyImage
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full"
-                          style={{ objectFit: 'cover' }}
-                        />
-                        {/* Quick View button overlay */}
-                        <button
-                          className="absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300"
-                          style={{
-                            background: 'rgba(0,0,0,0.5)',
-                            backdropFilter: 'blur(10px)',
-                            WebkitBackdropFilter: 'blur(10px)',
-                            border: '0.5px solid rgba(255,255,255,0.2)'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setQuickViewProduct(product);
-                          }}
-                          data-testid={`quick-view-${product.id}`}
-                        >
-                          <Eye className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.9)' }} />
-                        </button>
+              {activeProductTab === 'tech' && (
+                <m.div variants={contentStagger} initial="hidden" animate="visible">
+                  <m.div variants={contentItem} className="space-y-3 mb-6">
+                    {selectedProduct.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-3.5 p-3.5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${GLASS_BORDER}` }}>
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${ACCENT}12` }}>
+                          <Zap className="w-3.5 h-3.5" style={{ color: ACCENT }} />
+                        </div>
+                        <span style={{ fontFamily: SF, fontSize: '0.85rem', fontWeight: 500, color: TEXT, letterSpacing: '-0.01em' }}>{feature}</span>
                       </div>
-                      <div className="p-3">
-                        <p 
-                          className="text-xs font-medium mb-2 line-clamp-2"
-                          style={{ color: 'rgba(255,255,255,0.9)', lineHeight: 1.35, letterSpacing: '-0.01em' }}
-                        >
-                          {product.name}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <p 
-                            className="text-sm font-bold"
-                            style={{ color: 'var(--theme-primary)', fontVariantNumeric: 'tabular-nums' }}
-                          >
-                            {formatPrice(product.price)}
-                          </p>
-                          {product.oldPrice && (
-                            <p 
-                              className="text-[10px] line-through"
-                              style={{ color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}
-                            >
-                              {formatPrice(product.oldPrice)}
-                            </p>
-                          )}
+                    ))}
+                  </m.div>
+
+                  <m.div variants={contentItem} className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: `0.5px solid ${GLASS_BORDER}` }}>
+                    <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8 }}>Почему это важно</p>
+                    <p style={{ fontFamily: SF, fontSize: '0.8rem', color: TEXT_SEC, lineHeight: 1.6 }}>
+                      Каждая технология в {selectedProduct.name} создана для реальных сценариев использования — от профессиональной работы до повседневных задач. {selectedProduct.brand} инвестирует миллиарды в R&D, чтобы каждая деталь работала безупречно.
+                    </p>
+                  </m.div>
+                </m.div>
+              )}
+
+              {activeProductTab === 'reviews' && (
+                <m.div variants={contentStagger} initial="hidden" animate="visible" className="space-y-4">
+                  <m.div variants={contentItem} className="flex items-center gap-4 mb-2 p-4 rounded-2xl" style={{ background: `${ACCENT}08`, border: `0.5px solid ${ACCENT}15` }}>
+                    <div>
+                      <span style={{ fontFamily: SF, fontSize: '2rem', fontWeight: 700, color: TEXT, letterSpacing: '-0.02em' }}>{selectedProduct.rating}</span>
+                      <span style={{ fontFamily: SF, fontSize: '0.8rem', color: TEXT_SEC, marginLeft: 4 }}>/ 5</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex gap-1 mb-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} className="w-3.5 h-3.5" style={{ fill: i < Math.floor(selectedProduct.rating) ? '#FF9500' : 'rgba(255,255,255,0.1)', color: i < Math.floor(selectedProduct.rating) ? '#FF9500' : 'rgba(255,255,255,0.1)' }} />
+                        ))}
+                      </div>
+                      <p style={{ fontFamily: SF, fontSize: '0.7rem', color: TEXT_SEC }}>{productReviews.length} отзывов</p>
+                    </div>
+                  </m.div>
+
+                  {productReviews.map((review) => (
+                    <m.div key={review.id} variants={contentItem} className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${GLASS_BORDER}` }}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: `${ACCENT}15` }}>
+                            <span style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: ACCENT }}>{review.name[0]}</span>
+                          </div>
+                          <div>
+                            <p style={{ fontFamily: SF, fontSize: '0.8rem', fontWeight: 600, color: TEXT }}>{review.name}</p>
+                            <p style={{ fontFamily: SF, fontSize: '0.6rem', color: TEXT_TER }}>{review.date}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: review.rating }).map((_, i) => (
+                            <Star key={i} className="w-3 h-3" style={{ fill: '#FF9500', color: '#FF9500' }} />
+                          ))}
                         </div>
                       </div>
-                    </div>
+                      <p style={{ fontFamily: SF, fontSize: '0.8rem', color: TEXT_SEC, lineHeight: 1.6 }}>{review.text}</p>
+                    </m.div>
                   ))}
+                </m.div>
+              )}
+
+              <m.div variants={contentItem} className="mt-6 mb-4">
+                <button
+                  onClick={() => handleAddToCart(selectedProduct)}
+                  className="w-full py-4 rounded-2xl flex items-center justify-center gap-2.5 active:scale-[0.97]"
+                  style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.9rem', fontWeight: 600, transition: 'transform 0.15s ease' }}
+                >
+                  <ShoppingBag className="w-4.5 h-4.5" />
+                  Добавить в корзину — {formatPrice(selectedProduct.price)}
+                </button>
+              </m.div>
+
+              <m.div variants={contentItem} className="grid grid-cols-3 gap-3 py-5 mb-2" style={{ borderTop: `0.5px solid ${GLASS_BORDER}`, borderBottom: `0.5px solid ${GLASS_BORDER}` }}>
+                {[
+                  { icon: Shield, label: 'Гарантия', desc: '2 года' },
+                  { icon: Zap, label: 'Доставка', desc: 'За 2 часа' },
+                  { icon: Box, label: 'Возврат', desc: '14 дней' },
+                ].map((item, idx) => (
+                  <div key={idx} className="text-center">
+                    <item.icon className="w-4 h-4 mx-auto mb-1.5" style={{ color: ACCENT }} />
+                    <p style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: TEXT }}>{item.label}</p>
+                    <p style={{ fontFamily: SF, fontSize: '0.6rem', color: TEXT_SEC }}>{item.desc}</p>
+                  </div>
+                ))}
+              </m.div>
+
+              {recommended.length > 0 && (
+                <m.div variants={contentItem} className="mt-5">
+                  <div className="flex items-end justify-between mb-4">
+                    <div>
+                      <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Рекомендации</span>
+                      <h3 style={{ fontFamily: SF, fontSize: '1.2rem', fontWeight: 600, color: TEXT, marginTop: 2, letterSpacing: '-0.02em' }}>Вам также <em style={{ fontStyle: 'italic', color: ACCENT }}>понравится</em></h3>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 overflow-x-auto pb-3 -mx-5 px-5 scrollbar-hide">
+                    {recommended.map((p) => (
+                      <div
+                        key={p.id}
+                        className="flex-shrink-0 cursor-pointer active:scale-[0.97]"
+                        style={{ width: 140, transition: 'transform 0.15s ease' }}
+                        onClick={() => { openProduct(p); }}
+                      >
+                        <div className="relative rounded-[18px] overflow-hidden mb-2" style={{ height: 140, background: BG_CARD }}>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-[60%] h-[60%]">
+                              <LazyImage src={p.image} alt={p.name} className="w-full h-full object-contain" />
+                            </div>
+                          </div>
+                        </div>
+                        <p className="truncate" style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: TEXT, letterSpacing: '-0.01em' }}>{p.name}</p>
+                        <span style={{ fontFamily: SF, fontSize: '0.65rem', fontWeight: 600, color: TEXT_SEC }}>{formatPrice(p.price)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </m.div>
+              )}
+            </m.div>
+          </div>
+        </m.div>
+      </>
+    );
+  }
+
+  if (activeTab === 'home') {
+    const featured = products.filter(p => p.isFeatured);
+    const newProducts = products.filter(p => p.isNew);
+    const appleProducts = products.filter(p => p.brand === 'Apple').slice(0, 6);
+    return (
+      <>
+        <DemoSidebar
+          isOpen={sidebar.isOpen} onClose={sidebar.close} onOpen={sidebar.open}
+          menuItems={sidebarMenuItems} accentColor={ACCENT} bgColor={BG}
+          title="TechStore" subtitle="Premium Tech"
+        />
+        <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ background: BG }}>
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="relative overflow-hidden"
+            style={{ height: '62vh' }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(ellipse 80% 60% at 50% 45%, ${ACCENT}12 0%, transparent 70%)` }}>
+              <m.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 1, 0.5, 1] }}
+                className="w-[60%] max-w-[280px]"
+              >
+                <LazyImage src={iphone15ProMaxImage} alt="iPhone 16 Pro Max" className="w-full h-auto object-contain" />
+              </m.div>
+            </div>
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${BG} 0%, transparent 50%)` }} />
+            <div className="absolute inset-0 flex flex-col justify-end items-center text-center px-6 pb-8">
+              <m.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+              >
+                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: ACCENT }}>
+                  Новинка 2026
+                </span>
+                <h1 style={{ fontFamily: SF, fontSize: '2.8rem', fontWeight: 600, color: TEXT, lineHeight: 0.95, marginTop: 6, letterSpacing: '-0.04em' }}>
+                  iPhone 16 <em style={{ fontStyle: 'italic', fontWeight: 300, color: ACCENT }}>Pro</em>
+                </h1>
+                <p style={{ fontFamily: SF, fontSize: '1rem', fontWeight: 400, color: TEXT_SEC, marginTop: 8, letterSpacing: '-0.01em' }}>
+                  Титан. Так закалён. Так Pro.
+                </p>
+                <div className="flex gap-3 mt-6 justify-center">
+                  <button
+                    onClick={() => openProduct(products[0])}
+                    className="px-7 py-2.5 rounded-full active:scale-[0.97]"
+                    style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.8rem', fontWeight: 600, transition: 'transform 0.15s ease' }}
+                  >
+                    Подробнее
+                  </button>
+                  <button
+                    onClick={() => handleAddToCart(products[0])}
+                    className="px-7 py-2.5 rounded-full active:scale-[0.97]"
+                    style={{ background: 'rgba(255,255,255,0.1)', color: TEXT, fontFamily: SF, fontSize: '0.8rem', fontWeight: 500, border: `1px solid rgba(255,255,255,0.15)`, transition: 'transform 0.15s ease' }}
+                  >
+                    Купить
+                  </button>
+                </div>
+              </m.div>
+            </div>
+          </m.div>
+
+          <div className="grid grid-cols-3 gap-2.5 px-5 -mt-5 relative z-10">
+            {[
+              { icon: Shield, label: 'Гарантия', value: '2 года' },
+              { icon: Zap, label: 'Доставка', value: 'За 2 часа' },
+              { icon: Award, label: 'Оригинал', value: '100%' },
+            ].map((item, idx) => (
+              <m.div
+                key={idx}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.6 + idx * 0.08 }}
+                className="p-3 rounded-2xl text-center"
+                style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(24px)', border: `0.5px solid ${GLASS_BORDER}` }}
+              >
+                <item.icon className="w-4 h-4 mx-auto mb-1.5" style={{ color: ACCENT }} />
+                <p style={{ fontFamily: SF, fontSize: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: TEXT_SEC }}>{item.label}</p>
+                <p style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: TEXT, marginTop: 1 }}>{item.value}</p>
+              </m.div>
+            ))}
+          </div>
+
+          <div className="px-5 mt-8 mb-8">
+            <m.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
+              className="relative rounded-[24px] overflow-hidden cursor-pointer active:scale-[0.98]"
+              style={{ height: 120, background: `linear-gradient(135deg, ${ACCENT}10 0%, rgba(255,149,0,0.06) 100%)`, border: `1px solid ${GLASS_BORDER}`, transition: 'transform 0.15s ease' }}
+              onClick={() => onTabChange?.('catalog')}
+            >
+              <div className="absolute inset-0 p-5 flex items-center justify-between">
+                <div>
+                  <p style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, marginBottom: 4 }}>Специальное предложение</p>
+                  <h3 style={{ fontFamily: SF, fontSize: '1.15rem', fontWeight: 600, color: TEXT, lineHeight: 1.2, letterSpacing: '-0.02em' }}>Trade-in: скидка <em style={{ fontStyle: 'italic', color: ACCENT }}>до 30%</em></h3>
+                  <p style={{ fontFamily: SF, fontSize: '0.65rem', color: TEXT_SEC, marginTop: 4 }}>Сдайте старое устройство — получите скидку</p>
+                </div>
+                <div className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: `${ACCENT}15` }}>
+                  <ChevronRight className="w-5 h-5" style={{ color: ACCENT }} />
                 </div>
               </div>
+            </m.div>
+          </div>
+
+          <m.div
+            className="px-5 mb-8"
+            variants={contentStagger}
+            initial="hidden"
+            animate="visible"
+          >
+            <m.div variants={contentItem} className="flex items-end justify-between mb-5">
+              <div>
+                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Рекомендуем</span>
+                <h2 style={{ fontFamily: SF, fontSize: '1.5rem', fontWeight: 600, color: TEXT, marginTop: 3, letterSpacing: '-0.03em' }}>Выбор <em style={{ fontStyle: 'italic', color: ACCENT }}>экспертов</em></h2>
+              </div>
+              <button onClick={() => onTabChange?.('catalog')} style={{ fontFamily: SF, fontSize: '0.7rem', color: ACCENT, fontWeight: 500 }}>Все →</button>
+            </m.div>
+            <m.div variants={contentItem} className="flex gap-3.5 overflow-x-auto pb-4 -mx-5 px-5 scrollbar-hide">
+              {featured.slice(0, 6).map((product, idx) => (
+                <m.div
+                  key={product.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.08 * idx }}
+                  className="relative flex-shrink-0 cursor-pointer active:scale-[0.97]"
+                  style={{ width: 165, transition: 'transform 0.15s ease' }}
+                  onClick={() => openProduct(product)}
+                >
+                  <div className="relative rounded-[20px] overflow-hidden mb-2.5" style={{ height: 200, background: BG_CARD }}>
+                    <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(circle at 50% 55%, ${product.color}15 0%, transparent 55%)` }}>
+                      <div className="w-[65%] h-[60%]">
+                        <LazyImage src={product.image} alt={product.name} className="w-full h-full object-contain" />
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
+                      className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center"
+                      style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}
+                    >
+                      <Heart className="w-3 h-3" style={{ color: isFavorite(product.id) ? '#FF375F' : 'rgba(255,255,255,0.5)', fill: isFavorite(product.id) ? '#FF375F' : 'none' }} />
+                    </button>
+                    {product.isNew && (
+                      <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full"
+                        style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.5rem', fontWeight: 600 }}>Новинка</span>
+                    )}
+                  </div>
+                  <p style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 500, color: ACCENT, letterSpacing: '0.02em', marginBottom: 2 }}>{product.brand}</p>
+                  <p className="truncate" style={{ fontFamily: SF, fontSize: '0.8rem', fontWeight: 600, color: TEXT, marginBottom: 3, letterSpacing: '-0.02em' }}>{product.name}</p>
+                  <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, color: TEXT }}>{formatPrice(product.price)}</span>
+                </m.div>
+              ))}
+            </m.div>
+          </m.div>
+
+          <m.div
+            className="px-5 mb-8"
+            variants={contentStagger}
+            initial="hidden"
+            animate="visible"
+          >
+            <m.div variants={contentItem} className="flex items-end justify-between mb-5">
+              <div>
+                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Категории</span>
+                <h2 style={{ fontFamily: SF, fontSize: '1.5rem', fontWeight: 600, color: TEXT, marginTop: 3, letterSpacing: '-0.03em' }}>Каталог <em style={{ fontStyle: 'italic', color: ACCENT }}>устройств</em></h2>
+              </div>
+            </m.div>
+            <m.div variants={contentItem} className="grid grid-cols-4 gap-2.5">
+              {Object.entries(CATEGORY_MAP).slice(0, 8).map(([cat, { emoji }], idx) => (
+                <m.button
+                  key={cat}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.04 * idx }}
+                  className="p-3 rounded-2xl text-center active:scale-[0.95]"
+                  style={{ background: GLASS, border: `1px solid ${GLASS_BORDER}`, transition: 'transform 0.15s ease' }}
+                  onClick={() => { setSelectedCategory(cat); onTabChange?.('catalog'); }}
+                >
+                  <span className="text-lg block mb-1">{emoji}</span>
+                  <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 500, color: TEXT_SEC }}>{cat}</p>
+                </m.button>
+              ))}
+            </m.div>
+          </m.div>
+
+          <m.div
+            className="px-5 mb-8"
+            variants={contentStagger}
+            initial="hidden"
+            animate="visible"
+          >
+            <m.div variants={contentItem} className="flex items-end justify-between mb-5">
+              <div>
+                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Новинки</span>
+                <h2 style={{ fontFamily: SF, fontSize: '1.5rem', fontWeight: 600, color: TEXT, marginTop: 3, letterSpacing: '-0.03em' }}>Только что <em style={{ fontStyle: 'italic', color: ACCENT }}>вышли</em></h2>
+              </div>
+            </m.div>
+            <m.div variants={contentItem} className="space-y-3">
+              {newProducts.slice(0, 4).map((product, idx) => (
+                <m.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.08 * idx }}
+                  className="flex gap-3.5 p-3.5 rounded-[20px] cursor-pointer active:scale-[0.98]"
+                  style={{ background: BG_CARD, transition: 'transform 0.15s ease' }}
+                  onClick={() => openProduct(product)}
+                >
+                  <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ background: `radial-gradient(circle, ${product.color}15 0%, transparent 70%)` }}>
+                    <LazyImage src={product.image} alt={product.name} className="w-[75%] h-[75%] object-contain" />
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 500, color: ACCENT }}>{product.brand}</span>
+                      <span className="px-1.5 py-0.5 rounded-full" style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.45rem', fontWeight: 600 }}>Новинка</span>
+                    </div>
+                    <p className="truncate" style={{ fontFamily: SF, fontSize: '0.85rem', fontWeight: 600, color: TEXT, marginBottom: 3, letterSpacing: '-0.02em' }}>{product.name}</p>
+                    <div className="flex items-center justify-between">
+                      <span style={{ fontFamily: SF, fontSize: '0.8rem', fontWeight: 600, color: TEXT }}>{formatPrice(product.price)}</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3" style={{ color: '#FF9500', fill: '#FF9500' }} />
+                        <span style={{ fontFamily: SF, fontSize: '0.65rem', fontWeight: 600, color: TEXT_SEC }}>{product.rating}</span>
+                      </div>
+                    </div>
+                  </div>
+                </m.div>
+              ))}
+            </m.div>
+          </m.div>
+
+          <m.div
+            className="px-5 mb-8"
+            variants={contentStagger}
+            initial="hidden"
+            animate="visible"
+          >
+            <m.div variants={contentItem} className="flex items-end justify-between mb-5">
+              <div>
+                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Экосистема</span>
+                <h2 style={{ fontFamily: SF, fontSize: '1.5rem', fontWeight: 600, color: TEXT, marginTop: 3, letterSpacing: '-0.03em' }}>Мир <em style={{ fontStyle: 'italic', color: ACCENT }}>Apple</em></h2>
+              </div>
+              <button onClick={() => { setSelectedCategory('Все'); onTabChange?.('catalog'); }} style={{ fontFamily: SF, fontSize: '0.7rem', color: ACCENT, fontWeight: 500 }}>Все →</button>
+            </m.div>
+            <m.div variants={contentItem} className="flex gap-3.5 overflow-x-auto pb-4 -mx-5 px-5 scrollbar-hide">
+              {appleProducts.map((product, idx) => (
+                <m.div
+                  key={product.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.08 * idx }}
+                  className="relative flex-shrink-0 cursor-pointer active:scale-[0.97]"
+                  style={{ width: 140, transition: 'transform 0.15s ease' }}
+                  onClick={() => openProduct(product)}
+                >
+                  <div className="relative rounded-[18px] overflow-hidden mb-2" style={{ height: 140, background: BG_CARD }}>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-[60%] h-[60%]">
+                        <LazyImage src={product.image} alt={product.name} className="w-full h-full object-contain" />
+                      </div>
+                    </div>
+                  </div>
+                  <p className="truncate" style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: TEXT, marginBottom: 2, letterSpacing: '-0.01em' }}>{product.name}</p>
+                  <span style={{ fontFamily: SF, fontSize: '0.65rem', fontWeight: 600, color: TEXT_SEC }}>{formatPrice(product.price)}</span>
+                </m.div>
+              ))}
+            </m.div>
+          </m.div>
+
+          <div className="px-5 pb-4">
+            <m.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="p-5 rounded-[24px] text-center"
+              style={{ background: BG_CARD }}
+            >
+              <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: `${ACCENT}12` }}>
+                <Phone className="w-5 h-5" style={{ color: ACCENT }} />
+              </div>
+              <p style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, marginBottom: 6 }}>Поддержка</p>
+              <h3 style={{ fontFamily: SF, fontSize: '1.1rem', fontWeight: 600, color: TEXT, marginBottom: 6, letterSpacing: '-0.02em' }}>Нужна <em style={{ fontStyle: 'italic', color: ACCENT }}>помощь?</em></h3>
+              <p style={{ fontFamily: SF, fontSize: '0.7rem', color: TEXT_SEC, marginBottom: 12 }}>Эксперты на связи 24/7</p>
+              <button
+                className="w-full py-3 rounded-2xl active:scale-[0.97]"
+                style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.8rem', fontWeight: 600, transition: 'transform 0.15s ease' }}
+              >
+                Связаться
+              </button>
+            </m.div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (activeTab === 'catalog') {
+    return (
+      <>
+        <DemoSidebar
+          isOpen={sidebar.isOpen} onClose={sidebar.close} onOpen={sidebar.open}
+          menuItems={sidebarMenuItems} accentColor={ACCENT} bgColor={BG}
+          title="TechStore" subtitle="Premium Tech"
+        />
+        <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ background: BG }}>
+          <m.div
+            className="px-5 pt-5 pb-3"
+            variants={contentStagger}
+            initial="hidden"
+            animate="visible"
+          >
+            <m.div variants={contentItem} className="flex items-center justify-between mb-5">
+              <div>
+                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Каталог</span>
+                <h1 style={{ fontFamily: SF, fontSize: '1.8rem', fontWeight: 600, color: TEXT, marginTop: 2, letterSpacing: '-0.03em' }}>Все <em style={{ fontStyle: 'italic', color: ACCENT }}>товары</em></h1>
+              </div>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: GLASS, border: `1px solid ${GLASS_BORDER}` }}>
+                <Grid className="w-4 h-4" style={{ color: ACCENT }} />
+              </div>
+            </m.div>
+
+            <m.div variants={contentItem} className="relative mb-4">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: TEXT_TER }} />
+              <input
+                type="text"
+                placeholder="Поиск устройств..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 rounded-2xl text-white placeholder:text-white/25 focus:outline-none text-sm"
+                style={{ background: BG_CARD, border: `1px solid ${GLASS_BORDER}`, fontFamily: SF }}
+              />
+            </m.div>
+
+            <m.div variants={contentItem} className="flex gap-2 mb-5 overflow-x-auto pb-1 scrollbar-hide">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className="px-3.5 py-2 rounded-full whitespace-nowrap transition-all"
+                  style={{
+                    background: selectedCategory === cat ? ACCENT : BG_CARD,
+                    color: selectedCategory === cat ? '#fff' : TEXT_SEC,
+                    border: `1px solid ${selectedCategory === cat ? 'transparent' : GLASS_BORDER}`,
+                    fontFamily: SF, fontSize: '0.75rem', fontWeight: selectedCategory === cat ? 600 : 400
+                  }}
+                >
+                  {cat !== 'Все' && CATEGORY_MAP[cat]?.emoji ? `${CATEGORY_MAP[cat].emoji} ` : ''}{cat}
+                </button>
+              ))}
+            </m.div>
+          </m.div>
+
+          <div className="px-4 space-y-3 pb-4">
+            {filteredProducts.length === 0 ? (
+              <EmptyState type="search" title="Ничего не найдено" description="Попробуйте изменить параметры поиска" />
+            ) : (
+              renderCatalogGrid()
             )}
           </div>
         </div>
-        
-        </div>
-        {/* END SCROLLABLE CONTENT CONTAINER */}
-
-        {/* FIXED BOTTOM PANEL - выше нижней панели навигации */}
-        <div 
-          className="absolute left-0 right-0 z-[90]"
-          style={{
-            bottom: '90px',
-            padding: '12px 16px',
-          }}
-        >
-          <div 
-            className="rounded-2xl p-3 flex items-center gap-4"
-            style={{
-              background: 'rgba(0,0,0,0.75)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '0.5px solid rgba(255,255,255,0.15)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)'
-            }}
-          >
-            <div className="flex flex-col">
-              <span 
-                className="text-[10px] font-medium"
-                style={{ color: 'rgba(255,255,255,0.5)' }}
-              >
-                Итого
-              </span>
-              <span 
-                className="text-lg font-bold"
-                style={{ color: 'rgba(255,255,255,0.98)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
-              >
-                {formatPrice(selectedProduct.price)}
-              </span>
-            </div>
-            
-            <button
-              onClick={addToCart}
-              className="flex-1 py-4 rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all duration-300 active:scale-98"
-              style={{
-                background: 'var(--theme-primary)',
-                color: '#000',
-                letterSpacing: '-0.01em',
-                boxShadow: '0 4px 16px rgba(var(--theme-primary-rgb, 99,102,241),0.4)'
-              }}
-              data-testid="button-buy-now"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              Добавить в корзину
-            </button>
-          </div>
-        </div>
-        
-        {/* Quick View Modal */}
-        {quickViewProduct && (
-          <div 
-            className="fixed inset-0 z-[200] flex items-end justify-center"
-            style={{ background: 'rgba(0,0,0,0.6)' }}
-            onClick={() => setQuickViewProduct(null)}
-          >
-            <m.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="w-full max-w-md rounded-t-3xl overflow-hidden"
-              style={{
-                background: 'rgba(20,20,20,0.95)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                border: '0.5px solid rgba(255,255,255,0.1)',
-                maxHeight: '70vh'
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex justify-center pt-3 pb-2">
-                <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.2)' }} />
-              </div>
-              <div className="p-4">
-                <div className="flex gap-4">
-                  <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
-                    <LazyImage
-                      src={quickViewProduct.image}
-                      alt={quickViewProduct.name}
-                      className="w-full h-full"
-                      style={{ objectFit: 'cover' }}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold mb-1 line-clamp-2" style={{ color: 'rgba(255,255,255,0.95)' }}>
-                      {quickViewProduct.name}
-                    </p>
-                    <p className="text-lg font-bold mb-2" style={{ color: 'var(--theme-primary)', fontVariantNumeric: 'tabular-nums' }}>
-                      {formatPrice(quickViewProduct.price)}
-                    </p>
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className="w-3 h-3" 
-                          style={{ 
-                            color: i < Math.floor(quickViewProduct.rating) ? '#FFD60A' : 'rgba(255,255,255,0.15)',
-                            fill: i < Math.floor(quickViewProduct.rating) ? '#FFD60A' : 'transparent'
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setQuickViewProduct(null);
-                    setIsDescriptionExpanded(false);
-                    scrollToTop();
-                    setSelectedProduct(quickViewProduct);
-                  }}
-                  className="w-full mt-4 py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 active:scale-98"
-                  style={{
-                    background: 'var(--theme-primary)',
-                    color: '#000'
-                  }}
-                  data-testid="button-view-details"
-                >
-                  Подробнее
-                </button>
-              </div>
-            </m.div>
-          </div>
-        )}
-      </div>
+      </>
     );
   }
 
-  // HOME PAGE
-  if (activeTab === 'home') {
-    return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
-        <DemoSidebar
-          isOpen={sidebar.isOpen}
-          onClose={sidebar.close}
-          onOpen={sidebar.open}
-          menuItems={sidebarMenuItems}
-          title="TECH"
-          subtitle="MART"
-          accentColor="var(--theme-primary)"
-          bgColor="var(--theme-background)"
-        />
-        <div className="p-6 pb-4">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <button onClick={sidebar.open} aria-label="Меню" data-testid="button-menu">
-              <Menu className="w-6 h-6" />
-            </button>
-            <div className="flex items-center gap-3">
-              <button aria-label="Корзина" data-testid="button-view-cart">
-                <ShoppingCart className="w-6 h-6" />
-              </button>
-              <button aria-label="Избранное" data-testid="button-view-favorites">
-                <Heart className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Zap className="w-6 h-6 text-[var(--theme-primary)]" />
-            </div>
-            <h1 className="text-4xl font-black tracking-tight text-white">
-              TECH
-            </h1>
-            <h1 className="text-4xl font-black tracking-tight text-white">
-              STORE
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-4 mb-6">
-            <button 
-              className="p-2 bg-white rounded-full"
-              aria-label="Главная"
-              data-testid="button-view-home"
-            >
-              <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-              </svg>
-            </button>
-            {genderFilters.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setSelectedFilter(filter)}
-                className={`text-sm font-medium transition-colors ${
-                  selectedFilter === filter
-                    ? 'text-white'
-                    : 'text-white/40'
-                }`}
-                data-testid={`button-filter-${filter.toLowerCase()}`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 bg-white/5 rounded-full px-4 py-3 flex items-center gap-2 border border-white/10">
-              <Search className="w-5 h-5 text-white/50" />
-              <input
-                type="text"
-                placeholder={t('demos.electronics.searchGadgets')}
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
-                data-testid="input-search"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden" style={{ height: '500px' }}>
-          <video
-            src={techStoreVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          />
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-          
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <m.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <Cpu className="w-7 h-7 text-[var(--theme-primary)]" />
-              </div>
-              <h2 className="text-5xl font-black tracking-tight leading-tight text-white">
-                НОВИНКИ
-              </h2>
-              <h2 className="text-5xl font-black mb-3 tracking-tight leading-tight text-white">
-                2025
-              </h2>
-              <p className="text-base text-white/70 mb-6 flex items-center gap-2" style={{ letterSpacing: '0.05em' }}>
-                <Wifi className="w-4 h-4 text-[var(--theme-primary)]" />
-                Передовые технологии
-              </p>
-              <button 
-                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105 bg-[var(--theme-primary)]"
-                data-testid="button-view-new"
-              >
-                Смотреть новинки
-              </button>
-            </m.div>
-          </div>
-        </div>
-
-        <div className="px-6 space-y-4">
-          {filteredProducts.slice(0, 3).map((product, idx) => (
-            <m.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              onClick={() => openProduct(product)}
-              className="relative cursor-pointer group rounded-3xl overflow-hidden"
-              style={{ height: idx === 0 ? '400px' : '320px' }}
-              data-testid={`featured-product-${product.id}`}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent">
-                <LazyImage
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  onLoadComplete={() => handleImageLoad(product.id)}
-                  priority={idx < 2}
-                />
-              </div>
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-
-              <div className="absolute top-4 left-4">
-                <div className="px-3 py-1 bg-black/50 backdrop-blur-md rounded-full border border-white/10">
-                  <span className="text-xs font-semibold text-white/90">
-                    {product.brand}
-                  </span>
-                </div>
-              </div>
-
-              {/* Quick Actions - Quick View & Favorite */}
-              <div className="absolute top-4 right-4 flex gap-2">
-                {/* Quick View Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setQuickViewProduct(product);
-                  }}
-                  aria-label="Быстрый просмотр"
-                  className="w-11 h-11 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                  style={{
-                    background: 'linear-gradient(145deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%)',
-                    backdropFilter: 'blur(20px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                    border: '1px solid rgba(255,255,255,0.3)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-                  }}
-                  data-testid={`button-quickview-home-${product.id}`}
-                >
-                  <Eye className="w-5 h-5 text-white" />
-                </button>
-
-                {/* Favorite Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleToggleFavorite(product.id);
-                  }}
-                  aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                  className="w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
-                  data-testid={`button-favorite-${product.id}`}
-                >
-                  <Heart 
-                    className={`w-5 h-5 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
-                  />
-                </button>
-              </div>
-
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="flex items-end justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-2 leading-tight">
-                      {product.name}
-                    </h3>
-                    <p className="text-sm text-white/70 mb-4 flex items-center gap-1">
-                      <Cpu className="w-4 h-4 text-[var(--theme-primary)]" />
-                      {product.category}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openProduct(product);
-                    }}
-                    aria-label="Добавить в корзину"
-                    className="w-14 h-14 rounded-full bg-[var(--theme-primary)] flex items-center justify-center transition-all hover:scale-110"
-                    data-testid={`button-add-to-cart-${product.id}`}
-                  >
-                    <ShoppingCart className="w-6 h-6 text-black" />
-                  </button>
-                </div>
-
-                <div className="mt-3">
-                  <p className="text-lg font-bold text-white">{formatPrice(product.price)}</p>
-                </div>
-              </div>
-            </m.div>
-          ))}
-        </div>
-
-        <div className="h-8"></div>
-        
-        {/* ===== QUICK VIEW MODAL for HOME PAGE ===== */}
-        <AnimatePresence>
-          {quickViewProduct && (
-            <m.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[100] flex items-end justify-center"
-              style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-              onClick={() => setQuickViewProduct(null)}
-            >
-              <m.div
-                initial={{ opacity: 0, y: 100, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 100, scale: 0.95 }}
-                transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-                className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: '0.5px solid rgba(255,255,255,0.15)',
-                  boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
-                  maxHeight: '75vh',
-                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 140px)',
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Drag Handle */}
-                <div className="flex justify-center pt-3 pb-2">
-                  <div 
-                    className="w-10 h-1 rounded-full"
-                    style={{ background: 'rgba(255,255,255,0.3)' }}
-                  />
-                </div>
-                
-                {/* Close Button */}
-                <button
-                  onClick={() => setQuickViewProduct(null)}
-                  className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10"
-                  style={{
-                    background: 'rgba(255,255,255,0.15)',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                  data-testid="button-close-quickview-home"
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
-                
-                <div className="px-6 pb-8 overflow-y-auto" style={{ maxHeight: 'calc(75vh - 60px)' }}>
-                  {/* Product Image */}
-                  <div 
-                    className="relative aspect-[4/3] rounded-3xl overflow-hidden mb-5"
-                    style={{ background: 'rgba(255,255,255,0.05)' }}
-                  >
-                    <LazyImage
-                      src={quickViewProduct.image}
-                      alt={quickViewProduct.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  
-                  {/* Product Info */}
-                  <div className="text-center mb-5">
-                    <p className="text-xs font-medium uppercase mb-2" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
-                      {quickViewProduct.brand}
-                    </p>
-                    <h3 className="text-xl font-bold mb-2" style={{ color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.02em' }}>
-                      {quickViewProduct.name}
-                    </h3>
-                    <div className="flex items-center justify-center gap-3">
-                      <p className="text-2xl font-bold" style={{ color: 'rgba(255,255,255,0.95)', fontFeatureSettings: "'tnum'" }}>
-                        {formatPrice(quickViewProduct.price)}
-                      </p>
-                      {quickViewProduct.oldPrice && (
-                        <p className="text-base line-through" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                          {formatPrice(quickViewProduct.oldPrice)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Specs - First 3 */}
-                  <div className="mb-6">
-                    <p className="text-xs font-medium uppercase mb-3 text-center" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
-                      Характеристики
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-2">
-                      {quickViewProduct.specs.slice(0, 3).map((spec, idx) => (
-                        <div
-                          key={idx}
-                          className="px-3 py-2 rounded-xl text-xs font-medium"
-                          style={{
-                            background: 'rgba(255,255,255,0.1)',
-                            color: 'rgba(255,255,255,0.8)',
-                            border: '0.5px solid rgba(255,255,255,0.15)',
-                          }}
-                        >
-                          {spec}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Add to Cart Button */}
-                  <button
-                    onClick={() => {
-                      addToCartHook({
-                        id: String(quickViewProduct.id),
-                        name: quickViewProduct.name,
-                        price: quickViewProduct.price,
-                        quantity: 1,
-                        image: quickViewProduct.image,
-                        size: 'Standard',
-                        color: 'Default'
-                      });
-                      toast({
-                        title: 'Добавлено в корзину',
-                        description: quickViewProduct.name,
-                        duration: 2000,
-                      });
-                      setQuickViewProduct(null);
-                    }}
-                    className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] mb-3"
-                    style={{
-                      background: 'var(--theme-primary)',
-                      color: '#000',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.3), 0 0 30px rgba(var(--theme-primary-rgb, 0,212,255), 0.2)',
-                    }}
-                    data-testid="button-quickview-home-add-to-cart"
-                  >
-                    Добавить в корзину
-                  </button>
-                  
-                  {/* View Full Details */}
-                  <button
-                    onClick={() => {
-                      openProduct(quickViewProduct);
-                      setQuickViewProduct(null);
-                    }}
-                    className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-[0.98]"
-                    style={{
-                      background: 'rgba(255,255,255,0.1)',
-                      color: 'rgba(255,255,255,0.9)',
-                      border: '0.5px solid rgba(255,255,255,0.2)',
-                    }}
-                    data-testid="button-quickview-home-details"
-                  >
-                    Подробнее о товаре
-                  </button>
-                </div>
-              </m.div>
-            </m.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
-
-  // CATALOG PAGE
-  if (activeTab === 'catalog') {
-    return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <h1 className="text-2xl font-bold">{t('demos.electronics.catalog')}</h1>
-            <div className="flex items-center gap-3">
-              <button className="p-2" aria-label={t('demos.electronics.searchGadgets')} data-testid="button-view-search">
-                <Search className="w-6 h-6" />
-              </button>
-              <button className="p-2" aria-label={t('demos.electronics.filter')} data-testid="button-view-filter">
-                <Filter className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-[var(--theme-primary)] text-black'
-                    : 'bg-white/10 text-white/70 hover:bg-white/15'
-                }`}
-                data-testid={`button-filter-${cat.toLowerCase()}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {filteredProducts.map((product, idx) => (
-              <m.div
-                key={product.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => openProduct(product)}
-                className={`relative cursor-pointer rounded-3xl overflow-hidden scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
-                data-testid={`product-card-${product.id}`}
-              >
-                <div className="relative aspect-[3/4] overflow-hidden mb-3">
-                  <LazyImage
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                    onLoadComplete={() => handleImageLoad(product.id)}
-                  />
-                  
-                  {/* Quick Actions */}
-                  <div className="absolute top-2 right-2 flex gap-1.5">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setQuickViewProduct(product);
-                      }}
-                      aria-label="Быстрый просмотр"
-                      className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                      style={{
-                        background: 'linear-gradient(145deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%)',
-                        backdropFilter: 'blur(20px) saturate(180%)',
-                        border: '1px solid rgba(255,255,255,0.3)',
-                      }}
-                      data-testid={`button-quickview-catalog-${product.id}`}
-                    >
-                      <Eye className="w-4 h-4 text-white" />
-                    </button>
-                    
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleFavorite(product.id);
-                      }}
-                      aria-label={isFavorite(String(product.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                      className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
-                      data-testid={`button-favorite-catalog-${product.id}`}
-                    >
-                      <Heart 
-                        className={`w-4 h-4 ${isFavorite(String(product.id)) ? 'fill-white text-white' : 'text-white'}`}
-                      />
-                    </button>
-                  </div>
-
-                </div>
-
-                <div>
-                  <p className="text-xs text-white/50 mb-1">{product.brand}</p>
-                  <p className="text-sm font-semibold mb-1 truncate">{product.name}</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-base font-bold">{formatPrice(product.price)}</p>
-                    {product.oldPrice && (
-                      <p className="text-xs text-white/40 line-through">{formatPrice(product.oldPrice)}</p>
-                    )}
-                  </div>
-                </div>
-              </m.div>
-            ))}
-          </div>
-        </div>
-        
-        {/* ===== QUICK VIEW MODAL for CATALOG PAGE ===== */}
-        <AnimatePresence>
-          {quickViewProduct && (
-            <m.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[100] flex items-end justify-center"
-              style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-              onClick={() => setQuickViewProduct(null)}
-            >
-              <m.div
-                initial={{ opacity: 0, y: 100, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 100, scale: 0.95 }}
-                transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-                className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: '0.5px solid rgba(255,255,255,0.15)',
-                  boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
-                  maxHeight: '75vh',
-                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 140px)',
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Drag Handle */}
-                <div className="flex justify-center pt-3 pb-2">
-                  <div 
-                    className="w-10 h-1 rounded-full"
-                    style={{ background: 'rgba(255,255,255,0.3)' }}
-                  />
-                </div>
-                
-                {/* Close Button */}
-                <button
-                  onClick={() => setQuickViewProduct(null)}
-                  className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10"
-                  style={{
-                    background: 'rgba(255,255,255,0.15)',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                  data-testid="button-close-quickview-catalog"
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
-                
-                <div className="px-6 pb-8 overflow-y-auto" style={{ maxHeight: 'calc(75vh - 60px)' }}>
-                  {/* Product Image */}
-                  <div 
-                    className="relative aspect-[4/3] rounded-3xl overflow-hidden mb-5"
-                    style={{ background: 'rgba(255,255,255,0.05)' }}
-                  >
-                    <LazyImage
-                      src={quickViewProduct.image}
-                      alt={quickViewProduct.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  
-                  {/* Product Info */}
-                  <div className="text-center mb-5">
-                    <p className="text-xs font-medium uppercase mb-2" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
-                      {quickViewProduct.brand}
-                    </p>
-                    <h3 className="text-xl font-bold mb-2" style={{ color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.02em' }}>
-                      {quickViewProduct.name}
-                    </h3>
-                    <div className="flex items-center justify-center gap-3">
-                      <p className="text-2xl font-bold" style={{ color: 'rgba(255,255,255,0.95)', fontFeatureSettings: "'tnum'" }}>
-                        {formatPrice(quickViewProduct.price)}
-                      </p>
-                      {quickViewProduct.oldPrice && (
-                        <p className="text-base line-through" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                          {formatPrice(quickViewProduct.oldPrice)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Specs - First 3 */}
-                  <div className="mb-6">
-                    <p className="text-xs font-medium uppercase mb-3 text-center" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
-                      Характеристики
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-2">
-                      {quickViewProduct.specs.slice(0, 3).map((spec, idx) => (
-                        <div
-                          key={idx}
-                          className="px-3 py-2 rounded-xl text-xs font-medium"
-                          style={{
-                            background: 'rgba(255,255,255,0.1)',
-                            color: 'rgba(255,255,255,0.8)',
-                            border: '0.5px solid rgba(255,255,255,0.15)',
-                          }}
-                        >
-                          {spec}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Add to Cart Button */}
-                  <button
-                    onClick={() => {
-                      addToCartHook({
-                        id: String(quickViewProduct.id),
-                        name: quickViewProduct.name,
-                        price: quickViewProduct.price,
-                        quantity: 1,
-                        image: quickViewProduct.image,
-                        size: 'Standard',
-                        color: 'Default'
-                      });
-                      toast({
-                        title: 'Добавлено в корзину',
-                        description: quickViewProduct.name,
-                        duration: 2000,
-                      });
-                      setQuickViewProduct(null);
-                    }}
-                    className="w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-[0.98] mb-3"
-                    style={{
-                      background: 'var(--theme-primary)',
-                      color: '#000',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.3), 0 0 30px rgba(var(--theme-primary-rgb, 0,212,255), 0.2)',
-                    }}
-                    data-testid="button-quickview-catalog-add-to-cart"
-                  >
-                    Добавить в корзину
-                  </button>
-                  
-                  {/* View Full Details */}
-                  <button
-                    onClick={() => {
-                      openProduct(quickViewProduct);
-                      setQuickViewProduct(null);
-                    }}
-                    className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-[0.98]"
-                    style={{
-                      background: 'rgba(255,255,255,0.1)',
-                      color: 'rgba(255,255,255,0.9)',
-                      border: '0.5px solid rgba(255,255,255,0.2)',
-                    }}
-                    data-testid="button-quickview-catalog-details"
-                  >
-                    Подробнее о товаре
-                  </button>
-                </div>
-              </m.div>
-            </m.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
-
-  // CART PAGE
   if (activeTab === 'cart') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-32 smooth-scroll-page">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">{t('demos.electronics.cart')}</h1>
+      <>
+        <DemoSidebar
+          isOpen={sidebar.isOpen} onClose={sidebar.close} onOpen={sidebar.open}
+          menuItems={sidebarMenuItems} accentColor={ACCENT} bgColor={BG}
+          title="TechStore" subtitle="Premium Tech"
+        />
+        <div className="min-h-screen text-white pb-32 smooth-scroll-page" style={{ background: BG }}>
+          <m.div
+            className="px-5 pt-5"
+            variants={contentStagger}
+            initial="hidden"
+            animate="visible"
+          >
+            <m.div variants={contentItem} className="mb-6">
+              <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Заказ</span>
+              <h1 style={{ fontFamily: SF, fontSize: '1.8rem', fontWeight: 600, color: TEXT, marginTop: 2, letterSpacing: '-0.03em' }}>Корзина</h1>
+            </m.div>
 
-          {cartItems.length === 0 ? (
-            <EmptyState
-              type="cart"
-              actionLabel={isRu ? 'В каталог' : 'Go to catalog'}
-              onAction={() => onTabChange?.('catalog')}
-              className="py-20"
-            />
-          ) : (
-            <div className="space-y-4">
-              {cartItems.map((item: typeof cartItems[0]) => (
-                <div
-                  key={`${item.id}-${item.size}-${item.color}`}
-                  className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
-                  data-testid={`cart-item-${item.id}`}
-                >
-                  <LazyImage
-                    src={item.image || ''}
-                    alt={item.name}
-                    className="w-20 h-20 rounded-xl object-cover"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-1">{item.name}</h3>
-                    <div className="flex items-center justify-between">
-                      <p className="text-lg font-bold">{formatPrice(item.price * item.quantity)}</p>
-                      <div className="flex items-center gap-2 bg-white/10 rounded-full px-2">
+            {cartItems.length === 0 ? (
+              <m.div variants={contentItem}>
+                <EmptyState
+                  type="cart"
+                  title="Корзина пуста"
+                  description="Добавьте устройства из каталога"
+                  actionLabel="Перейти в каталог"
+                  onAction={() => onTabChange?.('catalog')}
+                />
+              </m.div>
+            ) : (
+              <m.div variants={contentItem} className="space-y-3 mb-40">
+                {cartItems.map((item, idx) => (
+                  <m.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: idx * 0.05 }}
+                    className="flex gap-3.5 p-3.5 rounded-[20px]"
+                    style={{ background: BG_CARD }}
+                  >
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ background: GLASS }}>
+                      <LazyImage src={item.image || ''} alt={item.name} className="w-[75%] h-[75%] object-contain" />
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                      <div>
+                        <p className="truncate" style={{ fontFamily: SF, fontSize: '0.85rem', fontWeight: 600, color: TEXT, marginBottom: 2, letterSpacing: '-0.02em' }}>{item.name}</p>
+                        <p style={{ fontFamily: SF, fontSize: '0.85rem', fontWeight: 600, color: TEXT }}>{formatPrice(item.price * item.quantity)}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center"
-                          aria-label="Уменьшить количество"
-                          data-testid={`button-decrease-${item.id}`}
+                          onClick={() => item.quantity > 1 ? updateQuantity(item.id, item.quantity - 1) : removeFromCart(item.id)}
+                          className="w-7 h-7 rounded-full flex items-center justify-center"
+                          style={{ background: GLASS, border: `1px solid ${GLASS_BORDER}` }}
                         >
-                          <Minus className="w-4 h-4" />
+                          <span style={{ color: TEXT_SEC, fontSize: '0.8rem' }}>{item.quantity > 1 ? '−' : '×'}</span>
                         </button>
-                        <span className="w-6 text-center font-semibold">{item.quantity}</span>
+                        <span style={{ fontFamily: SF, fontSize: '0.85rem', fontWeight: 600, color: TEXT, minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center"
-                          aria-label="Увеличить количество"
-                          data-testid={`button-increase-${item.id}`}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="w-7 h-7 rounded-full flex items-center justify-center"
+                          style={{ background: GLASS, border: `1px solid ${GLASS_BORDER}` }}
                         >
-                          <Plus className="w-4 h-4" />
+                          <span style={{ color: TEXT_SEC, fontSize: '0.8rem' }}>+</span>
                         </button>
                       </div>
                     </div>
-                  </div>
-                  <button
-                    onClick={() => removeFromCart(item.id, item.size, item.color)}
-                    aria-label="Удалить из корзины"
-                    className="w-10 h-10 flex items-center justify-center"
-                    data-testid={`button-remove-${item.id}`}
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              ))}
+                  </m.div>
+                ))}
+              </m.div>
+            )}
+          </m.div>
 
-              <TrustBadges />
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[var(--theme-background)] border-t border-white/10">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold">{isRu ? 'Итого:' : 'Total:'}</span>
-                  <span className="text-2xl font-bold">{formatPrice(totalAmount)}</span>
+          {cartItems.length > 0 && (
+            <div className="fixed bottom-24 left-0 right-0 px-5 py-4 z-30" style={{ background: `${BG}f0`, backdropFilter: 'blur(20px)', borderTop: `1px solid ${GLASS_BORDER}` }}>
+              <div className="max-w-md mx-auto">
+                <div className="flex items-center justify-between mb-3">
+                  <span style={{ fontFamily: SF, fontSize: '0.85rem', color: TEXT_SEC }}>Итого</span>
+                  <span style={{ fontFamily: SF, fontSize: '1.3rem', fontWeight: 600, color: TEXT, letterSpacing: '-0.02em' }}>{formatPrice(totalAmount)}</span>
                 </div>
                 <button
                   onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full bg-[var(--theme-primary)] text-black font-bold py-4 rounded-full hover:bg-[var(--theme-accent)] transition-all min-h-[48px]"
-                  data-testid="button-checkout"
+                  className="w-full py-3.5 rounded-2xl active:scale-[0.97]"
+                  style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.85rem', fontWeight: 600, transition: 'transform 0.15s ease' }}
                 >
-                  {t('demos.electronics.checkout')}
+                  Оформить заказ
                 </button>
               </div>
-              
-              <CheckoutDrawer
-                isOpen={isCheckoutOpen}
-                onClose={() => setIsCheckoutOpen(false)}
-                items={cartItems.map((item: typeof cartItems[0]) => ({
-                  id: parseInt(item.id) || 0,
-                  name: item.name,
-                  price: item.price,
-                  quantity: item.quantity,
-                  size: item.size,
-                  color: item.color,
-                  image: item.image
-                }))}
-                total={totalAmount}
-                currency="₽"
-                onOrderComplete={handleCheckout}
-                storeName="TECHHUB"
-              />
             </div>
           )}
+
+          <CheckoutDrawer
+            isOpen={isCheckoutOpen}
+            onClose={() => setIsCheckoutOpen(false)}
+            items={cartItems}
+            total={totalAmount}
+            currency="₽"
+            storeName="TechStore"
+            onOrderComplete={handleCheckoutComplete}
+          />
         </div>
-      </div>
+      </>
     );
   }
 
-  // PROFILE PAGE
   if (activeTab === 'profile') {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
-        <div className="p-6 bg-white/5 border-b border-white/10">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-[var(--theme-primary)] rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-black" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">Иван Петров</h2>
-              <p className="text-sm text-white/60">+7 (999) 123-45-67</p>
-            </div>
-          </div>
+      <>
+        <DemoSidebar
+          isOpen={sidebar.isOpen} onClose={sidebar.close} onOpen={sidebar.open}
+          menuItems={sidebarMenuItems} accentColor={ACCENT} bgColor={BG}
+          title="TechStore" subtitle="Premium Tech"
+        />
+        <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ background: BG }}>
+          <m.div
+            className="px-5 pt-5"
+            variants={contentStagger}
+            initial="hidden"
+            animate="visible"
+          >
+            <m.div variants={contentItem} className="mb-6">
+              <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Аккаунт</span>
+              <h1 style={{ fontFamily: SF, fontSize: '1.8rem', fontWeight: 600, color: TEXT, marginTop: 2, letterSpacing: '-0.03em' }}>Профиль</h1>
+            </m.div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">{t('demos.electronics.orders')}</p>
-              <p className="text-2xl font-bold">{ordersCount}</p>
-            </div>
-            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">{t('demos.electronics.favorites')}</p>
-              <p className="text-2xl font-bold">{favoritesCount}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-4 space-y-4">
-          <div className="scroll-fade-in">
-            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
-            {orders.length === 0 ? (
-              <div className="text-center py-8 text-white/50">
-                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>У вас пока нет заказов</p>
+            <m.div variants={contentItem} className="text-center mb-8">
+              <div className="w-24 h-24 rounded-full mx-auto mb-4 p-[2px]" style={{ background: `linear-gradient(135deg, ${ACCENT} 0%, #5856D6 100%)` }}>
+                <div className="w-full h-full rounded-full flex items-center justify-center" style={{ background: BG }}>
+                  <User className="w-10 h-10" style={{ color: ACCENT }} />
+                </div>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {orders.map((order) => (
-                  <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-white/70">Заказ #{order.id.slice(-6)}</span>
-                      <span className="text-sm text-white/70">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
-                    </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-white/80">{order.items.length} товаров</span>
-                      <span className="font-bold">{formatPrice(order.total)}</span>
-                    </div>
-                    <div className="mt-2">
-                      <span className="text-xs px-2 py-1 bg-[var(--theme-primary)]/20 text-[var(--theme-primary)] rounded-full">
-                        {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+              <h2 style={{ fontFamily: SF, fontSize: '1.3rem', fontWeight: 600, color: TEXT, marginBottom: 4, letterSpacing: '-0.02em' }}>Алексей Петров</h2>
+              <p style={{ fontFamily: SF, fontSize: '0.75rem', color: TEXT_SEC }}>alexey.petrov@icloud.com</p>
+            </m.div>
 
-          <div className="space-y-2">
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-orders">
-            <div className="flex items-center gap-3">
-              <Package className="w-5 h-5 text-white/70" />
-              <span className="font-medium">История заказов</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
+            <m.div variants={contentItem} className="grid grid-cols-3 gap-2.5 mb-8">
+              {[
+                { icon: ShoppingBag, value: orders.length, label: 'Заказов' },
+                { icon: Heart, value: favorites.size, label: 'Избранное' },
+                { icon: Award, value: '1250', label: 'Баллов' }
+              ].map((stat, idx) => (
+                <div key={idx} className="p-3.5 rounded-[20px] text-center" style={{ background: BG_CARD }}>
+                  <stat.icon className="w-4 h-4 mx-auto mb-2" style={{ color: ACCENT }} />
+                  <p style={{ fontFamily: SF, fontSize: '1.1rem', fontWeight: 600, color: TEXT, marginBottom: 2 }}>{stat.value}</p>
+                  <p style={{ fontFamily: SF, fontSize: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: TEXT_SEC }}>{stat.label}</p>
+                </div>
+              ))}
+            </m.div>
 
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
-            <div className="flex items-center gap-3">
-              <Heart className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Избранное</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
+            <m.div variants={contentItem} className="mb-6">
+              <h3 style={{ fontFamily: SF, fontSize: '1.1rem', fontWeight: 600, color: TEXT, marginBottom: 12, letterSpacing: '-0.02em' }}>Мои <em style={{ fontStyle: 'italic', color: ACCENT }}>заказы</em></h3>
+              {orders.length === 0 ? (
+                <div className="text-center py-8">
+                  <Package className="w-12 h-12 mx-auto mb-3" style={{ color: TEXT_TER }} />
+                  <p style={{ fontFamily: SF, fontSize: '0.8rem', color: TEXT_SEC }}>У вас пока нет заказов</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {orders.slice(0, 5).map((order, idx) => (
+                    <m.div
+                      key={order.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.3 + idx * 0.05 }}
+                      className="p-4 rounded-[18px]"
+                      style={{ background: BG_CARD }}
+                    >
+                      <div className="flex justify-between items-center mb-2">
+                        <span style={{ fontFamily: SF, fontSize: '0.7rem', color: TEXT_SEC, fontVariantNumeric: 'tabular-nums' }}>#{order.id.slice(-8)}</span>
+                        <span className="px-2.5 py-0.5 rounded-full" style={{ background: `${ACCENT}18`, color: ACCENT, fontFamily: SF, fontSize: '0.6rem', fontWeight: 600 }}>
+                          {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтвержден' : order.status === 'processing' ? 'Обработка' : order.status === 'shipped' ? 'В пути' : 'Доставлен'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span style={{ fontFamily: SF, fontSize: '0.75rem', color: TEXT_SEC }}>{order.items.length} товаров</span>
+                        <span style={{ fontFamily: SF, fontSize: '0.9rem', fontWeight: 600, color: TEXT }}>{formatPrice(order.total)}</span>
+                      </div>
+                    </m.div>
+                  ))}
+                </div>
+              )}
+            </m.div>
 
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-addresses">
-            <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Адреса доставки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
-            <div className="flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Способы оплаты</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
-            <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Настройки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-logout">
-            <div className="flex items-center gap-3">
-              <LogOut className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Выход</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-          </div>
+            <m.div variants={contentItem} className="space-y-2">
+              {[
+                { icon: Package, label: 'История заказов' },
+                { icon: Shield, label: 'Гарантия и поддержка' },
+                { icon: Crown, label: 'Программа лояльности' },
+                { icon: Settings, label: 'Настройки' }
+              ].map((item, idx) => (
+                <button
+                  key={idx}
+                  className="w-full flex items-center gap-4 p-4 rounded-[18px] transition-all active:scale-[0.98]"
+                  style={{ background: BG_CARD, transition: 'transform 0.15s ease' }}
+                >
+                  <item.icon className="w-5 h-5" style={{ color: ACCENT }} />
+                  <span className="flex-1 text-left" style={{ fontFamily: SF, fontSize: '0.85rem', fontWeight: 500, color: TEXT }}>{item.label}</span>
+                  <ChevronRight className="w-4 h-4" style={{ color: TEXT_TER }} />
+                </button>
+              ))}
+            </m.div>
+          </m.div>
         </div>
-      </div>
+      </>
     );
   }
 
