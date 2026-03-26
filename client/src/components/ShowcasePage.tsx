@@ -159,7 +159,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
             <div className="absolute inset-0 z-0 overflow-hidden">
               <video
-                src="/videos/ae01958370d099047455d799eba60389_1762352751328.mp4"
+                src="/videos/c9813b0736406c97569176fcb5574fc0_720w_1774527449119.mp4"
                 autoPlay loop muted playsInline
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ opacity: 0.15, filter: 'saturate(0.3) contrast(1.2)' }}
