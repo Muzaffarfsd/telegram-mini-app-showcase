@@ -583,7 +583,7 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
   const toggleNotifications = useCallback(() => setNotificationsEnabled(prev => !prev), []);
 
   // iOS 26 Theme Support
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
   const palette = useMemo(() => createProfilePalette(isDark), [isDark]);
 
@@ -1127,9 +1127,22 @@ function ProfilePage({ onNavigate }: ProfilePageProps) {
                   </div>
                   <div className="flex-1">
                     <div className="ios26-title">{t('profilePage.themeSettings')}</div>
-                    <div className="ios26-subtitle">{t('profilePage.darkThemeAuto')}</div>
+                    <div className="ios26-subtitle">{isDark ? (t('profilePage.darkTheme') || 'Dark') : (t('profilePage.lightTheme') || 'Light')}</div>
                   </div>
-                  <ChevronRight className="w-5 h-5" style={{ color: palette.textQuaternary }} />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      hapticFeedback?.medium();
+                      toggleTheme();
+                    }}
+                    className="ios26-switch"
+                    data-active={isDark}
+                    style={{
+                      background: isDark ? palette.switchActiveBg : palette.switchBg,
+                    }}
+                  >
+                    <div className="ios26-switch-thumb"></div>
+                  </button>
                 </div>
               </div>
               <div className="ios26-divider" />
