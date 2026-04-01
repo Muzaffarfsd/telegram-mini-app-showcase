@@ -269,9 +269,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 </button>
 
                 <button
-                  onClick={() => openDemo('luxury-watches')}
-                  onTouchStart={() => preloadDemo('luxury-watches')}
-                  onMouseEnter={() => preloadDemo('luxury-watches')}
+                  onClick={() => openDemo('clothing-store')}
+                  onTouchStart={() => preloadDemo('clothing-store')}
+                  onMouseEnter={() => preloadDemo('clothing-store')}
                   className="flex items-center gap-2 rounded-full px-4 transition-all duration-300 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/40 focus-visible:outline-offset-2"
                   style={{ height: 48, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
                   aria-label={ru ? 'Посмотреть демо' : 'View demo'}
