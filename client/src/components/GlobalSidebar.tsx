@@ -1488,9 +1488,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               fontSize: '14px',
               fontWeight: 800,
               letterSpacing: '-0.03em',
-              color: isDark ? 'rgba(255,255,255,0.4)' : '#000000',
+              color: isDark ? 'rgba(255,255,255,0.7)' : '#000000',
               fontFamily: '"Syne", system-ui, sans-serif',
-              textShadow: isDark ? '0 0 20px rgba(255,255,255,0.1)' : 'none'
+              textShadow: isDark ? '0 0 20px rgba(255,255,255,0.15)' : 'none'
             }}>
               WEB4TG
             </p>
