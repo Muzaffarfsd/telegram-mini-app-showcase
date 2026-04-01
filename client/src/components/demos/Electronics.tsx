@@ -71,15 +71,15 @@ interface Product {
   isFeatured?: boolean;
 }
 
-const CATEGORY_MAP: Record<string, { icon: React.ElementType; emoji: string }> = {
-  'Смартфоны': { icon: Smartphone, emoji: '📱' },
-  'Ноутбуки': { icon: Monitor, emoji: '💻' },
-  'Планшеты': { icon: Tablet, emoji: '📟' },
-  'Наушники': { icon: Headphones, emoji: '🎧' },
-  'Камеры': { icon: Camera, emoji: '📷' },
-  'Часы': { icon: Watch, emoji: '⌚' },
-  'Аксессуары': { icon: Speaker, emoji: '🔊' },
-  'Гейминг': { icon: Gamepad2, emoji: '🎮' },
+const CATEGORY_MAP: Record<string, { icon: React.ElementType; emoji: string; image: string }> = {
+  'Смартфоны': { icon: Smartphone, emoji: '📱', image: iphone15ProMaxImage },
+  'Ноутбуки': { icon: Monitor, emoji: '💻', image: macbookPro16Image },
+  'Планшеты': { icon: Tablet, emoji: '📟', image: ipadPro12Image },
+  'Наушники': { icon: Headphones, emoji: '🎧', image: airpodsPro2Image },
+  'Камеры': { icon: Camera, emoji: '📷', image: sonyAlphaA7ivImage },
+  'Часы': { icon: Watch, emoji: '⌚', image: techWatchImage },
+  'Аксессуары': { icon: Speaker, emoji: '🔊', image: techVisionImage },
+  'Гейминг': { icon: Gamepad2, emoji: '🎮', image: techPs5Image },
 };
 
 const products: Product[] = [
@@ -1001,18 +1001,21 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               </div>
             </m.div>
             <m.div variants={contentItem} className="grid grid-cols-4 gap-2.5">
-              {Object.entries(CATEGORY_MAP).slice(0, 8).map(([cat, { emoji }], idx) => (
+              {Object.entries(CATEGORY_MAP).slice(0, 8).map(([cat, { image }], idx) => (
                 <m.button
                   key={cat}
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.04 * idx }}
-                  className="p-3 rounded-2xl text-center active:scale-[0.95]"
-                  style={{ background: GLASS, border: `1px solid ${GLASS_BORDER}`, transition: 'transform 0.15s ease' }}
+                  className="relative rounded-2xl overflow-hidden text-center active:scale-[0.95]"
+                  style={{ aspectRatio: '1', transition: 'transform 0.15s ease' }}
                   onClick={() => { setSelectedCategory(cat); onTabChange?.('catalog'); }}
                 >
-                  <span className="text-lg block mb-1">{emoji}</span>
-                  <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 500, color: TEXT_SEC }}>{cat}</p>
+                  <LazyImage src={image} alt={cat} className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.05) 100%)' }} />
+                  <div className="absolute inset-x-0 bottom-0 p-2">
+                    <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{cat}</p>
+                  </div>
                 </m.button>
               ))}
             </m.div>
