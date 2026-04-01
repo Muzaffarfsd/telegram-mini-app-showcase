@@ -3693,6 +3693,14 @@ html.light :root,
 }
 
 /* UTILITY CLASSES */
+@keyframes fadeInComingSoon {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in-coming-soon {
+  animation: fadeInComingSoon 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
 .animate-fade-in-up {
   animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }

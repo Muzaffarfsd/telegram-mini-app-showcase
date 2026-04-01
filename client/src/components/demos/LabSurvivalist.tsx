@@ -438,10 +438,8 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
 
   // PRODUCT DETAIL PAGE
   if (activeTab === 'catalog' && selectedProduct) {
-    const bgColor = selectedProduct.colorHex[selectedProduct.colors.indexOf(selectedColor)] || '#000000';
-    
     return (
-      <div className="min-h-screen text-white smooth-scroll-page" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen text-white flex flex-col items-center justify-center" style={{ background: '#000000' }}>
         <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
           <button 
             onClick={() => setSelectedProduct(null)}
@@ -451,109 +449,21 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleFavorite(selectedProduct.id);
-            }}
-            className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20"
-            aria-label={isFavorite(String(selectedProduct.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
-            data-testid={`button-favorite-${selectedProduct.id}`}
-          >
-            <Heart 
-              className={`w-5 h-5 ${isFavorite(String(selectedProduct.id)) ? 'fill-white text-white' : 'text-white'}`}
-            />
-          </button>
         </div>
 
-        <div className="relative h-[60vh] scroll-fade-in">
-          <LazyImage
-            src={selectedProduct.hoverImage}
-            alt={selectedProduct.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-        </div>
-
-        <div className="bg-gradient-to-b from-black/95 to-black backdrop-blur-xl rounded-t-3xl p-6 space-y-6 pb-32 -mt-20 relative z-10 scroll-fade-in-delay-1">
-          <div className="text-center border-b border-white/10 pb-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full mb-3">
-              <Shield className="w-4 h-4" />
-              <span className="text-xs font-mono tracking-wider">{selectedProduct.brand}</span>
-            </div>
-            <h2 className="text-3xl font-black mb-3 tracking-tight uppercase">{selectedProduct.name}</h2>
-            <div className="flex items-center justify-center gap-3">
-              <p className="text-4xl font-bold">{formatPrice(selectedProduct.price)}</p>
-              {selectedProduct.oldPrice && (
-                <p className="text-xl text-white/30 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
-              )}
-            </div>
+        <div className="flex flex-col items-center gap-6 animate-fade-in-coming-soon">
+          <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          <h1 style={{ fontFamily: "'Playfair Display', 'Georgia', serif", fontSize: '2.8rem', fontWeight: 300, letterSpacing: '0.25em', color: '#ffffff' }}>
+            Скоро
+          </h1>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-[1px] bg-white/20" />
+            <span style={{ fontFamily: "'Playfair Display', 'Georgia', serif", fontSize: '0.75rem', letterSpacing: '0.3em', color: 'rgba(255,255,255,0.35)', fontWeight: 300 }}>
+              COMING SOON
+            </span>
+            <div className="w-8 h-[1px] bg-white/20" />
           </div>
-
-          <p className="text-sm text-white/70 text-center leading-relaxed scroll-fade-in-delay-2">{selectedProduct.description}</p>
-
-          <div className="border-t border-white/10 pt-6 scroll-fade-in-delay-3">
-            <p className="text-xs font-mono tracking-wider mb-4 text-white/60 uppercase">Выберите цвет:</p>
-            <div className="flex items-center justify-center gap-3">
-              {selectedProduct.colors.map((color, idx) => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`relative w-12 h-12 rounded-full border-2 transition-all ${
-                    selectedColor === color
-                      ? 'border-white scale-110 shadow-lg shadow-white/20'
-                      : 'border-white/20 hover:border-white/40'
-                  }`}
-                  style={{ backgroundColor: selectedProduct.colorHex[idx] }}
-                  aria-label={`Цвет ${color}`}
-                  data-testid={`button-color-${color}`}
-                >
-                  {selectedColor === color && (
-                    <div className="absolute inset-0 rounded-full bg-white/20"></div>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="border-t border-white/10 pt-6 scroll-fade-in-delay-4">
-            <p className="text-xs font-mono tracking-wider mb-4 text-white/60 uppercase">Выберите размер:</p>
-            <div className="flex items-center justify-center gap-3 flex-wrap">
-              {selectedProduct.sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`min-w-[60px] h-12 px-4 rounded-lg font-mono font-bold transition-all border ${
-                    selectedSize === size
-                      ? 'bg-white text-black border-white'
-                      : 'bg-transparent text-white border-white/20 hover:border-white/40'
-                  }`}
-                  aria-label={`Размер ${size}`}
-                  data-testid={`button-size-${size}`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <ConfirmDrawer
-            trigger={
-              <button
-                className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-white/90 transition-all uppercase tracking-wider text-sm flex items-center justify-center gap-2 scroll-fade-in-delay-5 min-h-[48px]"
-                data-testid={`button-add-to-cart-${selectedProduct.id}`}
-              >
-                <ShoppingBag className="w-5 h-5" />
-                Добавить в корзину
-              </button>
-            }
-            title="Добавить в корзину?"
-            description={`${selectedProduct.name} • ${selectedColor} • ${selectedSize}`}
-            confirmText="Добавить"
-            cancelText="Отмена"
-            variant="default"
-            onConfirm={addToCart}
-          />
+          <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         </div>
       </div>
     );
