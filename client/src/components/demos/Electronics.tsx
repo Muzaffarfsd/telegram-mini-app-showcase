@@ -10,7 +10,7 @@ import {
   Gamepad2, Airplay, ChevronDown
 } from "lucide-react";
 
-import { LazyImage, DemoThemeProvider } from "@/components/shared";
+import { LazyImage, DemoThemeProvider, AutoplayVideo } from "@/components/shared";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { usePersistentCart } from "@/hooks/usePersistentCart";
@@ -855,15 +855,13 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             className="relative overflow-hidden"
             style={{ height: '62vh' }}
           >
-            <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(ellipse 80% 60% at 50% 45%, ${ACCENT}12 0%, transparent 70%)` }}>
-              <m.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 1, 0.5, 1] }}
-                className="w-[60%] max-w-[280px]"
-              >
-                <LazyImage src={iphone15ProMaxImage} alt="iPhone 16 Pro Max" className="w-full h-auto object-contain" />
-              </m.div>
+            <div className="absolute inset-0">
+              <AutoplayVideo
+                src="/videos/techstore_2025.mp4"
+                poster={iphone15ProMaxImage}
+                className="w-full h-full object-cover"
+                style={{ filter: 'brightness(0.85) saturate(1.1)' }}
+              />
             </div>
             <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${BG} 0%, transparent 50%)` }} />
             <div className="absolute inset-0 flex flex-col justify-end items-center text-center px-6 pb-8">
