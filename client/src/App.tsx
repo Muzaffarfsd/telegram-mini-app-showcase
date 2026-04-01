@@ -77,6 +77,45 @@ import OnboardingFlow, { useOnboarding } from "./components/OnboardingFlow";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 
+const prefetchAllRoutes = () => {
+  const chunks = [
+    () => import("./components/ShowcasePage"),
+    () => import("./components/ProjectsPage"),
+    () => import("./components/ConstructorPage"),
+    () => import("./components/ProfilePage"),
+    () => import("./components/AIProcessPage"),
+    () => import("./components/PremiumAppsPage"),
+    () => import("./components/AboutPage"),
+    () => import("./components/DemoAppLanding"),
+    () => import("./components/DemoAppShell"),
+    () => import("./components/CheckoutPage"),
+    () => import("./components/HelpPage"),
+    () => import("./components/ReviewPage"),
+    () => import("./components/AIAgentPage"),
+    () => import("./components/CoinShopPage"),
+    () => import("./components/ReferralProgram"),
+    () => import("./components/GamificationHub"),
+    () => import("./components/EarningPage"),
+    () => import("./pages/PhotoGallery"),
+    () => import("./pages/notifications"),
+    () => import("./pages/analytics"),
+  ];
+  let i = 0;
+  const loadNext = () => {
+    if (i < chunks.length) {
+      chunks[i]().catch(() => {}).finally(() => {
+        i++;
+        if ('requestIdleCallback' in window) {
+          (window as any).requestIdleCallback(loadNext, { timeout: 5000 });
+        } else {
+          setTimeout(loadNext, 100);
+        }
+      });
+    }
+  };
+  loadNext();
+};
+
 const CACHED_TABS = ['showcase', 'projects', 'aiProcess', 'constructor', 'profile'] as const;
 type CachedTab = typeof CACHED_TABS[number];
 
@@ -382,6 +421,11 @@ function AppContent() {
     initSentry();
     if (window.Telegram?.WebApp) {
       document.body.classList.add('tg-app-optimized');
+    }
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(prefetchAllRoutes, { timeout: 3000 });
+    } else {
+      setTimeout(prefetchAllRoutes, 1000);
     }
   }, []);
 

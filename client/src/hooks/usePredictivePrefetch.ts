@@ -186,6 +186,19 @@ export function usePredictivePrefetch(config: PredictivePrefetchConfig = {}) {
       '/profile': () => import('@/components/ProfilePage'),
       '/constructor': () => import('@/components/ConstructorPage'),
       '/ai-process': () => import('@/components/AIProcessPage'),
+      '/ai-agent': () => import('@/components/AIAgentPage'),
+      '/premium-apps': () => import('@/components/PremiumAppsPage'),
+      '/about': () => import('@/components/AboutPage'),
+      '/help': () => import('@/components/HelpPage'),
+      '/review': () => import('@/components/ReviewPage'),
+      '/checkout': () => import('@/components/CheckoutPage'),
+      '/referral': () => import('@/components/ReferralProgram'),
+      '/rewards': () => import('@/components/GamificationHub'),
+      '/earning': () => import('@/components/EarningPage'),
+      '/notifications': () => import('@/pages/notifications'),
+      '/analytics': () => import('@/pages/analytics'),
+      '/coinshop': () => import('@/components/CoinShopPage'),
+      '/photo-gallery': () => import('@/pages/PhotoGallery'),
     };
 
     const loader = routeChunks[path];
