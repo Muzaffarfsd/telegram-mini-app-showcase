@@ -133,19 +133,31 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
       text: ru ? 'Мы потратили полгода на маркетплейс и потеряли 3 миллиона на комиссиях. С WEB4TG запустились за день. Продажи — плюс 340% за первый месяц.' : 'We spent six months on a marketplace and lost $40k in fees. With WEB4TG we launched in one day. Sales — up 340% in the first month.',
       name: ru ? 'Александр М.' : 'Alexander M.',
       role: ru ? 'Основатель TimeElite' : 'Founder, TimeElite',
-      initial: 'А',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face&q=80',
     },
     {
       text: ru ? 'AI-ассистент закрывает 70% вопросов клиентов автоматически. Мы сократили расходы на поддержку вдвое и увеличили средний чек на 25%.' : 'AI assistant handles 70% of customer questions automatically. We cut support costs in half and increased average order by 25%.',
       name: ru ? 'Марина К.' : 'Marina K.',
       role: ru ? 'CEO FragranceRoyale' : 'CEO, FragranceRoyale',
-      initial: 'М',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face&q=80',
     },
     {
       text: ru ? 'Дизайн нашего магазина не отличить от приложения Apple. Клиенты думают что мы — крупный бренд. Это сразу увеличило доверие и конверсию.' : 'Our store design is indistinguishable from an Apple app. Customers think we\'re a major brand. This immediately boosted trust and conversion.',
       name: ru ? 'Дмитрий Р.' : 'Dmitry R.',
       role: ru ? 'Владелец SneakerVault' : 'Owner, SneakerVault',
-      initial: 'Д',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face&q=80',
+    },
+    {
+      text: ru ? 'За 2 недели после запуска мини-приложения мы получили 1200 новых клиентов через Telegram. Раньше на это уходило 3 месяца рекламы.' : 'Within 2 weeks of launching our mini app, we gained 1,200 new customers through Telegram. Previously this took 3 months of ads.',
+      name: ru ? 'Елена В.' : 'Elena V.',
+      role: ru ? 'Основатель BouquetLab' : 'Founder, BouquetLab',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face&q=80',
+    },
+    {
+      text: ru ? 'Наш ресторан перешёл полностью на заказы через Telegram. Нет комиссий агрегаторов, прямая связь с клиентом. Выручка выросла на 180%.' : 'Our restaurant switched entirely to Telegram orders. No aggregator fees, direct customer contact. Revenue grew 180%.',
+      name: ru ? 'Игорь Т.' : 'Igor T.',
+      role: ru ? 'Управляющий GrillMasters' : 'Manager, GrillMasters',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face&q=80',
     },
   ], [ru]);
 
@@ -509,43 +521,44 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               </h2>
             </Cin>
 
-            <div className="overflow-x-auto scrollbar-hide">
-              <div className="flex gap-3.5 px-6" style={{ width: 'max-content', paddingRight: 24 }}>
-                {testimonials.map((tm, i) => (
-                  <Cin key={i} delay={i * 0.1}>
-                    <figure
-                      className="flex-shrink-0 rounded-2xl p-5 flex flex-col justify-between"
-                      style={{
-                        width: 300, minHeight: 220,
-                        background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)',
-                      }}
-                    >
-                      <blockquote>
-                        <p style={{
-                          fontFamily: INSTRUMENT, fontSize: '0.9375rem',
-                          fontStyle: 'italic', lineHeight: 1.55, color: 'rgba(255,255,255,0.55)',
-                        }}>
-                          "{tm.text}"
-                        </p>
-                      </blockquote>
+            <div className="flex flex-col gap-3.5 px-6">
+              {testimonials.map((tm, i) => (
+                <Cin key={i} delay={i * 0.08}>
+                  <figure
+                    className="rounded-2xl p-5 flex flex-col justify-between"
+                    style={{
+                      background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)',
+                    }}
+                  >
+                    <figcaption className="flex items-center gap-3 mb-4">
+                      <img
+                        src={tm.avatar}
+                        alt={tm.name}
+                        className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                        style={{ border: '2px solid rgba(255,255,255,0.1)' }}
+                        loading="lazy"
+                      />
+                      <div>
+                        <div style={{ fontFamily: SYNE, fontSize: '0.8rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>
+                          {tm.name}
+                        </div>
+                        <div style={{ fontFamily: INTER, fontSize: '0.6875rem', color: EMERALD, opacity: 0.7 }}>
+                          {tm.role}
+                        </div>
+                      </div>
+                    </figcaption>
 
-                      <figcaption className="mt-4 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${EMERALD}18` }}>
-                          <span style={{ fontFamily: SYNE, fontSize: '0.625rem', fontWeight: 700, color: EMERALD }}>{tm.initial}</span>
-                        </div>
-                        <div>
-                          <div style={{ fontFamily: SYNE, fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
-                            {tm.name}
-                          </div>
-                          <div style={{ fontFamily: INTER, fontSize: '0.6875rem', color: 'rgba(255,255,255,0.3)' }}>
-                            {tm.role}
-                          </div>
-                        </div>
-                      </figcaption>
-                    </figure>
-                  </Cin>
-                ))}
-              </div>
+                    <blockquote>
+                      <p style={{
+                        fontFamily: INSTRUMENT, fontSize: '0.9375rem',
+                        fontStyle: 'italic', lineHeight: 1.55, color: 'rgba(255,255,255,0.5)',
+                      }}>
+                        "{tm.text}"
+                      </p>
+                    </blockquote>
+                  </figure>
+                </Cin>
+              ))}
             </div>
           </section>
 
