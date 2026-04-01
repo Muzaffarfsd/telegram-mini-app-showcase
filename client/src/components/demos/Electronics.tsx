@@ -456,10 +456,9 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           style={{ height: 320, background: BG_CARD, transition: 'transform 0.2s ease' }}
           onClick={() => openProduct(featured)}
         >
-          <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(circle at 50% 60%, ${featured.color}20 0%, transparent 60%)` }}>
-            <div className="w-[65%] h-[55%] mt-4">
-              <LazyImage src={featured.image} alt={featured.name} className="w-full h-full object-contain" />
-            </div>
+          <div className="absolute inset-0">
+            <LazyImage src={featured.image} alt={featured.name} className="w-full h-full object-cover" />
+            <div className="absolute inset-0" style={{ background: `radial-gradient(circle at 50% 60%, ${featured.color}15 0%, transparent 60%)` }} />
           </div>
           <div className="absolute top-3.5 left-3.5 right-3.5 flex items-start justify-between">
             <div className="flex gap-1.5">
@@ -519,10 +518,9 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   style={{ height: pairIdx === 0 ? 220 : 190, background: BG_CARD, transition: 'transform 0.2s ease' }}
                   onClick={() => openProduct(p)}
                 >
-                  <div className="absolute inset-0 flex items-center justify-center pt-2" style={{ background: `radial-gradient(circle at 50% 55%, ${p.color}15 0%, transparent 55%)` }}>
-                    <div className="w-[60%] h-[50%]">
-                      <LazyImage src={p.image} alt={p.name} className="w-full h-full object-contain" />
-                    </div>
+                  <div className="absolute inset-0">
+                    <LazyImage src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0" style={{ background: `radial-gradient(circle at 50% 55%, ${p.color}10 0%, transparent 55%)` }} />
                   </div>
                   {p.isNew && (
                     <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full"
@@ -607,11 +605,9 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 </button>
               </div>
 
-              <div ref={heroImageRef} className="absolute inset-0 will-change-transform flex items-center justify-center"
-                style={{ background: `radial-gradient(ellipse 70% 50% at 50% 50%, ${selectedProduct.color}25 0%, transparent 70%)` }}>
-                <div className="w-[55%] h-[60%]">
-                  <LazyImage src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-contain" />
-                </div>
+              <div ref={heroImageRef} className="absolute inset-0 will-change-transform">
+                <LazyImage src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover" />
+                <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 70% 50% at 50% 50%, ${selectedProduct.color}15 0%, transparent 70%)` }} />
               </div>
               <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${BG} 0%, transparent 50%)` }} />
 
@@ -824,11 +820,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                         onClick={() => { openProduct(p); }}
                       >
                         <div className="relative rounded-[18px] overflow-hidden mb-2" style={{ height: 140, background: BG_CARD }}>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-[60%] h-[60%]">
-                              <LazyImage src={p.image} alt={p.name} className="w-full h-full object-contain" />
-                            </div>
-                          </div>
+                          <LazyImage src={p.image} alt={p.name} className="w-full h-full object-cover" />
                         </div>
                         <p className="truncate" style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: TEXT, letterSpacing: '-0.01em' }}>{p.name}</p>
                         <span style={{ fontFamily: SF, fontSize: '0.65rem', fontWeight: 600, color: TEXT_SEC }}>{formatPrice(p.price)}</span>
@@ -977,11 +969,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   onClick={() => openProduct(product)}
                 >
                   <div className="relative rounded-[20px] overflow-hidden mb-2.5" style={{ height: 200, background: BG_CARD }}>
-                    <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(circle at 50% 55%, ${product.color}15 0%, transparent 55%)` }}>
-                      <div className="w-[65%] h-[60%]">
-                        <LazyImage src={product.image} alt={product.name} className="w-full h-full object-contain" />
-                      </div>
-                    </div>
+                    <LazyImage src={product.image} alt={product.name} className="w-full h-full object-cover" />
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}
                       className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center"
@@ -1055,8 +1043,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   style={{ background: BG_CARD, transition: 'transform 0.15s ease' }}
                   onClick={() => openProduct(product)}
                 >
-                  <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ background: `radial-gradient(circle, ${product.color}15 0%, transparent 70%)` }}>
-                    <LazyImage src={product.image} alt={product.name} className="w-[75%] h-[75%] object-contain" />
+                  <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0" style={{ background: BG_CARD }}>
+                    <LazyImage src={product.image} alt={product.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0 flex flex-col justify-center">
                     <div className="flex items-center gap-2 mb-1">
@@ -1102,11 +1090,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   onClick={() => openProduct(product)}
                 >
                   <div className="relative rounded-[18px] overflow-hidden mb-2" style={{ height: 140, background: BG_CARD }}>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-[60%] h-[60%]">
-                        <LazyImage src={product.image} alt={product.name} className="w-full h-full object-contain" />
-                      </div>
-                    </div>
+                    <LazyImage src={product.image} alt={product.name} className="w-full h-full object-cover" />
                   </div>
                   <p className="truncate" style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: TEXT, marginBottom: 2, letterSpacing: '-0.01em' }}>{product.name}</p>
                   <span style={{ fontFamily: SF, fontSize: '0.65rem', fontWeight: 600, color: TEXT_SEC }}>{formatPrice(product.price)}</span>
@@ -1251,8 +1235,8 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                     className="flex gap-3.5 p-3.5 rounded-[20px]"
                     style={{ background: BG_CARD }}
                   >
-                    <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ background: GLASS }}>
-                      <LazyImage src={item.image || ''} alt={item.name} className="w-[75%] h-[75%] object-contain" />
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0" style={{ background: GLASS }}>
+                      <LazyImage src={item.image || ''} alt={item.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                       <div>
