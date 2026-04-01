@@ -10,6 +10,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from './PullToRefreshIndicator';
 import { useQueryClient } from '@tanstack/react-query';
+import { preloadDemo } from './demos/DemoRegistry';
 import nikeGreenImage from "@assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg";
 import rascalImage from "@assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg";
 
@@ -269,6 +270,8 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
                 <button
                   onClick={() => openDemo('luxury-watches')}
+                  onTouchStart={() => preloadDemo('luxury-watches')}
+                  onMouseEnter={() => preloadDemo('luxury-watches')}
                   className="flex items-center gap-2 rounded-full px-4 transition-all duration-300 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/40 focus-visible:outline-offset-2"
                   style={{ height: 48, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
                   aria-label={ru ? 'Посмотреть демо' : 'View demo'}
@@ -347,6 +350,8 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                       role="button" tabIndex={0}
                       aria-label={`${ru ? 'Открыть' : 'Open'} ${c.label}`}
                       onClick={() => openDemo(c.id)}
+                      onTouchStart={() => preloadDemo(c.id)}
+                      onMouseEnter={() => preloadDemo(c.id)}
                       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDemo(c.id); } }}
                     >
                       {c.vid ? (

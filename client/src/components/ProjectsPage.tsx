@@ -6,6 +6,7 @@ import { FavoriteButton } from "./FavoriteButton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { VerticalImageStack, type VerticalImageItem } from "@/components/ui/vertical-image-stack";
 import { m, useInView } from "@/utils/LazyMotionProvider";
+import { preloadDemo } from "./demos/DemoRegistry";
 
 interface ProjectsPageProps {
   onNavigate: (section: string) => void;
@@ -341,6 +342,8 @@ const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id
     <Cin delay={index * 0.04}>
       <div
         onClick={handleCardClick}
+        onTouchStart={() => preloadDemo(app.id)}
+        onMouseEnter={() => preloadDemo(app.id)}
         onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) { e.preventDefault(); handleCardClick(); } }}
         role="button"
         tabIndex={0}

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 
 export interface CartItem {
   id: string;
@@ -100,14 +100,14 @@ export function usePersistentCart({ storageKey, maxItems = 99 }: UsePersistentCa
     return item?.quantity || 0;
   }, [cartItems]);
 
-  const totalAmount = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity, 
-    0
+  const totalAmount = useMemo(() => 
+    cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [cartItems]
   );
 
-  const totalItems = cartItems.reduce(
-    (sum, item) => sum + item.quantity, 
-    0
+  const totalItems = useMemo(() => 
+    cartItems.reduce((sum, item) => sum + item.quantity, 0),
+    [cartItems]
   );
 
   return {

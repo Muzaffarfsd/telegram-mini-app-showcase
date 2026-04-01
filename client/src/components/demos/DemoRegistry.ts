@@ -121,21 +121,30 @@ export const demoRegistry: Record<string, DemoComponent> = {
   }
 };
 
-// Preload critical demos (reduced to essential only for performance)
+const preloadedSet = new Set<string>();
+
 export const preloadCriticalDemos = () => {
-  const criticalDemos = ['clothing-store', 'electronics']; // Reduced from 4 to 2 most critical
+  const criticalDemos = [
+    'electronics', 'luxury-watches', 'luxury-perfume', 
+    'sneaker-store', 'clothing-store', 'florist'
+  ];
   
-  criticalDemos.forEach(demoId => {
+  criticalDemos.forEach((demoId, index) => {
     const demo = demoRegistry[demoId];
-    if (demo?.preload) {
-      // Preload on requestIdleCallback with delay to not block initial render
+    if (demo?.preload && !preloadedSet.has(demoId)) {
+      const itemDelay = index * 300;
+      const doPreload = () => {
+        setTimeout(() => {
+          if (!preloadedSet.has(demoId)) {
+            preloadedSet.add(demoId);
+            demo.preload!().catch(() => {});
+          }
+        }, itemDelay);
+      };
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-          setTimeout(() => demo.preload!(), 200); // Additional delay
-        });
+        requestIdleCallback(doPreload, { timeout: 5000 });
       } else {
-        // Fallback with longer delay
-        setTimeout(() => demo.preload!(), 500);
+        setTimeout(doPreload, 1000 + itemDelay);
       }
     }
   });
@@ -152,12 +161,13 @@ export const isDemoAvailable = (demoId: string): boolean => {
   return demoId in demoRegistry;
 };
 
-// Preload a specific demo component on hover
 export const preloadDemo = (demoId: string): void => {
+  if (preloadedSet.has(demoId)) return;
   const demo = demoRegistry[demoId];
   if (demo?.preload) {
+    preloadedSet.add(demoId);
     demo.preload().catch(() => {
-      // Silently fail if preload fails
+      preloadedSet.delete(demoId);
     });
   }
 };

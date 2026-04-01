@@ -1,4 +1,4 @@
-import { useState, Suspense, memo, useEffect } from "react";
+import { useState, Suspense, memo, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Home, Grid3X3, ShoppingCart, User } from "lucide-react";
 import { demoApps } from "../data/demoApps";
@@ -97,7 +97,6 @@ const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, 
       outline: 'none',
       cursor: 'pointer',
       gap: isActive ? '7px' : '0',
-      willChange: 'background, padding, gap',
       transition: 'background 0.22s ease-out, padding 0.28s ease-out, gap 0.28s ease-out',
       WebkitTapHighlightColor: 'transparent',
     }}
@@ -117,7 +116,6 @@ const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, 
         color: activeColor,
         maxWidth: isActive ? '80px' : '0',
         opacity: isActive ? 1 : 0,
-        willChange: 'max-width, opacity',
         transition: 'max-width 0.28s ease-out, opacity 0.18s ease-out',
       }}
     >
@@ -136,20 +134,15 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     scrollToTop();
   }, [demoId]);
   
-  // Scroll to top when tab changes
-  useEffect(() => {
-    scrollToTop();
-  }, [activeTab]);
-  
-  // Extract base app type from ID to support variants (e.g., 'clothing-store-2' → 'clothing-store')
-  const getBaseAppType = (id: string): string => {
-    // Remove variant suffixes (-2, -3, etc.) to get base type
+  const getBaseAppType = useCallback((id: string): string => {
     return id.replace(/-\d+$/, '');
-  };
+  }, []);
 
-  // Find demo app - first try exact match, then base type fallback
-  const demoApp = demoApps.find(app => app.id === demoId) || 
-                  demoApps.find(app => app.id === getBaseAppType(demoId));
+  const demoApp = useMemo(() => 
+    demoApps.find(app => app.id === demoId) || 
+    demoApps.find(app => app.id === getBaseAppType(demoId)),
+    [demoId, getBaseAppType]
+  );
   
   if (!demoApp) {
     return (
@@ -164,26 +157,24 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     );
   }
 
-  const handleTabSwitch = (tab: TabType) => {
+  const handleTabSwitch = useCallback((tab: TabType) => {
     setActiveTab(tab);
-    scrollToTop(); // Scroll to top on tab change
+    scrollToTop();
     if (hapticFeedback?.selection) {
-      hapticFeedback.selection();
+      queueMicrotask(() => hapticFeedback.selection());
     }
-  };
+  }, [hapticFeedback]);
 
-  const handleStringNavigation = (tab: string) => {
-    const tabType = tab as TabType;
-    handleTabSwitch(tabType);
-  };
+  const handleStringNavigation = useCallback((tab: string) => {
+    handleTabSwitch(tab as TabType);
+  }, [handleTabSwitch]);
 
-  // Navigate to main app (showcase page) using hash-based routing
-  const handleNavigateHome = () => {
+  const handleNavigateHome = useCallback(() => {
     window.location.hash = '#/';
     if (hapticFeedback?.medium) {
-      hapticFeedback.medium();
+      queueMicrotask(() => hapticFeedback.medium());
     }
-  };
+  }, [hapticFeedback]);
 
   // No loading screen - instant load
   const DemoLoader = () => null;
