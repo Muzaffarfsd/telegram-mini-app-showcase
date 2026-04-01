@@ -565,42 +565,97 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           </section>
 
           {/* ═══════ COMPARISON — До / После ═══════ */}
-          <section className="px-6 py-14" aria-label={ru ? 'Сравнение' : 'Comparison'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 400px' }}>
+          <section className="px-6 py-14" aria-label={ru ? 'Сравнение' : 'Comparison'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 700px' }}>
             <Cin>
-              <h2 className="mb-6" style={{
+              <span style={{
+                fontFamily: SYNE, fontSize: '0.6875rem',
+                fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' as const,
+                color: 'rgba(255,255,255,0.25)',
+              }}>
+                {ru ? 'Сравнение' : 'Comparison'}
+              </span>
+              <h2 className="mt-2 mb-8" style={{
                 fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
                 fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
               }}>
-                {ru ? <>Маркетплейс<br /><span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.3)' }}>vs</span> WEB4TG</> : <>Marketplace<br /><span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.3)' }}>vs</span> WEB4TG</>}
+                {ru ? <>Почему <span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.4)' }}>не</span> маркетплейс</> : <>Why <span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.4)' }}>not</span> a marketplace</>}
               </h2>
             </Cin>
 
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <Cin delay={0.05}>
+                <div className="rounded-2xl p-4 relative overflow-hidden" style={{ background: 'rgba(255,60,60,0.04)', border: '1px solid rgba(255,60,60,0.08)' }}>
+                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,60,60,0.06) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
+                  <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: 'rgba(255,100,100,0.5)' }}>
+                    {ru ? 'Маркетплейс' : 'Marketplace'}
+                  </span>
+                  <div className="mt-3 space-y-3">
+                    {[
+                      { val: '15–25%', desc: ru ? 'комиссия с продаж' : 'sales commission' },
+                      { val: ru ? '2–6 мес' : '2–6 mo', desc: ru ? 'время запуска' : 'launch time' },
+                      { val: ru ? 'Шаблон' : 'Template', desc: ru ? 'одинаковый дизайн' : 'same design' },
+                    ].map((item, i) => (
+                      <div key={i}>
+                        <div style={{ fontFamily: SYNE, fontSize: '1.1rem', fontWeight: 800, color: 'rgba(255,255,255,0.25)', letterSpacing: '-0.03em' }}>{item.val}</div>
+                        <div style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', marginTop: 2 }}>{item.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Cin>
+
+              <Cin delay={0.1}>
+                <div className="rounded-2xl p-4 relative overflow-hidden" style={{ background: `${EMERALD}06`, border: `1px solid ${EMERALD}12` }}>
+                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: `radial-gradient(circle, ${EMERALD}10 0%, transparent 70%)`, transform: 'translate(30%, -30%)' }} />
+                  <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: `${EMERALD}80` }}>
+                    WEB4TG
+                  </span>
+                  <div className="mt-3 space-y-3">
+                    {[
+                      { val: '0%', desc: ru ? 'никаких комиссий' : 'zero commission' },
+                      { val: '24h', desc: ru ? 'запуск за сутки' : 'launch in a day' },
+                      { val: ru ? 'Премиум' : 'Premium', desc: ru ? 'уникальный бренд' : 'unique brand' },
+                    ].map((item, i) => (
+                      <div key={i}>
+                        <div style={{ fontFamily: SYNE, fontSize: '1.1rem', fontWeight: 800, color: EMERALD, letterSpacing: '-0.03em' }}>{item.val}</div>
+                        <div style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{item.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Cin>
+            </div>
+
             <div className="space-y-2">
               {[
-                { label: ru ? 'Комиссия' : 'Commission', old: '15–25%', now: '0%' },
-                { label: ru ? 'Запуск' : 'Launch', old: ru ? '2–6 мес' : '2–6 mo', now: '24h' },
-                { label: ru ? 'Дизайн' : 'Design', old: ru ? 'Шаблонный' : 'Template', now: ru ? 'Премиум' : 'Premium' },
-                { label: ru ? 'AI-бот' : 'AI Bot', old: '—', now: '24/7' },
-                { label: ru ? 'Аналитика' : 'Analytics', old: ru ? 'Базовая' : 'Basic', now: ru ? 'Продвинутая' : 'Advanced' },
-                { label: ru ? 'Бренд' : 'Brand', old: ru ? 'Потерян' : 'Lost', now: ru ? 'Ваш' : 'Yours' },
+                { label: ru ? 'AI-ассистент' : 'AI Assistant', old: '—', now: ru ? '24/7 бот' : '24/7 bot', highlight: true },
+                { label: ru ? 'Аналитика' : 'Analytics', old: ru ? 'Базовая' : 'Basic', now: ru ? 'Продвинутая' : 'Advanced', highlight: false },
+                { label: ru ? 'Данные клиентов' : 'Customer data', old: ru ? 'У площадки' : 'Platform owns', now: ru ? 'У вас' : 'You own', highlight: false },
+                { label: ru ? 'Оплата' : 'Payments', old: ru ? 'Через посредника' : 'Via middleman', now: ru ? 'Напрямую' : 'Direct', highlight: true },
               ].map((row, i) => (
-                <Cin key={i} delay={i * 0.03}>
-                  <div className="flex items-center rounded-xl py-3 px-4" style={{ background: 'rgba(255,255,255,0.015)' }}>
-                    <span className="flex-1" style={{
-                      fontFamily: INTER, fontSize: '0.8rem', fontWeight: 500, color: 'rgba(255,255,255,0.5)',
-                    }}>{row.label}</span>
-                    <span className="w-20 text-center" style={{
-                      fontFamily: INTER, fontSize: '0.75rem', fontWeight: 500,
-                      color: 'rgba(255,255,255,0.2)', textDecoration: 'line-through',
-                    }}>{row.old}</span>
-                    <span className="w-20 text-right" style={{
-                      fontFamily: SYNE, fontSize: '0.8rem', fontWeight: 700,
-                      color: EMERALD,
-                    }}>{row.now}</span>
+                <Cin key={i} delay={0.15 + i * 0.03}>
+                  <div className="flex items-center rounded-xl py-3 px-4" style={{ background: row.highlight ? `${EMERALD}05` : 'rgba(255,255,255,0.015)', border: row.highlight ? `1px solid ${EMERALD}0a` : '1px solid transparent' }}>
+                    <span className="flex-1" style={{ fontFamily: INTER, fontSize: '0.8rem', fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>{row.label}</span>
+                    <span className="w-24 text-center" style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 500, color: 'rgba(255,255,255,0.15)', textDecoration: 'line-through' }}>{row.old}</span>
+                    <span className="w-24 text-right" style={{ fontFamily: SYNE, fontSize: '0.8rem', fontWeight: 700, color: EMERALD }}>{row.now}</span>
                   </div>
                 </Cin>
               ))}
             </div>
+
+            <Cin delay={0.3}>
+              <div className="mt-6 rounded-2xl p-5 text-center relative overflow-hidden" style={{ background: `${EMERALD}06`, border: `1px solid ${EMERALD}10` }}>
+                <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 50% 100%, ${EMERALD}08 0%, transparent 60%)` }} />
+                <div className="relative">
+                  <div style={{ fontFamily: SYNE, fontSize: 'clamp(2rem, 8vw, 2.8rem)', fontWeight: 800, color: EMERALD, letterSpacing: '-0.05em', lineHeight: 1 }}>
+                    {ru ? '~3.2 млн ₽' : '~$40k'}
+                  </div>
+                  <div className="mt-2" style={{ fontFamily: INTER, fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
+                    {ru ? 'средняя экономия за первый год без комиссий маркетплейса' : 'average savings in the first year without marketplace fees'}
+                  </div>
+                </div>
+              </div>
+            </Cin>
           </section>
 
           {/* ═══════ PROCESS ═══════ */}
