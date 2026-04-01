@@ -58,3 +58,5 @@ export {
   type TrendingProduct,
   type PersonalizedProduct,
 } from './FunnelModules';
+
+export { AutoplayVideo } from './AutoplayVideo';

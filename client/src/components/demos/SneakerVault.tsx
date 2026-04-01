@@ -8,7 +8,7 @@ import { usePersistentCart } from "@/hooks/usePersistentCart";
 import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
 import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
-import { EmptyState, LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
+import { EmptyState, LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider, AutoplayVideo } from "@/components/shared";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import greenNikeImage from "@assets/загруженное-_4__1761733573240.jpg";
@@ -1282,16 +1282,12 @@ function SneakerVault({ activeTab, onTabChange }: SneakerVaultProps) {
         </div>
 
         <div className="relative mx-4 rounded-[26px] overflow-hidden" style={{ height: '410px' }}>
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
+          <AutoplayVideo
             className="absolute inset-0 w-full h-full object-cover"
             data-testid="video-hero-banner-sneaker"
           >
             <source src={sneakerVideo} type="video/mp4" />
-          </video>
+          </AutoplayVideo>
           <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.05) 32%, rgba(0,0,0,0.65) 68%, rgba(0,0,0,0.93) 100%)' }} />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.18) 0%, transparent 55%)' }} />
 

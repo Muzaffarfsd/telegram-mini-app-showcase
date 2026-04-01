@@ -4,6 +4,7 @@ import { m, AnimatePresence, useInView, useScroll, useTransform } from '@/utils/
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
 import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
+import { AutoplayVideo } from './shared/AutoplayVideo';
 import { useViewedDemos } from '../hooks/useTelegramStorage';
 import { FavoriteButton } from './FavoriteButton';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -159,9 +160,8 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           <header ref={heroRef} className="relative px-6 pt-14 pb-14 overflow-hidden" role="banner" style={{ minHeight: '85vh' }}>
 
             <div className="absolute inset-0 z-0 overflow-hidden">
-              <video
+              <AutoplayVideo
                 src="/videos/c9813b0736406c97569176fcb5574fc0_720w_1774527449119.mp4"
-                autoPlay loop muted playsInline
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ opacity: 0.5, filter: 'saturate(0.5) contrast(1.1)' }}
               />

@@ -14,7 +14,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, DemoThemeProvider } from "@/components/shared";
+import { LazyImage, DemoThemeProvider, AutoplayVideo } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import tomFordBlackOrchidImage from "@assets/tom_ford_black_orchid.jpg";
 import creedAventusImage from "@assets/creed_aventus.jpg";
@@ -1505,9 +1505,8 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
 
         {/* ─── EDITORIAL HERO — video ─── */}
         <div className="relative mx-4 mt-3 rounded-[26px] overflow-hidden" style={{ height: '410px' }}>
-          <video
+          <AutoplayVideo
             src="/videos/luxury_fragrance.mp4"
-            autoPlay muted loop playsInline
             className="absolute inset-0 w-full h-full object-cover"
             data-testid="video-hero-banner"
           />

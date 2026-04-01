@@ -14,7 +14,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, DemoThemeProvider } from "@/components/shared";
+import { LazyImage, DemoThemeProvider, AutoplayVideo } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 
 const flowerVideo = "/attached_assets/5d2ab0bb92c8c7530a889b407ef3d457_1765617456150.mp4";
@@ -973,7 +973,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
         </div>
 
         <div className="relative mx-4 mt-3 rounded-[26px] overflow-hidden" style={{ height: '410px' }}>
-          <video src={flowerVideo} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" data-testid="video-hero-banner" />
+          <AutoplayVideo src={flowerVideo} className="absolute inset-0 w-full h-full object-cover" data-testid="video-hero-banner" />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 32%, rgba(0,0,0,0.55) 68%, rgba(0,0,0,0.88) 100%)' }} />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.12) 0%, transparent 55%)' }} />
 

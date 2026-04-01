@@ -1,4 +1,4 @@
-import { useState, Suspense, memo, useEffect, useCallback, useMemo } from "react";
+import { useState, Suspense, memo, useEffect, useCallback, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Home, Grid3X3, ShoppingCart, User } from "lucide-react";
 import { demoApps } from "../data/demoApps";
@@ -157,9 +157,17 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     );
   }
 
+  const contentRef = useRef<HTMLDivElement>(null);
+
   const handleTabSwitch = useCallback((tab: TabType) => {
     setActiveTab(tab);
     scrollToTop();
+    const el = contentRef.current;
+    if (el) {
+      el.classList.remove('demo-tab-enter');
+      void el.offsetWidth;
+      el.classList.add('demo-tab-enter');
+    }
     if (hapticFeedback?.selection) {
       queueMicrotask(() => hapticFeedback.selection());
     }
@@ -238,6 +246,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
           
           {/* Demo Content Area - Telegram safe area bottom with GPU optimization */}
           <div 
+            ref={contentRef}
             className="flex-1 tg-content-safe-bottom" 
             style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} 
             data-testid="demo-content"

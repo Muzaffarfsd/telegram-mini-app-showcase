@@ -9,7 +9,7 @@ import {
   Award, Crown, ChevronDown, Filter, Eye
 } from "lucide-react";
 import { scrollToTop } from "@/hooks/useScrollToTop";
-import { LazyImage, DemoThemeProvider } from "@/components/shared";
+import { LazyImage, DemoThemeProvider, AutoplayVideo } from "@/components/shared";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
 import { usePersistentCart } from "@/hooks/usePersistentCart";
@@ -881,13 +881,9 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
 
         <div className="relative overflow-hidden" style={{ height: '70vh', minHeight: 420 }}>
           <div className="absolute inset-0">
-            <video
+            <AutoplayVideo
               src={glowspaHeroVideo}
               poster={glowspaHeroImg}
-              autoPlay
-              loop
-              muted
-              playsInline
               className="w-full h-full object-cover"
             />
           </div>
@@ -1010,12 +1006,8 @@ function Beauty({ activeTab, onTabChange }: BeautyProps) {
             className="relative rounded-[20px] overflow-hidden cursor-pointer active:scale-[0.98]"
             style={{ height: 220, transition: 'transform 0.15s ease' }}
           >
-            <video
+            <AutoplayVideo
               src={glowspaHeroVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />

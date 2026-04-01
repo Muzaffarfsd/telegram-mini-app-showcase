@@ -13,7 +13,7 @@ import { usePersistentOrders } from "@/hooks/usePersistentOrders";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider } from "@/components/shared";
+import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider, AutoplayVideo } from "@/components/shared";
 import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
@@ -1857,16 +1857,12 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
         {/* ─── VIDEO HERO ─── */}
         <div className="relative mx-4 mt-3 rounded-[26px] overflow-hidden" style={{ height: '400px' }}>
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
+          <AutoplayVideo
             className="absolute inset-0 w-full h-full object-cover"
             data-testid="video-hero-banner"
           >
             <source src={fashionVideo} type="video/mp4" />
-          </video>
+          </AutoplayVideo>
           {/* Layered gradient for depth */}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 35%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.92) 100%)' }} />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.2) 0%, transparent 50%)' }} />
