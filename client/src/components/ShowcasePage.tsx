@@ -564,84 +564,156 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </div>
           </section>
 
-          {/* ═══════ COMPARISON — До / После ═══════ */}
-          <section className="py-14" aria-label={ru ? 'Сравнение' : 'Comparison'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 900px' }}>
-            <Cin className="px-6">
-              <h2 className="mb-10" style={{
+          {/* ═══════ COMPARISON — Bento Grid ═══════ */}
+          <section className="px-5 py-16" aria-label={ru ? 'Сравнение' : 'Comparison'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1100px' }}>
+            <Cin>
+              <h2 className="mb-3" style={{
                 fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
                 fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
               }}>
                 {ru ? <>Маркетплейс<br /><span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.3)' }}>vs</span> WEB4TG</> : <>Marketplace<br /><span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.3)' }}>vs</span> WEB4TG</>}
               </h2>
+              <p className="mb-10" style={{ fontFamily: INTER, fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)', lineHeight: 1.6, maxWidth: '28ch' }}>
+                {ru ? 'Цифры, которые решают всё за вас.' : 'Numbers that speak for themselves.'}
+              </p>
             </Cin>
 
-            {(() => {
-              const rows = [
-                { label: ru ? 'Комиссия' : 'Commission', old: '15–25%', now: '0%', icon: '💸' },
-                { label: ru ? 'Запуск' : 'Launch', old: ru ? '2–6 месяцев' : '2–6 months', now: ru ? '24 часа' : '24 hours', icon: '⚡' },
-                { label: ru ? 'Дизайн' : 'Design', old: ru ? 'Как у всех' : 'Same as everyone', now: ru ? 'Уникальный премиум' : 'Unique premium', icon: '✨' },
-                { label: ru ? 'AI-ассистент' : 'AI Assistant', old: ru ? 'Нет' : 'None', now: ru ? 'Работает 24/7' : 'Works 24/7', icon: '🤖' },
-                { label: ru ? 'Данные клиентов' : 'Customer data', old: ru ? 'Принадлежат площадке' : 'Owned by platform', now: ru ? 'Только ваши' : 'Only yours', icon: '🔐' },
-                { label: ru ? 'Платежи' : 'Payments', old: ru ? 'Через посредника' : 'Via middleman', now: ru ? 'Напрямую вам' : 'Directly to you', icon: '💳' },
-              ];
-              return (
-                <div className="px-6 space-y-3">
-                  {rows.map((row, i) => (
-                    <Cin key={i} delay={i * 0.04}>
-                      <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                        <div className="flex items-center gap-3 px-4 pt-4 pb-2">
-                          <span style={{ fontSize: '1.1rem' }}>{row.icon}</span>
-                          <span style={{ fontFamily: SYNE, fontSize: '0.85rem', fontWeight: 700, color: 'rgba(255,255,255,0.8)', letterSpacing: '-0.02em' }}>{row.label}</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-0">
-                          <div className="px-4 pb-4 pt-1">
-                            <div style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.15)', marginBottom: 4 }}>
-                              {ru ? 'Маркетплейс' : 'Marketplace'}
-                            </div>
-                            <div style={{ fontFamily: INTER, fontSize: '0.8rem', fontWeight: 500, color: 'rgba(255,255,255,0.22)', textDecoration: 'line-through', textDecorationColor: 'rgba(255,80,80,0.3)' }}>
-                              {row.old}
-                            </div>
-                          </div>
-                          <div className="px-4 pb-4 pt-1 relative" style={{ borderLeft: `1px solid ${EMERALD}10` }}>
-                            <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(135deg, ${EMERALD}04 0%, transparent 60%)` }} />
-                            <div className="relative">
-                              <div style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: `${EMERALD}60`, marginBottom: 4 }}>
-                                WEB4TG
-                              </div>
-                              <div style={{ fontFamily: SYNE, fontSize: '0.85rem', fontWeight: 700, color: EMERALD, letterSpacing: '-0.02em' }}>
-                                {row.now}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Cin>
-                  ))}
-                </div>
-              );
-            })()}
+            <div className="grid grid-cols-2 gap-2.5" style={{ gridAutoRows: 'auto' }}>
 
-            <Cin delay={0.3} className="px-6">
-              <div className="mt-8 relative overflow-hidden rounded-2xl" style={{ border: `1px solid ${EMERALD}15` }}>
-                <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 50% 0%, ${EMERALD}0a 0%, transparent 50%), radial-gradient(ellipse at 50% 100%, ${EMERALD}08 0%, transparent 50%)` }} />
-                <div className="relative grid grid-cols-3 gap-0 py-6">
-                  {[
-                    { val: ru ? '~3.2М ₽' : '~$40k', desc: ru ? 'экономия / год' : 'savings / year' },
-                    { val: '340%', desc: ru ? 'рост продаж' : 'sales growth' },
-                    { val: '24h', desc: ru ? 'до запуска' : 'to launch' },
-                  ].map((stat, i) => (
-                    <div key={i} className="text-center px-2" style={{ borderRight: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                      <div style={{ fontFamily: SYNE, fontSize: 'clamp(1.1rem, 4vw, 1.5rem)', fontWeight: 800, color: i === 0 ? EMERALD : '#fff', letterSpacing: '-0.04em', lineHeight: 1.1 }}>
-                        {stat.val}
+              <Cin delay={0.04}>
+                <div className="col-span-1 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,60,60,0.07) 0%, transparent 70%)' }} />
+                  <div style={{ fontFamily: INTER, fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'rgba(255,100,100,0.4)' }}>
+                    {ru ? 'Маркетплейс' : 'Marketplace'}
+                  </div>
+                  <div className="mt-2" style={{ fontFamily: SYNE, fontSize: 'clamp(2rem, 8vw, 2.6rem)', fontWeight: 800, color: 'rgba(255,255,255,0.12)', letterSpacing: '-0.06em', lineHeight: 1 }}>
+                    25%
+                  </div>
+                  <div className="mt-1" style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.18)', lineHeight: 1.4 }}>
+                    {ru ? 'комиссия с каждой продажи' : 'commission on every sale'}
+                  </div>
+                </div>
+              </Cin>
+
+              <Cin delay={0.08}>
+                <div className="col-span-1 rounded-[20px] p-5 relative overflow-hidden" style={{ background: `${EMERALD}08`, border: `1px solid ${EMERALD}18` }}>
+                  <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full pointer-events-none" style={{ background: `radial-gradient(circle, ${EMERALD}12 0%, transparent 70%)` }} />
+                  <div style={{ fontFamily: INTER, fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: `${EMERALD}70` }}>
+                    WEB4TG
+                  </div>
+                  <div className="mt-2" style={{ fontFamily: SYNE, fontSize: 'clamp(2rem, 8vw, 2.6rem)', fontWeight: 800, color: EMERALD, letterSpacing: '-0.06em', lineHeight: 1 }}>
+                    <Ct to={0} suffix="%" />
+                  </div>
+                  <div className="mt-1" style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>
+                    {ru ? 'комиссий — навсегда' : 'commission — forever'}
+                  </div>
+                </div>
+              </Cin>
+
+              <Cin delay={0.12}>
+                <div className="col-span-2 rounded-[20px] relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${EMERALD}06 0%, rgba(255,255,255,0.015) 100%)`, border: `1px solid ${EMERALD}12` }}>
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 20% 50%, ${EMERALD}08 0%, transparent 50%)` }} />
+                  <div className="relative p-5 flex items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <div style={{ fontFamily: SYNE, fontSize: 'clamp(1.8rem, 7vw, 2.4rem)', fontWeight: 800, color: EMERALD, letterSpacing: '-0.05em', lineHeight: 1 }}>
+                        {ru ? <>~<Ct to={3} />.2 млн ₽</> : <>~$<Ct to={40} />k</>}
                       </div>
-                      <div className="mt-1" style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.02em' }}>
-                        {stat.desc}
+                      <div className="mt-1.5" style={{ fontFamily: INTER, fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
+                        {ru ? 'средняя экономия за первый год без комиссий' : 'average first-year savings without fees'}
                       </div>
                     </div>
-                  ))}
+                    <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center" style={{ background: `${EMERALD}10`, border: `1px solid ${EMERALD}20` }}>
+                      <span style={{ fontSize: '1.3rem' }}>↗</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </Cin>
+              </Cin>
+
+              <Cin delay={0.16}>
+                <div className="col-span-1 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                      <span style={{ fontSize: '0.75rem' }}>⏱</span>
+                    </div>
+                    <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.25)' }}>
+                      {ru ? 'Запуск' : 'Launch'}
+                    </span>
+                  </div>
+                  <div style={{ fontFamily: SYNE, fontSize: '0.95rem', fontWeight: 700, color: 'rgba(255,255,255,0.15)', textDecoration: 'line-through', textDecorationColor: 'rgba(255,80,80,0.25)', letterSpacing: '-0.02em' }}>
+                    {ru ? '2–6 мес' : '2–6 mo'}
+                  </div>
+                  <div className="mt-0.5" style={{ fontFamily: SYNE, fontSize: '1.3rem', fontWeight: 800, color: EMERALD, letterSpacing: '-0.04em' }}>
+                    <Ct to={24} suffix="h" />
+                  </div>
+                </div>
+              </Cin>
+
+              <Cin delay={0.2}>
+                <div className="col-span-1 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                      <span style={{ fontSize: '0.75rem' }}>🎨</span>
+                    </div>
+                    <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.25)' }}>
+                      {ru ? 'Дизайн' : 'Design'}
+                    </span>
+                  </div>
+                  <div style={{ fontFamily: SYNE, fontSize: '0.95rem', fontWeight: 700, color: 'rgba(255,255,255,0.15)', textDecoration: 'line-through', textDecorationColor: 'rgba(255,80,80,0.25)', letterSpacing: '-0.02em' }}>
+                    {ru ? 'Шаблон' : 'Template'}
+                  </div>
+                  <div className="mt-0.5" style={{ fontFamily: SYNE, fontSize: '1.3rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.04em' }}>
+                    {ru ? 'Премиум' : 'Premium'}
+                  </div>
+                </div>
+              </Cin>
+
+              <Cin delay={0.24}>
+                <div className="col-span-2 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className="grid grid-cols-3 gap-4">
+                    {[
+                      { icon: '🤖', label: ru ? 'AI-бот' : 'AI Bot', val: '24/7', sub: ru ? 'работает' : 'works' },
+                      { icon: '📊', label: ru ? 'Аналитика' : 'Analytics', val: ru ? 'Полная' : 'Full', sub: ru ? 'воронки, LTV' : 'funnels, LTV' },
+                      { icon: '🔐', label: ru ? 'Данные' : 'Data', val: ru ? 'Ваши' : 'Yours', sub: ru ? '100% контроль' : '100% control' },
+                    ].map((f, i) => (
+                      <div key={i} className="text-center">
+                        <div className="w-10 h-10 rounded-2xl mx-auto flex items-center justify-center mb-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <span style={{ fontSize: '1.1rem' }}>{f.icon}</span>
+                        </div>
+                        <div style={{ fontFamily: SYNE, fontSize: '0.85rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{f.val}</div>
+                        <div style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{f.sub}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Cin>
+
+              <Cin delay={0.28}>
+                <div className="col-span-2 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.2)', marginBottom: 12 }}>
+                    {ru ? 'Платежи' : 'Payments'}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="h-px flex-1" style={{ background: 'rgba(255,80,80,0.15)' }} />
+                        <span style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.15)', textDecoration: 'line-through' }}>
+                          {ru ? 'Площадка → Посредник → Вы' : 'Platform → Middleman → You'}
+                        </span>
+                        <div className="h-px flex-1" style={{ background: 'rgba(255,80,80,0.15)' }} />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="h-px flex-1" style={{ background: `${EMERALD}30` }} />
+                        <span style={{ fontFamily: SYNE, fontSize: '0.75rem', fontWeight: 700, color: EMERALD }}>
+                          {ru ? 'Клиент → Вы' : 'Customer → You'}
+                        </span>
+                        <div className="h-px flex-1" style={{ background: `${EMERALD}30` }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Cin>
+
+            </div>
           </section>
 
           {/* ═══════ PROCESS ═══════ */}
