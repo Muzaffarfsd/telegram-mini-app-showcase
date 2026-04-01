@@ -565,94 +565,80 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           </section>
 
           {/* ═══════ COMPARISON — До / После ═══════ */}
-          <section className="px-6 py-14" aria-label={ru ? 'Сравнение' : 'Comparison'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 700px' }}>
-            <Cin>
-              <span style={{
-                fontFamily: SYNE, fontSize: '0.6875rem',
-                fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' as const,
-                color: 'rgba(255,255,255,0.25)',
-              }}>
-                {ru ? 'Сравнение' : 'Comparison'}
-              </span>
-              <h2 className="mt-2 mb-8" style={{
+          <section className="py-14" aria-label={ru ? 'Сравнение' : 'Comparison'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 900px' }}>
+            <Cin className="px-6">
+              <h2 className="mb-10" style={{
                 fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
                 fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
               }}>
-                {ru ? <>Почему <span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.4)' }}>не</span> маркетплейс</> : <>Why <span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.4)' }}>not</span> a marketplace</>}
+                {ru ? <>Маркетплейс<br /><span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.3)' }}>vs</span> WEB4TG</> : <>Marketplace<br /><span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.3)' }}>vs</span> WEB4TG</>}
               </h2>
             </Cin>
 
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <Cin delay={0.05}>
-                <div className="rounded-2xl p-4 relative overflow-hidden" style={{ background: 'rgba(255,60,60,0.04)', border: '1px solid rgba(255,60,60,0.08)' }}>
-                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,60,60,0.06) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
-                  <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: 'rgba(255,100,100,0.5)' }}>
-                    {ru ? 'Маркетплейс' : 'Marketplace'}
-                  </span>
-                  <div className="mt-3 space-y-3">
-                    {[
-                      { val: '15–25%', desc: ru ? 'комиссия с продаж' : 'sales commission' },
-                      { val: ru ? '2–6 мес' : '2–6 mo', desc: ru ? 'время запуска' : 'launch time' },
-                      { val: ru ? 'Шаблон' : 'Template', desc: ru ? 'одинаковый дизайн' : 'same design' },
-                    ].map((item, i) => (
-                      <div key={i}>
-                        <div style={{ fontFamily: SYNE, fontSize: '1.1rem', fontWeight: 800, color: 'rgba(255,255,255,0.25)', letterSpacing: '-0.03em' }}>{item.val}</div>
-                        <div style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', marginTop: 2 }}>{item.desc}</div>
+            {(() => {
+              const rows = [
+                { label: ru ? 'Комиссия' : 'Commission', old: '15–25%', now: '0%', icon: '💸' },
+                { label: ru ? 'Запуск' : 'Launch', old: ru ? '2–6 месяцев' : '2–6 months', now: ru ? '24 часа' : '24 hours', icon: '⚡' },
+                { label: ru ? 'Дизайн' : 'Design', old: ru ? 'Как у всех' : 'Same as everyone', now: ru ? 'Уникальный премиум' : 'Unique premium', icon: '✨' },
+                { label: ru ? 'AI-ассистент' : 'AI Assistant', old: ru ? 'Нет' : 'None', now: ru ? 'Работает 24/7' : 'Works 24/7', icon: '🤖' },
+                { label: ru ? 'Данные клиентов' : 'Customer data', old: ru ? 'Принадлежат площадке' : 'Owned by platform', now: ru ? 'Только ваши' : 'Only yours', icon: '🔐' },
+                { label: ru ? 'Платежи' : 'Payments', old: ru ? 'Через посредника' : 'Via middleman', now: ru ? 'Напрямую вам' : 'Directly to you', icon: '💳' },
+              ];
+              return (
+                <div className="px-6 space-y-3">
+                  {rows.map((row, i) => (
+                    <Cin key={i} delay={i * 0.04}>
+                      <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                        <div className="flex items-center gap-3 px-4 pt-4 pb-2">
+                          <span style={{ fontSize: '1.1rem' }}>{row.icon}</span>
+                          <span style={{ fontFamily: SYNE, fontSize: '0.85rem', fontWeight: 700, color: 'rgba(255,255,255,0.8)', letterSpacing: '-0.02em' }}>{row.label}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-0">
+                          <div className="px-4 pb-4 pt-1">
+                            <div style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.15)', marginBottom: 4 }}>
+                              {ru ? 'Маркетплейс' : 'Marketplace'}
+                            </div>
+                            <div style={{ fontFamily: INTER, fontSize: '0.8rem', fontWeight: 500, color: 'rgba(255,255,255,0.22)', textDecoration: 'line-through', textDecorationColor: 'rgba(255,80,80,0.3)' }}>
+                              {row.old}
+                            </div>
+                          </div>
+                          <div className="px-4 pb-4 pt-1 relative" style={{ borderLeft: `1px solid ${EMERALD}10` }}>
+                            <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(135deg, ${EMERALD}04 0%, transparent 60%)` }} />
+                            <div className="relative">
+                              <div style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: `${EMERALD}60`, marginBottom: 4 }}>
+                                WEB4TG
+                              </div>
+                              <div style={{ fontFamily: SYNE, fontSize: '0.85rem', fontWeight: 700, color: EMERALD, letterSpacing: '-0.02em' }}>
+                                {row.now}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    </Cin>
+                  ))}
                 </div>
-              </Cin>
+              );
+            })()}
 
-              <Cin delay={0.1}>
-                <div className="rounded-2xl p-4 relative overflow-hidden" style={{ background: `${EMERALD}06`, border: `1px solid ${EMERALD}12` }}>
-                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: `radial-gradient(circle, ${EMERALD}10 0%, transparent 70%)`, transform: 'translate(30%, -30%)' }} />
-                  <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: `${EMERALD}80` }}>
-                    WEB4TG
-                  </span>
-                  <div className="mt-3 space-y-3">
-                    {[
-                      { val: '0%', desc: ru ? 'никаких комиссий' : 'zero commission' },
-                      { val: '24h', desc: ru ? 'запуск за сутки' : 'launch in a day' },
-                      { val: ru ? 'Премиум' : 'Premium', desc: ru ? 'уникальный бренд' : 'unique brand' },
-                    ].map((item, i) => (
-                      <div key={i}>
-                        <div style={{ fontFamily: SYNE, fontSize: '1.1rem', fontWeight: 800, color: EMERALD, letterSpacing: '-0.03em' }}>{item.val}</div>
-                        <div style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{item.desc}</div>
+            <Cin delay={0.3} className="px-6">
+              <div className="mt-8 relative overflow-hidden rounded-2xl" style={{ border: `1px solid ${EMERALD}15` }}>
+                <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 50% 0%, ${EMERALD}0a 0%, transparent 50%), radial-gradient(ellipse at 50% 100%, ${EMERALD}08 0%, transparent 50%)` }} />
+                <div className="relative grid grid-cols-3 gap-0 py-6">
+                  {[
+                    { val: ru ? '~3.2М ₽' : '~$40k', desc: ru ? 'экономия / год' : 'savings / year' },
+                    { val: '340%', desc: ru ? 'рост продаж' : 'sales growth' },
+                    { val: '24h', desc: ru ? 'до запуска' : 'to launch' },
+                  ].map((stat, i) => (
+                    <div key={i} className="text-center px-2" style={{ borderRight: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                      <div style={{ fontFamily: SYNE, fontSize: 'clamp(1.1rem, 4vw, 1.5rem)', fontWeight: 800, color: i === 0 ? EMERALD : '#fff', letterSpacing: '-0.04em', lineHeight: 1.1 }}>
+                        {stat.val}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </Cin>
-            </div>
-
-            <div className="space-y-2">
-              {[
-                { label: ru ? 'AI-ассистент' : 'AI Assistant', old: '—', now: ru ? '24/7 бот' : '24/7 bot', highlight: true },
-                { label: ru ? 'Аналитика' : 'Analytics', old: ru ? 'Базовая' : 'Basic', now: ru ? 'Продвинутая' : 'Advanced', highlight: false },
-                { label: ru ? 'Данные клиентов' : 'Customer data', old: ru ? 'У площадки' : 'Platform owns', now: ru ? 'У вас' : 'You own', highlight: false },
-                { label: ru ? 'Оплата' : 'Payments', old: ru ? 'Через посредника' : 'Via middleman', now: ru ? 'Напрямую' : 'Direct', highlight: true },
-              ].map((row, i) => (
-                <Cin key={i} delay={0.15 + i * 0.03}>
-                  <div className="flex items-center rounded-xl py-3 px-4" style={{ background: row.highlight ? `${EMERALD}05` : 'rgba(255,255,255,0.015)', border: row.highlight ? `1px solid ${EMERALD}0a` : '1px solid transparent' }}>
-                    <span className="flex-1" style={{ fontFamily: INTER, fontSize: '0.8rem', fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>{row.label}</span>
-                    <span className="w-24 text-center" style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 500, color: 'rgba(255,255,255,0.15)', textDecoration: 'line-through' }}>{row.old}</span>
-                    <span className="w-24 text-right" style={{ fontFamily: SYNE, fontSize: '0.8rem', fontWeight: 700, color: EMERALD }}>{row.now}</span>
-                  </div>
-                </Cin>
-              ))}
-            </div>
-
-            <Cin delay={0.3}>
-              <div className="mt-6 rounded-2xl p-5 text-center relative overflow-hidden" style={{ background: `${EMERALD}06`, border: `1px solid ${EMERALD}10` }}>
-                <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 50% 100%, ${EMERALD}08 0%, transparent 60%)` }} />
-                <div className="relative">
-                  <div style={{ fontFamily: SYNE, fontSize: 'clamp(2rem, 8vw, 2.8rem)', fontWeight: 800, color: EMERALD, letterSpacing: '-0.05em', lineHeight: 1 }}>
-                    {ru ? '~3.2 млн ₽' : '~$40k'}
-                  </div>
-                  <div className="mt-2" style={{ fontFamily: INTER, fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
-                    {ru ? 'средняя экономия за первый год без комиссий маркетплейса' : 'average savings in the first year without marketplace fees'}
-                  </div>
+                      <div className="mt-1" style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.02em' }}>
+                        {stat.desc}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </Cin>
