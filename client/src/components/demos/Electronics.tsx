@@ -464,13 +464,13 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             <div className="flex gap-1.5">
               {featured.isNew && (
                 <span className="px-2.5 py-1 rounded-full"
-                  style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.03em' }}>
+                  style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.03em' }}>
                   Новинка
                 </span>
               )}
               {featured.isFeatured && !featured.isNew && (
                 <span className="px-2.5 py-1 rounded-full"
-                  style={{ background: 'rgba(255,149,0,0.15)', color: '#FF9500', fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, border: '1px solid rgba(255,149,0,0.25)' }}>
+                  style={{ background: 'rgba(255,149,0,0.15)', color: '#FF9500', fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, border: '1px solid rgba(255,149,0,0.25)' }}>
                   Рекомендуем
                 </span>
               )}
@@ -481,7 +481,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             </button>
           </div>
           <div className="absolute bottom-0 left-0 right-0 p-4 pt-10" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}>
-            <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 500, color: ACCENT, letterSpacing: '0.03em', marginBottom: 3 }}>{featured.brand}</p>
+            <p style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 500, color: ACCENT, letterSpacing: '0.03em', marginBottom: 3 }}>{featured.brand}</p>
             <h3 style={{ fontFamily: SF, fontSize: '1.1rem', fontWeight: 600, color: TEXT, lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: 6 }}>
               {featured.name}
             </h3>
@@ -489,7 +489,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               <div className="flex items-center gap-2">
                 <span style={{ fontFamily: SF, fontSize: '0.9rem', fontWeight: 600, color: TEXT }}>{formatPrice(featured.price)}</span>
                 {featured.oldPrice && (
-                  <span style={{ fontFamily: SF, fontSize: '0.65rem', color: TEXT_TER, textDecoration: 'line-through' }}>{formatPrice(featured.oldPrice)}</span>
+                  <span style={{ fontFamily: SF, fontSize: '0.75rem', color: TEXT_TER, textDecoration: 'line-through' }}>{formatPrice(featured.oldPrice)}</span>
                 )}
               </div>
               <div className="flex items-center gap-1">
@@ -524,7 +524,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   </div>
                   {p.isNew && (
                     <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full"
-                      style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.5rem', fontWeight: 600 }}>
+                      style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.75rem', fontWeight: 600 }}>
                       Новинка
                     </span>
                   )}
@@ -534,7 +534,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                     <Heart className="w-3 h-3" style={{ color: isFavorite(p.id) ? '#FF375F' : 'rgba(255,255,255,0.6)', fill: isFavorite(p.id) ? '#FF375F' : 'none' }} />
                   </button>
                   <div className="absolute bottom-0 left-0 right-0 p-3 pt-8" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)' }}>
-                    <p style={{ fontFamily: SF, fontSize: '0.45rem', fontWeight: 500, color: ACCENT, letterSpacing: '0.02em', marginBottom: 2 }}>{p.brand}</p>
+                    <p style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 500, color: ACCENT, letterSpacing: '0.02em', marginBottom: 2 }}>{p.brand}</p>
                     <h4 style={{ fontFamily: SF, fontSize: '0.8rem', fontWeight: 600, color: TEXT, lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: 3 }}>
                       {p.name}
                     </h4>
@@ -613,11 +613,11 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
 
               <div className="absolute bottom-5 left-5 right-5 z-10">
                 <div className="flex items-center gap-2 mb-2.5">
-                  <span className="px-3 py-1 rounded-full" style={{ background: `${ACCENT}20`, color: ACCENT, fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', border: `0.5px solid ${ACCENT}30` }}>
+                  <span className="px-3 py-1 rounded-full" style={{ background: `${ACCENT}20`, color: ACCENT, fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', border: `0.5px solid ${ACCENT}30` }}>
                     {selectedProduct.category}
                   </span>
                   {selectedProduct.isNew && (
-                    <span className="px-2.5 py-1 rounded-full" style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.04em' }}>
+                    <span className="px-2.5 py-1 rounded-full" style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.04em' }}>
                       Новинка
                     </span>
                   )}
@@ -649,7 +649,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   </div>
                 </div>
                 <div className="text-right">
-                  <span style={{ fontFamily: SF, fontSize: '0.55rem', color: TEXT_TER, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Бренд</span>
+                  <span style={{ fontFamily: SF, fontSize: '0.7rem', color: TEXT_TER, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Бренд</span>
                   <p style={{ fontFamily: SF, fontSize: '0.9rem', fontWeight: 600, color: ACCENT, letterSpacing: '-0.01em' }}>{selectedProduct.brand}</p>
                 </div>
               </m.div>
@@ -658,7 +658,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 {selectedProduct.specs.slice(0, 3).map((spec, idx) => (
                   <div key={idx} className="rounded-2xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${GLASS_BORDER}` }}>
                     <Cpu className="w-4 h-4 mb-1.5" style={{ color: ACCENT }} />
-                    <p style={{ fontFamily: SF, fontSize: '0.55rem', color: TEXT_TER, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{spec.label}</p>
+                    <p style={{ fontFamily: SF, fontSize: '0.7rem', color: TEXT_TER, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{spec.label}</p>
                     <p style={{ fontFamily: SF, fontSize: '0.85rem', fontWeight: 600, color: TEXT, letterSpacing: '-0.01em' }}>{spec.value}</p>
                   </div>
                 ))}
@@ -695,14 +695,14 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   </m.p>
 
                   <m.div variants={contentItem} className="rounded-2xl p-5 mb-5" style={{ background: 'rgba(255,255,255,0.02)', borderLeft: `2px solid ${ACCENT}40` }}>
-                    <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8 }}>Заметка эксперта</p>
+                    <p style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8 }}>Заметка эксперта</p>
                     <p style={{ fontFamily: SF, fontSize: '0.85rem', fontStyle: 'italic', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, letterSpacing: '-0.01em' }}>
                       «{selectedProduct.tagline} — {selectedProduct.brand} продолжает задавать стандарты индустрии.»
                     </p>
                   </m.div>
 
                   <m.div variants={contentItem}>
-                    <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Полные характеристики</p>
+                    <p style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Полные характеристики</p>
                     <div className="space-y-0">
                       {selectedProduct.specs.map((spec, idx) => (
                         <div key={idx} className="flex items-center justify-between py-3" style={{ borderBottom: `0.5px solid ${GLASS_BORDER}` }}>
@@ -729,7 +729,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   </m.div>
 
                   <m.div variants={contentItem} className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: `0.5px solid ${GLASS_BORDER}` }}>
-                    <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8 }}>Почему это важно</p>
+                    <p style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8 }}>Почему это важно</p>
                     <p style={{ fontFamily: SF, fontSize: '0.8rem', color: TEXT_SEC, lineHeight: 1.6 }}>
                       Каждая технология в {selectedProduct.name} создана для реальных сценариев использования — от профессиональной работы до повседневных задач. {selectedProduct.brand} инвестирует миллиарды в R&D, чтобы каждая деталь работала безупречно.
                     </p>
@@ -763,7 +763,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                           </div>
                           <div>
                             <p style={{ fontFamily: SF, fontSize: '0.8rem', fontWeight: 600, color: TEXT }}>{review.name}</p>
-                            <p style={{ fontFamily: SF, fontSize: '0.6rem', color: TEXT_TER }}>{review.date}</p>
+                            <p style={{ fontFamily: SF, fontSize: '0.7rem', color: TEXT_TER }}>{review.date}</p>
                           </div>
                         </div>
                         <div className="flex gap-0.5">
@@ -798,7 +798,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   <div key={idx} className="text-center">
                     <item.icon className="w-4 h-4 mx-auto mb-1.5" style={{ color: ACCENT }} />
                     <p style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: TEXT }}>{item.label}</p>
-                    <p style={{ fontFamily: SF, fontSize: '0.6rem', color: TEXT_SEC }}>{item.desc}</p>
+                    <p style={{ fontFamily: SF, fontSize: '0.7rem', color: TEXT_SEC }}>{item.desc}</p>
                   </div>
                 ))}
               </m.div>
@@ -807,7 +807,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 <m.div variants={contentItem} className="mt-5">
                   <div className="flex items-end justify-between mb-4">
                     <div>
-                      <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Рекомендации</span>
+                      <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Рекомендации</span>
                       <h3 style={{ fontFamily: SF, fontSize: '1.2rem', fontWeight: 600, color: TEXT, marginTop: 2, letterSpacing: '-0.02em' }}>Вам также <em style={{ fontStyle: 'italic', color: ACCENT }}>понравится</em></h3>
                     </div>
                   </div>
@@ -823,7 +823,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                           <LazyImage src={p.image} alt={p.name} className="w-full h-full object-cover" />
                         </div>
                         <p className="truncate" style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: TEXT, letterSpacing: '-0.01em' }}>{p.name}</p>
-                        <span style={{ fontFamily: SF, fontSize: '0.65rem', fontWeight: 600, color: TEXT_SEC }}>{formatPrice(p.price)}</span>
+                        <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, color: TEXT_SEC }}>{formatPrice(p.price)}</span>
                       </div>
                     ))}
                   </div>
@@ -870,7 +870,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
               >
-                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: ACCENT }}>
+                <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: ACCENT }}>
                   Новинка 2026
                 </span>
                 <h1 style={{ fontFamily: SF, fontSize: '2.8rem', fontWeight: 600, color: TEXT, lineHeight: 0.95, marginTop: 6, letterSpacing: '-0.04em' }}>
@@ -914,7 +914,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(24px)', border: `0.5px solid ${GLASS_BORDER}` }}
               >
                 <item.icon className="w-4 h-4 mx-auto mb-1.5" style={{ color: ACCENT }} />
-                <p style={{ fontFamily: SF, fontSize: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: TEXT_SEC }}>{item.label}</p>
+                <p style={{ fontFamily: SF, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: TEXT_SEC }}>{item.label}</p>
                 <p style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: TEXT, marginTop: 1 }}>{item.value}</p>
               </m.div>
             ))}
@@ -931,9 +931,9 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             >
               <div className="absolute inset-0 p-5 flex items-center justify-between">
                 <div>
-                  <p style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, marginBottom: 4 }}>Специальное предложение</p>
+                  <p style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, marginBottom: 4 }}>Специальное предложение</p>
                   <h3 style={{ fontFamily: SF, fontSize: '1.15rem', fontWeight: 600, color: TEXT, lineHeight: 1.2, letterSpacing: '-0.02em' }}>Trade-in: скидка <em style={{ fontStyle: 'italic', color: ACCENT }}>до 30%</em></h3>
-                  <p style={{ fontFamily: SF, fontSize: '0.65rem', color: TEXT_SEC, marginTop: 4 }}>Сдайте старое устройство — получите скидку</p>
+                  <p style={{ fontFamily: SF, fontSize: '0.75rem', color: TEXT_SEC, marginTop: 4 }}>Сдайте старое устройство — получите скидку</p>
                 </div>
                 <div className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: `${ACCENT}15` }}>
                   <ChevronRight className="w-5 h-5" style={{ color: ACCENT }} />
@@ -950,7 +950,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           >
             <m.div variants={contentItem} className="flex items-end justify-between mb-5">
               <div>
-                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Рекомендуем</span>
+                <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Рекомендуем</span>
                 <h2 style={{ fontFamily: SF, fontSize: '1.5rem', fontWeight: 600, color: TEXT, marginTop: 3, letterSpacing: '-0.03em' }}>Выбор <em style={{ fontStyle: 'italic', color: ACCENT }}>экспертов</em></h2>
               </div>
               <button onClick={() => onTabChange?.('catalog')} style={{ fontFamily: SF, fontSize: '0.7rem', color: ACCENT, fontWeight: 500 }}>Все →</button>
@@ -977,10 +977,10 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                     </button>
                     {product.isNew && (
                       <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full"
-                        style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.5rem', fontWeight: 600 }}>Новинка</span>
+                        style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.75rem', fontWeight: 600 }}>Новинка</span>
                     )}
                   </div>
-                  <p style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 500, color: ACCENT, letterSpacing: '0.02em', marginBottom: 2 }}>{product.brand}</p>
+                  <p style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 500, color: ACCENT, letterSpacing: '0.02em', marginBottom: 2 }}>{product.brand}</p>
                   <p className="truncate" style={{ fontFamily: SF, fontSize: '0.8rem', fontWeight: 600, color: TEXT, marginBottom: 3, letterSpacing: '-0.02em' }}>{product.name}</p>
                   <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, color: TEXT }}>{formatPrice(product.price)}</span>
                 </m.div>
@@ -996,7 +996,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           >
             <m.div variants={contentItem} className="flex items-end justify-between mb-5">
               <div>
-                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Категории</span>
+                <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Категории</span>
                 <h2 style={{ fontFamily: SF, fontSize: '1.5rem', fontWeight: 600, color: TEXT, marginTop: 3, letterSpacing: '-0.03em' }}>Каталог <em style={{ fontStyle: 'italic', color: ACCENT }}>устройств</em></h2>
               </div>
             </m.div>
@@ -1014,7 +1014,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   <LazyImage src={image} alt={cat} className="absolute inset-0 w-full h-full object-cover" />
                   <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.05) 100%)' }} />
                   <div className="absolute inset-x-0 bottom-0 p-2">
-                    <p style={{ fontFamily: SF, fontSize: '0.55rem', fontWeight: 600, color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{cat}</p>
+                    <p style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{cat}</p>
                   </div>
                 </m.button>
               ))}
@@ -1029,7 +1029,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           >
             <m.div variants={contentItem} className="flex items-end justify-between mb-5">
               <div>
-                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Новинки</span>
+                <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Новинки</span>
                 <h2 style={{ fontFamily: SF, fontSize: '1.5rem', fontWeight: 600, color: TEXT, marginTop: 3, letterSpacing: '-0.03em' }}>Только что <em style={{ fontStyle: 'italic', color: ACCENT }}>вышли</em></h2>
               </div>
             </m.div>
@@ -1049,15 +1049,15 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                   </div>
                   <div className="flex-1 min-w-0 flex flex-col justify-center">
                     <div className="flex items-center gap-2 mb-1">
-                      <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 500, color: ACCENT }}>{product.brand}</span>
-                      <span className="px-1.5 py-0.5 rounded-full" style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.45rem', fontWeight: 600 }}>Новинка</span>
+                      <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 500, color: ACCENT }}>{product.brand}</span>
+                      <span className="px-1.5 py-0.5 rounded-full" style={{ background: ACCENT, color: '#fff', fontFamily: SF, fontSize: '0.7rem', fontWeight: 600 }}>Новинка</span>
                     </div>
                     <p className="truncate" style={{ fontFamily: SF, fontSize: '0.85rem', fontWeight: 600, color: TEXT, marginBottom: 3, letterSpacing: '-0.02em' }}>{product.name}</p>
                     <div className="flex items-center justify-between">
                       <span style={{ fontFamily: SF, fontSize: '0.8rem', fontWeight: 600, color: TEXT }}>{formatPrice(product.price)}</span>
                       <div className="flex items-center gap-1">
                         <Star className="w-3 h-3" style={{ color: '#FF9500', fill: '#FF9500' }} />
-                        <span style={{ fontFamily: SF, fontSize: '0.65rem', fontWeight: 600, color: TEXT_SEC }}>{product.rating}</span>
+                        <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, color: TEXT_SEC }}>{product.rating}</span>
                       </div>
                     </div>
                   </div>
@@ -1074,7 +1074,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           >
             <m.div variants={contentItem} className="flex items-end justify-between mb-5">
               <div>
-                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Экосистема</span>
+                <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Экосистема</span>
                 <h2 style={{ fontFamily: SF, fontSize: '1.5rem', fontWeight: 600, color: TEXT, marginTop: 3, letterSpacing: '-0.03em' }}>Мир <em style={{ fontStyle: 'italic', color: ACCENT }}>Apple</em></h2>
               </div>
               <button onClick={() => { setSelectedCategory('Все'); onTabChange?.('catalog'); }} style={{ fontFamily: SF, fontSize: '0.7rem', color: ACCENT, fontWeight: 500 }}>Все →</button>
@@ -1094,7 +1094,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                     <LazyImage src={product.image} alt={product.name} className="w-full h-full object-cover" />
                   </div>
                   <p className="truncate" style={{ fontFamily: SF, fontSize: '0.7rem', fontWeight: 600, color: TEXT, marginBottom: 2, letterSpacing: '-0.01em' }}>{product.name}</p>
-                  <span style={{ fontFamily: SF, fontSize: '0.65rem', fontWeight: 600, color: TEXT_SEC }}>{formatPrice(product.price)}</span>
+                  <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, color: TEXT_SEC }}>{formatPrice(product.price)}</span>
                 </m.div>
               ))}
             </m.div>
@@ -1111,7 +1111,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
               <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: `${ACCENT}12` }}>
                 <Phone className="w-5 h-5" style={{ color: ACCENT }} />
               </div>
-              <p style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, marginBottom: 6 }}>Поддержка</p>
+              <p style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, marginBottom: 6 }}>Поддержка</p>
               <h3 style={{ fontFamily: SF, fontSize: '1.1rem', fontWeight: 600, color: TEXT, marginBottom: 6, letterSpacing: '-0.02em' }}>Нужна <em style={{ fontStyle: 'italic', color: ACCENT }}>помощь?</em></h3>
               <p style={{ fontFamily: SF, fontSize: '0.7rem', color: TEXT_SEC, marginBottom: 12 }}>Эксперты на связи 24/7</p>
               <button
@@ -1144,7 +1144,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           >
             <m.div variants={contentItem} className="flex items-center justify-between mb-5">
               <div>
-                <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Каталог</span>
+                <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Каталог</span>
                 <h1 style={{ fontFamily: SF, fontSize: '1.8rem', fontWeight: 600, color: TEXT, marginTop: 2, letterSpacing: '-0.03em' }}>Все <em style={{ fontStyle: 'italic', color: ACCENT }}>товары</em></h1>
               </div>
               <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: GLASS, border: `1px solid ${GLASS_BORDER}` }}>
@@ -1211,7 +1211,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             animate="visible"
           >
             <m.div variants={contentItem} className="mb-6">
-              <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Заказ</span>
+              <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Заказ</span>
               <h1 style={{ fontFamily: SF, fontSize: '1.8rem', fontWeight: 600, color: TEXT, marginTop: 2, letterSpacing: '-0.03em' }}>Корзина</h1>
             </m.div>
 
@@ -1316,7 +1316,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
             animate="visible"
           >
             <m.div variants={contentItem} className="mb-6">
-              <span style={{ fontFamily: SF, fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Аккаунт</span>
+              <span style={{ fontFamily: SF, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT }}>Аккаунт</span>
               <h1 style={{ fontFamily: SF, fontSize: '1.8rem', fontWeight: 600, color: TEXT, marginTop: 2, letterSpacing: '-0.03em' }}>Профиль</h1>
             </m.div>
 
@@ -1339,7 +1339,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                 <div key={idx} className="p-3.5 rounded-[20px] text-center" style={{ background: BG_CARD }}>
                   <stat.icon className="w-4 h-4 mx-auto mb-2" style={{ color: ACCENT }} />
                   <p style={{ fontFamily: SF, fontSize: '1.1rem', fontWeight: 600, color: TEXT, marginBottom: 2 }}>{stat.value}</p>
-                  <p style={{ fontFamily: SF, fontSize: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: TEXT_SEC }}>{stat.label}</p>
+                  <p style={{ fontFamily: SF, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: TEXT_SEC }}>{stat.label}</p>
                 </div>
               ))}
             </m.div>
@@ -1364,7 +1364,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
                     >
                       <div className="flex justify-between items-center mb-2">
                         <span style={{ fontFamily: SF, fontSize: '0.7rem', color: TEXT_SEC, fontVariantNumeric: 'tabular-nums' }}>#{order.id.slice(-8)}</span>
-                        <span className="px-2.5 py-0.5 rounded-full" style={{ background: `${ACCENT}18`, color: ACCENT, fontFamily: SF, fontSize: '0.6rem', fontWeight: 600 }}>
+                        <span className="px-2.5 py-0.5 rounded-full" style={{ background: `${ACCENT}18`, color: ACCENT, fontFamily: SF, fontSize: '0.7rem', fontWeight: 600 }}>
                           {order.status === 'pending' ? 'Ожидает' : order.status === 'confirmed' ? 'Подтвержден' : order.status === 'processing' ? 'Обработка' : order.status === 'shipped' ? 'В пути' : 'Доставлен'}
                         </span>
                       </div>
