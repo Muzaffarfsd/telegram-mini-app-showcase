@@ -289,6 +289,26 @@ const getDelayClass = (index: number) => {
 };
 
 function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
+  return (
+    <div className="min-h-screen text-white flex flex-col items-center justify-center" style={{ background: '#000000' }}>
+      <div className="flex flex-col items-center gap-8 animate-fade-in-coming-soon px-8">
+        <div className="w-12 h-[1px] bg-white/10" />
+        <span style={{ fontFamily: "-apple-system, 'Helvetica Neue', 'Arial', sans-serif", fontSize: '0.65rem', letterSpacing: '0.45em', color: 'rgba(255,255,255,0.22)', fontWeight: 300, textTransform: 'uppercase' }}>
+          Lab Survivalist
+        </span>
+        <h1 style={{ fontFamily: "-apple-system, 'Helvetica Neue', 'Arial', sans-serif", fontSize: '2.4rem', fontWeight: 200, letterSpacing: '0.35em', color: '#ffffff', textTransform: 'uppercase' }}>
+          Скоро
+        </h1>
+        <div className="w-12 h-[1px] bg-white/10" />
+        <p style={{ fontFamily: "-apple-system, 'Helvetica Neue', 'Arial', sans-serif", fontSize: '0.75rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.18)', fontWeight: 300 }}>
+          Приложение в разработке
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function LabSurvivalistOld({ activeTab, onTabChange }: LabSurvivalistProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
