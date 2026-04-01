@@ -1,4 +1,5 @@
 import React, { useState, useRef, memo } from "react";
+import { createPortal } from "react-dom";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { m, AnimatePresence } from "framer-motion";
 import {
@@ -2202,7 +2203,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
         )}
 
         {/* ─── QUICK VIEW MODAL ─── */}
-        <AnimatePresence>
+        {createPortal(<AnimatePresence>
           {quickViewPerfume && (
             <m.div
               initial={{ opacity: 0 }}
@@ -2345,7 +2346,7 @@ function FragranceRoyale({ activeTab, onTabChange }: FragranceRoyaleProps) {
               </m.div>
             </m.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence>, document.body)}
       </div>
     );
   }

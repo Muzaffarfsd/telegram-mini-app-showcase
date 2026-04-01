@@ -1,4 +1,5 @@
 import React, { useState, useEffect, memo, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { m, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus, Eye, Truck, RotateCcw, ShieldCheck } from "lucide-react";
@@ -2353,7 +2354,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         <div className="h-6" />
         
         {/* ===== QUICK VIEW MODAL for HOME PAGE ===== */}
-        <AnimatePresence>
+        {createPortal(<AnimatePresence>
           {quickViewProduct && (
             <m.div
               initial={{ opacity: 0 }}
@@ -2546,7 +2547,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               </m.div>
             </m.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence>, document.body)}
       </div>
     );
   }
@@ -2832,7 +2833,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         </div>
         
         {/* ===== QUICK VIEW MODAL ===== */}
-        <AnimatePresence>
+        {createPortal(<AnimatePresence>
           {quickViewProduct && (
             <m.div
               initial={{ opacity: 0 }}
@@ -3014,7 +3015,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               </m.div>
             </m.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence>, document.body)}
       </div>
     );
   }
