@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChevronRight, Play, Zap, CreditCard, Bot, BarChart3, Palette, Rocket } from "lucide-react";
+import { ArrowUpRight, ChevronRight, Play, Zap, CreditCard, Bot, BarChart3, Palette, Rocket, Clock, TrendingUp, Shield, Sparkles } from "lucide-react";
 import { useCallback, useState, useEffect, useRef, useMemo } from "react";
 import { m, AnimatePresence, useInView, useScroll, useTransform } from '@/utils/LazyMotionProvider';
 import { useTelegram } from '../hooks/useTelegram';
@@ -623,7 +623,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                       </div>
                     </div>
                     <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center" style={{ background: `${EMERALD}10`, border: `1px solid ${EMERALD}20` }}>
-                      <span style={{ fontSize: '1.3rem' }}>↗</span>
+                      <TrendingUp size={20} color={EMERALD} strokeWidth={2.5} />
                     </div>
                   </div>
                 </div>
@@ -633,7 +633,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 <div className="col-span-1 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                      <span style={{ fontSize: '0.75rem' }}>⏱</span>
+                      <Clock size={13} color="rgba(255,255,255,0.4)" strokeWidth={2} />
                     </div>
                     <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.25)' }}>
                       {ru ? 'Запуск' : 'Launch'}
@@ -652,7 +652,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 <div className="col-span-1 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                      <span style={{ fontSize: '0.75rem' }}>🎨</span>
+                      <Sparkles size={13} color="rgba(255,255,255,0.4)" strokeWidth={2} />
                     </div>
                     <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.25)' }}>
                       {ru ? 'Дизайн' : 'Design'}
@@ -671,13 +671,13 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 <div className="col-span-2 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div className="grid grid-cols-3 gap-4">
                     {[
-                      { icon: '🤖', label: ru ? 'AI-бот' : 'AI Bot', val: '24/7', sub: ru ? 'работает' : 'works' },
-                      { icon: '📊', label: ru ? 'Аналитика' : 'Analytics', val: ru ? 'Полная' : 'Full', sub: ru ? 'воронки, LTV' : 'funnels, LTV' },
-                      { icon: '🔐', label: ru ? 'Данные' : 'Data', val: ru ? 'Ваши' : 'Yours', sub: ru ? '100% контроль' : '100% control' },
+                      { Icon: Bot, color: '#a78bfa', val: '24/7', sub: ru ? 'AI-бот' : 'AI bot' },
+                      { Icon: BarChart3, color: '#60a5fa', val: ru ? 'Полная' : 'Full', sub: ru ? 'аналитика' : 'analytics' },
+                      { Icon: Shield, color: EMERALD, val: ru ? 'Ваши' : 'Yours', sub: ru ? 'данные' : 'data' },
                     ].map((f, i) => (
                       <div key={i} className="text-center">
-                        <div className="w-10 h-10 rounded-2xl mx-auto flex items-center justify-center mb-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                          <span style={{ fontSize: '1.1rem' }}>{f.icon}</span>
+                        <div className="w-10 h-10 rounded-2xl mx-auto flex items-center justify-center mb-2" style={{ background: `${f.color}0a`, border: `1px solid ${f.color}18` }}>
+                          <f.Icon size={18} color={f.color} strokeWidth={1.8} />
                         </div>
                         <div style={{ fontFamily: SYNE, fontSize: '0.85rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{f.val}</div>
                         <div style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{f.sub}</div>
@@ -689,8 +689,11 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
               <Cin delay={0.28}>
                 <div className="col-span-2 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.2)', marginBottom: 12 }}>
-                    {ru ? 'Платежи' : 'Payments'}
+                  <div className="flex items-center gap-2" style={{ marginBottom: 12 }}>
+                    <CreditCard size={13} color="rgba(255,255,255,0.3)" strokeWidth={2} />
+                    <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.2)' }}>
+                      {ru ? 'Платежи' : 'Payments'}
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
