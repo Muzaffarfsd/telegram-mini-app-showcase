@@ -8,10 +8,7 @@ interface CriticalCSSConfig {
 
 const defaultConfig: CriticalCSSConfig = {
   preloadFonts: [],
-  preconnectOrigins: [
-    'https://api.fontshare.com',
-    'https://images.unsplash.com',
-  ],
+  preconnectOrigins: [],
   prefetchAssets: [],
 };
 

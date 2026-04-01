@@ -348,10 +348,11 @@ input, textarea {
   /* NOTE: will-change removed - browser handles this automatically now */
 }
 
-/* Optimize scrollable content children for paint performance */
-[data-scroll="main"] > * {
-  /* content-visibility disabled - causes content to be hidden */
-  /* contain-intrinsic-size disabled - can hide content */
+/* content-visibility: auto for off-screen sections — skip rendering until scrolled into view */
+[data-scroll="main"] > div:nth-child(n+2) section,
+[data-scroll="main"] > div:nth-child(n+2) article {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
 }
 
 /* ========================================
@@ -4024,12 +4025,12 @@ html.light :root,
    SCROLL PERFORMANCE OPTIMIZATIONS
    ======================================== */
 
-/* Auto-optimize off-screen content rendering */
-.demo-card,
-.bento-item,
-[data-scroll-optimize] {
-  /* content-visibility disabled - causes content to be hidden */
-  /* contain-intrinsic-size disabled - can hide content */
+/* Auto-optimize off-screen content rendering (skip first 2 items to protect LCP) */
+.demo-card:nth-child(n+3),
+.bento-item:nth-child(n+3),
+[data-scroll-optimize]:nth-child(n+3) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 280px;
 }
 
 /* CRITICAL: Fixed elements must not interfere with scroll */
@@ -4203,8 +4204,8 @@ html.low-performance .demo-card,
 html.low-performance .bento-item,
 html.low-performance section,
 html.low-performance article {
-  /* content-visibility disabled - causes content to be hidden */
-  /* contain-intrinsic-size disabled - can hide content */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 200px;
 }
 
 /* Slow Network Mode - Hide non-essential images */

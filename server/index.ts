@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import compression from "compression";
 import path from "path";
+import fs from "fs";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import * as Sentry from '@sentry/node';
@@ -92,6 +93,37 @@ const strictLimiter = rateLimit({
 app.use('/api', apiLimiter);
 app.use('/api/referral', strictLimiter);
 app.use('/api/coins', strictLimiter);
+
+let earlyHintLinks: string[] = [];
+if (process.env.NODE_ENV === 'production') {
+  try {
+    const manifestPath = path.resolve(import.meta.dirname, '..', 'dist', '.vite', 'manifest.json');
+    if (fs.existsSync(manifestPath)) {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+      const entry = manifest['src/main.tsx'] || manifest['index.html'];
+      if (entry) {
+        if (entry.css) {
+          entry.css.forEach((css: string) => earlyHintLinks.push(`</${css}>; rel=preload; as=style`));
+        }
+        if (entry.file) {
+          earlyHintLinks.push(`</${entry.file}>; rel=modulepreload`);
+        }
+      }
+    }
+  } catch {}
+
+  if (earlyHintLinks.length > 0) {
+    app.use((req, res, next) => {
+      if (req.path === '/' || req.path.endsWith('.html')) {
+        const rawRes = res as any;
+        if (typeof rawRes.writeEarlyHints === 'function') {
+          rawRes.writeEarlyHints({ link: earlyHintLinks });
+        }
+      }
+      next();
+    });
+  }
+}
 
 logInfo('Server starting', { env: process.env.NODE_ENV });
 

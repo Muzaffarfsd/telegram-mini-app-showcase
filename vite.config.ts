@@ -92,7 +92,8 @@ export default defineConfig({
     chunkSizeWarningLimit: 500,
     sourcemap: 'hidden',
     reportCompressedSize: true,
-    assetsInlineLimit: 4096
+    assetsInlineLimit: 4096,
+    manifest: true
   },
   
   optimizeDeps: {
