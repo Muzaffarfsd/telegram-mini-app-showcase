@@ -1255,7 +1255,7 @@ function Florist({ activeTab, onTabChange }: FloristProps) {
 
         {createPortal(<AnimatePresence>
           {quickViewFlower && (
-            <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="fixed inset-0 z-[100] flex items-end justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => setQuickViewFlower(null)}>
+            <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="fixed inset-0 z-[10000] flex items-end justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => setQuickViewFlower(null)}>
               <m.div initial={{ opacity: 0, y: 100, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 100, scale: 0.95 }} transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }} className="w-full max-w-lg rounded-t-[32px] overflow-hidden relative" style={{ background: BG, backdropFilter: 'blur(20px)', border: '0.5px solid rgba(0,0,0,0.06)', boxShadow: '0 -20px 60px rgba(0,0,0,0.15)', maxHeight: '72vh', paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 80px)' }} onClick={(e) => e.stopPropagation()}>
                 <div className="flex justify-center pt-3 pb-2"><div className="w-10 h-1 rounded-full" style={{ background: 'rgba(0,0,0,0.12)' }} /></div>
                 <button onClick={() => setQuickViewFlower(null)} className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10" style={{ background: 'rgba(0,0,0,0.05)' }} data-testid="button-close-quickview"><X className="w-4 h-4" style={{ color: TEXT }} /></button>

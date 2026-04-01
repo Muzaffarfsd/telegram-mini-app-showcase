@@ -907,7 +907,7 @@ function RascalStore({ activeTab, onTabChange }: RascalStoreProps) {
                 </div>
               ))}
 
-              <div className="fixed bottom-24 left-0 right-0 p-6 border-t border-white/10" style={{ backgroundColor: '#1a2e2a' }}>
+              <div className="fixed left-0 right-0 p-6 border-t border-white/10" style={{ bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))', backgroundColor: '#1a2e2a' }}>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
                   <span className="text-2xl font-bold">{formatPrice(totalAmount)}</span>

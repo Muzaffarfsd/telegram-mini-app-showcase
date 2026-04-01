@@ -2361,7 +2361,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[100] flex items-end justify-center"
+              className="fixed inset-0 z-[10000] flex items-end justify-center"
               style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
               onClick={() => setQuickViewProduct(null)}
             >
@@ -2840,7 +2840,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[100] flex items-end justify-center"
+              className="fixed inset-0 z-[10000] flex items-end justify-center"
               style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
               onClick={() => setQuickViewProduct(null)}
             >
@@ -3261,8 +3261,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
             {/* Fixed checkout button */}
             <div
-              className="fixed bottom-[88px] left-0 right-0 px-4 py-3"
+              className="fixed left-0 right-0 px-4 py-3"
               style={{
+                bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))',
                 background:
                   'linear-gradient(to top, var(--theme-background) 60%, transparent)',
               }}

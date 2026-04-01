@@ -917,7 +917,7 @@ function LabSurvivalist({ activeTab, onTabChange }: LabSurvivalistProps) {
                 </div>
               ))}
 
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-black border-t border-white/10">
+              <div className="fixed left-0 right-0 p-6 bg-black border-t border-white/10" style={{ bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-mono uppercase tracking-wider">Итого:</span>
                   <span className="text-3xl font-bold">{formatPrice(cartTotal)}</span>

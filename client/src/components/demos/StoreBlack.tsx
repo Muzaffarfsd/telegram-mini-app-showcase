@@ -988,7 +988,7 @@ function StoreBlack({ activeTab, onTabChange }: StoreBlackProps) {
                 </div>
               ))}
 
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-black border-t border-white/10">
+              <div className="fixed left-0 right-0 p-6 bg-black border-t border-white/10" style={{ bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold">Итого:</span>
                   <span className="text-2xl font-bold" style={{ color: '#FFD700' }}>{formatPrice(totalAmount)}</span>

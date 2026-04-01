@@ -1269,7 +1269,7 @@ const Electronics = memo(function Electronics({ activeTab, onTabChange }: Electr
           </m.div>
 
           {cartItems.length > 0 && (
-            <div className="fixed bottom-24 left-0 right-0 px-5 py-4 z-30" style={{ background: `${BG}f0`, backdropFilter: 'blur(20px)', borderTop: `1px solid ${GLASS_BORDER}` }}>
+            <div className="fixed left-0 right-0 px-5 py-4 z-30" style={{ bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))', background: `${BG}f0`, backdropFilter: 'blur(20px)', borderTop: `1px solid ${GLASS_BORDER}` }}>
               <div className="max-w-md mx-auto">
                 <div className="flex items-center justify-between mb-3">
                   <span style={{ fontFamily: SF, fontSize: '0.85rem', color: TEXT_SEC }}>Итого</span>

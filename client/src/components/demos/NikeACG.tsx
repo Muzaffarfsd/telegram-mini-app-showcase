@@ -896,7 +896,7 @@ function NikeACG({ activeTab, onTabChange }: NikeACGProps) {
                 </div>
               ))}
 
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#2D3748] border-t border-white/20">
+              <div className="fixed left-0 right-0 p-6 bg-[#2D3748] border-t border-white/20" style={{ bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
                 <div className="flex items-center justify-between mb-6">
                   <span className="text-lg font-bold tracking-wider">ИТОГО:</span>
                   <span className="text-3xl font-black">{formatPrice(cartTotal)}</span>
