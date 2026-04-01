@@ -639,10 +639,13 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                       {ru ? 'Запуск' : 'Launch'}
                     </span>
                   </div>
-                  <div style={{ fontFamily: SYNE, fontSize: '0.95rem', fontWeight: 700, color: 'rgba(255,255,255,0.15)', textDecoration: 'line-through', textDecorationColor: 'rgba(255,80,80,0.25)', letterSpacing: '-0.02em' }}>
-                    {ru ? '2–6 мес' : '2–6 mo'}
+                  <div className="flex items-baseline gap-2">
+                    <span style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 500, color: 'rgba(255,255,255,0.12)' }}>
+                      {ru ? '2–6 мес' : '2–6 mo'}
+                    </span>
+                    <span style={{ color: 'rgba(255,255,255,0.08)', fontSize: '0.7rem' }}>→</span>
                   </div>
-                  <div className="mt-0.5" style={{ fontFamily: SYNE, fontSize: '1.3rem', fontWeight: 800, color: EMERALD, letterSpacing: '-0.04em' }}>
+                  <div className="mt-1" style={{ fontFamily: SYNE, fontSize: '1.4rem', fontWeight: 800, color: EMERALD, letterSpacing: '-0.04em' }}>
                     <Ct to={24} suffix="h" />
                   </div>
                 </div>
@@ -658,10 +661,13 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                       {ru ? 'Дизайн' : 'Design'}
                     </span>
                   </div>
-                  <div style={{ fontFamily: SYNE, fontSize: '0.95rem', fontWeight: 700, color: 'rgba(255,255,255,0.15)', textDecoration: 'line-through', textDecorationColor: 'rgba(255,80,80,0.25)', letterSpacing: '-0.02em' }}>
-                    {ru ? 'Шаблон' : 'Template'}
+                  <div className="flex items-baseline gap-2">
+                    <span style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 500, color: 'rgba(255,255,255,0.12)' }}>
+                      {ru ? 'Шаблон' : 'Template'}
+                    </span>
+                    <span style={{ color: 'rgba(255,255,255,0.08)', fontSize: '0.7rem' }}>→</span>
                   </div>
-                  <div className="mt-0.5" style={{ fontFamily: SYNE, fontSize: '1.3rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.04em' }}>
+                  <div className="mt-1" style={{ fontFamily: SYNE, fontSize: '1.4rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.04em' }}>
                     {ru ? 'Премиум' : 'Premium'}
                   </div>
                 </div>
@@ -695,21 +701,21 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                       {ru ? 'Платежи' : 'Payments'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="h-px flex-1" style={{ background: 'rgba(255,80,80,0.15)' }} />
-                        <span style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.15)', textDecoration: 'line-through' }}>
-                          {ru ? 'Площадка → Посредник → Вы' : 'Platform → Middleman → You'}
-                        </span>
-                        <div className="h-px flex-1" style={{ background: 'rgba(255,80,80,0.15)' }} />
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                      <div className="flex items-center gap-1.5 flex-1" style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.15)' }}>
+                        <span>{ru ? 'Площадка' : 'Platform'}</span>
+                        <span style={{ color: 'rgba(255,255,255,0.06)' }}>›</span>
+                        <span>{ru ? 'Посредник' : 'Middleman'}</span>
+                        <span style={{ color: 'rgba(255,255,255,0.06)' }}>›</span>
+                        <span>{ru ? 'Вы' : 'You'}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-px flex-1" style={{ background: `${EMERALD}30` }} />
-                        <span style={{ fontFamily: SYNE, fontSize: '0.75rem', fontWeight: 700, color: EMERALD }}>
-                          {ru ? 'Клиент → Вы' : 'Customer → You'}
-                        </span>
-                        <div className="h-px flex-1" style={{ background: `${EMERALD}30` }} />
+                    </div>
+                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: `${EMERALD}06`, border: `1px solid ${EMERALD}12` }}>
+                      <div className="flex items-center gap-2 flex-1" style={{ fontFamily: SYNE, fontSize: '0.75rem', fontWeight: 700, color: EMERALD }}>
+                        <span>{ru ? 'Клиент' : 'Customer'}</span>
+                        <span style={{ color: `${EMERALD}50` }}>→</span>
+                        <span>{ru ? 'Вы' : 'You'}</span>
                       </div>
                     </div>
                   </div>
