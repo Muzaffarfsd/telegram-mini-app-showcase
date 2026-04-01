@@ -14,6 +14,7 @@ import { useScrollHaptic } from "./hooks/useScrollHaptic";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import { useNavigationTracking } from "./hooks/usePredictivePrefetch";
 import { usePerformanceClass } from "./hooks/usePerformanceClass";
+import { LazyMotionProvider } from "./utils/LazyMotionProvider";
 
 function lazyWithRetry<T extends { default: any }>(
   importFn: () => Promise<T>,
@@ -48,7 +49,6 @@ const initSentry = () => {
 
 const LazyRewardsProvider = lazy(() => import("./contexts/RewardsContext").then(m => ({ default: m.RewardsProvider })));
 const LazyXPNotificationProvider = lazy(() => import("./contexts/XPNotificationContext").then(m => ({ default: m.XPNotificationProvider })));
-const LazyMotionProvider = lazy(() => import("./utils/LazyMotionProvider").then(m => ({ default: m.LazyMotionProvider })));
 
 const ShowcasePage = lazyWithRetry(() => import("./components/ShowcasePage"));
 const PremiumAppsPage = lazyWithRetry(() => import("./components/PremiumAppsPage"));
@@ -439,8 +439,8 @@ function AppContent() {
   return (
     <>
       <TelegramButtonsSync routeComponent={route.component} />
-      <Suspense fallback={<div style={{minHeight:'1px'}} />}>
-        <LazyMotionProvider>
+      <LazyMotionProvider>
+        <Suspense fallback={<div style={{minHeight:'1px'}} />}>
           <LazyRewardsProvider>
             <LazyXPNotificationProvider>
               <div className="relative min-h-screen">
@@ -543,8 +543,8 @@ function AppContent() {
               )}
             </LazyXPNotificationProvider>
           </LazyRewardsProvider>
-        </LazyMotionProvider>
-      </Suspense>
+        </Suspense>
+      </LazyMotionProvider>
     </>
   );
 }

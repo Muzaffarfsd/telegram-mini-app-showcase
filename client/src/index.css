@@ -1,10 +1,7 @@
-/* Fonts - Optimized for Performance */
-/* Only load essential weights to reduce bundle size */
+/* Fonts - Self-hosted for instant loading (no external CDN) */
 @import '@fontsource/inter/latin-400.css';
 @import '@fontsource/inter/latin-600.css';
 @import '@fontsource/inter/latin-700.css';
-/* Satoshi - Best Modern Font 2025 (via Fontshare CDN) */
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
 /* Apple Quality Standards */
 @import './styles/apple.css';
 
@@ -12,9 +9,8 @@
 :root {
   --font-heading-ru: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body-ru: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  /* Satoshi - Award-winning modernist sans-serif, best font 2025 */
-  --font-heading-en: 'Satoshi', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body-en: 'Satoshi', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading-en: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body-en: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Russian language - Inter for everything */

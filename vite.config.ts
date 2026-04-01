@@ -72,7 +72,20 @@ export default defineConfig({
     
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks(id) {
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'react';
+          }
+          if (id.includes('node_modules/framer-motion')) {
+            return 'motion';
+          }
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'radix';
+          }
+          if (id.includes('node_modules/three') || id.includes('node_modules/@react-three')) {
+            return 'three';
+          }
+        },
       }
     },
     
@@ -87,10 +100,13 @@ export default defineConfig({
       'react',
       'react-dom',
       'react-dom/client',
-      'wouter'
-    ],
-    exclude: [
-      'framer-motion'
+      'wouter',
+      'framer-motion',
+      '@tanstack/react-query',
+      'zustand',
+      'clsx',
+      'tailwind-merge',
+      'lucide-react'
     ]
   },
   

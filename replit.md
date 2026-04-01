@@ -2,6 +2,9 @@
 
 This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional demo applications across various business sectors. It highlights the potential of AI agents for 24/7 support, sales automation, personalization, and analytics within a Telegram environment. The platform offers an interactive experience for users to explore diverse business scenarios and serves as an "app within an app."
 
+## 2026 Q2 Performance Optimization (April 2026)
+- **Instant Launch Optimization**: Eliminated external font CDN dependencies (Google Fonts, Fontshare) in favor of self-hosted @fontsource/inter. Removed blocking font preloads from HTML head. LazyMotionProvider changed from lazy-loaded to direct import to avoid provider-level waterfall. Removed cache-busting logic that deleted browser caches on every page load. Consolidated and minified inline Telegram SDK init scripts. Added Vite manual chunks (react, motion, radix, three) for optimal parallel loading. Removed unnecessary prefetch/preload links. Simplified main.tsx entry point. Service worker registration preserved for production offline caching.
+
 ## 2026 Q1 Strategic Audit (March 2026)
 - **Server Routes Modularization (T001)**: Split `server/routes.ts` from 3,972 lines into 12 modular routers in `server/routes/`: shared.ts (auth, CSRF, Zod schemas, Stripe), telegram.ts, payments.ts, projects.ts, photos.ts, stories.ts, tasks.ts, referrals.ts, gamification.ts, reviews.ts, notifications.ts, analytics.ts, coinshop.ts. Main routes.ts is now ~130 lines importing and mounting sub-routers.
 - **Coin Shop / Discount System (T002)**: New `server/routes/coinshop.ts` with 5 discount tiers (5%-50%, 500-10000 coins). Endpoints: GET `/api/coinshop/tiers`, POST `/api/coinshop/redeem`, GET `/api/coinshop/balance`. New `CoinShopPage.tsx` component with tier list, balance display, redemption flow, and discount code generation. Wired into App.tsx at `/coinshop` route.
