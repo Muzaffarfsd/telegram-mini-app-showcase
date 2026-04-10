@@ -144,6 +144,10 @@ const staticCacheOptions = {
       else if (filePath.match(/\.(png|jpg|jpeg|gif|svg|webp|ico)$/)) {
         res.setHeader('Cache-Control', 'public, max-age=604800'); // 7 days
       }
+      // Long cache for video files
+      else if (filePath.match(/\.(mp4|webm|ogg)$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days
+      }
       // Add Vary header for CDN compatibility
       res.setHeader('Vary', 'Accept-Encoding');
     }
