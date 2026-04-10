@@ -501,11 +501,6 @@ export const translations = {
       // Step 2
       step2Title: 'Шаг 2: Настройте функции',
       step2Desc: 'Добавьте нужные возможности для вашего приложения',
-      previewLabel: 'Предпросмотр',
-      livePreview: 'Live',
-      tapToToggle: 'Нажмите чтобы добавить или убрать',
-      featuresSelected: 'функций выбрано',
-      yourApp: 'Ваше приложение',
       projectName: 'Название проекта',
       enterProjectName: 'Введите название',
       includedInTemplate: 'Включено в шаблон',
@@ -2224,11 +2219,6 @@ export const translations = {
       // Step 2
       step2Title: 'Step 2: Configure Features',
       step2Desc: 'Add necessary capabilities to your application',
-      previewLabel: 'Preview',
-      livePreview: 'Live',
-      tapToToggle: 'Tap to add or remove',
-      featuresSelected: 'features selected',
-      yourApp: 'Your App',
       projectName: 'Project Name',
       enterProjectName: 'Enter name',
       includedInTemplate: 'Included in Template',
