@@ -174,6 +174,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             <div className="absolute inset-0 z-0 overflow-hidden">
               <AutoplayVideo
                 src="/videos/hero.mp4"
+                eager
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ opacity: 0.5, filter: 'saturate(0.5) contrast(1.1)' }}
               />
@@ -369,7 +370,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     >
                       {c.vid ? (
                         <video ref={i === 0 ? videoRef : undefined} src={c.src} loop muted playsInline autoPlay
-                          preload={i === 0 ? 'auto' : 'metadata'}
+                          preload="auto"
                           poster={c.poster}
                           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-active:scale-[1.04]"
                           style={{ filter: 'brightness(0.7) saturate(1.1)' }} />

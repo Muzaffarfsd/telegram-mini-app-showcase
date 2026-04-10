@@ -2,11 +2,13 @@ import { memo, useEffect, useRef, type VideoHTMLAttributes, type ReactNode } fro
 
 interface AutoplayVideoProps extends Omit<VideoHTMLAttributes<HTMLVideoElement>, 'ref'> {
   rootMargin?: string;
+  eager?: boolean;
   children?: ReactNode;
 }
 
 export const AutoplayVideo = memo(function AutoplayVideo({
   rootMargin = '200px',
+  eager = false,
   children,
   ...props
 }: AutoplayVideoProps) {
@@ -14,8 +16,15 @@ export const AutoplayVideo = memo(function AutoplayVideo({
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || typeof IntersectionObserver === 'undefined') {
-      video?.play().catch(() => {});
+    if (!video) return;
+
+    if (eager) {
+      video.play().catch(() => {});
+      return;
+    }
+
+    if (typeof IntersectionObserver === 'undefined') {
+      video.play().catch(() => {});
       return;
     }
 
@@ -36,7 +45,7 @@ export const AutoplayVideo = memo(function AutoplayVideo({
       observer.disconnect();
       video.pause();
     };
-  }, [rootMargin]);
+  }, [rootMargin, eager]);
 
   return (
     <video
@@ -44,7 +53,8 @@ export const AutoplayVideo = memo(function AutoplayVideo({
       muted
       loop
       playsInline
-      preload="metadata"
+      preload={eager ? 'auto' : 'metadata'}
+      autoPlay={eager}
       {...props}
     >
       {children}
