@@ -189,29 +189,6 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
             <m.div className="relative z-10 flex flex-col justify-end" style={{ minHeight: '72vh', y: heroY, opacity: heroOpacity }}>
 
-              <m.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.3 }}
-                className="mb-5"
-              >
-                <span className="inline-flex items-center gap-2 rounded-full px-3 py-1.5" style={{
-                  background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.15)',
-                }}>
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping" style={{ backgroundColor: EMERALD }} />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ backgroundColor: EMERALD }} />
-                  </span>
-                  <span style={{
-                    fontFamily: INTER, fontSize: '0.6875rem',
-                    fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const,
-                    color: EMERALD,
-                  }}>
-                    WEB4TG Studio
-                  </span>
-                </span>
-              </m.div>
-
               <m.h1
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
