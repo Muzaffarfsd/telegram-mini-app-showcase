@@ -4240,9 +4240,10 @@ html.slow-network img:not([src]):not([data-loaded]) {
   background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
 }
 
-/* Slow Network Mode - Simplify video */
-html.slow-network video {
-  background: #1a1a1a;
+/* Slow Network Mode - Hide decorative/background videos (component-level skip handles autoplay) */
+html.slow-network video[data-decorative="true"],
+html.slow-network video[data-optional="true"] {
+  display: none !important;
 }
 
 /* GPU Acceleration Hints for supported devices */

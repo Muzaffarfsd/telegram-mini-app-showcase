@@ -178,6 +178,11 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 eager
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ opacity: 0.5, filter: 'saturate(0.5) contrast(1.1)' }}
+                fallback={
+                  <div className="absolute inset-0" style={{
+                    background: `radial-gradient(ellipse at 30% 70%, ${EMERALD}18 0%, transparent 60%), radial-gradient(ellipse at 70% 30%, rgba(99,102,241,0.08) 0%, transparent 60%), #0a0a0a`,
+                  }} />
+                }
               />
               <div className="absolute inset-0" style={{
                 background: 'linear-gradient(180deg, #050505 0%, rgba(5,5,5,0.3) 40%, rgba(5,5,5,0.3) 60%, #050505 100%)',

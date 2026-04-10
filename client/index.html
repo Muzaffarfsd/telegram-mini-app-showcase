@@ -18,13 +18,24 @@
   <meta name="apple-mobile-web-app-title" content="WEB4TG">
   <meta name="application-name" content="WEB4TG Studio">
   
-  <!-- Preload hero video for instant playback -->
-  <link rel="preload" href="/videos/hero.mp4" as="fetch" type="video/mp4" crossorigin>
+  <!-- Conditionally preload hero video (skip on slow networks / low-end devices) -->
+  <script>
+    (function(){
+      var c=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+      if(c&&(c.saveData||c.effectiveType==='slow-2g'||c.effectiveType==='2g'||c.effectiveType==='3g'))return;
+      if(c&&c.downlink!==undefined&&c.downlink<1.5)return;
+      if(navigator.deviceMemory&&navigator.deviceMemory<=4)return;
+      if(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)return;
+      var l=document.createElement('link');l.rel='preload';l.href='/videos/hero.mp4';l.as='fetch';l.type='video/mp4';l.crossOrigin='';
+      document.head.appendChild(l);
+    })();
+  </script>
 
   <!-- Google Fonts: Syne, Instrument Serif -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 
   <!-- SEO Meta Tags -->
   <meta name="description" content="WEB4TG Studio - Professional Telegram Mini Apps portfolio. 18 full-featured demos for fashion, restaurants, fitness, real estate & AI agents. 24/7 business automation.">
@@ -36,6 +47,18 @@
   <meta name="skype-toolbar" content="skype-toolbar-parser-inhibit">
   <meta name="google" content="notranslate">
   
+  <!-- Early performance class detection (before React loads) -->
+  <script>
+    (function(){
+      var h=document.documentElement,n=navigator,c=n.connection||n.mozConnection||n.webkitConnection;
+      var slow=c&&(c.saveData||c.effectiveType==='slow-2g'||c.effectiveType==='2g'||c.effectiveType==='3g');
+      var lowEnd=(n.deviceMemory&&n.deviceMemory<=4)||(n.hardwareConcurrency&&n.hardwareConcurrency<=4);
+      var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+      var saved=false;try{saved=localStorage.getItem('tma-low-performance')==='true'}catch(e){}
+      if(slow)h.classList.add('slow-network');
+      if(saved||lowEnd||slow||rm){h.classList.add('low-performance');h.classList.add('reduce-motion')}
+    })();
+  </script>
   <style>
     /* 2026 Level Smoothness & Native Feel */
     body {
