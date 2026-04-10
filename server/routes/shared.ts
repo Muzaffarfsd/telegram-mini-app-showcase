@@ -62,6 +62,9 @@ export function validateCSRF(req: Request, res: Response, next: NextFunction) {
     '/error',
     '/user-action',
     '/webhooks',
+    '/ai/chat',
+    '/ai/tts',
+    '/ai/voices',
   ];
   
   if (excludedPaths.some(path => req.path.startsWith(path))) {

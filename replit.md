@@ -142,10 +142,20 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Favorites System**: `FavoriteButton` and `FavoritesSection` integrated with Telegram DeviceStorage.
 - **Internationalization (i18n)**: Bilingual support (Russian/English) via `LanguageContext` and `useLanguage` hook. Premium fonts for English (Playfair Display headings + Montserrat body), Inter for Russian. Language toggle in bottom navigation.
 
+## AI Agent (April 2026)
+- **LLM**: Google Gemini 3.1 Pro Preview via `@google/genai` SDK with user's API key (`GEMINI_API_KEY`)
+- **TTS**: ElevenLabs via Replit Connectors SDK (`@replit/connectors-sdk`) — 21+ voices, multilingual v2 model
+- **Backend**: `server/lib/gemini.ts` (streaming chat), `server/lib/elevenlabs.ts` (TTS), `server/routes/ai.ts` (SSE streaming + audio endpoints)
+- **Frontend**: `client/src/components/AIAgent/` — floating button (Apple Intelligence style), glassmorphism chat panel with spring animations
+- **Features**: Streaming responses (SSE), markdown rendering, copy-to-clipboard, ElevenLabs voice output, conversation history, typing indicators, quick-start suggestions, navigation commands via JSON action blocks
+- **System Prompt**: Full knowledge of 22+ demo apps, Constructor pricing, gamification system, platform navigation
+- **CSRF**: AI endpoints excluded from CSRF validation for SSE compatibility
+- **Integration**: Lazy-loaded `AIAgentButton` in App.tsx, visible on all non-demo pages
+
 ## Backend Architecture (Development)
 - **Server**: Express.js with TypeScript.
 - **Database**: PostgreSQL with Drizzle ORM (@neondatabase/serverless), optimized schema with 25+ indexes.
-- **APIs**: Telegram webhook, Stripe payment processing, photo management, referral program, Gamification API, User Stories API (CRUD with moderation).
+- **APIs**: Telegram webhook, Stripe payment processing, photo management, referral program, Gamification API, User Stories API (CRUD with moderation), AI Agent (Gemini + ElevenLabs).
 - **Storage**: Replit Object Storage for photos using presigned URLs.
 - **Security**: Telegram authentication validation (HMAC-SHA256), Redis-based CSRF tokens (1-hour TTL), XSS sanitization, 4-tier rate limiting, Redis for distributed limiting.
 - **Caching**: Upstash Redis for CSRF tokens, leaderboard caching, and session management.

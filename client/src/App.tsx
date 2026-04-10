@@ -76,6 +76,7 @@ import GlobalSidebar from "./components/GlobalSidebar";
 import OnboardingFlow, { useOnboarding } from "./components/OnboardingFlow";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
+const AIAgentButton = lazy(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
 
 function isSlowNetwork(): boolean {
   const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
@@ -586,6 +587,12 @@ function AppContent() {
 
               <Toaster />
               
+              {shouldShowBottomNav && (
+                <Suspense fallback={null}>
+                  <AIAgentButton />
+                </Suspense>
+              )}
+
               <Suspense fallback={null}>
                 <OfflineIndicator />
               </Suspense>

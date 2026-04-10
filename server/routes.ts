@@ -25,6 +25,7 @@ import reviewsRouter from './routes/reviews';
 import notificationsRouter from './routes/notifications';
 import analyticsRouter from './routes/analytics';
 import coinshopRouter from './routes/coinshop';
+import aiRouter from './routes/ai';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -120,6 +121,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(notificationsRouter);
   app.use(analyticsRouter);
   app.use(coinshopRouter);
+  app.use(aiRouter);
 
   const httpServer = createServer(app);
 

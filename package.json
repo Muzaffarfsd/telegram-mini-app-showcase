@@ -19,6 +19,7 @@
     "@fontsource/playfair-display": "^5.2.8",
     "@fontsource/press-start-2p": "^5.2.7",
     "@google-cloud/storage": "^7.17.2",
+    "@google/genai": "^1.49.0",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@neondatabase/serverless": "^0.10.4",
