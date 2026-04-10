@@ -338,7 +338,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                     <article
                       key={c.id}
                       className="relative flex-shrink-0 rounded-[22px] overflow-hidden cursor-pointer group"
-                      style={{ width: 290, height: 400, touchAction: 'pan-x' }}
+                      style={{ width: 290, height: 400 }}
                       role="button" tabIndex={0}
                       aria-label={`${ru ? 'Открыть' : 'Open'} ${c.label}`}
                       onClick={() => openDemo(c.id)}
