@@ -649,12 +649,6 @@ export function useAIAgent(pageContext?: PageContext) {
     const text = exportConversation();
     if (!text) return;
 
-    const tg = (window as any).Telegram?.WebApp;
-    if (tg?.switchInlineQuery) {
-      tg.switchInlineQuery(text.slice(0, 256));
-      return;
-    }
-
     if (navigator.share) {
       navigator.share({ title: "Диалог с WEB4TG AI", text: text.slice(0, 4000) }).catch(() => {});
       return;
