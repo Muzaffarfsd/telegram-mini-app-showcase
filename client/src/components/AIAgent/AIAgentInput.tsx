@@ -172,167 +172,159 @@ export const AIAgentInput = memo(
     }, []);
 
     const isActive = isRecording || isListening;
+    const hasDraft = !!(input.trim() || imageData);
 
     return (
-      <div
-        style={{
-          padding: "12px 16px",
-          paddingBottom: "max(12px, env(safe-area-inset-bottom))",
-          borderTop: "1px solid rgba(255,255,255,0.06)",
-          background: "rgba(10,10,12,0.95)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-        }}
-      >
+      <div style={{
+        padding: "10px 16px",
+        paddingBottom: "max(10px, env(safe-area-inset-bottom))",
+        borderTop: "0.5px solid rgba(255,255,255,0.06)",
+        background: "rgba(28,28,30,0.6)",
+        backdropFilter: "saturate(180%) blur(40px)",
+        WebkitBackdropFilter: "saturate(180%) blur(40px)",
+      }}>
         {previewImage && (
           <div style={{ marginBottom: "8px", position: "relative", display: "inline-block" }}>
             <img src={previewImage} alt="" style={{
-              maxHeight: "80px", borderRadius: "10px",
-              border: "1px solid rgba(255,255,255,0.1)",
+              maxHeight: "72px", borderRadius: "12px",
+              border: "0.5px solid rgba(255,255,255,0.12)",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
             }} />
             <button type="button" onClick={clearImage} style={{
-              position: "absolute", top: "-6px", right: "-6px",
-              width: "20px", height: "20px", borderRadius: "50%",
-              background: "rgba(239,68,68,0.9)", border: "none",
-              color: "#fff", fontSize: "12px", cursor: "pointer",
+              position: "absolute", top: "-5px", right: "-5px",
+              width: "18px", height: "18px", borderRadius: "9px",
+              background: "rgba(255,59,48,0.9)", border: "none",
+              color: "#fff", fontSize: "11px", cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(255,59,48,0.3)",
             }}>×</button>
           </div>
         )}
 
         {voiceMode && (
           <div style={{
-            display: "flex", alignItems: "center", gap: "6px",
-            marginBottom: "8px", padding: "6px 10px",
-            background: "rgba(52,211,153,0.08)", borderRadius: "10px",
-            border: "1px solid rgba(52,211,153,0.15)",
+            display: "flex", alignItems: "center", gap: "8px",
+            marginBottom: "8px", padding: "8px 12px",
+            background: "rgba(52,211,153,0.06)", borderRadius: "12px",
+            border: "0.5px solid rgba(52,211,153,0.12)",
+            backdropFilter: "blur(12px)",
           }}>
             <div style={{
-              width: "8px", height: "8px", borderRadius: "50%",
+              width: "6px", height: "6px", borderRadius: "3px",
               background: isListening ? "#34d399" : "rgba(52,211,153,0.4)",
               animation: isListening ? "ai-pulse 1s ease-in-out infinite" : "none",
+              boxShadow: isListening ? "0 0 8px rgba(52,211,153,0.5)" : "none",
             }} />
-            <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
-              {isListening ? "Слушаю..." : "Голосовой режим активен — нажмите микрофон"}
+            <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", letterSpacing: "-0.01em" }}>
+              {isListening ? "Слушаю..." : "Голосовой режим — нажмите микрофон"}
             </span>
           </div>
         )}
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-end",
-            gap: "6px",
-            background: "rgba(255,255,255,0.06)",
-            borderRadius: "22px",
-            padding: "4px 4px 4px 14px",
-            border: `1px solid ${isActive ? "rgba(52,211,153,0.3)" : "rgba(255,255,255,0.08)"}`,
-            transition: "border-color 0.2s",
-          }}
-        >
+        <div style={{
+          display: "flex", alignItems: "flex-end", gap: "4px",
+          background: "rgba(255,255,255,0.06)",
+          borderRadius: "24px", padding: "4px 4px 4px 6px",
+          border: `0.5px solid ${isActive ? "rgba(52,211,153,0.3)" : "rgba(255,255,255,0.1)"}`,
+          transition: "border-color 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 1px 3px rgba(0,0,0,0.15)",
+        }}>
           <input
-            ref={fileInputRef}
-            type="file"
+            ref={fileInputRef} type="file"
             accept="image/jpeg,image/png,image/webp"
-            onChange={handleImageSelect}
-            style={{ display: "none" }}
+            onChange={handleImageSelect} style={{ display: "none" }}
           />
 
-          <button
-            type="button"
+          <button type="button"
             onClick={() => fileInputRef.current?.click()}
             style={{
-              width: "32px", height: "36px", borderRadius: "50%",
+              width: "34px", height: "36px", borderRadius: "17px",
               border: "none", background: "transparent",
-              color: "rgba(255,255,255,0.35)", cursor: "pointer",
+              color: "rgba(255,255,255,0.3)", cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
               flexShrink: 0, transition: "color 0.2s",
             }}
             aria-label="Attach image"
           >
-            <Camera className="w-[17px] h-[17px]" />
+            <Camera className="w-[16px] h-[16px]" />
           </button>
 
           <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={handleInput}
-            onKeyDown={handleKeyDown}
+            ref={textareaRef} value={input}
+            onChange={handleInput} onKeyDown={handleKeyDown}
             placeholder={voiceMode ? "Или напишите текстом..." : (placeholder || "Message...")}
             rows={1}
             style={{
               flex: 1, background: "transparent", border: "none",
               outline: "none", color: "#fff", fontSize: "15px",
-              lineHeight: "1.4", resize: "none", height: "40px",
+              lineHeight: "1.45", resize: "none", height: "40px",
               maxHeight: "120px", padding: "8px 0", fontFamily: "inherit",
+              letterSpacing: "-0.01em",
             }}
           />
 
           {onToggleVoiceMode && (
-            <button
-              type="button"
-              onClick={onToggleVoiceMode}
+            <button type="button" onClick={onToggleVoiceMode}
               style={{
-                width: "32px", height: "36px", borderRadius: "50%",
+                width: "34px", height: "36px", borderRadius: "17px",
                 border: "none",
-                background: voiceMode ? "rgba(52,211,153,0.15)" : "transparent",
-                color: voiceMode ? "#34d399" : "rgba(255,255,255,0.3)",
+                background: voiceMode ? "rgba(52,211,153,0.12)" : "transparent",
+                color: voiceMode ? "#34d399" : "rgba(255,255,255,0.25)",
                 cursor: "pointer", display: "flex", alignItems: "center",
-                justifyContent: "center", flexShrink: 0, transition: "all 0.2s",
+                justifyContent: "center", flexShrink: 0,
+                transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
               }}
               aria-label={voiceMode ? "Disable voice mode" : "Enable voice mode"}
             >
-              {voiceMode ? <PhoneOff className="w-[15px] h-[15px]" /> : <Phone className="w-[15px] h-[15px]" />}
+              {voiceMode ? <PhoneOff className="w-[14px] h-[14px]" /> : <Phone className="w-[14px] h-[14px]" />}
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={startSpeechRecognition}
+          <button type="button" onClick={startSpeechRecognition}
             style={{
-              width: "36px", height: "36px", borderRadius: "50%",
+              width: "34px", height: "36px", borderRadius: "17px",
               border: "none",
-              background: isActive ? "rgba(239,68,68,0.2)" : "transparent",
-              color: isActive ? "#ef4444" : "rgba(255,255,255,0.4)",
+              background: isActive ? "rgba(255,59,48,0.12)" : "transparent",
+              color: isActive ? "#ff3b30" : "rgba(255,255,255,0.35)",
               cursor: "pointer", display: "flex", alignItems: "center",
-              justifyContent: "center", flexShrink: 0, transition: "all 0.2s",
+              justifyContent: "center", flexShrink: 0,
+              transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
             }}
             aria-label={isActive ? "Stop recording" : "Voice input"}
           >
-            {isActive ? <MicOff className="w-[18px] h-[18px]" /> : <Mic className="w-[18px] h-[18px]" />}
+            {isActive ? <MicOff className="w-[16px] h-[16px]" /> : <Mic className="w-[16px] h-[16px]" />}
           </button>
 
           {isLoading ? (
-            <button
-              type="button" onClick={onStop}
+            <button type="button" onClick={onStop}
               style={{
-                width: "36px", height: "36px", borderRadius: "50%",
-                border: "none", background: "rgba(239,68,68,0.15)",
-                color: "#ef4444", cursor: "pointer", display: "flex",
+                width: "34px", height: "34px", borderRadius: "17px",
+                border: "none", background: "rgba(255,59,48,0.12)",
+                color: "#ff3b30", cursor: "pointer", display: "flex",
                 alignItems: "center", justifyContent: "center", flexShrink: 0,
+                transition: "all 0.2s",
               }}
               aria-label="Stop generation"
             >
-              <Square className="w-4 h-4" fill="currentColor" />
+              <Square className="w-[14px] h-[14px]" fill="currentColor" />
             </button>
           ) : (
-            <button
-              type="button" onClick={handleSend}
-              disabled={!input.trim() && !imageData}
+            <button type="button" onClick={handleSend} disabled={!hasDraft}
               style={{
-                width: "36px", height: "36px", borderRadius: "50%",
+                width: "34px", height: "34px", borderRadius: "17px",
                 border: "none",
-                background: (input.trim() || imageData)
-                  ? "linear-gradient(135deg, #34d399, #059669)"
+                background: hasDraft
+                  ? "linear-gradient(145deg, #34d399, #059669)"
                   : "rgba(255,255,255,0.06)",
-                color: (input.trim() || imageData) ? "#fff" : "rgba(255,255,255,0.2)",
-                cursor: (input.trim() || imageData) ? "pointer" : "default",
+                color: hasDraft ? "#fff" : "rgba(255,255,255,0.15)",
+                cursor: hasDraft ? "pointer" : "default",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0, transition: "all 0.2s",
+                flexShrink: 0, transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+                boxShadow: hasDraft ? "0 2px 8px rgba(52,211,153,0.3)" : "none",
               }}
               aria-label="Send message"
             >
-              <Send className="w-4 h-4" style={{ marginLeft: "1px" }} />
+              <Send className="w-[14px] h-[14px]" style={{ marginLeft: "1px" }} />
             </button>
           )}
         </div>

@@ -7543,11 +7543,11 @@ html:not(.light) .bottom-nav-premium {
 }
 
 .ai-typing-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.5);
-  animation: ai-typing 1.2s ease-in-out infinite;
+  background: rgba(255,255,255,0.4);
+  animation: ai-typing 1.4s cubic-bezier(0.32, 0.72, 0, 1) infinite;
 }
 
 @keyframes ai-pulse {

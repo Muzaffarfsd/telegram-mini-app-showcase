@@ -11,18 +11,9 @@ const AIAgentPanel = lazy(() =>
 );
 
 const PROACTIVE_MESSAGES: Record<string, { ru: string; en: string }> = {
-  demoApp: {
-    ru: "Нравится это демо?",
-    en: "Like this demo?",
-  },
-  projects: {
-    ru: "Помочь подобрать?",
-    en: "Need help choosing?",
-  },
-  constructor: {
-    ru: "Собираете проект?",
-    en: "Building a project?",
-  },
+  demoApp: { ru: "Нравится это демо?", en: "Like this demo?" },
+  projects: { ru: "Помочь подобрать?", en: "Need help choosing?" },
+  constructor: { ru: "Собираете проект?", en: "Building a project?" },
 };
 
 const PROACTIVE_DELAY = 15000;
@@ -92,29 +83,34 @@ export const AIAgentButton = memo(() => {
     <>
       {showProactive && proactiveMessage && (
         <m.div
-          initial={{ opacity: 0, y: 10, scale: 0.9 }}
+          initial={{ opacity: 0, y: 10, scale: 0.92 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 10, scale: 0.9 }}
-          transition={{ type: "spring", damping: 20, stiffness: 300 }}
+          exit={{ opacity: 0, y: 10, scale: 0.92 }}
+          transition={{ type: "spring", damping: 24, stiffness: 300 }}
           onClick={handleOpen}
           style={{
-            position: "fixed", right: "16px", bottom: "150px",
-            background: "rgba(14,14,16,0.95)", color: "#fff",
-            padding: "10px 14px", borderRadius: "14px 14px 4px 14px",
-            border: "1px solid rgba(52,211,153,0.2)",
-            fontSize: "13px", fontWeight: 500,
+            position: "fixed", right: "16px", bottom: "155px",
+            background: "rgba(28,28,30,0.75)",
+            backdropFilter: "saturate(180%) blur(40px)",
+            WebkitBackdropFilter: "saturate(180%) blur(40px)",
+            color: "#fff", padding: "11px 16px",
+            borderRadius: "18px 18px 6px 18px",
+            border: "0.5px solid rgba(255,255,255,0.15)",
+            fontSize: "13.5px", fontWeight: 500,
             maxWidth: "200px", cursor: "pointer",
-            zIndex: 9989, backdropFilter: "blur(12px)",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+            zIndex: 9989, letterSpacing: "-0.01em",
+            boxShadow: "0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)",
           }}
         >
           <span>{proactiveMessage}</span>
           <button type="button" onClick={handleDismissProactive}
             style={{
-              position: "absolute", top: "-6px", right: "-6px",
-              width: "18px", height: "18px", borderRadius: "50%",
-              background: "rgba(255,255,255,0.15)", border: "none",
-              color: "rgba(255,255,255,0.5)", fontSize: "11px",
+              position: "absolute", top: "-5px", right: "-5px",
+              width: "18px", height: "18px", borderRadius: "9px",
+              background: "rgba(255,255,255,0.1)",
+              backdropFilter: "blur(8px)",
+              border: "0.5px solid rgba(255,255,255,0.1)",
+              color: "rgba(255,255,255,0.5)", fontSize: "10px",
               cursor: "pointer", display: "flex", alignItems: "center",
               justifyContent: "center",
             }}
@@ -125,13 +121,15 @@ export const AIAgentButton = memo(() => {
       <m.button
         type="button"
         onClick={handleOpen}
-        whileTap={{ scale: 0.9 }}
+        whileTap={{ scale: 0.92 }}
         style={{
           position: "fixed", right: "16px", bottom: "90px",
-          width: "52px", height: "52px", borderRadius: "50%",
-          border: "none",
-          background: "linear-gradient(135deg, #34d399, #059669)",
-          boxShadow: "0 4px 16px rgba(52,211,153,0.35), 0 0 0 1px rgba(255,255,255,0.1) inset",
+          width: "54px", height: "54px", borderRadius: "27px",
+          border: "0.5px solid rgba(255,255,255,0.15)",
+          background: "rgba(52,211,153,0.85)",
+          backdropFilter: "saturate(180%) blur(20px)",
+          WebkitBackdropFilter: "saturate(180%) blur(20px)",
+          boxShadow: "0 4px 20px rgba(52,211,153,0.3), 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2)",
           cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
           zIndex: 9990,
@@ -139,7 +137,7 @@ export const AIAgentButton = memo(() => {
         }}
         aria-label="Chat with Alex"
       >
-        <MessageCircle className="w-6 h-6" style={{ color: "#fff" }} />
+        <MessageCircle className="w-[22px] h-[22px]" style={{ color: "#fff" }} />
       </m.button>
 
       {hasOpened && (
