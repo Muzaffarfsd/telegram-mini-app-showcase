@@ -69,8 +69,8 @@ function Ct({ to, suffix = "" }: { to: number; suffix?: string }) {
 }
 
 const TAG_WORDS = {
-  ru: ["в Telegram", "без сайта", "без комиссий", "за 24 часа"],
-  en: ["on Telegram", "no website needed", "zero fees", "in 24 hours"],
+  ru: ["конкурентов", "рынка", "ожиданий", "привычного"],
+  en: ["competition", "expectations", "the ordinary", "the status quo"],
 };
 
 const FEATURES = [
@@ -189,23 +189,46 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
             <m.div className="relative z-10 flex flex-col justify-end" style={{ minHeight: '72vh', y: heroY, opacity: heroOpacity }}>
 
+              <m.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, ease: EASE, delay: 0.3 }}
+                className="mb-5"
+              >
+                <span className="inline-flex items-center gap-2 rounded-full px-3 py-1.5" style={{
+                  background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.15)',
+                }}>
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping" style={{ backgroundColor: EMERALD }} />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ backgroundColor: EMERALD }} />
+                  </span>
+                  <span style={{
+                    fontFamily: INTER, fontSize: '0.6875rem',
+                    fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const,
+                    color: EMERALD,
+                  }}>
+                    WEB4TG Studio
+                  </span>
+                </span>
+              </m.div>
+
               <m.h1
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                style={{ fontFamily: SYNE, lineHeight: 0.95, letterSpacing: '-0.06em' }}
+                style={{ fontFamily: SYNE, lineHeight: 0.92, letterSpacing: '-0.06em' }}
               >
                 <m.span
                   className="block"
                   initial={{ opacity: 0, y: 60 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, ease: EASE, delay: 0.5 }}
-                  style={{ fontSize: 'clamp(2.8rem, 10vw, 4.2rem)', fontWeight: 800, color: '#fff' }}
+                  style={{ fontSize: 'clamp(3rem, 11vw, 4.5rem)', fontWeight: 800, color: '#fff' }}
                 >
-                  {ru ? 'Ваш бизнес' : 'Your business'}
+                  {ru ? 'Впереди' : 'Beyond'}
                 </m.span>
 
-                <span className="block overflow-hidden" style={{ height: 'clamp(3rem, 11vw, 4.5rem)' }}>
+                <span className="block overflow-hidden" style={{ height: 'clamp(3.2rem, 12vw, 5rem)' }}>
                   <AnimatePresence mode="wait">
                     <m.span
                       key={wi}
@@ -215,7 +238,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                       exit={{ y: '-100%', opacity: 0 }}
                       transition={{ duration: 0.5, ease: EASE }}
                       style={{
-                        fontSize: 'clamp(2.8rem, 10vw, 4.2rem)', fontWeight: 800,
+                        fontSize: 'clamp(3rem, 11vw, 4.5rem)', fontWeight: 800,
                         fontFamily: INSTRUMENT, fontStyle: 'italic',
                         background: `linear-gradient(135deg, ${EMERALD}, #a7f3d0)`,
                         WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
@@ -228,23 +251,25 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               </m.h1>
 
               <m.p
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: EASE, delay: 0.9 }}
-                className="mt-5"
+                transition={{ duration: 0.7, ease: EASE, delay: 0.9 }}
+                className="mt-6 max-w-xs"
                 style={{
-                  fontFamily: MANROPE, fontSize: '0.95rem',
-                  lineHeight: 1.5, color: 'rgba(255,255,255,0.45)', fontWeight: 400,
+                  fontFamily: MANROPE, fontSize: 'clamp(0.85rem, 2.2vw, 1rem)',
+                  lineHeight: 1.7, color: 'rgba(255,255,255,0.75)', fontWeight: 400,
                 }}
               >
-                {ru ? 'Готовое приложение. Без сайта. Без комиссий.' : 'Ready-made app. No website. Zero fees.'}
+                {ru
+                  ? 'Создаём мини-приложения для Telegram, которые продают. Без комиссий. Готово за 24 часа.'
+                  : 'We build Telegram mini apps that sell. Zero fees. Ready in 24 hours.'}
               </m.p>
 
               <m.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: EASE, delay: 1.1 }}
-                className="mt-8 flex items-center gap-4"
+                className="mt-7 flex items-center gap-4"
               >
                 <button
                   onClick={() => nav('projects')}
@@ -252,7 +277,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   style={{ height: 48, background: '#fff' }}
                 >
                   <span style={{ fontFamily: SYNE, fontSize: '0.8125rem', fontWeight: 700, color: '#000', letterSpacing: '-0.01em' }}>
-                    {ru ? 'Смотреть' : 'Explore'}
+                    {ru ? 'Начать проект' : 'Start a Project'}
                   </span>
                   <ArrowUpRight className="w-4 h-4 text-black transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.5} />
                 </button>
@@ -266,7 +291,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   aria-label={ru ? 'Посмотреть демо' : 'View demo'}
                 >
                   <Play className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.6)' }} fill="rgba(255,255,255,0.6)" />
-                  <span style={{ fontFamily: MANROPE, fontSize: '0.8125rem', fontWeight: 500, color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontFamily: INTER, fontSize: '0.8125rem', fontWeight: 500, color: 'rgba(255,255,255,0.6)' }}>
                     {ru ? 'Демо' : 'Demo'}
                   </span>
                 </button>
