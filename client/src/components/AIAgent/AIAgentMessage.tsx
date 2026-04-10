@@ -1,11 +1,13 @@
-import { memo, useState, useCallback, useMemo } from "react";
+import { memo, useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type { AIMessage, WidgetData } from "@/hooks/useAIAgent";
 
 interface AIAgentMessageProps {
   message: AIMessage;
   onSpeak?: (text: string) => void;
   onButtonClick?: (text: string) => void;
+  onReply?: (text: string) => void;
   isSpeaking?: boolean;
+  thinkingSeconds?: number;
 }
 
 function escapeHtml(text: string): string {
@@ -23,7 +25,7 @@ function renderMarkdown(text: string): string {
     .replace(/```action[\s\S]*?```/g, "")
     .replace(/```buttons[\s\S]*?```/g, "")
     .replace(/```widget[\s\S]*?```/g, "")
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre style="background:rgba(0,0,0,0.25);padding:10px 12px;border-radius:12px;overflow-x:auto;border:0.5px solid rgba(255,255,255,0.06);margin:6px 0"><code class="language-$1" style="font-size:12px;line-height:1.5">$2</code></pre>')
+    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre style="background:rgba(0,0,0,0.25);padding:10px 12px;border-radius:12px;overflow-x:auto;border:0.5px solid rgba(255,255,255,0.06);margin:6px 0;position:relative"><code class="language-$1" style="font-size:12px;line-height:1.5">$2</code></pre>')
     .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:5px;font-size:0.85em;border:0.5px solid rgba(255,255,255,0.06)">$1</code>')
     .replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight:600">$1</strong>')
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
@@ -84,6 +86,84 @@ const HeartIcon = ({ size = 11, filled = false }: { size?: number; filled?: bool
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
   </svg>
 );
+
+const ReplyIcon = ({ size = 12 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 17 4 12 9 7" />
+    <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+  </svg>
+);
+
+function useTypewriter(content: string, isStreaming: boolean) {
+  const [displayed, setDisplayed] = useState(content);
+  const prevLenRef = useRef(0);
+  const rafRef = useRef<number>(0);
+  const targetRef = useRef(content);
+  const currentRef = useRef(content);
+
+  useEffect(() => {
+    targetRef.current = content;
+
+    if (!isStreaming) {
+      setDisplayed(content);
+      currentRef.current = content;
+      prevLenRef.current = content.length;
+      return;
+    }
+
+    if (content.length < currentRef.current.length) {
+      currentRef.current = "";
+      setDisplayed("");
+    }
+
+    const animate = () => {
+      const target = targetRef.current;
+      const current = currentRef.current;
+
+      if (current.length < target.length) {
+        const charsToAdd = Math.min(
+          Math.max(3, Math.ceil((target.length - current.length) * 0.35)),
+          target.length - current.length
+        );
+        const next = target.slice(0, current.length + charsToAdd);
+        currentRef.current = next;
+        setDisplayed(next);
+        rafRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [content, isStreaming]);
+
+  return displayed;
+}
+
+function ThinkingIndicator({ seconds, personaColor }: { seconds: number; personaColor: string }) {
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: "10px",
+      padding: "6px 0",
+    }}>
+      <div style={{ display: "flex", gap: "3px", alignItems: "center" }}>
+        {[0, 1, 2].map(i => (
+          <div key={i} style={{
+            width: "6px", height: "6px", borderRadius: "3px",
+            background: personaColor,
+            animation: `ai-thinking-bounce 1.4s ease-in-out ${i * 0.16}s infinite`,
+            opacity: 0.8,
+          }} />
+        ))}
+      </div>
+      <span style={{
+        fontSize: "12px", color: "rgba(255,255,255,0.35)",
+        fontVariantNumeric: "tabular-nums", letterSpacing: "-0.01em",
+      }}>
+        {seconds}s
+      </span>
+    </div>
+  );
+}
 
 function ROICalculatorWidget({ data }: { data: WidgetData }) {
   const [clients, setClients] = useState(100);
@@ -297,12 +377,90 @@ function WidgetRenderer({ widget }: { widget: WidgetData }) {
   } catch { return null; }
 }
 
+function LongPressMenu({ x, y, onCopy, onReply, onSpeak, onClose }: {
+  x: number; y: number;
+  onCopy: () => void; onReply?: () => void; onSpeak?: () => void;
+  onClose: () => void;
+}) {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener("pointerdown", handler);
+    return () => document.removeEventListener("pointerdown", handler);
+  }, [onClose]);
+
+  const items = [
+    { label: "Копировать", icon: <CopyIcon size={14} />, action: onCopy },
+    ...(onReply ? [{ label: "Ответить", icon: <ReplyIcon size={14} />, action: onReply }] : []),
+    ...(onSpeak ? [{ label: "Озвучить", icon: <SpeakerIcon size={14} />, action: onSpeak }] : []),
+  ];
+
+  return (
+    <div
+      ref={menuRef}
+      style={{
+        position: "fixed",
+        left: Math.min(x, window.innerWidth - 160),
+        top: Math.min(y, window.innerHeight - (items.length * 44 + 16)),
+        background: "rgba(38,38,40,0.95)",
+        backdropFilter: "saturate(180%) blur(40px)",
+        WebkitBackdropFilter: "saturate(180%) blur(40px)",
+        borderRadius: "14px",
+        border: "0.5px solid rgba(255,255,255,0.15)",
+        padding: "6px",
+        zIndex: 10010,
+        minWidth: "140px",
+        boxShadow: "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
+        animation: "ai-menu-in 0.18s cubic-bezier(0.32, 0.72, 0, 1)",
+      }}
+    >
+      {items.map((item, i) => (
+        <button key={i} type="button"
+          onClick={() => { item.action(); onClose(); }}
+          style={{
+            display: "flex", alignItems: "center", gap: "10px",
+            width: "100%", padding: "10px 12px",
+            background: "transparent", border: "none",
+            color: "rgba(255,255,255,0.8)", fontSize: "13px",
+            fontWeight: 500, cursor: "pointer", borderRadius: "8px",
+            textAlign: "left", fontFamily: "inherit",
+            letterSpacing: "-0.01em",
+            transition: "background 0.15s",
+          }}
+          onPointerEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+          onPointerLeave={e => (e.currentTarget.style.background = "transparent")}
+        >
+          <span style={{ color: "rgba(255,255,255,0.45)" }}>{item.icon}</span>
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export const AIAgentMessage = memo(
-  ({ message, onSpeak, onButtonClick, isSpeaking }: AIAgentMessageProps) => {
+  ({ message, onSpeak, onButtonClick, onReply, isSpeaking, thinkingSeconds }: AIAgentMessageProps) => {
     const [copied, setCopied] = useState(false);
     const [liked, setLiked] = useState(false);
+    const [showTime, setShowTime] = useState(false);
+    const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
     const isUser = message.role === "user";
     const personaColor = PERSONA_COLORS[message.persona || "alex"] || "#34d399";
+    const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const displayedContent = useTypewriter(message.content, !!message.isStreaming);
+
+    useEffect(() => {
+      return () => {
+        if (longPressTimer.current) {
+          clearTimeout(longPressTimer.current);
+          longPressTimer.current = null;
+        }
+      };
+    }, []);
 
     const handleCopy = useCallback(() => {
       navigator.clipboard.writeText(message.content);
@@ -311,9 +469,32 @@ export const AIAgentMessage = memo(
     }, [message.content]);
 
     const renderedContent = useMemo(() => {
-      if (!message.content) return "";
-      return renderMarkdown(message.content);
-    }, [message.content]);
+      if (!displayedContent) return "";
+      return renderMarkdown(displayedContent);
+    }, [displayedContent]);
+
+    const handlePointerDown = useCallback((e: React.PointerEvent) => {
+      const x = e.clientX;
+      const y = e.clientY;
+      longPressTimer.current = setTimeout(() => {
+        setMenuPos({ x, y });
+      }, 500);
+    }, []);
+
+    const handlePointerUp = useCallback(() => {
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+        longPressTimer.current = null;
+      }
+    }, []);
+
+    const handlePointerCancel = handlePointerUp;
+
+    const handleTap = useCallback(() => {
+      if (!menuPos) setShowTime(s => !s);
+    }, [menuPos]);
+
+    const isThinking = message.isStreaming && !message.content && !isUser;
 
     return (
       <div style={{
@@ -340,19 +521,29 @@ export const AIAgentMessage = memo(
           </div>
         )}
 
-        <div style={{
-          maxWidth: "85%",
-          padding: isUser ? "10px 16px" : "12px 16px",
-          borderRadius: isUser ? "20px 20px 6px 20px" : "20px 20px 20px 6px",
-          background: isUser ? GLASS_MSG.user : GLASS_MSG.assistant,
-          border: `0.5px solid ${isUser ? GLASS_MSG.userBorder : (message.persona && message.persona !== "alex" ? personaColor + "18" : GLASS_MSG.assistantBorder)}`,
-          color: isUser ? "#fff" : "rgba(255,255,255,0.88)",
-          fontSize: "14px", lineHeight: "1.6", wordBreak: "break-word",
-          letterSpacing: "-0.01em",
-          boxShadow: isUser
-            ? "inset 0 1px 0 rgba(255,255,255,0.08)"
-            : "inset 0 1px 0 rgba(255,255,255,0.04)",
-        }}>
+        <div
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
+          onClick={handleTap}
+          onContextMenu={e => { e.preventDefault(); setMenuPos({ x: e.clientX, y: e.clientY }); }}
+          style={{
+            maxWidth: "85%",
+            padding: isUser ? "10px 16px" : "12px 16px",
+            borderRadius: isUser ? "20px 20px 6px 20px" : "20px 20px 20px 6px",
+            background: isUser ? GLASS_MSG.user : GLASS_MSG.assistant,
+            border: `0.5px solid ${isUser ? GLASS_MSG.userBorder : (message.persona && message.persona !== "alex" ? personaColor + "18" : GLASS_MSG.assistantBorder)}`,
+            color: isUser ? "#fff" : "rgba(255,255,255,0.88)",
+            fontSize: "14px", lineHeight: "1.6", wordBreak: "break-word",
+            letterSpacing: "-0.01em",
+            boxShadow: isUser
+              ? "inset 0 1px 0 rgba(255,255,255,0.08)"
+              : "inset 0 1px 0 rgba(255,255,255,0.04)",
+            cursor: "default",
+            WebkitUserSelect: "text",
+            userSelect: "text",
+          }}
+        >
           {isUser ? (
             <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
               <span style={{ flex: 1 }}>{message.content}</span>
@@ -377,6 +568,8 @@ export const AIAgentMessage = memo(
                 ) : null}
               </span>
             </div>
+          ) : isThinking ? (
+            <ThinkingIndicator seconds={thinkingSeconds || 0} personaColor={personaColor} />
           ) : renderedContent ? (
             <>
               <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
@@ -392,6 +585,18 @@ export const AIAgentMessage = memo(
             </div>
           ) : null}
         </div>
+
+        {showTime && (
+          <div style={{
+            fontSize: "10px", color: "rgba(255,255,255,0.25)",
+            padding: isUser ? "0 8px 0 0" : "0 0 0 8px",
+            letterSpacing: "-0.01em",
+          }}>
+            {message.timestamp instanceof Date
+              ? message.timestamp.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
+              : ""}
+          </div>
+        )}
 
         {!isUser && message.buttons && message.buttons.length > 0 && !message.isStreaming && (
           <div style={{
@@ -443,6 +648,19 @@ export const AIAgentMessage = memo(
                 {isSpeaking ? <SpeakerOffIcon /> : <SpeakerIcon />}
               </button>
             )}
+            {onReply && (
+              <button type="button" onClick={() => onReply(message.content.slice(0, 100))}
+                style={{
+                  background: "none", border: "none", padding: "4px 6px",
+                  cursor: "pointer", color: "rgba(255,255,255,0.22)",
+                  borderRadius: "8px", display: "flex", alignItems: "center",
+                  transition: "color 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+                }}
+                aria-label="Reply"
+              >
+                <ReplyIcon />
+              </button>
+            )}
             <button type="button" onClick={() => setLiked(l => !l)}
               style={{
                 background: "none", border: "none", padding: "4px 6px",
@@ -455,6 +673,16 @@ export const AIAgentMessage = memo(
               <HeartIcon filled={liked} />
             </button>
           </div>
+        )}
+
+        {menuPos && (
+          <LongPressMenu
+            x={menuPos.x} y={menuPos.y}
+            onCopy={handleCopy}
+            onReply={onReply ? () => onReply(message.content.slice(0, 100)) : undefined}
+            onSpeak={!isUser && onSpeak ? () => onSpeak(message.content) : undefined}
+            onClose={() => setMenuPos(null)}
+          />
         )}
       </div>
     );

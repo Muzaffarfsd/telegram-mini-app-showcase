@@ -1,4 +1,4 @@
-import { useRef, useEffect, memo, useState } from "react";
+import { useRef, useEffect, memo, useState, useCallback } from "react";
 import { AnimatePresence, m } from "@/utils/LazyMotionProvider";
 import { useAIAgent, type PageContext, type Persona } from "@/hooks/useAIAgent";
 import { AIAgentMessage } from "./AIAgentMessage";
@@ -18,6 +18,14 @@ const STAGE_COLORS: Record<string, string> = {
   consideration: "#f59e0b",
   decision: "#f97316",
   action: "#34d399",
+};
+
+const STAGE_LABELS: Record<string, { ru: string; en: string }> = {
+  awareness: { ru: "Знакомство", en: "Awareness" },
+  interest: { ru: "Интерес", en: "Interest" },
+  consideration: { ru: "Выбор", en: "Consideration" },
+  decision: { ru: "Решение", en: "Decision" },
+  action: { ru: "Сделка", en: "Action" },
 };
 
 const GLASS = {
@@ -55,6 +63,20 @@ const ShareIcon = ({ size = 15, color = "currentColor" }: { size?: number; color
     <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
     <polyline points="16 6 12 2 8 6" />
     <line x1="12" y1="2" x2="12" y2="15" />
+  </svg>
+);
+
+const InsightsIcon = ({ size = 15, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 20V10" />
+    <path d="M18 20V4" />
+    <path d="M6 20v-4" />
+  </svg>
+);
+
+const ArrowDownIcon = ({ size = 14, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 5v14M19 12l-7 7-7-7" />
   </svg>
 );
 
@@ -98,6 +120,127 @@ const ONBOARDING_STEPS = [
   },
 ];
 
+const SUGGESTED_REPLIES_BY_STAGE: Record<string, { ru: string[]; en: string[] }> = {
+  awareness: {
+    ru: ["Расскажите подробнее", "Покажите примеры", "Какие ниши?"],
+    en: ["Tell me more", "Show examples", "What niches?"],
+  },
+  interest: {
+    ru: ["Сколько это стоит?", "Какие сроки?", "Покажите портфолио"],
+    en: ["What's the cost?", "What's the timeline?", "Show portfolio"],
+  },
+  consideration: {
+    ru: ["Сравните варианты", "Какие гарантии?", "Посчитайте ROI"],
+    en: ["Compare options", "What guarantees?", "Calculate ROI"],
+  },
+  decision: {
+    ru: ["Давайте начнём!", "Расскажите об оплате", "Составьте бриф"],
+    en: ["Let's start!", "Payment details?", "Create a brief"],
+  },
+  action: {
+    ru: ["Реквизиты для оплаты", "Условия рассрочки?", "Когда старт?"],
+    en: ["Payment details", "Installment terms?", "When do we start?"],
+  },
+};
+
+function ConversationInsights({ dealStage, dealTemperature, messageCount, language }: {
+  dealStage: string; dealTemperature: number; messageCount: number; language: string;
+}) {
+  const stages = ["awareness", "interest", "consideration", "decision", "action"];
+  const currentIdx = stages.indexOf(dealStage);
+  const labels = STAGE_LABELS[dealStage];
+  const stageLabel = labels ? (language === "ru" ? labels.ru : labels.en) : dealStage;
+  const stageColor = STAGE_COLORS[dealStage] || "#60a5fa";
+  const pct = Math.round(dealTemperature * 100);
+
+  return (
+    <m.div
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: "auto", opacity: 1 }}
+      exit={{ height: 0, opacity: 0 }}
+      transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+      style={{ overflow: "hidden", flexShrink: 0 }}
+    >
+      <div style={{
+        padding: "14px 20px",
+        borderBottom: `0.5px solid ${GLASS.borderSub}`,
+      }}>
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          marginBottom: "12px",
+        }}>
+          <div style={{ fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.5)", letterSpacing: "0.04em" }}>
+            {language === "ru" ? "ПРОГРЕСС ДИАЛОГА" : "CONVERSATION PROGRESS"}
+          </div>
+          <div style={{
+            fontSize: "11px", fontWeight: 600, color: stageColor,
+            background: `${stageColor}15`, padding: "3px 10px", borderRadius: "8px",
+            border: `0.5px solid ${stageColor}25`,
+          }}>
+            {stageLabel} · {pct}%
+          </div>
+        </div>
+
+        <div style={{
+          display: "flex", gap: "3px", marginBottom: "10px",
+        }}>
+          {stages.map((s, i) => (
+            <div key={s} style={{
+              flex: 1, height: "3px", borderRadius: "1.5px",
+              background: i <= currentIdx
+                ? `linear-gradient(90deg, ${STAGE_COLORS[s] || "#60a5fa"}, ${STAGE_COLORS[stages[Math.min(i + 1, stages.length - 1)]] || "#34d399"})`
+                : "rgba(255,255,255,0.06)",
+              transition: "all 0.6s cubic-bezier(0.32, 0.72, 0, 1)",
+              boxShadow: i <= currentIdx ? `0 0 8px ${STAGE_COLORS[s]}30` : "none",
+            }} />
+          ))}
+        </div>
+
+        <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{
+            flex: 1, background: "rgba(255,255,255,0.04)", borderRadius: "10px",
+            padding: "8px 10px", border: "0.5px solid rgba(255,255,255,0.06)",
+          }}>
+            <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.02em" }}>
+              {language === "ru" ? "СООБЩЕНИЙ" : "MESSAGES"}
+            </div>
+            <div style={{ fontSize: "16px", fontWeight: 700, color: "#fff", letterSpacing: "-0.02em" }}>
+              {messageCount}
+            </div>
+          </div>
+          <div style={{
+            flex: 1, background: "rgba(255,255,255,0.04)", borderRadius: "10px",
+            padding: "8px 10px", border: "0.5px solid rgba(255,255,255,0.06)",
+          }}>
+            <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.02em" }}>
+              {language === "ru" ? "ГОТОВНОСТЬ" : "READINESS"}
+            </div>
+            <div style={{
+              fontSize: "16px", fontWeight: 700, color: stageColor, letterSpacing: "-0.02em",
+            }}>
+              {pct}%
+            </div>
+          </div>
+          <div style={{
+            flex: 1, background: "rgba(255,255,255,0.04)", borderRadius: "10px",
+            padding: "8px 10px", border: "0.5px solid rgba(255,255,255,0.06)",
+          }}>
+            <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.02em" }}>
+              {language === "ru" ? "СТАДИЯ" : "STAGE"}
+            </div>
+            <div style={{
+              fontSize: "12px", fontWeight: 600, color: stageColor, letterSpacing: "-0.01em",
+              marginTop: "2px",
+            }}>
+              {stageLabel}
+            </div>
+          </div>
+        </div>
+      </div>
+    </m.div>
+  );
+}
+
 export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanelProps) => {
   const {
     messages, filteredMessages, isLoading, isSpeaking, voiceMode,
@@ -114,18 +257,59 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showPersonas, setShowPersonas] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+  const [thinkingSeconds, setThinkingSeconds] = useState(0);
+  const thinkingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && isAtBottom) {
       const el = scrollRef.current;
       requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
     }
+  }, [messages, isAtBottom]);
+
+  const handleScroll = useCallback(() => {
+    if (!scrollRef.current) return;
+    const el = scrollRef.current;
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 60;
+    setIsAtBottom(atBottom);
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+      setIsAtBottom(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const lastMsg = messages[messages.length - 1];
+    const isThinking = lastMsg?.isStreaming && !lastMsg?.content && lastMsg?.role === "assistant";
+
+    if (isThinking) {
+      setThinkingSeconds(0);
+      thinkingTimerRef.current = setInterval(() => {
+        setThinkingSeconds(s => s + 1);
+      }, 1000);
+    } else {
+      if (thinkingTimerRef.current) {
+        clearInterval(thinkingTimerRef.current);
+        thinkingTimerRef.current = null;
+      }
+      setThinkingSeconds(0);
+    }
+
+    return () => {
+      if (thinkingTimerRef.current) clearInterval(thinkingTimerRef.current);
+    };
   }, [messages]);
 
   const handleSend = (content: string, imageBase64?: string, imageMimeType?: string) => {
     queueMicrotask(() => hapticFeedback.light());
     cancelFollowup();
+    setIsAtBottom(true);
     sendMessage(content, imageBase64, imageMimeType);
   };
 
@@ -143,8 +327,16 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const handleButtonClick = (text: string) => {
     queueMicrotask(() => hapticFeedback.light());
     cancelFollowup();
+    setIsAtBottom(true);
     sendMessage(text);
   };
+
+  const handleReply = useCallback((text: string) => {
+    const prefix = `> ${text.slice(0, 60)}${text.length > 60 ? "..." : ""}\n\n`;
+    cancelFollowup();
+    setIsAtBottom(true);
+    sendMessage(prefix);
+  }, [sendMessage, cancelFollowup]);
 
   const handlePersonaSelect = (p: Persona) => {
     switchPersona(p.id);
@@ -163,6 +355,11 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
 
   const stageColor = STAGE_COLORS[dealStage] || "#60a5fa";
   const displayMessages = showSearch && searchQuery ? filteredMessages : messages;
+
+  const lastMsg = messages[messages.length - 1];
+  const showSuggested = lastMsg?.role === "assistant" && !lastMsg.isStreaming && !isLoading && messages.length > 0;
+  const suggestedReplies = SUGGESTED_REPLIES_BY_STAGE[dealStage] || SUGGESTED_REPLIES_BY_STAGE.awareness;
+  const suggestions = language === "ru" ? suggestedReplies.ru : suggestedReplies.en;
 
   let lastDateLabel = "";
 
@@ -265,7 +462,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                           background: activePersona.color, display: "inline-block",
                           animation: "ai-pulse 1.4s ease-in-out infinite",
                         }} />
-                        {language === "ru" ? "печатает..." : "typing..."}
+                        {language === "ru" ? "думает..." : "thinking..."}
                       </>
                     ) : (
                       <>{activePersona.role}</>
@@ -275,6 +472,22 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
               </div>
 
               <div style={{ display: "flex", gap: "6px" }}>
+                {messages.length > 2 && (
+                  <button type="button"
+                    onClick={() => { setShowInsights(s => !s); queueMicrotask(() => hapticFeedback.light()); }}
+                    style={{
+                      width: "34px", height: "34px", borderRadius: "17px",
+                      border: `0.5px solid ${showInsights ? activePersona.color + "40" : GLASS.borderSub}`,
+                      background: showInsights ? `${activePersona.color}14` : GLASS.btnBg,
+                      color: showInsights ? activePersona.color : "rgba(255,255,255,0.5)",
+                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                      transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+                    }}
+                    aria-label="Insights"
+                  >
+                    <InsightsIcon />
+                  </button>
+                )}
                 {messages.length > 0 && (
                   <button type="button"
                     onClick={() => { setShowSearch(s => !s); queueMicrotask(() => hapticFeedback.light()); }}
@@ -336,6 +549,17 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                 </button>
               </div>
             </div>
+
+            <AnimatePresence>
+              {showInsights && messages.length > 2 && (
+                <ConversationInsights
+                  dealStage={dealStage}
+                  dealTemperature={dealTemperature}
+                  messageCount={messages.length}
+                  language={language}
+                />
+              )}
+            </AnimatePresence>
 
             <AnimatePresence>
               {showSearch && (
@@ -436,182 +660,240 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
               )}
             </AnimatePresence>
 
-            <div ref={scrollRef} style={{
-              flex: 1, overflowY: "auto", overflowX: "hidden",
-              display: "flex", flexDirection: "column", gap: "4px",
-              padding: "16px 0 8px", overscrollBehavior: "contain",
-              WebkitOverflowScrolling: "touch", scrollbarWidth: "none",
-            }}>
-              {messages.length === 0 && !showOnboarding && (
-                <div style={{
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center",
-                  flex: 1, gap: "20px", padding: "40px 28px", textAlign: "center",
-                }}>
+            <div style={{ position: "relative", flex: 1, overflow: "hidden" }}>
+              <div ref={scrollRef} onScroll={handleScroll} style={{
+                height: "100%", overflowY: "auto", overflowX: "hidden",
+                display: "flex", flexDirection: "column", gap: "4px",
+                padding: "16px 0 8px", overscrollBehavior: "contain",
+                WebkitOverflowScrolling: "touch", scrollbarWidth: "none",
+              }}>
+                {messages.length === 0 && !showOnboarding && (
                   <div style={{
-                    width: "72px", height: "72px", borderRadius: "36px",
-                    background: `linear-gradient(145deg, ${activePersona.color}20, ${activePersona.color}08)`,
-                    border: `0.5px solid ${activePersona.color}30`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "28px", fontWeight: 600, color: activePersona.color,
-                    boxShadow: `0 4px 24px ${activePersona.color}15`,
+                    display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center",
+                    flex: 1, gap: "20px", padding: "40px 28px", textAlign: "center",
                   }}>
-                    {activePersona.emoji}
-                  </div>
-                  <div>
                     <div style={{
-                      fontSize: "20px", fontWeight: 600, color: "#fff",
-                      marginBottom: "8px", letterSpacing: "-0.03em",
+                      width: "72px", height: "72px", borderRadius: "36px",
+                      background: `linear-gradient(145deg, ${activePersona.color}20, ${activePersona.color}08)`,
+                      border: `0.5px solid ${activePersona.color}30`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: "28px", fontWeight: 600, color: activePersona.color,
+                      boxShadow: `0 4px 24px ${activePersona.color}15`,
                     }}>
-                      {language === "ru" ? `Привет! Я ${activePersona.name} )` : `Hey! I'm ${activePersona.name} )`}
+                      {activePersona.emoji}
+                    </div>
+                    <div>
+                      <div style={{
+                        fontSize: "20px", fontWeight: 600, color: "#fff",
+                        marginBottom: "8px", letterSpacing: "-0.03em",
+                      }}>
+                        {language === "ru" ? `Привет! Я ${activePersona.name} )` : `Hey! I'm ${activePersona.name} )`}
+                      </div>
+                      <div style={{
+                        fontSize: "14px", color: "rgba(255,255,255,0.4)", lineHeight: "1.6",
+                        letterSpacing: "-0.01em", maxWidth: "280px", margin: "0 auto",
+                      }}>
+                        {language === "ru"
+                          ? activePersona.id === "alex"
+                            ? "Консультант WEB4TG Studio. Помогу подобрать решение для вашего бизнеса"
+                            : `${activePersona.role} WEB4TG Studio`
+                          : `${activePersona.role} at WEB4TG Studio`
+                        }
+                      </div>
+                    </div>
+
+                    <div style={{
+                      display: "flex", flexDirection: "column", gap: "6px",
+                      width: "100%", maxWidth: "300px", marginTop: "4px",
+                    }}>
+                      {(language === "ru"
+                        ? [
+                            "Расскажите, чем занимается ваш бизнес",
+                            "Сколько стоит Mini App для ресторана?",
+                            "Покажите примеры готовых проектов",
+                            "Как быстро можно запуститься?",
+                          ]
+                        : [
+                            "Tell me about your business",
+                            "How much does a restaurant Mini App cost?",
+                            "Show me examples of finished projects",
+                            "How fast can we launch?",
+                          ]
+                      ).map((q, i) => (
+                        <button key={i} type="button" onClick={() => handleSend(q)}
+                          style={{
+                            padding: "12px 16px", borderRadius: "16px",
+                            border: `0.5px solid ${GLASS.borderSub}`,
+                            background: "rgba(255,255,255,0.05)",
+                            color: "rgba(255,255,255,0.65)", fontSize: "13.5px",
+                            textAlign: "left", cursor: "pointer",
+                            transition: "all 0.2s cubic-bezier(0.32, 0.72, 0, 1)",
+                            WebkitTapHighlightColor: "transparent",
+                            letterSpacing: "-0.01em",
+                          }}
+                        >{q}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {messages.length === 0 && showOnboarding && (
+                  <div style={{
+                    display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center",
+                    flex: 1, gap: "16px", padding: "40px 28px", textAlign: "center",
+                  }}>
+                    <div style={{
+                      width: "64px", height: "64px", borderRadius: "32px",
+                      background: "rgba(52,211,153,0.1)",
+                      border: "0.5px solid rgba(52,211,153,0.2)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: "28px",
+                    }}>
+                      {ONBOARDING_STEPS[onboardingStep].icon}
                     </div>
                     <div style={{
-                      fontSize: "14px", color: "rgba(255,255,255,0.4)", lineHeight: "1.6",
-                      letterSpacing: "-0.01em", maxWidth: "280px", margin: "0 auto",
+                      fontSize: "15px", color: "rgba(255,255,255,0.75)", lineHeight: "1.6",
+                      letterSpacing: "-0.01em", maxWidth: "280px",
                     }}>
                       {language === "ru"
-                        ? activePersona.id === "alex"
-                          ? "Консультант WEB4TG Studio. Помогу подобрать решение для вашего бизнеса"
-                          : `${activePersona.role} WEB4TG Studio`
-                        : `${activePersona.role} at WEB4TG Studio`
+                        ? ONBOARDING_STEPS[onboardingStep].ru
+                        : ONBOARDING_STEPS[onboardingStep].en
                       }
                     </div>
-                  </div>
-
-                  <div style={{
-                    display: "flex", flexDirection: "column", gap: "6px",
-                    width: "100%", maxWidth: "300px", marginTop: "4px",
-                  }}>
-                    {(language === "ru"
-                      ? [
-                          "Расскажите, чем занимается ваш бизнес",
-                          "Сколько стоит Mini App для ресторана?",
-                          "Покажите примеры готовых проектов",
-                          "Как быстро можно запуститься?",
-                        ]
-                      : [
-                          "Tell me about your business",
-                          "How much does a restaurant Mini App cost?",
-                          "Show me examples of finished projects",
-                          "How fast can we launch?",
-                        ]
-                    ).map((q, i) => (
-                      <button key={i} type="button" onClick={() => handleSend(q)}
+                    <div style={{ display: "flex", gap: "5px", marginTop: "4px" }}>
+                      {ONBOARDING_STEPS.map((_, i) => (
+                        <div key={i} style={{
+                          width: i === onboardingStep ? "20px" : "6px",
+                          height: "6px", borderRadius: "3px",
+                          background: i === onboardingStep ? "#34d399" : "rgba(255,255,255,0.12)",
+                          transition: "all 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+                        }} />
+                      ))}
+                    </div>
+                    <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+                      <button type="button" onClick={dismissOnboarding}
                         style={{
-                          padding: "12px 16px", borderRadius: "16px",
+                          padding: "8px 20px", borderRadius: "20px",
                           border: `0.5px solid ${GLASS.borderSub}`,
-                          background: "rgba(255,255,255,0.05)",
-                          color: "rgba(255,255,255,0.65)", fontSize: "13.5px",
-                          textAlign: "left", cursor: "pointer",
+                          background: "transparent",
+                          color: "rgba(255,255,255,0.4)", fontSize: "13px",
+                          cursor: "pointer", fontWeight: 500,
+                          letterSpacing: "-0.01em",
+                        }}
+                      >
+                        {language === "ru" ? "Пропустить" : "Skip"}
+                      </button>
+                      <button type="button" onClick={handleNextOnboarding}
+                        style={{
+                          padding: "8px 24px", borderRadius: "20px",
+                          border: "none",
+                          background: "linear-gradient(145deg, #34d399, #059669)",
+                          color: "#fff", fontSize: "13px",
+                          cursor: "pointer", fontWeight: 600,
+                          letterSpacing: "-0.01em",
+                          boxShadow: "0 2px 8px rgba(52,211,153,0.3)",
+                        }}
+                      >
+                        {onboardingStep < ONBOARDING_STEPS.length - 1
+                          ? (language === "ru" ? "Далее" : "Next")
+                          : (language === "ru" ? "Начать" : "Start")
+                        }
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {displayMessages.map((msg) => {
+                  const dateLabel = getDateLabel(msg.timestamp, language);
+                  const showDate = dateLabel !== lastDateLabel;
+                  if (showDate) lastDateLabel = dateLabel;
+
+                  return (
+                    <div key={msg.id}>
+                      {showDate && (
+                        <div style={{
+                          display: "flex", justifyContent: "center",
+                          padding: "12px 0 6px",
+                        }}>
+                          <span style={{
+                            fontSize: "11px", fontWeight: 500,
+                            color: "rgba(255,255,255,0.25)",
+                            background: "rgba(255,255,255,0.04)",
+                            padding: "4px 12px", borderRadius: "10px",
+                            letterSpacing: "-0.01em",
+                          }}>
+                            {dateLabel}
+                          </span>
+                        </div>
+                      )}
+                      <AIAgentMessage
+                        message={msg}
+                        onSpeak={msg.role === "assistant" ? handleSpeak : undefined}
+                        onButtonClick={handleButtonClick}
+                        onReply={handleReply}
+                        isSpeaking={isSpeaking}
+                        thinkingSeconds={thinkingSeconds}
+                      />
+                    </div>
+                  );
+                })}
+
+                {showSuggested && (
+                  <div style={{
+                    display: "flex", gap: "6px", flexWrap: "wrap",
+                    padding: "8px 16px 4px",
+                  }}>
+                    {suggestions.map((s, i) => (
+                      <button key={i} type="button"
+                        onClick={() => handleSend(s)}
+                        style={{
+                          padding: "8px 14px", borderRadius: "20px",
+                          border: `0.5px solid ${activePersona.color}20`,
+                          background: `${activePersona.color}08`,
+                          color: `${activePersona.color}cc`,
+                          fontSize: "12px", fontWeight: 500,
+                          cursor: "pointer",
                           transition: "all 0.2s cubic-bezier(0.32, 0.72, 0, 1)",
                           WebkitTapHighlightColor: "transparent",
                           letterSpacing: "-0.01em",
                         }}
-                      >{q}</button>
+                      >
+                        {s}
+                      </button>
                     ))}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
-              {messages.length === 0 && showOnboarding && (
-                <div style={{
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center",
-                  flex: 1, gap: "16px", padding: "40px 28px", textAlign: "center",
-                }}>
-                  <div style={{
-                    width: "64px", height: "64px", borderRadius: "32px",
-                    background: "rgba(52,211,153,0.1)",
-                    border: "0.5px solid rgba(52,211,153,0.2)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "28px",
-                  }}>
-                    {ONBOARDING_STEPS[onboardingStep].icon}
-                  </div>
-                  <div style={{
-                    fontSize: "15px", color: "rgba(255,255,255,0.75)", lineHeight: "1.6",
-                    letterSpacing: "-0.01em", maxWidth: "280px",
-                  }}>
-                    {language === "ru"
-                      ? ONBOARDING_STEPS[onboardingStep].ru
-                      : ONBOARDING_STEPS[onboardingStep].en
-                    }
-                  </div>
-                  <div style={{ display: "flex", gap: "5px", marginTop: "4px" }}>
-                    {ONBOARDING_STEPS.map((_, i) => (
-                      <div key={i} style={{
-                        width: i === onboardingStep ? "20px" : "6px",
-                        height: "6px", borderRadius: "3px",
-                        background: i === onboardingStep ? "#34d399" : "rgba(255,255,255,0.12)",
-                        transition: "all 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
-                      }} />
-                    ))}
-                  </div>
-                  <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
-                    <button type="button" onClick={dismissOnboarding}
-                      style={{
-                        padding: "8px 20px", borderRadius: "20px",
-                        border: `0.5px solid ${GLASS.borderSub}`,
-                        background: "transparent",
-                        color: "rgba(255,255,255,0.4)", fontSize: "13px",
-                        cursor: "pointer", fontWeight: 500,
-                        letterSpacing: "-0.01em",
-                      }}
-                    >
-                      {language === "ru" ? "Пропустить" : "Skip"}
-                    </button>
-                    <button type="button" onClick={handleNextOnboarding}
-                      style={{
-                        padding: "8px 24px", borderRadius: "20px",
-                        border: "none",
-                        background: "linear-gradient(145deg, #34d399, #059669)",
-                        color: "#fff", fontSize: "13px",
-                        cursor: "pointer", fontWeight: 600,
-                        letterSpacing: "-0.01em",
-                        boxShadow: "0 2px 8px rgba(52,211,153,0.3)",
-                      }}
-                    >
-                      {onboardingStep < ONBOARDING_STEPS.length - 1
-                        ? (language === "ru" ? "Далее" : "Next")
-                        : (language === "ru" ? "Начать" : "Start")
-                      }
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {displayMessages.map((msg, idx) => {
-                const dateLabel = getDateLabel(msg.timestamp, language);
-                const showDate = dateLabel !== lastDateLabel;
-                if (showDate) lastDateLabel = dateLabel;
-
-                return (
-                  <div key={msg.id}>
-                    {showDate && (
-                      <div style={{
-                        display: "flex", justifyContent: "center",
-                        padding: "12px 0 6px",
-                      }}>
-                        <span style={{
-                          fontSize: "11px", fontWeight: 500,
-                          color: "rgba(255,255,255,0.25)",
-                          background: "rgba(255,255,255,0.04)",
-                          padding: "4px 12px", borderRadius: "10px",
-                          letterSpacing: "-0.01em",
-                        }}>
-                          {dateLabel}
-                        </span>
-                      </div>
-                    )}
-                    <AIAgentMessage
-                      message={msg}
-                      onSpeak={msg.role === "assistant" ? handleSpeak : undefined}
-                      onButtonClick={handleButtonClick}
-                      isSpeaking={isSpeaking}
-                    />
-                  </div>
-                );
-              })}
+              <AnimatePresence>
+                {!isAtBottom && (
+                  <m.button
+                    type="button"
+                    initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                    transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
+                    onClick={scrollToBottom}
+                    style={{
+                      position: "absolute", bottom: "12px", right: "16px",
+                      width: "36px", height: "36px", borderRadius: "18px",
+                      background: "rgba(28,28,30,0.9)",
+                      backdropFilter: "saturate(180%) blur(20px)",
+                      WebkitBackdropFilter: "saturate(180%) blur(20px)",
+                      border: `0.5px solid ${GLASS.border}`,
+                      color: "#fff", cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      boxShadow: "0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)",
+                      zIndex: 5,
+                    }}
+                    aria-label="Scroll to bottom"
+                  >
+                    <ArrowDownIcon />
+                  </m.button>
+                )}
+              </AnimatePresence>
             </div>
 
             <AIAgentInput
