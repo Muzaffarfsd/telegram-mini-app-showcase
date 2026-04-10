@@ -233,8 +233,8 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 transition={{ duration: 0.7, ease: EASE, delay: 0.9 }}
                 className="mt-6 max-w-xs"
                 style={{
-                  fontFamily: MANROPE, fontSize: 'clamp(0.85rem, 2.2vw, 1rem)',
-                  lineHeight: 1.7, color: 'rgba(255,255,255,0.75)', fontWeight: 400,
+                  fontFamily: MANROPE, fontSize: 'clamp(1.05rem, 3vw, 1.15rem)',
+                  lineHeight: 1.6, color: 'rgba(255,255,255,0.75)', fontWeight: 400,
                 }}
               >
                 {ru
