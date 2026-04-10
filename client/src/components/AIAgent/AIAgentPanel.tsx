@@ -1,5 +1,4 @@
 import { useRef, useEffect, memo, useState } from "react";
-import { X, Trash2, Users } from "lucide-react";
 import { AnimatePresence, m } from "@/utils/LazyMotionProvider";
 import { useAIAgent, type PageContext, type Persona } from "@/hooks/useAIAgent";
 import { AIAgentMessage } from "./AIAgentMessage";
@@ -25,17 +24,30 @@ const GLASS = {
   bg: "rgba(28, 28, 30, 0.72)",
   border: "rgba(255,255,255,0.18)",
   borderSub: "rgba(255,255,255,0.08)",
-  highlight: "linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%)",
   blur: "saturate(180%) blur(40px)",
   btnBg: "rgba(255,255,255,0.08)",
-  btnBgActive: "rgba(255,255,255,0.14)",
 };
+
+const ChevronDownIcon = ({ size = 18, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9l6 6 6-6" />
+  </svg>
+);
+
+const PeopleIcon = ({ size = 16, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="9" cy="7" r="3.5" />
+    <path d="M2 21v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1" />
+    <circle cx="17.5" cy="8.5" r="2.5" />
+    <path d="M20 21v-.5a3.5 3.5 0 0 0-3-3.46" />
+  </svg>
+);
 
 export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanelProps) => {
   const {
     messages, isLoading, isSpeaking, voiceMode,
     activePersona, personas, dealStage, dealTemperature,
-    sendMessage, speakText, stopGeneration, clearHistory,
+    sendMessage, speakText, stopGeneration,
     switchPersona, toggleVoiceMode,
   } = useAIAgent(pageContext);
   const { language } = useLanguage();
@@ -58,11 +70,6 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const handleClose = () => {
     queueMicrotask(() => hapticFeedback.light());
     onClose();
-  };
-
-  const handleClear = () => {
-    queueMicrotask(() => hapticFeedback.medium());
-    clearHistory();
   };
 
   const handleSpeak = (text: string) => {
@@ -191,36 +198,21 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "6px" }}>
+              <div style={{ display: "flex", gap: "8px" }}>
                 <button type="button"
                   onClick={() => setShowPersonas(!showPersonas)}
                   style={{
                     width: "34px", height: "34px", borderRadius: "17px",
-                    border: `0.5px solid ${showPersonas ? activePersona.color + "50" : GLASS.borderSub}`,
-                    background: showPersonas ? `${activePersona.color}18` : GLASS.btnBg,
+                    border: `0.5px solid ${showPersonas ? activePersona.color + "40" : GLASS.borderSub}`,
+                    background: showPersonas ? `${activePersona.color}14` : GLASS.btnBg,
                     color: showPersonas ? activePersona.color : "rgba(255,255,255,0.5)",
                     cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                    transition: "all 0.2s",
+                    transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
                   }}
                   aria-label="Switch persona"
                 >
-                  <Users className="w-[15px] h-[15px]" />
+                  <PeopleIcon size={15} />
                 </button>
-                {messages.length > 0 && (
-                  <button type="button" onClick={handleClear}
-                    style={{
-                      width: "34px", height: "34px", borderRadius: "17px",
-                      border: `0.5px solid ${GLASS.borderSub}`,
-                      background: GLASS.btnBg,
-                      color: "rgba(255,255,255,0.5)", cursor: "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      transition: "all 0.2s",
-                    }}
-                    aria-label="Clear chat"
-                  >
-                    <Trash2 className="w-[15px] h-[15px]" />
-                  </button>
-                )}
                 <button type="button" onClick={handleClose}
                   style={{
                     width: "34px", height: "34px", borderRadius: "17px",
@@ -228,11 +220,11 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                     background: GLASS.btnBg,
                     color: "rgba(255,255,255,0.55)", cursor: "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    transition: "all 0.2s",
+                    transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
                   }}
                   aria-label="Close"
                 >
-                  <X className="w-[16px] h-[16px]" />
+                  <ChevronDownIcon size={18} />
                 </button>
               </div>
             </div>
@@ -373,7 +365,6 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
 
             <AIAgentInput
               onSend={handleSend}
-              onStop={stopGeneration}
               isLoading={isLoading}
               voiceMode={voiceMode}
               onToggleVoiceMode={toggleVoiceMode}

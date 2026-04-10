@@ -1,5 +1,4 @@
 import { memo, useState, useCallback, useMemo } from "react";
-import { Volume2, VolumeX, Copy, Check, ThumbsUp, ThumbsDown } from "lucide-react";
 import type { AIMessage, WidgetData } from "@/hooks/useAIAgent";
 
 interface AIAgentMessageProps {
@@ -50,6 +49,41 @@ const GLASS_MSG = {
   user: "rgba(52,211,153,0.18)",
   userBorder: "rgba(52,211,153,0.25)",
 };
+
+const CopyIcon = ({ size = 12 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" />
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+  </svg>
+);
+
+const CheckIcon = ({ size = 12 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 6L9 17l-5-5" />
+  </svg>
+);
+
+const SpeakerIcon = ({ size = 12 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 5L6 9H2v6h4l5 4V5z" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+  </svg>
+);
+
+const SpeakerOffIcon = ({ size = 12 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 5L6 9H2v6h4l5 4V5z" />
+    <line x1="23" y1="9" x2="17" y2="15" />
+    <line x1="17" y1="9" x2="23" y2="15" />
+  </svg>
+);
+
+const HeartIcon = ({ size = 11, filled = false }: { size?: number; filled?: boolean }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+  </svg>
+);
 
 function ROICalculatorWidget({ data }: { data: WidgetData }) {
   const [clients, setClients] = useState(100);
@@ -125,7 +159,7 @@ function PriceComparisonWidget({ data }: { data: WidgetData }) {
           background: pkg.recommended ? "rgba(52,211,153,0.08)" : "rgba(255,255,255,0.03)",
           border: pkg.recommended ? "0.5px solid rgba(52,211,153,0.25)" : "0.5px solid rgba(255,255,255,0.06)",
           borderRadius: "14px", padding: "14px", scrollSnapAlign: "start",
-          position: "relative", backdropFilter: "blur(12px)",
+          position: "relative",
           boxShadow: pkg.recommended ? "inset 0 1px 0 rgba(52,211,153,0.1)" : "inset 0 1px 0 rgba(255,255,255,0.04)",
         }}>
           {pkg.recommended && (
@@ -266,7 +300,7 @@ function WidgetRenderer({ widget }: { widget: WidgetData }) {
 export const AIAgentMessage = memo(
   ({ message, onSpeak, onButtonClick, isSpeaking }: AIAgentMessageProps) => {
     const [copied, setCopied] = useState(false);
-    const [reaction, setReaction] = useState<"up" | "down" | null>(null);
+    const [liked, setLiked] = useState(false);
     const isUser = message.role === "user";
     const personaColor = PERSONA_COLORS[message.persona || "alex"] || "#34d399";
 
@@ -362,25 +396,42 @@ export const AIAgentMessage = memo(
         )}
 
         {!isUser && message.content && !message.isStreaming && (
-          <div style={{ display: "flex", gap: "1px", paddingLeft: "6px" }}>
-            {[
-              { action: handleCopy, icon: copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />, color: copied ? "#34d399" : "rgba(255,255,255,0.25)", label: "Copy" },
-              ...(onSpeak ? [{ action: () => onSpeak(message.content), icon: isSpeaking ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />, color: isSpeaking ? "#34d399" : "rgba(255,255,255,0.25)", label: isSpeaking ? "Stop" : "Speak" }] : []),
-              { action: () => setReaction(r => r === "up" ? null : "up"), icon: <ThumbsUp className="w-[11px] h-[11px]" />, color: reaction === "up" ? "#34d399" : "rgba(255,255,255,0.18)", label: "Like" },
-              { action: () => setReaction(r => r === "down" ? null : "down"), icon: <ThumbsDown className="w-[11px] h-[11px]" />, color: reaction === "down" ? "#ef4444" : "rgba(255,255,255,0.18)", label: "Dislike" },
-            ].map((item, i) => (
-              <button key={i} type="button" onClick={item.action}
+          <div style={{ display: "flex", gap: "2px", paddingLeft: "6px" }}>
+            <button type="button" onClick={handleCopy}
+              style={{
+                background: "none", border: "none", padding: "4px 6px",
+                cursor: "pointer", color: copied ? "#34d399" : "rgba(255,255,255,0.22)",
+                borderRadius: "8px", display: "flex", alignItems: "center",
+                transition: "color 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+              }}
+              aria-label="Copy"
+            >
+              {copied ? <CheckIcon /> : <CopyIcon />}
+            </button>
+            {onSpeak && (
+              <button type="button" onClick={() => onSpeak(message.content)}
                 style={{
-                  background: "none", border: "none", padding: "4px 5px",
-                  cursor: "pointer", color: item.color,
-                  borderRadius: "6px", display: "flex", alignItems: "center",
-                  transition: "color 0.2s",
+                  background: "none", border: "none", padding: "4px 6px",
+                  cursor: "pointer", color: isSpeaking ? "#34d399" : "rgba(255,255,255,0.22)",
+                  borderRadius: "8px", display: "flex", alignItems: "center",
+                  transition: "color 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
                 }}
-                aria-label={item.label}
+                aria-label={isSpeaking ? "Stop speaking" : "Read aloud"}
               >
-                {item.icon}
+                {isSpeaking ? <SpeakerOffIcon /> : <SpeakerIcon />}
               </button>
-            ))}
+            )}
+            <button type="button" onClick={() => setLiked(l => !l)}
+              style={{
+                background: "none", border: "none", padding: "4px 6px",
+                cursor: "pointer", color: liked ? "#ff2d55" : "rgba(255,255,255,0.18)",
+                borderRadius: "8px", display: "flex", alignItems: "center",
+                transition: "color 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+              }}
+              aria-label="Like"
+            >
+              <HeartIcon filled={liked} />
+            </button>
           </div>
         )}
       </div>
