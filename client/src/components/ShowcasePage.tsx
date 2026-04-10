@@ -271,7 +271,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 )}
               </m.p>
 
-              {/* — Zero-risk strip (Hormozi: reduce perceived cost) — */}
+              {/* — Key metrics strip — */}
               <m.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -279,7 +279,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 className="mt-5 flex items-center gap-2.5"
               >
                 {[
-                  { value: '0 ₽', label: ru ? 'за запуск' : 'to start' },
+                  { value: '22', label: ru ? 'решения' : 'solutions' },
                   { value: '0%', label: ru ? 'комиссий' : 'fees' },
                   { value: '24ч', label: ru ? 'до старта' : 'to launch' },
                 ].map((s, si) => (
