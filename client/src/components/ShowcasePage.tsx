@@ -325,40 +325,45 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </m.div>
           </div>
 
-          {/* ═══════ CASE STUDIES ═══════ */}
-          <section className="py-14" aria-label={ru ? 'Кейсы' : 'Case studies'}>
-            <Cin className="px-6 mb-5">
+          {/* ═══════ CASE STUDIES — Immersive ═══════ */}
+          <section className="py-16" aria-label={ru ? 'Кейсы' : 'Case studies'}>
+            <Cin className="px-6 mb-8">
               <div className="flex items-end justify-between">
                 <div>
-                  <h2 style={{
+                  <span style={{
+                    fontFamily: SYNE, fontSize: '0.6875rem',
+                    fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' as const,
+                    color: 'rgba(255,255,255,0.25)',
+                  }}>
+                    {ru ? 'Портфолио' : 'Portfolio'}
+                  </span>
+                  <h2 className="mt-2" style={{
                     fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
                     fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
                   }}>
-                    {ru ? 'Наши работы' : 'Selected Work'}
+                    {ru ? <>Наши <span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.4)' }}>работы</span></> : <>Selected <span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.4)' }}>Work</span></>}
                   </h2>
-                  <p className="mt-1" style={{
-                    fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)',
-                    color: 'rgba(255,255,255,0.45)',
-                  }}>
-                    {ru ? '22 готовых приложения. Каждое приносит рост.' : '22 ready apps. Each drives growth.'}
-                  </p>
                 </div>
                 <button onClick={() => nav('projects')} className="flex items-center gap-0.5 active:opacity-50 transition-opacity pb-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2 rounded">
                   <span style={{ fontFamily: INTER, fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
-                    {ru ? 'Все' : 'All'}
+                    {ru ? 'Все 22' : 'All 22'}
                   </span>
                   <ChevronRight className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
                 </button>
               </div>
             </Cin>
 
-            <div className="overflow-x-auto scrollbar-hide">
-              <div className="flex gap-3.5 px-6" style={{ width: 'max-content', paddingRight: 24 }}>
-                {cases.map((c, i) => (
+            <div className="px-4 space-y-4">
+              {cases.map((c, i) => {
+                const isWide = i === 0 || i === 2;
+                return (
+                  <Cin key={c.id} delay={i * 0.06}>
                     <article
-                      key={c.id}
-                      className="relative flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
-                      style={{ width: 260, height: 380, transition: 'transform 0.15s ease', touchAction: 'pan-x' }}
+                      className="relative rounded-[24px] overflow-hidden cursor-pointer group"
+                      style={{
+                        height: isWide ? 420 : 280,
+                        transition: 'transform 0.4s cubic-bezier(0.22,1,0.36,1)',
+                      }}
                       role="button" tabIndex={0}
                       aria-label={`${ru ? 'Открыть' : 'Open'} ${c.label}`}
                       onClick={() => openDemo(c.id)}
@@ -370,44 +375,74 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                         <video ref={i === 0 ? videoRef : undefined} src={c.src} loop muted playsInline autoPlay
                           preload={i === 0 ? 'auto' : 'metadata'}
                           poster={c.poster}
-                          className="absolute inset-0 w-full h-full object-cover"
-                          style={{ filter: 'brightness(0.8) saturate(0.9)' }} />
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-active:scale-105"
+                          style={{ filter: 'brightness(0.75) saturate(1.1)' }} />
                       ) : (
                         <img src={c.src} alt={c.label} loading="lazy" draggable={false}
-                          className="absolute inset-0 w-full h-full object-cover"
-                          style={{ filter: 'brightness(0.8) saturate(0.9)' }} />
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-active:scale-105"
+                          style={{ filter: 'brightness(0.75) saturate(1.1)' }} />
                       )}
 
-                      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 35%, rgba(5,5,5,0.9) 100%)' }} />
+                      <div className="absolute inset-0" style={{
+                        background: isWide
+                          ? 'linear-gradient(180deg, rgba(5,5,5,0.1) 0%, rgba(5,5,5,0.15) 40%, rgba(5,5,5,0.85) 100%)'
+                          : 'linear-gradient(180deg, rgba(5,5,5,0.05) 0%, rgba(5,5,5,0.8) 100%)',
+                      }} />
 
-                      <div className="absolute top-3.5 right-3.5 z-10" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
+                      <div className="absolute inset-0" style={{
+                        background: `radial-gradient(ellipse at 30% 100%, ${EMERALD}08 0%, transparent 50%)`,
+                      }} />
+
+                      <div className="absolute top-4 right-4 z-10" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
                         <FavoriteButton demoId={c.id} size="md" />
                       </div>
 
-                      <div className="absolute top-3.5 left-3.5 flex items-center gap-2">
-                        <span className="inline-block rounded-full px-2.5 py-1" style={{
-                          background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)',
+                      <div className="absolute top-4 left-4 flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1" style={{
+                          background: 'rgba(52,211,153,0.1)',
+                          backdropFilter: 'blur(12px)',
+                          WebkitBackdropFilter: 'blur(12px)',
+                          border: '1px solid rgba(52,211,153,0.15)',
                           fontFamily: SYNE, fontSize: '0.625rem', fontWeight: 700, color: EMERALD,
-                        }}>{c.growth}</span>
-                        <span className="inline-block rounded-full px-2 py-1" style={{
-                          background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.06)',
-                          fontFamily: INTER, fontSize: '0.6rem', fontWeight: 500, color: 'rgba(255,255,255,0.45)',
-                        }}>{c.cat}</span>
+                        }}>
+                          <TrendingUp size={10} strokeWidth={2.5} />
+                          {c.growth}
+                        </span>
                       </div>
 
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h3 style={{
-                          fontFamily: SYNE, fontSize: 'clamp(1.1rem, 3.5vw, 1.35rem)',
-                          fontWeight: 800, color: '#fff', letterSpacing: '-0.04em',
-                        }}>{c.label}</h3>
-                        <p className="mt-0.5" style={{
-                          fontFamily: INSTRUMENT, fontSize: '0.875rem',
-                          fontStyle: 'italic', color: 'rgba(255,255,255,0.5)',
-                        }}>{c.sub}</p>
+                      <div className="absolute bottom-0 left-0 right-0 p-5">
+                        <div className="flex items-end justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <span className="inline-block rounded-full px-2 py-0.5 mb-2" style={{
+                              background: 'rgba(255,255,255,0.06)',
+                              backdropFilter: 'blur(8px)',
+                              WebkitBackdropFilter: 'blur(8px)',
+                              fontFamily: INTER, fontSize: '0.55rem', fontWeight: 500, color: 'rgba(255,255,255,0.5)',
+                              letterSpacing: '0.06em', textTransform: 'uppercase' as const,
+                            }}>{c.cat}</span>
+                            <h3 style={{
+                              fontFamily: SYNE, fontSize: isWide ? 'clamp(1.4rem, 5vw, 1.8rem)' : 'clamp(1.1rem, 3.5vw, 1.35rem)',
+                              fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1.1,
+                            }}>{c.label}</h3>
+                            <p className="mt-1" style={{
+                              fontFamily: INSTRUMENT, fontSize: isWide ? '1rem' : '0.875rem',
+                              fontStyle: 'italic', color: 'rgba(255,255,255,0.45)',
+                            }}>{c.sub}</p>
+                          </div>
+                          <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-transform duration-300 group-active:scale-90" style={{
+                            background: 'rgba(255,255,255,0.08)',
+                            backdropFilter: 'blur(12px)',
+                            WebkitBackdropFilter: 'blur(12px)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                          }}>
+                            <ArrowUpRight size={16} color="rgba(255,255,255,0.7)" strokeWidth={2} />
+                          </div>
+                        </div>
                       </div>
                     </article>
-                ))}
-              </div>
+                  </Cin>
+                );
+              })}
             </div>
           </section>
 
