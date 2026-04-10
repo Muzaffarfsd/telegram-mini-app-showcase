@@ -25,9 +25,13 @@ export function useINPOptimizer(config: INPOptimizerConfig = {}) {
   }, [settings.yieldInterval]);
 
   const yieldToMain = useCallback((): Promise<void> => {
+    lastYieldTimeRef.current = performance.now();
+
+    if ('scheduler' in globalThis && typeof (globalThis as any).scheduler?.yield === 'function') {
+      return (globalThis as any).scheduler.yield();
+    }
+
     return new Promise(resolve => {
-      lastYieldTimeRef.current = performance.now();
-      
       if (settings.useIdleCallback && 'requestIdleCallback' in window) {
         (window as any).requestIdleCallback(resolve, { timeout: 100 });
       } else {
@@ -37,6 +41,14 @@ export function useINPOptimizer(config: INPOptimizerConfig = {}) {
   }, [settings.useIdleCallback]);
 
   const scheduleTask = useCallback((task: () => void, priority: 'high' | 'normal' | 'low' = 'normal') => {
+    const hasScheduler = 'scheduler' in globalThis && typeof (globalThis as any).scheduler?.postTask === 'function';
+
+    if (hasScheduler) {
+      const priorityMap = { high: 'user-blocking', normal: 'user-visible', low: 'background' } as const;
+      (globalThis as any).scheduler.postTask(task, { priority: priorityMap[priority] });
+      return;
+    }
+
     if (priority === 'high') {
       queueMicrotask(task);
     } else if (priority === 'low') {

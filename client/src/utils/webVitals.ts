@@ -15,10 +15,33 @@ function sendToAnalytics(metric: any) {
   }
 }
 
+function initLoAFMonitoring() {
+  if (typeof PerformanceObserver === 'undefined') return;
+  try {
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        const loaf = entry as any;
+        if (loaf.duration > 150) {
+          const scripts = loaf.scripts?.map((s: any) => ({
+            src: s.sourceURL || s.name || 'inline',
+            duration: Math.round(s.duration),
+            type: s.invokerType,
+          })) || [];
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`[LoAF] Long frame: ${Math.round(loaf.duration)}ms`, scripts);
+          }
+        }
+      }
+    });
+    observer.observe({ type: 'long-animation-frame', buffered: true });
+  } catch {}
+}
+
 export function initWebVitals() {
   onCLS(sendToAnalytics);
   onLCP(sendToAnalytics);
   onFCP(sendToAnalytics);
   onTTFB(sendToAnalytics);
   onINP(sendToAnalytics);
+  initLoAFMonitoring();
 }

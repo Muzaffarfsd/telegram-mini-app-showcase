@@ -1175,6 +1175,15 @@ html.light :root,
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    interpolate-size: allow-keywords;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+
+  p, li, figcaption, blockquote {
+    text-wrap: pretty;
   }
 }
 
@@ -3927,6 +3936,19 @@ html.light :root,
   100% {
     background-position: 0% 50%;
   }
+}
+
+/* GPU-accelerated gradient animations via @property (2026) */
+@property --gradient-stop {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+@property --glow-opacity {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
 }
 
 /* Rotating Conic Gradient Border */
