@@ -69,8 +69,8 @@ function Ct({ to, suffix = "" }: { to: number; suffix?: string }) {
 }
 
 const TAG_WORDS = {
-  ru: ["×3 за месяц", "без комиссий", "пока вы спите", "через Telegram"],
-  en: ["3× in a month", "with zero fees", "while you sleep", "via Telegram"],
+  ru: ["в Telegram", "без сайта", "без комиссий", "за 24 часа"],
+  en: ["on Telegram", "no website needed", "zero fees", "in 24 hours"],
 };
 
 const FEATURES = [
@@ -189,6 +189,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
             <m.div className="relative z-10 flex flex-col justify-end" style={{ minHeight: '72vh', y: heroY, opacity: heroOpacity }}>
 
+              {/* — Social proof first (Cialdini) — */}
               <m.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -204,14 +205,15 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   </span>
                   <span style={{
                     fontFamily: MANROPE, fontSize: '0.6875rem',
-                    fontWeight: 600, letterSpacing: '0.04em',
+                    fontWeight: 600, letterSpacing: '0.02em',
                     color: EMERALD,
                   }}>
-                    {ru ? '22 готовых приложения' : '22 ready-made apps'}
+                    {ru ? 'Уже запустили 327 бизнесов' : '327 businesses launched'}
                   </span>
                 </span>
               </m.div>
 
+              {/* — Headline: ownership + objection-killing rotation (StoryBrand + Hormozi) — */}
               <m.h1
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -225,7 +227,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   transition={{ duration: 0.8, ease: EASE, delay: 0.5 }}
                   style={{ fontSize: 'clamp(2.8rem, 10vw, 4.2rem)', fontWeight: 800, color: '#fff' }}
                 >
-                  {ru ? 'Продажи' : 'Sales'}
+                  {ru ? 'Ваш магазин' : 'Your store'}
                 </m.span>
 
                 <span className="block overflow-hidden" style={{ height: 'clamp(3rem, 11vw, 4.5rem)' }}>
@@ -250,6 +252,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 </span>
               </m.h1>
 
+              {/* — Subtitle: transformation + specific proof (Schwartz) — */}
               <m.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -257,36 +260,42 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 className="mt-6 max-w-sm"
                 style={{
                   fontFamily: MANROPE, fontSize: 'clamp(0.9rem, 2.3vw, 1.05rem)',
-                  lineHeight: 1.7, color: 'rgba(255,255,255,0.6)', fontWeight: 400,
+                  lineHeight: 1.7, color: 'rgba(255,255,255,0.55)', fontWeight: 400,
                   letterSpacing: '-0.01em',
                 }}
               >
                 {ru ? (
-                  <>Мини-приложение в Telegram заменяет сайт, приложение и менеджера. <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>Первые заявки — через 24 часа.</span></>
+                  <>22 готовых решения для любой ниши. Заменяет сайт, приложение и менеджера. <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>Средний рост продаж — 220% за первый месяц.</span></>
                 ) : (
-                  <>A Telegram mini app replaces your website, native app, and sales manager. <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>First leads — within 24 hours.</span></>
+                  <>22 ready-made solutions for any niche. Replaces your site, app, and sales manager. <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>Average sales growth — 220% in month one.</span></>
                 )}
               </m.p>
 
+              {/* — Zero-risk strip (Hormozi: reduce perceived cost) — */}
               <m.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: EASE, delay: 1.05 }}
-                className="mt-4 flex items-center gap-3"
+                className="mt-5 flex items-center gap-2.5"
               >
                 {[
-                  { value: '327+', label: ru ? 'запусков' : 'launches' },
+                  { value: '0 ₽', label: ru ? 'за запуск' : 'to start' },
                   { value: '0%', label: ru ? 'комиссий' : 'fees' },
-                  { value: '24ч', label: ru ? 'до запуска' : 'to launch' },
+                  { value: '24ч', label: ru ? 'до старта' : 'to launch' },
                 ].map((s, si) => (
-                  <div key={si} className="flex items-center gap-1.5">
-                    <span style={{ fontFamily: SYNE, fontSize: '0.85rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{s.value}</span>
-                    <span style={{ fontFamily: MANROPE, fontSize: '0.65rem', fontWeight: 400, color: 'rgba(255,255,255,0.35)' }}>{s.label}</span>
-                    {si < 2 && <span className="ml-2" style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.12)' }} />}
+                  <div key={si} className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1" style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                    }}>
+                      <span style={{ fontFamily: SYNE, fontSize: '0.75rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{s.value}</span>
+                      <span style={{ fontFamily: MANROPE, fontSize: '0.6rem', fontWeight: 400, color: 'rgba(255,255,255,0.35)' }}>{s.label}</span>
+                    </span>
                   </div>
                 ))}
               </m.div>
 
+              {/* — CTA: low-friction entry (StoryBrand: clear call to action) — */}
               <m.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -299,7 +308,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                   style={{ height: 48, background: '#fff' }}
                 >
                   <span style={{ fontFamily: SYNE, fontSize: '0.8125rem', fontWeight: 700, color: '#000', letterSpacing: '-0.01em' }}>
-                    {ru ? 'Смотреть кейсы' : 'View Case Studies'}
+                    {ru ? 'Выбрать решение' : 'Choose a Solution'}
                   </span>
                   <ArrowUpRight className="w-4 h-4 text-black transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.5} />
                 </button>
