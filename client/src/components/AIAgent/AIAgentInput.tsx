@@ -3,6 +3,7 @@ import { useState, useRef, useCallback, useEffect, memo } from "react";
 interface AIAgentInputProps {
   onSend: (message: string, imageBase64?: string, imageMimeType?: string) => void;
   isLoading: boolean;
+  onStop?: () => void;
   placeholder?: string;
   voiceMode?: boolean;
   onToggleVoiceMode?: () => void;
@@ -128,7 +129,7 @@ function VoiceWaveform({ analyserRef, isActive, color }: {
 }
 
 export const AIAgentInput = memo(
-  ({ onSend, isLoading, placeholder, voiceMode, onToggleVoiceMode, speechLang }: AIAgentInputProps) => {
+  ({ onSend, isLoading, onStop, placeholder, voiceMode, onToggleVoiceMode, speechLang }: AIAgentInputProps) => {
     const [input, setInput] = useState("");
     const [isRecording, setIsRecording] = useState(false);
     const [isListening, setIsListening] = useState(false);
@@ -507,23 +508,41 @@ export const AIAgentInput = memo(
             {isActive ? <StopIcon /> : <MicIcon />}
           </button>
 
-          <button type="button" onClick={handleSend} disabled={!hasDraft && !isLoading}
-            style={{
-              width: "34px", height: "34px", borderRadius: "17px",
-              border: "none",
-              background: hasDraft
-                ? "linear-gradient(145deg, #34d399, #059669)"
-                : "rgba(255,255,255,0.06)",
-              color: hasDraft ? "#fff" : "rgba(255,255,255,0.15)",
-              cursor: hasDraft ? "pointer" : "default",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0, transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
-              boxShadow: hasDraft ? "0 2px 8px rgba(52,211,153,0.3)" : "none",
-            }}
-            aria-label="Send message"
-          >
-            <ArrowUpIcon size={15} />
-          </button>
+          {isLoading && onStop ? (
+            <button type="button" onClick={onStop}
+              style={{
+                width: "34px", height: "34px", borderRadius: "17px",
+                border: "none",
+                background: "rgba(239,68,68,0.15)",
+                color: "#ef4444",
+                cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0, transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+                boxShadow: "0 2px 8px rgba(239,68,68,0.2)",
+              }}
+              aria-label="Stop generation"
+            >
+              <StopIcon size={13} />
+            </button>
+          ) : (
+            <button type="button" onClick={handleSend} disabled={!hasDraft && !isLoading}
+              style={{
+                width: "34px", height: "34px", borderRadius: "17px",
+                border: "none",
+                background: hasDraft
+                  ? "linear-gradient(145deg, #34d399, #059669)"
+                  : "rgba(255,255,255,0.06)",
+                color: hasDraft ? "#fff" : "rgba(255,255,255,0.15)",
+                cursor: hasDraft ? "pointer" : "default",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0, transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+                boxShadow: hasDraft ? "0 2px 8px rgba(52,211,153,0.3)" : "none",
+              }}
+              aria-label="Send message"
+            >
+              <ArrowUpIcon size={15} />
+            </button>
+          )}
         </div>
       </div>
     );

@@ -7,6 +7,7 @@ export interface AIMessage {
   content: string;
   timestamp: Date;
   isStreaming?: boolean;
+  isError?: boolean;
   buttons?: string[];
   widgets?: WidgetData[];
   imageUrl?: string;
@@ -46,10 +47,10 @@ export interface BehaviorSignals {
 }
 
 const PERSONAS: Persona[] = [
-  { id: "alex", name: "Алекс", role: "Консультант", color: "#34d399", emoji: "A", voiceId: "pNInz6obpgDQGcFmaJgB" },
-  { id: "designer", name: "Марина", role: "UI/UX дизайнер", color: "#a78bfa", emoji: "M", voiceId: "21m00Tcm4TlvDq8ikWAM" },
-  { id: "developer", name: "Артём", role: "Разработчик", color: "#60a5fa", emoji: "D", voiceId: "ErXwobaYiN019PkySvjV" },
-  { id: "strategist", name: "Ольга", role: "Бизнес-стратег", color: "#f59e0b", emoji: "O", voiceId: "EXAVITQu4vr4xnSDxMaL" },
+  { id: "alex", name: "Алекс", role: "Консультант", color: "#34d399", emoji: "🧑‍💼", voiceId: "pNInz6obpgDQGcFmaJgB" },
+  { id: "designer", name: "Марина", role: "UI/UX дизайнер", color: "#a78bfa", emoji: "🎨", voiceId: "21m00Tcm4TlvDq8ikWAM" },
+  { id: "developer", name: "Артём", role: "Разработчик", color: "#60a5fa", emoji: "💻", voiceId: "ErXwobaYiN019PkySvjV" },
+  { id: "strategist", name: "Ольга", role: "Бизнес-стратег", color: "#f59e0b", emoji: "📊", voiceId: "EXAVITQu4vr4xnSDxMaL" },
 ];
 
 const STORAGE_KEY = "web4tg_ai_chat";
@@ -93,6 +94,7 @@ function saveMessages(messages: AIMessage[]) {
   try {
     const toSave = messages.slice(-50).map(m => ({
       ...m,
+      imageUrl: undefined,
       timestamp: m.timestamp instanceof Date ? m.timestamp.toISOString() : m.timestamp,
     }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
@@ -377,7 +379,7 @@ export function useAIAgent(pageContext?: PageContext) {
         role: "user",
         content: content.trim(),
         timestamp: new Date(),
-        imageUrl: imageBase64 ? `data:${imageMimeType || "image/jpeg"};base64,${imageBase64.slice(0, 100)}...` : undefined,
+        imageUrl: imageBase64 ? `data:${imageMimeType || "image/jpeg"};base64,${imageBase64}` : undefined,
         status: "sent",
       };
 
@@ -526,7 +528,7 @@ export function useAIAgent(pageContext?: PageContext) {
                   setMessages((prev) => {
                     const updated = [...prev];
                     const lastIdx = updated.length - 1;
-                    updated[lastIdx] = { ...updated[lastIdx], content: fullText, isStreaming: false };
+                    updated[lastIdx] = { ...updated[lastIdx], content: fullText, isStreaming: false, isError: true };
                     return updated;
                   });
                 }
@@ -541,7 +543,7 @@ export function useAIAgent(pageContext?: PageContext) {
           setMessages((prev) => {
             const updated = [...prev];
             const lastIdx = updated.length - 1;
-            updated[lastIdx] = { ...updated[lastIdx], content: "Ох, связь подвела. Попробуйте ещё раз)", isStreaming: false };
+            updated[lastIdx] = { ...updated[lastIdx], content: "Ох, связь подвела. Попробуйте ещё раз)", isStreaming: false, isError: true };
             return updated;
           });
         }
@@ -605,6 +607,22 @@ export function useAIAgent(pageContext?: PageContext) {
       setIsLoading(false);
     }
   }, []);
+
+  const retryMessage = useCallback((errorMessageId: string) => {
+    setMessages(prev => {
+      const errorIdx = prev.findIndex(m => m.id === errorMessageId);
+      if (errorIdx === -1) return prev;
+      let userIdx = -1;
+      for (let i = errorIdx - 1; i >= 0; i--) {
+        if (prev[i].role === "user") { userIdx = i; break; }
+      }
+      if (userIdx === -1) return prev;
+      const userMsg = prev[userIdx];
+      const trimmed = prev.filter((_m, i) => i < userIdx || i > errorIdx);
+      setTimeout(() => sendMessage(userMsg.content), 0);
+      return trimmed;
+    });
+  }, [sendMessage]);
 
   const clearHistory = useCallback(() => {
     setMessages([]);
@@ -711,6 +729,7 @@ export function useAIAgent(pageContext?: PageContext) {
     sendMessage,
     speakText,
     stopGeneration,
+    retryMessage,
     clearHistory,
     switchPersona,
     toggleVoiceMode,

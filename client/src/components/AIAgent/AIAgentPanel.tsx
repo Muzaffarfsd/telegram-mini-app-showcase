@@ -245,7 +245,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const {
     messages, filteredMessages, isLoading, isSpeaking, voiceMode,
     activePersona, personas, dealStage, dealTemperature,
-    sendMessage, speakText, stopGeneration,
+    sendMessage, speakText, stopGeneration, retryMessage,
     switchPersona, toggleVoiceMode,
     showOnboarding, dismissOnboarding,
     searchQuery, setSearchQuery,
@@ -828,14 +828,21 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                           </span>
                         </div>
                       )}
-                      <AIAgentMessage
-                        message={msg}
-                        onSpeak={msg.role === "assistant" ? handleSpeak : undefined}
-                        onButtonClick={handleButtonClick}
-                        onReply={handleReply}
-                        isSpeaking={isSpeaking}
-                        thinkingSeconds={thinkingSeconds}
-                      />
+                      <m.div
+                        initial={{ opacity: 0, y: 12, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+                      >
+                        <AIAgentMessage
+                          message={msg}
+                          onSpeak={msg.role === "assistant" ? handleSpeak : undefined}
+                          onButtonClick={handleButtonClick}
+                          onReply={handleReply}
+                          onRetry={retryMessage}
+                          isSpeaking={isSpeaking}
+                          thinkingSeconds={thinkingSeconds}
+                        />
+                      </m.div>
                     </div>
                   );
                 })}
@@ -899,6 +906,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
             <AIAgentInput
               onSend={handleSend}
               isLoading={isLoading}
+              onStop={stopGeneration}
               voiceMode={voiceMode}
               onToggleVoiceMode={toggleVoiceMode}
               speechLang={speechLang}

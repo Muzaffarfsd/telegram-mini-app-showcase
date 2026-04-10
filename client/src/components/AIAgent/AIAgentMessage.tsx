@@ -6,6 +6,7 @@ interface AIAgentMessageProps {
   onSpeak?: (text: string) => void;
   onButtonClick?: (text: string) => void;
   onReply?: (text: string) => void;
+  onRetry?: (messageId: string) => void;
   isSpeaking?: boolean;
   thinkingSeconds?: number;
 }
@@ -25,15 +26,25 @@ function renderMarkdown(text: string): string {
     .replace(/```action[\s\S]*?```/g, "")
     .replace(/```buttons[\s\S]*?```/g, "")
     .replace(/```widget[\s\S]*?```/g, "")
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre style="background:rgba(0,0,0,0.25);padding:10px 12px;border-radius:12px;overflow-x:auto;border:0.5px solid rgba(255,255,255,0.06);margin:6px 0;position:relative"><code class="language-$1" style="font-size:12px;line-height:1.5">$2</code></pre>')
+    .replace(/```(\w*)\n([\s\S]*?)```/g, (_m, lang, code) =>
+      `<div style="position:relative;margin:6px 0"><pre style="background:rgba(0,0,0,0.25);padding:10px 12px;border-radius:12px;overflow-x:auto;border:0.5px solid rgba(255,255,255,0.06)"><code class="language-${lang}" style="font-size:12px;line-height:1.5">${code}</code></pre><button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent);this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)" style="position:absolute;top:6px;right:6px;padding:3px 8px;border-radius:6px;border:0.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);font-size:10px;cursor:pointer;font-family:inherit;letter-spacing:0.02em">Copy</button></div>`)
     .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:5px;font-size:0.85em;border:0.5px solid rgba(255,255,255,0.06)">$1</code>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, text, url) => {
+      const safeUrl = /^https?:\/\//i.test(url) ? url : '#';
+      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" style="color:#34d399;text-decoration:none;border-bottom:1px solid rgba(52,211,153,0.3);transition:border-color 0.2s">${text}</a>`;
+    })
     .replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight:600">$1</strong>')
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/^### (.*$)/gm, '<h4 style="font-size:0.92em;font-weight:600;margin:10px 0 4px;letter-spacing:-0.01em">$1</h4>')
     .replace(/^## (.*$)/gm, '<h3 style="font-size:1em;font-weight:600;margin:12px 0 5px;letter-spacing:-0.01em">$1</h3>')
     .replace(/^# (.*$)/gm, '<h2 style="font-size:1.08em;font-weight:600;margin:14px 0 6px;letter-spacing:-0.02em">$1</h2>')
     .replace(/^- (.*$)/gm, '<div style="display:flex;gap:8px;margin:3px 0;line-height:1.5"><span style="color:rgba(255,255,255,0.25);font-size:0.7em;margin-top:2px">●</span><span>$1</span></div>')
-    .replace(/^\d+\. (.*$)/gm, '<div style="display:flex;gap:8px;margin:3px 0"><span style="color:rgba(255,255,255,0.35);font-weight:600;min-width:18px;font-size:0.85em">$&</span></div>')
+    .replace(/^(\d+)\. (.*$)/gm, '<div style="display:flex;gap:8px;margin:3px 0"><span style="color:rgba(255,255,255,0.35);font-weight:600;min-width:18px;font-size:0.85em">$1.</span><span>$2</span></div>')
+    .replace(/(https?:\/\/[^\s<"]+)/g, (match, _url, offset, str) => {
+      const before = str.slice(Math.max(0, offset - 6), offset);
+      if (before.includes('href="') || before.includes('">')) return match;
+      return `<a href="${match}" target="_blank" rel="noopener noreferrer" style="color:#34d399;text-decoration:none;border-bottom:1px solid rgba(52,211,153,0.3)">${match}</a>`;
+    })
     .replace(/\n\n/g, '<div style="height:8px"></div>')
     .replace(/\n/g, "<br>");
 }
@@ -43,6 +54,13 @@ const PERSONA_COLORS: Record<string, string> = {
   designer: "#a78bfa",
   developer: "#60a5fa",
   strategist: "#f59e0b",
+};
+
+const PERSONA_EMOJIS: Record<string, string> = {
+  alex: "🧑‍💼",
+  designer: "🎨",
+  developer: "💻",
+  strategist: "📊",
 };
 
 const GLASS_MSG = {
@@ -441,8 +459,15 @@ function LongPressMenu({ x, y, onCopy, onReply, onSpeak, onClose }: {
   );
 }
 
+const RetryIcon = ({ size = 12 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 4v6h6" />
+    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+  </svg>
+);
+
 export const AIAgentMessage = memo(
-  ({ message, onSpeak, onButtonClick, onReply, isSpeaking, thinkingSeconds }: AIAgentMessageProps) => {
+  ({ message, onSpeak, onButtonClick, onReply, onRetry, isSpeaking, thinkingSeconds }: AIAgentMessageProps) => {
     const [copied, setCopied] = useState(false);
     const [liked, setLiked] = useState(false);
     const [showTime, setShowTime] = useState(false);
@@ -495,6 +520,7 @@ export const AIAgentMessage = memo(
     }, [menuPos]);
 
     const isThinking = message.isStreaming && !message.content && !isUser;
+    const isError = !!message.isError;
 
     return (
       <div style={{
@@ -515,7 +541,7 @@ export const AIAgentMessage = memo(
               justifyContent: "center", fontSize: "8px", fontWeight: 700, color: "#fff",
               border: "0.5px solid rgba(255,255,255,0.15)",
             }}>
-              {message.personaName?.[0]}
+              {PERSONA_EMOJIS[message.persona || "alex"] || message.personaName?.[0]}
             </span>
             {message.personaName}
           </div>
@@ -545,29 +571,38 @@ export const AIAgentMessage = memo(
           }}
         >
           {isUser ? (
-            <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
-              <span style={{ flex: 1 }}>{message.content}</span>
-              <span style={{
-                flexShrink: 0, display: "inline-flex", alignItems: "center",
-                marginBottom: "1px", opacity: 0.5,
-              }}>
-                {message.status === "read" ? (
-                  <svg width="16" height="10" viewBox="0 0 16 10" fill="none" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M1 5.5l3 3L10 2" />
-                    <path d="M5.5 5.5l3 3L14.5 2" />
-                  </svg>
-                ) : message.status === "delivered" ? (
-                  <svg width="16" height="10" viewBox="0 0 16 10" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M1 5.5l3 3L10 2" />
-                    <path d="M5.5 5.5l3 3L14.5 2" />
-                  </svg>
-                ) : message.status === "sent" ? (
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M1 5.5l3 3L9 2" />
-                  </svg>
-                ) : null}
-              </span>
-            </div>
+            <>
+              {message.imageUrl && (
+                <img src={message.imageUrl} alt="" style={{
+                  maxWidth: "200px", maxHeight: "150px", borderRadius: "12px",
+                  objectFit: "cover", border: "0.5px solid rgba(255,255,255,0.1)",
+                  marginBottom: "4px",
+                }} />
+              )}
+              <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
+                <span style={{ flex: 1 }}>{message.content}</span>
+                <span style={{
+                  flexShrink: 0, display: "inline-flex", alignItems: "center",
+                  marginBottom: "1px", opacity: 0.5,
+                }}>
+                  {message.status === "read" ? (
+                    <svg width="16" height="10" viewBox="0 0 16 10" fill="none" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 5.5l3 3L10 2" />
+                      <path d="M5.5 5.5l3 3L14.5 2" />
+                    </svg>
+                  ) : message.status === "delivered" ? (
+                    <svg width="16" height="10" viewBox="0 0 16 10" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 5.5l3 3L10 2" />
+                      <path d="M5.5 5.5l3 3L14.5 2" />
+                    </svg>
+                  ) : message.status === "sent" ? (
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 5.5l3 3L9 2" />
+                    </svg>
+                  ) : null}
+                </span>
+              </div>
+            </>
           ) : isThinking ? (
             <ThinkingIndicator seconds={thinkingSeconds || 0} personaColor={personaColor} />
           ) : renderedContent ? (
@@ -620,6 +655,21 @@ export const AIAgentMessage = memo(
               </button>
             ))}
           </div>
+        )}
+
+        {isError && onRetry && (
+          <button type="button" onClick={() => onRetry(message.id)}
+            style={{
+              display: "flex", alignItems: "center", gap: "6px",
+              padding: "6px 14px", marginLeft: "6px", marginTop: "2px",
+              borderRadius: "16px", border: "0.5px solid rgba(255,82,82,0.25)",
+              background: "rgba(255,82,82,0.08)", color: "#ff5252",
+              fontSize: "12px", fontWeight: 500, cursor: "pointer",
+              transition: "all 0.2s", letterSpacing: "-0.01em",
+            }}
+          >
+            <RetryIcon size={11} /> Повторить
+          </button>
         )}
 
         {!isUser && message.content && !message.isStreaming && (
