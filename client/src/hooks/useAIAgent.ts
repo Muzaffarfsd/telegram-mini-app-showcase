@@ -12,6 +12,7 @@ export interface AIMessage {
   imageUrl?: string;
   persona?: string;
   personaName?: string;
+  status?: "sending" | "sent" | "delivered" | "read";
 }
 
 export interface WidgetData {
@@ -25,6 +26,7 @@ export interface Persona {
   role: string;
   color: string;
   emoji: string;
+  voiceId: string;
 }
 
 export interface PageContext {
@@ -44,15 +46,16 @@ export interface BehaviorSignals {
 }
 
 const PERSONAS: Persona[] = [
-  { id: "alex", name: "Алекс", role: "Консультант", color: "#34d399", emoji: "A" },
-  { id: "designer", name: "Марина", role: "UI/UX дизайнер", color: "#a78bfa", emoji: "M" },
-  { id: "developer", name: "Артём", role: "Разработчик", color: "#60a5fa", emoji: "D" },
-  { id: "strategist", name: "Ольга", role: "Бизнес-стратег", color: "#f59e0b", emoji: "O" },
+  { id: "alex", name: "Алекс", role: "Консультант", color: "#34d399", emoji: "A", voiceId: "pNInz6obpgDQGcFmaJgB" },
+  { id: "designer", name: "Марина", role: "UI/UX дизайнер", color: "#a78bfa", emoji: "M", voiceId: "21m00Tcm4TlvDq8ikWAM" },
+  { id: "developer", name: "Артём", role: "Разработчик", color: "#60a5fa", emoji: "D", voiceId: "ErXwobaYiN019PkySvjV" },
+  { id: "strategist", name: "Ольга", role: "Бизнес-стратег", color: "#f59e0b", emoji: "O", voiceId: "EXAVITQu4vr4xnSDxMaL" },
 ];
 
 const STORAGE_KEY = "web4tg_ai_chat";
 const PAGES_KEY = "web4tg_pages_visited";
 const VISIT_KEY = "web4tg_last_visit";
+const ONBOARDING_KEY = "web4tg_ai_onboarding_done";
 
 const DEAL_STAGES = ["awareness", "interest", "consideration", "decision", "action"] as const;
 type DealStage = typeof DEAL_STAGES[number];
@@ -78,13 +81,17 @@ function loadMessages(): AIMessage[] {
     if (!stored) return [];
     const parsed = JSON.parse(stored);
     if (!Array.isArray(parsed)) return [];
-    return parsed.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })).slice(-30);
+    return parsed.map((m: any) => ({
+      ...m,
+      timestamp: new Date(m.timestamp),
+      status: m.role === "user" ? "read" : undefined,
+    })).slice(-50);
   } catch { return []; }
 }
 
 function saveMessages(messages: AIMessage[]) {
   try {
-    const toSave = messages.slice(-30).map(m => ({
+    const toSave = messages.slice(-50).map(m => ({
       ...m,
       timestamp: m.timestamp instanceof Date ? m.timestamp.toISOString() : m.timestamp,
     }));
@@ -113,18 +120,111 @@ function isReturnVisit(): boolean {
   } catch { return false; }
 }
 
+function isOnboardingDone(): boolean {
+  try { return localStorage.getItem(ONBOARDING_KEY) === "1"; } catch { return false; }
+}
+
+function setOnboardingDone() {
+  try { localStorage.setItem(ONBOARDING_KEY, "1"); } catch {}
+}
+
+function getUserLanguage(): string {
+  try {
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg?.initDataUnsafe?.user?.language_code) {
+      return tg.initDataUnsafe.user.language_code;
+    }
+  } catch {}
+  return navigator.language || "ru";
+}
+
+function getSpeechLang(): string {
+  const lang = getUserLanguage().toLowerCase();
+  if (lang.startsWith("en")) return "en-US";
+  if (lang.startsWith("uk")) return "uk-UA";
+  if (lang.startsWith("de")) return "de-DE";
+  if (lang.startsWith("fr")) return "fr-FR";
+  if (lang.startsWith("es")) return "es-ES";
+  if (lang.startsWith("it")) return "it-IT";
+  if (lang.startsWith("pt")) return "pt-BR";
+  if (lang.startsWith("zh")) return "zh-CN";
+  if (lang.startsWith("ja")) return "ja-JP";
+  if (lang.startsWith("ko")) return "ko-KR";
+  return "ru-RU";
+}
+
+let sharedAudioCtx: AudioContext | null = null;
+
+function getAudioCtx(): AudioContext | null {
+  try {
+    if (!sharedAudioCtx || sharedAudioCtx.state === "closed") {
+      sharedAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    if (sharedAudioCtx.state === "suspended") {
+      sharedAudioCtx.resume().catch(() => {});
+    }
+    return sharedAudioCtx;
+  } catch { return null; }
+}
+
+function playMessageSound() {
+  try {
+    const audioCtx = getAudioCtx();
+    if (!audioCtx) return;
+
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.05);
+    oscillator.frequency.exponentialRampToValueAtTime(1100, audioCtx.currentTime + 0.1);
+
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + 0.15);
+  } catch {}
+}
+
+function trackAIEvent(eventName: string, metadata?: Record<string, any>) {
+  try {
+    fetch("/api/analytics/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        events: [{
+          category: "ai",
+          action: eventName,
+          timestamp: Date.now(),
+          ...metadata,
+        }],
+      }),
+    }).catch(() => {});
+  } catch {}
+}
+
 export function useAIAgent(pageContext?: PageContext) {
   const [messages, setMessages] = useState<AIMessage[]>(() => loadMessages());
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceMode, setVoiceMode] = useState(false);
   const [activePersona, setActivePersona] = useState<Persona>(PERSONAS[0]);
+  const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingDone());
+  const [searchQuery, setSearchQuery] = useState("");
   const abortRef = useRef<AbortController | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const blobUrlRef = useRef<string | null>(null);
   const pageEntryTime = useRef(Date.now());
   const pagesVisited = useRef<string[]>(loadPagesVisited());
   const returnVisit = useRef(isReturnVisit());
+  const sessionStartRef = useRef(Date.now());
+  const messageCountRef = useRef(0);
 
   useEffect(() => {
     if (pageContext?.currentPage) {
@@ -144,6 +244,18 @@ export function useAIAgent(pageContext?: PageContext) {
 
   const dealStage = useMemo(() => detectDealStage(messages), [messages]);
   const dealTemperature = useMemo(() => getDealTemperature(dealStage), [dealStage]);
+  const speechLang = useMemo(() => getSpeechLang(), []);
+
+  const filteredMessages = useMemo(() => {
+    if (!searchQuery.trim()) return messages;
+    const q = searchQuery.toLowerCase();
+    return messages.filter(m => m.content.toLowerCase().includes(q));
+  }, [messages, searchQuery]);
+
+  const dismissOnboarding = useCallback(() => {
+    setShowOnboarding(false);
+    setOnboardingDone();
+  }, []);
 
   const cleanupAudio = useCallback(() => {
     if (audioRef.current) {
@@ -163,6 +275,15 @@ export function useAIAgent(pageContext?: PageContext) {
     return () => {
       if (abortRef.current) abortRef.current.abort();
       cleanupAudio();
+      const duration = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+      if (messageCountRef.current > 0) {
+        trackAIEvent("ai_session_end", {
+          duration,
+          messageCount: messageCountRef.current,
+          dealStage,
+          persona: activePersona.id,
+        });
+      }
     };
   }, [cleanupAudio]);
 
@@ -249,12 +370,15 @@ export function useAIAgent(pageContext?: PageContext) {
     async (content: string, imageBase64?: string, imageMimeType?: string) => {
       if ((!content.trim() && !imageBase64) || isLoading) return;
 
+      messageCountRef.current += 1;
+
       const userMessage: AIMessage = {
         id: `user-${Date.now()}`,
         role: "user",
         content: content.trim(),
         timestamp: new Date(),
         imageUrl: imageBase64 ? `data:${imageMimeType || "image/jpeg"};base64,${imageBase64.slice(0, 100)}...` : undefined,
+        status: "sent",
       };
 
       const assistantMessage: AIMessage = {
@@ -267,8 +391,20 @@ export function useAIAgent(pageContext?: PageContext) {
         personaName: activePersona.name,
       };
 
-      setMessages((prev) => [...prev, userMessage, assistantMessage]);
+      setMessages((prev) => {
+        const updated = prev.map(m =>
+          m.role === "user" && m.status === "sent" ? { ...m, status: "delivered" as const } : m
+        );
+        return [...updated, userMessage, assistantMessage];
+      });
       setIsLoading(true);
+
+      trackAIEvent("ai_message_sent", {
+        persona: activePersona.id,
+        dealStage,
+        hasImage: !!imageBase64,
+        messageLength: content.length,
+      });
 
       const allMessages = [
         ...messages,
@@ -304,6 +440,10 @@ export function useAIAgent(pageContext?: PageContext) {
         });
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        setMessages(prev => prev.map(m =>
+          m.id === userMessage.id ? { ...m, status: "delivered" as const } : m
+        ));
 
         const reader = response.body?.getReader();
         if (!reader) throw new Error("No reader");
@@ -343,8 +483,13 @@ export function useAIAgent(pageContext?: PageContext) {
                 } else if (data.type === "done") {
                   const buttons = parseButtons(fullText);
                   const widgets = parseWidgets(fullText);
+
+                  playMessageSound();
+
                   setMessages((prev) => {
-                    const updated = [...prev];
+                    const updated = prev.map(m =>
+                      m.id === userMessage.id ? { ...m, status: "read" as const } : m
+                    );
                     const lastIdx = updated.length - 1;
                     updated[lastIdx] = {
                       ...updated[lastIdx],
@@ -355,6 +500,14 @@ export function useAIAgent(pageContext?: PageContext) {
                       personaName: data.personaName || activePersona.name,
                     };
                     return updated;
+                  });
+
+                  trackAIEvent("ai_response_received", {
+                    persona: data.persona || activePersona.id,
+                    dealStage: detectDealStage([...messages, userMessage]),
+                    responseLength: fullText.length,
+                    hasWidgets: widgets.length > 0,
+                    hasButtons: buttons.length > 0,
                   });
 
                   if (voiceMode && fullText) {
@@ -397,7 +550,7 @@ export function useAIAgent(pageContext?: PageContext) {
         abortRef.current = null;
       }
     },
-    [messages, isLoading, processActions, parseButtons, parseWidgets, activePersona, buildPageContext, voiceMode]
+    [messages, isLoading, processActions, parseButtons, parseWidgets, activePersona, buildPageContext, voiceMode, dealStage]
   );
 
   const speakTextInternal = useCallback(async (text: string) => {
@@ -407,7 +560,10 @@ export function useAIAgent(pageContext?: PageContext) {
       const response = await fetch("/api/ai/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: text.slice(0, 5000) }),
+        body: JSON.stringify({
+          text: text.slice(0, 5000),
+          voiceId: activePersona.voiceId,
+        }),
       });
       if (!response.ok) throw new Error("TTS failed");
       const blob = await response.blob();
@@ -419,7 +575,7 @@ export function useAIAgent(pageContext?: PageContext) {
       audio.onerror = () => cleanupAudio();
       await audio.play();
     } catch { cleanupAudio(); }
-  }, [cleanupAudio]);
+  }, [cleanupAudio, activePersona.voiceId]);
 
   const speakText = useCallback(async (text: string) => {
     if (isSpeaking) { cleanupAudio(); return; }
@@ -458,15 +614,58 @@ export function useAIAgent(pageContext?: PageContext) {
 
   const switchPersona = useCallback((personaId: string) => {
     const p = PERSONAS.find(pp => pp.id === personaId);
-    if (p) setActivePersona(p);
+    if (p) {
+      setActivePersona(p);
+      trackAIEvent("ai_persona_switch", { persona: personaId });
+    }
   }, []);
 
   const toggleVoiceMode = useCallback(() => {
-    setVoiceMode(v => !v);
+    setVoiceMode(v => {
+      const next = !v;
+      trackAIEvent("ai_voice_mode_toggle", { enabled: next });
+      return next;
+    });
   }, []);
+
+  const exportConversation = useCallback(() => {
+    if (messages.length === 0) return "";
+    const lines = messages.map(m => {
+      const time = m.timestamp instanceof Date
+        ? m.timestamp.toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+        : "";
+      const name = m.role === "user" ? "Вы" : (m.personaName || "Алекс");
+      const cleanContent = m.content
+        .replace(/```[\s\S]*?```/g, "")
+        .replace(/\*\*(.*?)\*\*/g, "$1")
+        .replace(/\*(.*?)\*/g, "$1")
+        .replace(/#{1,6}\s/g, "");
+      return `[${time}] ${name}:\n${cleanContent}`;
+    });
+    return lines.join("\n\n---\n\n");
+  }, [messages]);
+
+  const shareConversation = useCallback(() => {
+    const text = exportConversation();
+    if (!text) return;
+
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg?.switchInlineQuery) {
+      tg.switchInlineQuery(text.slice(0, 256));
+      return;
+    }
+
+    if (navigator.share) {
+      navigator.share({ title: "Диалог с WEB4TG AI", text: text.slice(0, 4000) }).catch(() => {});
+      return;
+    }
+
+    navigator.clipboard.writeText(text).catch(() => {});
+  }, [exportConversation]);
 
   return {
     messages,
+    filteredMessages,
     isLoading,
     isSpeaking,
     voiceMode,
@@ -474,11 +673,18 @@ export function useAIAgent(pageContext?: PageContext) {
     personas: PERSONAS,
     dealStage,
     dealTemperature,
+    showOnboarding,
+    searchQuery,
+    speechLang,
     sendMessage,
     speakText,
     stopGeneration,
     clearHistory,
     switchPersona,
     toggleVoiceMode,
+    dismissOnboarding,
+    setSearchQuery,
+    exportConversation,
+    shareConversation,
   };
 }

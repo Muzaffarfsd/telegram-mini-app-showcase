@@ -6,6 +6,7 @@ interface AIAgentInputProps {
   placeholder?: string;
   voiceMode?: boolean;
   onToggleVoiceMode?: () => void;
+  speechLang?: string;
 }
 
 const ArrowUpIcon = ({ size = 16, color = "currentColor" }: { size?: number; color?: string }) => (
@@ -42,7 +43,7 @@ const PhoneIcon = ({ size = 15, color = "currentColor" }: { size?: number; color
 );
 
 export const AIAgentInput = memo(
-  ({ onSend, isLoading, placeholder, voiceMode, onToggleVoiceMode }: AIAgentInputProps) => {
+  ({ onSend, isLoading, placeholder, voiceMode, onToggleVoiceMode, speechLang }: AIAgentInputProps) => {
     const [input, setInput] = useState("");
     const [isRecording, setIsRecording] = useState(false);
     const [isListening, setIsListening] = useState(false);
@@ -120,7 +121,7 @@ export const AIAgentInput = memo(
       }
 
       const recognition = new SpeechRecognition();
-      recognition.lang = "ru-RU";
+      recognition.lang = speechLang || "ru-RU";
       recognition.continuous = voiceMode;
       recognition.interimResults = true;
       recognitionRef.current = recognition;

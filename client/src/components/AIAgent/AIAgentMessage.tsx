@@ -354,7 +354,29 @@ export const AIAgentMessage = memo(
             : "inset 0 1px 0 rgba(255,255,255,0.04)",
         }}>
           {isUser ? (
-            <span>{message.content}</span>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
+              <span style={{ flex: 1 }}>{message.content}</span>
+              <span style={{
+                flexShrink: 0, display: "inline-flex", alignItems: "center",
+                marginBottom: "1px", opacity: 0.5,
+              }}>
+                {message.status === "read" ? (
+                  <svg width="16" height="10" viewBox="0 0 16 10" fill="none" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 5.5l3 3L10 2" />
+                    <path d="M5.5 5.5l3 3L14.5 2" />
+                  </svg>
+                ) : message.status === "delivered" ? (
+                  <svg width="16" height="10" viewBox="0 0 16 10" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 5.5l3 3L10 2" />
+                    <path d="M5.5 5.5l3 3L14.5 2" />
+                  </svg>
+                ) : message.status === "sent" ? (
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 5.5l3 3L9 2" />
+                  </svg>
+                ) : null}
+              </span>
+            </div>
           ) : renderedContent ? (
             <>
               <div dangerouslySetInnerHTML={{ __html: renderedContent }} />

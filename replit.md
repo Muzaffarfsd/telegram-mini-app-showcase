@@ -21,11 +21,21 @@ This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional dem
 9. **Multi-Persona** — 4 AI personas: Алекс (sales, #34d399), Марина (designer, #a78bfa), Артём (developer, #60a5fa), Ольга (strategist, #f59e0b). Persona switcher panel. Each has unique system prompt injection, avatar, color. Message bubbles show persona badge.
 10. **Photo Analysis** — Camera button for image upload (jpeg/png/webp, max 4MB). FileReader → base64 → inlineData part in Gemini request. AI analyzes business photos, menus, competitor screenshots.
 
-### Additional Improvements
-- **Message Reactions** — ThumbsUp/ThumbsDown on each AI message (UX feedback, prepares for self-learning)
-- **Conversation Persistence** — Messages saved to localStorage (last 30), restored on reopen
+### Additional Improvements (April 2026 — Phase 2)
+- **Per-Persona Voices** — Each AI persona has a unique ElevenLabs voice ID: Алекс (Adam/pNInz6), Марина (Rachel/21m00T), Артём (Antoni/ErXwob), Ольга (Bella/EXAVITq). VoiceId sent with TTS request.
+- **Message Read Receipts** — iMessage-style checkmarks on user messages: single gray check (sent), double gray checks (delivered), double green checks (read). Status transitions: sent→delivered (on server response)→read (on AI response complete).
+- **Date Separators** — "Сегодня", "Вчера", or full date labels between message groups. Uses `toDateString()` comparison with locale-aware formatting.
+- **Chat Search** — Search bar slides in from panel header. Filters messages by content in real-time. Shows result count. Magnifying glass icon in header.
+- **Export/Share Conversation** — Share button in panel header. Formats conversation as timestamped text. Uses `navigator.share` API, falls back to clipboard. Telegram `switchInlineQuery` for in-app sharing.
+- **Onboarding Flow** — 4-step animated onboarding for first-time users: AI consultant intro, photo analysis, voice mode, multi-persona. Step indicators with emerald progress dots. Skip/Next buttons. Persisted via localStorage `web4tg_ai_onboarding_done`.
+- **Auto Speech Language** — STT language auto-detected from Telegram `user.language_code` or `navigator.language`. Supports ru/en/uk/de/fr/es/it/pt/zh/ja/ko. Falls back to ru-RU.
+- **Message Sound** — Subtle notification sound on AI response via Web Audio API oscillator (sine wave 880→1320→1100Hz, 150ms, 8% volume). Shared AudioContext to avoid browser limits. Handles suspended state for Telegram webview.
+- **AI Analytics Tracking** — Events sent to `/api/analytics/events` with `category:"ai"`: `ai_message_sent`, `ai_response_received`, `ai_persona_switch`, `ai_voice_mode_toggle`, `ai_session_end`. Includes dealStage, persona, message length, widget/button presence.
+- **Message Reactions** — Heart icon (fills #ff2d55 on tap) replaces ThumbsUp/ThumbsDown
+- **Conversation Persistence** — Messages saved to localStorage (last 50), restored on reopen
 - **Return Visit Detection** — Tracks last visit timestamp, marks return visits (>30 min gap)
 - **Pages Visited Tracking** — All visited pages tracked and sent to AI for behavioral context
+- **Apple-Style Custom SVG Icons** — All lucide icons replaced with hand-crafted SVGs: ChevronDown (close panel), PeopleIcon (persona switch), SearchIcon, ShareIcon, ArrowUp (send like iMessage), CameraIcon, MicIcon, WaveformIcon (active recording), PhoneIcon, CopyIcon, CheckIcon, SpeakerIcon, SpeakerOffIcon, HeartIcon, MessageBubble (FAB button). StrokeWidth 1.8-2.2, rounded caps/joins.
 
 ## 2026 Q2 Performance Optimization (April 2026)
 - **Weak Device/Network Adaptation**: Unified performance thresholds across all layers (preload script, early CSS class detection, AutoplayVideo, usePerformanceMode). Early inline script in `<head>` adds `low-performance`/`reduce-motion`/`slow-network` CSS classes before React hydrates — prevents FOUC of heavy effects. Hero video (5MB) conditionally preloaded only on 4G+ with >4GB RAM and >4 cores; skipped entirely on 2G/3G/saveData/low-end devices with gradient fallback. Google Fonts loaded non-blocking (`media="print" onload`). CSS `slow-network` video hide rule scoped to `[data-decorative]`/`[data-optional]` only (not all videos). Video Cache-Control set to 30 days on server.

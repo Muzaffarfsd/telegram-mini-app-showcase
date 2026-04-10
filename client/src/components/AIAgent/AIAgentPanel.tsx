@@ -43,17 +43,77 @@ const PeopleIcon = ({ size = 16, color = "currentColor" }: { size?: number; colo
   </svg>
 );
 
+const SearchIcon = ({ size = 15, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="7" />
+    <path d="M21 21l-4.35-4.35" />
+  </svg>
+);
+
+const ShareIcon = ({ size = 15, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+    <polyline points="16 6 12 2 8 6" />
+    <line x1="12" y1="2" x2="12" y2="15" />
+  </svg>
+);
+
+function getDateLabel(date: Date, lang: string): string {
+  const now = new Date();
+  const d = new Date(date);
+  const isToday = d.toDateString() === now.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const isYesterday = d.toDateString() === yesterday.toDateString();
+
+  if (isToday) return lang === "ru" ? "Сегодня" : "Today";
+  if (isYesterday) return lang === "ru" ? "Вчера" : "Yesterday";
+
+  return d.toLocaleDateString(lang === "ru" ? "ru-RU" : "en-US", {
+    day: "numeric",
+    month: "long",
+  });
+}
+
+const ONBOARDING_STEPS = [
+  {
+    ru: "Алекс — ваш AI-консультант. Расскажите о бизнесе, и он подберёт решение",
+    en: "Alex is your AI consultant. Tell about your business and he'll find a solution",
+    icon: "💬",
+  },
+  {
+    ru: "Нажмите 📷 чтобы загрузить скриншот конкурента для анализа",
+    en: "Tap 📷 to upload a competitor screenshot for analysis",
+    icon: "📸",
+  },
+  {
+    ru: "Нажмите 📞 чтобы включить голосовой режим — как звонок Алексу",
+    en: "Tap 📞 to enable voice mode — like calling Alex",
+    icon: "🎙️",
+  },
+  {
+    ru: "Переключайтесь между 4 экспертами — дизайнер, разработчик, стратег",
+    en: "Switch between 4 experts — designer, developer, strategist",
+    icon: "👥",
+  },
+];
+
 export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanelProps) => {
   const {
-    messages, isLoading, isSpeaking, voiceMode,
+    messages, filteredMessages, isLoading, isSpeaking, voiceMode,
     activePersona, personas, dealStage, dealTemperature,
     sendMessage, speakText, stopGeneration,
     switchPersona, toggleVoiceMode,
+    showOnboarding, dismissOnboarding,
+    searchQuery, setSearchQuery,
+    shareConversation, speechLang,
   } = useAIAgent(pageContext);
   const { language } = useLanguage();
   const { hapticFeedback } = useTelegram();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showPersonas, setShowPersonas] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -88,7 +148,19 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
     queueMicrotask(() => hapticFeedback.light());
   };
 
+  const handleNextOnboarding = () => {
+    queueMicrotask(() => hapticFeedback.light());
+    if (onboardingStep < ONBOARDING_STEPS.length - 1) {
+      setOnboardingStep(s => s + 1);
+    } else {
+      dismissOnboarding();
+    }
+  };
+
   const stageColor = STAGE_COLORS[dealStage] || "#60a5fa";
+  const displayMessages = showSearch && searchQuery ? filteredMessages : messages;
+
+  let lastDateLabel = "";
 
   return (
     <AnimatePresence>
@@ -198,7 +270,39 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "8px" }}>
+              <div style={{ display: "flex", gap: "6px" }}>
+                {messages.length > 0 && (
+                  <button type="button"
+                    onClick={() => { setShowSearch(s => !s); queueMicrotask(() => hapticFeedback.light()); }}
+                    style={{
+                      width: "34px", height: "34px", borderRadius: "17px",
+                      border: `0.5px solid ${showSearch ? activePersona.color + "40" : GLASS.borderSub}`,
+                      background: showSearch ? `${activePersona.color}14` : GLASS.btnBg,
+                      color: showSearch ? activePersona.color : "rgba(255,255,255,0.5)",
+                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                      transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+                    }}
+                    aria-label="Search"
+                  >
+                    <SearchIcon />
+                  </button>
+                )}
+                {messages.length > 0 && (
+                  <button type="button"
+                    onClick={() => { shareConversation(); queueMicrotask(() => hapticFeedback.light()); }}
+                    style={{
+                      width: "34px", height: "34px", borderRadius: "17px",
+                      border: `0.5px solid ${GLASS.borderSub}`,
+                      background: GLASS.btnBg,
+                      color: "rgba(255,255,255,0.5)",
+                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                      transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+                    }}
+                    aria-label="Share"
+                  >
+                    <ShareIcon />
+                  </button>
+                )}
                 <button type="button"
                   onClick={() => setShowPersonas(!showPersonas)}
                   style={{
@@ -228,6 +332,59 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                 </button>
               </div>
             </div>
+
+            <AnimatePresence>
+              {showSearch && (
+                <m.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
+                  style={{ overflow: "hidden", flexShrink: 0 }}
+                >
+                  <div style={{ padding: "10px 20px", borderBottom: `0.5px solid ${GLASS.borderSub}` }}>
+                    <div style={{
+                      display: "flex", alignItems: "center", gap: "8px",
+                      background: "rgba(255,255,255,0.06)", borderRadius: "14px",
+                      padding: "0 12px", border: "0.5px solid rgba(255,255,255,0.08)",
+                    }}>
+                      <SearchIcon size={13} color="rgba(255,255,255,0.3)" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        placeholder={language === "ru" ? "Поиск в чате..." : "Search messages..."}
+                        autoFocus
+                        style={{
+                          flex: 1, background: "transparent", border: "none", outline: "none",
+                          color: "#fff", fontSize: "14px", padding: "10px 0",
+                          fontFamily: "inherit", letterSpacing: "-0.01em",
+                        }}
+                      />
+                      {searchQuery && (
+                        <button type="button" onClick={() => setSearchQuery("")}
+                          style={{
+                            background: "none", border: "none", color: "rgba(255,255,255,0.3)",
+                            cursor: "pointer", fontSize: "14px", padding: "0 2px",
+                          }}
+                        >×</button>
+                      )}
+                    </div>
+                    {searchQuery && (
+                      <div style={{
+                        fontSize: "11px", color: "rgba(255,255,255,0.3)",
+                        marginTop: "6px", letterSpacing: "-0.01em",
+                      }}>
+                        {language === "ru"
+                          ? `Найдено: ${filteredMessages.length}`
+                          : `Found: ${filteredMessages.length}`
+                        }
+                      </div>
+                    )}
+                  </div>
+                </m.div>
+              )}
+            </AnimatePresence>
 
             <AnimatePresence>
               {showPersonas && (
@@ -277,11 +434,11 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
 
             <div ref={scrollRef} style={{
               flex: 1, overflowY: "auto", overflowX: "hidden",
-              display: "flex", flexDirection: "column", gap: "8px",
+              display: "flex", flexDirection: "column", gap: "4px",
               padding: "16px 0 8px", overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch", scrollbarWidth: "none",
             }}>
-              {messages.length === 0 && (
+              {messages.length === 0 && !showOnboarding && (
                 <div style={{
                   display: "flex", flexDirection: "column",
                   alignItems: "center", justifyContent: "center",
@@ -352,15 +509,105 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                 </div>
               )}
 
-              {messages.map((msg) => (
-                <AIAgentMessage
-                  key={msg.id}
-                  message={msg}
-                  onSpeak={msg.role === "assistant" ? handleSpeak : undefined}
-                  onButtonClick={handleButtonClick}
-                  isSpeaking={isSpeaking}
-                />
-              ))}
+              {messages.length === 0 && showOnboarding && (
+                <div style={{
+                  display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center",
+                  flex: 1, gap: "16px", padding: "40px 28px", textAlign: "center",
+                }}>
+                  <div style={{
+                    width: "64px", height: "64px", borderRadius: "32px",
+                    background: "rgba(52,211,153,0.1)",
+                    border: "0.5px solid rgba(52,211,153,0.2)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: "28px",
+                  }}>
+                    {ONBOARDING_STEPS[onboardingStep].icon}
+                  </div>
+                  <div style={{
+                    fontSize: "15px", color: "rgba(255,255,255,0.75)", lineHeight: "1.6",
+                    letterSpacing: "-0.01em", maxWidth: "280px",
+                  }}>
+                    {language === "ru"
+                      ? ONBOARDING_STEPS[onboardingStep].ru
+                      : ONBOARDING_STEPS[onboardingStep].en
+                    }
+                  </div>
+                  <div style={{ display: "flex", gap: "5px", marginTop: "4px" }}>
+                    {ONBOARDING_STEPS.map((_, i) => (
+                      <div key={i} style={{
+                        width: i === onboardingStep ? "20px" : "6px",
+                        height: "6px", borderRadius: "3px",
+                        background: i === onboardingStep ? "#34d399" : "rgba(255,255,255,0.12)",
+                        transition: "all 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+                      }} />
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+                    <button type="button" onClick={dismissOnboarding}
+                      style={{
+                        padding: "8px 20px", borderRadius: "20px",
+                        border: `0.5px solid ${GLASS.borderSub}`,
+                        background: "transparent",
+                        color: "rgba(255,255,255,0.4)", fontSize: "13px",
+                        cursor: "pointer", fontWeight: 500,
+                        letterSpacing: "-0.01em",
+                      }}
+                    >
+                      {language === "ru" ? "Пропустить" : "Skip"}
+                    </button>
+                    <button type="button" onClick={handleNextOnboarding}
+                      style={{
+                        padding: "8px 24px", borderRadius: "20px",
+                        border: "none",
+                        background: "linear-gradient(145deg, #34d399, #059669)",
+                        color: "#fff", fontSize: "13px",
+                        cursor: "pointer", fontWeight: 600,
+                        letterSpacing: "-0.01em",
+                        boxShadow: "0 2px 8px rgba(52,211,153,0.3)",
+                      }}
+                    >
+                      {onboardingStep < ONBOARDING_STEPS.length - 1
+                        ? (language === "ru" ? "Далее" : "Next")
+                        : (language === "ru" ? "Начать" : "Start")
+                      }
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {displayMessages.map((msg, idx) => {
+                const dateLabel = getDateLabel(msg.timestamp, language);
+                const showDate = dateLabel !== lastDateLabel;
+                if (showDate) lastDateLabel = dateLabel;
+
+                return (
+                  <div key={msg.id}>
+                    {showDate && (
+                      <div style={{
+                        display: "flex", justifyContent: "center",
+                        padding: "12px 0 6px",
+                      }}>
+                        <span style={{
+                          fontSize: "11px", fontWeight: 500,
+                          color: "rgba(255,255,255,0.25)",
+                          background: "rgba(255,255,255,0.04)",
+                          padding: "4px 12px", borderRadius: "10px",
+                          letterSpacing: "-0.01em",
+                        }}>
+                          {dateLabel}
+                        </span>
+                      </div>
+                    )}
+                    <AIAgentMessage
+                      message={msg}
+                      onSpeak={msg.role === "assistant" ? handleSpeak : undefined}
+                      onButtonClick={handleButtonClick}
+                      isSpeaking={isSpeaking}
+                    />
+                  </div>
+                );
+              })}
             </div>
 
             <AIAgentInput
@@ -368,6 +615,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
               isLoading={isLoading}
               voiceMode={voiceMode}
               onToggleVoiceMode={toggleVoiceMode}
+              speechLang={speechLang}
               placeholder={
                 language === "ru"
                   ? `Напишите ${activePersona.name === "Алекс" ? "Алексу" : activePersona.name}...`
