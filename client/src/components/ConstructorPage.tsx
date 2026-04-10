@@ -882,40 +882,167 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
 
         {currentStep === 2 && selectedTemplate && (
           <section>
+            {/* ── Phone Preview ── */}
             <Cin>
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                  <div style={{
-                    width: 40, height: 1,
-                    background: `linear-gradient(90deg, transparent, ${EMERALD}30)`,
-                  }} />
-                  <span style={{
-                    fontFamily: SYNE, fontSize: '0.62rem', fontWeight: 700,
-                    letterSpacing: '0.18em', textTransform: 'uppercase' as const,
-                    color: 'rgba(255,255,255,0.22)',
-                  }}>
-                    {t('constructor.step2Title')}
-                  </span>
-                </div>
-                <p style={{
-                  fontFamily: INTER, fontSize: '0.74rem', color: 'rgba(255,255,255,0.3)',
-                  letterSpacing: '-0.01em', paddingLeft: 50,
+              <div style={{
+                position: 'relative',
+                display: 'flex', justifyContent: 'center',
+                marginBottom: 28,
+              }}>
+                <div style={{
+                  position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                  width: 300, height: 300, borderRadius: '50%',
+                  background: `radial-gradient(circle, ${EMERALD}0c 0%, transparent 70%)`,
+                  pointerEvents: 'none',
+                }} />
+
+                <div style={{
+                  width: 220, borderRadius: 32,
+                  background: '#0a0a0a',
+                  border: '3px solid rgba(255,255,255,0.08)',
+                  boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset, 0 0 80px ${EMERALD}08`,
+                  overflow: 'hidden',
+                  position: 'relative',
                 }}>
-                  {t('constructor.step2Desc')}
-                </p>
+                  <div style={{
+                    height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderBottom: '1px solid rgba(255,255,255,0.04)',
+                    position: 'relative',
+                  }}>
+                    <div style={{
+                      width: 60, height: 5, borderRadius: 3,
+                      background: 'rgba(255,255,255,0.08)',
+                      position: 'absolute', top: 8,
+                    }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                      <div style={{
+                        width: 5, height: 5, borderRadius: '50%',
+                        background: EMERALD, boxShadow: `0 0 6px ${EMERALD}60`,
+                      }} />
+                      <span style={{
+                        fontFamily: INTER, fontSize: '0.5rem', fontWeight: 600,
+                        color: EMERALD, letterSpacing: '0.05em',
+                      }}>
+                        {t('constructor.livePreview')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '12px 14px', minHeight: 280 }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14,
+                    }}>
+                      <div style={{
+                        width: 28, height: 28, borderRadius: 10,
+                        background: `${EMERALD}12`, border: `1px solid ${EMERALD}18`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        {(() => { const I = selectedTemplate.icon; return <I size={13} style={{ color: EMERALD }} />; })()}
+                      </div>
+                      <div>
+                        <p style={{
+                          fontFamily: SYNE, fontSize: '0.6rem', fontWeight: 800,
+                          color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.1,
+                          maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>
+                          {projectName || t('constructor.yourApp')}
+                        </p>
+                        <p style={{
+                          fontFamily: INTER, fontSize: '0.42rem',
+                          color: 'rgba(255,255,255,0.3)', marginTop: 1,
+                        }}>
+                          {selectedTemplate.name}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <AnimatePresence mode="popLayout">
+                        {selectedFeatures.slice(0, 8).map((f) => {
+                          const feat = availableFeatures.find(af => af.id === f.id);
+                          const FIcon = feat?.icon || Package;
+                          const isInTemplate = selectedTemplate?.features.includes(f.id);
+                          return (
+                            <m.div
+                              key={f.id}
+                              layout
+                              initial={{ opacity: 0, scale: 0.8, y: 8 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.8, y: -4 }}
+                              transition={{ duration: 0.3, ease: EASE }}
+                              style={{
+                                display: 'flex', alignItems: 'center', gap: 6,
+                                padding: '6px 8px', borderRadius: 8,
+                                background: isInTemplate ? `${EMERALD}08` : 'rgba(255,255,255,0.03)',
+                                border: `1px solid ${isInTemplate ? `${EMERALD}12` : 'rgba(255,255,255,0.04)'}`,
+                              }}
+                            >
+                              <FIcon size={9} style={{ color: isInTemplate ? EMERALD : 'rgba(255,255,255,0.3)', flexShrink: 0 }} />
+                              <span style={{
+                                fontFamily: INTER, fontSize: '0.48rem', fontWeight: 500,
+                                color: isInTemplate ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.4)',
+                                flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                              }}>
+                                {f.name}
+                              </span>
+                              {isInTemplate && (
+                                <Check size={7} color={EMERALD} strokeWidth={3} style={{ flexShrink: 0 }} />
+                              )}
+                            </m.div>
+                          );
+                        })}
+                      </AnimatePresence>
+                      {selectedFeatures.length > 8 && (
+                        <div style={{
+                          textAlign: 'center', padding: '4px 0',
+                          fontFamily: INTER, fontSize: '0.42rem',
+                          color: 'rgba(255,255,255,0.2)',
+                        }}>
+                          +{selectedFeatures.length - 8}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    height: 36, display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderTop: '1px solid rgba(255,255,255,0.04)',
+                    padding: '0 12px',
+                  }}>
+                    {[ShoppingCart, Zap, User, Settings].map((NavIcon, ni) => (
+                      <NavIcon key={ni} size={11} style={{
+                        color: ni === 0 ? EMERALD : 'rgba(255,255,255,0.15)',
+                      }} />
+                    ))}
+                  </div>
+                </div>
               </div>
             </Cin>
 
             <Cin delay={0.05}>
+              <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <p style={{
+                  fontFamily: INTER, fontSize: '0.68rem', fontWeight: 500,
+                  color: 'rgba(255,255,255,0.3)',
+                }}>
+                  {selectedFeatures.length} {t('constructor.featuresSelected')} · {t('constructor.tapToToggle')}
+                </p>
+              </div>
+            </Cin>
+
+            {/* ── Project Name ── */}
+            <Cin delay={0.08}>
               <div style={{
-                padding: '18px 20px', borderRadius: 18,
-                background: 'linear-gradient(165deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
-                border: '1px solid rgba(255,255,255,0.06)', marginBottom: 20,
+                padding: '14px 16px', borderRadius: 16,
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.05)', marginBottom: 16,
               }}>
                 <label style={{
-                  fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600,
+                  fontFamily: INTER, fontSize: '0.55rem', fontWeight: 600,
                   color: 'rgba(255,255,255,0.25)', letterSpacing: '0.08em',
-                  textTransform: 'uppercase' as const, display: 'block', marginBottom: 10,
+                  textTransform: 'uppercase' as const, display: 'block', marginBottom: 8,
                 }}>
                   {t('constructor.projectName')}
                 </label>
@@ -928,9 +1055,9 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                   autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false}
                   inputMode="text" enterKeyHint="done"
                   style={{
-                    width: '100%', padding: '12px 16px', borderRadius: 14,
+                    width: '100%', padding: '10px 14px', borderRadius: 12,
                     background: 'rgba(255,255,255,0.03)', border: '1.5px solid rgba(255,255,255,0.06)',
-                    fontFamily: INTER, fontSize: '0.85rem', fontWeight: 600,
+                    fontFamily: INTER, fontSize: '0.82rem', fontWeight: 600,
                     color: '#fff', outline: 'none',
                     transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
                   }}
@@ -946,101 +1073,120 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               </div>
             </Cin>
 
+            {/* ── Category Pills ── */}
             <Cin delay={0.1}>
               <div style={{
                 display: 'flex', gap: 6, overflowX: 'auto',
-                paddingBottom: 10, marginBottom: 18,
+                paddingBottom: 8, marginBottom: 14,
                 scrollbarWidth: 'none', msOverflowStyle: 'none',
               }} className="cat-scroll">
                 {categoryKeys.map((key) => {
                   const label = t(key);
                   const isActive = activeCategoryKey === key;
+                  const catCount = availableFeatures.filter(f => f.category === t(key)).length;
+                  const catSelected = availableFeatures.filter(f => f.category === t(key) && selectedFeatures.find(sf => sf.id === f.id)).length;
                   return (
                     <button
                       key={key}
                       onClick={() => setActiveCategoryKey(key)}
                       style={{
-                        padding: '8px 16px', borderRadius: 12, whiteSpace: 'nowrap',
-                        fontFamily: INTER, fontSize: '0.68rem', fontWeight: 600,
+                        padding: '7px 14px', borderRadius: 10, whiteSpace: 'nowrap',
+                        fontFamily: INTER, fontSize: '0.65rem', fontWeight: 600,
                         letterSpacing: '-0.01em', border: 'none', cursor: 'pointer', flexShrink: 0,
                         transition: 'all 0.3s cubic-bezier(0.22,1,0.36,1)',
                         background: isActive ? `${EMERALD}14` : 'rgba(255,255,255,0.03)',
                         color: isActive ? EMERALD : 'rgba(255,255,255,0.3)',
-                        borderBottom: isActive ? `2px solid ${EMERALD}60` : '2px solid transparent',
+                        position: 'relative',
                       }}
                     >
                       {label}
+                      {catSelected > 0 && (
+                        <span style={{
+                          marginLeft: 5,
+                          fontFamily: SYNE, fontSize: '0.5rem', fontWeight: 800,
+                          color: EMERALD, opacity: 0.8,
+                        }}>
+                          {catSelected}/{catCount}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
               </div>
             </Cin>
 
-            <Cin delay={0.15}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {/* ── Feature Grid (visual cards) ── */}
+            <Cin delay={0.14}>
+              <div style={{
+                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8,
+              }}>
                 {filteredFeatures.map((feature) => {
                   const IconComponent = feature.icon;
-                  const isSelected = selectedFeatures.find(f => f.id === feature.id);
+                  const isSelected = !!selectedFeatures.find(f => f.id === feature.id);
                   const isIncluded = feature.included;
                   const isInTemplate = selectedTemplate?.features.includes(feature.id);
                   const isIncludedInAny = isIncluded || isInTemplate;
+                  const active = isSelected || isIncludedInAny;
 
                   return (
                     <button
                       type="button"
                       key={feature.id}
-                      className={!isIncludedInAny ? 'cursor-pointer active:scale-[0.98]' : ''}
+                      className={!isIncludedInAny ? 'cursor-pointer active:scale-[0.95]' : ''}
                       onClick={() => !isIncludedInAny && toggleFeature(feature)}
                       data-testid={`feature-${feature.id}`}
                       style={{
-                        padding: '14px 16px', borderRadius: 16,
-                        background: isSelected || isIncludedInAny
-                          ? `linear-gradient(135deg, ${EMERALD}06 0%, transparent 100%)`
+                        padding: '16px 12px', borderRadius: 18,
+                        background: active
+                          ? `linear-gradient(160deg, ${EMERALD}0a 0%, ${EMERALD}04 100%)`
                           : 'rgba(255,255,255,0.02)',
-                        border: `1px solid ${isSelected || isIncludedInAny ? `${EMERALD}18` : 'rgba(255,255,255,0.05)'}`,
-                        display: 'flex', alignItems: 'center', gap: 12,
-                        transition: 'all 0.3s cubic-bezier(0.22,1,0.36,1)',
-                        width: '100%', textAlign: 'left', outline: 'none',
+                        border: `1.5px solid ${active ? `${EMERALD}25` : 'rgba(255,255,255,0.05)'}`,
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                        transition: 'all 0.35s cubic-bezier(0.22,1,0.36,1)',
+                        width: '100%', textAlign: 'center', outline: 'none',
+                        position: 'relative', overflow: 'hidden',
+                        boxShadow: active ? `0 4px 20px ${EMERALD}08` : 'none',
                       }}
                     >
-                      <div style={{
-                        width: 20, height: 20, borderRadius: 6,
-                        border: `1.5px solid ${isSelected || isIncludedInAny ? EMERALD : 'rgba(255,255,255,0.12)'}`,
-                        background: isSelected || isIncludedInAny ? `${EMERALD}20` : 'transparent',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                        transition: 'all 0.25s ease',
-                      }}>
-                        {(isSelected || isIncludedInAny) && <Check size={11} color={EMERALD} strokeWidth={2.5} />}
-                      </div>
-                      <div style={{
-                        width: 32, height: 32, borderRadius: 10,
-                        background: 'rgba(255,255,255,0.03)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                      }}>
-                        <IconComponent size={14} style={{ color: 'rgba(255,255,255,0.3)' }} />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{
-                          fontFamily: INTER, fontSize: '0.78rem', fontWeight: 600,
-                          color: '#fff', letterSpacing: '-0.01em',
+                      {active && (
+                        <div style={{
+                          position: 'absolute', top: 8, right: 8,
+                          width: 16, height: 16, borderRadius: 5,
+                          background: `${EMERALD}20`, border: `1px solid ${EMERALD}30`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>
-                          {feature.name}
-                        </span>
-                        {isIncludedInAny && (
-                          <p style={{
-                            fontFamily: INTER, fontSize: '0.6rem', color: EMERALD,
-                            marginTop: 2, opacity: 0.8,
-                          }}>
-                            {t('constructor.includedInTemplate')}
-                          </p>
-                        )}
-                      </div>
-                      <span style={{
-                        fontFamily: SYNE, fontSize: '0.72rem', fontWeight: 700,
-                        color: isIncludedInAny ? EMERALD : 'rgba(255,255,255,0.45)',
-                        letterSpacing: '-0.02em', flexShrink: 0,
+                          <Check size={9} color={EMERALD} strokeWidth={3} />
+                        </div>
+                      )}
+
+                      <div style={{
+                        width: 40, height: 40, borderRadius: 14,
+                        background: active ? `${EMERALD}10` : 'rgba(255,255,255,0.03)',
+                        border: `1px solid ${active ? `${EMERALD}18` : 'rgba(255,255,255,0.05)'}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all 0.35s ease',
                       }}>
-                        {isIncludedInAny ? t('constructor.included') : `+${feature.price.toLocaleString()} ${t('sidebar.currencySymbol')}`}
+                        <IconComponent size={18} style={{
+                          color: active ? EMERALD : 'rgba(255,255,255,0.25)',
+                          transition: 'color 0.35s ease',
+                        }} />
+                      </div>
+
+                      <span style={{
+                        fontFamily: INTER, fontSize: '0.7rem', fontWeight: 600,
+                        color: active ? '#fff' : 'rgba(255,255,255,0.5)',
+                        letterSpacing: '-0.01em', lineHeight: 1.25,
+                        transition: 'color 0.35s ease',
+                      }}>
+                        {feature.name}
+                      </span>
+
+                      <span style={{
+                        fontFamily: SYNE, fontSize: '0.6rem', fontWeight: 700,
+                        color: isIncludedInAny ? EMERALD : 'rgba(255,255,255,0.3)',
+                        letterSpacing: '-0.02em',
+                      }}>
+                        {isIncludedInAny ? t('constructor.included') : `+${(feature.price / 1000).toFixed(0)}K ${t('sidebar.currencySymbol')}`}
                       </span>
                     </button>
                   );
@@ -1048,6 +1194,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               </div>
             </Cin>
 
+            {/* ── Subscription Plan ── */}
             <Cin delay={0.2} className="mt-8">
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
@@ -1065,67 +1212,48 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                 </span>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 6, overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }} className="cat-scroll">
                 {subscriptionPlans.map((plan) => {
                   const isSelected = selectedSubscription.id === plan.id;
                   return (
                     <button
                       type="button"
                       key={plan.id}
-                      className="cursor-pointer active:scale-[0.98]"
+                      className="cursor-pointer active:scale-[0.96]"
                       onClick={() => setSelectedSubscription(plan)}
                       data-testid={`subscription-${plan.id}`}
                       style={{
-                        padding: '16px 18px', borderRadius: 18,
+                        padding: '16px 14px', borderRadius: 18,
                         background: isSelected
-                          ? `linear-gradient(135deg, ${plan.color}08 0%, transparent 100%)`
+                          ? `linear-gradient(160deg, ${plan.color}0c 0%, transparent 100%)`
                           : 'rgba(255,255,255,0.02)',
-                        border: `1.5px solid ${isSelected ? `${plan.color}30` : 'rgba(255,255,255,0.05)'}`,
-                        display: 'flex', alignItems: 'center', gap: 14,
+                        border: `1.5px solid ${isSelected ? `${plan.color}35` : 'rgba(255,255,255,0.05)'}`,
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
                         transition: 'all 0.3s cubic-bezier(0.22,1,0.36,1)',
-                        width: '100%', textAlign: 'left', outline: 'none',
+                        minWidth: 130, flex: '1 0 0', textAlign: 'center', outline: 'none',
+                        boxShadow: isSelected ? `0 4px 20px ${plan.color}10` : 'none',
                       }}
                     >
                       <div style={{
-                        width: 22, height: 22, borderRadius: '50%',
+                        width: 18, height: 18, borderRadius: '50%',
                         border: `2px solid ${isSelected ? plan.color : 'rgba(255,255,255,0.12)'}`,
                         background: isSelected ? plan.color : 'transparent',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
                         transition: 'all 0.25s ease',
-                        boxShadow: isSelected ? `0 0 12px ${plan.color}30` : 'none',
+                        boxShadow: isSelected ? `0 0 10px ${plan.color}30` : 'none',
                       }}>
-                        {isSelected && <Check size={11} color="#000" strokeWidth={3} />}
+                        {isSelected && <Check size={9} color="#000" strokeWidth={3} />}
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{
-                            fontFamily: SYNE, fontSize: '0.82rem', fontWeight: 700,
-                            color: '#fff', letterSpacing: '-0.025em',
-                          }}>
-                            {plan.name}
-                          </span>
-                          {plan.popular && (
-                            <span style={{
-                              padding: '2px 8px', borderRadius: 6,
-                              background: `${plan.color}12`,
-                              fontFamily: INTER, fontSize: '0.55rem', fontWeight: 700,
-                              color: plan.color, letterSpacing: '0.02em',
-                              textTransform: 'uppercase' as const,
-                            }}>
-                              {t('constructor.popularTag')}
-                            </span>
-                          )}
-                        </div>
-                        <p style={{
-                          fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.28)',
-                          marginTop: 2,
-                        }}>
-                          {plan.description}
-                        </p>
-                      </div>
-                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <span style={{
+                        fontFamily: SYNE, fontSize: '0.72rem', fontWeight: 700,
+                        color: isSelected ? '#fff' : 'rgba(255,255,255,0.5)',
+                        letterSpacing: '-0.025em',
+                      }}>
+                        {plan.name}
+                      </span>
+                      <div>
                         <span style={{
-                          fontFamily: SYNE, fontSize: '0.92rem', fontWeight: 800,
+                          fontFamily: SYNE, fontSize: '0.88rem', fontWeight: 800,
                           color: isSelected ? plan.color : '#fff',
                           letterSpacing: '-0.03em',
                           transition: 'color 0.3s ease',
@@ -1133,28 +1261,39 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
                           {plan.price.toLocaleString()}
                         </span>
                         <span style={{
-                          fontFamily: INTER, fontSize: '0.58rem',
-                          color: 'rgba(255,255,255,0.25)', marginLeft: 3,
+                          fontFamily: INTER, fontSize: '0.5rem',
+                          color: 'rgba(255,255,255,0.25)', marginLeft: 2,
                         }}>
-                          {t('constructor.perMonth')}
+                          /{t('constructor.monthShort')}
                         </span>
                       </div>
+                      {plan.popular && (
+                        <span style={{
+                          padding: '2px 8px', borderRadius: 6,
+                          background: `${plan.color}12`,
+                          fontFamily: INTER, fontSize: '0.5rem', fontWeight: 700,
+                          color: plan.color, letterSpacing: '0.02em',
+                          textTransform: 'uppercase' as const,
+                        }}>
+                          {t('constructor.popularTag')}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
               </div>
 
               <div style={{
-                padding: '14px 16px', borderRadius: 14,
+                padding: '12px 14px', borderRadius: 12,
                 background: 'rgba(255,255,255,0.02)',
                 border: '1px solid rgba(255,255,255,0.04)',
-                marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 10,
+                marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 8,
               }}>
                 {selectedSubscription.features.map((feature, idx) => (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Check size={10} style={{ color: EMERALD, opacity: 0.7 }} />
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <Check size={9} style={{ color: EMERALD, opacity: 0.7 }} />
                     <span style={{
-                      fontFamily: INTER, fontSize: '0.65rem',
+                      fontFamily: INTER, fontSize: '0.6rem',
                       color: 'rgba(255,255,255,0.4)',
                     }}>
                       {feature}
@@ -1164,6 +1303,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               </div>
             </Cin>
 
+            {/* ── Navigation ── */}
             <Cin delay={0.25} className="mt-10">
               <div style={{ display: 'flex', gap: 10 }}>
                 <button
