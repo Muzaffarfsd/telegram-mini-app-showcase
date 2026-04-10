@@ -77,13 +77,25 @@ import OnboardingFlow, { useOnboarding } from "./components/OnboardingFlow";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 
+function isSlowNetwork(): boolean {
+  const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+  if (!conn) return false;
+  if (conn.saveData) return true;
+  const et = conn.effectiveType;
+  return et === 'slow-2g' || et === '2g' || et === '3g';
+}
+
 const prefetchAllRoutes = () => {
-  const chunks = [
+  if (isSlowNetwork()) return;
+
+  const critical = [
     () => import("./components/ShowcasePage"),
     () => import("./components/ProjectsPage"),
     () => import("./components/ConstructorPage"),
     () => import("./components/ProfilePage"),
     () => import("./components/AIProcessPage"),
+  ];
+  const secondary = [
     () => import("./components/PremiumAppsPage"),
     () => import("./components/AboutPage"),
     () => import("./components/DemoAppLanding"),
@@ -100,9 +112,11 @@ const prefetchAllRoutes = () => {
     () => import("./pages/notifications"),
     () => import("./pages/analytics"),
   ];
+  const chunks = [...critical, ...secondary];
   let i = 0;
   const loadNext = () => {
     if (i < chunks.length) {
+      if (isSlowNetwork()) return;
       chunks[i]().catch(() => {}).finally(() => {
         i++;
         if ('requestIdleCallback' in window) {

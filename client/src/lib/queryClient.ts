@@ -21,6 +21,16 @@ function getTelegramInitData(): string {
   return '';
 }
 
+function getNetworkTimeout(): number {
+  const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+  if (conn) {
+    const et = conn.effectiveType;
+    if (et === 'slow-2g' || et === '2g') return 30000;
+    if (et === '3g') return 20000;
+  }
+  return 15000;
+}
+
 export async function apiRequest(
   method: string,
   url: string,
@@ -37,20 +47,32 @@ export async function apiRequest(
     headers["X-Telegram-Init-Data"] = initData;
   }
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), getNetworkTimeout());
   const startTime = performance.now();
   
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
+  try {
+    const res = await fetch(url, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+      signal: controller.signal,
+    });
 
-  const duration = Math.round(performance.now() - startTime);
-  logger.api(method, url, res.status, duration);
+    const duration = Math.round(performance.now() - startTime);
+    logger.api(method, url, res.status, duration);
 
-  await throwIfResNotOk(res);
-  return res;
+    await throwIfResNotOk(res);
+    return res;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(`408: Request timeout for ${url}`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
@@ -59,7 +81,7 @@ export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
+  async ({ queryKey, signal }) => {
     const url = queryKey[0] as string;
     const headers: Record<string, string> = {};
     
@@ -68,22 +90,37 @@ export const getQueryFn: <T>(options: {
       headers["X-Telegram-Init-Data"] = initData;
     }
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), getNetworkTimeout());
+    if (signal) {
+      signal.addEventListener('abort', () => controller.abort());
+    }
     const startTime = performance.now();
     
-    const res = await fetch(url, {
-      credentials: "include",
-      headers,
-    });
+    try {
+      const res = await fetch(url, {
+        credentials: "include",
+        headers,
+        signal: controller.signal,
+      });
 
-    const duration = Math.round(performance.now() - startTime);
-    logger.api('GET', url, res.status, duration);
+      const duration = Math.round(performance.now() - startTime);
+      logger.api('GET', url, res.status, duration);
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+
+      await throwIfResNotOk(res);
+      return await res.json();
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        throw new Error(`408: Request timeout for ${url}`);
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeout);
     }
-
-    await throwIfResNotOk(res);
-    return await res.json();
   };
 
 export function createTypedQueryFn<T>(options: {
@@ -128,6 +165,17 @@ export function createTypedQueryFn<T>(options: {
   };
 }
 
+function getSlowNetworkMultiplier(): number {
+  const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+  if (conn) {
+    if (conn.saveData) return 4;
+    const et = conn.effectiveType;
+    if (et === 'slow-2g' || et === '2g') return 4;
+    if (et === '3g') return 2;
+  }
+  return 1;
+}
+
 const CACHE_TIME = {
   SHORT: 1 * 60 * 1000,
   MEDIUM: 5 * 60 * 1000,
@@ -135,12 +183,14 @@ const CACHE_TIME = {
   INFINITE: Infinity,
 } as const;
 
+const netMultiplier = getSlowNetworkMultiplier();
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
-      staleTime: CACHE_TIME.MEDIUM,
-      gcTime: CACHE_TIME.LONG,
+      staleTime: CACHE_TIME.MEDIUM * netMultiplier,
+      gcTime: CACHE_TIME.LONG * netMultiplier,
       refetchInterval: false,
       refetchOnWindowFocus: false,
       retry: (failureCount, error) => {
