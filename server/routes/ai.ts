@@ -1,11 +1,34 @@
 import { Router, Request, Response } from "express";
-import { streamChat, type ChatMessage } from "../lib/gemini";
+import { streamChat, filterResponse, type ChatMessage } from "../lib/gemini";
 import { textToSpeech, getVoices } from "../lib/elevenlabs";
 
 const router = Router();
 
 const MAX_MESSAGES = 30;
 const MAX_MESSAGE_LENGTH = 4000;
+
+const CONTEXTUAL_FALLBACKS: Record<string, string> = {
+  price: "Шаблоны стоят от 150 000₽ (магазин) до 200 000₽ (фитнес). Подписки: Мини 9 900₽/мес, Стандарт 14 900₽/мес, Премиум 24 900₽/мес. Предоплата 35%, 14 дней правок. Напишите нишу — подберу оптимальный вариант)",
+  portfolio: "У нас 20+ реализованных проектов. Radiance — магазин одежды, окупился за 25 дней. GlowSpa — салон красоты, no-show снизился на 45%. DeluxeDine — ресторан, экономия 35к/мес на комиссиях. Хотите посмотреть демо?",
+  timeline: "Сроки зависят от сложности: стандартный шаблон — 7-10 дней, с доработками — до 15 дней. Что планируете — магазин, запись на услуги, ресторан?",
+  payment: "Схема оплаты: 35% предоплата + 65% после сдачи проекта. 14 дней бесплатных правок включены. Возможна рассрочка. Какой проект планируете?",
+  subscription: "Тарифы подписки: Мини (9 900₽/мес) — базовая поддержка, Стандарт (14 900₽/мес) — рекомендуемый, Премиум (24 900₽/мес) — полный пакет. Расскажите о бизнесе — подберу подходящий)",
+  discount: "У нас есть система лояльности — монеты за подписки, рефералы и задания. Скидки до 25%. Также работает реферальная программа с 3 уровнями. Хотите узнать подробнее?",
+  consultation: "Хорошо, давайте организую консультацию с нашим менеджером. Расскажите коротко — какая у вас ниша и какие задачи хотите решить?",
+  default: "Привет! Я Алекс, консультант WEB4TG Studio. Мы делаем Telegram Mini Apps для бизнеса — магазины, рестораны, салоны, фитнес и другие ниши. Запуск за 7-15 дней. Расскажите о вашем бизнесе — подберу решение)"
+};
+
+function detectFallbackTopic(lastMessage: string): string {
+  const lower = lastMessage.toLowerCase();
+  if (/цен[аы]|стоимость|сколько стоит|прайс|бюджет|дорого/.test(lower)) return "price";
+  if (/портфолио|примеры|работы|кейс|проект/.test(lower)) return "portfolio";
+  if (/сроки|когда|быстро|долго|время|дней/.test(lower)) return "timeline";
+  if (/оплат[аы]|реквизит|перевод|счёт|счет|рассрочк/.test(lower)) return "payment";
+  if (/подписк|тариф|пакет|план/.test(lower)) return "subscription";
+  if (/скидк|бонус|монет|промокод|акци/.test(lower)) return "discount";
+  if (/консультац|менеджер|позвонить|связаться/.test(lower)) return "consultation";
+  return "default";
+}
 
 function validateMessages(messages: any): messages is ChatMessage[] {
   if (!Array.isArray(messages) || messages.length === 0) return false;
@@ -45,36 +68,51 @@ router.post("/api/ai/chat", async (req: Request, res: Response) => {
     abortController.abort();
   });
 
+  let fullText = "";
+
   try {
     await streamChat(
       messages,
       (text) => {
         if (!closed) {
+          fullText += text;
           res.write(`data: ${JSON.stringify({ type: "chunk", text })}\n\n`);
         }
       },
       () => {
         if (!closed) {
+          const filtered = filterResponse(fullText);
+          if (filtered !== fullText) {
+            res.write(`data: ${JSON.stringify({ type: "replace", text: filtered })}\n\n`);
+          }
           res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
           res.end();
         }
       },
       (error) => {
         if (!closed) {
-          res.write(
-            `data: ${JSON.stringify({ type: "error", message: error.message })}\n\n`
-          );
+          const lastUserMsg = messages.filter((m: ChatMessage) => m.role === "user").pop();
+          const lastText = lastUserMsg?.parts?.[0]?.text || "";
+          const topic = detectFallbackTopic(lastText);
+          const fallback = CONTEXTUAL_FALLBACKS[topic] || CONTEXTUAL_FALLBACKS.default;
+          res.write(`data: ${JSON.stringify({ type: "chunk", text: fallback })}\n\n`);
+          res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
           res.end();
+          console.error("[AI Chat] Error, used fallback:", error.message, "topic:", topic);
         }
       },
       abortController.signal
     );
   } catch (error: any) {
     if (!closed) {
-      res.write(
-        `data: ${JSON.stringify({ type: "error", message: error.message || "Internal error" })}\n\n`
-      );
+      const lastUserMsg = messages.filter((m: ChatMessage) => m.role === "user").pop();
+      const lastText = lastUserMsg?.parts?.[0]?.text || "";
+      const topic = detectFallbackTopic(lastText);
+      const fallback = CONTEXTUAL_FALLBACKS[topic] || CONTEXTUAL_FALLBACKS.default;
+      res.write(`data: ${JSON.stringify({ type: "chunk", text: fallback })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
       res.end();
+      console.error("[AI Chat] Catch error, used fallback:", (error as Error).message, "topic:", topic);
     }
   }
 });

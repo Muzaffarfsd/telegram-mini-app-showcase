@@ -47,22 +47,33 @@ export function useAIAgent() {
     if (match) {
       try {
         const parsed = JSON.parse(match[1]);
-        if (Array.isArray(parsed)) return parsed.slice(0, 3);
+        if (Array.isArray(parsed)) return parsed.slice(0, 2);
       } catch {}
     }
     return [];
   }, []);
 
   const processActions = useCallback((text: string) => {
+    const ALLOWED_PATHS = [
+      "/", "/projects", "/constructor", "/profile", "/referral",
+      "/rewards", "/earning", "/coinshop"
+    ];
+    const ALLOWED_PATH_PREFIXES = ["/demos/"];
+
     const actionRegex = /```action\s*\n([\s\S]*?)\n```/g;
     let match;
     while ((match = actionRegex.exec(text)) !== null) {
       try {
         const action = JSON.parse(match[1]);
-        if (action.type === "navigate" && action.path) {
-          setTimeout(() => {
-            navigate(action.path);
-          }, 500);
+        if (action.type === "navigate" && typeof action.path === "string") {
+          const path = action.path;
+          const isAllowed = ALLOWED_PATHS.includes(path) ||
+            ALLOWED_PATH_PREFIXES.some(prefix => path.startsWith(prefix));
+          if (isAllowed) {
+            setTimeout(() => {
+              navigate(path);
+            }, 500);
+          }
         }
       } catch {}
     }
@@ -133,6 +144,17 @@ export function useAIAgent() {
                 const data = JSON.parse(line.slice(6));
                 if (data.type === "chunk" && data.text) {
                   fullText += data.text;
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    const lastIdx = updated.length - 1;
+                    updated[lastIdx] = {
+                      ...updated[lastIdx],
+                      content: fullText,
+                    };
+                    return updated;
+                  });
+                } else if (data.type === "replace" && data.text) {
+                  fullText = data.text;
                   setMessages((prev) => {
                     const updated = [...prev];
                     const lastIdx = updated.length - 1;

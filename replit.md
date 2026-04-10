@@ -142,18 +142,49 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Favorites System**: `FavoriteButton` and `FavoritesSection` integrated with Telegram DeviceStorage.
 - **Internationalization (i18n)**: Bilingual support (Russian/English) via `LanguageContext` and `useLanguage` hook. Premium fonts for English (Playfair Display headings + Montserrat body), Inter for Russian. Language toggle in bottom navigation.
 
-## AI Agent "Алекс" (April 2026)
-- **Persona**: "Алекс" — AI sales consultant, warm professional, Challenger-expert mindset, never reveals being AI
-- **LLM**: Google Gemini 3.1 Pro Preview via `@google/genai` SDK (temp 0.45), GEMINI_API_KEY secret
-- **TTS**: ElevenLabs via Replit Connectors SDK — 21+ voices, multilingual v2 model
-- **Backend**: `server/lib/gemini.ts` (streaming + system prompt), `server/lib/elevenlabs.ts` (TTS), `server/routes/ai.ts` (SSE + audio)
-- **Frontend**: `client/src/components/AIAgent/` — circular chat button (MessageCircle), glassmorphism bottom sheet, smart contextual buttons
-- **System Prompt**: 20 sales methodologies (SPIN, Challenger, Gap Selling, JOLT, Voss, Cialdini, Kahneman), exact pricing, niche pain points, 7 case studies, 8 objection types, 5 funnel stages, client typology, cultural/language adaptation (RU/EN/UZ/KZ)
-- **Smart Buttons**: AI generates contextual action buttons per funnel stage via ```buttons [...] ``` blocks parsed in useAIAgent.ts
-- **10 Rules**: Mirror client, respond in client's language, one thought per answer, end with question, value-first, don't fabricate, ethics, loss language, System 1 first, Challenger mindset
-- **Response Quality**: Fluff filter (no "Здравствуйте", "Благодарю", "Чем могу помочь"), adaptive length (50-180 words), CTA injection
+## AI Agent "Алекс" — Full Profile Implementation (April 2026)
+Based on 980-line AGENT_FULL_PROFILE document (37 sections).
+
+### Implemented in System Prompt (server/lib/gemini.ts)
+- **§1 Persona**: "Алекс" — warm professional, Challenger-expert, never reveals AI. Speech patterns (5 types), human imperfections, banned phrases list
+- **§2 Cultural Adaptation**: RU (warm informal), UZ/KZ (respectful formal), EN (direct business)
+- **§3 10 Rules**: Mirror client, language match, one thought per answer, end with question, value-first, no fabrication, ethics, loss language, System 1 first, Challenger mindset
+- **§4 Sales Methodologies (14)**: SPIN (4.1), Challenger (4.2), Sandler (4.3), Gap Selling (4.4), JOLT (4.5), BANT (4.6), MEDDIC (4.7), NEPQ (4.8), Chris Voss (4.9) + Ackerman method, Pitch Anything neuropraming (4.10), Cialdini 7 principles (4.11), Kahneman 7 biases (4.12), Three Brains Model (4.13), Additional: NEAT/Pink/SUCCESS (4.14)
+- **§5 Closing Techniques**: All 13 (Trial, Assumptive, Alternative, Ben Franklin, Puppy dog, Summary, Inversion, Takeaway, Future pacing, Sharp angle, JOLT, Negative reverse, NEPQ commitment)
+- **§6 Sales Funnel**: 5 stages (Awareness→Interest→Consideration→Decision→Action) with SPIN phase mapping
+- **§7 Objection Handling**: 6-step algorithm + 8 objection types with specific strategies
+- **§8 Client Typology**: Voss 3 types + Brian Tracy 4 motivations + 5 awareness stages
+- **§9 Niche Pains**: 7 niches with loss calculations (shop, restaurant, salon, fitness, clinic, delivery, services)
+- **§10 Pricing**: Exact prices (150-200k templates, 9.9-24.9k subscriptions), terms (35% prepay, 14 days), 4 upsells
+- **§11 Urgency/Scarcity**: 5 techniques (workload, wait cost, competitors, seasonality, price growth)
+- **§12 Emotional Intelligence**: 5 emotion types with detection and strategies
+- **§13 Adaptive Length**: 4 tiers (50-180 words), client mirroring
+- **§14 Voice System**: TTS mention guidance, full/bridge voice modes
+- **§22 Loyalty System**: Coins, referrals, VIP tiers
+- **§25 Case Studies**: 7 cases (Radiance, TimeElite, GlowSpa, DeluxeDine, MedLine, CleanPro, SkillUp)
+- **§31 Human Handoff**: Triggers for manager transfer (explicit request, frustration, large deal)
+- **Few-shot examples**: 3 ideal response examples (Awareness, Price objection, Assertive client)
+- **Demo listing**: All 22+ apps with IDs for navigation
+- **Navigation**: ```action {"type":"navigate","path":"..."}``` blocks with path allowlist validation
+- **Smart Buttons**: ```buttons [...]``` blocks, max 2 per message, by funnel stage and intent
+
+### Server-Side Quality Filter (server/routes/ai.ts)
+- **Fluff removal**: 11 banned opener patterns + 4 banned ending patterns stripped deterministically post-stream
+- **CTA injection**: Auto-adds CTA if response >40 words has no question or call-to-action
+- **Contextual fallbacks**: 7 topic-specific fallback responses when AI fails (price, portfolio, timeline, payment, subscription, discount, consultation)
+- **SSE replace event**: Server sends `type: "replace"` with filtered text after streaming completes
+
+### Security & Infrastructure
+- **LLM**: Gemini 3.1 Pro Preview (temp 0.45, topP 0.92, topK 40, 2048 max tokens)
+- **TTS**: ElevenLabs via Replit Connectors SDK
+- **Path allowlist**: Navigation actions validated against whitelist of allowed routes + /demos/ prefix
+- **Input validation**: 30 msg limit, 4000 char per message
+- **XSS**: HTML escaping before markdown rendering
+- **Stream control**: AbortController cancellation, audio blob cleanup on unmount
 - **CSRF**: AI endpoints excluded for SSE compatibility
-- **Security**: HTML escaping (XSS prevention), input validation (30 msg/4000 char limits), AbortController stream cancellation, audio blob cleanup on unmount
+
+### NOT Implemented (Requires Backend Infrastructure)
+§15 Follow-up System, §16 Proactive Engagement, §17 Propensity Score, §18 Self-Learning, §19 A/B Testing, §20 Tool Calling (17 functions), §21 Image Analysis, §24 Monitoring, §26 Multi-Model Routing, §28 Hybrid Funnel Detection, §29 Dynamic Prompt Composer, §30 Conversation QA, §32 Dialog RAG, §36 Memory Architecture, §37 Context Signals
 
 ## Backend Architecture (Development)
 - **Server**: Express.js with TypeScript.
