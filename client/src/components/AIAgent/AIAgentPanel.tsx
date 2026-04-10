@@ -1,5 +1,5 @@
 import { useRef, useEffect, memo } from "react";
-import { X, Trash2, Sparkles } from "lucide-react";
+import { X, Trash2, MessageCircle } from "lucide-react";
 import { AnimatePresence, m } from "@/utils/LazyMotionProvider";
 import { useAIAgent } from "@/hooks/useAIAgent";
 import { AIAgentMessage } from "./AIAgentMessage";
@@ -53,6 +53,11 @@ export const AIAgentPanel = memo(({ isOpen, onClose }: AIAgentPanelProps) => {
   const handleSpeak = (text: string) => {
     queueMicrotask(() => hapticFeedback.light());
     speakText(text);
+  };
+
+  const handleButtonClick = (text: string) => {
+    queueMicrotask(() => hapticFeedback.light());
+    sendMessage(text);
   };
 
   return (
@@ -116,14 +121,18 @@ export const AIAgentPanel = memo(({ isOpen, onClose }: AIAgentPanelProps) => {
                   style={{
                     width: "36px",
                     height: "36px",
-                    borderRadius: "12px",
+                    borderRadius: "50%",
                     background: "linear-gradient(135deg, #34d399, #059669)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    fontSize: "15px",
+                    fontWeight: 700,
+                    color: "#fff",
+                    letterSpacing: "-0.02em",
                   }}
                 >
-                  <Sparkles className="w-[18px] h-[18px]" style={{ color: "#fff" }} />
+                  A
                 </div>
                 <div>
                   <div
@@ -134,7 +143,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose }: AIAgentPanelProps) => {
                       letterSpacing: "-0.01em",
                     }}
                   >
-                    WEB4TG AI
+                    {language === "ru" ? "Алекс" : "Alex"}
                   </div>
                   <div
                     style={{
@@ -147,23 +156,23 @@ export const AIAgentPanel = memo(({ isOpen, onClose }: AIAgentPanelProps) => {
                       gap: "4px",
                     }}
                   >
-                    {isLoading && (
-                      <span
-                        style={{
-                          width: "6px",
-                          height: "6px",
-                          borderRadius: "50%",
-                          background: "#34d399",
-                          display: "inline-block",
-                          animation: "ai-pulse 1.5s ease-in-out infinite",
-                        }}
-                      />
+                    {isLoading ? (
+                      <>
+                        <span
+                          style={{
+                            width: "6px",
+                            height: "6px",
+                            borderRadius: "50%",
+                            background: "#34d399",
+                            display: "inline-block",
+                            animation: "ai-pulse 1.5s ease-in-out infinite",
+                          }}
+                        />
+                        {language === "ru" ? "печатает..." : "typing..."}
+                      </>
+                    ) : (
+                      <>{language === "ru" ? "консультант WEB4TG" : "WEB4TG consultant"}</>
                     )}
-                    {isLoading
-                      ? language === "ru"
-                        ? "Думает..."
-                        : "Thinking..."
-                      : "Gemini 3.1 Pro"}
                   </div>
                 </div>
               </div>
@@ -243,17 +252,17 @@ export const AIAgentPanel = memo(({ isOpen, onClose }: AIAgentPanelProps) => {
                     style={{
                       width: "64px",
                       height: "64px",
-                      borderRadius: "20px",
+                      borderRadius: "50%",
                       background: "linear-gradient(135deg, rgba(52,211,153,0.15), rgba(5,150,105,0.08))",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      fontSize: "26px",
+                      fontWeight: 700,
+                      color: "#34d399",
                     }}
                   >
-                    <Sparkles
-                      className="w-8 h-8"
-                      style={{ color: "#34d399" }}
-                    />
+                    A
                   </div>
                   <div>
                     <div
@@ -265,8 +274,8 @@ export const AIAgentPanel = memo(({ isOpen, onClose }: AIAgentPanelProps) => {
                       }}
                     >
                       {language === "ru"
-                        ? "Привет! Я WEB4TG AI"
-                        : "Hi! I'm WEB4TG AI"}
+                        ? "Привет! Я Алекс )"
+                        : "Hey! I'm Alex )"}
                     </div>
                     <div
                       style={{
@@ -276,8 +285,8 @@ export const AIAgentPanel = memo(({ isOpen, onClose }: AIAgentPanelProps) => {
                       }}
                     >
                       {language === "ru"
-                        ? "Помогу выбрать демо, подобрать функции и сконфигурировать проект"
-                        : "I'll help you explore demos, choose features, and configure your project"}
+                        ? "Консультант WEB4TG Studio. Помогу подобрать решение для вашего бизнеса и запустить Mini App за 7-15 дней"
+                        : "WEB4TG Studio consultant. I'll help find the right solution for your business and launch a Mini App in 7-15 days"}
                     </div>
                   </div>
 
@@ -293,16 +302,16 @@ export const AIAgentPanel = memo(({ isOpen, onClose }: AIAgentPanelProps) => {
                   >
                     {(language === "ru"
                       ? [
-                          "Какие демо есть для ресторана?",
-                          "Сколько стоит приложение для магазина?",
-                          "Покажи мне все проекты",
-                          "Какие функции ИИ доступны?",
+                          "Расскажите, чем занимается ваш бизнес",
+                          "Сколько стоит Mini App для ресторана?",
+                          "Покажите примеры готовых проектов",
+                          "Как быстро можно запуститься?",
                         ]
                       : [
-                          "What demos do you have for restaurants?",
-                          "How much does a shop app cost?",
-                          "Show me all projects",
-                          "What AI features are available?",
+                          "Tell me about your business",
+                          "How much does a restaurant Mini App cost?",
+                          "Show me examples of finished projects",
+                          "How fast can we launch?",
                         ]
                     ).map((q, i) => (
                       <button
@@ -334,6 +343,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose }: AIAgentPanelProps) => {
                   key={msg.id}
                   message={msg}
                   onSpeak={msg.role === "assistant" ? handleSpeak : undefined}
+                  onButtonClick={handleButtonClick}
                   isSpeaking={isSpeaking}
                 />
               ))}
@@ -345,8 +355,8 @@ export const AIAgentPanel = memo(({ isOpen, onClose }: AIAgentPanelProps) => {
               isLoading={isLoading}
               placeholder={
                 language === "ru"
-                  ? "Спросите что-нибудь..."
-                  : "Ask anything..."
+                  ? "Напишите Алексу..."
+                  : "Message Alex..."
               }
             />
           </m.div>

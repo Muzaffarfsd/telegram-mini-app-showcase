@@ -1,5 +1,5 @@
 import { useState, memo, lazy, Suspense } from "react";
-import { Sparkles } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { m } from "@/utils/LazyMotionProvider";
 import { useTelegram } from "@/hooks/useTelegram";
 
@@ -34,7 +34,7 @@ export const AIAgentButton = memo(() => {
           bottom: "90px",
           width: "52px",
           height: "52px",
-          borderRadius: "18px",
+          borderRadius: "50%",
           border: "none",
           background: "linear-gradient(135deg, #34d399, #059669)",
           boxShadow:
@@ -46,9 +46,9 @@ export const AIAgentButton = memo(() => {
           zIndex: 9990,
           WebkitTapHighlightColor: "transparent",
         }}
-        aria-label="AI Assistant"
+        aria-label="Chat with Alex"
       >
-        <Sparkles className="w-6 h-6" style={{ color: "#fff" }} />
+        <MessageCircle className="w-6 h-6" style={{ color: "#fff" }} />
       </m.button>
 
       {hasOpened && (

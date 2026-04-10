@@ -7,6 +7,7 @@ export interface AIMessage {
   content: string;
   timestamp: Date;
   isStreaming?: boolean;
+  buttons?: string[];
 }
 
 export function useAIAgent() {
@@ -39,6 +40,18 @@ export function useAIAgent() {
       cleanupAudio();
     };
   }, [cleanupAudio]);
+
+  const parseButtons = useCallback((text: string): string[] => {
+    const buttonRegex = /```buttons\s*\n\s*(\[[\s\S]*?\])\s*\n```/g;
+    const match = buttonRegex.exec(text);
+    if (match) {
+      try {
+        const parsed = JSON.parse(match[1]);
+        if (Array.isArray(parsed)) return parsed.slice(0, 3);
+      } catch {}
+    }
+    return [];
+  }, []);
 
   const processActions = useCallback((text: string) => {
     const actionRegex = /```action\s*\n([\s\S]*?)\n```/g;
@@ -130,17 +143,19 @@ export function useAIAgent() {
                     return updated;
                   });
                 } else if (data.type === "done") {
+                  const buttons = parseButtons(fullText);
                   setMessages((prev) => {
                     const updated = [...prev];
                     const lastIdx = updated.length - 1;
                     updated[lastIdx] = {
                       ...updated[lastIdx],
                       isStreaming: false,
+                      buttons: buttons.length > 0 ? buttons : undefined,
                     };
                     return updated;
                   });
                 } else if (data.type === "error") {
-                  fullText = `Error: ${data.message}`;
+                  fullText = `Ох, что-то пошло не так. Попробуйте ещё раз)`;
                   setMessages((prev) => {
                     const updated = [...prev];
                     const lastIdx = updated.length - 1;
@@ -165,7 +180,7 @@ export function useAIAgent() {
             const lastIdx = updated.length - 1;
             updated[lastIdx] = {
               ...updated[lastIdx],
-              content: "Sorry, an error occurred. Please try again.",
+              content: "Ох, связь подвела. Попробуйте ещё раз)",
               isStreaming: false,
             };
             return updated;
@@ -176,7 +191,7 @@ export function useAIAgent() {
         abortRef.current = null;
       }
     },
-    [messages, isLoading, processActions]
+    [messages, isLoading, processActions, parseButtons]
   );
 
   const speakText = useCallback(async (text: string) => {

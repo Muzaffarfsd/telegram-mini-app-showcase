@@ -142,15 +142,18 @@ Typography: Clean, modern fonts with an emphasis on readability and simplicity. 
 - **Favorites System**: `FavoriteButton` and `FavoritesSection` integrated with Telegram DeviceStorage.
 - **Internationalization (i18n)**: Bilingual support (Russian/English) via `LanguageContext` and `useLanguage` hook. Premium fonts for English (Playfair Display headings + Montserrat body), Inter for Russian. Language toggle in bottom navigation.
 
-## AI Agent (April 2026)
-- **LLM**: Google Gemini 3.1 Pro Preview via `@google/genai` SDK with user's API key (`GEMINI_API_KEY`)
-- **TTS**: ElevenLabs via Replit Connectors SDK (`@replit/connectors-sdk`) — 21+ voices, multilingual v2 model
-- **Backend**: `server/lib/gemini.ts` (streaming chat), `server/lib/elevenlabs.ts` (TTS), `server/routes/ai.ts` (SSE streaming + audio endpoints)
-- **Frontend**: `client/src/components/AIAgent/` — floating button (Apple Intelligence style), glassmorphism chat panel with spring animations
-- **Features**: Streaming responses (SSE), markdown rendering, copy-to-clipboard, ElevenLabs voice output, conversation history, typing indicators, quick-start suggestions, navigation commands via JSON action blocks
-- **System Prompt**: Full knowledge of 22+ demo apps, Constructor pricing, gamification system, platform navigation
-- **CSRF**: AI endpoints excluded from CSRF validation for SSE compatibility
-- **Integration**: Lazy-loaded `AIAgentButton` in App.tsx, visible on all non-demo pages
+## AI Agent "Алекс" (April 2026)
+- **Persona**: "Алекс" — AI sales consultant, warm professional, Challenger-expert mindset, never reveals being AI
+- **LLM**: Google Gemini 3.1 Pro Preview via `@google/genai` SDK (temp 0.45), GEMINI_API_KEY secret
+- **TTS**: ElevenLabs via Replit Connectors SDK — 21+ voices, multilingual v2 model
+- **Backend**: `server/lib/gemini.ts` (streaming + system prompt), `server/lib/elevenlabs.ts` (TTS), `server/routes/ai.ts` (SSE + audio)
+- **Frontend**: `client/src/components/AIAgent/` — circular chat button (MessageCircle), glassmorphism bottom sheet, smart contextual buttons
+- **System Prompt**: 20 sales methodologies (SPIN, Challenger, Gap Selling, JOLT, Voss, Cialdini, Kahneman), exact pricing, niche pain points, 7 case studies, 8 objection types, 5 funnel stages, client typology, cultural/language adaptation (RU/EN/UZ/KZ)
+- **Smart Buttons**: AI generates contextual action buttons per funnel stage via ```buttons [...] ``` blocks parsed in useAIAgent.ts
+- **10 Rules**: Mirror client, respond in client's language, one thought per answer, end with question, value-first, don't fabricate, ethics, loss language, System 1 first, Challenger mindset
+- **Response Quality**: Fluff filter (no "Здравствуйте", "Благодарю", "Чем могу помочь"), adaptive length (50-180 words), CTA injection
+- **CSRF**: AI endpoints excluded for SSE compatibility
+- **Security**: HTML escaping (XSS prevention), input validation (30 msg/4000 char limits), AbortController stream cancellation, audio blob cleanup on unmount
 
 ## Backend Architecture (Development)
 - **Server**: Express.js with TypeScript.

@@ -6,6 +6,7 @@ import type { AIMessage } from "@/hooks/useAIAgent";
 interface AIAgentMessageProps {
   message: AIMessage;
   onSpeak?: (text: string) => void;
+  onButtonClick?: (text: string) => void;
   isSpeaking?: boolean;
 }
 
@@ -22,6 +23,7 @@ function renderMarkdown(text: string): string {
   const escaped = escapeHtml(text);
   return escaped
     .replace(/```action[\s\S]*?```/g, "")
+    .replace(/```buttons[\s\S]*?```/g, "")
     .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
     .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.85em">$1</code>')
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -36,7 +38,7 @@ function renderMarkdown(text: string): string {
 }
 
 export const AIAgentMessage = memo(
-  ({ message, onSpeak, isSpeaking }: AIAgentMessageProps) => {
+  ({ message, onSpeak, onButtonClick, isSpeaking }: AIAgentMessageProps) => {
     const [copied, setCopied] = useState(false);
     const isUser = message.role === "user";
 
@@ -87,6 +89,41 @@ export const AIAgentMessage = memo(
             </div>
           ) : null}
         </div>
+
+        {!isUser && message.buttons && message.buttons.length > 0 && !message.isStreaming && (
+          <div
+            style={{
+              display: "flex",
+              gap: "6px",
+              flexWrap: "wrap",
+              paddingLeft: "4px",
+              marginTop: "4px",
+              maxWidth: "88%",
+            }}
+          >
+            {message.buttons.map((btn, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => onButtonClick?.(btn)}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(52,211,153,0.3)",
+                  background: "rgba(52,211,153,0.08)",
+                  color: "#34d399",
+                  fontSize: "12.5px",
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                  WebkitTapHighlightColor: "transparent",
+                }}
+              >
+                {btn}
+              </button>
+            ))}
+          </div>
+        )}
 
         {!isUser && message.content && !message.isStreaming && (
           <div
