@@ -325,9 +325,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
             </m.div>
           </div>
 
-          {/* ═══════ CASE STUDIES — Immersive ═══════ */}
-          <section className="py-16" aria-label={ru ? 'Кейсы' : 'Case studies'}>
-            <Cin className="px-6 mb-8">
+          {/* ═══════ CASE STUDIES ═══════ */}
+          <section className="py-14" aria-label={ru ? 'Кейсы' : 'Case studies'}>
+            <Cin className="px-6 mb-6">
               <div className="flex items-end justify-between">
                 <div>
                   <span style={{
@@ -353,17 +353,13 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               </div>
             </Cin>
 
-            <div className="px-4 space-y-4">
-              {cases.map((c, i) => {
-                const isWide = i === 0 || i === 2;
-                return (
-                  <Cin key={c.id} delay={i * 0.06}>
+            <div className="overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <div className="flex gap-4 px-6" style={{ width: 'max-content', paddingRight: 24 }}>
+                {cases.map((c, i) => (
                     <article
-                      className="relative rounded-[24px] overflow-hidden cursor-pointer group"
-                      style={{
-                        height: isWide ? 420 : 280,
-                        transition: 'transform 0.4s cubic-bezier(0.22,1,0.36,1)',
-                      }}
+                      key={c.id}
+                      className="relative flex-shrink-0 rounded-[22px] overflow-hidden cursor-pointer group"
+                      style={{ width: 290, height: 400, touchAction: 'pan-x' }}
                       role="button" tabIndex={0}
                       aria-label={`${ru ? 'Открыть' : 'Open'} ${c.label}`}
                       onClick={() => openDemo(c.id)}
@@ -375,74 +371,61 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                         <video ref={i === 0 ? videoRef : undefined} src={c.src} loop muted playsInline autoPlay
                           preload={i === 0 ? 'auto' : 'metadata'}
                           poster={c.poster}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-active:scale-105"
-                          style={{ filter: 'brightness(0.75) saturate(1.1)' }} />
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-active:scale-[1.04]"
+                          style={{ filter: 'brightness(0.7) saturate(1.1)' }} />
                       ) : (
                         <img src={c.src} alt={c.label} loading="lazy" draggable={false}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-active:scale-105"
-                          style={{ filter: 'brightness(0.75) saturate(1.1)' }} />
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-active:scale-[1.04]"
+                          style={{ filter: 'brightness(0.7) saturate(1.1)' }} />
                       )}
 
                       <div className="absolute inset-0" style={{
-                        background: isWide
-                          ? 'linear-gradient(180deg, rgba(5,5,5,0.1) 0%, rgba(5,5,5,0.15) 40%, rgba(5,5,5,0.85) 100%)'
-                          : 'linear-gradient(180deg, rgba(5,5,5,0.05) 0%, rgba(5,5,5,0.8) 100%)',
+                        background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.12) 50%, rgba(0,0,0,0.82) 100%)',
                       }} />
 
-                      <div className="absolute inset-0" style={{
-                        background: `radial-gradient(ellipse at 30% 100%, ${EMERALD}08 0%, transparent 50%)`,
-                      }} />
-
-                      <div className="absolute top-4 right-4 z-10" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
+                      <div className="absolute top-3.5 right-3.5 z-10" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
                         <FavoriteButton demoId={c.id} size="md" />
                       </div>
 
-                      <div className="absolute top-4 left-4 flex items-center gap-2">
+                      <div className="absolute top-3.5 left-3.5">
                         <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1" style={{
                           background: 'rgba(52,211,153,0.1)',
-                          backdropFilter: 'blur(12px)',
-                          WebkitBackdropFilter: 'blur(12px)',
+                          backdropFilter: 'blur(16px)',
+                          WebkitBackdropFilter: 'blur(16px)',
                           border: '1px solid rgba(52,211,153,0.15)',
-                          fontFamily: SYNE, fontSize: '0.625rem', fontWeight: 700, color: EMERALD,
+                          fontFamily: SYNE, fontSize: '0.6rem', fontWeight: 700, color: EMERALD,
                         }}>
-                          <TrendingUp size={10} strokeWidth={2.5} />
+                          <TrendingUp size={9} strokeWidth={2.5} />
                           {c.growth}
                         </span>
                       </div>
 
-                      <div className="absolute bottom-0 left-0 right-0 p-5">
-                        <div className="flex items-end justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <span className="inline-block rounded-full px-2 py-0.5 mb-2" style={{
-                              background: 'rgba(255,255,255,0.06)',
-                              backdropFilter: 'blur(8px)',
-                              WebkitBackdropFilter: 'blur(8px)',
-                              fontFamily: INTER, fontSize: '0.55rem', fontWeight: 500, color: 'rgba(255,255,255,0.5)',
-                              letterSpacing: '0.06em', textTransform: 'uppercase' as const,
-                            }}>{c.cat}</span>
-                            <h3 style={{
-                              fontFamily: SYNE, fontSize: isWide ? 'clamp(1.4rem, 5vw, 1.8rem)' : 'clamp(1.1rem, 3.5vw, 1.35rem)',
-                              fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1.1,
-                            }}>{c.label}</h3>
-                            <p className="mt-1" style={{
-                              fontFamily: INSTRUMENT, fontSize: isWide ? '1rem' : '0.875rem',
-                              fontStyle: 'italic', color: 'rgba(255,255,255,0.45)',
-                            }}>{c.sub}</p>
-                          </div>
-                          <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-transform duration-300 group-active:scale-90" style={{
-                            background: 'rgba(255,255,255,0.08)',
-                            backdropFilter: 'blur(12px)',
-                            WebkitBackdropFilter: 'blur(12px)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                          }}>
-                            <ArrowUpRight size={16} color="rgba(255,255,255,0.7)" strokeWidth={2} />
-                          </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <span className="inline-block rounded-full px-2 py-0.5 mb-2.5" style={{
+                          background: 'rgba(255,255,255,0.06)',
+                          backdropFilter: 'blur(8px)',
+                          WebkitBackdropFilter: 'blur(8px)',
+                          fontFamily: INTER, fontSize: '0.55rem', fontWeight: 500, color: 'rgba(255,255,255,0.45)',
+                          letterSpacing: '0.06em', textTransform: 'uppercase' as const,
+                        }}>{c.cat}</span>
+                        <h3 style={{
+                          fontFamily: SYNE, fontSize: '1.25rem',
+                          fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1.15,
+                        }}>{c.label}</h3>
+                        <p className="mt-1" style={{
+                          fontFamily: INSTRUMENT, fontSize: '0.875rem',
+                          fontStyle: 'italic', color: 'rgba(255,255,255,0.45)',
+                        }}>{c.sub}</p>
+                        <div className="mt-3 flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                          <span style={{ fontFamily: INTER, fontSize: '0.65rem', fontWeight: 500 }}>
+                            {ru ? 'Открыть' : 'Explore'}
+                          </span>
+                          <ArrowUpRight size={11} strokeWidth={2} />
                         </div>
                       </div>
                     </article>
-                  </Cin>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </section>
 
