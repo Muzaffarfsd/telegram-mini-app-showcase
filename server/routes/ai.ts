@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { streamChat, filterResponse, getPersonaName, type ChatMessage, type ChatMessagePart, type ChatOptions, type PageContext } from "../lib/gemini";
 import { textToSpeech, getVoices } from "../lib/elevenlabs";
+import { validateTelegramInitData } from "../telegramAuth";
 
 const router = Router();
 
@@ -207,6 +208,111 @@ router.get("/api/ai/voices", async (_req: Request, res: Response) => {
       .status(500)
       .json({ error: error.message || "Failed to fetch voices" });
   }
+});
+
+const FOLLOWUP_MESSAGES: Record<string, { text: string; button: string }> = {
+  consideration: {
+    text: "👋 Привет! Это Алекс из WEB4TG Studio.\n\nВы изучали наши решения — есть вопросы или сомнения? Я помогу разобраться и подберу оптимальный вариант для вашего бизнеса.\n\n💬 Продолжим разговор?",
+    button: "💬 Продолжить диалог",
+  },
+  decision: {
+    text: "🔥 Привет! Алекс из WEB4TG Studio.\n\nМы с вами почти определились с решением! Хотите обсудить детали — сроки, оплату или доработки? Готов ответить на любые вопросы.\n\n🚀 Давайте закроем все вопросы?",
+    button: "🚀 Обсудить детали",
+  },
+};
+
+const pendingFollowups = new Map<number, ReturnType<typeof setTimeout>>();
+const FOLLOWUP_DELAY = 30 * 60 * 1000;
+
+function extractTelegramId(req: Request): number | null {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  if (!botToken) return null;
+
+  const initData = req.headers["x-telegram-init-data"] as string;
+  if (!initData) {
+    const bodyId = req.body?.telegramId;
+    return typeof bodyId === "number" ? bodyId : null;
+  }
+
+  const validated = validateTelegramInitData(initData, botToken);
+  if (validated?.user?.id) return validated.user.id;
+  return null;
+}
+
+router.post("/api/ai/followup", async (req: Request, res: Response) => {
+  const telegramId = extractTelegramId(req);
+  if (!telegramId) {
+    return res.status(400).json({ error: "telegramId required" });
+  }
+
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  if (!botToken) {
+    return res.status(503).json({ error: "Bot not configured" });
+  }
+
+  const { dealStage } = req.body as { dealStage?: string };
+  const stage = dealStage || "consideration";
+  if (!FOLLOWUP_MESSAGES[stage]) {
+    return res.json({ scheduled: false, reason: "stage not eligible" });
+  }
+
+  if (pendingFollowups.has(telegramId)) {
+    clearTimeout(pendingFollowups.get(telegramId)!);
+  }
+
+  const webAppUrl = process.env.WEBAPP_URL || (
+    process.env.RAILWAY_PUBLIC_DOMAIN
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+      : `https://${process.env.REPLIT_DEV_DOMAIN}`
+  );
+
+  const timer = setTimeout(async () => {
+    pendingFollowups.delete(telegramId);
+    const msg = FOLLOWUP_MESSAGES[stage];
+    if (!msg) return;
+
+    try {
+      const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: telegramId,
+          text: msg.text,
+          parse_mode: "HTML",
+          reply_markup: {
+            inline_keyboard: [[
+              { text: msg.button, web_app: { url: webAppUrl || "" } },
+            ]],
+          },
+        }),
+      });
+
+      const result = await response.json();
+      if (result.ok) {
+        console.log(`[AI Followup] Sent to ${telegramId}, stage: ${stage}`);
+      } else {
+        console.error(`[AI Followup] Telegram API error for ${telegramId}:`, result.description);
+      }
+    } catch (error) {
+      console.error("[AI Followup] Failed:", error);
+    }
+  }, FOLLOWUP_DELAY);
+
+  pendingFollowups.set(telegramId, timer);
+
+  res.json({ scheduled: true, delay: FOLLOWUP_DELAY / 1000, stage });
+});
+
+router.post("/api/ai/followup/cancel", async (req: Request, res: Response) => {
+  const telegramId = extractTelegramId(req);
+
+  if (telegramId && pendingFollowups.has(telegramId)) {
+    clearTimeout(pendingFollowups.get(telegramId)!);
+    pendingFollowups.delete(telegramId);
+    return res.json({ cancelled: true });
+  }
+
+  res.json({ cancelled: false });
 });
 
 router.get("/api/ai/personas", (_req: Request, res: Response) => {

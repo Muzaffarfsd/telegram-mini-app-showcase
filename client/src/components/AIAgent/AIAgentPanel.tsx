@@ -107,6 +107,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
     showOnboarding, dismissOnboarding,
     searchQuery, setSearchQuery,
     shareConversation, speechLang,
+    scheduleFollowup, cancelFollowup,
   } = useAIAgent(pageContext);
   const { language } = useLanguage();
   const { hapticFeedback } = useTelegram();
@@ -124,11 +125,13 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
 
   const handleSend = (content: string, imageBase64?: string, imageMimeType?: string) => {
     queueMicrotask(() => hapticFeedback.light());
+    cancelFollowup();
     sendMessage(content, imageBase64, imageMimeType);
   };
 
   const handleClose = () => {
     queueMicrotask(() => hapticFeedback.light());
+    scheduleFollowup();
     onClose();
   };
 
@@ -139,6 +142,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
 
   const handleButtonClick = (text: string) => {
     queueMicrotask(() => hapticFeedback.light());
+    cancelFollowup();
     sendMessage(text);
   };
 

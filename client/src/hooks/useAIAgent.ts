@@ -663,6 +663,44 @@ export function useAIAgent(pageContext?: PageContext) {
     navigator.clipboard.writeText(text).catch(() => {});
   }, [exportConversation]);
 
+  const scheduleFollowup = useCallback(() => {
+    const tg = (window as any).Telegram?.WebApp;
+    const telegramId = tg?.initDataUnsafe?.user?.id;
+    const initData = tg?.initData;
+    if (!telegramId) return;
+
+    const stage = detectDealStage(messages);
+    if (stage !== "consideration" && stage !== "decision") return;
+
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (initData) headers["x-telegram-init-data"] = initData;
+
+    fetch("/api/ai/followup", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        telegramId,
+        dealStage: stage,
+      }),
+    }).catch(() => {});
+  }, [messages]);
+
+  const cancelFollowup = useCallback(() => {
+    const tg = (window as any).Telegram?.WebApp;
+    const telegramId = tg?.initDataUnsafe?.user?.id;
+    const initData = tg?.initData;
+    if (!telegramId) return;
+
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (initData) headers["x-telegram-init-data"] = initData;
+
+    fetch("/api/ai/followup/cancel", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ telegramId }),
+    }).catch(() => {});
+  }, []);
+
   return {
     messages,
     filteredMessages,
@@ -686,5 +724,7 @@ export function useAIAgent(pageContext?: PageContext) {
     setSearchQuery,
     exportConversation,
     shareConversation,
+    scheduleFollowup,
+    cancelFollowup,
   };
 }
