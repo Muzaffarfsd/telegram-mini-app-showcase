@@ -2,6 +2,31 @@
 
 This project is a Telegram Mini App (TMA) portfolio showcasing 18 functional demo applications across various business sectors. It highlights the potential of AI agents for 24/7 support, sales automation, personalization, and analytics within a Telegram environment. The platform offers an interactive experience for users to explore diverse business scenarios and serves as an "app within an app."
 
+## 2026 Q2 AI Agent "Alex" — 10 Unique Features (April 2026)
+
+### Architecture
+- **Server**: `server/lib/gemini.ts` — multimodal ChatMessage type (text + inlineData), PageContext interface, ChatOptions (persona + pageContext), buildSystemPrompt() dynamic system prompt injection, getPersonaName() helper. Widget/proposal/puppeteering/vision/ambient-intelligence/multi-persona instructions in system prompt.
+- **Server**: `server/routes/ai.ts` — accepts `pageContext`, `persona`, image parts in chat payload. Validates multimodal parts (image/jpeg, image/png, image/webp, image/gif, max 4MB). GET `/api/ai/personas` endpoint. SSE `done` event includes persona/personaName.
+- **Client Hook**: `client/src/hooks/useAIAgent.ts` — PageContext, BehaviorSignals, Persona types. Deal stage detection (awareness→action) with keyword analysis. Deal temperature (0.15→1.0). localStorage persistence (messages, pages visited, return visit detection). Widget parsing from ```widget blocks. Demo tour processing. Voice mode with auto-TTS. Persona switching.
+
+### 10 Features Implemented
+1. **Live Demo Puppeteering** — AI sends `demo_tour` action blocks with steps [{path, delay, narration}]. Client processes sequentially with delays, navigating through demo pages while Alex narrates. Instruction in system prompt.
+2. **Contextual Radar** — PageContext (currentPage, demoId, timeOnPage, pagesVisited, returnVisit, scrollDepth) sent with every chat request. System prompt dynamically injected with session context. Proactive messages in AIAgentButton after 15s on demo/projects/constructor pages.
+3. **Interactive Widgets** — 4 widget types rendered as React components inside AIAgentMessage: ROI Calculator (interactive sliders), Price Comparison Cards (scrollable tiers), Personalized Proposal (dark gradient card), Deal Progress Bar (5-stage funnel). AI outputs ```widget JSON blocks.
+4. **AI Proposal Generator** — Proposal widget with client name, niche, template, price, timeline, ROI, features. Dark gradient card with emerald accents, feature tags, payment terms footer.
+5. **Voice-First Mode "Call Alex"** — Web Speech API (SpeechRecognition) for STT, auto-TTS via ElevenLabs on response. Voice mode toggle (Phone icon). Continuous listening in voice mode. Visual indicator bar.
+6. **Deal Heat Pulse** — Avatar glow intensity/color changes based on deal stage: blue (awareness) → purple (interest) → orange (consideration) → red-orange (decision) → green (action). Status dot color matches stage.
+7. **Competitive X-Ray** — Image upload (Camera button) sends base64 to Gemini Vision. System prompt instructs to analyze competitor screenshots vs WEB4TG solutions.
+8. **Ambient Intelligence** — Behavioral signals tracked client-side: timeOnPage, pagesVisited, returnVisit. Injected into system prompt. AI adapts without mentioning signals directly.
+9. **Multi-Persona** — 4 AI personas: Алекс (sales, #34d399), Марина (designer, #a78bfa), Артём (developer, #60a5fa), Ольга (strategist, #f59e0b). Persona switcher panel. Each has unique system prompt injection, avatar, color. Message bubbles show persona badge.
+10. **Photo Analysis** — Camera button for image upload (jpeg/png/webp, max 4MB). FileReader → base64 → inlineData part in Gemini request. AI analyzes business photos, menus, competitor screenshots.
+
+### Additional Improvements
+- **Message Reactions** — ThumbsUp/ThumbsDown on each AI message (UX feedback, prepares for self-learning)
+- **Conversation Persistence** — Messages saved to localStorage (last 30), restored on reopen
+- **Return Visit Detection** — Tracks last visit timestamp, marks return visits (>30 min gap)
+- **Pages Visited Tracking** — All visited pages tracked and sent to AI for behavioral context
+
 ## 2026 Q2 Performance Optimization (April 2026)
 - **Weak Device/Network Adaptation**: Unified performance thresholds across all layers (preload script, early CSS class detection, AutoplayVideo, usePerformanceMode). Early inline script in `<head>` adds `low-performance`/`reduce-motion`/`slow-network` CSS classes before React hydrates — prevents FOUC of heavy effects. Hero video (5MB) conditionally preloaded only on 4G+ with >4GB RAM and >4 cores; skipped entirely on 2G/3G/saveData/low-end devices with gradient fallback. Google Fonts loaded non-blocking (`media="print" onload`). CSS `slow-network` video hide rule scoped to `[data-decorative]`/`[data-optional]` only (not all videos). Video Cache-Control set to 30 days on server.
 - **Slow Internet Hardening**: Route prefetching (`prefetchAllRoutes`) completely disabled on 2G/3G/saveData — no background bandwidth waste. Re-checks network state between each chunk load, stops immediately if connection degrades. API fetch requests have adaptive timeout: 30s on 2G, 20s on 3G, 15s on 4G/WiFi via AbortController. React Query cache duration multiplied 2-4x on slow networks (staleTime 10-20min, gcTime 30-60min) to reduce refetches. Retry logic preserved with exponential backoff (1s→10s max). Query signals forwarded for proper cancellation on navigation.

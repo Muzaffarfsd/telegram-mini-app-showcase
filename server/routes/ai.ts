@@ -1,11 +1,12 @@
 import { Router, Request, Response } from "express";
-import { streamChat, filterResponse, type ChatMessage } from "../lib/gemini";
+import { streamChat, filterResponse, getPersonaName, type ChatMessage, type ChatMessagePart, type ChatOptions, type PageContext } from "../lib/gemini";
 import { textToSpeech, getVoices } from "../lib/elevenlabs";
 
 const router = Router();
 
 const MAX_MESSAGES = 30;
 const MAX_MESSAGE_LENGTH = 4000;
+const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
 
 const CONTEXTUAL_FALLBACKS: Record<string, string> = {
   price: "Шаблоны стоят от 150 000₽ (магазин) до 200 000₽ (фитнес). Подписки: Мини 9 900₽/мес, Стандарт 14 900₽/мес, Премиум 24 900₽/мес. Предоплата 35%, 14 дней правок. Напишите нишу — подберу оптимальный вариант)",
@@ -30,6 +31,21 @@ function detectFallbackTopic(lastMessage: string): string {
   return "default";
 }
 
+function validatePart(p: any): p is ChatMessagePart {
+  if (!p) return false;
+  const hasText = p.text !== undefined;
+  const hasImage = p.inlineData !== undefined;
+  if (!hasText && !hasImage) return false;
+  if (hasText && typeof p.text !== "string") return false;
+  if (hasText && p.text.length > MAX_MESSAGE_LENGTH) return false;
+  if (hasImage) {
+    if (!p.inlineData || typeof p.inlineData.mimeType !== "string" || typeof p.inlineData.data !== "string") return false;
+    if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(p.inlineData.mimeType)) return false;
+    if (p.inlineData.data.length > MAX_IMAGE_SIZE) return false;
+  }
+  return true;
+}
+
 function validateMessages(messages: any): messages is ChatMessage[] {
   if (!Array.isArray(messages) || messages.length === 0) return false;
   if (messages.length > MAX_MESSAGES) return false;
@@ -39,21 +55,41 @@ function validateMessages(messages: any): messages is ChatMessage[] {
       (m.role === "user" || m.role === "model") &&
       Array.isArray(m.parts) &&
       m.parts.length > 0 &&
-      m.parts.every(
-        (p: any) =>
-          p && typeof p.text === "string" && p.text.length <= MAX_MESSAGE_LENGTH
-      )
+      m.parts.every(validatePart)
   );
 }
 
+function validatePageContext(ctx: any): ctx is PageContext | undefined {
+  if (!ctx) return true;
+  if (typeof ctx !== "object") return false;
+  if (typeof ctx.currentPage !== "string") return false;
+  return true;
+}
+
 router.post("/api/ai/chat", async (req: Request, res: Response) => {
-  const { messages } = req.body as { messages: unknown };
+  const { messages, pageContext, persona } = req.body as {
+    messages: unknown;
+    pageContext?: unknown;
+    persona?: string;
+  };
 
   if (!validateMessages(messages)) {
     return res.status(400).json({
       error: `Invalid messages. Max ${MAX_MESSAGES} messages, each up to ${MAX_MESSAGE_LENGTH} chars.`,
     });
   }
+
+  if (!validatePageContext(pageContext)) {
+    return res.status(400).json({ error: "Invalid pageContext" });
+  }
+
+  const validPersonas = ["alex", "designer", "developer", "strategist"];
+  const activePersona = (typeof persona === "string" && validPersonas.includes(persona) ? persona : "alex") as ChatOptions["persona"];
+
+  const chatOptions: ChatOptions = {
+    persona: activePersona,
+    pageContext: pageContext as PageContext | undefined,
+  };
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -69,6 +105,7 @@ router.post("/api/ai/chat", async (req: Request, res: Response) => {
   });
 
   let fullText = "";
+  const personaName = getPersonaName(activePersona);
 
   try {
     await streamChat(
@@ -85,32 +122,33 @@ router.post("/api/ai/chat", async (req: Request, res: Response) => {
           if (filtered !== fullText) {
             res.write(`data: ${JSON.stringify({ type: "replace", text: filtered })}\n\n`);
           }
-          res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
+          res.write(`data: ${JSON.stringify({ type: "done", persona: activePersona, personaName })}\n\n`);
           res.end();
         }
       },
       (error) => {
         if (!closed) {
           const lastUserMsg = messages.filter((m: ChatMessage) => m.role === "user").pop();
-          const lastText = lastUserMsg?.parts?.[0]?.text || "";
+          const lastText = lastUserMsg?.parts?.find((p: ChatMessagePart) => p.text)?.text || "";
           const topic = detectFallbackTopic(lastText);
           const fallback = CONTEXTUAL_FALLBACKS[topic] || CONTEXTUAL_FALLBACKS.default;
           res.write(`data: ${JSON.stringify({ type: "chunk", text: fallback })}\n\n`);
-          res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
+          res.write(`data: ${JSON.stringify({ type: "done", persona: activePersona, personaName })}\n\n`);
           res.end();
           console.error("[AI Chat] Error, used fallback:", error.message, "topic:", topic);
         }
       },
-      abortController.signal
+      abortController.signal,
+      chatOptions
     );
   } catch (error: any) {
     if (!closed) {
       const lastUserMsg = messages.filter((m: ChatMessage) => m.role === "user").pop();
-      const lastText = lastUserMsg?.parts?.[0]?.text || "";
+      const lastText = lastUserMsg?.parts?.find((p: ChatMessagePart) => p.text)?.text || "";
       const topic = detectFallbackTopic(lastText);
       const fallback = CONTEXTUAL_FALLBACKS[topic] || CONTEXTUAL_FALLBACKS.default;
       res.write(`data: ${JSON.stringify({ type: "chunk", text: fallback })}\n\n`);
-      res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: "done", persona: activePersona, personaName })}\n\n`);
       res.end();
       console.error("[AI Chat] Catch error, used fallback:", (error as Error).message, "topic:", topic);
     }
@@ -118,10 +156,11 @@ router.post("/api/ai/chat", async (req: Request, res: Response) => {
 });
 
 router.post("/api/ai/tts", async (req: Request, res: Response) => {
-  const { text, voiceId, modelId } = req.body as {
+  const { text, voiceId, modelId, emotion } = req.body as {
     text: string;
     voiceId?: string;
     modelId?: string;
+    emotion?: string;
   };
 
   if (!text || typeof text !== "string") {
@@ -168,6 +207,17 @@ router.get("/api/ai/voices", async (_req: Request, res: Response) => {
       .status(500)
       .json({ error: error.message || "Failed to fetch voices" });
   }
+});
+
+router.get("/api/ai/personas", (_req: Request, res: Response) => {
+  res.json({
+    personas: [
+      { id: "alex", name: "Алекс", role: "Консультант", color: "#34d399", emoji: "A" },
+      { id: "designer", name: "Марина", role: "UI/UX дизайнер", color: "#a78bfa", emoji: "M" },
+      { id: "developer", name: "Артём", role: "Разработчик", color: "#60a5fa", emoji: "D" },
+      { id: "strategist", name: "Ольга", role: "Бизнес-стратег", color: "#f59e0b", emoji: "O" },
+    ],
+  });
 });
 
 export default router;

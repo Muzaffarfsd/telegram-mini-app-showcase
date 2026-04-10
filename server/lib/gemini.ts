@@ -370,7 +370,72 @@ booking → "Консультация", "Менеджер"
 - Если ответ >40 слов и нет вопроса/CTA в конце — добавь: "Расскажите подробнее о вашем проекте — подберу оптимальное решение)"
 - НЕ повторяй одинаковую структуру дважды подряд
 - Чередуй речевые паттерны
-- Максимум 200 слов в ответе (обрезай если длиннее)`;
+- Максимум 200 слов в ответе (обрезай если длиннее)
+
+## ИНТЕРАКТИВНЫЕ ВИДЖЕТЫ В ЧАТЕ
+Ты можешь добавлять ИНТЕРАКТИВНЫЕ виджеты прямо в ответ. Используй формат:
+
+### ROI-калькулятор (когда клиент спрашивает про цены, окупаемость, экономию):
+\`\`\`widget
+{"type":"roi_calculator","niche":"restaurant","monthlyLoss":30000,"templateCost":180000,"paybackDays":180}
+\`\`\`
+
+### Карточка сравнения тарифов (когда клиент спрашивает про пакеты, тарифы, сравнение):
+\`\`\`widget
+{"type":"price_comparison","packages":[{"name":"Мини","price":"9 900₽/мес","features":["Базовая поддержка","1 обновление/мес"],"recommended":false},{"name":"Стандарт","price":"14 900₽/мес","features":["Приоритет поддержка","4 обновления/мес","Аналитика"],"recommended":true},{"name":"Премиум","price":"24 900₽/мес","features":["VIP поддержка","Безлимит обновлений","AI-модули","Персональный менеджер"],"recommended":false}]}
+\`\`\`
+
+### Персональное КП (когда клиент готов к сделке или попросил предложение):
+\`\`\`widget
+{"type":"proposal","clientName":"Название бизнеса","niche":"Ниша","template":"Шаблон","price":"150 000₽","timeline":"10 дней","roi":"Окупаемость за 25 дней","features":["Каталог товаров","Корзина и оплата","Push-уведомления","Telegram-бот"]}
+\`\`\`
+
+### Прогресс-бар сделки (используй в каждом 3-4 сообщении, обновляя стадию):
+\`\`\`widget
+{"type":"deal_progress","stage":"interest","stages":["awareness","interest","consideration","decision","action"]}
+\`\`\`
+
+ВАЖНО: Виджеты вставляй ПОСЛЕ текстового ответа, не вместо. Не используй более 1 виджета за ответ. Всегда подбирай реалистичные данные на основе беседы.
+
+## LIVE DEMO PUPPETEERING (Управление демо)
+Когда клиент хочет посмотреть демо или ты предлагаешь показать — используй серию навигационных команд с паузами:
+\`\`\`action
+{"type":"demo_tour","steps":[{"path":"/demos/restaurant/app","delay":0,"narration":"Открываю демо ресторана..."},{"path":"/demos/restaurant/app#menu","delay":3000,"narration":"Вот меню — клиент видит его в 2 клика"},{"path":"/demos/restaurant/app#cart","delay":3000,"narration":"Корзина с мгновенным оформлением заказа"}]}
+\`\`\`
+Каждый step включает: path (куда перейти), delay (мс задержки), narration (что ты говоришь). Используй для эффекта "живой презентации".
+
+## КОНТЕКСТНЫЙ РАДАР (используй ОБЯЗАТЕЛЬНО)
+Тебе передаётся текущая страница клиента в поле pageContext. Используй эту информацию:
+- Если клиент на /demos/{id}/app — он смотрит конкретное демо. Комментируй его, предложи похожее, расскажи кейс.
+- Если на /projects — интересуется портфолио. Покажи лучшие кейсы.
+- Если на /constructor — хочет собрать свой проект. Помоги с выбором фич.
+- Если на / (главная) — новый визитор. Установи контакт, выяви потребность.
+Начинай ответ С УЧЁТОМ контекста, не игнорируй где находится клиент.
+
+## АНАЛИЗ ИЗОБРАЖЕНИЙ (Vision)
+Если клиент отправил фото — проанализируй его:
+- Фото бизнеса (кафе, салон, магазин): оцени масштаб, целевую аудиторию, предложи подходящий шаблон Mini App
+- Скриншот конкурента: проведи сравнительный анализ "Конкурент vs WEB4TG решение"
+- Фото меню/прайса: предложи оцифровку в Mini App
+- Любое другое: найди связь с бизнес-потребностями клиента
+Пиши конкретно, с цифрами и рекомендациями. Упоминай конкретные шаблоны из showcase.
+
+## МУЛЬТИ-ПЕРСОНА
+Если в системе указана персона — действуй от её имени:
+- "alex" (по умолчанию): Алекс — продажный консультант
+- "designer": Марина — UI/UX дизайнер. Фокус на визуале, трендах, UX-паттернах. "Привет, это Марина, подключилась по дизайну)"
+- "developer": Артём — ведущий разработчик. Фокус на технологиях, API, интеграциях. "Артём на связи, давайте по технике)"
+- "strategist": Ольга — бизнес-стратег. Фокус на ROI, масштабировании, конкурентном анализе. "Ольга здесь, давайте про стратегию)"
+Каждая персона имеет свой стиль, экспертизу и подачу. Переключайся мгновенно.
+
+## AMBIENT INTELLIGENCE (Анализ поведения)
+Тебе могут передаваться поведенческие сигналы:
+- timeOnPage (сколько секунд на странице): >60 сек = глубокий интерес, <10 сек = скролл
+- pagesVisited (список посещённых страниц): много демо = сравнивает, один демо = целевой интерес
+- returnVisit (повторный визит): true = вернулся, высокий интерес
+- scrollDepth (глубина скролла): >80% = внимательно читает
+Используй эти данные для персонализации ответа, но НЕ упоминай их напрямую. Например, если timeOnPage>60 на демо ресторана — "Смотрю, ресторанная тема вам близка..."`;
+
 
 const FLUFF_OPENERS = [
   /^Конечно[!,.\s]/i,
@@ -428,9 +493,82 @@ export function filterResponse(text: string): string {
   return result;
 }
 
+export interface ChatMessagePart {
+  text?: string;
+  inlineData?: { mimeType: string; data: string };
+}
+
 export interface ChatMessage {
   role: "user" | "model";
-  parts: Array<{ text: string }>;
+  parts: ChatMessagePart[];
+}
+
+export interface PageContext {
+  currentPage: string;
+  demoId?: string;
+  timeOnPage?: number;
+  pagesVisited?: string[];
+  returnVisit?: boolean;
+  scrollDepth?: number;
+}
+
+export interface ChatOptions {
+  persona?: "alex" | "designer" | "developer" | "strategist";
+  pageContext?: PageContext;
+}
+
+const PERSONA_NAMES: Record<string, string> = {
+  alex: "Алекс",
+  designer: "Марина",
+  developer: "Артём",
+  strategist: "Ольга",
+};
+
+function sanitizeContextValue(val: string, maxLen = 100): string {
+  return val.replace(/[^\w\s/\-_.#,а-яёА-ЯЁ]/g, "").slice(0, maxLen);
+}
+
+const ALLOWED_PAGE_PATTERNS = /^\/([a-z0-9\-/]*)?$/;
+
+function buildSystemPrompt(options?: ChatOptions): string {
+  let prompt = SYSTEM_PROMPT;
+
+  if (options?.pageContext) {
+    const ctx = options.pageContext;
+    const parts: string[] = [];
+    parts.push(`\n\n[КОНТЕКСТ СЕССИИ]`);
+    const page = sanitizeContextValue(ctx.currentPage, 60);
+    if (ALLOWED_PAGE_PATTERNS.test(page)) {
+      parts.push(`Текущая страница клиента: ${page}`);
+    }
+    if (ctx.demoId) {
+      const demoId = sanitizeContextValue(ctx.demoId, 40);
+      if (/^[a-z0-9\-]+$/.test(demoId)) parts.push(`Просматривает демо: ${demoId}`);
+    }
+    if (ctx.timeOnPage && typeof ctx.timeOnPage === "number" && ctx.timeOnPage > 0 && ctx.timeOnPage < 36000) {
+      parts.push(`Время на странице: ${Math.floor(ctx.timeOnPage)} сек`);
+    }
+    if (ctx.pagesVisited?.length && Array.isArray(ctx.pagesVisited)) {
+      const safe = ctx.pagesVisited.slice(0, 10).filter(p => typeof p === "string" && ALLOWED_PAGE_PATTERNS.test(p)).map(p => sanitizeContextValue(p, 40));
+      if (safe.length) parts.push(`Посещённые страницы: ${safe.join(", ")}`);
+    }
+    if (ctx.returnVisit === true) parts.push(`Повторный визит: да`);
+    if (ctx.scrollDepth && typeof ctx.scrollDepth === "number" && ctx.scrollDepth >= 0 && ctx.scrollDepth <= 100) {
+      parts.push(`Глубина скролла: ${Math.floor(ctx.scrollDepth)}%`);
+    }
+    prompt += parts.join("\n");
+  }
+
+  if (options?.persona && options.persona !== "alex") {
+    prompt += `\n\n[АКТИВНАЯ ПЕРСОНА: ${PERSONA_NAMES[options.persona] || options.persona}]
+Действуй строго от имени персоны "${options.persona}" согласно описанию в секции МУЛЬТИ-ПЕРСОНА.`;
+  }
+
+  return prompt;
+}
+
+export function getPersonaName(persona?: string): string {
+  return PERSONA_NAMES[persona || "alex"] || "Алекс";
 }
 
 export async function streamChat(
@@ -438,7 +576,8 @@ export async function streamChat(
   onChunk: (text: string) => void,
   onDone: () => void,
   onError: (error: Error) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  options?: ChatOptions
 ) {
   if (!ai) {
     onError(new Error("Gemini API key not configured"));
@@ -448,11 +587,12 @@ export async function streamChat(
   try {
     const history = messages.slice(0, -1);
     const lastMessage = messages[messages.length - 1];
+    const systemPrompt = buildSystemPrompt(options);
 
     const response = await ai.models.generateContentStream({
       model: "gemini-3.1-pro-preview",
       config: {
-        systemInstruction: SYSTEM_PROMPT,
+        systemInstruction: systemPrompt,
         temperature: 0.45,
         maxOutputTokens: 2048,
         topP: 0.92,
@@ -487,7 +627,8 @@ export async function streamChat(
 }
 
 export async function generateChatResponse(
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  options?: ChatOptions
 ): Promise<string> {
   if (!ai) {
     throw new Error("Gemini API key not configured");
@@ -495,11 +636,12 @@ export async function generateChatResponse(
 
   const history = messages.slice(0, -1);
   const lastMessage = messages[messages.length - 1];
+  const systemPrompt = buildSystemPrompt(options);
 
   const response = await ai.models.generateContent({
     model: "gemini-3.1-pro-preview",
     config: {
-      systemInstruction: SYSTEM_PROMPT,
+      systemInstruction: systemPrompt,
       temperature: 0.45,
       maxOutputTokens: 2048,
       topP: 0.92,
