@@ -238,7 +238,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 }}
               >
                 {ru
-                  ? 'Создаём мини-приложения для Telegram, которые продают. Без комиссий. Готово за 24 часа.'
+                  ? 'Создаём мини-приложения для Telegram, которые продают. Без комиссий. Запуск — за 24 часа.'
                   : 'We build Telegram mini apps that sell. Zero fees. Ready in 24 hours.'}
               </m.p>
 
