@@ -23,7 +23,7 @@ interface ShowcasePageProps {
 const SYNE = '"Syne", system-ui, sans-serif';
 const INSTRUMENT = '"Instrument Serif", Georgia, serif';
 const INTER = '"Inter", -apple-system, system-ui, sans-serif';
-const ONEST = '"Onest", -apple-system, system-ui, sans-serif';
+const MANROPE = '"Manrope", -apple-system, system-ui, sans-serif';
 const EMERALD = '#34d399';
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -256,7 +256,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 transition={{ duration: 0.7, ease: EASE, delay: 0.9 }}
                 className="mt-6 max-w-xs"
                 style={{
-                  fontFamily: ONEST, fontSize: 'clamp(0.9rem, 2.3vw, 1.05rem)',
+                  fontFamily: MANROPE, fontSize: 'clamp(0.9rem, 2.3vw, 1.05rem)',
                   lineHeight: 1.7, color: 'rgba(255,255,255,0.75)', fontWeight: 400,
                   letterSpacing: '-0.01em',
                 }}
