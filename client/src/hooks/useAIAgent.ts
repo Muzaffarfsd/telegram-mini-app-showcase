@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { navigate } from "./useRouting";
+import { parseVoiceNavigation } from "./useAIInteractions";
 
 export interface AIMessage {
   id: string;
@@ -374,6 +375,24 @@ export function useAIAgent(pageContext?: PageContext) {
           const toastEvent = new CustomEvent("ai-toast", { detail: action.message });
           window.dispatchEvent(toastEvent);
         }
+        if (action.type === "guided_tour" && Array.isArray(action.steps)) {
+          const tourSteps = action.steps
+            .filter((s: any) => typeof s.selector === "string" && typeof s.title === "string")
+            .map((s: any) => ({
+              selector: s.selector,
+              title: s.title,
+              description: s.description || "",
+              position: s.position,
+            }));
+          if (tourSteps.length > 0) {
+            const tourEvent = new CustomEvent("ai-guided-tour", { detail: tourSteps });
+            window.dispatchEvent(tourEvent);
+          }
+        }
+        if (action.type === "session_summary") {
+          const summaryEvent = new CustomEvent("ai-session-summary");
+          window.dispatchEvent(summaryEvent);
+        }
       } catch {}
     }
   }, []);
@@ -392,6 +411,28 @@ export function useAIAgent(pageContext?: PageContext) {
   const sendMessage = useCallback(
     async (content: string, imageBase64?: string, imageMimeType?: string) => {
       if ((!content.trim() && !imageBase64) || isLoading) return;
+
+      const navPath = !imageBase64 ? parseVoiceNavigation(content.trim()) : null;
+      if (navPath && voiceMode) {
+        const navMsg: AIMessage = {
+          id: `user-${Date.now()}`,
+          role: "user",
+          content: content.trim(),
+          timestamp: new Date(),
+          status: "read",
+        };
+        const navResponse: AIMessage = {
+          id: `assistant-${Date.now()}`,
+          role: "assistant",
+          content: "🧭 Навигация...",
+          timestamp: new Date(),
+          persona: activePersona.id,
+          personaName: activePersona.name,
+        };
+        setMessages(prev => [...prev, navMsg, navResponse]);
+        setTimeout(() => navigate(navPath), 600);
+        return;
+      }
 
       messageCountRef.current += 1;
 
@@ -657,6 +698,25 @@ export function useAIAgent(pageContext?: PageContext) {
       setActivePersona(p);
       trackAIEvent("ai_persona_switch", { persona: personaId });
     }
+  }, []);
+
+  useEffect(() => {
+    const handlePersonaCycle = (e: Event) => {
+      const dir = (e as CustomEvent).detail;
+      setActivePersona(prev => {
+        const idx = PERSONAS.findIndex(p => p.id === prev.id);
+        let next: number;
+        if (dir === "next") {
+          next = (idx + 1) % PERSONAS.length;
+        } else {
+          next = (idx - 1 + PERSONAS.length) % PERSONAS.length;
+        }
+        trackAIEvent("ai_persona_switch", { persona: PERSONAS[next].id });
+        return PERSONAS[next];
+      });
+    };
+    window.addEventListener("ai-persona-cycle", handlePersonaCycle);
+    return () => window.removeEventListener("ai-persona-cycle", handlePersonaCycle);
   }, []);
 
   const toggleVoiceMode = useCallback(() => {

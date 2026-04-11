@@ -4,9 +4,17 @@ import { useTelegram } from "@/hooks/useTelegram";
 import { useRouting, navigate } from "@/hooks/useRouting";
 import type { PageContext } from "@/hooks/useAIAgent";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAIInteractions, useSwipeGesture } from "@/hooks/useAIInteractions";
+import type { TourStep } from "./AIGuidedTour";
 
 const AIAgentPanel = lazy(() =>
   import("./AIAgentPanel").then((m) => ({ default: m.AIAgentPanel }))
+);
+const AIGuidedTour = lazy(() =>
+  import("./AIGuidedTour").then((m) => ({ default: m.AIGuidedTour }))
+);
+const AISessionSummary = lazy(() =>
+  import("./AISessionSummary").then((m) => ({ default: m.AISessionSummary }))
 );
 
 const STORAGE_KEY = "web4tg_ai_chat";
@@ -141,9 +149,13 @@ export const AIAgentButton = memo(() => {
   const [showPreview, setShowPreview] = useState(false);
   const [lastMessage, setLastMessage] = useState<string | null>(null);
   const [aiToast, setAiToast] = useState<string | null>(null);
+  const [tourSteps, setTourSteps] = useState<TourStep[]>([]);
+  const [tourActive, setTourActive] = useState(false);
+  const [showSessionSummary, setShowSessionSummary] = useState(false);
   const { hapticFeedback } = useTelegram();
   const { route } = useRouting();
   const { language } = useLanguage();
+  const fabRef = useRef<HTMLButtonElement | null>(null);
   const proactiveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissedPages = useRef<Set<string>>(new Set());
   const shakeLastTime = useRef(0);
@@ -162,6 +174,58 @@ export const AIAgentButton = memo(() => {
     currentPage: route.path,
     demoId: route.params?.id,
   }), [route.path, route.params?.id]);
+
+  const handleToast = useCallback((msg: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setAiToast(msg);
+    toastTimerRef.current = setTimeout(() => setAiToast(null), 5000);
+  }, []);
+
+  const { clipboardSuggestion, dismissClipboard } = useAIInteractions({
+    pageComponent: route.component,
+    language,
+    isOpen,
+    onToast: handleToast,
+    onOpen: () => handleOpenRef.current(),
+  });
+
+  useSwipeGesture(fabRef, useMemo(() => ({
+    onSwipeUp: () => {
+      queueMicrotask(() => hapticFeedback.light());
+      handleOpenRef.current();
+    },
+    onSwipeLeft: () => {
+      queueMicrotask(() => hapticFeedback.light());
+      const personaSwitchEvent = new CustomEvent("ai-persona-cycle", { detail: "next" });
+      window.dispatchEvent(personaSwitchEvent);
+      handleToast(language === "ru" ? "🔄 Переключена персона" : "🔄 Persona switched");
+    },
+    onSwipeRight: () => {
+      queueMicrotask(() => hapticFeedback.light());
+      const personaSwitchEvent = new CustomEvent("ai-persona-cycle", { detail: "prev" });
+      window.dispatchEvent(personaSwitchEvent);
+      handleToast(language === "ru" ? "🔄 Переключена персона" : "🔄 Persona switched");
+    },
+  }), [hapticFeedback, language, handleToast]));
+
+  useEffect(() => {
+    const handleTourEvent = (e: Event) => {
+      const steps = (e as CustomEvent).detail;
+      if (Array.isArray(steps) && steps.length > 0) {
+        setTourSteps(steps);
+        setTourActive(true);
+      }
+    };
+    const handleSummaryEvent = () => {
+      setShowSessionSummary(true);
+    };
+    window.addEventListener("ai-guided-tour", handleTourEvent);
+    window.addEventListener("ai-session-summary", handleSummaryEvent);
+    return () => {
+      window.removeEventListener("ai-guided-tour", handleTourEvent);
+      window.removeEventListener("ai-session-summary", handleSummaryEvent);
+    };
+  }, []);
 
   useEffect(() => {
     setLastMessage(getLastAIMessage());
@@ -214,18 +278,14 @@ export const AIAgentButton = memo(() => {
   useEffect(() => {
     const handleAiToast = (e: Event) => {
       const detail = (e as CustomEvent).detail;
-      if (typeof detail === "string") {
-        if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-        setAiToast(detail);
-        toastTimerRef.current = setTimeout(() => setAiToast(null), 5000);
-      }
+      if (typeof detail === "string") handleToast(detail);
     };
     window.addEventListener("ai-toast", handleAiToast);
     return () => {
       window.removeEventListener("ai-toast", handleAiToast);
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     };
-  }, []);
+  }, [handleToast]);
 
   useEffect(() => {
     let lastShakeTime = 0;
@@ -356,6 +416,11 @@ export const AIAgentButton = memo(() => {
   useEffect(() => {
     return () => {
       if (longPressTimer.current) clearTimeout(longPressTimer.current);
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      if (previewHideTimerRef.current) clearTimeout(previewHideTimerRef.current);
+      if (proactiveHideTimerRef.current) clearTimeout(proactiveHideTimerRef.current);
+      if (shakeToastTimerRef.current) clearTimeout(shakeToastTimerRef.current);
+      if (proactiveTimer.current) clearTimeout(proactiveTimer.current);
     };
   }, []);
 
@@ -592,7 +657,51 @@ export const AIAgentButton = memo(() => {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {clipboardSuggestion && !isOpen && (
+          <m.div
+            initial={{ opacity: 0, y: 10, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.92 }}
+            transition={{ type: "spring", damping: 24, stiffness: 300 }}
+            onClick={() => { dismissClipboard(); handleOpen(); }}
+            style={{
+              position: "fixed", right: "78px", bottom: "100px",
+              background: "rgba(10,14,18,0.92)",
+              backdropFilter: GLASS.blur,
+              WebkitBackdropFilter: GLASS.blur,
+              color: "#fff", padding: "10px 14px",
+              borderRadius: "14px 14px 4px 14px",
+              border: "0.5px solid rgba(52,211,153,0.2)",
+              fontSize: "12.5px", lineHeight: "1.45",
+              maxWidth: "240px", cursor: "pointer",
+              zIndex: 9989, letterSpacing: "-0.01em",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.4), 0 0 20px rgba(52,211,153,0.06)",
+            }}
+          >
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              marginBottom: "4px",
+            }}>
+              <span style={{
+                fontSize: "10px", color: "#34d399", fontWeight: 600,
+                letterSpacing: "0.02em",
+              }}>
+                🧑‍💼 {language === "ru" ? "Алекс" : "Alex"}
+              </span>
+              <button type="button" onClick={(e) => { e.stopPropagation(); dismissClipboard(); }}
+                style={{
+                  background: "none", border: "none", color: "rgba(255,255,255,0.3)",
+                  cursor: "pointer", fontSize: "12px", padding: "0 2px",
+                }}>×</button>
+            </div>
+            <span style={{ color: "rgba(255,255,255,0.75)" }}>{clipboardSuggestion}</span>
+          </m.div>
+        )}
+      </AnimatePresence>
+
       <m.button
+        ref={fabRef}
         type="button"
         onClick={handleFabClick}
         onPointerDown={handleFabPointerDown}
@@ -628,6 +737,29 @@ export const AIAgentButton = memo(() => {
             isOpen={isOpen}
             onClose={handleClose}
             pageContext={pageContext}
+          />
+        </Suspense>
+      )}
+
+      {tourActive && tourSteps.length > 0 && (
+        <Suspense fallback={null}>
+          <AIGuidedTour
+            steps={tourSteps}
+            isActive={tourActive}
+            onComplete={() => { setTourActive(false); setTourSteps([]); }}
+            onSkip={() => { setTourActive(false); setTourSteps([]); }}
+            language={language}
+          />
+        </Suspense>
+      )}
+
+      {showSessionSummary && (
+        <Suspense fallback={null}>
+          <AISessionSummary
+            isVisible={showSessionSummary}
+            onDismiss={() => setShowSessionSummary(false)}
+            onOpenChat={() => { setShowSessionSummary(false); handleOpen(); }}
+            language={language}
           />
         </Suspense>
       )}

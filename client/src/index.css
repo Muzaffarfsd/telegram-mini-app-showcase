@@ -7586,3 +7586,22 @@ html:not(.light) .bottom-nav-premium {
   outline: 2px solid rgba(52,211,153,0.4);
   outline-offset: 4px;
 }
+
+@keyframes ai-tour-cutout-glow {
+  0%, 100% { stroke-opacity: 0.4; stroke-width: 2; }
+  50% { stroke-opacity: 0.8; stroke-width: 3; }
+}
+
+.ai-tour-cutout-border {
+  animation: ai-tour-cutout-glow 2s ease-in-out infinite;
+}
+
+@keyframes ai-clipboard-slide {
+  from { opacity: 0; transform: translateY(8px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ai-summary-card-enter {
+  from { opacity: 0; transform: translateY(30px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
