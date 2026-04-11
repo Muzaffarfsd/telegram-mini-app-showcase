@@ -48,12 +48,8 @@ export interface BehaviorSignals {
   scrollDepth: number;
 }
 
-const PERSONAS: Persona[] = [
-  { id: "alex", name: "Алекс", role: "Консультант", color: "#34d399", emoji: "🧑‍💼", voiceId: "pNInz6obpgDQGcFmaJgB" },
-  { id: "designer", name: "Марина", role: "UI/UX дизайнер", color: "#a78bfa", emoji: "🎨", voiceId: "21m00Tcm4TlvDq8ikWAM" },
-  { id: "developer", name: "Артём", role: "Разработчик", color: "#60a5fa", emoji: "💻", voiceId: "ErXwobaYiN019PkySvjV" },
-  { id: "strategist", name: "Ольга", role: "Бизнес-стратег", color: "#f59e0b", emoji: "📊", voiceId: "EXAVITQu4vr4xnSDxMaL" },
-];
+const ALEX_PERSONA: Persona = { id: "alex", name: "Алекс", role: "Консультант", color: "#34d399", emoji: "🧑‍💼", voiceId: "pNInz6obpgDQGcFmaJgB" };
+const PERSONAS: Persona[] = [ALEX_PERSONA];
 
 const STORAGE_KEY = "web4tg_ai_chat";
 const PAGES_KEY = "web4tg_pages_visited";

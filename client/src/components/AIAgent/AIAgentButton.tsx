@@ -7,10 +7,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAIInteractions, useSwipeGesture } from "@/hooks/useAIInteractions";
 import type { TourStep } from "./AIGuidedTour";
 import { BotMessageSquare, X } from "lucide-react";
+import { AIAgentPanel } from "./AIAgentPanel";
 
-const AIAgentPanel = lazy(() =>
-  import("./AIAgentPanel").then((m) => ({ default: m.AIAgentPanel }))
-);
 const AIGuidedTour = lazy(() =>
   import("./AIGuidedTour").then((m) => ({ default: m.AIGuidedTour }))
 );
@@ -643,13 +641,11 @@ export const AIAgentButton = memo(() => {
       </m.button>
 
       {hasOpened && (
-        <Suspense fallback={null}>
-          <AIAgentPanel
-            isOpen={isOpen}
-            onClose={handleClose}
-            pageContext={pageContext}
-          />
-        </Suspense>
+        <AIAgentPanel
+          isOpen={isOpen}
+          onClose={handleClose}
+          pageContext={pageContext}
+        />
       )}
 
       {tourActive && tourSteps.length > 0 && (

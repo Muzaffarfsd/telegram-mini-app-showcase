@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, memo } from "react";
+import { useState, useRef, useCallback, useEffect, memo, useMemo } from "react";
 
 interface AIAgentInputProps {
   onSend: (message: string, imageBase64?: string, imageMimeType?: string) => void;
@@ -42,6 +42,152 @@ const StopIcon = ({ size = 14, color = "currentColor" }: { size?: number; color?
     <rect x="6" y="6" width="12" height="12" rx="2" />
   </svg>
 );
+
+const EMOJI_CATEGORIES = [
+  { key: "recent", label: "🕐", emojis: [] as string[] },
+  { key: "smileys", label: "😀", emojis: [
+    "😀","😃","😄","😁","😆","😅","🤣","😂","🙂","🙃","😉","😊","😇","🥰","😍","🤩","😘","😗","😚","😙","🥲","😋","😛","😜","🤪","😝","🤑","🤗","🤭","🤫","🤔","🫡","🤐","🤨","😐","😑","😶","🫥","😏","😒","🙄","😬","🤥","😌","😔","😪","🤤","😴","😷","🤒","🤕","🤢","🤮","🥵","🥶","🥴","😵","🤯","🤠","🥳","🥸","😎","🤓","🧐","😕","🫤","😟","🙁","☹️","😮","😯","😲","😳","🥺","🥹","😦","😧","😨","😰","😥","😢","😭","😱","😖","😣","😞","😓","😩","😫","🥱","😤","😡","😠","🤬","😈","👿","💀","☠️","💩","🤡","👹","👺","👻","👽","👾","🤖"
+  ]},
+  { key: "gestures", label: "👋", emojis: [
+    "👋","🤚","🖐️","✋","🖖","🫱","🫲","🫳","🫴","👌","🤌","🤏","✌️","🤞","🫰","🤟","🤘","🤙","👈","👉","👆","🖕","👇","☝️","🫵","👍","👎","✊","👊","🤛","🤜","👏","🙌","🫶","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦾","🦿","🦵","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁️","👅","👄","🫦","👶","🧒","👦","👧","🧑","👱","👨","🧔","👩","🧓","👴","👵"
+  ]},
+  { key: "hearts", label: "❤️", emojis: [
+    "❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔","❣️","💕","💞","💓","💗","💖","💘","💝","💟","♥️","🫶","😍","🥰","😘","😻","💑","👩‍❤️‍👨","👨‍❤️‍👨","👩‍❤️‍👩","💏","💋","🌹","🥀","💐","🌸","🌺","💍","💎"
+  ]},
+  { key: "animals", label: "🐶", emojis: [
+    "🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐻‍❄️","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🙈","🙉","🙊","🐒","🐔","🐧","🐦","🐤","🐣","🐥","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🪱","🐛","🦋","🐌","🐞","🐜","🪲","🪳","🦟","🦗","🕷️","🦂","🐢","🐍","🦎","🐙","🦑","🦐","🦞","🦀","🐡","🐠","🐟","🐬","🐳","🐋","🦈","🐊","🐅","🐆","🦓","🦍","🦧","🐘","🦛","🦏","🐪","🐫","🦒","🦘","🦬","🐃","🐂","🐄","🐎","🐖","🐏","🐑","🦙","🐐","🦌","🐕","🐩","🦮","🐈","🐈‍⬛","🪶","🐓","🦃","🦤","🦚","🦜","🦢","🦩","🕊️","🐇","🦝","🦨","🦡","🦫","🦦","🦥","🐁","🐀","🐿️","🦔"
+  ]},
+  { key: "food", label: "🍕", emojis: [
+    "🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑","🥦","🥬","🥒","🌶️","🫑","🌽","🥕","🫒","🧄","🧅","🥔","🍠","🥐","🥯","🍞","🥖","🥨","🧀","🥚","🍳","🧈","🥞","🧇","🥓","🥩","🍗","🍖","🌭","🍔","🍟","🍕","🫓","🥪","🥙","🧆","🌮","🌯","🫔","🥗","🥘","🫕","🥫","🍝","🍜","🍲","🍛","🍣","🍱","🥟","🦪","🍤","🍙","🍚","🍘","🍥","🥠","🥮","🍢","🍡","🍧","🍨","🍦","🥧","🧁","🍰","🎂","🍮","🍭","🍬","🍫","🍿","🍩","🍪","🌰","🥜","🍯","🥛","🍼","🫖","☕","🍵","🧃","🥤","🧋","🍶","🍺","🍻","🥂","🍷","🥃","🍸","🍹","🧉","🍾","🫗","🧊"
+  ]},
+  { key: "travel", label: "🚗", emojis: [
+    "🚗","🚕","🚙","🚌","🚎","🏎️","🚓","🚑","🚒","🚐","🛻","🚚","🚛","🚜","🏍️","🛵","🚲","🛴","🛹","🛼","🚁","🛸","✈️","🛩️","🚀","🛶","⛵","🚤","🛥️","🛳️","⛴️","🚢","🗼","🗽","🗿","🏰","🏯","🏟️","🎡","🎢","🎠","⛲","⛱️","🏖️","🏝️","🏜️","🌋","⛰️","🏔️","🗻","🏕️","🛖","🏠","🏡","🏘️","🏚️","🏗️","🏭","🏢","🏬","🏣","🏤","🏥","🏦","🏨","🏪","🏫","🏩","💒","🏛️","⛪","🕌","🕍","🛕","🕋","⛩️","🛤️","🛣️","🗺️","🌍","🌎","🌏","🌐","🧭"
+  ]},
+  { key: "objects", label: "💡", emojis: [
+    "⌚","📱","📲","💻","⌨️","🖥️","🖨️","🖱️","🖲️","💾","💿","📀","📼","📷","📸","📹","🎥","📽️","🎬","📺","📻","🎙️","🎚️","🎛️","🧭","⏱️","⏲️","⏰","🕰️","⌛","📡","🔋","🔌","💡","🔦","🕯️","🧯","🛢️","💸","💵","💴","💶","💷","🪙","💰","💳","💎","⚖️","🪜","🧰","🪛","🔧","🔨","⚒️","🛠️","⛏️","🪚","🔩","⚙️","🪤","🧲","🔫","💣","🧨","🪓","🔪","🗡️","⚔️","🛡️","🚬","⚰️","🪦","⚱️","🏺","🔮","📿","🧿","🪬","💈","⚗️","🔭","🔬","🕳️","🩹","🩺","🩻","🩼","💊","💉","🩸","🧬","🦠","🧫","🧪","🌡️","🧹","🪠","🧺","🧻","🧼","🫧","🪥","🧽","🧴","🛎️","🔑","🗝️","🚪","🪑","🛋️","🛏️","🛌","🧸","🪆","🖼️","🪞","🪟","🛍️","🛒","🎁","🎈","🎏","🎀","🪄","🪅","🎊","🎉","🎎","🏮","🎐","🧧","✉️","📩","📨","📧","💌","📥","📤","📦","🏷️","🪧","📪","📫","📬","📭","📮","📯","📜","📃","📄","📑","🧾","📊","📈","📉","🗒️","🗓️","📆","📅","🗑️","📇","🗃️","🗳️","🗄️","📋","📁","📂","🗂️","🗞️","📰","📓","📔","📒","📕","📗","📘","📙","📚","📖","🔖","🧷","🔗","📎","🖇️","📐","📏","🧮","📌","📍","✂️","🖊️","🖋️","✒️","🖌️","🖍️","📝","✏️","🔍","🔎","🔏","🔐","🔒","🔓"
+  ]},
+  { key: "symbols", label: "⭐", emojis: [
+    "⭐","🌟","✨","⚡","🔥","💥","☄️","🌈","☀️","🌤️","⛅","🌥️","🌦️","🌧️","⛈️","🌩️","🌪️","❄️","☃️","⛄","🌬️","💨","🌊","💧","💦","☔","🎯","🏆","🥇","🥈","🥉","🏅","🎖️","🏵️","🎗️","⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅","⛳","🪁","🏹","🎣","🤿","🥊","🥋","🎽","🛹","🛼","🛷","⛸️","🥌","🎿","⛷️","🏂","🪂","🎪","🎭","🎨","🎼","🎵","🎶","🎹","🥁","🪘","🎷","🎺","🪗","🎸","🪕","🎻","🎲","♟️","🎯","🎳","🎮","🕹️","🎰","✅","❌","❓","❗","‼️","⁉️","💯","🔴","🟠","🟡","🟢","🔵","🟣","⚫","⚪","🟤","🔶","🔷","🔸","🔹","▪️","▫️","◼️","◻️","◾","◽","🔲","🔳","⬛","⬜","♠️","♣️","♥️","♦️","🃏","🀄","🎴","🔇","🔈","🔉","🔊","📢","📣","🔔","🔕","🎵","🎶","🏧","🚮","🚰","♿","🚹","🚺","🚻","🚼","🚾","🛂","🛃","🛄","🛅","⚠️","🚸","⛔","🚫","🚳","🚭","🚯","🚱","🚷","📵","🔞","☢️","☣️","⬆️","↗️","➡️","↘️","⬇️","↙️","⬅️","↖️","↕️","↔️","↩️","↪️","⤴️","⤵️","🔃","🔄","🔙","🔚","🔛","🔜","🔝"
+  ]},
+];
+
+const RECENT_EMOJI_KEY = "web4tg_recent_emoji";
+const MAX_RECENT = 32;
+
+function getRecentEmoji(): string[] {
+  try {
+    const stored = localStorage.getItem(RECENT_EMOJI_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch { return []; }
+}
+function addRecentEmoji(emoji: string) {
+  const recent = getRecentEmoji().filter(e => e !== emoji);
+  recent.unshift(emoji);
+  localStorage.setItem(RECENT_EMOJI_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
+}
+
+const SmileIcon = ({ size = 17, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+    <line x1="9" y1="9" x2="9.01" y2="9" />
+    <line x1="15" y1="9" x2="15.01" y2="9" />
+  </svg>
+);
+
+function EmojiPicker({ onSelect, onClose }: { onSelect: (emoji: string) => void; onClose: () => void }) {
+  const [activeCategory, setActiveCategory] = useState("smileys");
+  const [searchQuery, setSearchQuery] = useState("");
+  const panelRef = useRef<HTMLDivElement>(null);
+  const recentEmojis = useMemo(() => getRecentEmoji(), []);
+  const categoriesWithRecent = useMemo(() => {
+    const cats = [...EMOJI_CATEGORIES];
+    cats[0] = { ...cats[0], emojis: recentEmojis };
+    return cats;
+  }, [recentEmojis]);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [onClose]);
+
+  const handleEmojiClick = useCallback((emoji: string) => {
+    addRecentEmoji(emoji);
+    onSelect(emoji);
+  }, [onSelect]);
+
+  const currentEmojis = useMemo(() => {
+    const cat = categoriesWithRecent.find(c => c.key === activeCategory);
+    return cat?.emojis || [];
+  }, [activeCategory, categoriesWithRecent]);
+
+  return (
+    <div ref={panelRef} style={{
+      position: "absolute", bottom: "100%", left: 0, right: 0,
+      marginBottom: "4px", background: "rgba(28,28,30,0.96)",
+      backdropFilter: "saturate(180%) blur(40px)",
+      WebkitBackdropFilter: "saturate(180%) blur(40px)",
+      borderRadius: "16px 16px 0 0",
+      border: "0.5px solid rgba(255,255,255,0.12)",
+      boxShadow: "0 -4px 24px rgba(0,0,0,0.5)",
+      zIndex: 10, overflow: "hidden",
+    }}>
+      <div style={{
+        display: "flex", gap: "2px", padding: "8px 8px 4px",
+        borderBottom: "0.5px solid rgba(255,255,255,0.06)",
+        overflowX: "auto", scrollbarWidth: "none",
+      }}>
+        {categoriesWithRecent.map(cat => (
+          cat.key === "recent" && cat.emojis.length === 0 ? null :
+          <button key={cat.key} type="button"
+            onClick={() => setActiveCategory(cat.key)}
+            style={{
+              width: "32px", height: "32px", borderRadius: "8px",
+              border: "none", cursor: "pointer", fontSize: "16px",
+              background: activeCategory === cat.key ? "rgba(52,211,153,0.15)" : "transparent",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, transition: "background 0.15s",
+            }}
+          >{cat.label}</button>
+        ))}
+      </div>
+      <div style={{
+        height: "200px", overflowY: "auto", overflowX: "hidden",
+        padding: "8px", scrollbarWidth: "none",
+        WebkitOverflowScrolling: "touch",
+      }}>
+        {activeCategory === "recent" && currentEmojis.length === 0 ? (
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            height: "100%", color: "rgba(255,255,255,0.25)", fontSize: "13px",
+          }}>Недавние эмодзи появятся здесь</div>
+        ) : (
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "2px",
+          }}>
+            {currentEmojis.map((emoji, i) => (
+              <button key={`${emoji}-${i}`} type="button"
+                onClick={() => handleEmojiClick(emoji)}
+                style={{
+                  width: "100%", aspectRatio: "1", border: "none",
+                  background: "transparent", borderRadius: "8px",
+                  cursor: "pointer", fontSize: "22px",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  transition: "background 0.1s",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+              >{emoji}</button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const BAR_COUNT = 24;
 
@@ -136,6 +282,7 @@ export const AIAgentInput = memo(
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [imageData, setImageData] = useState<{ base64: string; mimeType: string } | null>(null);
     const [recordingTime, setRecordingTime] = useState(0);
+    const [showEmoji, setShowEmoji] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
@@ -196,6 +343,13 @@ export const AIAgentInput = memo(
     const clearImage = useCallback(() => {
       setPreviewImage(null);
       setImageData(null);
+    }, []);
+
+    const insertEmoji = useCallback((emoji: string) => {
+      setInput(prev => prev + emoji);
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
     }, []);
 
     const cleanupAudioPipeline = useCallback(() => {
@@ -358,7 +512,14 @@ export const AIAgentInput = memo(
         background: "rgba(28,28,30,0.6)",
         backdropFilter: "saturate(180%) blur(40px)",
         WebkitBackdropFilter: "saturate(180%) blur(40px)",
+        position: "relative",
       }}>
+        {showEmoji && (
+          <EmojiPicker
+            onSelect={insertEmoji}
+            onClose={() => setShowEmoji(false)}
+          />
+        )}
         {previewImage && (
           <div style={{ marginBottom: "8px", position: "relative", display: "inline-block" }}>
             <img src={previewImage} alt="" style={{
@@ -459,6 +620,21 @@ export const AIAgentInput = memo(
             aria-label="Attach image"
           >
             <CameraIcon />
+          </button>
+
+          <button type="button"
+            onClick={() => setShowEmoji(prev => !prev)}
+            style={{
+              width: "34px", height: "36px", borderRadius: "17px",
+              border: "none",
+              background: showEmoji ? "rgba(52,211,153,0.12)" : "transparent",
+              color: showEmoji ? "#34d399" : "rgba(255,255,255,0.35)",
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, transition: "all 0.2s",
+            }}
+            aria-label="Emoji"
+          >
+            <SmileIcon />
           </button>
 
           <textarea

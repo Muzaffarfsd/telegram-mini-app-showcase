@@ -244,9 +244,9 @@ function ConversationInsights({ dealStage, dealTemperature, messageCount, langua
 export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanelProps) => {
   const {
     messages, filteredMessages, isLoading, isSpeaking, voiceMode,
-    activePersona, personas, dealStage, dealTemperature,
+    activePersona, dealStage, dealTemperature,
     sendMessage, speakText, stopGeneration, retryMessage,
-    switchPersona, toggleVoiceMode,
+    toggleVoiceMode,
     showOnboarding, dismissOnboarding,
     searchQuery, setSearchQuery,
     shareConversation, speechLang,
@@ -256,7 +256,6 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const { language } = useLanguage();
   const { hapticFeedback } = useTelegram();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [showPersonas, setShowPersonas] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
@@ -264,12 +263,20 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const [thinkingSeconds, setThinkingSeconds] = useState(0);
   const thinkingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const lastStreamContent = useMemo(() => {
+    const last = messages[messages.length - 1];
+    return last?.isStreaming ? last.content : null;
+  }, [messages]);
+
   useEffect(() => {
-    if (scrollRef.current && isAtBottom) {
+    if (!scrollRef.current) return;
+    const last = messages[messages.length - 1];
+    const isStreaming = last?.isStreaming && last?.role === "assistant";
+    if (isAtBottom || isStreaming) {
       const el = scrollRef.current;
-      requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+      el.scrollTop = el.scrollHeight;
     }
-  }, [messages, isAtBottom]);
+  }, [messages, isAtBottom, lastStreamContent]);
 
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
@@ -358,12 +365,6 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
     }).catch(() => {});
   }, [activePersona, hapticFeedback, setMessageFeedback]);
 
-  const handlePersonaSelect = (p: Persona) => {
-    switchPersona(p.id);
-    setShowPersonas(false);
-    queueMicrotask(() => hapticFeedback.light());
-  };
-
   const handleNextOnboarding = () => {
     queueMicrotask(() => hapticFeedback.light());
     if (onboardingStep < ONBOARDING_STEPS.length - 1) {
@@ -447,10 +448,10 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
           />
 
           <m.div
-            initial={{ y: "100%", opacity: 0.5 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: "100%", opacity: 0 }}
-            transition={{ type: "spring", damping: 32, stiffness: 340, mass: 0.75 }}
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 34, stiffness: 420, mass: 0.65 }}
             style={{
               position: "fixed", bottom: 0, left: 0, right: 0,
               height: "88dvh", zIndex: 9999,
@@ -586,20 +587,6 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                     <ShareIcon />
                   </button>
                 )}
-                <button type="button"
-                  onClick={() => setShowPersonas(!showPersonas)}
-                  style={{
-                    width: "34px", height: "34px", borderRadius: "17px",
-                    border: `0.5px solid ${showPersonas ? activePersona.color + "40" : GLASS.borderSub}`,
-                    background: showPersonas ? `${activePersona.color}14` : GLASS.btnBg,
-                    color: showPersonas ? activePersona.color : "rgba(255,255,255,0.5)",
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                    transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
-                  }}
-                  aria-label="Switch persona"
-                >
-                  <PeopleIcon size={15} />
-                </button>
                 <button type="button" onClick={handleClose}
                   style={{
                     width: "34px", height: "34px", borderRadius: "17px",
@@ -680,51 +667,6 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
               )}
             </AnimatePresence>
 
-            <AnimatePresence>
-              {showPersonas && (
-                <m.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
-                  style={{ overflow: "hidden", flexShrink: 0 }}
-                >
-                  <div style={{
-                    display: "flex", gap: "8px", padding: "12px 20px",
-                    borderBottom: `0.5px solid ${GLASS.borderSub}`,
-                    overflowX: "auto", scrollbarWidth: "none",
-                  }}>
-                    {personas.map(p => (
-                      <button key={p.id} type="button"
-                        onClick={() => handlePersonaSelect(p)}
-                        style={{
-                          display: "flex", alignItems: "center", gap: "8px",
-                          padding: "8px 14px", borderRadius: "18px",
-                          border: `0.5px solid ${p.id === activePersona.id ? p.color + "50" : GLASS.borderSub}`,
-                          background: p.id === activePersona.id
-                            ? `${p.color}14`
-                            : "rgba(255,255,255,0.05)",
-                          cursor: "pointer", flexShrink: 0,
-                          transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
-                        }}
-                      >
-                        <span style={{
-                          width: "24px", height: "24px", borderRadius: "12px",
-                          background: `linear-gradient(145deg, ${p.color}cc, ${p.color}66)`,
-                          display: "flex", alignItems: "center",
-                          justifyContent: "center", fontSize: "11px", fontWeight: 600, color: "#fff",
-                          border: "0.5px solid rgba(255,255,255,0.2)",
-                        }}>{p.emoji}</span>
-                        <div style={{ textAlign: "left" }}>
-                          <div style={{ fontSize: "12.5px", fontWeight: 600, color: "#fff", letterSpacing: "-0.01em" }}>{p.name}</div>
-                          <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", letterSpacing: "-0.01em" }}>{p.role}</div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </m.div>
-              )}
-            </AnimatePresence>
 
             <div style={{ position: "relative", flex: 1, overflow: "hidden" }}>
               <div ref={scrollRef} onScroll={handleScroll} style={{
