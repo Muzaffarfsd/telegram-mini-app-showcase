@@ -353,6 +353,27 @@ export function useAIAgent(pageContext?: PageContext) {
           const p = PERSONAS.find(pp => pp.id === action.persona);
           if (p) setActivePersona(p);
         }
+        if (action.type === "spotlight" && typeof action.selector === "string") {
+          const sel = action.selector;
+          const isSafe = /^\[data-[\w-]+(=['"]\w+['"])?\]$/.test(sel) || /^#[\w-]+$/.test(sel) || /^\.[\w-]+$/.test(sel);
+          if (isSafe) {
+            setTimeout(() => {
+              try {
+                const el = document.querySelector(sel);
+                if (el) {
+                  el.classList.add("ai-spotlight-highlight");
+                  el.scrollIntoView({ behavior: "smooth", block: "center" });
+                  const dur = Math.min(Math.max(Number(action.duration) || 5000, 1000), 10000);
+                  setTimeout(() => el.classList.remove("ai-spotlight-highlight"), dur);
+                }
+              } catch {}
+            }, 600);
+          }
+        }
+        if (action.type === "toast" && typeof action.message === "string") {
+          const toastEvent = new CustomEvent("ai-toast", { detail: action.message });
+          window.dispatchEvent(toastEvent);
+        }
       } catch {}
     }
   }, []);
