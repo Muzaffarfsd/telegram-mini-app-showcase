@@ -18,7 +18,6 @@ const AISessionSummary = lazy(() =>
   import("./AISessionSummary").then((m) => ({ default: m.AISessionSummary }))
 );
 
-const STORAGE_KEY = "web4tg_ai_chat";
 
 interface QuickAction {
   icon: string;
@@ -106,28 +105,6 @@ const GLASS = {
   blur: "saturate(180%) blur(40px)",
 };
 
-function getLastAIMessage(): string | null {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return null;
-    const msgs = JSON.parse(stored);
-    if (!Array.isArray(msgs)) return null;
-    for (let i = msgs.length - 1; i >= 0; i--) {
-      if (msgs[i].role === "assistant" && msgs[i].content) {
-        const text = msgs[i].content
-          .replace(/```[\s\S]*?```/g, "")
-          .replace(/\*\*(.*?)\*\*/g, "$1")
-          .replace(/\*(.*?)\*/g, "$1")
-          .replace(/#{1,6}\s/g, "")
-          .trim();
-        if (text) return text.slice(0, 80) + (text.length > 80 ? "..." : "");
-      }
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
 
 
 export const AIAgentButton = memo(() => {
@@ -136,8 +113,6 @@ export const AIAgentButton = memo(() => {
   const [showMenu, setShowMenu] = useState(false);
   const [proactiveMessage, setProactiveMessage] = useState<string | null>(null);
   const [showProactive, setShowProactive] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [lastMessage, setLastMessage] = useState<string | null>(null);
   const [aiToast, setAiToast] = useState<string | null>(null);
   const [tourSteps, setTourSteps] = useState<TourStep[]>([]);
   const [tourActive, setTourActive] = useState(false);
@@ -156,7 +131,6 @@ export const AIAgentButton = memo(() => {
   const menuOpenedViaLongPress = useRef(false);
   const handleOpenRef = useRef<() => void>(() => {});
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const previewHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const proactiveHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shakeToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -218,10 +192,6 @@ export const AIAgentButton = memo(() => {
   }, []);
 
   useEffect(() => {
-    setLastMessage(getLastAIMessage());
-  }, [isOpen]);
-
-  useEffect(() => {
     pageEntryRef.current = Date.now();
     setShowProactive(false);
     setProactiveMessage(null);
@@ -248,22 +218,6 @@ export const AIAgentButton = memo(() => {
 
   const pageEntryRef = useRef(Date.now());
 
-  useEffect(() => {
-    const previewTimer = setTimeout(() => {
-      const msg = getLastAIMessage();
-      if (msg && !isOpen && !showMenu) {
-        setLastMessage(msg);
-        setShowPreview(true);
-        if (previewHideTimerRef.current) clearTimeout(previewHideTimerRef.current);
-        previewHideTimerRef.current = setTimeout(() => setShowPreview(false), 6000);
-      }
-    }, 5000);
-
-    return () => {
-      clearTimeout(previewTimer);
-      if (previewHideTimerRef.current) clearTimeout(previewHideTimerRef.current);
-    };
-  }, [route.component]);
 
   useEffect(() => {
     const handleAiToast = (e: Event) => {
@@ -407,7 +361,6 @@ export const AIAgentButton = memo(() => {
     return () => {
       if (longPressTimer.current) clearTimeout(longPressTimer.current);
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-      if (previewHideTimerRef.current) clearTimeout(previewHideTimerRef.current);
       if (proactiveHideTimerRef.current) clearTimeout(proactiveHideTimerRef.current);
       if (shakeToastTimerRef.current) clearTimeout(shakeToastTimerRef.current);
       if (proactiveTimer.current) clearTimeout(proactiveTimer.current);
@@ -454,38 +407,6 @@ export const AIAgentButton = memo(() => {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {showPreview && lastMessage && !isOpen && !showMenu && !showProactive && (
-          <m.div
-            initial={{ opacity: 0, x: 20, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 20, scale: 0.9 }}
-            transition={{ type: "spring", damping: 22, stiffness: 280 }}
-            onClick={handleOpen}
-            style={{
-              position: "fixed", right: "78px", bottom: "95px",
-              background: GLASS.bg,
-              backdropFilter: GLASS.blur,
-              WebkitBackdropFilter: GLASS.blur,
-              color: "rgba(255,255,255,0.8)", padding: "10px 14px",
-              borderRadius: "14px 14px 4px 14px",
-              border: `0.5px solid ${GLASS.border}`,
-              fontSize: "12.5px", lineHeight: "1.45",
-              maxWidth: "220px", cursor: "pointer",
-              zIndex: 9988, letterSpacing: "-0.01em",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)",
-            }}
-          >
-            <div style={{
-              fontSize: "10px", color: "#34d399", fontWeight: 600,
-              marginBottom: "4px", letterSpacing: "0.02em",
-            }}>
-              🧑‍💼 {language === "ru" ? "Алекс" : "Alex"}
-            </div>
-            {lastMessage}
-          </m.div>
-        )}
-      </AnimatePresence>
 
       <AnimatePresence>
         {showProactive && proactiveMessage && !showMenu && (
