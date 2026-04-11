@@ -6,6 +6,7 @@ import type { PageContext } from "@/hooks/useAIAgent";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAIInteractions, useSwipeGesture } from "@/hooks/useAIInteractions";
 import type { TourStep } from "./AIGuidedTour";
+import { BotMessageSquare, X } from "lucide-react";
 
 const AIAgentPanel = lazy(() =>
   import("./AIAgentPanel").then((m) => ({ default: m.AIAgentPanel }))
@@ -128,17 +129,6 @@ function getLastAIMessage(): string | null {
   }
 }
 
-const ChatIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-  </svg>
-);
-
-const CloseIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 6L6 18M6 6l12 12" />
-  </svg>
-);
 
 export const AIAgentButton = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
@@ -728,7 +718,7 @@ export const AIAgentButton = memo(() => {
         }}
         aria-label={showMenu ? "Close menu" : "Chat with Alex"}
       >
-        {showMenu ? <CloseIcon /> : <ChatIcon />}
+        {showMenu ? <X size={20} color="#fff" strokeWidth={2.2} /> : <BotMessageSquare size={24} color="#fff" strokeWidth={1.8} />}
       </m.button>
 
       {hasOpened && (
