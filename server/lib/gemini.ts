@@ -546,9 +546,19 @@ export interface PageContext {
   scrollDepth?: number;
 }
 
+export interface AIMemoryContext {
+  userName?: string;
+  businessType?: string;
+  businessName?: string;
+  lastTopics?: string[];
+  interactionCount?: number;
+  daysSinceFirst?: number;
+}
+
 export interface ChatOptions {
   persona?: "alex" | "designer" | "developer" | "strategist";
   pageContext?: PageContext;
+  memory?: AIMemoryContext;
 }
 
 const PERSONA_NAMES: Record<string, string> = {
@@ -591,6 +601,20 @@ function buildSystemPrompt(options?: ChatOptions): string {
       parts.push(`Глубина скролла: ${Math.floor(ctx.scrollDepth)}%`);
     }
     prompt += parts.join("\n");
+  }
+
+  if (options?.memory) {
+    const mem = options.memory;
+    const memParts: string[] = [];
+    memParts.push(`\n\n[ПАМЯТЬ О КЛИЕНТЕ — используй эту информацию для персонализации]`);
+    if (mem.userName) memParts.push(`Имя клиента: ${sanitizeContextValue(mem.userName, 30)}`);
+    if (mem.businessType) memParts.push(`Тип бизнеса: ${sanitizeContextValue(mem.businessType, 40)}`);
+    if (mem.businessName) memParts.push(`Название: ${sanitizeContextValue(mem.businessName, 40)}`);
+    if (mem.lastTopics?.length) memParts.push(`Обсуждали ранее: ${mem.lastTopics.slice(0, 5).map(t => sanitizeContextValue(t, 20)).join(", ")}`);
+    if (mem.interactionCount && mem.interactionCount > 1) memParts.push(`Количество сообщений: ${Math.min(mem.interactionCount, 999)}`);
+    if (mem.daysSinceFirst && mem.daysSinceFirst > 0) memParts.push(`Знакомы ${Math.min(mem.daysSinceFirst, 365)} дн.`);
+    memParts.push(`Используй имя клиента естественно (не в каждом сообщении). Если клиент возвращается — отметь это тепло. Ссылайся на предыдущие темы для персонализации.`);
+    prompt += memParts.join("\n");
   }
 
   if (options?.persona && options.persona !== "alex") {

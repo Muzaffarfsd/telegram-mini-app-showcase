@@ -7,8 +7,10 @@ interface AIAgentMessageProps {
   onButtonClick?: (text: string) => void;
   onReply?: (text: string) => void;
   onRetry?: (messageId: string) => void;
+  onFeedback?: (messageId: string, feedback: "up" | "down" | null) => void;
   isSpeaking?: boolean;
   thinkingSeconds?: number;
+  thinkingPhrase?: string;
 }
 
 function escapeHtml(text: string): string {
@@ -99,9 +101,17 @@ const SpeakerOffIcon = ({ size = 12 }: { size?: number }) => (
   </svg>
 );
 
-const HeartIcon = ({ size = 11, filled = false }: { size?: number; filled?: boolean }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+const ThumbsUpIcon = ({ size = 12, filled = false }: { size?: number; filled?: boolean }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+    <path d="M14 2l-3 7v13h8.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14" />
+  </svg>
+);
+
+const ThumbsDownIcon = ({ size = 12, filled = false }: { size?: number; filled?: boolean }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 2H20a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3" />
+    <path d="M10 22l3-7V2H4.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10" />
   </svg>
 );
 
@@ -157,7 +167,7 @@ function useTypewriter(content: string, isStreaming: boolean) {
   return displayed;
 }
 
-function ThinkingIndicator({ seconds, personaColor }: { seconds: number; personaColor: string }) {
+function ThinkingIndicator({ seconds, personaColor, phrase }: { seconds: number; personaColor: string; phrase?: string }) {
   return (
     <div style={{
       display: "flex", alignItems: "center", gap: "10px",
@@ -174,10 +184,12 @@ function ThinkingIndicator({ seconds, personaColor }: { seconds: number; persona
         ))}
       </div>
       <span style={{
-        fontSize: "12px", color: "rgba(255,255,255,0.35)",
+        fontSize: "12px", color: "rgba(255,255,255,0.45)",
         fontVariantNumeric: "tabular-nums", letterSpacing: "-0.01em",
+        fontStyle: "italic",
       }}>
-        {seconds}s
+        {phrase || "Думаю над ответом..."}
+        {seconds > 2 && <span style={{ color: "rgba(255,255,255,0.25)", marginLeft: "6px" }}>{seconds}s</span>}
       </span>
     </div>
   );
@@ -467,9 +479,10 @@ const RetryIcon = ({ size = 12 }: { size?: number }) => (
 );
 
 export const AIAgentMessage = memo(
-  ({ message, onSpeak, onButtonClick, onReply, onRetry, isSpeaking, thinkingSeconds }: AIAgentMessageProps) => {
+  ({ message, onSpeak, onButtonClick, onReply, onRetry, onFeedback, isSpeaking, thinkingSeconds, thinkingPhrase }: AIAgentMessageProps) => {
     const [copied, setCopied] = useState(false);
-    const [liked, setLiked] = useState(false);
+    const [feedback, setFeedback] = useState<"up" | "down" | null>(message.feedback || null);
+    const [feedbackToast, setFeedbackToast] = useState(false);
     const [showTime, setShowTime] = useState(false);
     const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
     const isUser = message.role === "user";
@@ -604,7 +617,7 @@ export const AIAgentMessage = memo(
               </div>
             </>
           ) : isThinking ? (
-            <ThinkingIndicator seconds={thinkingSeconds || 0} personaColor={personaColor} />
+            <ThinkingIndicator seconds={thinkingSeconds || 0} personaColor={personaColor} phrase={thinkingPhrase} />
           ) : renderedContent ? (
             <>
               <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
@@ -711,17 +724,50 @@ export const AIAgentMessage = memo(
                 <ReplyIcon />
               </button>
             )}
-            <button type="button" onClick={() => setLiked(l => !l)}
+            <button type="button" onClick={() => {
+                const next = feedback === "up" ? null : "up" as const;
+                setFeedback(next);
+                onFeedback?.(message.id, next);
+                if (next) { setFeedbackToast(true); setTimeout(() => setFeedbackToast(false), 2000); }
+              }}
               style={{
                 background: "none", border: "none", padding: "4px 6px",
-                cursor: "pointer", color: liked ? "#ff2d55" : "rgba(255,255,255,0.18)",
+                cursor: "pointer", color: feedback === "up" ? "#34d399" : "rgba(255,255,255,0.18)",
                 borderRadius: "8px", display: "flex", alignItems: "center",
-                transition: "color 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+                transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+                transform: feedback === "up" ? "scale(1.15)" : "scale(1)",
               }}
-              aria-label="Like"
+              aria-label="Helpful"
             >
-              <HeartIcon filled={liked} />
+              <ThumbsUpIcon filled={feedback === "up"} />
             </button>
+            <button type="button" onClick={() => {
+                const next = feedback === "down" ? null : "down" as const;
+                setFeedback(next);
+                onFeedback?.(message.id, next);
+                if (next) { setFeedbackToast(true); setTimeout(() => setFeedbackToast(false), 2000); }
+              }}
+              style={{
+                background: "none", border: "none", padding: "4px 6px",
+                cursor: "pointer", color: feedback === "down" ? "#ff5252" : "rgba(255,255,255,0.18)",
+                borderRadius: "8px", display: "flex", alignItems: "center",
+                transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+                transform: feedback === "down" ? "scale(1.15)" : "scale(1)",
+              }}
+              aria-label="Not helpful"
+            >
+              <ThumbsDownIcon filled={feedback === "down"} />
+            </button>
+          </div>
+        )}
+
+        {feedbackToast && (
+          <div style={{
+            fontSize: "10px", color: feedback === "up" ? "#34d399" : "#ff5252",
+            paddingLeft: "6px", letterSpacing: "-0.01em",
+            animation: "ai-fade-in 0.3s ease",
+          }}>
+            {feedback === "up" ? "Спасибо за отзыв! 👍" : "Учтём, спасибо 🙏"}
           </div>
         )}
 

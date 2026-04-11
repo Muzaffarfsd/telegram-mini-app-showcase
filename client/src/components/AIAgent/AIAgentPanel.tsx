@@ -1,4 +1,4 @@
-import { useRef, useEffect, memo, useState, useCallback } from "react";
+import { useRef, useEffect, memo, useState, useCallback, useMemo } from "react";
 import { AnimatePresence, m } from "@/utils/LazyMotionProvider";
 import { useAIAgent, type PageContext, type Persona } from "@/hooks/useAIAgent";
 import { AIAgentMessage } from "./AIAgentMessage";
@@ -251,6 +251,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
     searchQuery, setSearchQuery,
     shareConversation, speechLang,
     scheduleFollowup, cancelFollowup,
+    thinkingPhrase, pagesVisited, setMessageFeedback,
   } = useAIAgent(pageContext);
   const { language } = useLanguage();
   const { hapticFeedback } = useTelegram();
@@ -338,6 +339,25 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
     sendMessage(prefix);
   }, [sendMessage, cancelFollowup]);
 
+  const handleFeedback = useCallback((messageId: string, fb: "up" | "down" | null) => {
+    queueMicrotask(() => hapticFeedback.light());
+    setMessageFeedback(messageId, fb);
+    fetch("/api/analytics/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        events: [{
+          category: "ai",
+          action: "message_feedback",
+          timestamp: Date.now(),
+          messageId,
+          feedback: fb,
+          persona: activePersona.id,
+        }],
+      }),
+    }).catch(() => {});
+  }, [activePersona, hapticFeedback, setMessageFeedback]);
+
   const handlePersonaSelect = (p: Persona) => {
     switchPersona(p.id);
     setShowPersonas(false);
@@ -360,6 +380,52 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const showSuggested = lastMsg?.role === "assistant" && !lastMsg.isStreaming && !isLoading && messages.length > 0;
   const suggestedReplies = SUGGESTED_REPLIES_BY_STAGE[dealStage] || SUGGESTED_REPLIES_BY_STAGE.awareness;
   const suggestions = language === "ru" ? suggestedReplies.ru : suggestedReplies.en;
+
+  const dynamicSuggestions = useMemo(() => {
+    if (!lastMsg || lastMsg.role !== "assistant" || !lastMsg.content) return suggestions;
+    const text = lastMsg.content.toLowerCase();
+    const dynamic: string[] = [];
+
+    if (language === "ru") {
+      if (/цен[аы]|стоимост|\d+\s*₽|тариф/.test(text) && !dynamic.includes("Что входит в стоимость?")) dynamic.push("Что входит в стоимость?");
+      if (/демо|пример|портфолио|проект/.test(text) && !dynamic.includes("Покажите ещё примеры")) dynamic.push("Покажите ещё примеры");
+      if (/день|дней|недел|срок|быстро/.test(text) && !dynamic.includes("Можно быстрее?")) dynamic.push("Можно быстрее?");
+      if (/mvp|базов|минимал/.test(text) && !dynamic.includes("Что в MVP?")) dynamic.push("Что в MVP?");
+      if (/roi|окупаем|экономи|потер/.test(text) && !dynamic.includes("Посчитайте ROI для меня")) dynamic.push("Посчитайте ROI для меня");
+      if (/рассрочк|оплат|предоплат/.test(text) && !dynamic.includes("Какие варианты оплаты?")) dynamic.push("Какие варианты оплаты?");
+    } else {
+      if (/price|cost|\$|tariff/.test(text)) dynamic.push("What's included?");
+      if (/demo|example|portfolio/.test(text)) dynamic.push("Show more examples");
+      if (/day|week|timeline|fast/.test(text)) dynamic.push("Can it be faster?");
+      if (/mvp|basic|minimal/.test(text)) dynamic.push("What's in MVP?");
+      if (/roi|savings|loss/.test(text)) dynamic.push("Calculate ROI for me");
+    }
+
+    return dynamic.length > 0 ? dynamic.slice(0, 3) : suggestions;
+  }, [lastMsg, language, suggestions]);
+
+  const visitedDemos = useMemo(() => {
+    return pagesVisited.filter(p => p.startsWith("/demos/") && p.includes("/app"));
+  }, [pagesVisited]);
+
+  const demoNames: Record<string, string> = useMemo(() => ({
+    "/demos/restaurant/app": language === "ru" ? "Ресторан" : "Restaurant",
+    "/demos/beauty/app": language === "ru" ? "Салон" : "Beauty",
+    "/demos/shop/app": language === "ru" ? "Магазин" : "Shop",
+    "/demos/fitness/app": language === "ru" ? "Фитнес" : "Fitness",
+    "/demos/hotel/app": language === "ru" ? "Отель" : "Hotel",
+    "/demos/education/app": language === "ru" ? "Обучение" : "Education",
+    "/demos/clinic/app": language === "ru" ? "Клиника" : "Clinic",
+    "/demos/auto/app": language === "ru" ? "Авто" : "Auto",
+    "/demos/realestate/app": language === "ru" ? "Недвижимость" : "Real Estate",
+  }), [language]);
+
+  const showComparisonChip = visitedDemos.length >= 3 && showSuggested;
+  const comparisonLabel = useMemo(() => {
+    if (visitedDemos.length < 3) return "";
+    const names = visitedDemos.slice(-3).map(d => demoNames[d] || d.split("/")[2]).join(", ");
+    return language === "ru" ? `Сравнить: ${names}` : `Compare: ${names}`;
+  }, [visitedDemos, demoNames, language]);
 
   let lastDateLabel = "";
 
@@ -462,7 +528,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                           background: activePersona.color, display: "inline-block",
                           animation: "ai-pulse 1.4s ease-in-out infinite",
                         }} />
-                        {language === "ru" ? "думает..." : "thinking..."}
+                        <span style={{ fontStyle: "italic" }}>{thinkingPhrase}</span>
                       </>
                     ) : (
                       <>{activePersona.role}</>
@@ -839,8 +905,10 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                           onButtonClick={handleButtonClick}
                           onReply={handleReply}
                           onRetry={retryMessage}
+                          onFeedback={handleFeedback}
                           isSpeaking={isSpeaking}
                           thinkingSeconds={thinkingSeconds}
+                          thinkingPhrase={thinkingPhrase}
                         />
                       </m.div>
                     </div>
@@ -848,29 +916,66 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                 })}
 
                 {showSuggested && (
-                  <div style={{
-                    display: "flex", gap: "6px", flexWrap: "wrap",
-                    padding: "8px 16px 4px",
-                  }}>
-                    {suggestions.map((s, i) => (
-                      <button key={i} type="button"
+                  <m.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1], delay: 0.15 }}
+                    style={{
+                      display: "flex", gap: "6px", flexWrap: "wrap",
+                      padding: "8px 16px 4px",
+                    }}
+                  >
+                    {dynamicSuggestions.map((s, i) => (
+                      <m.button key={s} type="button"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.2, delay: 0.1 + i * 0.06 }}
                         onClick={() => handleSend(s)}
                         style={{
                           padding: "8px 14px", borderRadius: "20px",
-                          border: `0.5px solid ${activePersona.color}20`,
-                          background: `${activePersona.color}08`,
+                          border: `0.5px solid ${activePersona.color}25`,
+                          background: `${activePersona.color}0a`,
                           color: `${activePersona.color}cc`,
                           fontSize: "12px", fontWeight: 500,
                           cursor: "pointer",
                           transition: "all 0.2s cubic-bezier(0.32, 0.72, 0, 1)",
                           WebkitTapHighlightColor: "transparent",
                           letterSpacing: "-0.01em",
+                          display: "flex", alignItems: "center", gap: "5px",
                         }}
                       >
+                        <span style={{ fontSize: "10px", opacity: 0.7 }}>✨</span>
                         {s}
-                      </button>
+                      </m.button>
                     ))}
-                  </div>
+                    {showComparisonChip && (
+                      <m.button type="button"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.25, delay: 0.35 }}
+                        onClick={() => handleSend(
+                          language === "ru"
+                            ? `Сравни демо, которые я посмотрел: ${visitedDemos.slice(-3).map(d => demoNames[d] || d.split("/")[2]).join(", ")}. Какое лучше подходит для моего бизнеса?`
+                            : `Compare the demos I viewed: ${visitedDemos.slice(-3).map(d => demoNames[d] || d.split("/")[2]).join(", ")}. Which suits my business best?`
+                        )}
+                        style={{
+                          padding: "8px 14px", borderRadius: "20px",
+                          border: "0.5px solid rgba(249,115,22,0.3)",
+                          background: "rgba(249,115,22,0.08)",
+                          color: "#f97316",
+                          fontSize: "12px", fontWeight: 600,
+                          cursor: "pointer",
+                          transition: "all 0.2s cubic-bezier(0.32, 0.72, 0, 1)",
+                          WebkitTapHighlightColor: "transparent",
+                          letterSpacing: "-0.01em",
+                          display: "flex", alignItems: "center", gap: "5px",
+                        }}
+                      >
+                        <span style={{ fontSize: "12px" }}>⚖️</span>
+                        {comparisonLabel}
+                      </m.button>
+                    )}
+                  </m.div>
                 )}
               </div>
 

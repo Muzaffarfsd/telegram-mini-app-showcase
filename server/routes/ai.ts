@@ -67,11 +67,24 @@ function validatePageContext(ctx: any): ctx is PageContext | undefined {
   return true;
 }
 
+function validateMemory(mem: any): mem is Record<string, any> | undefined {
+  if (!mem) return true;
+  if (typeof mem !== "object" || Array.isArray(mem)) return false;
+  if (mem.userName !== undefined && (typeof mem.userName !== "string" || mem.userName.length > 30)) return false;
+  if (mem.businessType !== undefined && (typeof mem.businessType !== "string" || mem.businessType.length > 40)) return false;
+  if (mem.businessName !== undefined && (typeof mem.businessName !== "string" || mem.businessName.length > 40)) return false;
+  if (mem.lastTopics !== undefined && (!Array.isArray(mem.lastTopics) || mem.lastTopics.length > 5 || !mem.lastTopics.every((t: any) => typeof t === "string" && t.length <= 20))) return false;
+  if (mem.interactionCount !== undefined && (typeof mem.interactionCount !== "number" || mem.interactionCount < 0 || mem.interactionCount > 9999)) return false;
+  if (mem.daysSinceFirst !== undefined && (typeof mem.daysSinceFirst !== "number" || mem.daysSinceFirst < 0 || mem.daysSinceFirst > 365)) return false;
+  return true;
+}
+
 router.post("/api/ai/chat", async (req: Request, res: Response) => {
-  const { messages, pageContext, persona } = req.body as {
+  const { messages, pageContext, persona, memory } = req.body as {
     messages: unknown;
     pageContext?: unknown;
     persona?: string;
+    memory?: unknown;
   };
 
   if (!validateMessages(messages)) {
@@ -87,9 +100,12 @@ router.post("/api/ai/chat", async (req: Request, res: Response) => {
   const validPersonas = ["alex", "designer", "developer", "strategist"];
   const activePersona = (typeof persona === "string" && validPersonas.includes(persona) ? persona : "alex") as ChatOptions["persona"];
 
+  const validMemory = validateMemory(memory) ? memory as any : undefined;
+
   const chatOptions: ChatOptions = {
     persona: activePersona,
     pageContext: pageContext as PageContext | undefined,
+    memory: validMemory,
   };
 
   res.setHeader("Content-Type", "text/event-stream");

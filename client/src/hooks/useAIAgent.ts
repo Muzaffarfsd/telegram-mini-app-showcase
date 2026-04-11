@@ -15,6 +15,7 @@ export interface AIMessage {
   persona?: string;
   personaName?: string;
   status?: "sending" | "sent" | "delivered" | "read";
+  feedback?: "up" | "down" | null;
 }
 
 export interface WidgetData {
@@ -58,6 +59,128 @@ const STORAGE_KEY = "web4tg_ai_chat";
 const PAGES_KEY = "web4tg_pages_visited";
 const VISIT_KEY = "web4tg_last_visit";
 const ONBOARDING_KEY = "web4tg_ai_onboarding_done";
+const MEMORY_KEY = "web4tg_ai_memory";
+
+export interface AIMemory {
+  userName?: string;
+  businessType?: string;
+  businessName?: string;
+  preferences: string[];
+  lastTopics: string[];
+  interactionCount: number;
+  firstSeen: number;
+  lastSeen: number;
+}
+
+function loadMemory(): AIMemory {
+  try {
+    const stored = localStorage.getItem(MEMORY_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed && typeof parsed === "object") {
+        return {
+          userName: parsed.userName || undefined,
+          businessType: parsed.businessType || undefined,
+          businessName: parsed.businessName || undefined,
+          preferences: Array.isArray(parsed.preferences) ? parsed.preferences.slice(-5) : [],
+          lastTopics: Array.isArray(parsed.lastTopics) ? parsed.lastTopics.slice(-5) : [],
+          interactionCount: typeof parsed.interactionCount === "number" ? parsed.interactionCount : 0,
+          firstSeen: typeof parsed.firstSeen === "number" ? parsed.firstSeen : Date.now(),
+          lastSeen: Date.now(),
+        };
+      }
+    }
+  } catch {}
+  return { preferences: [], lastTopics: [], interactionCount: 0, firstSeen: Date.now(), lastSeen: Date.now() };
+}
+
+function saveMemory(memory: AIMemory) {
+  try { localStorage.setItem(MEMORY_KEY, JSON.stringify(memory)); } catch {}
+}
+
+function extractMemoryFromText(text: string, memory: AIMemory): AIMemory {
+  const updated = { ...memory, lastSeen: Date.now(), interactionCount: memory.interactionCount + 1 };
+
+  if (!updated.userName) {
+    const nameMatch = text.match(/(?:меня зовут|я\s+[-–—]\s*|мое имя|my name is)\s+([А-ЯЁA-Z][а-яёa-z]{1,20})/i);
+    if (nameMatch) updated.userName = nameMatch[1];
+  }
+
+  if (!updated.businessType) {
+    const bizPatterns: [RegExp, string][] = [
+      [/ресторан|кафе|еда|food|доставк[аи]|кухн/i, "ресторан"],
+      [/салон|красот|маникюр|парикмахер|барбер|spa|спа/i, "салон красоты"],
+      [/магазин|shop|торговл|продаж[аи]|товар|одежд/i, "магазин"],
+      [/фитнес|спортзал|тренажер|gym|тренер/i, "фитнес"],
+      [/клиник|медицин|врач|стоматолог|здоров/i, "клиника"],
+      [/отел[ьи]|гостиниц|hotel|бронирован/i, "отель"],
+      [/авто|car|машин|сервис|ремонт/i, "автосервис"],
+      [/образован|школ|курс|обучен|тренинг/i, "образование"],
+      [/недвижимость|аренд|квартир|риэлтор/i, "недвижимость"],
+    ];
+    for (const [pattern, type] of bizPatterns) {
+      if (pattern.test(text)) { updated.businessType = type; break; }
+    }
+  }
+
+  if (!updated.businessName) {
+    const bnMatch = text.match(/(?:называется|компания|бренд|бизнес)\s+[«"]?([А-ЯЁA-Z][А-ЯЁа-яёA-Za-z\s]{1,30}?)[»"]?(?:\s|,|\.|\!|$)/);
+    if (bnMatch) updated.businessName = bnMatch[1].trim();
+  }
+
+  const topicPatterns: [RegExp, string][] = [
+    [/цен[аы]|стоимость|сколько стоит|бюджет/i, "цены"],
+    [/сроки|когда|быстро|долго/i, "сроки"],
+    [/функци[яи]|возможност|интеграц/i, "функционал"],
+    [/дизайн|интерфейс|ui|ux/i, "дизайн"],
+    [/оплат|рассрочк|реквизит/i, "оплата"],
+    [/портфолио|примеры|кейс/i, "портфолио"],
+  ];
+  for (const [pattern, topic] of topicPatterns) {
+    if (pattern.test(text) && !updated.lastTopics.includes(topic)) {
+      updated.lastTopics = [...updated.lastTopics, topic].slice(-5);
+    }
+  }
+
+  return updated;
+}
+
+export function getThinkingPhrase(lastUserMessage: string, lang?: string): string {
+  const lower = lastUserMessage.toLowerCase();
+  const isEn = lang?.startsWith("en");
+
+  if (/цен[аы]|стоимость|сколько|бюджет|дорого|прайс|тариф|price|cost|budget/.test(lower))
+    return isEn ? "Calculating costs..." : "Считаю стоимость...";
+  if (/портфолио|пример|работ|кейс|проект|показ|portfolio|example|project|show/.test(lower))
+    return isEn ? "Finding examples..." : "Подбираю примеры...";
+  if (/сроки|когда|быстро|долго|дней|время|timeline|when|fast|deadline/.test(lower))
+    return isEn ? "Estimating timeline..." : "Оцениваю сроки...";
+  if (/дизайн|интерфейс|ui|ux|красив|стиль|design|interface|style/.test(lower))
+    return isEn ? "Thinking about design..." : "Продумываю дизайн...";
+  if (/конкурент|сравн|альтернатив|аналог|competitor|compare|alternative/.test(lower))
+    return isEn ? "Analyzing the market..." : "Анализирую рынок...";
+  if (/оплат|реквизит|рассрочк|перевод|payment|invoice|installment/.test(lower))
+    return isEn ? "Preparing payment details..." : "Готовлю детали оплаты...";
+  if (/бизнес|компани|ниш|отрасл|business|company|industry|niche/.test(lower))
+    return isEn ? "Analyzing your business..." : "Анализирую ваш бизнес...";
+  if (/roi|окупаем|доход|прибыль|экономи|потер|savings|revenue|profit/.test(lower))
+    return isEn ? "Calculating ROI..." : "Считаю экономику...";
+  if (/функци|возможност|интеграц|api|модул|feature|integration|module/.test(lower))
+    return isEn ? "Selecting features..." : "Подбираю функционал...";
+  if (/ресторан|кафе|еда|доставк|restaurant|food|delivery|cafe/.test(lower))
+    return isEn ? "Finding restaurant solutions..." : "Подбираю решение для ресторана...";
+  if (/салон|красот|маникюр|спа|salon|beauty|spa/.test(lower))
+    return isEn ? "Finding beauty solutions..." : "Подбираю решение для салона...";
+  if (/магазин|shop|товар|каталог|store|catalog|product/.test(lower))
+    return isEn ? "Finding shop solutions..." : "Подбираю решение для магазина...";
+  if (/фитнес|спорт|тренер|зал|fitness|gym|trainer/.test(lower))
+    return isEn ? "Finding fitness solutions..." : "Подбираю решение для фитнеса...";
+  if (/помог|совет|подскаж|рекоменд|help|advice|suggest|recommend/.test(lower))
+    return isEn ? "Preparing recommendation..." : "Готовлю рекомендацию...";
+  if (/привет|здравств|добр|хай|hello|hey|hi\b/.test(lower))
+    return isEn ? "Preparing greeting..." : "Готовлю приветствие...";
+  return isEn ? "Thinking..." : "Думаю над ответом...";
+}
 
 const DEAL_STAGES = ["awareness", "interest", "consideration", "decision", "action"] as const;
 type DealStage = typeof DEAL_STAGES[number];
@@ -228,6 +351,8 @@ export function useAIAgent(pageContext?: PageContext) {
   const returnVisit = useRef(isReturnVisit());
   const sessionStartRef = useRef(Date.now());
   const messageCountRef = useRef(0);
+  const memoryRef = useRef<AIMemory>(loadMemory());
+  const [thinkingPhrase, setThinkingPhrase] = useState("Думаю над ответом...");
 
   useEffect(() => {
     if (pageContext?.currentPage) {
@@ -408,6 +533,22 @@ export function useAIAgent(pageContext?: PageContext) {
     };
   }, [pageContext]);
 
+  const getMemoryForAPI = useCallback((): Record<string, any> | undefined => {
+    const m = memoryRef.current;
+    if (!m.userName && !m.businessType && m.interactionCount < 2) return undefined;
+    const mem: Record<string, any> = {};
+    if (m.userName) mem.userName = m.userName;
+    if (m.businessType) mem.businessType = m.businessType;
+    if (m.businessName) mem.businessName = m.businessName;
+    if (m.lastTopics.length > 0) mem.lastTopics = m.lastTopics;
+    if (m.interactionCount > 0) mem.interactionCount = m.interactionCount;
+    if (m.firstSeen) {
+      const days = Math.floor((Date.now() - m.firstSeen) / (1000 * 60 * 60 * 24));
+      if (days > 0) mem.daysSinceFirst = days;
+    }
+    return mem;
+  }, []);
+
   const sendMessage = useCallback(
     async (content: string, imageBase64?: string, imageMimeType?: string) => {
       if ((!content.trim() && !imageBase64) || isLoading) return;
@@ -435,6 +576,10 @@ export function useAIAgent(pageContext?: PageContext) {
       }
 
       messageCountRef.current += 1;
+      setThinkingPhrase(getThinkingPhrase(content.trim(), getUserLanguage()));
+
+      memoryRef.current = extractMemoryFromText(content.trim(), memoryRef.current);
+      saveMemory(memoryRef.current);
 
       const userMessage: AIMessage = {
         id: `user-${Date.now()}`,
@@ -490,6 +635,7 @@ export function useAIAgent(pageContext?: PageContext) {
 
       abortRef.current = new AbortController();
       const ctx = buildPageContext();
+      const memory = getMemoryForAPI();
 
       try {
         const response = await fetch("/api/ai/chat", {
@@ -499,6 +645,7 @@ export function useAIAgent(pageContext?: PageContext) {
             messages: allMessages,
             pageContext: ctx,
             persona: activePersona.id,
+            memory,
           }),
           signal: abortRef.current.signal,
         });
@@ -614,7 +761,7 @@ export function useAIAgent(pageContext?: PageContext) {
         abortRef.current = null;
       }
     },
-    [messages, isLoading, processActions, parseButtons, parseWidgets, activePersona, buildPageContext, voiceMode, dealStage]
+    [messages, isLoading, processActions, parseButtons, parseWidgets, activePersona, buildPageContext, getMemoryForAPI, voiceMode, dealStage]
   );
 
   const speakTextInternal = useCallback(async (text: string) => {
@@ -778,6 +925,12 @@ export function useAIAgent(pageContext?: PageContext) {
     }).catch(() => {});
   }, [messages]);
 
+  const setMessageFeedback = useCallback((messageId: string, fb: "up" | "down" | null) => {
+    setMessages(prev => prev.map(m =>
+      m.id === messageId ? { ...m, feedback: fb } : m
+    ));
+  }, []);
+
   const cancelFollowup = useCallback(() => {
     const tg = (window as any).Telegram?.WebApp;
     const telegramId = tg?.initDataUnsafe?.user?.id;
@@ -807,6 +960,7 @@ export function useAIAgent(pageContext?: PageContext) {
     showOnboarding,
     searchQuery,
     speechLang,
+    thinkingPhrase,
     sendMessage,
     speakText,
     stopGeneration,
@@ -820,5 +974,7 @@ export function useAIAgent(pageContext?: PageContext) {
     shareConversation,
     scheduleFollowup,
     cancelFollowup,
+    setMessageFeedback,
+    pagesVisited: pagesVisited.current,
   };
 }
