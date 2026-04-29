@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { m, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, MotionConfig, useReducedMotion } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus, Eye, Truck, RotateCcw, ShieldCheck } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
@@ -501,9 +501,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         className="h-screen text-white overflow-hidden relative flex flex-col"
         style={{ backgroundColor: bgColor }}
         variants={productPageVariants}
-        initial="initial"
+        initial={prefersReducedMotion ? false : 'initial'}
         animate={productExiting ? 'exit' : 'animate'}
-        transition={{
+        transition={prefersReducedMotion ? { duration: 0 } : {
           duration: productExiting ? 0.32 : 0.35,
           ease: productExiting ? [0.32, 0, 0.67, 0] : [0.22, 1, 0.36, 1],
         }}
@@ -513,10 +513,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         <AnimatePresence>
           {showStickyHeader && (
             <m.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -20 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
               className="fixed top-0 left-0 right-0 z-[100]"
               style={{
                 paddingTop: 'max(12px, env(safe-area-inset-top))',
@@ -1475,10 +1475,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               {/* Bottom sheet */}
               <m.div
                 key="size-guide-sheet"
-                initial={{ y: '100%' }}
+                initial={prefersReducedMotion ? { y: 0 } : { y: '100%' }}
                 animate={{ y: 0 }}
-                exit={{ y: '100%' }}
-                transition={{ type: 'spring', damping: 32, stiffness: 320 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { y: '100%' }}
+                transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', damping: 32, stiffness: 320 }}
                 className="fixed left-0 right-0 z-[120] overflow-y-auto"
                 style={{
                   bottom: 0,
@@ -3377,8 +3377,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             {/* Shine sweep animation */}
             <m.div
               className="absolute inset-0 pointer-events-none"
-              animate={{ x: ['-100%', '200%'] }}
-              transition={{ duration: 3.5, repeat: Infinity, repeatDelay: 4, ease: 'easeInOut' }}
+              animate={prefersReducedMotion ? undefined : { x: ['-100%', '200%'] }}
+              transition={prefersReducedMotion ? undefined : { duration: 3.5, repeat: Infinity, repeatDelay: 4, ease: 'easeInOut' }}
               style={{
                 background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%)',
                 zIndex: 1,
@@ -3559,6 +3559,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     border: '0.5px solid rgba(255,255,255,0.08)',
                   }}
                   data-testid={`order-${order.id}`}
+                  role="article"
+                  aria-label={isRu ? `Заказ ${order.id.slice(-6)}` : `Order ${order.id.slice(-6)}`}
                 >
                   <div>
                     <p className="text-[12px] font-bold" style={{ letterSpacing: '-0.01em' }}>
@@ -3588,6 +3590,21 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   </span>
                 </div>
               ))}
+              {orders.length > 3 && (
+                <button
+                  className="w-full mt-1 px-4 py-3 rounded-[14px] flex items-center justify-center gap-2 text-[12px] font-semibold cursor-pointer transition-colors duration-200 hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '0.5px solid rgba(255,255,255,0.08)',
+                    color: 'rgba(255,255,255,0.75)',
+                    letterSpacing: '0.04em',
+                  }}
+                  aria-label={isRu ? `Показать все заказы (${orders.length})` : `Show all orders (${orders.length})`}
+                  data-testid="button-show-all-orders"
+                >
+                  {isRu ? `Показать все (${orders.length})` : `Show all (${orders.length})`} →
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -3662,7 +3679,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 function PremiumFashionStoreWithTheme(props: PremiumFashionStoreProps) {
   return (
     <DemoThemeProvider themeId="premiumFashion">
-      <PremiumFashionStore {...props} />
+      <MotionConfig reducedMotion="user">
+        <PremiumFashionStore {...props} />
+      </MotionConfig>
     </DemoThemeProvider>
   );
 }
