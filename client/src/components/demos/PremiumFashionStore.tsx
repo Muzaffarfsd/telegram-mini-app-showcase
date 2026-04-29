@@ -535,15 +535,16 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4)',
                 }}
               >
-                <button 
+                <button
                   onClick={() => setSelectedProduct(null)}
-                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-transform"
-                  style={{ 
+                  aria-label={isRu ? 'Назад' : 'Back'}
+                  className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
+                  style={{
                     background: 'rgba(255,255,255,0.15)',
                   }}
                   data-testid="button-sticky-back"
                 >
-                  <ChevronLeft className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.9)' }} strokeWidth={2.5} />
+                  <ChevronLeft className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.95)' }} strokeWidth={2.5} />
                 </button>
                 
                 <div className="flex-1 min-w-0 text-center">
@@ -567,17 +568,18 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   </p>
                 </div>
                 
-                <button 
+                <button
                   onClick={() => {
                     onTabChange?.('cart');
                   }}
-                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-transform relative"
-                  style={{ 
+                  aria-label={isRu ? `Корзина (${cartCount})` : `Cart (${cartCount})`}
+                  className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition-transform relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
+                  style={{
                     background: 'rgba(255,255,255,0.15)',
                   }}
                   data-testid="button-sticky-cart"
                 >
-                  <ShoppingBag className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.9)' }} />
+                  <ShoppingBag className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.95)' }} />
                   {cartCount > 0 && (
                     <span 
                       className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold"
@@ -674,10 +676,11 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             }}
           >
             {/* Back Button - Liquid Glass */}
-            <button 
+            <button
               onClick={handleProductBack}
-              className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
-              style={{ 
+              aria-label={isRu ? 'Назад' : 'Back'}
+              className="w-11 h-11 rounded-[14px] flex items-center justify-center cursor-pointer active:scale-95 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              style={{
                 background: 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
@@ -686,7 +689,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               }}
               data-testid="button-back"
             >
-              <ChevronLeft className="w-6 h-6" style={{ color: 'rgba(0,0,0,0.8)' }} strokeWidth={2.5} />
+              <ChevronLeft className="w-6 h-6" style={{ color: 'rgba(0,0,0,0.95)' }} strokeWidth={2.5} />
             </button>
             
             {/* Center spacer (counter removed) */}
@@ -698,9 +701,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 e.stopPropagation();
                 handleToggleFavorite(selectedProduct.id);
               }}
-              className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
-              style={{ 
-                background: isFavorite(selectedProduct.id) 
+              className="w-11 h-11 rounded-[14px] flex items-center justify-center cursor-pointer active:scale-95 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              style={{
+                background: isFavorite(selectedProduct.id)
                   ? 'linear-gradient(145deg, rgba(255,59,48,0.35) 0%, rgba(255,59,48,0.15) 100%)'
                   : 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
                 backdropFilter: 'blur(12px)',
@@ -715,7 +718,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             >
               <Heart 
                 className="w-5 h-5"
-                style={{ color: isFavorite(selectedProduct.id) ? '#FF3B30' : 'rgba(0,0,0,0.75)' }}
+                style={{ color: isFavorite(selectedProduct.id) ? '#FF3B30' : 'rgba(0,0,0,0.92)' }}
                 fill={isFavorite(selectedProduct.id) ? '#FF3B30' : 'none'}
                 strokeWidth={2}
               />
@@ -751,13 +754,15 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               <button
                 key={idx}
                 onClick={() => setCurrentImageIndex(idx)}
-                className="transition-all duration-300"
+                aria-label={isRu ? `Фото ${idx + 1} из ${productImages.length}` : `Photo ${idx + 1} of ${productImages.length}`}
+                aria-current={currentImageIndex === idx ? 'true' : undefined}
+                className="relative flex items-center justify-center cursor-pointer transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black rounded-full before:content-[''] before:absolute before:inset-[-12px]"
                 style={{
                   width: currentImageIndex === idx ? '20px' : '7px',
                   height: '7px',
                   borderRadius: '4px',
-                  background: currentImageIndex === idx 
-                    ? 'rgba(255,255,255,0.95)' 
+                  background: currentImageIndex === idx
+                    ? 'rgba(255,255,255,0.95)'
                     : 'rgba(255,255,255,0.35)',
                 }}
                 data-testid={`gallery-dot-${idx}`}
@@ -922,7 +927,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    className="relative transition-all duration-200 active:scale-95"
+                    aria-label={isRu ? `Цвет: ${color}` : `Color: ${color}`}
+                    aria-pressed={selectedColor === color}
+                    className="relative cursor-pointer transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-black before:content-[''] before:absolute before:inset-[-6px]"
                     style={{
                       width: '32px', height: '32px', borderRadius: '50%',
                       backgroundColor: selectedProduct.colorHex[idx],
@@ -957,10 +964,12 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 </div>
                 <button
                   onClick={() => setShowSizeGuide(true)}
+                  aria-label={isRu ? 'Открыть гид по размерам' : 'Open size guide'}
+                  className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
                   style={{
-                    fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.4)',
+                    fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.7)',
                     letterSpacing: '0.02em', fontFamily: "'Inter', sans-serif",
-                    borderBottom: '0.5px solid rgba(255,255,255,0.25)', lineHeight: 1.2,
+                    borderBottom: '0.5px solid rgba(255,255,255,0.4)', lineHeight: 1.2,
                     background: 'none', padding: 0,
                   }}
                 >
@@ -972,7 +981,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className="transition-all duration-200 active:scale-95"
+                    aria-label={isRu ? `Размер ${size}` : `Size ${size}`}
+                    aria-pressed={selectedSize === size}
+                    className="cursor-pointer transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                     style={{
                       flex: 1,
                       padding: '13px 8px',
@@ -1058,12 +1069,12 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <button
                     key={tab.key}
                     onClick={() => setActiveProductTab(tab.key as typeof activeProductTab)}
-                    className="flex-1 transition-all duration-200"
+                    className="flex-1 cursor-pointer transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                     style={{
                       padding: '12px 4px 13px',
                       fontSize: '11px',
                       fontWeight: activeProductTab === tab.key ? 700 : 500,
-                      color: activeProductTab === tab.key ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.4)',
+                      color: activeProductTab === tab.key ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.6)',
                       letterSpacing: '0.08em',
                       textTransform: 'uppercase',
                       fontFamily: "'Inter', sans-serif",
@@ -1076,6 +1087,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     data-testid={`tab-${tab.key}`}
                     role="tab"
                     aria-selected={activeProductTab === tab.key}
+                    aria-controls={`tabpanel-${tab.key}`}
                   >
                     {tab.label}
                   </button>
@@ -1494,11 +1506,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   </div>
                   <button
                     onClick={() => setShowSizeGuide(false)}
+                    aria-label={isRu ? 'Закрыть гид по размерам' : 'Close size guide'}
+                    className="cursor-pointer transition-colors duration-200 hover:bg-white/15 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                     style={{
-                      width: '36px', height: '36px', borderRadius: '50%',
+                      width: '44px', height: '44px', borderRadius: '50%',
                       background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.12)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: 'rgba(255,255,255,0.6)', fontSize: '18px', lineHeight: 1,
+                      color: 'rgba(255,255,255,0.85)', fontSize: '20px', lineHeight: 1,
                     }}
                   >
                     ×
@@ -3033,8 +3047,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         {/* ─── Cart Header ─── */}
         <div className="px-5 pt-5 pb-5">
           <p
-            className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
-            style={{ color: 'rgba(255,255,255,0.35)' }}
+            className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-0.5"
+            style={{ color: 'rgba(255,255,255,0.55)' }}
           >
             RADIANCE
           </p>
@@ -3106,8 +3120,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         {item.name}
                       </h3>
                       <p
-                        className="text-[11px]"
-                        style={{ color: 'rgba(255,255,255,0.45)' }}
+                        className="text-[12px]"
+                        style={{ color: 'rgba(255,255,255,0.65)' }}
                       >
                         {item.color} · {item.size}
                       </p>
@@ -3130,25 +3144,26 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       >
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center transition-all active:scale-90"
-                          aria-label="Уменьшить количество"
+                          className="w-10 h-10 flex items-center justify-center cursor-pointer transition-all duration-150 active:scale-90 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
+                          aria-label={isRu ? 'Уменьшить количество' : 'Decrease quantity'}
                           data-testid={`button-decrease-${item.id}`}
                         >
-                          <Minus className="w-3 h-3" />
+                          <Minus className="w-3.5 h-3.5" />
                         </button>
                         <span
                           className="text-[13px] font-bold px-1"
                           style={{ minWidth: '20px', textAlign: 'center' }}
+                          aria-live="polite"
                         >
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center transition-all active:scale-90"
-                          aria-label="Увеличить количество"
+                          className="w-10 h-10 flex items-center justify-center cursor-pointer transition-all duration-150 active:scale-90 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
+                          aria-label={isRu ? 'Увеличить количество' : 'Increase quantity'}
                           data-testid={`button-increase-${item.id}`}
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
@@ -3157,9 +3172,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   {/* Remove */}
                   <button
                     onClick={() => removeFromCart(item.id, item.size, item.color)}
-                    aria-label="Удалить из корзины"
-                    className="flex-shrink-0 px-3 flex items-center justify-center transition-all active:scale-90"
-                    style={{ color: 'rgba(255,255,255,0.5)' }}
+                    aria-label={isRu ? `Удалить ${item.name} из корзины` : `Remove ${item.name} from cart`}
+                    className="flex-shrink-0 px-3 flex items-center justify-center cursor-pointer transition-all duration-150 active:scale-90 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
+                    style={{ color: 'rgba(255,255,255,0.7)' }}
                     data-testid={`button-remove-${item.id}`}
                   >
                     <X className="w-4 h-4" />
@@ -3183,36 +3198,40 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   </div>
                   <button
                     onClick={() => { setPromoApplied(false); setPromoDiscountPct(0); setPromoCode(''); }}
-                    className="w-6 h-6 flex items-center justify-center rounded-full active:scale-90 transition-all"
+                    aria-label={isRu ? 'Отменить промокод' : 'Remove promo code'}
+                    className="w-9 h-9 flex items-center justify-center rounded-full cursor-pointer transition-all duration-150 active:scale-90 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                     style={{ background: 'rgba(255,255,255,0.1)' }}
                   >
-                    <X className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.6)' }} />
+                    <X className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.85)' }} />
                   </button>
                 </div>
               ) : (
                 <div
-                  className="rounded-[14px] overflow-hidden flex"
+                  className="rounded-[14px] overflow-hidden flex focus-within:ring-1 focus-within:ring-[var(--theme-primary)] transition-shadow duration-150"
                   style={{ border: '0.5px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}
                 >
                   <input
                     type="text"
-                    placeholder="Промокод"
+                    placeholder={isRu ? 'Промокод' : 'Promo code'}
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleApplyPromo()}
-                    className="flex-1 bg-transparent px-4 py-3 text-[13px] outline-none placeholder:text-white/25 text-white"
+                    aria-label={isRu ? 'Промокод' : 'Promo code'}
+                    className="flex-1 bg-transparent px-4 py-3 text-[13px] outline-none placeholder:text-white/40 text-white"
                     style={{ fontFamily: "'Inter',sans-serif", letterSpacing: '0.06em' }}
                   />
                   <button
                     onClick={handleApplyPromo}
-                    className="px-4 py-3 text-[12px] font-bold active:scale-95 transition-all"
+                    disabled={promoCode.length === 0}
+                    aria-label={isRu ? 'Применить промокод' : 'Apply promo code'}
+                    className="px-4 py-3 text-[12px] font-bold cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                     style={{
-                      color: promoCode.length > 0 ? 'var(--theme-primary)' : 'rgba(255,255,255,0.25)',
+                      color: promoCode.length > 0 ? 'var(--theme-primary)' : 'rgba(255,255,255,0.35)',
                       letterSpacing: '0.06em', fontFamily: "'Inter',sans-serif",
                       borderLeft: '0.5px solid rgba(255,255,255,0.08)',
                     }}
                   >
-                    ПРИМЕНИТЬ
+                    {isRu ? 'ПРИМЕНИТЬ' : 'APPLY'}
                   </button>
                 </div>
               )}
@@ -3276,7 +3295,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             >
               <button
                 onClick={() => setIsCheckoutOpen(true)}
-                className="w-full py-4 rounded-full font-black text-black text-[15px] transition-all active:scale-[0.98]"
+                aria-label={isRu ? `Оформить заказ на ${formatPrice(finalTotal)}` : `Checkout for ${formatPrice(finalTotal)}`}
+                className="w-full py-4 rounded-full font-black text-black text-[15px] cursor-pointer transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--theme-background)]"
                 style={{
                   background: 'var(--theme-primary)',
                   letterSpacing: '-0.01em',
@@ -3326,8 +3346,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         {/* ─── Profile Header ─── */}
         <div className="px-5 pt-5 pb-4">
           <p
-            className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
-            style={{ color: 'rgba(255,255,255,0.35)' }}
+            className="text-[10px] font-semibold tracking-[0.3em] uppercase mb-0.5"
+            style={{ color: 'rgba(255,255,255,0.55)' }}
           >
             RADIANCE
           </p>
@@ -3389,7 +3409,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 <p className="text-[15px] font-black text-white leading-tight" style={{ letterSpacing: '-0.02em' }}>
                   Александр Петров
                 </p>
-                <p className="text-[11px] text-white/70">+7 (999) 123-45-67</p>
+                <a
+                  href="tel:+79991234567"
+                  className="text-[12px] text-white/80 hover:text-white transition-colors duration-150 focus-visible:outline-none focus-visible:underline"
+                  aria-label={isRu ? 'Позвонить +7 (999) 123-45-67' : 'Call +7 (999) 123-45-67'}
+                >
+                  +7 (999) 123-45-67
+                </a>
               </div>
             </div>
 
@@ -3577,7 +3603,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           ].map(({ icon: Icon, label, testId }) => (
             <button
               key={testId}
-              className="w-full flex items-center justify-between px-4 py-3.5 rounded-[16px] transition-all active:scale-[0.98]"
+              aria-label={label}
+              className="w-full flex items-center justify-between px-4 py-3.5 rounded-[16px] cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
               style={{
                 background: 'rgba(255,255,255,0.04)',
                 border: '0.5px solid rgba(255,255,255,0.08)',
@@ -3586,10 +3613,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             >
               <div className="flex items-center gap-3">
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  className="w-9 h-9 rounded-full flex items-center justify-center"
                   style={{ background: 'rgba(255,255,255,0.08)' }}
                 >
-                  <Icon className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.6)' }} />
+                  <Icon className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.75)' }} />
                 </div>
                 <span className="text-[14px] font-medium" style={{ letterSpacing: '-0.01em' }}>
                   {label}
@@ -3597,14 +3624,15 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               </div>
               <ChevronLeft
                 className="w-4 h-4 rotate-180"
-                style={{ color: 'rgba(255,255,255,0.25)' }}
+                style={{ color: 'rgba(255,255,255,0.4)' }}
               />
             </button>
           ))}
 
           {/* Logout */}
           <button
-            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-[16px] transition-all active:scale-[0.98] mt-2"
+            aria-label={isRu ? 'Выйти из аккаунта' : 'Sign out'}
+            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-[16px] cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1 focus-visible:ring-offset-black mt-2"
             style={{
               background: 'rgba(239,68,68,0.07)',
               border: '0.5px solid rgba(239,68,68,0.18)',
@@ -3612,13 +3640,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             data-testid="button-logout"
           >
             <div
-              className="w-8 h-8 rounded-full flex items-center justify-center"
+              className="w-9 h-9 rounded-full flex items-center justify-center"
               style={{ background: 'rgba(239,68,68,0.12)' }}
             >
               <LogOut className="w-4 h-4 text-red-400" />
             </div>
             <span className="text-[14px] font-medium text-red-400" style={{ letterSpacing: '-0.01em' }}>
-              Выйти
+              {isRu ? 'Выйти' : 'Sign out'}
             </span>
           </button>
         </div>
