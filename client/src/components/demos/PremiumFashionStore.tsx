@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { m, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus, Eye, Truck, RotateCcw, ShieldCheck } from "lucide-react";
 import { OptimizedImage } from "../OptimizedImage";
 import { ConfirmDrawer } from "../ui/modern-drawer";
@@ -252,6 +252,7 @@ const genderMap: Record<string, string> = { 'Мужское': 'Men', 'Женск
 function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProps) {
   const { t, language } = useLanguage();
   const isRu = language === 'ru';
+  const prefersReducedMotion = useReducedMotion();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -728,7 +729,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 fontSize: '9px', fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase',
                 background: 'var(--theme-primary)', color: '#000',
                 padding: '5px 11px', borderRadius: '99px',
-                fontFamily: "'Satoshi', 'Inter', sans-serif",
+                fontFamily: "'Inter', sans-serif",
                 display: 'inline-block',
               }}>
                 {selectedProduct.isNew ? 'Новинка' : 'В тренде'} · SS'26
@@ -795,7 +796,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     letterSpacing: '0.3em',
                     textTransform: 'uppercase',
                     color: 'rgba(255,255,255,0.5)',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif",
+                    fontFamily: "'Inter', sans-serif",
                   }}
                 >
                   {selectedProduct.brand}
@@ -839,7 +840,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     fontWeight: 800,
                     letterSpacing: '-0.03em',
                     fontVariantNumeric: 'tabular-nums',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif",
+                    fontFamily: "'Inter', sans-serif",
                     color: 'rgba(255,255,255,0.97)',
                     lineHeight: 1,
                   }}
@@ -857,7 +858,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         textDecoration: 'line-through',
                         color: 'rgba(255,255,255,0.28)',
                         fontVariantNumeric: 'tabular-nums',
-                        fontFamily: "'Satoshi', 'Inter', sans-serif",
+                        fontFamily: "'Inter', sans-serif",
                       }}
                     >
                       {formatPrice(selectedProduct.oldPrice)}
@@ -872,7 +873,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         border: '0.5px solid rgba(var(--theme-primary-rgb, 205,255,56), 0.35)',
                         letterSpacing: '0.08em',
                         textTransform: 'uppercase',
-                        fontFamily: "'Satoshi', 'Inter', sans-serif",
+                        fontFamily: "'Inter', sans-serif",
                       }}
                     >
                       −{Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100)}%
@@ -893,7 +894,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           animation: 'pulse 1.5s ease-in-out infinite',
                         }}
                       />
-                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#EF4444', letterSpacing: '0.05em', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#EF4444', letterSpacing: '0.05em', fontFamily: "'Inter',sans-serif" }}>
                         Осталось {selectedProduct.inStock} шт.
                       </span>
                     </div>
@@ -908,7 +909,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 <p style={{
                   fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em',
                   textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
-                  fontFamily: "'Satoshi', 'Inter', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                 }}>
                   Цвет
                 </p>
@@ -946,7 +947,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <p style={{
                     fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em',
                     textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif",
+                    fontFamily: "'Inter', sans-serif",
                   }}>
                     Размер
                   </p>
@@ -958,7 +959,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   onClick={() => setShowSizeGuide(true)}
                   style={{
                     fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.4)',
-                    letterSpacing: '0.02em', fontFamily: "'Satoshi', 'Inter', sans-serif",
+                    letterSpacing: '0.02em', fontFamily: "'Inter', sans-serif",
                     borderBottom: '0.5px solid rgba(255,255,255,0.25)', lineHeight: 1.2,
                     background: 'none', padding: 0,
                   }}
@@ -979,7 +980,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       fontSize: '13px',
                       fontWeight: 700,
                       letterSpacing: '0.02em',
-                      fontFamily: "'Satoshi', 'Inter', sans-serif",
+                      fontFamily: "'Inter', sans-serif",
                       background: selectedSize === size
                         ? 'var(--theme-primary)'
                         : 'rgba(255,255,255,0.06)',
@@ -1032,13 +1033,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <p style={{
                     fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em',
                     color: 'rgba(255,255,255,0.88)', textTransform: 'uppercase',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif", lineHeight: 1,
+                    fontFamily: "'Inter', sans-serif", lineHeight: 1,
                   }}>
                     {item.label}
                   </p>
                   <p style={{
                     fontSize: '9px', color: 'rgba(255,255,255,0.38)', letterSpacing: '0.04em',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif", lineHeight: 1,
+                    fontFamily: "'Inter', sans-serif", lineHeight: 1,
                   }}>
                     {item.sub}
                   </p>
@@ -1065,7 +1066,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       color: activeProductTab === tab.key ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.4)',
                       letterSpacing: '0.08em',
                       textTransform: 'uppercase',
-                      fontFamily: "'Satoshi', 'Inter', sans-serif",
+                      fontFamily: "'Inter', sans-serif",
                       borderBottom: activeProductTab === tab.key
                         ? '1.5px solid var(--theme-primary)'
                         : '1.5px solid transparent',
@@ -1114,7 +1115,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         border: '0.5px solid rgba(255,255,255,0.1)',
                         padding: '6px 12px',
                         borderRadius: '99px',
-                        fontFamily: "'Satoshi', 'Inter', sans-serif",
+                        fontFamily: "'Inter', sans-serif",
                       }}>
                         {tag.label}
                       </span>
@@ -1145,7 +1146,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         border: '0.5px solid rgba(255,255,255,0.1)'
                       }}
                     >
-                      <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', letterSpacing: '0.02em', fontFamily: "'Satoshi','Inter',sans-serif" }}>{item.label}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', letterSpacing: '0.02em', fontFamily: "'Inter',sans-serif" }}>{item.label}</span>
                       {item.value === '__stars__' ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <div style={{ display: 'flex', gap: '2px' }}>
@@ -1273,7 +1274,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           <span style={{
                             fontSize: '13px', fontWeight: 700,
                             color: 'rgba(255,255,255,0.75)',
-                            fontFamily: "'Satoshi', 'Inter', sans-serif",
+                            fontFamily: "'Inter', sans-serif",
                           }}>
                             {review.name.charAt(0).toUpperCase()}
                           </span>
@@ -1340,7 +1341,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         letterSpacing: '0.25em',
                         textTransform: 'uppercase',
                         color: 'rgba(255,255,255,0.4)',
-                        fontFamily: "'Satoshi', 'Inter', sans-serif",
+                        fontFamily: "'Inter', sans-serif",
                         whiteSpace: 'nowrap',
                       }}
                     >
@@ -1388,7 +1389,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                             <span style={{
                               position: 'absolute', top: '8px', left: '8px',
                               fontSize: '7px', fontWeight: 800, letterSpacing: '0.2em',
-                              textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif",
+                              textTransform: 'uppercase', fontFamily: "'Inter',sans-serif",
                               background: 'var(--theme-primary)', color: '#000',
                               padding: '3px 7px', borderRadius: '99px',
                             }}>NEW</span>
@@ -1400,7 +1401,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           style={{ 
                             fontSize: '8px', fontWeight: 700, letterSpacing: '0.22em',
                             textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
-                            fontFamily: "'Satoshi','Inter',sans-serif",
+                            fontFamily: "'Inter',sans-serif",
                             marginBottom: '3px',
                           }}
                         >
@@ -1428,7 +1429,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                             fontSize: '13px', fontWeight: 700, letterSpacing: '-0.02em',
                             color: 'rgba(255,255,255,0.95)',
                             fontFeatureSettings: "'tnum'",
-                            fontFamily: "'Satoshi','Inter',sans-serif",
+                            fontFamily: "'Inter',sans-serif",
                           }}
                         >
                           {formatPrice(product.price)}
@@ -1484,7 +1485,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 {/* Header */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 24px 20px' }}>
                   <div>
-                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '4px' }}>
+                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Inter',sans-serif", marginBottom: '4px' }}>
                       {selectedProduct.brand}
                     </p>
                     <h3 style={{ fontSize: '22px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", color: 'rgba(255,255,255,0.95)', letterSpacing: '0.01em' }}>
@@ -1508,14 +1509,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
                   {/* Product-specific size chart */}
                   <div>
-                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '14px' }}>
+                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Inter',sans-serif", marginBottom: '14px' }}>
                       Замеры изделия (см)
                     </p>
                     <div style={{ borderRadius: '14px', overflow: 'hidden', border: '0.5px solid rgba(255,255,255,0.1)' }}>
                       {/* Table header */}
                       <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr 1fr', background: 'rgba(255,255,255,0.06)', padding: '10px 16px' }}>
                         {['Размер', 'Грудь', 'Длина'].map(h => (
-                          <span key={h} style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{h}</span>
+                          <span key={h} style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Inter',sans-serif" }}>{h}</span>
                         ))}
                       </div>
                       {/* Rows */}
@@ -1536,27 +1537,27 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                               transition: 'background 0.15s',
                             }}
                           >
-                            <span style={{ fontSize: '14px', fontWeight: isSelected ? 800 : 600, color: isSelected ? 'var(--theme-primary)' : 'rgba(255,255,255,0.9)', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: isSelected ? '0.02em' : 0 }}>{sz}</span>
-                            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{chest}</span>
-                            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{length}</span>
+                            <span style={{ fontSize: '14px', fontWeight: isSelected ? 800 : 600, color: isSelected ? 'var(--theme-primary)' : 'rgba(255,255,255,0.9)', fontFamily: "'Inter',sans-serif", letterSpacing: isSelected ? '0.02em' : 0 }}>{sz}</span>
+                            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Inter',sans-serif" }}>{chest}</span>
+                            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Inter',sans-serif" }}>{length}</span>
                           </button>
                         );
                       })}
                     </div>
-                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '8px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.01em' }}>
+                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '8px', fontFamily: "'Inter',sans-serif", letterSpacing: '0.01em' }}>
                       Нажмите на размер, чтобы выбрать его
                     </p>
                   </div>
 
                   {/* International size conversion */}
                   <div>
-                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '14px' }}>
+                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Inter',sans-serif", marginBottom: '14px' }}>
                       Международная конвертация
                     </p>
                     <div style={{ borderRadius: '14px', overflow: 'hidden', border: '0.5px solid rgba(255,255,255,0.1)' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', background: 'rgba(255,255,255,0.06)', padding: '10px 16px' }}>
                         {['RU', 'EU', 'US', 'IT', 'UK'].map(h => (
-                          <span key={h} style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'center' }}>{h}</span>
+                          <span key={h} style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.35)', fontFamily: "'Inter',sans-serif", textAlign: 'center' }}>{h}</span>
                         ))}
                       </div>
                       {[
@@ -1575,7 +1576,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                             borderTop: '0.5px solid rgba(255,255,255,0.07)',
                           }}>
                             {[ru, eu, us, it, uk].map((v, i) => (
-                              <span key={i} style={{ fontSize: '13px', fontWeight: i === 0 ? (isSelected ? 800 : 600) : 400, color: i === 0 && isSelected ? 'var(--theme-primary)' : i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.55)', fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'center' }}>{v}</span>
+                              <span key={i} style={{ fontSize: '13px', fontWeight: i === 0 ? (isSelected ? 800 : 600) : 400, color: i === 0 && isSelected ? 'var(--theme-primary)' : i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.55)', fontFamily: "'Inter',sans-serif", textAlign: 'center' }}>{v}</span>
                             ))}
                           </div>
                         );
@@ -1585,7 +1586,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
                   {/* How to measure */}
                   <div>
-                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '14px' }}>
+                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Inter',sans-serif", marginBottom: '14px' }}>
                       Как снять мерки
                     </p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1599,8 +1600,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                             {tip.icon}
                           </div>
                           <div>
-                            <p style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.9)', marginBottom: '4px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.01em' }}>{tip.label}</p>
-                            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.55, fontFamily: "'Satoshi','Inter',sans-serif" }}>{tip.text}</p>
+                            <p style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.9)', marginBottom: '4px', fontFamily: "'Inter',sans-serif", letterSpacing: '0.01em' }}>{tip.label}</p>
+                            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.55, fontFamily: "'Inter',sans-serif" }}>{tip.text}</p>
                           </div>
                         </div>
                       ))}
@@ -1609,10 +1610,10 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
                   {/* Fit note */}
                   <div style={{ padding: '14px 16px', borderRadius: '14px', background: 'rgba(var(--theme-primary-rgb,205,255,56),0.07)', border: '0.5px solid rgba(var(--theme-primary-rgb,205,255,56),0.2)', marginBottom: '8px' }}>
-                    <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--theme-primary)', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.02em', marginBottom: '4px' }}>
+                    <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--theme-primary)', fontFamily: "'Inter',sans-serif", letterSpacing: '0.02em', marginBottom: '4px' }}>
                       Посадка этого изделия: {selectedProduct.fit === 'regular' ? 'Стандартная' : selectedProduct.fit === 'oversized' ? 'Оверсайз' : selectedProduct.fit === 'slim' ? 'Приталенная' : selectedProduct.fit === 'relaxed' ? 'Свободная' : selectedProduct.fit}
                     </p>
-                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: "'Satoshi','Inter',sans-serif", lineHeight: 1.5 }}>
+                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: "'Inter',sans-serif", lineHeight: 1.5 }}>
                       {selectedProduct.fit === 'oversized'
                         ? 'Рекомендуем выбрать размер меньше обычного для более чёткого силуэта'
                         : selectedProduct.fit === 'slim'
@@ -1681,7 +1682,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 >
                   <span style={{
                     fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em',
-                    textTransform: 'uppercase', fontFamily: "'Satoshi', 'Inter', sans-serif",
+                    textTransform: 'uppercase', fontFamily: "'Inter', sans-serif",
                   }}>
                     В КОРЗИНУ
                   </span>
@@ -1690,7 +1691,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   }} />
                   <span style={{
                     fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em',
-                    fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi', 'Inter', sans-serif",
+                    fontVariantNumeric: 'tabular-nums', fontFamily: "'Inter', sans-serif",
                   }}>
                     {formatPrice(selectedProduct.price)}
                   </span>
@@ -1731,7 +1732,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               onClick={sidebar.open}
               aria-label="Меню"
               data-testid="button-view-menu"
-              className="w-10 h-10 flex items-center justify-center rounded-full"
+              className="w-10 h-10 flex items-center justify-center rounded-full cursor-pointer transition-colors duration-200 hover:bg-white/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
               style={{ background: 'rgba(255,255,255,0.06)' }}
             >
               <Menu className="w-5 h-5" />
@@ -1741,13 +1742,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             <div className="text-center">
               <div
                 className="text-[20px] font-black tracking-[0.2em] leading-none"
-                style={{ fontFamily: "'Satoshi', 'Inter', sans-serif" }}
+                style={{ fontFamily: "'Inter', sans-serif" }}
               >
                 RADIANCE
               </div>
               <div
                 className="text-[7.5px] font-light tracking-[0.38em] mt-0.5"
-                style={{ color: 'rgba(255,255,255,0.3)', fontFamily: "'Satoshi', 'Inter', sans-serif" }}
+                style={{ color: 'rgba(255,255,255,0.3)', fontFamily: "'Inter', sans-serif" }}
               >
                 FASHION STUDIO
               </div>
@@ -1758,7 +1759,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               <button
                 aria-label="Избранное"
                 data-testid="button-view-favorites"
-                className="w-10 h-10 flex items-center justify-center rounded-full"
+                className="w-10 h-10 flex items-center justify-center rounded-full cursor-pointer transition-colors duration-200 hover:bg-white/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                 style={{ background: 'rgba(255,255,255,0.06)' }}
               >
                 <Heart className="w-5 h-5" />
@@ -1767,7 +1768,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 aria-label="Корзина"
                 data-testid="button-view-cart"
                 onClick={() => onTabChange?.('cart')}
-                className="relative w-10 h-10 flex items-center justify-center rounded-full"
+                className="relative w-10 h-10 flex items-center justify-center rounded-full cursor-pointer transition-colors duration-200 hover:bg-white/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                 style={{ background: 'rgba(255,255,255,0.06)' }}
               >
                 <ShoppingBag className="w-5 h-5" />
@@ -1790,22 +1791,25 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           >
             <Search className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.35)' }} />
             <input
-              type="text"
+              type="search"
               placeholder={t('demos.fashion.searchProducts')}
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="bg-transparent text-white placeholder:text-white/35 outline-none flex-1 text-sm"
+              aria-label={isRu ? 'Поиск товаров' : 'Search products'}
+              className="bg-transparent text-white placeholder:text-white/35 outline-none flex-1 text-sm focus-visible:placeholder:text-white/55"
               data-testid="input-search"
             />
           </div>
 
           {/* Gender filter — underline style */}
-          <div className="flex items-center gap-1 mt-4">
+          <div className="flex items-center gap-1 mt-4" role="tablist" aria-label={isRu ? 'Фильтр по полу' : 'Gender filter'}>
             {genderFilters.map((gender) => (
               <button
                 key={gender}
                 onClick={() => setSelectedGender(gender)}
-                className="relative px-3 py-1.5 text-sm transition-all"
+                role="tab"
+                aria-selected={selectedGender === gender}
+                className="relative px-3 py-1.5 text-sm cursor-pointer transition-all rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                 data-testid={`button-filter-${gender.toLowerCase()}`}
                 style={{
                   color: selectedGender === gender ? '#fff' : 'rgba(255,255,255,0.32)',
@@ -1834,8 +1838,8 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
         >
           <m.div
             className="flex gap-0 whitespace-nowrap"
-            animate={{ x: ['0%', '-50%'] }}
-            transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+            animate={prefersReducedMotion ? undefined : { x: ['0%', '-50%'] }}
+            transition={prefersReducedMotion ? undefined : { duration: 22, repeat: Infinity, ease: 'linear' }}
             style={{ width: 'max-content' }}
           >
             {[...Array(2)].map((_, rep) => (
@@ -2020,7 +2024,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     setQuickViewColor(filteredProducts[0].colors[0]);
                   }}
                   aria-label="Быстрый просмотр"
-                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                  className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                   style={{
                     background: 'rgba(0,0,0,0.4)',
                     backdropFilter: 'blur(16px)',
@@ -2033,7 +2037,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 <button
                   onClick={(e) => { e.stopPropagation(); handleToggleFavorite(filteredProducts[0].id); }}
                   aria-label={isFavorite(filteredProducts[0].id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                  className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                   style={{
                     background: 'rgba(0,0,0,0.4)',
                     backdropFilter: 'blur(16px)',
@@ -2159,7 +2163,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <button
                     onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
                     aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                    className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                    className="absolute top-2.5 right-2.5 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                     style={{
                       background: 'rgba(0,0,0,0.38)',
                       backdropFilter: 'blur(12px)',
@@ -2179,7 +2183,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       setQuickViewColor(product.colors[0]);
                     }}
                     aria-label="Быстрый просмотр"
-                    className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                    className="absolute bottom-2.5 right-2.5 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                     style={{
                       background: 'rgba(0,0,0,0.38)',
                       backdropFilter: 'blur(12px)',
@@ -2205,7 +2209,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   style={{
                     fontSize: '8px', fontWeight: 700, letterSpacing: '0.28em',
                     textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
-                    fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '4px',
+                    fontFamily: "'Inter',sans-serif", marginBottom: '4px',
                   }}
                 >
                   {product.brand}
@@ -2286,7 +2290,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       <button
                         onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
                         aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                        className="w-7 h-7 rounded-full flex items-center justify-center active:scale-90 transition-all"
+                        className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                         style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.15)' }}
                         data-testid={`button-favorite-${product.id}`}
                       >
@@ -2300,7 +2304,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           setQuickViewColor(product.colors[0]);
                         }}
                         aria-label="Быстрый просмотр"
-                        className="w-7 h-7 rounded-full flex items-center justify-center active:scale-90 transition-all"
+                        className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                         style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.12)' }}
                         data-testid={`button-quickview-home-${product.id}`}
                       >
@@ -2313,7 +2317,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         style={{
                           fontSize: '8px', fontWeight: 700, letterSpacing: '0.22em',
                           textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
-                          fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '3px',
+                          fontFamily: "'Inter',sans-serif", marginBottom: '3px',
                         }}
                       >
                         {product.brand}
@@ -2337,7 +2341,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                         style={{
                           fontSize: '12px', fontWeight: 600, letterSpacing: '-0.01em',
                           color: 'rgba(255,255,255,0.65)', fontVariantNumeric: 'tabular-nums',
-                          fontFamily: "'Satoshi','Inter',sans-serif",
+                          fontFamily: "'Inter',sans-serif",
                         }}
                       >
                         {formatPrice(product.price)}
@@ -2412,7 +2416,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     </div>
                     {/* Info column */}
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: '2px', minWidth: 0 }}>
-                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: '7px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: '7px', fontFamily: "'Inter',sans-serif" }}>
                         {quickViewProduct.brand}
                       </p>
                       <h3 style={{ fontSize: '21px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '0.03em', color: 'rgba(255,255,255,0.95)', lineHeight: 1.15, marginBottom: '10px' }}>
@@ -2426,14 +2430,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                             stroke={s <= Math.round(quickViewProduct.rating) ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
                           />
                         ))}
-                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginLeft: '3px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginLeft: '3px', fontFamily: "'Inter',sans-serif" }}>
                           {quickViewProduct.rating}
                         </span>
                       </div>
                       {/* Price */}
                       <div style={{ marginTop: 'auto' }}>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Inter',sans-serif" }}>
                             {formatPrice(quickViewProduct.price)}
                           </span>
                           {quickViewProduct.oldPrice && (
@@ -2443,7 +2447,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           )}
                         </div>
                         {quickViewProduct.oldPrice && (
-                          <span style={{ display: 'inline-block', marginTop: '5px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.05em', color: '#000', background: 'var(--theme-primary)', borderRadius: '6px', padding: '2px 8px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                          <span style={{ display: 'inline-block', marginTop: '5px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.05em', color: '#000', background: 'var(--theme-primary)', borderRadius: '6px', padding: '2px 8px', fontFamily: "'Inter',sans-serif" }}>
                             −{Math.round((1 - quickViewProduct.price / quickViewProduct.oldPrice) * 100)}%
                           </span>
                         )}
@@ -2455,7 +2459,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
                   {/* Color */}
                   <div style={{ marginBottom: '16px' }}>
-                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Inter',sans-serif" }}>
                       Цвет <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>— {quickViewColor}</span>
                     </p>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -2478,7 +2482,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
                   {/* Size */}
                   <div style={{ marginBottom: '22px' }}>
-                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Inter',sans-serif" }}>
                       Размер
                     </p>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
@@ -2490,7 +2494,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           style={{
                             padding: '9px 4px', borderRadius: '10px',
                             fontSize: '12px', fontWeight: quickViewSize === size ? 700 : 500,
-                            fontFamily: "'Satoshi','Inter',sans-serif",
+                            fontFamily: "'Inter',sans-serif",
                             background: quickViewSize === size ? 'var(--theme-primary)' : 'rgba(255,255,255,0.07)',
                             color: quickViewSize === size ? '#000' : 'rgba(255,255,255,0.7)',
                             border: quickViewSize === size ? 'none' : '0.5px solid rgba(255,255,255,0.12)',
@@ -2526,11 +2530,11 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     }}
                     data-testid="button-quickview-home-add-to-cart"
                   >
-                    <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                    <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: "'Inter',sans-serif" }}>
                       В КОРЗИНУ
                     </span>
                     <span style={{ width: '1px', height: '16px', background: 'rgba(0,0,0,0.2)' }} />
-                    <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                    <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Inter',sans-serif" }}>
                       {formatPrice(quickViewProduct.price)}
                     </span>
                   </button>
@@ -2538,7 +2542,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <button
                     onClick={() => { openProduct(quickViewProduct); setQuickViewProduct(null); }}
                     className="w-full py-3 transition-all active:opacity-70"
-                    style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.02em' }}
+                    style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontFamily: "'Inter',sans-serif", letterSpacing: '0.02em' }}
                     data-testid="button-quickview-home-details"
                   >
                     Смотреть полностью →
@@ -2581,7 +2585,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
             </div>
             <div className="flex items-center gap-2">
               <button
-                className="w-10 h-10 rounded-full flex items-center justify-center"
+                className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors duration-200 hover:bg-white/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                 style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
                 aria-label={isRu ? 'Поиск' : 'Search'}
                 data-testid="button-view-search"
@@ -2589,7 +2593,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 <Search className="w-4.5 h-4.5" />
               </button>
               <button
-                className="w-10 h-10 rounded-full flex items-center justify-center"
+                className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors duration-200 hover:bg-white/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                 style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
                 aria-label={isRu ? 'Фильтр' : 'Filter'}
                 data-testid="button-view-filter"
@@ -2600,12 +2604,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
           </div>
 
           {/* Category chips */}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide" role="tablist" aria-label={isRu ? 'Категории товаров' : 'Product categories'}>
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className="flex-shrink-0 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all active:scale-95"
+                role="tab"
+                aria-selected={selectedCategory === cat}
+                className="flex-shrink-0 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                 style={{
                   background:
                     selectedCategory === cat ? 'var(--theme-primary)' : 'rgba(255,255,255,0.07)',
@@ -2614,7 +2620,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   fontSize: '11px',
                   fontWeight: selectedCategory === cat ? 700 : 500,
                   letterSpacing: '0.04em',
-                  fontFamily: "'Satoshi', 'Inter', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                 }}
                 data-testid={`button-filter-${cat.toLowerCase()}`}
               >
@@ -2759,7 +2765,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                             <button
                               onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
                               aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                              className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                              className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                               style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
                               data-testid={`button-favorite-catalog-${product.id}`}
                             >
@@ -2773,7 +2779,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                                 setQuickViewColor(product.colors[0]);
                               }}
                               aria-label="Быстрый просмотр"
-                              className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
+                              className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-primary)] focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                               style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
                               data-testid={`button-quickview-${product.id}`}
                             >
@@ -2889,7 +2895,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                       <LazyImage src={quickViewProduct.image} alt={quickViewProduct.name} className="w-full h-full object-cover" />
                     </div>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: '2px', minWidth: 0 }}>
-                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: '7px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: '7px', fontFamily: "'Inter',sans-serif" }}>
                         {quickViewProduct.brand}
                       </p>
                       <h3 style={{ fontSize: '21px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '0.03em', color: 'rgba(255,255,255,0.95)', lineHeight: 1.15, marginBottom: '10px' }}>
@@ -2902,13 +2908,13 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                             stroke={s <= Math.round(quickViewProduct.rating) ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
                           />
                         ))}
-                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginLeft: '3px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginLeft: '3px', fontFamily: "'Inter',sans-serif" }}>
                           {quickViewProduct.rating}
                         </span>
                       </div>
                       <div style={{ marginTop: 'auto' }}>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Inter',sans-serif" }}>
                             {formatPrice(quickViewProduct.price)}
                           </span>
                           {quickViewProduct.oldPrice && (
@@ -2918,7 +2924,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           )}
                         </div>
                         {quickViewProduct.oldPrice && (
-                          <span style={{ display: 'inline-block', marginTop: '5px', fontSize: '10px', fontWeight: 700, color: '#000', background: 'var(--theme-primary)', borderRadius: '6px', padding: '2px 8px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                          <span style={{ display: 'inline-block', marginTop: '5px', fontSize: '10px', fontWeight: 700, color: '#000', background: 'var(--theme-primary)', borderRadius: '6px', padding: '2px 8px', fontFamily: "'Inter',sans-serif" }}>
                             −{Math.round((1 - quickViewProduct.price / quickViewProduct.oldPrice) * 100)}%
                           </span>
                         )}
@@ -2930,7 +2936,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
                   {/* Color */}
                   <div style={{ marginBottom: '16px' }}>
-                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Inter',sans-serif" }}>
                       Цвет <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>— {quickViewColor}</span>
                     </p>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -2951,7 +2957,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
 
                   {/* Size */}
                   <div style={{ marginBottom: '22px' }}>
-                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Inter',sans-serif" }}>
                       Размер
                     </p>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
@@ -2961,7 +2967,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                           style={{
                             padding: '9px 4px', borderRadius: '10px',
                             fontSize: '12px', fontWeight: quickViewSize === size ? 700 : 500,
-                            fontFamily: "'Satoshi','Inter',sans-serif",
+                            fontFamily: "'Inter',sans-serif",
                             background: quickViewSize === size ? 'var(--theme-primary)' : 'rgba(255,255,255,0.07)',
                             color: quickViewSize === size ? '#000' : 'rgba(255,255,255,0.7)',
                             border: quickViewSize === size ? 'none' : '0.5px solid rgba(255,255,255,0.12)',
@@ -2996,9 +3002,9 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     }}
                     data-testid="button-quickview-add-to-cart"
                   >
-                    <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif" }}>В КОРЗИНУ</span>
+                    <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: "'Inter',sans-serif" }}>В КОРЗИНУ</span>
                     <span style={{ width: '1px', height: '16px', background: 'rgba(0,0,0,0.2)' }} />
-                    <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                    <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Inter',sans-serif" }}>
                       {formatPrice(quickViewProduct.price)}
                     </span>
                   </button>
@@ -3006,7 +3012,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                   <button
                     onClick={() => { openProduct(quickViewProduct); setQuickViewProduct(null); }}
                     className="w-full py-3 transition-all active:opacity-70"
-                    style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.02em' }}
+                    style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontFamily: "'Inter',sans-serif", letterSpacing: '0.02em' }}
                     data-testid="button-quickview-details"
                   >
                     Смотреть полностью →
@@ -3171,7 +3177,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 >
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4" style={{ color: 'var(--theme-primary)' }} />
-                    <span className="text-[13px] font-semibold" style={{ color: 'var(--theme-primary)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                    <span className="text-[13px] font-semibold" style={{ color: 'var(--theme-primary)', fontFamily: "'Inter',sans-serif" }}>
                       {promoCode.toUpperCase()} — скидка {promoDiscountPct}%
                     </span>
                   </div>
@@ -3195,14 +3201,14 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                     onChange={(e) => setPromoCode(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleApplyPromo()}
                     className="flex-1 bg-transparent px-4 py-3 text-[13px] outline-none placeholder:text-white/25 text-white"
-                    style={{ fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.06em' }}
+                    style={{ fontFamily: "'Inter',sans-serif", letterSpacing: '0.06em' }}
                   />
                   <button
                     onClick={handleApplyPromo}
                     className="px-4 py-3 text-[12px] font-bold active:scale-95 transition-all"
                     style={{
                       color: promoCode.length > 0 ? 'var(--theme-primary)' : 'rgba(255,255,255,0.25)',
-                      letterSpacing: '0.06em', fontFamily: "'Satoshi','Inter',sans-serif",
+                      letterSpacing: '0.06em', fontFamily: "'Inter',sans-serif",
                       borderLeft: '0.5px solid rgba(255,255,255,0.08)',
                     }}
                   >
@@ -3375,7 +3381,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 select-none"
                 style={{ background: 'rgba(0,0,0,0.28)', border: '1.5px solid rgba(255,255,255,0.3)' }}
               >
-                <span style={{ fontSize: '16px', fontWeight: 800, color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.02em', fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                <span style={{ fontSize: '16px', fontWeight: 800, color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.02em', fontFamily: "'Inter',sans-serif" }}>
                   АП
                 </span>
               </div>
@@ -3411,12 +3417,12 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
               {membershipTier !== 'Gold' && (
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-[9px] text-white/50" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                    <p className="text-[9px] text-white/50" style={{ fontFamily: "'Inter',sans-serif" }}>
                       {membershipTier === 'Bronze'
                         ? `${ordersCount} из 2 заказов до Серебряного`
                         : `${ordersCount} из 5 заказов до Золотого`}
                     </p>
-                    <p className="text-[9px] font-bold text-white/70" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                    <p className="text-[9px] font-bold text-white/70" style={{ fontFamily: "'Inter',sans-serif" }}>
                       {membershipTier === 'Bronze'
                         ? `${Math.min(100, Math.round(ordersCount / 2 * 100))}%`
                         : `${Math.min(100, Math.round(ordersCount / 5 * 100))}%`}
@@ -3437,7 +3443,7 @@ function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProp
                 </div>
               )}
               {membershipTier === 'Gold' && (
-                <p className="text-[10px] font-semibold text-white/70 tracking-[0.1em] uppercase" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>
+                <p className="text-[10px] font-semibold text-white/70 tracking-[0.1em] uppercase" style={{ fontFamily: "'Inter',sans-serif" }}>
                   ✦ Максимальный статус достигнут
                 </p>
               )}
