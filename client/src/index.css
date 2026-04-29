@@ -2,6 +2,11 @@
 @import '@fontsource/inter/latin-400.css';
 @import '@fontsource/inter/latin-600.css';
 @import '@fontsource/inter/latin-700.css';
+/* Cormorant Garamond — luxury serif for editorial display (Radiance and other premium demos) */
+@import '@fontsource/cormorant-garamond/300-italic.css';
+@import '@fontsource/cormorant-garamond/400.css';
+@import '@fontsource/cormorant-garamond/400-italic.css';
+@import '@fontsource/cormorant-garamond/500-italic.css';
 /* Apple Quality Standards */
 @import './styles/apple.css';
 
