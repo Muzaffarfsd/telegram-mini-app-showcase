@@ -126,12 +126,16 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   const heroY = useTransform(scrollYProgress, [0, 1], [0, heroRm ? 0 : 80]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, heroRm ? 1 : 0]);
 
+  // REPORT.md §6.7 Demo Quality Matrix — order cases by W4TG-3 score so the
+  // strongest demo is the first impression. Radiance (98) → Essence (96.5)
+  // → TimeElite (92) → SneakerVault (91) → TechStore (87.5).
+  // 'badge' surfaces premium / featured signal in the card.
   const cases = useMemo(() => [
-    { id: 'electronics', vid: true, src: "/videos/techstore_2025.mp4", poster: "/videos/techstore_2025_poster.jpg", label: 'TechStore', sub: ru ? 'Электроника' : 'Electronics', growth: '+220%', cat: ru ? 'Техника' : 'Tech' },
-    { id: 'luxury-watches', vid: true, src: "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4", poster: "/videos/timeelite_poster.jpg", label: 'TimeElite', sub: ru ? 'Премиум часы' : 'Premium watches', growth: '+340%', cat: ru ? 'Люкс' : 'Luxury' },
-    { id: 'luxury-perfume', vid: true, src: "/videos/luxury_fragrance.mp4", poster: "/videos/fragrance_poster.jpg", label: 'FragranceRoyale', sub: ru ? 'Нишевая парфюмерия' : 'Niche perfumery', growth: '+290%', cat: ru ? 'Бьюти' : 'Beauty' },
+    { id: 'clothing-store', vid: false, src: rascalImage, label: 'Radiance', sub: ru ? 'Премиум одежда' : 'Premium fashion', growth: '+340%', cat: ru ? 'Мода' : 'Fashion', badge: ru ? 'Флагман' : 'Flagship' },
+    { id: 'luxury-perfume', vid: true, src: "/videos/luxury_fragrance.mp4", poster: "/videos/fragrance_poster.jpg", label: 'Essence', sub: ru ? 'Нишевая парфюмерия' : 'Niche perfumery', growth: '+290%', cat: ru ? 'Бьюти' : 'Beauty', badge: ru ? 'Премиум' : 'Premium' },
+    { id: 'luxury-watches', vid: true, src: "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4", poster: "/videos/timeelite_poster.jpg", label: 'TimeElite', sub: ru ? 'Люкс часы' : 'Luxury watches', growth: '+340%', cat: ru ? 'Люкс' : 'Luxury', badge: ru ? 'Премиум' : 'Premium' },
     { id: 'sneaker-store', vid: false, src: nikeGreenImage, label: 'SneakerVault', sub: ru ? 'Культ кроссовок' : 'Sneaker culture', growth: '+280%', cat: ru ? 'Мода' : 'Fashion' },
-    { id: 'clothing-store', vid: false, src: rascalImage, label: 'Rascal', sub: ru ? 'Уличная мода' : 'Street fashion', growth: '+195%', cat: ru ? 'Мода' : 'Fashion' },
+    { id: 'electronics', vid: true, src: "/videos/techstore_2025.mp4", poster: "/videos/techstore_2025_poster.jpg", label: 'TechStore', sub: ru ? 'Электроника' : 'Electronics', growth: '+220%', cat: ru ? 'Техника' : 'Tech' },
   ], [ru]);
 
   const testimonials = useMemo(() => [
