@@ -1,5 +1,9 @@
 import WebApp from '@twa-dev/sdk';
 
+
+// REPORT.md Finding #8 — dev-only logging helpers.
+const dlog = import.meta.env.DEV ? console.log.bind(console) : () => {};
+const dwarn = import.meta.env.DEV ? console.warn.bind(console) : () => {};
 /**
  * Ensure Telegram WebView 7.7+ polyfill is applied
  * Call this BEFORE using any WebApp methods
@@ -16,7 +20,7 @@ export function ensureTelegramPolyfill() {
     return;
   }
 
-  console.log('[Telegram Polyfill] Applying WebView 7.7+ API');
+  dlog('[Telegram Polyfill] Applying WebView 7.7+ API');
 
   // Override version check ONLY in dev — in production we keep the real
   // feature-detection so older Telegram clients don't silently call APIs
@@ -29,32 +33,32 @@ export function ensureTelegramPolyfill() {
 
   // Add missing methods
   if (!tg.disableVerticalSwipes) {
-    tg.disableVerticalSwipes = () => console.log('[Polyfill] disableVerticalSwipes()');
-    tg.enableVerticalSwipes = () => console.log('[Polyfill] enableVerticalSwipes()');
+    tg.disableVerticalSwipes = () => dlog('[Polyfill] disableVerticalSwipes()');
+    tg.enableVerticalSwipes = () => dlog('[Polyfill] enableVerticalSwipes()');
   }
 
   if (!tg.requestFullscreen) {
     (tg as any).isFullscreen = false;
     tg.requestFullscreen = () => {
       (tg as any).isFullscreen = true;
-      console.log('[Polyfill] requestFullscreen()');
+      dlog('[Polyfill] requestFullscreen()');
     };
     tg.exitFullscreen = () => {
       (tg as any).isFullscreen = false;
-      console.log('[Polyfill] exitFullscreen()');
+      dlog('[Polyfill] exitFullscreen()');
     };
   }
 
   if (!(tg as any).setHeaderColor) {
-    (tg as any).setHeaderColor = (color: string) => console.log('[Polyfill] setHeaderColor(' + color + ')');
+    (tg as any).setHeaderColor = (color: string) => dlog('[Polyfill] setHeaderColor(' + color + ')');
   }
 
   if (!(tg as any).setBottomBarColor) {
-    (tg as any).setBottomBarColor = (color: string) => console.log('[Polyfill] setBottomBarColor(' + color + ')');
+    (tg as any).setBottomBarColor = (color: string) => dlog('[Polyfill] setBottomBarColor(' + color + ')');
   }
 
   (tg as any).__polyfilled = true;
-  console.log('[Telegram Polyfill] ✅ Ready');
+  dlog('[Telegram Polyfill] ✅ Ready');
 }
 
 export function initTelegramWebApp() {
@@ -64,7 +68,7 @@ export function initTelegramWebApp() {
   // Use native Telegram API (not @twa-dev/sdk wrapper) after polyfill
   const tg = window.Telegram?.WebApp;
   if (!tg) {
-    console.warn('[Telegram] WebApp not available');
+    dwarn('[Telegram] WebApp not available');
     return WebApp; // Fallback to SDK
   }
   
@@ -229,7 +233,7 @@ export interface ShareMessageOptions {
 export async function shareMessage(options: ShareMessageOptions): Promise<boolean> {
   const tg = window.Telegram?.WebApp;
   if (!tg || typeof (tg as any).shareMessage !== 'function') {
-    console.warn('[Telegram] shareMessage not supported');
+    dwarn('[Telegram] shareMessage not supported');
     return false;
   }
   

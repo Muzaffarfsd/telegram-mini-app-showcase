@@ -1,6 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { ensureTelegramPolyfill } from '../lib/telegram';
 
+
+// REPORT.md Finding #8 — gate dev-only logs so prod console stays clean.
+const dlog = import.meta.env.DEV ? console.log.bind(console) : () => {};
+const dwarn = import.meta.env.DEV ? console.warn.bind(console) : () => {};
 // Telegram WebApp SDK types (complete as per official documentation + 2025 features)
 interface SafeAreaInset {
   top: number;
@@ -120,15 +124,30 @@ declare global {
   }
 }
 
-// Helper to apply Telegram theme colors to CSS custom properties
+// Helper to apply Telegram theme colors to CSS custom properties.
+// REPORT.md Finding #15 — keep `--tg-theme-*` strictly for actual Telegram
+// themeParams values. Brand neon colors live under `--brand-neon-*`. Old
+// `--tg-theme-accent*` variables are kept as aliases for backwards-compat
+// during Sprint 1; remove in Sprint 2 once consumers are migrated.
 const applyTelegramTheme = (tg: TelegramWebApp) => {
   const root = document.documentElement;
   const isDark = tg.colorScheme === 'dark';
-  
-  // Neon accent colors for 2025 dark mode (adapt to light mode)
-  root.style.setProperty('--tg-theme-accent', isDark ? '#00ffff' : '#0088cc'); // Cyan neon
-  root.style.setProperty('--tg-theme-accent-2', isDark ? '#ff00ff' : '#cc0088'); // Magenta neon
-  root.style.setProperty('--tg-theme-accent-3', isDark ? '#39ff14' : '#10B981'); // Neon green
+
+  // Real Telegram theme accent — falls back to themeParams.link_color, then a sane default
+  const tgAccent = (tg.themeParams as any).accent_text_color
+    || tg.themeParams.link_color
+    || (isDark ? '#6AB3F3' : '#0088cc');
+  root.style.setProperty('--tg-theme-accent', tgAccent);
+
+  // Brand-specific neon palette (NOT the Telegram accent)
+  root.style.setProperty('--brand-neon-cyan', isDark ? '#00ffff' : '#0088cc');
+  root.style.setProperty('--brand-neon-magenta', isDark ? '#ff00ff' : '#cc0088');
+  root.style.setProperty('--brand-neon-green', isDark ? '#39ff14' : '#10B981');
+
+  // Legacy aliases — DEPRECATED, kept until Sprint 2 migration completes
+  root.style.setProperty('--tg-theme-accent-2', isDark ? '#ff00ff' : '#cc0088');
+  root.style.setProperty('--tg-theme-accent-3', isDark ? '#39ff14' : '#10B981');
+
   root.style.setProperty('--tg-theme-bg', tg.themeParams.bg_color || (isDark ? '#0A0A0A' : '#ffffff'));
   root.style.setProperty('--tg-theme-text', tg.themeParams.text_color || (isDark ? '#ffffff' : '#000000'));
   
@@ -141,35 +160,35 @@ const applyTelegramTheme = (tg: TelegramWebApp) => {
   }
 };
 
-// Helper to apply safe area padding dynamically (2025 API)
-// Uses CSS variables for better performance and flexibility
+// Helper to apply safe area padding dynamically (2025 API).
+// Single source of truth: CSS variables only — components consume via
+// `padding-bottom: var(--tg-safe-area-bottom, 0)` etc. Direct body.style
+// mutation removed (REPORT.md Finding #14) so we don't have two systems
+// drifting on rotation/viewport changes.
 const applySafeAreaPadding = (inset: SafeAreaInset) => {
   const root = document.documentElement;
-  
-  // Set CSS variables for safe area (can be used anywhere in CSS)
+
   root.style.setProperty('--tg-safe-area-top', `${inset.top}px`);
   root.style.setProperty('--tg-safe-area-bottom', `${inset.bottom}px`);
   root.style.setProperty('--tg-safe-area-left', `${inset.left}px`);
   root.style.setProperty('--tg-safe-area-right', `${inset.right}px`);
-  
-  // Apply to body for backwards compatibility
-  const body = document.body;
-  body.style.paddingTop = `${inset.top}px`;
-  body.style.paddingBottom = `${inset.bottom}px`;
-  body.style.paddingLeft = `${inset.left}px`;
-  body.style.paddingRight = `${inset.right}px`;
-  
-  console.log('[2025 API] Applied safe area padding:', inset);
 };
 
-// Helper to reset safe area padding on cleanup
+// Reset safe area CSS variables on cleanup
 const resetSafeAreaPadding = () => {
+  const root = document.documentElement;
+  root.style.removeProperty('--tg-safe-area-top');
+  root.style.removeProperty('--tg-safe-area-bottom');
+  root.style.removeProperty('--tg-safe-area-left');
+  root.style.removeProperty('--tg-safe-area-right');
+  // Also clear any legacy body padding that may have been set in earlier builds
   const body = document.body;
-  body.style.paddingTop = '';
-  body.style.paddingBottom = '';
-  body.style.paddingLeft = '';
-  body.style.paddingRight = '';
-  console.log('[2025 API] Reset safe area padding');
+  if (body.style.paddingTop || body.style.paddingBottom || body.style.paddingLeft || body.style.paddingRight) {
+    body.style.paddingTop = '';
+    body.style.paddingBottom = '';
+    body.style.paddingLeft = '';
+    body.style.paddingRight = '';
+  }
 };
 
 // Helper to apply viewport height CSS variables
@@ -241,7 +260,7 @@ export function useTelegram() {
       // CRITICAL: Detect device performance for adaptive quality
       const performance = detectDevicePerformance(tg);
       setDevicePerformance(performance);
-      console.log('[Performance] Device class:', performance);
+      dlog('[Performance] Device class:', performance);
       
       // Initialize fullscreen state (2025)
       if (typeof tg.isFullscreen !== 'undefined') {
@@ -271,14 +290,14 @@ export function useTelegram() {
       const handleFullscreenChange = () => {
         if (typeof tg.isFullscreen !== 'undefined') {
           setIsFullscreen(tg.isFullscreen);
-          console.log('[2025 API] Fullscreen:', tg.isFullscreen);
+          dlog('[2025 API] Fullscreen:', tg.isFullscreen);
         }
       };
       
       // Listen for home screen status changes (2025)
       const handleHomeScreenAdded = () => {
         setHomeScreenStatus('added');
-        console.log('[2025 API] Home Screen: Added');
+        dlog('[2025 API] Home Screen: Added');
       };
       
       // Listen for safe area changes (2025) - rotation, viewport resize, etc.
@@ -286,7 +305,7 @@ export function useTelegram() {
         if (tg.safeAreaInset) {
           setSafeArea(tg.safeAreaInset);
           applySafeAreaPadding(tg.safeAreaInset);
-          console.log('[2025 API] Safe Area Updated:', tg.safeAreaInset);
+          dlog('[2025 API] Safe Area Updated:', tg.safeAreaInset);
         }
         if (tg.contentSafeAreaInset) {
           setContentSafeArea(tg.contentSafeAreaInset);
@@ -304,7 +323,7 @@ export function useTelegram() {
         }
         // Update viewport height variables on viewport change
         applyViewportVariables(tg);
-        console.log('[2025 API] Viewport Changed');
+        dlog('[2025 API] Viewport Changed');
       };
       
       tg.onEvent('themeChanged', handleThemeChange);
@@ -321,7 +340,7 @@ export function useTelegram() {
       if (typeof tg.isVersionAtLeast === 'function' && tg.isVersionAtLeast('7.7')) {
         if (typeof tg.disableVerticalSwipes === 'function') {
           tg.disableVerticalSwipes();
-          console.log('[Telegram] Vertical swipes disabled - smooth scrolling enabled');
+          dlog('[Telegram] Vertical swipes disabled - smooth scrolling enabled');
         }
       }
       
@@ -351,15 +370,15 @@ export function useTelegram() {
     request: () => {
       if (webApp?.requestFullscreen) {
         webApp.requestFullscreen();
-        console.log('[2025 API] Requesting fullscreen...');
+        dlog('[2025 API] Requesting fullscreen...');
       } else {
-        console.warn('[2025 API] Full-screen mode not supported');
+        dwarn('[2025 API] Full-screen mode not supported');
       }
     },
     exit: () => {
       if (webApp?.exitFullscreen) {
         webApp.exitFullscreen();
-        console.log('[2025 API] Exiting fullscreen...');
+        dlog('[2025 API] Exiting fullscreen...');
       }
     },
     isActive: isFullscreen,
@@ -370,16 +389,16 @@ export function useTelegram() {
     add: () => {
       if (webApp?.addToHomeScreen) {
         webApp.addToHomeScreen();
-        console.log('[2025 API] Adding to home screen...');
+        dlog('[2025 API] Adding to home screen...');
       } else {
-        console.warn('[2025 API] Home screen shortcuts not supported');
+        dwarn('[2025 API] Home screen shortcuts not supported');
       }
     },
     checkStatus: () => {
       if (webApp?.checkHomeScreenStatus) {
         webApp.checkHomeScreenStatus((status) => {
           setHomeScreenStatus(status);
-          console.log('[2025 API] Home screen status:', status);
+          dlog('[2025 API] Home screen status:', status);
         });
       }
     },
@@ -408,7 +427,7 @@ export function useTelegram() {
         mainButtonHandlerRef.current = onClick;
         webApp.MainButton.onClick(onClick);
         webApp.MainButton.show();
-        console.log('[TG API] MainButton shown:', text);
+        dlog('[TG API] MainButton shown:', text);
       }
     },
     hide: () => {
@@ -419,7 +438,7 @@ export function useTelegram() {
           mainButtonHandlerRef.current = null;
         }
         webApp.MainButton.hide();
-        console.log('[TG API] MainButton hidden');
+        dlog('[TG API] MainButton hidden');
       }
     },
     setText: (text: string) => {
@@ -458,7 +477,7 @@ export function useTelegram() {
         secondaryButtonHandlerRef.current = onClick;
         webApp.SecondaryButton.onClick(onClick);
         webApp.SecondaryButton.show();
-        console.log('[TG API] SecondaryButton shown:', text);
+        dlog('[TG API] SecondaryButton shown:', text);
       }
     },
     hide: () => {
@@ -469,7 +488,7 @@ export function useTelegram() {
           secondaryButtonHandlerRef.current = null;
         }
         webApp.SecondaryButton.hide();
-        console.log('[TG API] SecondaryButton hidden');
+        dlog('[TG API] SecondaryButton hidden');
       }
     },
     isAvailable: !!webApp?.SecondaryButton,
@@ -493,19 +512,19 @@ export function useTelegram() {
     // For t.me/share/url we need to encode the full message
     const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=${encodeURIComponent(shareText + (referralCode ? `\n\nМой реферальный код: ${referralCode}` : ''))}`;
     
-    console.log('[TG API] Sharing:', { deepLink, referralCode, webAppAvailable: !!webApp });
+    dlog('[TG API] Sharing:', { deepLink, referralCode, webAppAvailable: !!webApp });
     
     try {
       // Primary method: openTelegramLink - opens Telegram share dialog
       if (webApp?.openTelegramLink) {
-        console.log('[TG API] Using openTelegramLink with:', telegramShareUrl);
+        dlog('[TG API] Using openTelegramLink with:', telegramShareUrl);
         webApp.openTelegramLink(telegramShareUrl);
         hapticFeedback.medium();
         return { success: true, method: 'telegram' };
       }
       
       // Fallback: Direct navigation to Telegram share URL
-      console.log('[TG API] Using window.location for Telegram share');
+      dlog('[TG API] Using window.location for Telegram share');
       window.location.href = telegramShareUrl;
       hapticFeedback.medium();
       return { success: true, method: 'redirect' };
@@ -530,11 +549,11 @@ export function useTelegram() {
     const shareText = `Присоединяйся к WEB4TG! Используй мой реферальный код: ${referralCode}`;
     const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=${encodeURIComponent(shareText)}`;
     
-    console.log('[TG API] Inviting friend:', { deepLink, referralCode });
+    dlog('[TG API] Inviting friend:', { deepLink, referralCode });
     
     try {
       if (webApp?.openTelegramLink) {
-        console.log('[TG API] Using openTelegramLink for invite');
+        dlog('[TG API] Using openTelegramLink for invite');
         webApp.openTelegramLink(telegramShareUrl);
         hapticFeedback.medium();
         return { success: true, method: 'telegram' };
@@ -559,10 +578,10 @@ export function useTelegram() {
     if (webApp?.downloadFile) {
       webApp.downloadFile({ url, file_name: fileName }, (success) => {
         if (success) {
-          console.log('[TG API] File download started:', fileName);
+          dlog('[TG API] File download started:', fileName);
           hapticFeedback.light();
         } else {
-          console.warn('[TG API] File download failed');
+          dwarn('[TG API] File download failed');
         }
       });
     } else {
@@ -574,7 +593,7 @@ export function useTelegram() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      console.log('[TG API] File download via browser:', fileName);
+      dlog('[TG API] File download via browser:', fileName);
     }
   };
 
@@ -582,7 +601,7 @@ export function useTelegram() {
     text?: string;
     widget_link?: { url: string; name?: string };
   }): { success: boolean; method: string } => {
-    console.log('[TG API] shareToStory called:', { mediaUrl, params });
+    dlog('[TG API] shareToStory called:', { mediaUrl, params });
 
     try {
       if (webApp?.shareToStory) {
@@ -591,7 +610,7 @@ export function useTelegram() {
         return { success: true, method: 'native' };
       }
 
-      console.warn('[TG API] shareToStory not available (requires Bot API 7.8+)');
+      dwarn('[TG API] shareToStory not available (requires Bot API 7.8+)');
       return { success: false, method: 'unsupported' };
     } catch (error) {
       console.error('[TG API] shareToStory error:', error);
@@ -600,7 +619,7 @@ export function useTelegram() {
   };
 
   const requestContact = (): Promise<{ success: boolean; contact?: any }> => {
-    console.log('[TG API] requestContact called');
+    dlog('[TG API] requestContact called');
 
     return new Promise((resolve) => {
       try {
@@ -608,18 +627,18 @@ export function useTelegram() {
           webApp.requestContact((sent: boolean, event?: any) => {
             if (sent) {
               hapticFeedback.light();
-              console.log('[TG API] Contact shared successfully');
+              dlog('[TG API] Contact shared successfully');
               resolve({
                 success: true,
                 contact: event?.responseUnsafe?.result || null,
               });
             } else {
-              console.log('[TG API] Contact sharing declined');
+              dlog('[TG API] Contact sharing declined');
               resolve({ success: false });
             }
           });
         } else {
-          console.warn('[TG API] requestContact not available (requires Bot API 6.9+)');
+          dwarn('[TG API] requestContact not available (requires Bot API 6.9+)');
           resolve({ success: false });
         }
       } catch (error) {
