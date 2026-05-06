@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useTelegram } from "@/hooks/useTelegram";
 import { BackHeader } from "./BackHeader";
 import { useLanguage } from "../contexts/LanguageContext";
+import { analytics } from "@/lib/analytics";
+import { EVENT_CATEGORIES, EVENT_ACTIONS } from "@shared/analytics";
 
 const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
   ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
@@ -89,7 +91,16 @@ const CheckoutForm = ({ totalAmount, projectName, selectedFeatures, onSuccess }:
             description: t('checkout.thankYouOrder'),
           });
         }
-        
+
+        // REPORT.md Finding #9 — funnel event: order completed (payment confirmed)
+        analytics.track(
+          EVENT_CATEGORIES.CONVERSION,
+          EVENT_ACTIONS.PAYMENT_COMPLETE,
+          projectName,
+          totalAmount,
+          { featureCount: selectedFeatures.length }
+        );
+
         onSuccess();
       }
     } catch (err) {

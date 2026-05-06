@@ -7,6 +7,7 @@ import { useTelegramButtons } from "./hooks/useTelegramButtons";
 import { Home, ShoppingCart, Briefcase, Bot } from "lucide-react";
 
 import { trackDemoView } from "./hooks/useGamification";
+import { analytics } from "./lib/analytics";
 import UserAvatar from "./components/UserAvatar";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useRouting, navigate } from "./hooks/useRouting";
@@ -457,6 +458,9 @@ function AppContent() {
     navigate(`/demos/${demoId}/app`);
     queueMicrotask(() => hapticFeedback.medium());
     trackDemoView();
+    // REPORT.md Finding #9 — funnel event: demo opened (single trigger covers
+    // ShowcasePage and ProjectsPage paths since both go through this handler).
+    analytics.demoStart(demoId, demoId);
   }, [hapticFeedback]);
 
   const handleCloseDemo = useCallback(() => {

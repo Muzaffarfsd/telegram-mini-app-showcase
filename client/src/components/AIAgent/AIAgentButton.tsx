@@ -8,6 +8,8 @@ import { useAIInteractions, useSwipeGesture } from "@/hooks/useAIInteractions";
 import type { TourStep } from "./AIGuidedTour";
 import { BotMessageSquare, X } from "lucide-react";
 import { AIAgentPanel } from "./AIAgentPanel";
+import { analytics } from "@/lib/analytics";
+import { EVENT_CATEGORIES } from "@shared/analytics";
 
 const AIGuidedTour = lazy(() =>
   import("./AIGuidedTour").then((m) => ({ default: m.AIGuidedTour }))
@@ -279,7 +281,15 @@ export const AIAgentButton = memo(() => {
     setShowPreview(false);
     dismissedPages.current.add(route.component);
     queueMicrotask(() => hapticFeedback.medium());
-  }, [route.component, hapticFeedback]);
+    // REPORT.md Finding #9 — funnel event: AI agent engaged
+    analytics.track(
+      EVENT_CATEGORIES.ENGAGEMENT,
+      'ai_engaged',
+      route.component,
+      undefined,
+      { demoId: route.params?.id }
+    );
+  }, [route.component, route.params?.id, hapticFeedback]);
 
   handleOpenRef.current = handleOpen;
 

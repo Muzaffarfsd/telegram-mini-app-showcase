@@ -1,6 +1,8 @@
 import { useState, useCallback, useMemo, memo, useEffect, useRef } from "react";
 import { m, AnimatePresence, useInView } from "@/utils/LazyMotionProvider";
 import { trackProjectCreation, trackFeatureAdded } from "@/hooks/useGamification";
+import { analytics } from "@/lib/analytics";
+import { EVENT_CATEGORIES, EVENT_ACTIONS } from "@shared/analytics";
 import { useLanguage } from '../contexts/LanguageContext';
 import { 
   ShoppingCart, User, ArrowRight, Check,
@@ -740,6 +742,17 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
 
   const handleOrderClick = useCallback(() => {
     if (!selectedTemplate || !projectName.trim()) return;
+    // REPORT.md Finding #9 — funnel event: order started (form submitted, going to checkout)
+    analytics.track(
+      EVENT_CATEGORIES.CONVERSION,
+      EVENT_ACTIONS.PAYMENT_START,
+      selectedTemplate.name,
+      totalPrice,
+      {
+        featureCount: selectedFeatures.length,
+        subscription: selectedSubscription.name,
+      }
+    );
     onNavigate('checkout', {
       projectName: projectName.trim(), selectedFeatures,
       selectedTemplate: selectedTemplate.name, totalAmount: totalPrice,

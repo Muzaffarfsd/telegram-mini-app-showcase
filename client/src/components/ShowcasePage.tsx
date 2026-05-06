@@ -109,7 +109,9 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
   }, [words.length]);
 
   const openDemo = useCallback((id: string) => {
-    haptic.light(); markAsViewed(id); onOpenDemo(id);
+    haptic.light();
+    markAsViewed(id);
+    onOpenDemo(id);
   }, [haptic, onOpenDemo, markAsViewed]);
 
   const nav = useCallback((s: string) => {
