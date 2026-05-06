@@ -159,7 +159,7 @@ interface NavTabProps {
 const NavTab = memo(({ onClick, isActive, ariaLabel, testId, label, children }: NavTabProps) => (
   <button
     type="button"
-    className="relative z-30 flex items-center justify-center rounded-[14px] gpu-layer"
+    className="relative z-30 flex items-center justify-center rounded-[14px] gpu-layer nav-tab-button"
     style={{
       height: '44px',
       minWidth: '44px',
@@ -167,7 +167,6 @@ const NavTab = memo(({ onClick, isActive, ariaLabel, testId, label, children }: 
       border: 'none',
       background: isActive ? 'rgba(255,255,255,0.10)' : 'transparent',
       padding: isActive ? '0 14px' : '0 12px',
-      outline: 'none',
       cursor: 'pointer',
       gap: isActive ? '7px' : '0',
       transition: 'background 0.22s ease-out, padding 0.28s ease-out, gap 0.28s ease-out',
@@ -268,9 +267,9 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
           <NavTab
             onClick={() => navAction('/ai-process')}
             isActive={isAI}
-            ariaLabel={language === 'ru' ? 'ИИ агент' : 'AI Agent'}
+            ariaLabel={language === 'ru' ? 'ИИ агент Алекс' : 'AI Agent Alex'}
             testId="nav-ai"
-            label={language === 'ru' ? 'ИИ' : 'AI'}
+            label={language === 'ru' ? 'Алекс' : 'Alex'}
           >
             <Bot
               className="w-[21px] h-[21px]"

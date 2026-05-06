@@ -18,11 +18,14 @@ export function ensureTelegramPolyfill() {
 
   console.log('[Telegram Polyfill] Applying WebView 7.7+ API');
 
-  // Override version check
-  const originalIsVersionAtLeast = tg.isVersionAtLeast;
-  tg.isVersionAtLeast = function(version: string) {
-    return true; // Always return true in dev
-  };
+  // Override version check ONLY in dev — in production we keep the real
+  // feature-detection so older Telegram clients don't silently call APIs
+  // that don't exist on their version. See REPORT.md Finding #3.
+  if (import.meta.env.DEV) {
+    tg.isVersionAtLeast = function(_version: string) {
+      return true;
+    };
+  }
 
   // Add missing methods
   if (!tg.disableVerticalSwipes) {
@@ -74,10 +77,16 @@ export function initTelegramWebApp() {
     tg.requestFullscreen();
   }
   
-  // Make header and bottom bar match background - use pure black for OLED
-  const bgColor = '#000000';
+  // Honour Telegram themeParams instead of hardcoding black — light-mode
+  // users would otherwise see a black header/bottom bar that looks broken.
+  // See REPORT.md Finding #2.
+  const themeBg = tg.themeParams?.bg_color;
+  const themeHeader = (tg.themeParams as any)?.header_bg_color || themeBg;
+  const fallbackBg = tg.colorScheme === 'dark' ? '#000000' : '#ffffff';
+  const bgColor = themeBg || fallbackBg;
+  const headerColor = themeHeader || bgColor;
   if (typeof (tg as any).setHeaderColor === 'function') {
-    (tg as any).setHeaderColor(bgColor);
+    (tg as any).setHeaderColor(headerColor);
   }
   if (typeof (tg as any).setBackgroundColor === 'function') {
     (tg as any).setBackgroundColor(bgColor);

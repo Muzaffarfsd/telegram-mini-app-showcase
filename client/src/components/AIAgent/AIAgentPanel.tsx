@@ -97,6 +97,10 @@ function getDateLabel(date: Date, lang: string): string {
   });
 }
 
+// REPORT.md Finding #4 — only one persona (Alex) is currently implemented
+// in useAIAgent.ts (PERSONAS = [ALEX_PERSONA]). The "4 experts" onboarding
+// step was promising switchable Maria/TechLead/Designer that don't exist —
+// removed until they ship to avoid breaking trust on first AI engagement.
 const ONBOARDING_STEPS = [
   {
     ru: "Алекс — ваш AI-консультант. Расскажите о бизнесе, и он подберёт решение",
@@ -112,11 +116,6 @@ const ONBOARDING_STEPS = [
     ru: "Нажмите 📞 чтобы включить голосовой режим — как звонок Алексу",
     en: "Tap 📞 to enable voice mode — like calling Alex",
     icon: "🎙️",
-  },
-  {
-    ru: "Переключайтесь между 4 экспертами — дизайнер, разработчик, стратег",
-    en: "Switch between 4 experts — designer, developer, strategist",
-    icon: "👥",
   },
 ];
 

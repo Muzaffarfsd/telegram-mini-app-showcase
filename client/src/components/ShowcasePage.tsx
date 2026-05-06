@@ -118,8 +118,11 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
 
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 80]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  // REPORT.md Finding #7 — gate scroll-driven parallax behind reduced-motion.
+  // The Cin/Ct helpers above already check it, but the hero parallax did not.
+  const heroRm = prefersReducedMotion();
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, heroRm ? 0 : 80]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, heroRm ? 1 : 0]);
 
   const cases = useMemo(() => [
     { id: 'electronics', vid: true, src: "/videos/techstore_2025.mp4", poster: "/videos/techstore_2025_poster.jpg", label: 'TechStore', sub: ru ? 'Электроника' : 'Electronics', growth: '+220%', cat: ru ? 'Техника' : 'Tech' },

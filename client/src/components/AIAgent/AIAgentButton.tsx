@@ -612,6 +612,7 @@ export const AIAgentButton = memo(() => {
       <m.button
         ref={fabRef}
         type="button"
+        className="ai-fab"
         onClick={handleFabClick}
         onPointerDown={handleFabPointerDown}
         onPointerUp={handleFabPointerUp}
