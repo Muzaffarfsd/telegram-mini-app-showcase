@@ -10,3 +10,6 @@ coverage
 *.tsbuildinfo
 migrations
 .local
+.audit/
+audit-runner.pid
+audit-runner.log
