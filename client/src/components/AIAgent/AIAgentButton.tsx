@@ -26,65 +26,70 @@ interface QuickAction {
   color?: string;
 }
 
+// REPORT.md Finding #10 — sentinel for stub handlers. Any action set to NOOP
+// in PAGE_ACTIONS opens the AI chat with the label as a pre-fill prompt.
+// Identity comparison (action.action === NOOP) is robust to minification.
+const NOOP: () => void = () => {};
+
 const PAGE_ACTIONS: Record<string, { ru: QuickAction[]; en: QuickAction[] }> = {
   showcase: {
     ru: [
       { icon: "🎯", label: "Подобрать демо", action: () => navigate("/projects"), color: "#34d399" },
-      { icon: "💰", label: "Узнать цены", action: () => {}, color: "#f59e0b" },
+      { icon: "💰", label: "Узнать цены", action: NOOP, color: "#f59e0b" },
       { icon: "🏗️", label: "Конструктор", action: () => navigate("/constructor"), color: "#60a5fa" },
     ],
     en: [
       { icon: "🎯", label: "Find a demo", action: () => navigate("/projects"), color: "#34d399" },
-      { icon: "💰", label: "See prices", action: () => {}, color: "#f59e0b" },
+      { icon: "💰", label: "See prices", action: NOOP, color: "#f59e0b" },
       { icon: "🏗️", label: "Constructor", action: () => navigate("/constructor"), color: "#60a5fa" },
     ],
   },
   projects: {
     ru: [
-      { icon: "⭐", label: "Топ решения", action: () => {}, color: "#f59e0b" },
-      { icon: "🔍", label: "Сравнить", action: () => {}, color: "#a78bfa" },
+      { icon: "⭐", label: "Топ решения", action: NOOP, color: "#f59e0b" },
+      { icon: "🔍", label: "Сравнить", action: NOOP, color: "#a78bfa" },
       { icon: "📊", label: "Аналитика", action: () => navigate("/analytics"), color: "#60a5fa" },
     ],
     en: [
-      { icon: "⭐", label: "Top picks", action: () => {}, color: "#f59e0b" },
-      { icon: "🔍", label: "Compare", action: () => {}, color: "#a78bfa" },
+      { icon: "⭐", label: "Top picks", action: NOOP, color: "#f59e0b" },
+      { icon: "🔍", label: "Compare", action: NOOP, color: "#a78bfa" },
       { icon: "📊", label: "Analytics", action: () => navigate("/analytics"), color: "#60a5fa" },
     ],
   },
   demoApp: {
     ru: [
-      { icon: "📋", label: "Получить КП", action: () => {}, color: "#34d399" },
-      { icon: "🎨", label: "Кастомизация", action: () => {}, color: "#a78bfa" },
+      { icon: "📋", label: "Получить КП", action: NOOP, color: "#34d399" },
+      { icon: "🎨", label: "Кастомизация", action: NOOP, color: "#a78bfa" },
       { icon: "📱", label: "Другие демо", action: () => navigate("/projects"), color: "#60a5fa" },
     ],
     en: [
-      { icon: "📋", label: "Get proposal", action: () => {}, color: "#34d399" },
-      { icon: "🎨", label: "Customize", action: () => {}, color: "#a78bfa" },
+      { icon: "📋", label: "Get proposal", action: NOOP, color: "#34d399" },
+      { icon: "🎨", label: "Customize", action: NOOP, color: "#a78bfa" },
       { icon: "📱", label: "More demos", action: () => navigate("/projects"), color: "#60a5fa" },
     ],
   },
   demoLanding: {
     ru: [
-      { icon: "▶️", label: "Запустить демо", action: () => {}, color: "#34d399" },
-      { icon: "📋", label: "Получить КП", action: () => {}, color: "#f59e0b" },
-      { icon: "💬", label: "Задать вопрос", action: () => {}, color: "#60a5fa" },
+      { icon: "▶️", label: "Запустить демо", action: NOOP, color: "#34d399" },
+      { icon: "📋", label: "Получить КП", action: NOOP, color: "#f59e0b" },
+      { icon: "💬", label: "Задать вопрос", action: NOOP, color: "#60a5fa" },
     ],
     en: [
-      { icon: "▶️", label: "Try demo", action: () => {}, color: "#34d399" },
-      { icon: "📋", label: "Get proposal", action: () => {}, color: "#f59e0b" },
-      { icon: "💬", label: "Ask question", action: () => {}, color: "#60a5fa" },
+      { icon: "▶️", label: "Try demo", action: NOOP, color: "#34d399" },
+      { icon: "📋", label: "Get proposal", action: NOOP, color: "#f59e0b" },
+      { icon: "💬", label: "Ask question", action: NOOP, color: "#60a5fa" },
     ],
   },
   constructor: {
     ru: [
-      { icon: "🤖", label: "AI-помощник", action: () => {}, color: "#34d399" },
+      { icon: "🤖", label: "AI-помощник", action: NOOP, color: "#34d399" },
       { icon: "💡", label: "Примеры", action: () => navigate("/projects"), color: "#f59e0b" },
-      { icon: "📞", label: "Консультация", action: () => {}, color: "#a78bfa" },
+      { icon: "📞", label: "Консультация", action: NOOP, color: "#a78bfa" },
     ],
     en: [
-      { icon: "🤖", label: "AI helper", action: () => {}, color: "#34d399" },
+      { icon: "🤖", label: "AI helper", action: NOOP, color: "#34d399" },
       { icon: "💡", label: "Examples", action: () => navigate("/projects"), color: "#f59e0b" },
-      { icon: "📞", label: "Consultation", action: () => {}, color: "#a78bfa" },
+      { icon: "📞", label: "Consultation", action: NOOP, color: "#a78bfa" },
     ],
   },
 };
@@ -335,19 +340,7 @@ export const AIAgentButton = memo(() => {
   const handleQuickAction = useCallback((action: QuickAction) => {
     queueMicrotask(() => hapticFeedback.light());
 
-    if (action.label === "Узнать цены" || action.label === "See prices" ||
-        action.label === "Получить КП" || action.label === "Get proposal" ||
-        action.label === "Задать вопрос" || action.label === "Ask question" ||
-        action.label === "AI-помощник" || action.label === "AI helper" ||
-        action.label === "Консультация" || action.label === "Consultation" ||
-        action.label === "Сравнить" || action.label === "Compare" ||
-        action.label === "Кастомизация" || action.label === "Customize" ||
-        action.label === "Топ решения" || action.label === "Top picks") {
-      setShowMenu(false);
-      handleOpen();
-      return;
-    }
-
+    // Special case: "Try demo" routes to the active demo if we're on a demo landing.
     if (action.label === "Запустить демо" || action.label === "Try demo") {
       const demoId = route.params?.id;
       if (demoId) navigate(`/demos/${demoId}/app`);
@@ -355,9 +348,18 @@ export const AIAgentButton = memo(() => {
       return;
     }
 
+    // REPORT.md Finding #10 — stub handlers (NOOP) open the chat with the
+    // action label as a pre-fill prompt rather than silently doing nothing.
+    if (action.action === NOOP) {
+      setShowMenu(false);
+      handleOpen();
+      window.dispatchEvent(new CustomEvent("ai-prefill", { detail: action.label }));
+      return;
+    }
+
     action.action();
     setShowMenu(false);
-  }, [handleOpen, route.params?.id]);
+  }, [handleOpen, route.params?.id, hapticFeedback]);
 
   const pageActions = useMemo(() => {
     const actions = PAGE_ACTIONS[route.component];

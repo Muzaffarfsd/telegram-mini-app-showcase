@@ -277,6 +277,23 @@ function VoiceWaveform({ analyserRef, isActive, color }: {
 export const AIAgentInput = memo(
   ({ onSend, isLoading, onStop, placeholder, voiceMode, onToggleVoiceMode, speechLang }: AIAgentInputProps) => {
     const [input, setInput] = useState("");
+
+    // REPORT.md Finding #10 — quick actions with stub handlers dispatch
+    // an "ai-prefill" event with the action label as detail. We seed the
+    // input so the user sees what they're about to ask and can edit/send.
+    useEffect(() => {
+      const onPrefill = (e: Event) => {
+        const detail = (e as CustomEvent).detail;
+        if (typeof detail === "string" && detail.length > 0) {
+          setInput(detail);
+          // focus so the user can edit before sending
+          requestAnimationFrame(() => textareaRef.current?.focus());
+        }
+      };
+      window.addEventListener("ai-prefill", onPrefill);
+      return () => window.removeEventListener("ai-prefill", onPrefill);
+    }, []);
+
     const [isRecording, setIsRecording] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
