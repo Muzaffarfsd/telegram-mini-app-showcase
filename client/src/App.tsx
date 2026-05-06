@@ -442,6 +442,32 @@ function AppContent() {
     } else {
       setTimeout(prefetchAllRoutes, 1000);
     }
+
+    // REPORT.md W4TG-6 Sprint 0 — parse Telegram start_param so deep links
+    // like t.me/<bot>/<app>?startapp=demo_radiance land on the right demo.
+    // Bot/marketing share-links can use either canonical demo IDs or the
+    // priority-demo aliases (radiance, essence, etc.). Referral codes that
+    // start with "WEB4TG" are still owned by ReferralProgram; we skip them.
+    try {
+      const sp = new URLSearchParams(window.location.search).get('tgWebAppStartParam');
+      const fromTg = (window.Telegram?.WebApp as any)?.initDataUnsafe?.start_param;
+      const startParam = (fromTg || sp || '').trim();
+      if (startParam && !startParam.startsWith('WEB4TG')) {
+        const DEMO_ALIASES: Record<string, string> = {
+          radiance: 'clothing-store',
+          glowspa: 'beauty',
+          techstore: 'electronics',
+          bloom: 'florist',
+          essence: 'luxury-perfume',
+          sneakervault: 'sneaker-store',
+          timeelite: 'luxury-watches',
+        };
+        const raw = startParam.startsWith('demo_') ? startParam.slice(5) : startParam;
+        const demoId = DEMO_ALIASES[raw.toLowerCase()] || raw;
+        // Defer to next tick so the router is ready and provider tree is mounted
+        queueMicrotask(() => navigate(`/demos/${demoId}/app`));
+      }
+    } catch { /* malformed URL — skip silently */ }
   }, []);
 
   const handleNavigate = useCallback((section: string, data?: any) => {
