@@ -294,6 +294,24 @@ export const AIAgentInput = memo(
       return () => window.removeEventListener("ai-prefill", onPrefill);
     }, []);
 
+    // REPORT.md Finding (Sprint 1 backlog: Voice-mode capability check) —
+    // Web Speech API is famously broken on Xiaomi MIUI / Huawei without
+    // Google Services, and getUserMedia is blocked in some Telegram
+    // WebViews. Probe both at mount and degrade the UI honestly.
+    //   'speech'    → SpeechRecognition + mic available
+    //   'recording' → no SR but mic available (audio recording fallback)
+    //   'none'      → hide mic button entirely
+    const [voiceCapability, setVoiceCapability] = useState<"speech" | "recording" | "none" | "probing">("probing");
+    useEffect(() => {
+      const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const hasMedia = typeof navigator !== "undefined"
+        && !!navigator.mediaDevices
+        && typeof navigator.mediaDevices.getUserMedia === "function";
+      if (SR && hasMedia) setVoiceCapability("speech");
+      else if (hasMedia) setVoiceCapability("recording");
+      else setVoiceCapability("none");
+    }, []);
+
     const [isRecording, setIsRecording] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -450,9 +468,20 @@ export const AIAgentInput = memo(
           }
         };
 
-        recognition.onerror = () => {
+        recognition.onerror = (event: any) => {
           setIsListening(false);
           cleanupAudioPipeline();
+          // Tell the user instead of silently failing. Common on Xiaomi MIUI /
+          // Huawei devices without Google Services — see REPORT.md §8.6.
+          const reason = event?.error || "unknown";
+          const msg = reason === "not-allowed"
+            ? "Доступ к микрофону запрещён. Включите в настройках."
+            : "Голосовой ввод недоступен на этом устройстве — попробуйте текст.";
+          window.dispatchEvent(new CustomEvent("ai-toast", { detail: msg }));
+          // Downgrade capability so we hide the mic next time
+          if (reason === "not-allowed" || reason === "service-not-allowed") {
+            setVoiceCapability("none");
+          }
         };
 
         recognition.start();
@@ -685,6 +714,7 @@ export const AIAgentInput = memo(
             </button>
           )}
 
+          {voiceCapability !== "none" && (
           <button type="button"
             onClick={isActive ? () => { recognitionRef.current?.stop(); if (mediaRecorderRef.current?.state === "recording") mediaRecorderRef.current.stop(); setIsListening(false); setIsRecording(false); cleanupAudioPipeline(); } : startSpeechRecognition}
             style={{
@@ -700,6 +730,7 @@ export const AIAgentInput = memo(
           >
             {isActive ? <StopIcon /> : <MicIcon />}
           </button>
+          )}
 
           {isLoading && onStop ? (
             <button type="button" onClick={onStop}
