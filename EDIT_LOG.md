@@ -6,6 +6,52 @@
 
 ---
 
+## 2026-05-18 03:35 · Persistent memory + auto-primer + auto-record (cross-session brain)
+
+**What:** Closed the agent-amnesia loop. The MCP server is now the **persistent brain across all chats / sessions**. Five new modules + 9 tools + 4 resources + auto-instrumentation hooks + repo-root primer.
+
+**Why:** User mandate: *"это должно быть все в mcp не зависимо в каком чате я буду это делать чтобы ты все помнил и знал что у нас есть как это применять"* + *"чтобы он помнил это вседа, все улучшения знал и тд! не забывал никогда! и читал что он умеет сразу при любой правке не зависимо сказал я это ему или нет"* + *"сразу добавляй все улучшения и тд в свои файлы памяти без моих подсказок, сам автоматически всегда!"*
+
+**Files (NEW):**
+- `outputs/src/capabilities/index.ts` (~230 LOC) — curated TOOL_CATALOG of all 80 entries with category + when-to-use hints. `buildDigestText()` produces categorized markdown.
+- `outputs/src/memory/local.ts` (349 LOC, built by sub-agent) — always-on JSONL memory store at `${repoCwd}/.agent-memory/${kind}.jsonl`. Kinds: fact/decision/gotcha/preference/note. Full CRUD + scored recall (substring +2.0, word +1.0, tag +0.5, context +0.3, recency up to +0.5) + stats + consolidate (merge dupes, prune old non-pinned).
+- `outputs/src/session/bootstrap.ts` (140 LOC, built by sub-agent) — `buildBootstrap()` returns: capability counts, last 5 EDIT_LOG sections (parsed H2 headings), pinned memory, recent memory by kind, effort mode, confidence trend, 8 hardcoded reminders.
+- `outputs/src/session/autoPrimer.ts` (~155 LOC) — module-level `firedThisProcess` flag. `injectPrimerIfFirstCall(response, repoCwd)` prepends a "SESSION PRIMER" markdown block to the FIRST tool response of every server process. Subsequent calls return clean responses. Self-degrades gracefully on failure.
+- `outputs/src/memory/autoRecord.ts` (~200 LOC) — auto-instrumentation: `recordCommit`, `recordHotEdit`, `recordDeploy`, `recordCheckpoint`, `recordDoomLoop` (auto-pinned), `recordSubAgentResult`. Plus `seedIfNeeded(repoCwd)` — pre-populates 18 baseline facts (user preferences, gotchas, architecture decisions) on first `session_bootstrap` call. Idempotent — checks existing text before insert.
+
+**Files (MODIFIED):**
+- `outputs/src/index.ts` — registered **9 memory tools** (memory_record, memory_recall, memory_list, memory_pin, memory_update, memory_remove, memory_stats, memory_consolidate, session_bootstrap) and **4 resources** (capabilities://digest, capabilities://index, memory://recent, memory://pinned). Wired auto-record into `hot_edit`, `checkpoint_create`, `assess_doom_loop`. Wired auto-primer into `hot_edit` response. Wired `seedIfNeeded` into `session_bootstrap`.
+- `Muzaffarfsd-telegram-mini-app-showcase/CLAUDE.md` (NEW) — repo-root primer Claude auto-reads. Hard rules, primary edit path, killer features, auto-record list, resources catalog. TL;DR: "The MCP server IS your memory. Trust it."
+
+**Build state:** 61 tools → **70 tools**; 16 resources → **20 resources**.
+`tsc --noEmit` clean (0 errors). Smoke-test boot OK.
+
+**Auto-record events that now fire WITHOUT agent intervention:**
+- `hot_edit` → memory: decision (pass) or gotcha (fail), with file list + error count
+- `checkpoint_create` → memory: decision with SHA
+- `assess_doom_loop` (when doom=true) → memory: gotcha, AUTO-PINNED
+- (commits + deploys + sub-agent results: wiring deferred to next batch — handlers more deeply nested)
+
+**18 baseline seeds (pinned) that every new session sees:**
+- 5 preferences (unlimited effort, Opus-only, world-class bar, MCP memory mandate, auto-record mandate)
+- 7 gotchas (Windows truncate, Bowlby Cyrillic, leaked secrets, Vite HMR, Playwright, Octokit plugins, git lock)
+- 3 facts (repo, MCP server, safety stack)
+- 3 decisions (self-review architecture, memory tiers, sub-agent isolation)
+
+**Verification:** smoke-test confirmed:
+  - `TOOLS: 70` ✓
+  - All 9 memory tools present ✓
+  - `RESOURCES: 20` ✓
+  - All 4 new resources present ✓
+  - stderr: `[mcp] replit-clone-mcp ready on stdio` ✓
+  - `[octokit] retry+throttling plugins not installed; using plain Octokit` ✓ (graceful fallback)
+
+**Cross-session guarantee:** memory lives on disk under `.agent-memory/`. EDIT_LOG.md in repo. Kanban in `.agent-state/`. Checkpoints in git tags. **Any new Claude chat → connects to this MCP → calls `session_bootstrap` → has full context.**
+
+**Checkpoint:** (will be recorded by commit below)
+
+---
+
 ## 2026-05-18 02:55 · World-class batch — Tier A + key Tier B (8 modules, 16 tools, 4 resources)
 
 **What:** Eight major new capabilities that close the remaining gap to (and past) Replit Agent 4. Built in parallel by four sub-agents working independently — fastest possible delivery.
