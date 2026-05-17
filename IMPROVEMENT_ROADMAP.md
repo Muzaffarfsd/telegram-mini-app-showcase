@@ -1,271 +1,414 @@
-# IMPROVEMENT_ROADMAP — World-Class MCP Coding Agent
+# ПЛАН УЛУЧШЕНИЙ v2 — MCP-агент мирового уровня
 
-> Synthesis of 5 parallel research streams (17 May 2026):
-> 1. SOTA coding agents (Replit A4 / Cursor / v0 / Lovable / Devin / Claude Code / Jules / Cline / Windsurf / Trae)
-> 2. MCP protocol & ecosystem evolution (SDK 1.0 → 1.30, spec 2025-11-25)
-> 3. Code audit of our `replit-clone-mcp` (53 specific issues)
-> 4. Browser-automation SOTA (Browser-Use / Stagehand / Playwright MCP / Computer Use)
-> 5. Multi-agent self-reflection (LangGraph / Devin / TDFlow / MAR / SWE-bench leaders)
-
-## TL;DR — where we stand vs world-class
-
-We have **the skeleton right**: stdio MCP server, 22 tools, git-worktree sub-agents, Playwright self-test, multi-platform deploy, persistent memory files. This already beats 80% of public MCP servers.
-
-We are **missing the 6 features that separate Replit Agent 4 / Cursor Composer 2 / Jules from "yet another wrapper"**:
-1. Rubric self-grading
-2. CI-failure auto-fix daemon
-3. a11y-tree-first browser (vs raw screenshots)
-4. Tasks primitive for long-running tools (MCP 2025-11-25)
-5. Auto-merge worktree conflict resolver
-6. Critic/reviewer sub-agent gate before commits
-
-We have **6 CRITICAL security/correctness bugs** that must be fixed before this server is exposed beyond a single trusted machine.
+> Синтез **двух раундов** параллельного исследования (17 мая 2026):
+>
+> **Раунд 1:** SOTA AI-агентов, MCP-протокол, аудит нашего кода, browser-автоматизация, self-reflection
+> **Раунд 2:** Reasoning-модели + SWE-Bench победители + arxiv, sandbox-инфра + экономика, memory SDK + Skills/Outcomes, разбор Copilot Workspace/Codex CLI/Cursor BG/Replit A4/Lovable, хостинг + маркетплейсы + локальные модели
 
 ---
 
-## TIER 0 — IMMEDIATE (security + correctness, ≤1 day)
+## 🎯 КУДА МЫ ИДЁМ — ОБЩАЯ КАРТИНА
 
-These are non-negotiable before next deploy.
-
-| # | Issue | Where | Fix |
-|---|---|---|---|
-| S1 | **CVE-2026-0621** (ReDoS in UriTemplate, MCP SDK v1.29.0) | outputs/package.json | Bump `@modelcontextprotocol/sdk` to `^1.30.0` |
-| S2 | **Path traversal** in `file://{+filepath}` resource | src/index.ts:944-960 | `path.normalize` BEFORE join; reject if normalized contains `..`; resolve symlinks via `fs.realpath` and reassert prefix |
-| S3 | **Command injection** in spawnDevServer args | src/browser/devServer.ts:76-91 | Validate `cmd` against allow-list (`npm`/`pnpm`/`yarn`/`bun`/`node`/`cmd.exe`); validate args don't contain shell metacharacters when `shell: true` |
-| S4 | **Git branch name injection** | src/agents/subagents.ts:81, variants.ts:92 | Validate against regex `^[a-zA-Z0-9._/-]+$`, max length 200 |
-| S5 | **Token leakage in error messages** | src/git/gitOps.ts:66, src/deploy/deploy.ts:97 | Scrub `GITHUB_TOKEN` / `VERCEL_TOKEN` / `*_API_TOKEN` from stderr before returning |
-| S6 | **Webhook HMAC timing attack** | src/webhooks/receiver.ts:92-93 | Replace `!==` with `crypto.timingSafeEqual()` on equal-length buffers |
-| S7 | **Input length limits** | src/index.ts:310, 425, 497 | `.max(N)` on every `z.string()` in tool inputs (commit_message: 2000, branch: 200, body: 50000) |
-| S8 | **Browser context not closed on exception** | src/browser/browserTest.ts:62-112 | Wrap entire body in `try { … } finally { await ctx.close().catch(() => {}); }` |
-
-**Effort: ~6 hours. Reward: server is safe to expose.**
-
----
-
-## TIER 1 — FOUNDATION (1-2 weeks)
-
-Brings us to "production-grade" — feature parity with most-deployed MCP servers (Slack/GitHub/Notion).
-
-### MCP protocol updates (per spec 2025-11-25)
-
-| # | Add | Why |
+| Состояние | Где | Что значит |
 |---|---|---|
-| F1 | **Tool annotations** (`destructiveHint`, `readOnlyHint`, `idempotentHint`, `openWorldHint`, `icon`) on every tool | Lets the LLM/client warn user before destructive ops. We already emit some — fill the gaps. |
-| F2 | **Migrate long-running tools to Tasks primitive** (`attach_repository`, `live_preview`, `run_browser_test`, `apply_edit_and_push`, `spawn_sub_agent_task`, `deploy_to_environment`, `generate_ui_variants`) | Doesn't block JSON-RPC; can poll/cancel. P95 target <500 ms for fast tools, everything else async. |
-| F3 | **Progress notifications** every ≥1s for ops >2s | User feedback in widget; cancellable. |
-| F4 | **Honor `notifications/cancelled`** within 250 ms — release child process, browser context, git lock | Currently we have NO cancellation handling. |
-| F5 | **Declare `tools.listChanged: true`** and emit notification when `attach_repository` rebinds capability surface | Clients auto-refresh tool catalogues. |
-| F6 | **Structured error returns** — `isError: true` + JSON body with `code/recoverable/hint` rather than throwing McpError for tool failures | Lets the model self-correct without protocol-level retry. |
-| F7 | **Streamable HTTP transport** as alternative to stdio | Enables remote deploy (Cloud Run, Railway). HTTP+SSE is deprecated 30 Jun 2026. |
-
-### Correctness fixes from code audit
-
-| # | Issue | Where | Fix |
-|---|---|---|---|
-| C1 | Silent error swallowing in clone | src/index.ts:195-202 | Bubble clone failures with actionable hint (auth/network/disk) |
-| C2 | Orphaned child processes on timeout | src/browser/devServer.ts:71-122 | On `waitForPort` reject, also `treeKill(child.pid)` |
-| C3 | Race on `livePreviews`/`canvases`/`devServers` maps | src/index.ts:99 | Use `async-mutex` for state mutations |
-| C4 | Worktree leak on server crash | src/agents/subagents.ts:79-110 | Persist `subAgents` to JSON on each mutation; on boot, validate worktrees still exist and `reapSubAgent` ghosts |
-| C5 | In-memory checkpoint list | src/agents/checkpoints.ts:15 | Read git tags matching `cp-*` on boot to restore checkpoint list |
-| C6 | Repo walk has no cycle detection | src/codebase/ingest.ts:30-65 | Track visited `inode` (or `realpath`) set |
-| C7 | No retry/backoff on Octokit calls | src/git/gitOps.ts:198-234 | Use `@octokit/plugin-retry` and `@octokit/plugin-throttling` |
-| C8 | `repo_overview` returns ALL files in one shot | src/index.ts:855 | Stream via Tasks or paginate (`?after=lastPath&limit=200`) |
-
-### Observability
-
-| # | Add | Why |
-|---|---|---|
-| O1 | Structured audit log per tool call (request, principal, latency, outcome) → file + OTLP | Required for any multi-user setup |
-| O2 | Pino → JSON log to stderr; in dev pretty-print | Searchable, parseable |
-| O3 | Per-tool metrics counter (success/fail/latency P50/P95) → Prometheus on /metrics | Detect perf regressions |
-
-**Effort: ~50-80 hours. Reward: production-deployable.**
+| **Сегодня** | 22 tools, git-worktrees, Playwright self-test, multi-platform deploy, файлы памяти | Уже сильнее 80% публичных MCP-серверов |
+| **После Tier 0** | + 8 фиксов безопасности (~6 ч) | Сервер безопасен для exposed deploy |
+| **После Tier 1** | + MCP-протокол 2025-11-25, Tasks primitive, наблюдаемость (~50-80 ч) | На уровне зрелости GitHub MCP / Notion MCP |
+| **После Tier 2** | + Critic pass + RTV + Code-graph + Memory + Skills + CI auto-fix (~150-250 ч) | Паритет с **Replit Agent 4 / Cursor Composer 2 / Jules**. SWE-Bench Verified estimate ~91-96%, SWE-Bench Pro ~70-78% |
+| **После Tier 3** | + Figma bridge, multi-frame canvas, OAuth, eval CI, локальные модели (~8-12 недель) | **Уникальные сильные стороны, которых ни у кого нет** |
 
 ---
 
-## TIER 2 — DIFFERENTIATION (3-6 weeks)
+## 📊 РАСКЛАД ПО МОДЕЛЯМ (МАЙ 2026)
 
-Brings us to **Replit Agent 4 / Cursor Composer 2 level**. Each item is high leverage.
+Концепция «один frontier-model для всего» устарела. Оптимальный стек — **разные модели на разные роли**:
 
-### D1. Plan-then-Step state machine (Devin pattern)
+| Роль | Модель | Конфиг | Цена $/M вход / выход | SWE-V | Почему |
+|---|---|---|---|---|---|
+| **Planner** | Gemini 3.1 Pro | `thinkingConfig.thinkingBudget = high`, держать input <200K | $2 / $12 | 80.6% | 1M контекст, дешёвый thinker для планов на весь репо |
+| **Coder (главный)** | Claude Opus 4.7 | `thinking:{type:"adaptive", display:"summarized"}` | $5 / $25 | 87.6% | MCP-native, сохраняет thinking между tool calls |
+| **Bulk worker / черновик** | MiniMax M2.5 | OpenAI-compatible | **$0.15 / $1.15** | 80.2% | 20× дешевле вывода чем Opus, agent-tuned |
+| **Critic / reviewer** | Claude Sonnet 4.6 | `thinking:{type:"adaptive"}` | $3 / $15 | 79.6% | Даёт +3-6 пунктов на critic-pass с малыми затратами |
+| **Final verifier (тяжёлые задачи)** | Claude Mythos Preview / Opus 4.7 xhigh | На patches, что упали на critic | $25 / $125 | **93.9%** | Топ-1 SWE-Bench Verified May 2026 |
+| **Search subagent** | DeepSeek-V4-Pro-Max | `reasoning_effort: high` | $1.74 / $3.48 | 80.6% | Дёшево для retrieval reranking |
 
-A new tool `propose_plan(task: string)` returns a markdown plan with N steps. Each step has its own `step_id`, expected files, success criteria. Then `execute_step(step_id)` runs one step + verifies. User approves/edits plan before any write. State persisted in `.agent-state/plan-<task-id>.json`.
+**Источники:** [Claude pricing](https://platform.claude.com/docs/en/about-claude/pricing), [Claude Mythos launch](https://llm-stats.com/blog/research/claude-mythos-preview-launch), [MiniMax M2.5](https://www.minimax.io/news/minimax-m25), [Gemini 3.1 Pro](https://www.verdent.ai/guides/gemini-3-1-pro-pricing), [DeepSeek V4 Pro Max](https://llm-stats.com/models/deepseek-v4-pro-max)
 
-**Expected lift:** +8-12 pts on SWE-bench-class tasks. Mirrors Devin 2.2's "interactive planning" + "dynamic re-planning."
+**Стоимость типичного PR (React+Express, ~10 файлов, 600 LOC):**
+- На чистом Sonnet 4.6: ~$0.90
+- На Opus 4.7: ~$1.50
+- На связке Sonnet+Opus с critic-pass: ~$1.20 + 15-20% за critic = ~**$1.45 (но +4 пункта точности**)
 
-### D2. TDFlow — test-first generation
+---
 
-For UI tasks: agent first writes a Playwright assertion ("after click X, element Y has text 'foo'"), then code, runs the assertion, iterates. For backend: vitest/jest unit test, then implementation.
+## 🏆 ТОП-5 SWE-BENCH VERIFIED (МАЙ 2026) — ЧТО ПЕРЕНИМАЕМ
 
-**Expected lift:** +15-25 pts on SWE-Bench Lite per TDFlow paper (88.8% vs ~61% baseline).
+| # | Submission | Score | Архитектура | Что копируем |
+|---|---|---|---|---|
+| 1 | **Claude Mythos** (Anthropic) | **93.9%** Verified / 77.8% Pro | Single frontier + harness pattern | Сам **harness паттерн** (model + read-write-exec tools + persistent thinking) |
+| 2 | **GPT-5.5 xHigh** (OpenAI) | 88.7% | Single agent + self-optimizing harness | Идея **log-driven harness tuning** |
+| 3 | **Claude Opus 4.7 (Adaptive)** | 87.6% | Baseline + adaptive thinking + 1M ctx | Прямо наш baseline target |
+| 4 | **GPT-5.3 Codex** | 85.0% | Codex-specific harness | Terminal-first scaffold |
+| 5 | **Auggie (Augment Code)** | ~85% / 51.8% Pro | **Planner + Coder + Critic + Context Engine** | **Полная схема для копирования** — это и есть blueprint MCP-сервера |
 
-Implementation: new tool `write_test_from_spec(spec)` + `run_tests(filter?)`. Hook into Tier 1's Tasks primitive.
+**Ключевые техники победителей** (источник: [Morph SWE-Bench Pro](https://www.morphllm.com/swe-bench-pro), [Auggie blog](https://www.augmentcode.com/blog/auggie-tops-swe-bench-pro)):
 
-### D3. Static-analysis fast loop (<3s)
+| Техника | Прирост | Стоимость | Реализация в нашем MCP |
+|---|---|---|---|
+| **Critic pass** (модель проверяет patch перед submit) | **+3-6 пунктов** Verified | +15-20% токенов | ~4 часа: второй model call с рубрикой |
+| **Recursive Tournament Voting (4 rollouts)** | **+6.7 пунктов** Opus 4.5 | 4× стоимость | ~8 часов: fan-out 4 параллельных rollouts → Sonnet 4.6 judge |
+| **Context Engine** (BM25 + embeddings + symbol-graph) | **+6 пунктов** vs bare scaffold | модерат токены | ~16 часов: tree-sitter index + MCP tools `search_code`/`find_refs`/`find_defs` |
+| **WarpGrep v2** (RL search subagent) | +2.1-2.2 пункта | Требует RL infra | **Скип** (не строим RL) |
 
-Background daemon: on every file write, run `tsc --noEmit --incremental`, ESLint, type-coverage on changed files only. Feed structured errors back to the agent BEFORE the LLM-review pass.
+**Свежие arxiv (апрель-май 2026):**
 
-**Catches 60-70% of trivial bugs without an LLM call.** Latency budget 3s — beyond that, agents start ignoring.
+| Paper | Прирост | Внедряемо без GPU |
+|---|---|---|
+| [Scaling Test-Time Compute 2604.16529](https://arxiv.org/abs/2604.16529) | SWE-V 70.9 → **77.6%** | ✅ |
+| [AgentForge 2604.13120](https://arxiv.org/html/2604.13120v1) (5 ролей + Docker между правками) | Меньше регрессий | ✅ |
+| [ABCoder 2604.18413](https://arxiv.org/html/2604.18413v2) — **готовый MCP-сервер для code-graph retrieval** | Improved navigation | ✅ drop-in MCP |
+| [Dev Memory MCP 2605.01567](https://arxiv.org/html/2605.01567) | Помогает RL агентам | ✅ pure MCP |
+| [Reflection-Driven Control 2512.21354](https://arxiv.org/abs/2512.21354) | Higher trust patches | ✅ |
+| [Reinforced Agent 2604.27233](https://arxiv.org/abs/2604.27233) (reviewer перед tool call) | Substantial accuracy lift | ✅ |
 
-New tool: `quick_check(files: string[])` → `{ errors: [{file, line, severity, code, message, fix}] }`.
+---
 
-### D4. Critic sub-agent gate (binary APPROVE / REVISE, max 3 loops)
+## 🧠 MEMORY-СИСТЕМА: ZEP CLOUD
 
-Before any `apply_edit_and_push`, spawn a reviewer Haiku sub-call with prompt:
+Из 6 систем (Mem0, Letta, Zep, Cognee, Cloudflare AI Agents Memory, Anthropic native) — **Zep лучший для нашего use-case** «design decisions, keyed by file/symbol/repo».
 
-> Here is the diff. Here is the test report. Reply with EXACTLY one line: `APPROVE` or `REVISE: <one specific issue>`.
+| Почему Zep | |
+|---|---|
+| **Temporal graph** | Решения супершедятся ("использовали Jest" → "перешли на Vitest в PR #234") — Zep нативно поддерживает valid-from / valid-to edges |
+| **Managed** | Не нужно поднимать Postgres/Neo4j |
+| **Free tier 1k credits/мес** | Ингест ~350 байт/credit — для маленькой команды бесплатно |
+| **Conflict resolution** | Graphiti автоматически инвалидирует старые edges при противоречии |
 
-Loop up to 3 times. **Pairwise rubric > absolute score** (avoids LLM-judge agreeableness bias documented in OpenReview 2026).
+**Конкретная интеграция (~30 строк TS):**
 
-**Expected lift:** +6-10 pts (MAR paper shows +6.2 on HumanEval pass@1, 76.4 → 82.6).
+```ts
+// src/memory/zep.ts
+import { ZepClient } from "@getzep/zep-cloud";
+const zep = new ZepClient({ apiKey: process.env.ZEP_API_KEY! });
+const groupFor = (owner: string, name: string) => `repo:${owner}/${name}`;
 
-New tool: `review_diff(diff: string, rubric: string)` → `{ verdict, issue?, suggested_fix? }`.
+export async function recallContext(repo: {owner: string, name: string}, query: string) {
+  await zep.group.getOrCreate({ groupId: groupFor(repo.owner, repo.name) }).catch(() => {});
+  const { edges } = await zep.graph.search({
+    groupId: groupFor(repo.owner, repo.name),
+    query, scope: "edges", limit: 8,
+  });
+  return edges.map(e => `- ${e.fact} (действует ${e.validAt ?? "сейчас"})`).join("\n");
+}
 
-### D5. a11y-tree-first browser tool
-
-Replace the screenshot-by-default `run_browser_test` with `browser_snapshot` that returns the **accessibility tree** (role/name/description + interactive states). Screenshot is opt-in.
-
-- **~4× fewer tokens** than screenshots in LLM context
-- Deterministic (no flaky pixels)
-- Mirrors Microsoft's Playwright MCP design (`browser_snapshot` tool)
-
-Then `compare_snapshots(before, after)` returns structural diff: "button added at /header/nav[3]", "text 'Buy' changed to 'Покупка' at /main/h1".
-
-### D6. CI-failure auto-fix daemon (Jules pattern)
-
-Express webhook receiver (we already have it) gets `check_run.completed` with `conclusion: failure`. Pull logs via Octokit, extract error → spawn sub-agent with prompt "this CI run failed, here's the log, fix it" → push fix commit to same branch.
-
-This is **the single feature that most separates Jules from everyone else** per our SOTA survey. We have all the primitives; need ~150 lines of glue.
-
-### D7. Auto-merge worktree conflict resolver (Replit Agent 4 pattern)
-
-When `merge_sub_agent_task` returns conflicts:
-1. Pull the three sides (base/ours/theirs) of each conflicted file (already exposed)
-2. Hand to Haiku sub-agent with prompt: "produce a unified version preserving both intents"
-3. Write resolved file, stage, commit
-4. Replit Agent 4 claims **~90% auto-resolution** rate — we should hit similar with Sonnet 4.6
-
-### D8. Decisions memory (Mem0 or Letta-compatible)
-
-`.agent-state/decisions.jsonl` — append-only log:
-
-```jsonl
-{"id":"d1","ts":...,"path":"client/src/App.tsx","decision":"used Wouter routing not React Router","because":"smaller bundle, project preference","sha":"abc123"}
+export async function recordDecision(repo: {owner: string, name: string}, data: {
+  symbol: string; decision: string; rationale: string; pr?: number;
+}) {
+  await zep.graph.add({
+    groupId: groupFor(repo.owner, repo.name),
+    type: "json",
+    data: JSON.stringify({ kind: "design_decision", ...data }),
+  });
+}
 ```
 
-Tools: `record_decision`, `recall_decisions(path | keyword)`. AI consults BEFORE making cross-cutting changes ("did we already decide this?").
+**Где вызывать в нашем MCP:**
+- В начале каждой `edit_file` / `apply_edit_and_push` / `live_preview` → `recallContext()` префиксом к system prompt
+- На успешном создании PR в Octokit-флоу → `recordDecision()` с "почему" из PR body
 
-**Expected lift:** +3-5 pts on long-horizon multi-session tasks per Mem0's 2026 state-of-memory report.
+**Ожидаемый прирост:** «агент уже знает контекст следующего дня» с ~0% (cold) до **~70%**. Затраты: 1 файл, ~30 строк, полдня работы.
 
-### D9. Skills loader (Claude Code pattern)
-
-Discovers `.skills/<skill-name>/SKILL.md` files in the repo. Each skill = a folder of instructions + helper scripts the agent loads on demand.
-
-E.g. `.skills/add-telegram-mini-app/SKILL.md` — exact prompt + code template for adding a new demo to this specific repo.
-
-Tools: `list_skills` (resource: `skill://`), `invoke_skill(name, args)`. Mirrors Anthropic's Skills design.
-
-**Effort: ~150-250 hours over 3-6 weeks. Reward: parity with Replit A4 / Cursor / Jules.**
+**Источник:** [Zep Cloud pricing](https://www.getzep.com/pricing/), [Zep Memory docs](https://help.getzep.com/v2/memory)
 
 ---
 
-## TIER 3 — UNIQUE STRENGTHS (8-12 weeks)
+## 🛠 SKILLS / OUTCOMES / SPEC-DRIVEN
 
-Past parity, into novel territory. Pick 2-3 based on what users actually need.
+### Anthropic Skills (открытый стандарт с декабря 2025)
 
-### U1. Figma MCP bridge
+Структура — папка `skill-name/` с `SKILL.md` (YAML frontmatter `name` + `description`) + опциональные `references/` и `scripts/`. **Marketplace:** [Skills.sh](https://skillsmp.com/) (Vercel, янв 2026, 19 агентов), [Anthropic Skills repo](https://github.com/anthropics/skills).
 
-Proxy to Figma Dev Mode MCP (official). Convert: design → component code with exact tokens (colors, font sizes, spacing). Closes the design-to-code gap in one tool: `import_figma_node(url) → tsx`.
+В нашем MCP — добавить tools `list_skills` (resource `skill://`) и `invoke_skill(name, args)`. Зеркалит Claude Code. **Затраты:** ~3-5 дней.
 
-### U2. Mobile-native preview (Expo / Capacitor bridge)
+### Anthropic Outcomes (май 2026 — на конференции Code with Claude)
 
-For React Native / Telegram WebApp testing, integrate Expo MCP server: `expo_screenshot_simulator`, `expo_run_e2e`. macOS-only locally; on Windows/Linux use Browserbase remote browsers in mobile viewport mode.
+Разработчик пишет **рубрику** успеха → grader в отдельном контексте оценивает каждую попытку → агент возвращается пока не пройдёт. **Прирост: +10 пунктов** на сложнейших бенчмарках, Wisedocs срезал review-time на 50%.
 
-### U3. Spec-driven memory (Tessl pattern)
+В нашем MCP — это и есть **Critic pass из топ-1 техник** выше. Реализация одна.
 
-Repository-level `SPEC.md` is the source of truth — not chat. Agent writes spec → derives tasks → derives code. Spec is updated in PRs and grounds all future reasoning. New tools: `read_spec`, `propose_spec_update(diff)`.
+**Источник:** [Anthropic Releasebot May 2026](https://releasebot.io/updates/anthropic), [Every: Inside Anthropic 2026 Dev Conf](https://every.to/chain-of-thought/inside-anthropic-s-2026-developer-conference)
 
-### U4. Multi-frame responsive preview
+### Spec-driven (GitHub Spec Kit, OpenAI Symphony)
 
-iPhone widget + iPad widget + desktop widget side-by-side. Replit Agent 4's Design Canvas does this. We have the iPhone widget; spinning up Desktop + Tablet variants is a CSS-only change to the Electron host.
+**Spec Kit** — 90K+ stars OSS toolkit с slash-commands `/speckit.constitution`, `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, `/speckit.implement`. Работает с Claude Code, Copilot, Gemini CLI.
 
-### U5. Variant generator + thumbnail board
+В нашем MCP — добавить `propose_plan(task)` → markdown с N шагами, каждый со своим `step_id`, затем `execute_step(step_id)` с верификацией. Это **Devin pattern + Spec Kit pattern**, прирост **+8-12 пунктов** на задачах SWE-bench-класса.
 
-`generate_ui_variants` already exists but lacks **rendered thumbnails**. Add: for each variant boot dev-server → `browser_snapshot` → `page.screenshot` → embed thumbnail in `canvas://{id}` resource as base64. Client UI shows a 2×3 grid of variant thumbnails.
-
-### U6. Eval harness in CI
-
-GitHub Action runs **MCPJam Inspector + lastmile-ai/mcp-eval** on every PR to our MCP server. Defines fixture tasks ("add a new demo named X, ensure it renders") with pass/fail. Regression prevention.
-
-### U7. Smithery / mcp.so listing
-
-Publish to both registries with proper `server.json`, icon, screenshots, structured tool annotations. Effort: ~1 day, big visibility win.
-
-### U8. OAuth 2.1 + PKCE for remote mode
-
-Required when hosting Streamable HTTP server multi-tenant. Reference: WorkOS 2026 best-practices guide. Use `oauth4webapi` + `@modelcontextprotocol/sdk/server/auth/...`.
-
-### U9. Rootless OCI container per tool execution
-
-`spawn_dev_server`, `npm install`, `git operations` run inside seccomp-restricted containers. Even if a tool is compromised, blast radius = container. Per Red Hat 2026 MCP runtime-security guidance.
-
-### U10. CodeSandbox Nodebox fallback
-
-When user's machine can't run dev-server (no Node, on iPad, etc.), boot the dev server inside Sandpack Nodebox (works in Safari/iOS) and proxy via the MCP server. Sub-second cold-start.
+**Источник:** [GitHub Spec Kit](https://github.com/github/spec-kit), [OpenAI Symphony](https://openai.com/index/open-source-codex-orchestration-symphony/)
 
 ---
 
-## What we deprioritize
+## 🏗 SANDBOX / ХОСТИНГ
 
-- **Computer-Use / pixel-vision agent loop on every diff** — cost too high. Use only when a11y-tree + pixel-diff disagree (the "tiebreaker" pattern from Stagehand).
-- **Full multi-persona Reflexion (5+ critic agents)** — marginal lift over single critic, 5× the spend.
-- **DCR for OAuth** — superseded by Client ID Metadata Documents per spec 2025-11-25.
-- **HTTP+SSE transport** — deprecated 30 Jun 2026.
-- **Custom AST parser via tree-sitter native** — already burned us on Windows builds; regex-based extractor is good enough for the symbol-lookup use case.
+### Текущая ситуация (stdio MCP на машине пользователя)
+
+**Не нужен remote sandbox** для нашего use-case. Источник: [MCP design principle](https://dev.to/jefe_cool/mcp-transports-explained-stdio-vs-streamable-http-and-when-to-use-each-3lco), [Microsoft on stdio vs HTTP](https://techcommunity.microsoft.com/blog/azuredevcommunityblog/one-mcp-server-two-transports-stdio-and-http/4443915).
+
+Пользователь редактирует свой репо на своей машине — облачной изоляции не требует. Latency stdio = microseconds, $0 инфраструктуры.
+
+### Когда нужен remote (триггеры)
+
+Hosting реализуем только когда сработает один из:
+
+1. **Не Claude Desktop клиент** (ChatGPT, Cursor remote, мобильный Claude) — нужен Streamable HTTP
+2. **Per-user identity / billing / rate-limits** — нужен OAuth + persistence
+3. **Shared state между пользователями / устройствами** — нужно DO SQLite / Postgres
+4. **Heavy compute** (Browserbase, GPU inference, fleet scraping) — не имеет смысла гонять Chrome на ноутбуке
+5. **One-click install** для non-tech users — hosted URL + Smithery >> "склонируй репо, отредактируй JSON"
+
+### Когда — то Cloudflare McpAgent
+
+Stack (источник: [Cloudflare Agents Week 2026](https://lushbinary.com/blog/cloudflare-agents-week-2026-everything-released/)):
+
+```
+Claude/ChatGPT/Cursor
+   ↓ Streamable HTTP + OAuth 2.1
+Cloudflare Worker (entry, OAuthProvider, rate limit)
+   ↓ Durable Object per userId
+McpAgent (SQLite + WebSocket hibernation + Alarms)
+   ↓
+Workers AI (sampling) + Browser Run (CDP) + Workflows (long-running) + R2 (blobs)
+```
+
+**Цена:** Workers Paid $5/мес + DO usage. Для 1000 tool calls/час — ~$0.05.
+
+### Hybrid: sandboxed `npm install` через E2B
+
+Локально редактируем файлы и git-операции; **тяжёлые/непроверенные** команды (`npm install` от агент-fetched пакетов) пайпим в E2B snapshot с прогретым node_modules:
+
+- **Cold start E2B: 78ms** ([E2B billing](https://e2b.dev/docs/billing))
+- **Цена: ~$0.01 за test cycle** ($0.05/vCPU-hr)
+- **Реализация:** ~600 LOC, 3-5 дней
+- **Затраты:** $10-40/мес на heavy user
 
 ---
 
-## What success looks like
+## 🏪 MARKETPLACES — ГДЕ ЛИСТИТЬСЯ
 
-- **Tier 0 done** → no CVEs, no obvious security holes, server safe to expose remotely
-- **Tier 1 done** → can list on Smithery / mcp.so as production-grade; matches GitHub MCP / Notion MCP in maturity
-- **Tier 2 done** → matches **Replit Agent 4 / Cursor Composer 2 / Jules** in features; SWE-bench Verified estimate jumps from baseline ~40% to ~75-85% with proper test harness
-- **Tier 3 (selective) done** → unique strengths nobody else has (Figma bridge + iPhone widget + multi-frame canvas + spec-driven memory)
+| # | Маркетплейс | Servers | Что требует | Хостит? | Приоритет |
+|---|---|---|---|---|---|
+| 1 | **Official MCP Registry** (Anthropic) | ~2,000 | server.json + DNS namespace verification | Нет (ссылка на npm) | **СНАЧАЛА** — feeds все downstream |
+| 2 | **PulseMCP** | **15,240+** | URL + metadata | Нет | **Затем** — самая большая аудитория |
+| 3 | **Smithery** | 5-7k | server.json + CLI install | **Да** (hosted remote) | Когда есть remote endpoint |
+| 4 | **Glama** | ~6k | Авто-скрейпит GitHub | Нет | Подхватит сам |
+| 5 | **mcp.so** | 5k+ | GitHub repo + форма | Нет | Опционально |
+| 6 | **MCPize** | smaller | Hosted deploy | Да | **Единственный с rev-share 85%** автору — если коммерциализируем |
+
+**Конкретный путь:**
+1. День 1: написать `server.json` + DNS verification → submit в Official Registry → Glama/PulseMCP подхватят авто.
+2. Когда появится remote endpoint → Smithery.
+3. Если решим продавать tool-calls → MCPize.
+
+**Источники:** [PulseMCP Server Directory](https://www.pulsemcp.com/servers), [Smithery vs Composio](https://hasmcp.com/alternatives/smithery-vs-composio), [Official MCP Registry server.json req](https://glama.ai/blog/2026-01-24-official-mcp-registry-serverjson-requirements)
 
 ---
 
-## Concrete next-week sprint (proposed)
+## 💻 КОНКУРЕНТНЫЕ ТЕХНИКИ (TEARDOWN)
 
-Day 1 (security): S1, S2, S3, S4, S5, S6, S7, S8 — close TIER 0.
-Day 2-3: F1, F6, C2, C5, C7 — protocol annotations + checkpoint persistence + Octokit retry.
-Day 4-5: D3 (static-analysis fast loop) — biggest single-day ROI.
-Day 6-7: D4 (critic gate) — wired into existing apply_edit_and_push.
-Week 2: D5 (a11y-tree browser) + D6 (CI auto-fix daemon).
-Week 3+: D1 (plan-then-step) + D2 (TDFlow) — the big-impact items.
+### Copilot Workspace (GitHub)
 
-## Source bibliography
+- **Workflow:** Issue → редактируемая Spec → Plan → Diff. Человек и агент **редактируют один и тот же объект plan**.
+- **Runtime:** GitHub Actions runner.
+- **MCP:** Предустановлены GitHub MCP + Playwright MCP (scoped to localhost).
+- **Что копируем:** `plan_create(issue_id, repo)` → `{spec, file_actions[]}` + `plan_edit(plan_id, patch)` + `plan_execute(plan_id, branch)`.
 
-See git log for full source citations from each research stream (commit `<this-commit-sha>` body). Primary references:
+**Источник:** [Copilot cloud agent docs](https://docs.github.com/copilot/concepts/agents/coding-agent/about-coding-agent)
 
-- [@modelcontextprotocol/sdk releases](https://github.com/modelcontextprotocol/typescript-sdk/releases)
-- [MCP 2025-11-25 spec](https://modelcontextprotocol.io/specification/2025-11-25/)
-- [Replit Agent 3 → Agent 4 changes](https://blog.replit.com/whats-changed-agent3-to-agent4)
-- [Cursor Composer 2 blog](https://cursor.com/blog/composer)
-- [Cognition Devin 2.2](https://cognition.ai/blog/introducing-devin-2-2)
-- [Google Jules launch](https://blog.google/innovation-and-ai/models-and-research/google-labs/jules/)
-- [Claude Code best practices](https://www.anthropic.com/engineering/claude-code-best-practices)
+### Cursor Composer 2 + Background Agents
+
+- **Composer 2 модель:** обучена на Kimi K2.5 (1.04T / 32B MoE), continued-pretrain + RL внутри реальных сессий Cursor. ~200 tok/s, agent turn <30 сек.
+- **BG architecture:** Изолированный Ubuntu cloud VM с **браузером внутри VM** (с 24 фев 2026) — агент может **использовать софт, который сам строит**. До **8-20 параллельных агентов**.
+- **Live coordination:** Агенты следят за file modifications в working tree пользователя, паузятся когда пересекаются.
+- **Что копируем:** `agent_spawn(repo, prompt, branch)` + `agent_watch_workspace(agent_id, paths[])` (стрим pause/resume событий) + `agent_use_app(agent_id, url)`.
+
+**Источник:** [Composer 2 Technical Report](https://cursor.com/resources/Composer2.pdf), [Cursor BG Agents](https://docs.cursor.com/en/background-agent)
+
+### Replit Agent 4
+
+- **Multi-agent:** Manager + Editors + **Verifier (falls back to human, doesn't auto-decide)**. Orchestrated on **LangGraph**.
+- **Plan-while-building** (с апреля 2026) — не plan-then-build.
+- **Bottomless Storage:** виртуальные block-devices на GCS, lazy cache → **near-instant filesystem forks**. Это и есть техника за «10 параллельных задач».
+- **Что копируем:** `verifier_checkpoint(task_id, question) → human_reply` (явный «спроси человека» tool); `snapshot_fork(workspace_id)` + `snapshot_restore(snapshot_id)`; `variant_generate(prompt, n)` + `variant_render_grid(variant_ids[])`.
+
+**Источник:** [Inside Replit's Snapshot Engine](https://blog.replit.com/inside-replits-snapshot-engine), [Replit Canvas](https://docs.replit.com/replitai/canvas)
+
+### Lovable (Plan Mode + Prompt Queue + Voice + Virtual Browser Testing)
+
+- **Plan Mode:** структурированный план до кода, юзер правит.
+- **Prompt Queue:** **до 50 промптов** в очередь, sequential execution, переупорядочивание.
+- **Virtual Browser Testing:** AI кликает по приложению, ловит visual/interaction bugs — **автоматический QA loop**.
+- **Что копируем:** `prompt_queue_enqueue(items[], ordering)` + `prompt_queue_reorder`; `browser_test_run(url, scenarios[]) → {visual_bugs[], interaction_bugs[]}`.
+
+**Источник:** [Lovable for Designers 2026](https://muz.li/blog/lovable-for-designers-the-complete-guide-to-building-apps-with-ai-2026/)
+
+### Codex CLI (OpenAI)
+
+- **Sandbox modes:** `sandbox = read-only | workspace-write | network-full`.
+- **MCP add inline:** `codex mcp add <name> <command>` во время сессии.
+- **Что копируем:** `sandbox_set(mode)` per-session; `mcp_register(name, command, env)` чтобы агент мог **сам подключить MCP**; `session_fork(session_id)` — форк транскрипта.
+
+**Источник:** [Codex CLI reference](https://developers.openai.com/codex/cli/reference)
+
+---
+
+## 🎯 КОНКРЕТНЫЙ СПРИНТ (СЛЕДУЮЩИЕ 2 НЕДЕЛИ)
+
+Объединение Tier 0-2 в один прагматичный план:
+
+### День 1 — БЕЗОПАСНОСТЬ (6 часов)
+
+8 фиксов из аудита кода (S1-S8):
+- S1: SDK 1.29 → 1.30 (CVE-2026-0621)
+- S2: path normalize в `file://` resource
+- S3: cmd allow-list в spawnDevServer
+- S4: regex для git branch names
+- S5: scrub токенов в error messages
+- S6: `timingSafeEqual` в webhook HMAC
+- S7: `.max(N)` на всех Zod string inputs
+- S8: try/finally вокруг browser context
+
+### День 2-3 — MCP-ПРОТОКОЛ + ПЕРСИСТЕНТНОСТЬ
+
+- F1: tool annotations (`destructiveHint`, `readOnlyHint`) на каждом инструменте
+- F6: структурированные errors (`isError: true` + JSON body)
+- C2: `treeKill` orphan children
+- C5: чекпоинты восстанавливаются из git tags при старте
+- C7: `@octokit/plugin-retry` + `@octokit/plugin-throttling`
+
+### День 4 — CRITIC PASS (главный single ROI ~+4 пункта)
+
+```ts
+// src/critic/index.ts
+export async function reviewDiff(diff: string, context: {
+  problem: string;
+  passing_tests?: string;
+}): Promise<{ verdict: 'APPROVE' | 'REVISE'; issue?: string; fix_hint?: string }> {
+  const prompt = `<diff>${diff}</diff>
+<problem>${context.problem}</problem>
+<tests_passing>${context.passing_tests ?? '(none yet)'}</tests_passing>
+Reply EXACTLY one line: \`APPROVE\` or \`REVISE: <one specific issue>\`.`;
+  // call Sonnet 4.6 with thinking enabled
+  const reply = await callSonnet(prompt);
+  return parseVerdict(reply);
+}
+```
+
+Встроить в `apply_edit_and_push` → перед `git push` гонять reviewDiff максимум 3 итерации.
+
+### День 5 — STATIC ANALYSIS LOOP
+
+Новый tool `quick_check(files: string[])`:
+```ts
+// Run tsc + eslint on changed files only, return structured errors
+const errors = await Promise.all([
+  runTsc(files),    // tsc --noEmit --incremental
+  runEslint(files), // eslint --format json
+]);
+return { errors: errors.flat() }; // {file, line, code, severity, message, fix?}
+```
+
+Ловит 60-70% тривиальных багов **без LLM-вызова**, бюджет латентности <3 сек.
+
+### День 6-7 — ZEP MEMORY
+
+Подключить `@getzep/zep-cloud`, добавить tools `recall_context` + `record_decision`, обернуть `apply_edit_and_push`. Прирост «агент помнит контекст вчера» с 0% до ~70%.
+
+### Неделя 2
+
+- **D5: a11y-tree браузер** — заменить screenshot-by-default в `run_browser_test` на `browser_snapshot` с accessibility-tree (4× меньше токенов в LLM context)
+- **D6: CI auto-fix daemon** — webhook receiver на `check_run.completed.failure` → sub-agent → fix PR
+- **ABCoder MCP integration** — добавить tools `search_code` / `find_refs` / `find_defs` через tree-sitter symbol-graph (+6 пунктов prior на Pro)
+
+### Неделя 3+
+
+- **D1: Plan-then-Step** state machine (Devin pattern, GitHub Spec Kit clone) — `propose_plan` + `execute_step`
+- **D2: TDFlow** test-first generation
+- **RTV: 4-way rollout + tournament voting** — +6.7 пунктов
+- **Skills loader** — `.skills/` discovery
+
+---
+
+## 🚀 ЧТО МЫ **НЕ** ДЕЛАЕМ (явно)
+
+| Депрятим | Почему |
+|---|---|
+| Computer-Use / pixel-vision на каждый diff | Дорого, a11y-tree + diff достаточно (Stagehand pattern) |
+| Полный multi-persona Reflexion (5+ critic) | Маржинально над single critic, 5× spend |
+| WarpGrep v2 (RL-trained search) | Требует RL infra; код-граф +6 пунктов даёт похожий результат без RL |
+| DCR для OAuth | Заменён на Client ID Metadata Documents в спеке 2025-11-25 |
+| HTTP+SSE транспорт | Deprecated 30 июня 2026 |
+| tree-sitter native build | Уже погорели на Windows; regex/AST-from-script достаточно |
+| Свой sandbox runtime | Локально не нужен; для hybrid — E2B managed (78ms cold start, $0.05/vCPU-hr) |
+
+---
+
+## 📈 ОЖИДАЕМАЯ ИТОГОВАЯ ПРОИЗВОДИТЕЛЬНОСТЬ
+
+| Слой | Baseline Opus 4.7 | + Critic pass | + 4-way RTV | + Code-graph | + Skills + Plan-Step |
+|---|---|---|---|---|---|
+| **SWE-Bench Verified** | 87.6% | ~91.6% | ~96% (saturated) | ~96% | ~96% |
+| **SWE-Bench Pro** | ~46% | ~50% | ~62% | ~70% | ~78% |
+
+Мифос Preview даёт 93.9% Verified / 77.8% Pro — мы можем подойти на расстояние шага без 5× стоимости.
+
+---
+
+## 📚 БИБЛИОГРАФИЯ (обоих раундов)
+
+### Модели и бенчмарки
+- [Anthropic pricing & models](https://platform.claude.com/docs/en/about-claude/pricing) · [Claude Mythos](https://llm-stats.com/blog/research/claude-mythos-preview-launch) · [Anthropic extended thinking](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)
+- [GPT-5.3 Codex](https://openai.com/index/introducing-gpt-5-3-codex/) · [GPT-5.5](https://openai.com/index/introducing-gpt-5-5/)
+- [MiniMax M2.5](https://www.minimax.io/news/minimax-m25) · [Gemini 3.1 Pro](https://www.verdent.ai/guides/gemini-3-1-pro-pricing) · [DeepSeek V4 Pro Max](https://llm-stats.com/models/deepseek-v4-pro-max)
+- [SWE-Bench leaderboard May 2026](https://www.marc0.dev/en/leaderboard) · [SWE-Bench Pro](https://www.morphllm.com/swe-bench-pro) · [Auggie blog](https://www.augmentcode.com/blog/auggie-tops-swe-bench-pro)
+
+### Свежий arxiv
+- [Scaling Test-Time Compute 2604.16529](https://arxiv.org/abs/2604.16529)
+- [AgentForge 2604.13120](https://arxiv.org/html/2604.13120v1)
+- [ABCoder MCP 2604.18413](https://arxiv.org/html/2604.18413v2)
+- [Dev Memory MCP 2605.01567](https://arxiv.org/html/2605.01567)
+- [ARISE 2605.03117](https://arxiv.org/html/2605.03117)
+- [Reinforced Agent 2604.27233](https://arxiv.org/abs/2604.27233)
+- [Reflection-Driven Control 2512.21354](https://arxiv.org/abs/2512.21354)
 - [TDFlow ACL 2026](https://aclanthology.org/2026.eacl-long.70/)
-- [MAR Multi-Agent Reflexion (arxiv 2512.20845)](https://arxiv.org/html/2512.20845v1)
-- [SWE-Bench Pro leaderboard May 2026](https://www.morphllm.com/swe-bench-pro)
-- [LiveCodeBench](https://livecodebench.github.io/leaderboard.html)
-- [Mem0 State of AI Agent Memory 2026](https://mem0.ai/blog/state-of-ai-agent-memory-2026)
-- [Playwright MCP server (Microsoft)](https://github.com/microsoft/playwright-mcp)
-- [Stagehand AI Web Agent SDK](https://www.browserbase.com/blog/ai-web-agent-sdk)
-- [WorkOS — MCP 2025-11-25 spec update](https://workos.com/blog/mcp-2025-11-25-spec-update)
-- [MCP Gateway landscape Q1 2026](https://www.heyitworks.tech/blog/mcp-aggregation-gateway-proxy-tools-q1-2026)
-- [TM Dev Lab MCP performance benchmark](https://www.tmdevlab.com/mcp-server-performance-benchmark.html)
-- [DigitalApplied 100-server reliability study](https://www.digitalapplied.com/blog/mcp-server-reliability-100-server-stress-test-study)
-- [AppSecSanta MCP security audit 2026](https://appsecsanta.com/research/mcp-server-security-audit-2026)
-- [Computer Use Agents 2026 matrix](https://www.digitalapplied.com/blog/computer-use-agents-2026-claude-openai-gemini-matrix)
-- [Anthropic Skills + Agent View](https://www.testingcatalog.com/anthropic-adds-agent-view-for-claude-code-for-parralel-work/)
-- [Windsurf Cascade](https://docs.windsurf.com/windsurf/cascade/cascade)
+- [MAR Multi-Agent Reflexion 2512.20845](https://arxiv.org/html/2512.20845v1)
+
+### Memory / Skills / Spec
+- [Zep Cloud pricing](https://www.getzep.com/pricing/) · [Zep Memory docs](https://help.getzep.com/v2/memory)
+- [Mem0 pricing](https://mem0.ai/pricing) · [Letta TS SDK](https://docs.letta.com/api/typescript) · [Cognee GitHub](https://github.com/topoteretes/cognee)
+- [Claude Memory Tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool)
+- [Claude Skills docs](https://code.claude.com/docs/en/skills) · [Skills.sh marketplace](https://skillsmp.com/) · [anthropics/skills](https://github.com/anthropics/skills)
+- [Anthropic Outcomes — Code with Claude 2026](https://every.to/chain-of-thought/inside-anthropic-s-2026-developer-conference)
+- [GitHub Spec Kit](https://github.com/github/spec-kit) · [OpenAI Symphony](https://openai.com/index/open-source-codex-orchestration-symphony/)
+
+### Sandbox / Hosting / Marketplaces
+- [E2B docs](https://e2b.dev/docs/billing) · [Daytona pricing](https://www.daytona.io/pricing) · [Modal Sandboxes](https://modal.com/products/sandboxes) · [Cloudflare Containers](https://developers.cloudflare.com/containers/pricing/)
+- [Cloudflare Agents Week 2026](https://lushbinary.com/blog/cloudflare-agents-week-2026-everything-released/) · [Build Remote MCP](https://developers.cloudflare.com/agents/guides/remote-mcp-server/) · [Browser Run for AI](https://blog.cloudflare.com/browser-run-for-ai-agents/)
+- [PulseMCP](https://www.pulsemcp.com/servers) · [Smithery vs Composio](https://hasmcp.com/alternatives/smithery-vs-composio) · [Official MCP Registry req](https://glama.ai/blog/2026-01-24-official-mcp-registry-serverjson-requirements)
+- [STDIO vs HTTP](https://dev.to/jefe_cool/mcp-transports-explained-stdio-vs-streamable-http-and-when-to-use-each-3lco) · [LangChain sandbox patterns](https://blog.langchain.com/the-two-patterns-by-which-agents-connect-sandboxes/)
+
+### Конкуренты (teardowns)
+- [Copilot cloud agent docs](https://docs.github.com/copilot/concepts/agents/coding-agent/about-coding-agent) · [Copilot MCP](https://docs.github.com/en/copilot/concepts/agents/cloud-agent/mcp-and-cloud-agent)
+- [Codex CLI reference](https://developers.openai.com/codex/cli/reference) · [Codex pricing](https://developers.openai.com/codex/pricing)
+- [Composer 2 Technical Report](https://cursor.com/resources/Composer2.pdf) · [Cursor BG Agents](https://docs.cursor.com/en/background-agent) · [The Harness Is the Product](https://cozypet.github.io/cursor-cloud-harness/)
+- [Replit Agent 3→4](https://blog.replit.com/whats-changed-agent3-to-agent4) · [Inside Replit's Snapshot Engine](https://blog.replit.com/inside-replits-snapshot-engine) · [LangChain Replit](https://www.langchain.com/breakoutagents/replit)
+- [Lovable for Designers 2026](https://muz.li/blog/lovable-for-designers-the-complete-guide-to-building-apps-with-ai-2026/) · [Lovable changelog](https://docs.lovable.dev/changelog)
+
+### MCP-протокол
+- [MCP TypeScript SDK releases](https://github.com/modelcontextprotocol/typescript-sdk/releases)
+- [MCP spec 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25/) · [WorkOS spec update](https://workos.com/blog/mcp-2025-11-25-spec-update)
+- [MCP Inspector](https://github.com/modelcontextprotocol/inspector) · [MCPJam Inspector](https://github.com/MCPJam/inspector) · [lastmile-ai mcp-eval](https://github.com/lastmile-ai/mcp-eval)
+
+### Безопасность
+- [MCP Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices)
+- [AppSecSanta MCP audit 2026](https://appsecsanta.com/research/mcp-server-security-audit-2026)
+- [Red Hat MCP logging & runtime](https://www.redhat.com/en/blog/mcp-security-logging-and-runtime-security-measures)
