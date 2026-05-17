@@ -6,6 +6,24 @@
 
 ---
 
+## 2026-05-18 00:30 · Tier 1 foundation — F1 + C2 + C5 + C7
+
+**What:** Four foundation upgrades that bring the MCP server to "production-grade" per spec 2025-11-25.
+**Why:** Roadmap v2 Tier 1. Next-step from Tier 0 security.
+**Files:**
+- `outputs/src/index.ts` — `annotations: { destructiveHint / readOnlyHint / idempotentHint / openWorldHint }` added to ALL 25 tools (F1). Tools touching the filesystem or remote APIs that write get `destructiveHint: true`; pure readers get `readOnlyHint: true`.
+- `outputs/src/agents/checkpoints.ts` — replaced in-memory-only array with **git-tag-backed persistence** via `git for-each-ref refs/tags/cp-*` (C5). Checkpoints now survive MCP server restarts.
+- `outputs/src/browser/devServer.ts` — on `waitForPort` timeout, `treeKill(child.pid)` is invoked before throwing so npm install / Vite boot doesn't leak as a runaway process (C2).
+- `outputs/src/git/gitOps.ts` — `Octokit.plugin(retry, throttling)` HardenedOctokit class; throttle config logs rate-limit events to stderr and retries up to 2× on primary limit, 1× on secondary (C7).
+- `outputs/package.json` — added `@octokit/plugin-retry@^7.1.4` + `@octokit/plugin-throttling@^9.4.0`.
+- `outputs/dist/**` rebuilt; `tsc --noEmit` clean (0 errors).
+
+**Verification:** smoke-test boot — `initialize` returns OK, `tools/list` returns 25 entries with annotations (9 marked destructive, 5 marked read-only), `resources/list` returns 7, stderr `ready on stdio`. No crashes.
+
+**Checkpoint:** post-commit SHA (recorded by git commit below).
+
+---
+
 ## 2026-05-17 23:55 · Tier 0 security hardening — 7 fixes
 
 **What:** Closed 7 of 8 planned security/correctness gaps from the audit. New file `src/security/index.ts` centralises validators + scrubbers; existing tools wired to use them.
