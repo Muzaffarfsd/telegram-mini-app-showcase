@@ -20,12 +20,17 @@ For every user request that touches code:
 3. **Checkpoint BEFORE** — `checkpoint_create label="before: <task>"` so we can always roll back.
 4. **Edit** — `Edit` (preferred) or `Write` for new files. Small, targeted diffs.
 5. **Wait ~500 ms** for Vite HMR to push the update to the iPhone widget.
-6. **Self-verify visually** — `run_browser_test url="http://localhost:5000" screenshot=true`. Inspect:
-   - `ok: true` (HTTP 200, page rendered)
-   - `pageErrors == []` (no JS exceptions)
-   - `consoleErrors` filtered out warnings — must be `[]` for blocking errors
-   - `requestFailures == []` (no 4xx/5xx for app assets)
-   - Optionally diff the screenshot against the previous one (`diff_screenshots`) to confirm intended change actually happened on screen.
+6. **Self-verify visually — before/after diff**.
+   - `run_browser_test url=<changed-route> screenshot=true` → save as `__before.png` (BEFORE the edit).
+   - Apply edit, wait ~500 ms for HMR.
+   - `run_browser_test url=<changed-route> screenshot=true` → save as `__after.png`.
+   - `diff_screenshots before=__before.png after=__after.png` → pixel-diff image showing
+     EXACTLY where my change landed on screen. The diff PNG is the proof of "I see what I did".
+   - Inspect run_browser_test JSON: `ok:true`, `pageErrors:[]`, `consoleErrors filter type='error':[]`,
+     `requestFailures:[]`.
+   - If Playwright is unavailable (MCP cache issue on Windows before Claude Desktop restart):
+     fall back to user-observed verification — the user has the live iPhone widget open and
+     can confirm visually. Note in EDIT_LOG which mode was used.
 7. **If broken** — go back to step 1 with the error info. Do NOT mark the task done until the verification is clean.
 8. **Commit** — `git_commit_changes message="feat/fix/chore(scope): description"` (conventional commits).
 9. **Append** to `EDIT_LOG.md` — date, summary, files, checkpoint id+sha, verification result.
