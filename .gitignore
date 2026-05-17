@@ -10,3 +10,8 @@ coverage
 *.tsbuildinfo
 migrations
 .local
+# mcp-replit-clone scratch files (do not commit)
+__*.bat
+__*.log
+__*.done
+

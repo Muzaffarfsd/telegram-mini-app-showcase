@@ -115,9 +115,17 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 5000,
     strictPort: true,
-    hmr: {
-      clientPort: 443,
-      overlay: false
+    // HMR config:
+    //   - On Railway: clientPort 443 (HTTPS proxy fronts the dev server)
+    //   - Locally:    use the same port as the dev server → direct WS
+    // This is what enables sub-200ms hot updates in the iPhone widget.
+    hmr: process.env.RAILWAY_ENVIRONMENT
+      ? { clientPort: 443, overlay: false }
+      : { clientPort: 5000, port: 5000, host: 'localhost', overlay: false },
+    // Native FS watching (no polling) for fastest change detection on Windows
+    watch: {
+      usePolling: false,
+      followSymlinks: false,
     },
     allowedHosts: true,
     fs: {

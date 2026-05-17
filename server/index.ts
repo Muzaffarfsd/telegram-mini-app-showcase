@@ -30,6 +30,8 @@ app.use(helmet({
   contentSecurityPolicy: false, // Disabled for Telegram WebApp compatibility
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" },
+  // Allow iframe embedding from Telegram + our local widget in development.
+  frameguard: process.env.NODE_ENV === 'development' ? false : { action: 'sameorigin' },
 }));
 
 // Cache control for Telegram Mini App - force refresh
@@ -246,7 +248,8 @@ app.use((req, res, next) => {
   server.listen({
     port,
     host: "0.0.0.0",
-    reusePort: true,
+    // reusePort is Linux-only; on Windows it triggers ENOTSUP.
+    ...(process.platform === 'linux' ? { reusePort: true } : {}),
     backlog: 511,
   }, () => {
     log(`serving on port ${port}`);
