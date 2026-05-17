@@ -6,6 +6,23 @@
 
 ---
 
+## 2026-05-18 00:50 · Tier 1+2 features — F6 + F3 + F4 + D3 + D4
+
+**What:** Five high-ROI capabilities added.
+**Why:** Tier 1 finalisation + first two Tier 2 features (the highest-ROI ones per research).
+**Files:**
+- `outputs/src/util/toolResult.ts` (NEW, 99 LOC) — F6: `toolOk()`, `toolError()`, `classifyError()`, `runTool()`. Converts thrown errors into structured `{ isError: true, structuredContent: { code, recoverable, hint, message, context } }` so the model self-corrects without protocol retry. Classifier maps common errors (ENOENT/ECONNREFUSED/401/rate-limit/git-conflict/dep-missing) to actionable hints.
+- `outputs/src/analysis/quickCheck.ts` (NEW, 195 LOC) — D3: `quickCheck(repoCwd, files, {tsc,eslint})`. Runs project tsc + ESLint on a targeted file set in parallel, parses both into a unified diagnostics array with file/line/code/severity. Resolves `node_modules/.bin` for both tools; gracefully reports `toolsAvailable: false` if missing.
+- `outputs/src/critic/index.ts` (NEW, 143 LOC) — D4: `reviewDiff({diff, taskDescription, testReport, rubric}, extra)`. Calls MCP `sampling/createMessage` with model hints (Sonnet 4.6), temperature 0, max 200 tokens. Default rubric covers task-completeness / bugs / breakage / security / style / tests. Parses one-line `APPROVE | REVISE: <issue> | hint: <fix>`. Returns `SKIPPED` if client doesn't advertise sampling.
+- `outputs/src/index.ts` — registered new tools `quick_check` and `review_diff` with proper annotations. `attach_repository` now emits progress notifications (5/15/70/85/100%) and honours `extra.signal.aborted` for cancellation (F3+F4). `apply_edit_and_push` runs `quick_check` BEFORE the browser test; if errors found → refuses to commit and returns structured error with hint.
+- `outputs/dist/**` rebuilt. tsc --noEmit clean. Smoke test: 27 tools, both new tools listed, plugins loaded, ready on stdio.
+
+**Verification:** smoke-test boot returned `tools: 27` and confirmed `quick_check, review_diff` are registered. No runtime errors. Plugins loaded.
+
+**Checkpoint:** (will be recorded by commit below)
+
+---
+
 ## 2026-05-18 00:30 · Tier 1 foundation — F1 + C2 + C5 + C7
 
 **What:** Four foundation upgrades that bring the MCP server to "production-grade" per spec 2025-11-25.
