@@ -6,6 +6,35 @@
 
 ---
 
+## 2026-05-18 04:15 · QA-tester batch — flow executor + a11y + audit + smoke crawl + flow library (80 tools, 21 resources)
+
+**What:** Added Claude-as-QA-tester capabilities. After ANY UI edit, Claude can now click every element, fill forms, assert visible/hidden/text/url, check a11y violations via axe-core, audit page health (perf+links+images+forms+meta), and smoke-crawl every interactive element to catch errors.
+
+**Why:** User mandate: *"ты помимо того что должен оценивать визуально ты должен быть и тестировщиком, тестировать полученный результат, нажимать кликать чтобы все работало"*. Visual eval alone is not enough — need functional testing.
+
+**Files (NEW — 5 modules, 3 sub-agents built in parallel):**
+- `outputs/src/testing/flowExecutor.ts` (404 LOC) — Playwright script runner. 23 step actions: navigate / click / fill / press / hover / select / check / wait_for_selector / wait_for_text / wait_for_url / wait_time / scroll / assert_visible / assert_hidden / assert_text / assert_count / assert_url / assert_attribute / assert_no_console_errors_since / screenshot / eval / set_viewport. Returns FlowReport with per-step pass/fail + final URL + console/page errors + screenshots ALL inside `${repoCwd}/.agent-screenshots/flow-<ts>/`.
+- `outputs/src/testing/a11yScan.ts` (202 LOC) — Injects axe-core 4.10.2 from cdnjs, runs `axe.run()`, returns violations grouped by impact (critical/serious/moderate/minor) with rule id, help URL, sample DOM nodes.
+- `outputs/src/testing/pageAudit.ts` (542 LOC) — One-shot deep health audit. PerfMetrics (DCL+load+FCP+LCP+CLS+TBT via PerformanceObserver), LinkAudit (parallel HEAD up to 50 links, internal/external/broken), ButtonAudit (missing accessible name), ImageAudit (missing alt + oversized > 200KB), FormAudit (missing labels), MetaInfo (title/description/og/charset/viewport/theme-color/icons), console/pageErrors/failedRequests, full-page screenshot.
+- `outputs/src/testing/smokeCrawl.ts` (344 LOC) — Auto-clicks every visible interactive element in DFS (up to maxClicks default 25). Per click: records before/after URL, new console/page errors, new failed requests, modal appearance. Default excludes destructive selectors (logout/delete/mailto/tel). Optional reset between clicks.
+- `outputs/src/testing/userFlows.ts` (343 LOC) — Named flow library persisted to `.agent-state/user-flows.jsonl`. CRUD + `seedDefaultFlows()` inserts 3 baseline flows: `homepage-smoke`, `main-nav-tour`, `hero-cta-flow`.
+
+**Files (MODIFIED):**
+- `outputs/src/index.ts` — registered **10 new tools** (browser_flow_execute, a11y_scan, audit_page, smoke_crawl_page, flow_save, flow_list, flow_get, flow_remove, flow_seed_defaults, flow_run_by_name) and **1 new resource** (flows://library).
+- `outputs/dist/**` rebuilt clean.
+
+**Build state:** 70 tools → **80 tools**; 20 resources → **21 resources**. tsc clean. Smoke-test confirmed all 10 new tools registered.
+
+**Also in this batch (separate earlier fix):**
+- `outputs/src/browser/multiViewport.ts` rewritten so screenshots write to `${repoCwd}/.agent-screenshots/vp-<ts>/` instead of `os.tmpdir()`. This is the root cause Claude never "saw" UI screenshots before — Temp folder is outside the connected workspace mount. Now screenshots live INSIDE the repo and Claude can `Read` them as images.
+- `.gitignore` updated with `.agent-screenshots/`.
+
+**Auto-record persistence proven this session:** memory now contains 21 pinned entries — 18 baseline seeds + 3 new from this session (Onder Latin-only gotcha, Russo One hero decision, screenshot-path-fix gotcha, QA-tester preference).
+
+**Checkpoint:** (will be recorded by commit below)
+
+---
+
 ## 2026-05-18 03:35 · Persistent memory + auto-primer + auto-record (cross-session brain)
 
 **What:** Closed the agent-amnesia loop. The MCP server is now the **persistent brain across all chats / sessions**. Five new modules + 9 tools + 4 resources + auto-instrumentation hooks + repo-root primer.
