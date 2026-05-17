@@ -6,6 +6,51 @@
 
 ---
 
+## 2026-05-18 01:20 · Tier 2 batch — single-model self-review + memory + a11y + CI auto-fix
+
+**What:** Four major Tier-2 features. Pivoted to single-model (Opus 4.7) architecture
+per user direction: tools amplify the agent, not delegate to cheaper models.
+
+**Why:** User said: "we work only on Opus 4.7 with 1M tokens, no one else is needed,
+thinking and doing is only you" — so drop sampling-routed critic, do self-review;
+build memory + a11y + CI auto-fix that empower the single agent.
+
+**Files:**
+- `outputs/src/critic/index.ts` — **REWRITTEN**. `buildReviewRequest()` returns
+  structured prompt+8-axis rubric (correctness/bugs/breakage/security/style/tests/perf/a11y)
+  that the agent reads in its own turn. NO sampling, NO truncation (1M ctx).
+  `parseVerdict()` parses APPROVE/REVISE line back to structured form.
+- `outputs/src/memory/zep.ts` (NEW, 180 LOC) — Optional Zep Cloud integration:
+  `recordDecision()` / `recallContext()` / `recordNote()` keyed per repo.
+  Temporal-graph fact store (Graphiti) auto-invalidates contradicting facts.
+  Gracefully degrades to no-op if ZEP_API_KEY or @getzep/zep-cloud absent.
+- `outputs/src/browser/snapshot.ts` (NEW, 215 LOC) — D5 a11y-tree snapshots:
+  `pageSnapshot(url)` → role/name/value/state of every interactive element,
+  landmark text, element counts. `compareSnapshots(before, after)` → structural
+  diff (added/removed/modified elements, landmark text changes, count shifts).
+  Deterministic — no pixel noise.
+- `outputs/src/webhooks/ciAutoFix.ts` (NEW, 143 LOC) — D6 Jules-pattern:
+  webhook receiver intercepts `check_run.completed.failure`, pulls workflow log
+  via Octokit, extracts error excerpt, builds ready-to-act fix-prompt with target
+  branch `fix/ci-<id>`. Stored in in-memory map (bounded 200), surfaced via
+  resource `ci://failures`.
+- `outputs/src/index.ts` — registered 8 new tools and 1 new resource:
+  `review_diff` (no sampling, prompt-only)
+  `parse_review_verdict` (parse one-liner)
+  `recall_decisions` (Zep search)
+  `record_decision` (Zep write — design facts)
+  `record_note` (Zep write — gotchas/preferences)
+  `browser_snapshot` (a11y-tree capture with cache_key)
+  `compare_snapshots` (structural diff between cached snapshots)
+  `ci_failure_dismiss` (clear a ci://failures entry after fix)
+  Plus resource `ci://failures` exposing the auto-fix queue.
+
+**Build state:** 25 tools → **33 tools**. `tsc --noEmit` clean. Smoke test boot OK.
+
+**Verification:** smoke-test confirmed all 8 new tools registered. `[octokit] retry+throttling plugins loaded`. `ready on stdio`.
+
+---
+
 ## 2026-05-18 00:50 · Tier 1+2 features — F6 + F3 + F4 + D3 + D4
 
 **What:** Five high-ROI capabilities added.
