@@ -6,6 +6,61 @@
 
 ---
 
+## 2026-05-18 02:05 · Replit-Agent-4 parity batch — Kanban + AI-intent merge + Plan Mode + Doom-loop + Multi-viewport
+
+**What:** Five capabilities that bring our MCP server to **feature-parity with (and beyond) Replit Agent 4**:
+1. **Task Kanban** (drafts → active → ready → done) — exactly the column model Replit
+   shipped in Agent 4. Tasks persist to `.agent-state/kanban.jsonl` per-repo so they
+   survive MCP restarts. Each task carries a workLog, confidence score, branch/worktree
+   pointer, and last-check verifier output. Surfaced as 4 live resources.
+2. **AI-intent merge** — Replit's "intent-aware" 3-way merge replacement. We build a
+   structured prompt that gives the agent both branches' intent + the actual conflict
+   hunks; agent emits resolved blocks or escalation lines. No cheap-model handoff —
+   single Opus 4.7 turn.
+3. **Plan Mode** — read-only safety gate (env `MCP_PLAN_MODE=1` or runtime flip via
+   `plan_mode_set`). Every write-tool calls `assertWritable(name)`; throws SecurityError
+   when Plan Mode is ON. Lets the user say "draft a plan only, no commits."
+4. **Doom-loop detector** — 10-min sliding window tracks edit cadence per file +
+   consecutive failures. 4+ touches on one file OR 3+ consecutive errors → returns
+   `{doom: true, suggestions: [...]}` so the agent stops, escalates, or asks for help.
+5. **Multi-viewport snapshot** — parallel Playwright contexts for `iphone-17-pro-max`,
+   `iphone-se`, `ipad-pro`, `desktop`, `desktop-4k`, `tablet`. Catches "looks fine on
+   desktop, broken on mobile" before commit.
+
+**Why:** User said: "узнай и найди всю документацию у replit agent 4, и сделай также
+значит и даже лучше! чтобы редактирование было быстрее эфективнее качественее".
+Research surfaced the 4 Agent-4 differentiators (Kanban, intent-merge, Plan Mode,
+multi-viewport). Doom-loop is our own addition — it's the failure mode they admit
+to in their docs but don't solve. We do.
+
+**Files (NEW):**
+- `outputs/src/tasks/kanban.ts` (154 LOC) — class Kanban with loadFrom/create/transition/log/setConfidence/dismiss + jsonl persistence.
+- `outputs/src/safety/planMode.ts` (31 LOC) — `assertWritable(toolName)` + `setPlanMode(on)`.
+- `outputs/src/safety/doomLoop.ts` (96 LOC) — sliding-window edit + failure tracker, returns suggestions.
+- `outputs/src/merge/aiIntentMerge.ts` (113 LOC) — buildMergeRequest({ours, theirs, conflicts}) + parseMergeOutput.
+- `outputs/src/browser/multiViewport.ts` (93 LOC) — `multiViewportSnapshot(url, viewports)` parallel screenshots.
+
+**Files (MODIFIED):**
+- `outputs/src/index.ts` — registered **11 new tools** (task_create, task_transition,
+  task_log, task_set_confidence, task_dismiss, build_merge_prompt, parse_merge_output,
+  plan_mode_set, doom_loop_record, assess_doom_loop, multi_viewport_snapshot) and
+  **4 new resources** (task://drafts, task://active, task://ready, task://done).
+- `outputs/dist/**` rebuilt clean from `tsc -p tsconfig.json`.
+
+**Build state:** 34 tools → **45 tools**; 8 resources → **12 resources**.
+`tsc --noEmit` clean (0 errors). Smoke-test boot OK.
+
+**Verification:** smoke-test confirmed:
+  - `TOOLS COUNT: 45` ✓
+  - All 11 new tools present in tools/list ✓
+  - `RESOURCES COUNT: 12` ✓
+  - All 4 task:// resources present ✓
+  - stderr: `[mcp] replit-clone-mcp ready on stdio` (no crashes) ✓
+
+**Checkpoint:** (will be recorded by commit below)
+
+---
+
 ## 2026-05-18 01:20 · Tier 2 batch — single-model self-review + memory + a11y + CI auto-fix
 
 **What:** Four major Tier-2 features. Pivoted to single-model (Opus 4.7) architecture
