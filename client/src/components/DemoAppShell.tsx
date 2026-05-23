@@ -54,6 +54,7 @@ const demoThemes: Record<string, Partial<DemoTheme>> = {
   'futuristic-fashion-2': { background: '#000000', isDark: true },
   'futuristic-fashion-3': { background: '#0A0A0A', isDark: true },
   'futuristic-fashion-4': { background: '#0A0A0A', isDark: true },
+  'skincare-aura': { background: '#FFFFFF', isDark: false },
 };
 
 const getTheme = (demoId: string): DemoTheme => {
@@ -80,10 +81,11 @@ interface DemoNavTabProps {
   label: string;
   activeColor: string;
   inactiveColor: string;
+  badge?: number;
   children: React.ReactNode;
 }
 
-const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, inactiveColor, children }: DemoNavTabProps) => (
+const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, inactiveColor, badge, children }: DemoNavTabProps) => (
   <button
     type="button"
     className="relative z-30 flex items-center justify-center rounded-[14px] gpu-layer"
@@ -106,6 +108,13 @@ const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, 
   >
     <div className="relative z-10 flex-shrink-0 nav-tab-icon">
       {children}
+      {badge ? (
+        <span style={{
+          position: 'absolute', top: '-6px', right: '-9px', minWidth: '16px', height: '16px',
+          padding: '0 4px', borderRadius: '999px', background: '#A3E635', color: '#1A2E05',
+          fontSize: '10px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+        }}>{badge > 99 ? '99+' : badge}</span>
+      ) : null}
     </div>
     <span
       className="relative z-10 leading-none overflow-hidden whitespace-nowrap"
@@ -126,12 +135,16 @@ const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, 
 
 const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShellProps) {
   const [activeTab, setActiveTab] = useState<TabType>('home');
+  const [cartCount, setCartCount] = useState(0);
+  const [demoDark, setDemoDark] = useState(false);
   const { hapticFeedback } = useTelegram();
   const { t } = useLanguage();
   
   // Scroll to top when demo opens
   useEffect(() => {
     scrollToTop();
+    setCartCount(0);
+    setDemoDark(false);
   }, [demoId]);
   
   const getBaseAppType = useCallback((id: string): string => {
@@ -224,7 +237,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
 
     return (
       <Suspense fallback={null}>
-        <DemoComponent activeTab={activeTab} onTabChange={handleStringNavigation} />
+        <DemoComponent activeTab={activeTab} onTabChange={handleStringNavigation} onCartCount={setCartCount} onTheme={setDemoDark} />
       </Suspense>
     );
     
@@ -232,7 +245,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
 
   // Get theme for current demo
   const baseAppType = getBaseAppType(demoId);
-  const theme = getTheme(baseAppType);
+  const theme = demoDark ? darkTheme : getTheme(baseAppType);
 
   return (
     <>
@@ -262,6 +275,12 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       {createPortal(
         <>
           <DemoLiquidGlassFilter />
+
+          {/* Bottom scrim — app colour behind the floating nav */}
+          <div
+            className="fixed left-0 right-0 z-[9990] pointer-events-none"
+            style={{ bottom: 0, height: '170px', background: `linear-gradient(to top, ${theme.background} 60%, ${theme.background}00 100%)` }}
+          />
 
           {/* Fixed Home Button */}
           <div 
@@ -365,6 +384,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                 label={t('nav.cart')}
                 activeColor={theme.activeIconColor}
                 inactiveColor={theme.inactiveIconColor}
+                badge={cartCount}
               >
                 <ShoppingCart
                   className="w-[21px] h-[21px]"

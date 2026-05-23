@@ -7610,3 +7610,48 @@ html:not(.light) .bottom-nav-premium {
   from { opacity: 0; transform: translateY(30px) scale(0.92); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* ── Custom display fonts: Droid 1997 (headings) + Onder (body) ── */
+@font-face {
+  font-family: 'Stengazeta';
+  src: url('/fonts/Stengazeta.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Onder';
+  src: url('/fonts/Onder-Regular.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Profile page typography: Droid 1997 headings + Onder body (FONT ONLY, native sizes) ── */
+.profile-typo { font-family: 'Onder', system-ui, sans-serif; }
+.profile-typo p, .profile-typo span, .profile-typo a, .profile-typo li,
+.profile-typo input, .profile-typo label, .profile-typo button, .profile-typo div,
+.profile-typo .ios-body, .profile-typo .ios-headline, .profile-typo .ios-callout,
+.profile-typo .ios-subheadline, .profile-typo .ios-footnote,
+.profile-typo .ios-caption1, .profile-typo .ios-caption2,
+.profile-typo .ios26-title, .profile-typo .ios26-subtitle {
+  font-family: 'Onder', system-ui, sans-serif;
+}
+.profile-typo h1, .profile-typo h2, .profile-typo h3, .profile-typo h4,
+.profile-typo .ios26-header,
+.profile-typo .ios-largeTitle, .profile-typo .ios-title, .profile-typo .ios-title1,
+.profile-typo .ios-title2, .profile-typo .ios-title3,
+.profile-typo .text-3xl, .profile-typo .text-2xl, .profile-typo .text-xl {
+  font-family: 'Stengazeta', system-ui, sans-serif !important;
+  letter-spacing: 0.055em;
+}
+
+/* ── Raleway (variable, с кириллицей) — шрифт приложения Aura ── */
+@font-face {
+  font-family: 'Raleway';
+  src: url('/fonts/Raleway.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+.aura, .aura * { font-family: 'Raleway', system-ui, -apple-system, sans-serif; }

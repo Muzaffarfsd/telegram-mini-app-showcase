@@ -115,6 +115,10 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./OxyzNFT')),
     preload: () => import('./OxyzNFT')
   },
+  'skincare-aura': {
+    component: lazy(() => import('./SkincareStore')),
+    preload: () => import('./SkincareStore')
+  },
   'emily-carter-ai': {
     component: lazy(() => import('./EmilyCarterAI')),
     preload: () => import('./EmilyCarterAI')

@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'skincare-aura',
+    title: 'Aura',
+    description: 'Премиальный магазин косметики и ухода за кожей',
+    category: 'Электронная коммерция',
+    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_125334_678cadf8-6a6e-4f16-941b-ce41570fee6b_min.webp',
+    creator: 'WEB4TG',
+    likes: '9.8k',
+    badge: 'Новинка',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'clothing-store',
     title: 'Radiance',
     description: 'Магазин модной одежды и аксессуаров',

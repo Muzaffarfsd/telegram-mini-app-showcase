@@ -6,6 +6,61 @@
 
 ---
 
+## 2026-05-18 04:55 · Speed batch — quick_qa combined tool + eager browser warm-up
+
+**What:** ONE tool replaces 4-5 sequential calls. Single warm Chromium runs: parallel multi-viewport snapshots + audit + a11y (parallel via Promise.allSettled) + optional smoke crawl + auto-onboarding bypass via storageState.
+
+**Why:** User mandate: *"очень долго все нужно автоматизировать и ускорить, это не уровень replit agent 4"*. Each MCP tool call cold-launched Chromium (~6s × 5 calls = 30s wall clock for full QA). Now: ~6-9s warm.
+
+**Files (NEW):**
+- `outputs/src/testing/quickQa.ts` (388 LOC, built by sub-agent) — orchestrates browserPool.get() warm-up once, runs 4 phases on shared Chromium, returns aggregated QuickQaReport.
+
+**Files (MODIFIED):**
+- `outputs/src/index.ts` — registered `quick_qa` tool with z.enum for viewports + sensible defaults. Added eager `browserPool.get()` warm-up immediately after `[mcp] ready on stdio` log line — Chromium starts warming in background as soon as server boots, so user's first call pays no cold-launch cost.
+
+**Build state:** 80 tools → **81 tools**. tsc clean. Smoke-test: quick_qa registered ✓.
+
+**Expected wall-clock perf (default: 2 viewports + audit + a11y, no smoke):**
+- Cold (first call after boot, no warm-up yet): ~12-15s
+- Warm (post-warm-up or 2nd+ call): **~6-9s** (3x faster than previous sequential pipeline)
+
+**Caveats:**
+1. Onboarding bypass via storageState seeds the snapshot-phase contexts only. audit/a11y/smoke create their own contexts. localStorage IS origin-scoped at Chromium level so bypass SHOULD persist across contexts.
+2. To get true sub-3s like Replit Agent 4: need a persistent dev container with always-warm browser. Eager warm-up at boot is the closest approximation locally.
+
+---
+
+## 2026-05-18 04:30 · QA cycle ran — found 3 critical bugs + 7 a11y violations, fixed 2
+
+**What I ran:** Full QA cycle on http://localhost:5000/ after Russo One hero change:
+- `multi_viewport_snapshot` (iphone-17-pro-max + desktop) — ok=true, 0 page errors
+- `audit_page` — ok=true. LCP 4.05s (borderline), 0 broken links, 0 buttons missing a11y name, 0 images missing alt, 1 failed request: `/videos/hero.mp4` (404)
+- `a11y_scan` (axe-core 4.10.2) — 7 violations (1 critical / 4 serious / 1 moderate / 1 minor)
+- `smoke_crawl_page` max 8 clicks — ❌ 0/8 succeeded, all timed out "element outside viewport"
+- `flow_seed_defaults` — 3 baseline flows created
+
+**Bugs found:**
+1. **CRITICAL: repo.cwd defaults to C:\WINDOWS\System32** — MCP server is launched by Claude Desktop from System32 working dir. Screenshots, memory, kanban all end up there. Claude cannot read them (not connected folder).
+2. **smoke_crawl 0/8 success** — Playwright .click() fails on absolute-positioned sidebar elements with "outside viewport" timeout.
+3. **broken /videos/hero.mp4** — 404 in audit_page (not new; existing).
+
+**Fixes deployed:**
+- `outputs/src/index.ts` — `resolveRepoRoot()` function added: tries MCP_REPO_CWD env → MCP_REPO_ROOT env → cwd-looks-like-project → scan ${HOME}/mcp-workspaces/ (prefer ${GH_OWNER}-${GH_REPO} match) → fallback with stderr warning.
+- `outputs/src/testing/smokeCrawl.ts` — 3-tier click cascade: (1) `locator.scrollIntoViewIfNeeded()` first, then (2) `locator.click()` 3s, then on failure (3) `locator.click({force:true})` 1.5s, then on failure (4) `locator.dispatchEvent('click')`. Three retry tiers vs single-tier before.
+- `outputs/dist/**` rebuilt clean.
+
+**Memory writes this session:** 4 entries — 2 pinned gotchas (System32 cwd bug, smoke_crawl viewport bug), 2 facts (a11y baseline, perf baseline).
+
+**A11y violations to address later (separate batch):**
+- Critical: meta-viewport user-scalable=no (WCAG 2.2 AA 1.4.4)
+- Serious: color-contrast on rgba(255,255,255,0.3) badges, nested-interactive on article[role=button], scrollable-region-focusable on .snap-x carousel, svg-img-alt on telegram social icons
+- Moderate: 5 page regions outside landmarks
+- Minor: <article role=button> should be button or div
+
+**Next steps:** user restarts Claude Desktop again → MCP picks up smart repo.cwd → screenshots land in actual repo `.agent-screenshots/` → I can finally READ them.
+
+---
+
 ## 2026-05-18 04:15 · QA-tester batch — flow executor + a11y + audit + smoke crawl + flow library (80 tools, 21 resources)
 
 **What:** Added Claude-as-QA-tester capabilities. After ANY UI edit, Claude can now click every element, fill forms, assert visible/hidden/text/url, check a11y violations via axe-core, audit page health (perf+links+images+forms+meta), and smoke-crawl every interactive element to catch errors.
