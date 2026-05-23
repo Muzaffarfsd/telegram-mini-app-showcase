@@ -56,6 +56,7 @@ const demoThemes: Record<string, Partial<DemoTheme>> = {
   'futuristic-fashion-4': { background: '#0A0A0A', isDark: true },
   'skincare-aura': { background: '#FFFFFF', isDark: false },
   'streetwear-vanta': { background: '#FFFFFF', isDark: false },
+  'tech-nova': { background: '#FFFFFF', isDark: false },
 };
 
 const getTheme = (demoId: string): DemoTheme => {

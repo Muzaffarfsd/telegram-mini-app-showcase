@@ -126,6 +126,10 @@ export const demoRegistry: Record<string, DemoComponent> = {
   'streetwear-vanta': {
     component: lazy(() => import('./StreetwearStore')),
     preload: () => import('./StreetwearStore')
+  },
+  'tech-nova': {
+    component: lazy(() => import('./TechStore')),
+    preload: () => import('./TechStore')
   }
 };
 

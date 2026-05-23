@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'tech-nova',
+    title: 'NOVA',
+    description: 'Магазин премиальной электроники: смартфоны, ноутбуки, планшеты',
+    category: 'Электронная коммерция',
+    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp',
+    creator: 'WEB4TG',
+    likes: '14.2k',
+    badge: 'Новинка',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'streetwear-vanta',
     title: 'VANTA',
     description: 'Премиальный стритвир-бутик: кроссовки, куртки, худи',

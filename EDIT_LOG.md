@@ -5,6 +5,57 @@
 > AI reads the last 20-30 entries at the start of every session.
 
 
+## 2026-05-23 — NOVA reworked to match the reference (editorial minimalism)
+
+Full UI rebuild of TechStore.tsx (1159 lines) — the first pass was too
+cluttered. Reworked structure to match the Beoplay-style reference:
+
+- Masonry staggered 2-column grid (offset columns, varied card heights) —
+  replaces the uniform grid. Signature of the reference.
+- Ultra-minimal product cards: light panel, dominant product photo,
+  name + price + heart only. Dropped category labels, stars, badges.
+- Refined hero card: big 2-line name, plain price, floating product, CTA.
+- Reimagined Detail: no header bar — huge title top-left, price, floating
+  "+" quick-add, big floating product, color row, description, highlights,
+  spec list, trust strip, "Похожие". Floating bottom bar = back circle +
+  "В корзину" pill + heart circle (exactly the reference layout).
+- Shared-element morph: tapping a card makes the product image FLIP-animate
+  from the card into the detail's hero position (the reference gif's
+  signature transition). Imperative FLIP, ~540ms spring.
+
+Kept the 18 products / 20 studio photos / cart / checkout / favorites.
+Verified: quick_check 0 errors, browser-tested Home/Detail/Catalog/Cart at
+430x932 — no page errors. File: client/src/components/demos/TechStore.tsx.
+
+---
+
+## 2026-05-23 — New demo: NOVA premium electronics store
+
+Built a new electronics-store demo (TechStore.tsx, 1148 lines) in the minimal
+light Apple aesthetic of the reference mockup — soft shadows, generous
+whitespace, bold tight headings, monochrome palette, system font.
+
+Catalog: 18 products across 6 categories (Смартфоны, Ноутбуки, Планшеты,
+Часы, Аудио, Аксессуары) — phones, MacBook-style laptops, iPad-style tablets,
+watches, earbuds, speaker, charger, display. 20 studio product photos
+generated via Higgsfield nano_banana_pro on clean light backgrounds.
+
+Screens: Home (featured hero card + category tabs + filtered grid + editorial
+banner + new strip), Catalog (search + filter chips + grid), Detail overlay
+(floating product, colour swatches, highlights, spec table, description,
+trust, similar), Cart + 3-step checkout (delivery/payment) + processing +
+done, Profile (stats + menu), Favorites overlay. Promo NOVA10 = -5%.
+ui-ux-pro-max throughout: 44pt targets, focus traps, focus-visible, eager
+hero LCP, free-ship meter, haptics, skeleton shimmer, reduced-motion.
+
+Registered: demoRegistry['tech-nova'], demoApps card, DemoAppShell theme
+{background:'#FFFFFF', isDark:false}.
+
+Verified: quick_check 0 errors. Browser-tested Home/Detail/Catalog/Cart at
+430x932 — no page errors. File: client/src/components/demos/TechStore.tsx.
+
+---
+
 ## 2026-05-23 — AURA dark-theme fix + bottom-panel glow removal
 
 DemoAppShell: removed the 170px gradient scrim behind the floating nav (the
