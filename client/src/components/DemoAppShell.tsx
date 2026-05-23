@@ -21,6 +21,8 @@ interface DemoTheme {
   activeIconColor: string;
   inactiveIconColor: string;
   navOverlay: string;
+  accent: string;
+  onAccent: string;
 }
 
 const darkTheme: DemoTheme = {
@@ -29,6 +31,8 @@ const darkTheme: DemoTheme = {
   activeIconColor: '#fff',
   inactiveIconColor: 'rgba(255,255,255,0.45)',
   navOverlay: 'rgba(20, 20, 22, 0.65)',
+  accent: '#FFFFFF',
+  onAccent: '#161616',
 };
 
 const lightTheme: DemoTheme = {
@@ -37,6 +41,8 @@ const lightTheme: DemoTheme = {
   activeIconColor: 'rgba(0,0,0,0.85)',
   inactiveIconColor: 'rgba(0,0,0,0.35)',
   navOverlay: 'rgba(255, 255, 255, 0.65)',
+  accent: '#1C1C1E',
+  onAccent: '#FFFFFF',
 };
 
 const demoThemes: Record<string, Partial<DemoTheme>> = {
@@ -45,7 +51,7 @@ const demoThemes: Record<string, Partial<DemoTheme>> = {
   'interior-lux': { background: '#F5F3F0', isDark: false },
   'clothing-store': { background: '#0A0A0A', isDark: true },
   'electronics': { background: '#0A0A0A', isDark: true },
-  'beauty': { background: '#0A0A0A', isDark: true },
+  'beauty': { background: '#F4EFE7', isDark: false, accent: '#A37A5B', onAccent: '#FFFFFF' },
   'restaurant': { background: '#0A0A0A', isDark: true },
   'luxury-watches': { background: '#0A0A0A', isDark: true },
   'sneaker-store': { background: '#0A0A0A', isDark: true },
@@ -54,9 +60,9 @@ const demoThemes: Record<string, Partial<DemoTheme>> = {
   'futuristic-fashion-2': { background: '#000000', isDark: true },
   'futuristic-fashion-3': { background: '#0A0A0A', isDark: true },
   'futuristic-fashion-4': { background: '#0A0A0A', isDark: true },
-  'skincare-aura': { background: '#FFFFFF', isDark: false },
-  'streetwear-vanta': { background: '#FFFFFF', isDark: false },
-  'tech-nova': { background: '#FFFFFF', isDark: false },
+  'skincare-aura': { background: '#FFFFFF', isDark: false, accent: '#A3E635', onAccent: '#1A2E05' },
+  'streetwear-vanta': { background: '#FFFFFF', isDark: false, accent: '#0B0B0B', onAccent: '#FFFFFF' },
+  'tech-nova': { background: '#FFFFFF', isDark: false, accent: '#161618', onAccent: '#FFFFFF' },
 };
 
 const getTheme = (demoId: string): DemoTheme => {
@@ -95,10 +101,12 @@ interface DemoNavTabProps {
   activeColor: string;
   inactiveColor: string;
   badge?: number;
+  badgeBg?: string;
+  badgeFg?: string;
   children: React.ReactNode;
 }
 
-const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, inactiveColor, badge, children }: DemoNavTabProps) => (
+const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, inactiveColor, badge, badgeBg = '#1C1C1E', badgeFg = '#FFFFFF', children }: DemoNavTabProps) => (
   <button
     type="button"
     className="relative z-30 flex items-center justify-center rounded-[14px] gpu-layer"
@@ -124,7 +132,7 @@ const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, 
       {badge ? (
         <span style={{
           position: 'absolute', top: '-6px', right: '-9px', minWidth: '16px', height: '16px',
-          padding: '0 4px', borderRadius: '999px', background: '#A3E635', color: '#1A2E05',
+          padding: '0 4px', borderRadius: '999px', background: badgeBg, color: badgeFg,
           fontSize: '10px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
         }}>{badge > 99 ? '99+' : badge}</span>
       ) : null}
@@ -289,6 +297,13 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
         <>
           <DemoLiquidGlassFilter />
 
+          {/* Solid bottom backing — keeps the floating nav on the app background colour
+              so content never shows through dark behind it */}
+          <div
+            className="fixed left-0 right-0 z-[9990] pointer-events-none"
+            style={{ bottom: 0, height: 'calc(106px + env(safe-area-inset-bottom, 0px))', background: theme.background }}
+          />
+
           {/* Fixed Home Button */}
           <div 
             className="fixed z-[9999] pointer-events-none flex justify-end"
@@ -389,6 +404,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                 activeColor={theme.activeIconColor}
                 inactiveColor={theme.inactiveIconColor}
                 badge={cartCount}
+                badgeBg={theme.accent}
+                badgeFg={theme.onAccent}
               >
                 <ShoppingCart
                   className="w-[21px] h-[21px]"

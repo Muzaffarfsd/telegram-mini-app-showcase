@@ -5,6 +5,69 @@
 > AI reads the last 20-30 entries at the start of every session.
 
 
+## 2026-05-23 — DemoAppShell: solid nav backing + per-demo cart badge
+
+- Black block under pages fixed: the floating bottom nav had no backing,
+  so dark content (editorial photo tiles, hero gradients) showed through
+  behind it. Added a SOLID bottom backing in theme.background colour
+  (height 106px + safe-area) — no gradient/glow, just the app's bg colour.
+  Applies to every demo.
+- Cart count badge was a fixed lime green for all demos. Added accent /
+  onAccent to the theme system; the badge now uses each demo's own accent:
+  GlowSpa mocha, AURA lime, VANTA / NOVA monochrome black.
+
+Verified: quick_check 0 errors, browser-tested GlowSpa home + catalog —
+nav now sits on the warm background, no black block, no page errors.
+File: client/src/components/DemoAppShell.tsx.
+
+---
+
+## 2026-05-23 — GlowSpa v2: editorial catalog + black-block fix
+
+Reworked GlowSpa per feedback (catalog too plain, home not 10/10, black blocks).
+
+- Black blocks fixed: GLOW Club home block and profile bonus card were
+  near-black INK slabs — recoloured to warm beige gradient matching the
+  ivory background. (Shell theme for 'beauty' was already warm light.)
+- Catalog completely reimagined — no longer a flat list. New editorial
+  lookbook: a "Ритуал сезона" spotlight tile, then numbered category
+  sections (01 Волосы … 05 Взгляд) each with header + description, and
+  every service rendered as a large full-bleed editorial photo tile
+  (ServiceTile) — overlaid serif name, master avatar, rating, price,
+  book button. Category view gets a category hero; search gets flat tiles.
+- Home elevated: plain category pills → rich image category cards;
+  added "Ритуал недели" featured spotlight section.
+
+Verified: quick_check 0 errors. Full-page snapshots of home + catalog —
+warm throughout, no black blocks, no page errors.
+File: client/src/components/demos/Beauty.tsx.
+
+---
+
+## 2026-05-23 — GlowSpa full rebrand → GLOW (world-class beauty salon)
+
+Complete rebrand of the beauty demo (Beauty.tsx fully rewritten, 1005 lines,
+self-contained — dropped DemoThemeProvider / shared infra).
+
+New identity: warm editorial luxury — ivory canvas, mocha accent, Cormorant
+Garamond serif display + Inter. Theme switched dark → warm light.
+
+Kept the hero video, restyled as a tall cinematic rounded card with overlaid
+serif headline + CTA. Regenerated ALL photography — 20 new Higgsfield images
+(12 services, 6 master portraits, 2 editorial). New copy throughout.
+
+New blocks: video hero, stat strip, category pills, "Хиты салона" strip,
+editorial interior block, masters strip, review cards, GLOW Club block,
+contacts. Catalog with elegant ServiceRow list + search + filter. Reimagined
+service detail (photo hero, "что входит" steps, master card). 3-step booking
+flow (услуги -> дата/время -> подтверждение). Profile with GLOW Club card.
+
+Registered theme update in DemoAppShell ({background:'#F4EFE7', isDark:false}).
+Verified: quick_check 0 errors, browser-tested all screens — no page errors.
+File: client/src/components/demos/Beauty.tsx.
+
+---
+
 ## 2026-05-23 — NOVA reworked to match the reference (editorial minimalism)
 
 Full UI rebuild of TechStore.tsx (1159 lines) — the first pass was too

@@ -1,1755 +1,1149 @@
-import { useState, useRef, useMemo, memo } from "react";
+import { useState, useCallback, useEffect, useRef, memo } from "react";
 import { createPortal } from "react-dom";
-import { m, AnimatePresence } from "framer-motion";
 import {
-  Heart, Star, ChevronLeft, ChevronRight, Sparkles, Calendar, Clock, User,
-  Gift, MapPin, Search, ShoppingBag, Settings,
-  Home, Grid, Tag, Scissors, Droplets, Flower2, Hand,
-  Truck, ShieldCheck, RotateCcw, X, Check, Phone, ArrowUpDown,
-  Award, Crown, ChevronDown, Filter, Eye
+  Heart, Star, ChevronRight, ArrowLeft, Check, Search, Clock, X,
+  Calendar, MapPin, Phone, Sparkles, ShieldCheck, Award, Loader2, Plus,
 } from "lucide-react";
-import { scrollToTop } from "@/hooks/useScrollToTop";
-import { LazyImage, DemoThemeProvider, AutoplayVideo } from "@/components/shared";
-import { EmptyState } from "@/components/shared/EmptyState";
-import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { usePersistentCart } from "@/hooks/usePersistentCart";
-import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
-import { usePersistentOrders } from "@/hooks/usePersistentOrders";
-import { useToast } from "@/hooks/use-toast";
-import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
-import glowspaHeroImg from "@assets/glowspa_hero.jpg";
 import glowspaHeroVideo from "@assets/7c2c6d94385a0badd934f87f658b1f46_1774529512637.mp4";
-import glowspaHaircutImg from "@assets/glowspa_haircut.jpg";
-import glowspaAirtouchImg from "@assets/glowspa_airtouch.jpg";
-import glowspaBalayageImg from "@assets/glowspa_balayage.jpg";
-import glowspaManicureImg from "@assets/glowspa_manicure.jpg";
-import glowspaFrenchImg from "@assets/glowspa_french.jpg";
-import glowspaPedicureImg from "@assets/glowspa_pedicure.jpg";
-import glowspaBotoxImg from "@assets/glowspa_botox.jpg";
-import glowspaFacialImg from "@assets/glowspa_facial.jpg";
-import glowspaMassageFaceImg from "@assets/glowspa_massage_face.jpg";
-import glowspaLashesImg from "@assets/glowspa_lashes.jpg";
-import glowspaMassageBodyImg from "@assets/glowspa_massage_body.jpg";
-import glowspaStylingImg from "@assets/glowspa_styling.jpg";
-import masterAnnaImg from "@assets/glowspa_master_anna.jpg";
-import masterMariaImg from "@assets/glowspa_master_maria.jpg";
-import masterElenaImg from "@assets/glowspa_master_elena.jpg";
-import masterOlgaImg from "@assets/glowspa_master_olga.jpg";
-import masterYuliaImg from "@assets/glowspa_master_yulia.jpg";
-import masterOlga2Img from "@assets/glowspa_master_olga2.jpg";
+import glowspaHeroImg from "@assets/glowspa_hero.jpg";
 
-const STORE_KEY = 'glowspa-store';
+/* ===================================================================
+   GLOW — салон красоты и SPA (демо)
+   Тёплый editorial-люкс · Cormorant + Inter · ui-ux-pro-max · 2026
+   =================================================================== */
 
-const CORMORANT = '"Cormorant Garamond", Georgia, serif';
-const INTER = '"Inter", system-ui, sans-serif';
-const ACCENT = '#C9A89B';
-const BG = '#0C0A09';
+const INK = "#26211C";
+const PAPER = "#FFFFFF";
+const CANVAS = "#F4EFE7";
+const SAND = "#EBE3D6";
+const TINT = "#EFE7DB";
+const MUTED = "#8A8076";
+const SUB = "#6A6157";
+const ACCENT = "#A37A5B";
+const ACCENT_DEEP = "#7E5638";
+const LINE = "rgba(38,33,28,0.11)";
+const HAIR = "rgba(38,33,28,0.06)";
 
-interface BeautyProps {
-  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
-  onTabChange?: (tab: string) => void;
+const SERIF = "'Cormorant Garamond', 'Times New Roman', Georgia, serif";
+const SANS = "'Inter', system-ui, -apple-system, sans-serif";
+
+const T = { micro: "0.6875rem", cap: "0.75rem", sm: "0.8125rem", body: "0.9375rem", lg: "1.0625rem" };
+const S = { s1: "1.5rem", s2: "2rem", s3: "2.6rem", s4: "3.3rem" };
+const IC = { sm: 16, md: 20, lg: 24 };
+const SW = 1.7;
+
+const IMG = "https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/";
+
+interface Props {
+  activeTab: "home" | "catalog" | "cart" | "profile";
+  onTabChange: (tab: string) => void;
+  onCartCount?: (n: number) => void;
 }
 
-interface ProcessStep {
-  title: string;
-  detail: string;
+interface Master {
+  id: string; name: string; role: string; exp: number; rating: number; img: string;
 }
-
 interface Service {
-  id: number;
-  name: string;
-  price: number;
-  oldPrice?: number;
-  image: string;
-  description: string;
-  editorialNote: string;
-  category: string;
-  categoryIcon: 'scissors' | 'hand' | 'droplets' | 'flower';
-  duration: string;
-  durationMin: number;
-  specialist: string;
-  rating: number;
-  reviewCount: number;
-  isPopular?: boolean;
-  isNew?: boolean;
-  benefits: string[];
-  process: ProcessStep[];
-  aftercare: string;
+  id: string; cat: string; name: string; price: number; min: number;
+  img: string; rating: number; reviews: number; master: string; badge?: string;
+  tagline: string; desc: string; includes: string[];
 }
 
-const services: Service[] = [
+const CATEGORIES = ["Волосы", "Ногти", "Лицо", "Тело", "Взгляд"];
+
+const MASTERS: Master[] = [
+  { id: "m1", name: "Алиса Верещагина", role: "Колорист", exp: 9, rating: 4.9, img: IMG + "hf_20260523_180013_135a51fb-c12c-4e12-88ad-8b71f1e99211_min.webp" },
+  { id: "m2", name: "Дарья Соколова", role: "Мастер маникюра", exp: 7, rating: 5.0, img: IMG + "hf_20260523_180017_bc22854f-1d7b-4ea4-be6b-bf9bd519e62e_min.webp" },
+  { id: "m3", name: "Ирина Левина", role: "Косметолог", exp: 14, rating: 5.0, img: IMG + "hf_20260523_180136_15667207-3b9a-438d-9d0e-c8ba93256cb6_min.webp" },
+  { id: "m4", name: "Вероника Адлер", role: "SPA-терапевт", exp: 8, rating: 4.9, img: IMG + "hf_20260523_180140_595b83d7-d58a-4e6f-b94e-6649acc6795e_min.webp" },
+  { id: "m5", name: "Камилла Орлова", role: "Стилист-парикмахер", exp: 11, rating: 4.9, img: IMG + "hf_20260523_180144_4e4db7ac-9294-419b-8ee9-29541b843732_min.webp" },
+  { id: "m6", name: "София Грей", role: "Лэшмейкер", exp: 6, rating: 4.9, img: IMG + "hf_20260523_180147_8f8e4e4f-bed7-4da7-9089-b533bd1464aa_min.webp" },
+];
+
+const SERVICES: Service[] = [
   {
-    id: 1,
-    name: 'Авторская стрижка',
-    price: 4500,
-    oldPrice: 5500,
-    image: glowspaHaircutImg,
-    description: 'Индивидуальный подбор формы с учётом типа лица, текстуры волос и образа жизни. Премиальная косметика Davines.',
-    editorialNote: 'Каждая стрижка начинается с диалога. Мастер изучает структуру волос, овал лица, привычки укладки — и только потом берёт ножницы. Результат — форма, которая живёт и работает на вас.',
-    category: 'Волосы',
-    categoryIcon: 'scissors',
-    duration: '60 мин',
-    durationMin: 60,
-    specialist: 'Анна Смирнова',
-    rating: 4.9,
-    reviewCount: 127,
-    isPopular: true,
-    benefits: ['Консультация стилиста', 'Анализ типа волос', 'Укладка включена'],
-    process: [
-      { title: 'Консультация и диагностика', detail: 'Мастер изучает структуру волос, овал лица и обсуждает ваши пожелания' },
-      { title: 'Мытьё с уходом', detail: 'Очищение профессиональным шампунем Davines и питательная маска' },
-      { title: 'Стрижка', detail: 'Создание формы с учётом текстуры и направления роста волос' },
-      { title: 'Укладка и стайлинг', detail: 'Финальная укладка с рекомендациями по домашнему уходу' },
-    ],
-    aftercare: 'Рекомендуем стайлинг средства для фиксации формы между визитами'
+    id: "s1", cat: "Волосы", name: "Женская стрижка", price: 3500, min: 60,
+    img: IMG + "hf_20260523_175833_8ab1ad88-ee1c-4355-897a-de81af9c5976_min.webp",
+    rating: 4.9, reviews: 320, master: "m5", badge: "Хит",
+    tagline: "Форма, которая идёт именно вам",
+    desc: "Стрижка начинается с консультации: стилист изучает структуру волос, форму лица и ваш образ жизни, чтобы предложить форму, которую легко поддерживать дома.",
+    includes: ["Консультация и анализ волос", "Мытьё и уходовый ритуал", "Стрижка авторской техникой", "Укладка и советы по уходу"],
   },
   {
-    id: 2,
-    name: 'Окрашивание Airtouch',
-    price: 12500,
-    oldPrice: 15000,
-    image: glowspaAirtouchImg,
-    description: 'Техника нового поколения. Воздушное осветление без резких границ. Естественные переливы и глубина цвета.',
-    editorialNote: 'Airtouch — это искусство работы с воздухом. Мастер выдувает короткие волосы, оставляя только длинные для осветления. Результат — максимально натуральный, словно вы только вернулись из отпуска на побережье.',
-    category: 'Волосы',
-    categoryIcon: 'scissors',
-    duration: '240 мин',
-    durationMin: 240,
-    specialist: 'Елена Козлова',
-    rating: 4.8,
-    reviewCount: 89,
-    isPopular: true,
-    isNew: true,
-    benefits: ['Щадящие формулы без аммиака', 'Естественный результат', 'До 6 месяцев без коррекции'],
-    process: [
-      { title: 'Диагностика и подбор оттенка', detail: 'Определение исходной базы и желаемого результата по палитре' },
-      { title: 'Разделение прядей', detail: 'Точное секционирование для равномерного результата' },
-      { title: 'Airtouch осветление', detail: 'Выдувание коротких волос феном, нанесение состава на длинные пряди' },
-      { title: 'Тонирование', detail: 'Придание желаемого оттенка безаммиачным красителем' },
-      { title: 'Уход и укладка', detail: 'Восстанавливающая маска и финальная укладка' },
-    ],
-    aftercare: 'Бессульфатный шампунь и тонирующая маска раз в неделю'
+    id: "s2", cat: "Волосы", name: "Окрашивание Airtouch", price: 9800, min: 240,
+    img: IMG + "hf_20260523_175837_685d3250-7ea0-448b-9d32-e33ccda55f4a_min.webp",
+    rating: 5.0, reviews: 210, master: "m1", badge: "Хит",
+    tagline: "Мягкие переходы и натуральное сияние",
+    desc: "Airtouch — техника растяжки цвета с выдуванием коротких волос. Результат — плавные блики без чётких границ, которые красиво отрастают и выглядят естественно.",
+    includes: ["Подбор палитры под цветотип", "Airtouch-растяжка цвета", "Тонирование и уход", "Стайлинг и финиш"],
   },
   {
-    id: 3,
-    name: 'Балаяж',
-    price: 9800,
-    image: glowspaBalayageImg,
-    description: 'Солнечные блики, созданные вручную. Авторская техника свободной руки для абсолютно натурального эффекта.',
-    editorialNote: 'Балаяж в нашем салоне — это ручная живопись по волосам. Мастер наносит осветлитель широкими мазками, как художник — краску на холст. Каждая прядь уникальна.',
-    category: 'Волосы',
-    categoryIcon: 'scissors',
-    duration: '210 мин',
-    durationMin: 210,
-    specialist: 'Мария Петрова',
-    rating: 4.9,
-    reviewCount: 94,
-    isNew: true,
-    isPopular: true,
-    benefits: ['Авторская техника', 'Натуральный эффект', 'Мягкое отрастание'],
-    process: [
-      { title: 'Консультация', detail: 'Подбор оттенка и обсуждение желаемого образа' },
-      { title: 'Подготовка волос', detail: 'Разделение на секции, защита корней' },
-      { title: 'Ручное осветление', detail: 'Нанесение состава свободной техникой мазками кисти' },
-      { title: 'Тонирование', detail: 'Создание глубины и многогранности цвета' },
-      { title: 'Восстанавливающий уход', detail: 'Молекулярное восстановление и укладка' },
-    ],
-    aftercare: 'Оттеночные маски каждую неделю для поддержания тона'
+    id: "s3", cat: "Волосы", name: "Балаяж", price: 8500, min: 210,
+    img: IMG + "hf_20260523_175840_f97f500f-e356-4818-8b77-a84d436ec284_min.webp",
+    rating: 4.9, reviews: 184, master: "m1",
+    tagline: "Солнечные блики ручной работы",
+    desc: "Балаяж — свободная техника окрашивания от руки. Колорист рисует блики там, где их касался бы солнечный свет, создавая мягкий объём и глубину цвета.",
+    includes: ["Эскиз окрашивания", "Ручная техника балаяж", "Тонирование", "Уход и укладка"],
   },
   {
-    id: 4,
-    name: 'Люкс маникюр',
-    price: 3200,
-    oldPrice: 3800,
-    image: glowspaManicureImg,
-    description: 'Комбинированная техника с покрытием премиум гель-лаком. Стойкость до 4 недель. Бережный уход за кутикулой.',
-    editorialNote: 'Мы не просто красим ногти — мы создаём завершённый образ. Каждый этап выполняется с хирургической точностью: от формирования архитектуры ногтя до финального слоя топа.',
-    category: 'Ногти',
-    categoryIcon: 'hand',
-    duration: '90 мин',
-    durationMin: 90,
-    specialist: 'Ольга Иванова',
-    rating: 4.8,
-    reviewCount: 156,
-    isPopular: true,
-    benefits: ['Премиум гель-лаки Luxio', 'Стойкость до 4 недель', 'SPA-уход для рук'],
-    process: [
-      { title: 'Снятие старого покрытия', detail: 'Бережное удаление без повреждения ногтевой пластины' },
-      { title: 'Аппаратная обработка', detail: 'Формирование архитектуры ногтя и обработка кутикулы' },
-      { title: 'SPA-уход', detail: 'Питательная маска и массаж кистей рук' },
-      { title: 'Покрытие и сушка', detail: 'Нанесение гель-лака в 3 слоя с LED-сушкой' },
-    ],
-    aftercare: 'Масло для кутикулы ежедневно, крем для рук'
+    id: "s4", cat: "Волосы", name: "Вечерняя укладка", price: 2800, min: 50,
+    img: IMG + "hf_20260523_175844_ca995d96-8edd-45da-a405-bca1066c494b_min.webp",
+    rating: 4.8, reviews: 142, master: "m5",
+    tagline: "Готовы к особенному вечеру",
+    desc: "Объёмная укладка для события, съёмки или свидания. Стилист подберёт форму и стойкость под ваш образ — локоны, волны или гладкий глянец.",
+    includes: ["Подготовка и термозащита", "Укладка выбранной формы", "Фиксация и блеск", "Мелкие штрихи под образ"],
   },
   {
-    id: 5,
-    name: 'Френч ручной работы',
-    price: 3800,
-    image: glowspaFrenchImg,
-    description: 'Безупречная линия улыбки, нарисованная вручную тонкой кистью. Классика, доведённая до совершенства.',
-    editorialNote: 'Настоящий французский маникюр — это идеальная симметрия и белоснежная линия улыбки, которую можно нарисовать только рукой мастера. Никаких трафаретов, только опыт и точность.',
-    category: 'Ногти',
-    categoryIcon: 'hand',
-    duration: '100 мин',
-    durationMin: 100,
-    specialist: 'Наталья Волкова',
-    rating: 4.9,
-    reviewCount: 72,
-    benefits: ['Ручная прорисовка', 'Укрепление ногтевой пластины', 'Идеальная геометрия'],
-    process: [
-      { title: 'Подготовка', detail: 'Снятие покрытия и формирование идеальной формы ногтя' },
-      { title: 'Формирование архитектуры', detail: 'Выравнивание и укрепление базой' },
-      { title: 'Френч прорисовка', detail: 'Ручная прорисовка линии улыбки тонкой кистью №00' },
-      { title: 'Топовое покрытие', detail: 'Финишный слой для зеркального блеска и стойкости' },
-    ],
-    aftercare: 'Перчатки при контакте с бытовой химией'
+    id: "s5", cat: "Ногти", name: "Маникюр с покрытием", price: 2600, min: 90,
+    img: IMG + "hf_20260523_180812_c59ea09a-b6f2-422c-9c48-9caac21fb38f_min.webp",
+    rating: 4.9, reviews: 410, master: "m2",
+    tagline: "Аккуратность в каждой детали",
+    desc: "Комбинированный маникюр с бережной обработкой кутикулы и стойким покрытием. Ногти выглядят ухоженно две-три недели без сколов.",
+    includes: ["Гигиеническая обработка", "Придание формы", "Уход за кутикулой", "Покрытие и финиш"],
   },
   {
-    id: 6,
-    name: 'SPA педикюр',
-    price: 4200,
-    image: glowspaPedicureImg,
-    description: 'Полная программа ухода за стопами. Ароматерапия, пилинг, маска, массаж. Абсолютный комфорт.',
-    editorialNote: 'SPA педикюр в GlowSpa — это 100 минут полного расслабления. Ванночка с эфирными маслами, пилинг с вулканической пемзой, питательная маска и массаж стоп.',
-    category: 'Ногти',
-    categoryIcon: 'hand',
-    duration: '100 мин',
-    durationMin: 100,
-    specialist: 'Светлана Белова',
-    rating: 4.9,
-    reviewCount: 103,
-    isPopular: true,
-    benefits: ['Ароматерапия', 'Массаж стоп', 'Питательные маски'],
-    process: [
-      { title: 'Ванночка с маслами', detail: 'Расслабляющая ванна с эфирными маслами лаванды и эвкалипта' },
-      { title: 'Пилинг', detail: 'Деликатный пилинг с вулканической пемзой и фруктовыми кислотами' },
-      { title: 'Аппаратная обработка', detail: 'Профессиональная обработка стоп и ногтей' },
-      { title: 'Маска и массаж', detail: 'Питательная маска с парафином и расслабляющий массаж стоп' },
-      { title: 'Покрытие', detail: 'Нанесение гель-лака с долговременной фиксацией' },
-    ],
-    aftercare: 'Увлажняющий крем для стоп каждый вечер'
+    id: "s6", cat: "Ногти", name: "Французский маникюр", price: 2900, min: 100,
+    img: IMG + "hf_20260523_175852_1f1e6004-82d0-4dcb-8c98-39aee9578684_min.webp",
+    rating: 4.9, reviews: 268, master: "m2",
+    tagline: "Вечная классика на ваших руках",
+    desc: "Деликатная белая линия улыбки на естественной базе. Универсальный выбор, который уместен и в офисе, и на торжестве.",
+    includes: ["Подготовка ногтевой пластины", "Моделирование формы", "Френч-линия вручную", "Стойкое покрытие"],
   },
   {
-    id: 7,
-    name: 'Ботокс для волос',
-    price: 8500,
-    oldPrice: 10000,
-    image: glowspaBotoxImg,
-    description: 'Интенсивная реконструкция повреждённых волос. Зеркальный блеск и шелковистость с первой процедуры.',
-    editorialNote: 'Ботокс для волос — это не инъекции, а глубокое насыщение кератином и коллагеном. Состав проникает в структуру каждого волоса, заполняя пустоты и запечатывая кутикулу.',
-    category: 'Волосы',
-    categoryIcon: 'scissors',
-    duration: '120 мин',
-    durationMin: 120,
-    specialist: 'Анна Смирнова',
-    rating: 4.9,
-    reviewCount: 68,
-    isNew: true,
-    benefits: ['Глубокое восстановление', 'Устранение пушистости', 'Термозащита'],
-    process: [
-      { title: 'Глубокое очищение', detail: 'Шампунь глубокой очистки для раскрытия кутикулы' },
-      { title: 'Нанесение состава', detail: 'Распределение кератиново-коллагенового комплекса по длине' },
-      { title: 'Выдержка под теплом', detail: 'Активация состава инфракрасным климазоном 20–30 минут' },
-      { title: 'Запечатывание утюжком', detail: 'Фиксация результата при температуре 230°C' },
-      { title: 'Укладка', detail: 'Финальная укладка и демонстрация результата' },
-    ],
-    aftercare: 'Безсульфатный уход для продления эффекта до 3 месяцев'
+    id: "s7", cat: "Ногти", name: "SPA-педикюр", price: 3800, min: 110,
+    img: IMG + "hf_20260523_175856_87f6fa1c-376d-4ed7-9cbc-f66d99d4b018_min.webp",
+    rating: 4.8, reviews: 196, master: "m2", badge: "Новое",
+    tagline: "100 минут заботы о ваших стопах",
+    desc: "Ритуал ухода со SPA-ванночкой на эфирных маслах, мягким пилингом, питательной маской и расслабляющим массажем стоп.",
+    includes: ["Тёплая SPA-ванночка", "Пилинг и обработка", "Питательная маска", "Массаж и покрытие"],
   },
   {
-    id: 8,
-    name: 'Чистка лица HydraFacial',
-    price: 6500,
-    oldPrice: 7500,
-    image: glowspaFacialImg,
-    description: 'Аппаратная чистка нового поколения. Глубокое очищение, увлажнение и защита за одну процедуру.',
-    editorialNote: 'HydraFacial объединяет очищение, эксфолиацию, экстракцию и увлажнение в одном аппарате. Никакого покраснения, никакого восстановительного периода — только сияющая кожа сразу после процедуры.',
-    category: 'Лицо',
-    categoryIcon: 'droplets',
-    duration: '75 мин',
-    durationMin: 75,
-    specialist: 'Юлия Титова',
-    rating: 4.8,
-    reviewCount: 142,
-    isPopular: true,
-    benefits: ['Без восстановительного периода', 'Видимый результат сразу', 'Глубокое увлажнение'],
-    process: [
-      { title: 'Демакияж', detail: 'Деликатное снятие макияжа и поверхностных загрязнений' },
-      { title: 'Аппаратная эксфолиация', detail: 'Мягкое отшелушивание с одновременным увлажнением' },
-      { title: 'Вакуумная экстракция', detail: 'Безболезненное очищение пор без травматизации кожи' },
-      { title: 'Насыщение сыворотками', detail: 'Введение антиоксидантов и пептидов через вортекс-технологию' },
-      { title: 'Защитный финиш', detail: 'Нанесение SPF-крема и увлажняющей сыворотки' },
-    ],
-    aftercare: 'SPF 30+ обязателен, минимум декоративной косметики 24 часа'
+    id: "s8", cat: "Лицо", name: "Уходовая косметология", price: 6500, min: 80,
+    img: IMG + "hf_20260523_175953_7f80b2eb-13f5-4104-afd1-3713267583c9_min.webp",
+    rating: 5.0, reviews: 158, master: "m3", badge: "Хит",
+    tagline: "Программа сияния под вашу кожу",
+    desc: "Косметолог проводит диагностику и составляет индивидуальную программу: очищение, активные сыворотки и маска, подобранные под состояние кожи.",
+    includes: ["Диагностика кожи", "Глубокое очищение", "Активный уход и маска", "Рекомендации по домашнему уходу"],
   },
   {
-    id: 9,
-    name: 'Буккальный массаж',
-    price: 5500,
-    image: glowspaMassageFaceImg,
-    description: 'Скульптурный массаж лица через ротовую полость. Мгновенный лифтинг без инъекций.',
-    editorialNote: 'Буккальный массаж — это работа не только снаружи, но и изнутри. Мастер прорабатывает мышцы через щёки, снимая глубокие спазмы и возвращая овалу лица чёткость. Эффект виден после первого сеанса.',
-    category: 'Лицо',
-    categoryIcon: 'droplets',
-    duration: '60 мин',
-    durationMin: 60,
-    specialist: 'Валентина Крылова',
-    rating: 4.7,
-    reviewCount: 53,
-    isNew: true,
-    benefits: ['Лифтинг без инъекций', 'Улучшение овала лица', 'Моментальный результат'],
-    process: [
-      { title: 'Очищение кожи', detail: 'Подготовка кожи лица тоником и сывороткой' },
-      { title: 'Наружный массаж', detail: 'Проработка поверхностных мышц и лимфодренаж' },
-      { title: 'Буккальная техника', detail: 'Глубокая проработка мышц через ротовую полость' },
-      { title: 'Сыворотка и маска', detail: 'Коллагеновая маска и лифтинг-сыворотка для закрепления результата' },
-    ],
-    aftercare: 'Пейте больше воды, избегайте соли 24 часа'
+    id: "s9", cat: "Лицо", name: "Глубокое очищение", price: 4900, min: 75,
+    img: IMG + "hf_20260523_175958_24c08f7a-4d16-48ce-a2ce-4f51615642b0_min.webp",
+    rating: 4.8, reviews: 224, master: "m3",
+    tagline: "Чистая кожа без стресса",
+    desc: "Бережная комбинированная чистка: распаривание, мягкое отшелушивание и деликатное удаление несовершенств с успокаивающим финишем.",
+    includes: ["Демакияж и подготовка", "Размягчение и отшелушивание", "Деликатная чистка", "Успокаивающая маска"],
   },
   {
-    id: 10,
-    name: 'Наращивание ресниц',
-    price: 5900,
-    image: glowspaLashesImg,
-    description: 'Объём 2D–5D. Гипоаллергенные материалы. Естественный или драматический эффект на выбор.',
-    editorialNote: 'Мы используем только шёлковые и норковые волокна премиум-класса. Каждая ресничка крепится индивидуально, повторяя направление роста натуральных ресниц.',
-    category: 'Лицо',
-    categoryIcon: 'flower',
-    duration: '150 мин',
-    durationMin: 150,
-    specialist: 'Ирина Павлова',
-    rating: 4.8,
-    reviewCount: 87,
-    benefits: ['Гипоаллергенный клей', 'Объём 2D-5D', 'Носка до 4 недель'],
-    process: [
-      { title: 'Подбор эффекта и длины', detail: 'Консультация и выбор объёма, изгиба и длины ресниц' },
-      { title: 'Подготовка ресниц', detail: 'Обезжиривание и разделение нижних ресниц патчами' },
-      { title: 'Поштучное наращивание', detail: 'Крепление каждой реснички на расстоянии 0.5мм от века' },
-      { title: 'Закрепление и расчёсывание', detail: 'Фиксация клея-активатором и придание идеальной формы' },
-    ],
-    aftercare: 'Не мочить 24 часа, избегать масляных средств'
+    id: "s10", cat: "Лицо", name: "Скульптурный массаж лица", price: 3600, min: 60,
+    img: IMG + "hf_20260523_180001_c43e6e45-3f3e-4ccd-aa50-245732f18e1e_min.webp",
+    rating: 4.9, reviews: 176, master: "m3",
+    tagline: "Подтянутый и отдохнувший овал",
+    desc: "Глубокий моделирующий массаж, который снимает зажимы, улучшает лимфоток и возвращает лицу свежесть и чёткость контура.",
+    includes: ["Очищение и масло для массажа", "Лимфодренажные техники", "Скульптурная проработка", "Финишный уход"],
   },
   {
-    id: 11,
-    name: 'Массаж всего тела',
-    price: 7500,
-    oldPrice: 9000,
-    image: glowspaMassageBodyImg,
-    description: 'Классический расслабляющий массаж с натуральными маслами. Снятие мышечного напряжения и стресса.',
-    editorialNote: 'Массаж в GlowSpa — это ритуал. Приглушённый свет, аромат эфирных масел, тёплые камни и руки мастера с 15-летним опытом. Вы забудете, где находитесь — и это лучший комплимент.',
-    category: 'Тело',
-    categoryIcon: 'flower',
-    duration: '90 мин',
-    durationMin: 90,
-    specialist: 'Ольга Смирнова',
-    rating: 4.9,
-    reviewCount: 201,
-    isPopular: true,
-    benefits: ['Натуральные масла', 'Индивидуальная техника', 'Полная релаксация'],
-    process: [
-      { title: 'Подготовка и ароматерапия', detail: 'Выбор эфирного масла и подготовка помещения' },
-      { title: 'Разогрев', detail: 'Плавные поглаживания для расслабления и разогрева мышц' },
-      { title: 'Основной массаж', detail: 'Глубокая проработка всех мышечных групп авторской техникой' },
-      { title: 'Завершающие поглаживания', detail: 'Мягкое завершение для полного расслабления и гармонии' },
-    ],
-    aftercare: 'Больше воды, отдых от физических нагрузок до вечера'
+    id: "s11", cat: "Тело", name: "SPA-массаж тела", price: 5200, min: 90,
+    img: IMG + "hf_20260523_180005_39b63309-8ba3-4145-b050-3c1a26863a52_min.webp",
+    rating: 5.0, reviews: 312, master: "m4", badge: "Хит",
+    tagline: "Перезагрузка для тела и мыслей",
+    desc: "Расслабляющий массаж всего тела с тёплым маслом в тишине SPA-кабинета. Снимает усталость, напряжение и возвращает лёгкость.",
+    includes: ["Тёплое ароматическое масло", "Расслабляющие техники", "Проработка зон напряжения", "Отдых с травяным чаем"],
   },
   {
-    id: 12,
-    name: 'Вечерняя укладка',
-    price: 4500,
-    image: glowspaStylingImg,
-    description: 'Роскошный образ для особого случая. Стойкая фиксация. Консультация по стилю.',
-    editorialNote: 'Свадьба, выпускной, гала-вечер — каждое событие заслуживает идеальной укладки. Мастер подберёт форму под наряд, украшения и формат мероприятия.',
-    category: 'Волосы',
-    categoryIcon: 'scissors',
-    duration: '90 мин',
-    durationMin: 90,
-    specialist: 'Мария Петрова',
-    rating: 4.7,
-    reviewCount: 45,
-    benefits: ['Консультация по образу', 'Премиум стайлинг', 'Фиксация на весь вечер'],
-    process: [
-      { title: 'Мытьё и подготовка', detail: 'Очищение и нанесение текстурирующего спрея' },
-      { title: 'Сушка и текстурирование', detail: 'Создание объёма и текстуры брашингом' },
-      { title: 'Создание формы', detail: 'Формирование укладки с учётом наряда и образа' },
-      { title: 'Фиксация и декор', detail: 'Закрепление формы и добавление аксессуаров' },
-    ],
-    aftercare: 'Сухой шампунь для освежения на следующий день'
+    id: "s12", cat: "Взгляд", name: "Ламинирование ресниц", price: 3200, min: 80,
+    img: IMG + "hf_20260523_180009_2e17f667-452e-4443-8cb3-26770a6d7935_min.webp",
+    rating: 4.9, reviews: 290, master: "m6", badge: "Новое",
+    tagline: "Открытый взгляд без туши",
+    desc: "Ламинирование придаёт ресницам изгиб, объём и насыщенный цвет. Эффект держится до восьми недель и не требует ежедневного макияжа.",
+    includes: ["Подбор изгиба", "Ламинирование и питание", "Окрашивание ресниц", "Уход за зоной роста"],
   },
 ];
 
-const categories = ['Все', 'Волосы', 'Ногти', 'Лицо', 'Тело'];
-
-const categoryConfig: Record<string, { icon: typeof Scissors; label: string; color: string }> = {
-  'Волосы': { icon: Scissors, label: 'Волосы', color: '#C9A89B' },
-  'Ногти':  { icon: Hand, label: 'Ногти', color: '#D4A0A0' },
-  'Лицо':   { icon: Droplets, label: 'Лицо', color: '#A8C9B8' },
-  'Тело':   { icon: Flower2, label: 'Тело', color: '#B8A8C9' },
-};
-
-const masters = [
-  { name: 'Анна Смирнова', role: 'Стилист-колорист', exp: '12 лет', photo: masterAnnaImg, color: '#C9A89B' },
-  { name: 'Мария Петрова', role: 'Стилист', exp: '8 лет', photo: masterMariaImg, color: '#D4A0A0' },
-  { name: 'Елена Козлова', role: 'Колорист', exp: '10 лет', photo: masterElenaImg, color: '#A8C9B8' },
-  { name: 'Ольга Иванова', role: 'Мастер маникюра', exp: '6 лет', photo: masterOlgaImg, color: '#B8A8C9' },
-  { name: 'Юлия Титова', role: 'Косметолог', exp: '9 лет', photo: masterYuliaImg, color: '#C9B8A8' },
-  { name: 'Ольга Смирнова', role: 'Массажист', exp: '15 лет', photo: masterOlga2Img, color: '#A8B8C9' },
+const REVIEWS = [
+  { name: "Екатерина", service: "Окрашивание Airtouch", rating: 5, date: "8 мая", text: "Лучший цвет за всю мою жизнь. Алиса — настоящий художник, переходы мягкие и очень натуральные." },
+  { name: "Марина", service: "SPA-массаж тела", rating: 5, date: "2 мая", text: "Вышла из салона как новый человек. Атмосфера, аромат, тишина — за час забываешь обо всём." },
+  { name: "Полина", service: "Уходовая косметология", rating: 5, date: "27 апреля", text: "Кожа сияет уже после первой процедуры. Ирина всё объясняет и подбирает уход именно под тебя." },
 ];
 
-const allReviews = [
-  { author: 'Анастасия К.', initials: 'АК', rating: 5, date: '15 марта 2026', text: 'Невероятный уровень сервиса. Мастер Анна подобрала идеальную форму стрижки — я получаю комплименты каждый день. Укладка держится даже под дождём. Вернусь обязательно.', verified: true, category: 'Волосы' },
-  { author: 'Марина Л.', initials: 'МЛ', rating: 5, date: '2 марта 2026', text: 'Делала балаяж у Марии — это произведение искусства. Цвет играет на солнце как натуральный. За 4 месяца ни разу не пожалела. Салон чистый, атмосфера расслабляющая, чай вкусный.', verified: true, category: 'Волосы' },
-  { author: 'Дарья В.', initials: 'ДВ', rating: 5, date: '18 февр. 2026', text: 'HydraFacial — это love forever. Кожа сияет, поры сузились, тон выровнялся. Делаю раз в месяц и забыла, что такое тональный крем. Юлия — профессионал высшего класса.', verified: true, category: 'Лицо' },
-  { author: 'Екатерина Р.', initials: 'ЕР', rating: 5, date: '10 марта 2026', text: 'Маникюр у Ольги — это отдельный вид искусства. Френч идеальный, держится 4 недели без единого скола. SPA-уход для рук — потрясающий бонус.', verified: true, category: 'Ногти' },
-  { author: 'Алина М.', initials: 'АМ', rating: 5, date: '22 февр. 2026', text: 'Массаж у Ольги Смирновой — лучший в городе. 15 лет опыта чувствуются в каждом движении. Вышла как новый человек. Записалась на абонемент.', verified: true, category: 'Тело' },
-  { author: 'Виктория С.', initials: 'ВС', rating: 4, date: '5 марта 2026', text: 'Буккальный массаж — непривычно, но результат поразил! Овал лица подтянулся, носогубки стали менее заметны. Курс из 5 процедур — и подруги спрашивают, что я сделала.', verified: true, category: 'Лицо' },
-  { author: 'Ольга Н.', initials: 'ОН', rating: 5, date: '12 марта 2026', text: 'Ботокс для волос — спасение! Волосы были как солома после осветления, а теперь шёлк. Эффект держится уже 2 месяца. Анна — волшебница!', verified: true, category: 'Волосы' },
-  { author: 'Наталья Д.', initials: 'НД', rating: 5, date: '20 марта 2026', text: 'SPA педикюр — 100 минут блаженства. Ванночка с эфирными маслами, массаж стоп, идеальное покрытие. После рабочей недели — именно то, что нужно.', verified: true, category: 'Ногти' },
-];
-
-type SortMode = 'popular' | 'price_asc' | 'price_desc' | 'rating';
-const sortLabels: Record<SortMode, string> = {
-  popular: 'Популярные',
-  price_asc: 'Цена ↑',
-  price_desc: 'Цена ↓',
-  rating: 'Рейтинг',
+const ED = {
+  interior: IMG + "hf_20260523_180151_45b1e34b-c389-48ee-bb46-ec716c1766f9_min.webp",
+  still: IMG + "hf_20260523_180155_0fbd5e0f-358a-44f4-9b41-e8b2d13c0ddc_min.webp",
 };
 
-const productPageVariants = {
-  initial: { opacity: 0, y: 28, scale: 0.985 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, y: 40, scale: 0.975 },
+const SLOTS = ["10:00", "11:30", "13:00", "14:30", "16:00", "17:30", "19:00", "20:30"];
+
+const rub = (n: number) => n.toLocaleString("ru-RU") + " ₽";
+const NUM = { fontVariantNumeric: "tabular-nums" as const };
+const durStr = (m: number) => (m >= 60 ? `${Math.floor(m / 60)} ч${m % 60 ? ` ${m % 60} мин` : ""}` : `${m} мин`);
+const plural = (n: number, f: [string, string, string]) => {
+  const a = n % 10, b = n % 100;
+  if (a === 1 && b !== 11) return f[0];
+  if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return f[1];
+  return f[2];
+};
+const masterById = (id: string) => MASTERS.find((m) => m.id === id)!;
+const serviceById = (id: string) => SERVICES.find((s) => s.id === id)!;
+
+const serif = (size: string, weight = 600): React.CSSProperties => ({
+  fontFamily: SERIF, fontSize: size, fontWeight: weight, color: INK, lineHeight: 1.08, letterSpacing: "0.005em",
+});
+const kicker: React.CSSProperties = {
+  fontFamily: SANS, fontSize: T.micro, fontWeight: 600, letterSpacing: "0.18em",
+  textTransform: "uppercase", color: ACCENT_DEEP,
 };
 
-const contentStagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.055, delayChildren: 0.15 } },
-};
-
-const contentItem = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as number[] } },
-};
-
-function Beauty({ activeTab, onTabChange }: BeautyProps) {
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState('Все');
-  const [productExiting, setProductExiting] = useState(false);
-  const [showStickyHeader, setShowStickyHeader] = useState(false);
-  const [activeProductTab, setActiveProductTab] = useState<'about' | 'process' | 'reviews'>('about');
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortMode, setSortMode] = useState<SortMode>('popular');
-  const [showSortMenu, setShowSortMenu] = useState(false);
-  const [quickViewService, setQuickViewService] = useState<typeof services[0] | null>(null);
-  const productScrollRef = useRef<HTMLDivElement>(null);
-  const heroImageRef = useRef<HTMLDivElement>(null);
-
-  const { toast } = useToast();
-  const sidebar = useDemoSidebar();
-
-  const {
-    cartItems: cart,
-    addToCart: addToCartHook,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    totalAmount: cartTotal,
-    totalItems: cartCount,
-  } = usePersistentCart({ storageKey: `${STORE_KEY}_cart` });
-
-  const {
-    toggleFavorite: toggleFavoriteHook,
-    isFavorite,
-    favoritesCount,
-  } = usePersistentFavorites({ storageKey: `${STORE_KEY}_favorites` });
-
-  const {
-    orders,
-    createOrder,
-    ordersCount,
-  } = usePersistentOrders({ storageKey: `${STORE_KEY}_orders` });
-
-  const sidebarMenuItems = [
-    { icon: <Home className="w-5 h-5" />, label: 'Главная', active: activeTab === 'home' },
-    { icon: <Grid className="w-5 h-5" />, label: 'Каталог', active: activeTab === 'catalog' },
-    { icon: <Heart className="w-5 h-5" />, label: 'Избранное', badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: 'Записи', badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: ACCENT },
-    { icon: <Tag className="w-5 h-5" />, label: 'Акции', badge: 'NEW', badgeColor: '#EF4444' },
-    { icon: <User className="w-5 h-5" />, label: 'Профиль', active: activeTab === 'profile' },
-    { icon: <Settings className="w-5 h-5" />, label: 'Настройки' },
-  ];
-
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', minimumFractionDigits: 0 }).format(price);
-
-  const handleProductBack = () => {
-    setProductExiting(true);
-    setTimeout(() => {
-      setProductExiting(false);
-      setSelectedService(null);
-    }, 340);
-  };
-
-  const handleToggleFavorite = (id: number) => {
-    toggleFavoriteHook(String(id));
-    const isNow = !isFavorite(String(id));
-    toast({ title: isNow ? 'Добавлено в избранное' : 'Удалено из избранного', duration: 1500 });
-  };
-
-  const openService = (service: Service) => {
-    scrollToTop();
-    onTabChange?.('catalog');
-    setSelectedService(service);
-    setActiveProductTab('about');
-    if (heroImageRef.current) heroImageRef.current.style.transform = '';
-    if (productScrollRef.current) productScrollRef.current.scrollTop = 0;
-  };
-
-  const bookService = () => {
-    if (!selectedService) return;
-    addToCartHook({
-      id: String(selectedService.id),
-      name: selectedService.name,
-      price: selectedService.price,
-      image: selectedService.image,
-      size: selectedService.duration,
-      color: selectedService.specialist,
-    });
-    toast({
-      title: 'Записано',
-      description: `${selectedService.name} · ${selectedService.specialist}`,
-      duration: 2000,
-    });
-    handleProductBack();
-  };
-
-  const handleCheckout = (orderId: string) => {
-    createOrder(
-      cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, image: i.image, size: i.size, color: i.color })),
-      cartTotal,
-      { phone: '+7 (999) 888-77-66' }
-    );
-    clearCart();
-    setIsCheckoutOpen(false);
-    toast({ title: 'Запись подтверждена!', description: `Номер: ${orderId}`, duration: 3000 });
-  };
-
-  const filteredServices = useMemo(() => {
-    let result = services.filter(s => {
-      const matchCat = selectedCategory === 'Все' || s.category === selectedCategory;
-      const matchSearch = !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.specialist.toLowerCase().includes(searchQuery.toLowerCase()) || s.category.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchCat && matchSearch;
-    });
-    switch (sortMode) {
-      case 'price_asc': result = [...result].sort((a, b) => a.price - b.price); break;
-      case 'price_desc': result = [...result].sort((a, b) => b.price - a.price); break;
-      case 'rating': result = [...result].sort((a, b) => b.rating - a.rating); break;
-      default: result = [...result].sort((a, b) => (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0)); break;
-    }
-    return result;
-  }, [selectedCategory, searchQuery, sortMode]);
-
-  const getServiceReviews = (service: Service) => {
-    const categoryReviews = allReviews.filter(r => r.category === service.category);
-    return categoryReviews.length > 0 ? categoryReviews : allReviews.slice(0, 3);
-  };
-
-  // ───────── SERVICE DETAIL ─────────
-  if (activeTab === 'catalog' && selectedService) {
-    const catCfg = categoryConfig[selectedService.category];
-    const accentColor = catCfg?.color ?? ACCENT;
-    const serviceReviews = getServiceReviews(selectedService);
-
-    return (
-      <m.div
-        className="h-screen text-white overflow-hidden relative flex flex-col"
-        style={{ backgroundColor: BG }}
-        variants={productPageVariants}
-        initial="initial"
-        animate={productExiting ? 'exit' : 'animate'}
-        transition={{ duration: productExiting ? 0.32 : 0.35, ease: productExiting ? [0.32, 0, 0.67, 0] : [0.22, 1, 0.36, 1] }}
-      >
-        <AnimatePresence>
-          {showStickyHeader && (
-            <m.div
-              initial={{ y: -60, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -60, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 demo-nav-safe"
-              style={{ background: 'rgba(12,10,9,0.85)', backdropFilter: 'blur(20px) saturate(1.2)', borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}
-            >
-              <button onClick={handleProductBack} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                <ChevronLeft className="w-5 h-5 text-white/80" />
-              </button>
-              <span style={{ fontFamily: CORMORANT, fontSize: '1.1rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>{selectedService.name}</span>
-              <button onClick={() => handleToggleFavorite(selectedService.id)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                <Heart className="w-4 h-4" style={isFavorite(String(selectedService.id)) ? { fill: accentColor, color: accentColor } : { color: 'rgba(255,255,255,0.6)' }} />
-              </button>
-            </m.div>
-          )}
-        </AnimatePresence>
-
-        <div
-          ref={productScrollRef}
-          className="flex-1 overflow-y-auto overscroll-y-contain"
-          onScroll={(e) => {
-            const scrollTop = (e.target as HTMLDivElement).scrollTop;
-            setShowStickyHeader(scrollTop > 240);
-          }}
-        >
-          <div className="relative" style={{ height: '48vh', minHeight: 320 }}>
-            <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 demo-nav-safe">
-              <button onClick={handleProductBack} className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)' }}>
-                <ChevronLeft className="w-5 h-5 text-white" />
-              </button>
-              <button onClick={() => handleToggleFavorite(selectedService.id)} className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)' }}>
-                <Heart className="w-5 h-5" style={isFavorite(String(selectedService.id)) ? { fill: accentColor, color: accentColor } : { color: 'white' }} />
-              </button>
-            </div>
-
-            <div ref={heroImageRef} className="absolute inset-0 will-change-transform">
-              <LazyImage src={selectedService.image} alt={selectedService.name} className="w-full h-full object-cover" />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0C0A09] via-[#0C0A09]/40 to-transparent" />
-
-            <div className="absolute bottom-5 left-5 right-5 z-10">
-              <div className="flex items-center gap-2 mb-2.5">
-                <span className="px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider" style={{ background: `${accentColor}20`, color: accentColor, border: `0.5px solid ${accentColor}30` }}>
-                  {selectedService.category}
-                </span>
-                {selectedService.isNew && (
-                  <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider flex items-center gap-1" style={{ background: ACCENT, color: BG }}>
-                    <Sparkles className="w-3 h-3" /> NEW
-                  </span>
-                )}
-              </div>
-              <h1 style={{ fontFamily: CORMORANT, fontSize: 'clamp(1.8rem, 6vw, 2.4rem)', fontWeight: 500, color: '#fff', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
-                {selectedService.name}
-              </h1>
-            </div>
-          </div>
-
-          <m.div
-            className="relative z-10 px-5 pb-32"
-            style={{ marginTop: -1 }}
-            variants={contentStagger}
-            initial="hidden"
-            animate="visible"
-          >
-            <m.div variants={contentItem} className="flex items-end justify-between mb-4 pt-2">
-              <div>
-                <span style={{ fontFamily: CORMORANT, fontSize: '1.8rem', fontWeight: 600, color: ACCENT }}>{formatPrice(selectedService.price)}</span>
-                <div className="flex items-center gap-1.5 mt-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5" style={{ fill: i < Math.floor(selectedService.rating) ? '#F59E0B' : 'rgba(255,255,255,0.1)', color: i < Math.floor(selectedService.rating) ? '#F59E0B' : 'rgba(255,255,255,0.1)' }} />
-                  ))}
-                  <span style={{ fontFamily: INTER, fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginLeft: 4 }}>{selectedService.rating}</span>
-                  <span style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)' }}>({selectedService.reviewCount})</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="text-right">
-                  <span style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Мастер</span>
-                  <p style={{ fontFamily: CORMORANT, fontSize: '0.95rem', fontStyle: 'italic', color: 'rgba(255,255,255,0.8)' }}>{selectedService.specialist}</p>
-                </div>
-              </div>
-            </m.div>
-
-            <m.div variants={contentItem} className="grid grid-cols-3 gap-2.5 mb-5">
-              <div className="rounded-2xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-                <Clock className="w-4 h-4 mb-1.5" style={{ color: accentColor }} />
-                <p style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Время</p>
-                <p style={{ fontFamily: CORMORANT, fontSize: '1rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>{selectedService.duration}</p>
-              </div>
-              <div className="rounded-2xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-                <Star className="w-4 h-4 mb-1.5" style={{ color: accentColor }} />
-                <p style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Рейтинг</p>
-                <p style={{ fontFamily: CORMORANT, fontSize: '1rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>{selectedService.rating}</p>
-              </div>
-              <div className="rounded-2xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-                <User className="w-4 h-4 mb-1.5" style={{ color: accentColor }} />
-                <p style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Отзывов</p>
-                <p style={{ fontFamily: CORMORANT, fontSize: '1rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>{selectedService.reviewCount}</p>
-              </div>
-            </m.div>
-
-            <m.div variants={contentItem} className="flex gap-0 mb-5 rounded-xl overflow-hidden" style={{ border: '0.5px solid rgba(255,255,255,0.06)' }}>
-              {(['about', 'process', 'reviews'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveProductTab(tab)}
-                  className="flex-1 py-3 relative transition-colors duration-200"
-                  style={{
-                    fontFamily: INTER,
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.06em',
-                    textTransform: 'uppercase',
-                    color: activeProductTab === tab ? '#fff' : 'rgba(255,255,255,0.35)',
-                    background: activeProductTab === tab ? 'rgba(255,255,255,0.06)' : 'transparent',
-                  }}
-                >
-                  {tab === 'about' ? 'О процедуре' : tab === 'process' ? 'Этапы' : `Отзывы (${serviceReviews.length})`}
-                  {activeProductTab === tab && (
-                    <m.div layoutId="beauty-tab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: accentColor }} />
-                  )}
-                </button>
-              ))}
-            </m.div>
-
-            {activeProductTab === 'about' && (
-              <m.div variants={contentStagger} initial="hidden" animate="visible">
-                <m.p variants={contentItem} style={{ fontFamily: INTER, fontSize: '0.9rem', lineHeight: 1.7, color: 'rgba(255,255,255,0.75)', marginBottom: 20 }}>
-                  {selectedService.description}
-                </m.p>
-
-                <m.div variants={contentItem} className="rounded-2xl p-5 mb-5" style={{ background: 'rgba(255,255,255,0.02)', borderLeft: `2px solid ${accentColor}40` }}>
-                  <p style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8 }}>Заметка мастера</p>
-                  <p style={{ fontFamily: CORMORANT, fontSize: '1.05rem', fontStyle: 'italic', lineHeight: 1.6, color: 'rgba(255,255,255,0.7)' }}>
-                    «{selectedService.editorialNote}»
-                  </p>
-                </m.div>
-
-                <m.div variants={contentItem}>
-                  <p style={{ fontFamily: INTER, fontSize: '0.65rem', fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Что включено</p>
-                  <div className="space-y-2.5">
-                    {selectedService.benefits.map((b, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${accentColor}15`, border: `0.5px solid ${accentColor}25` }}>
-                          <Check className="w-3 h-3" style={{ color: accentColor }} />
-                        </div>
-                        <span style={{ fontFamily: INTER, fontSize: '0.85rem', color: 'rgba(255,255,255,0.75)' }}>{b}</span>
-                      </div>
-                    ))}
-                  </div>
-                </m.div>
-              </m.div>
-            )}
-
-            {activeProductTab === 'process' && (
-              <m.div variants={contentStagger} initial="hidden" animate="visible">
-                <m.div variants={contentItem} className="space-y-0 mb-6">
-                  {selectedService.process.map((step, i) => (
-                    <div key={i} className="flex gap-4 relative">
-                      <div className="flex flex-col items-center">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10" style={{ background: `${accentColor}15`, border: `0.5px solid ${accentColor}30` }}>
-                          <span style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 700, color: accentColor }}>{i + 1}</span>
-                        </div>
-                        {i < selectedService.process.length - 1 && (
-                          <div className="w-px flex-1 my-1" style={{ background: `${accentColor}15` }} />
-                        )}
-                      </div>
-                      <div className="pb-5 pt-0.5 flex-1">
-                        <p style={{ fontFamily: INTER, fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>{step.title}</p>
-                        <p style={{ fontFamily: INTER, fontSize: '0.78rem', lineHeight: 1.5, color: 'rgba(255,255,255,0.45)', marginTop: 3 }}>{step.detail}</p>
-                      </div>
-                    </div>
-                  ))}
-                </m.div>
-                <m.div variants={contentItem} className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-                  <p style={{ fontFamily: INTER, fontSize: '0.65rem', fontWeight: 600, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 }}>Уход после процедуры</p>
-                  <p style={{ fontFamily: INTER, fontSize: '0.85rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.6)' }}>{selectedService.aftercare}</p>
-                </m.div>
-              </m.div>
-            )}
-
-            {activeProductTab === 'reviews' && (
-              <m.div variants={contentStagger} initial="hidden" animate="visible" className="space-y-4">
-                <m.div variants={contentItem} className="flex items-center gap-4 mb-2 p-4 rounded-2xl" style={{ background: `${accentColor}08`, border: `0.5px solid ${accentColor}15` }}>
-                  <div className="text-center">
-                    <p style={{ fontFamily: CORMORANT, fontSize: '2.2rem', fontWeight: 600, color: ACCENT, lineHeight: 1 }}>{selectedService.rating}</p>
-                    <div className="flex items-center gap-0.5 mt-1 justify-center">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className="w-3 h-3" style={{ fill: i < Math.floor(selectedService.rating) ? '#F59E0B' : 'rgba(255,255,255,0.1)', color: i < Math.floor(selectedService.rating) ? '#F59E0B' : 'rgba(255,255,255,0.1)' }} />
-                      ))}
-                    </div>
-                    <p style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{selectedService.reviewCount} отзывов</p>
-                  </div>
-                  <div className="flex-1 space-y-1.5">
-                    {[5, 4, 3, 2, 1].map(stars => {
-                      const count = serviceReviews.filter(r => r.rating === stars).length;
-                      const pct = serviceReviews.length > 0 ? (count / serviceReviews.length) * 100 : 0;
-                      return (
-                        <div key={stars} className="flex items-center gap-2">
-                          <span style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', width: 8 }}>{stars}</span>
-                          <div className="flex-1 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                            <div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#F59E0B' }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </m.div>
-
-                {serviceReviews.map((review, i) => (
-                  <m.div key={i} variants={contentItem} className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: `${accentColor}15`, border: `0.5px solid ${accentColor}25` }}>
-                        <span style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 700, color: accentColor }}>{review.initials}</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span style={{ fontFamily: INTER, fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>{review.author}</span>
-                          {review.verified && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase" style={{ background: `${accentColor}15`, color: accentColor }}>Verified</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          {Array.from({ length: 5 }).map((_, j) => (
-                            <Star key={j} className="w-3 h-3" style={{ fill: j < review.rating ? '#F59E0B' : 'rgba(255,255,255,0.1)', color: j < review.rating ? '#F59E0B' : 'rgba(255,255,255,0.1)' }} />
-                          ))}
-                          <span style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', marginLeft: 4 }}>{review.date}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <p style={{ fontFamily: INTER, fontSize: '0.825rem', lineHeight: 1.65, color: 'rgba(255,255,255,0.65)' }}>{review.text}</p>
-                  </m.div>
-                ))}
-              </m.div>
-            )}
-
-            <m.div variants={contentItem} className="mt-6 mb-4">
-              <p style={{ fontFamily: INTER, fontSize: '0.65rem', fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Рекомендуем также</p>
-              <div className="flex gap-3.5 overflow-x-auto -mx-5 px-5 pb-2 scrollbar-hide">
-                {services.filter(s => s.category === selectedService.category && s.id !== selectedService.id).slice(0, 4).map(s => (
-                  <div key={s.id} className="flex-shrink-0 cursor-pointer active:scale-[0.97]" style={{ width: 155, transition: 'transform 0.15s ease' }} onClick={() => openService(s)}>
-                    <div className="relative rounded-xl overflow-hidden mb-2" style={{ aspectRatio: '3/4' }}>
-                      <LazyImage src={s.image} alt={s.name} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                      <div className="absolute bottom-2 left-2 right-2">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-2.5 h-2.5" style={{ fill: '#F59E0B', color: '#F59E0B' }} />
-                          <span style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.7)' }}>{s.rating}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <p style={{ fontFamily: CORMORANT, fontSize: '0.9rem', fontWeight: 500, color: 'rgba(255,255,255,0.8)' }} className="truncate">{s.name}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span style={{ fontFamily: INTER, fontSize: '0.75rem', fontWeight: 600, color: accentColor }}>{formatPrice(s.price)}</span>
-                      <span style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)' }}>{s.duration}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </m.div>
-
-            <m.div variants={contentItem} className="grid grid-cols-3 gap-3 py-5 mb-2" style={{ borderTop: '0.5px solid rgba(255,255,255,0.06)', borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
-              {[
-                { icon: Truck, label: 'Без ожидания', sublabel: 'Точно по записи' },
-                { icon: ShieldCheck, label: 'Стерильность', sublabel: '100% безопасно' },
-                { icon: RotateCcw, label: 'Гарантия', sublabel: 'Бесплатная коррекция' },
-              ].map((item, i) => (
-                <div key={i} className="flex flex-col items-center text-center gap-1.5">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: `${accentColor}10` }}>
-                    <item.icon className="w-4 h-4" style={{ color: accentColor }} />
-                  </div>
-                  <span style={{ fontFamily: INTER, fontSize: '0.65rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{item.label}</span>
-                  <span style={{ fontFamily: INTER, fontSize: '0.55rem', color: 'rgba(255,255,255,0.3)' }}>{item.sublabel}</span>
-                </div>
-              ))}
-            </m.div>
-          </m.div>
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 z-30 px-5 pb-6 pt-3" style={{ background: 'linear-gradient(to top, #0C0A09 60%, transparent)' }}>
-          <button
-            onClick={bookService}
-            className="w-full py-4 rounded-2xl font-semibold active:scale-[0.97]"
-            style={{
-              fontFamily: INTER, fontSize: '0.9rem', letterSpacing: '0.04em',
-              background: `linear-gradient(135deg, ${ACCENT}, ${categoryConfig[selectedService.category]?.color ?? ACCENT})`,
-              color: BG, transition: 'transform 0.15s ease',
-            }}
-          >
-            Записаться · {formatPrice(selectedService.price)}
-          </button>
-        </div>
-      </m.div>
-    );
-  }
-
-  // ───────── HOME PAGE ─────────
-  if (activeTab === 'home') {
-    const featured = services.filter(s => s.isNew).slice(0, 2);
-    const popular = services.filter(s => s.isPopular).slice(0, 6);
-
-    return (
-      <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ backgroundColor: BG }}>
-        <DemoSidebar menuItems={sidebarMenuItems} isOpen={sidebar.isOpen} onClose={sidebar.close} onOpen={sidebar.open} accentColor={ACCENT} title="GLOW SPA" subtitle="Салон красоты" />
-
-        <div className="relative overflow-hidden" style={{ height: '70vh', minHeight: 420 }}>
-          <div className="absolute inset-0">
-            <AutoplayVideo
-              src={glowspaHeroVideo}
-              poster={glowspaHeroImg}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(12,10,9,0.3) 0%, rgba(12,10,9,0.1) 30%, rgba(12,10,9,0.6) 70%, #0C0A09 100%)' }} />
-
-          <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-5 demo-nav-safe">
-            <button onClick={sidebar.open} className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(12px)' }}>
-              <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect width="18" height="1.5" rx="0.75" fill="white" /><rect y="5" width="12" height="1.5" rx="0.75" fill="white" /><rect y="10" width="15" height="1.5" rx="0.75" fill="white" /></svg>
-            </button>
-          </div>
-
-          <div className="absolute bottom-8 left-5 right-5 z-10">
-            <m.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}>
-              <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: ACCENT }}>
-                Салон красоты
-              </span>
-              <h1 className="mt-2" style={{ fontFamily: CORMORANT, fontSize: 'clamp(2.5rem, 10vw, 3.5rem)', fontWeight: 400, color: '#fff', lineHeight: 0.95, letterSpacing: '-0.02em' }}>
-                Glow<br /><span style={{ fontStyle: 'italic', fontWeight: 300 }}>Spa</span>
-              </h1>
-              <p className="mt-3 max-w-xs" style={{ fontFamily: INTER, fontSize: '0.8rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.6)' }}>
-                Пространство, где красота встречается с заботой. Премиальные процедуры от лучших мастеров города.
-              </p>
-              <button
-                onClick={() => onTabChange?.('catalog')}
-                className="mt-4 px-6 py-3 rounded-xl font-semibold active:scale-[0.97]"
-                style={{ fontFamily: INTER, fontSize: '0.8rem', letterSpacing: '0.04em', background: ACCENT, color: BG, transition: 'transform 0.15s ease' }}
-              >
-                Смотреть каталог
-              </button>
-            </m.div>
-          </div>
-        </div>
-
-        <div className="py-3.5 overflow-hidden" style={{ borderTop: '0.5px solid rgba(255,255,255,0.06)', borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
-          <div className="flex items-center justify-between px-5">
-            {[
-              { icon: ShieldCheck, label: 'Стерильность 100%' },
-              { icon: Sparkles, label: 'Премиум косметика' },
-              { icon: Star, label: '4.9 ★ рейтинг' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <item.icon className="w-3.5 h-3.5" style={{ color: ACCENT }} />
-                <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.03em' }}>{item.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="px-5 pt-6 pb-2">
-          <div className="rounded-2xl p-4 flex items-center gap-4" style={{ background: `linear-gradient(135deg, ${ACCENT}15, ${ACCENT}08)`, border: `0.5px solid ${ACCENT}20` }}>
-            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${ACCENT}20` }}>
-              <Gift className="w-6 h-6" style={{ color: ACCENT }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p style={{ fontFamily: INTER, fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>Первый визит —20%</p>
-              <p style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>На любую процедуру по промокоду GLOW2026</p>
-            </div>
-            <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.3)' }} />
-          </div>
-        </div>
-
-        <div className="px-5 pt-6 pb-4">
-          <div className="flex items-end justify-between mb-5">
-            <div>
-              <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: ACCENT }}>Коллекция</span>
-              <h2 style={{ fontFamily: CORMORANT, fontSize: '1.6rem', fontWeight: 400, color: '#fff', marginTop: 4 }}>Новые <span style={{ fontStyle: 'italic' }}>процедуры</span></h2>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {featured.map((service, idx) => (
-              <m.div
-                key={service.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="relative rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98]"
-                style={{ height: idx === 0 ? 320 : 240, transition: 'transform 0.15s ease' }}
-                onClick={() => openService(service)}
-              >
-                <div className="absolute inset-0"><LazyImage src={service.image} alt={service.name} className="w-full h-full" /></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                <div className="absolute top-3.5 left-3.5">
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1" style={{ background: ACCENT, color: BG }}>
-                    <Sparkles className="w-3 h-3" /> NEW
-                  </span>
-                </div>
-
-                <div className="absolute top-3.5 right-3.5" onClick={e => e.stopPropagation()}>
-                  <button onClick={() => handleToggleFavorite(service.id)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)' }}>
-                    <Heart className="w-4 h-4" style={isFavorite(String(service.id)) ? { fill: ACCENT, color: ACCENT } : { color: 'white' }} />
-                  </button>
-                </div>
-
-                <div className="absolute bottom-4 left-4 right-4">
-                  <p style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, marginBottom: 4 }}>{service.category}</p>
-                  <h3 style={{ fontFamily: CORMORANT, fontSize: '1.4rem', fontWeight: 500, color: '#fff', marginBottom: 4 }}>{service.name}</h3>
-                  <div className="flex items-center gap-3">
-                    <span style={{ fontFamily: INTER, fontSize: '0.85rem', fontWeight: 600, color: ACCENT }}>{formatPrice(service.price)}</span>
-                    <span style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>· {service.duration}</span>
-                  </div>
-                </div>
-              </m.div>
-            ))}
-          </div>
-        </div>
-
-        <div className="px-5 pt-6 pb-4">
-          <div className="flex items-end justify-between mb-5">
-            <div>
-              <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: ACCENT }}>Портфолио</span>
-              <h2 style={{ fontFamily: CORMORANT, fontSize: '1.6rem', fontWeight: 400, color: '#fff', marginTop: 4 }}>Наши <span style={{ fontStyle: 'italic' }}>работы</span></h2>
-            </div>
-          </div>
-          <m.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="relative rounded-[20px] overflow-hidden cursor-pointer active:scale-[0.98]"
-            style={{ height: 220, transition: 'transform 0.15s ease' }}
-          >
-            <AutoplayVideo
-              src={glowspaHeroVideo}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-            <div className="absolute bottom-4 left-4 right-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#EF4444' }} />
-                <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)' }}>Showreel</span>
-              </div>
-              <h3 style={{ fontFamily: CORMORANT, fontSize: '1.3rem', fontWeight: 500, color: '#fff', lineHeight: 1.2 }}>Атмосфера и стиль GlowSpa</h3>
-              <p style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>Уютный интерьер, профессиональная команда, результаты работ</p>
-            </div>
-          </m.div>
-        </div>
-
-        <div className="px-5 py-8">
-          <div className="flex items-end justify-between mb-5">
-            <div>
-              <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: ACCENT }}>Выбор клиентов</span>
-              <h2 style={{ fontFamily: CORMORANT, fontSize: '1.6rem', fontWeight: 400, color: '#fff', marginTop: 4 }}>Популярные <span style={{ fontStyle: 'italic' }}>процедуры</span></h2>
-            </div>
-            <button onClick={() => onTabChange?.('catalog')} style={{ fontFamily: INTER, fontSize: '0.7rem', color: ACCENT, fontWeight: 500 }}>Все →</button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {popular.map((service, idx) => (
-              <m.div
-                key={service.id}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="cursor-pointer active:scale-[0.97]"
-                style={{ transition: 'transform 0.15s ease' }}
-                onClick={() => openService(service)}
-              >
-                <div className="relative rounded-2xl overflow-hidden mb-2" style={{ aspectRatio: '3/4' }}>
-                  <LazyImage src={service.image} alt={service.name} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
-                  <div className="absolute top-2.5 right-2.5" onClick={e => e.stopPropagation()}>
-                    <button onClick={() => handleToggleFavorite(service.id)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)' }}>
-                      <Heart className="w-3.5 h-3.5" style={isFavorite(String(service.id)) ? { fill: ACCENT, color: ACCENT } : { color: 'white' }} />
-                    </button>
-                  </div>
-
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3 h-3" style={{ fill: '#F59E0B', color: '#F59E0B' }} />
-                      <span style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)' }}>{service.rating}</span>
-                      <span style={{ fontFamily: INTER, fontSize: '0.55rem', color: 'rgba(255,255,255,0.35)' }}>({service.reviewCount})</span>
-                    </div>
-                  </div>
-                </div>
-
-                <p style={{ fontFamily: INTER, fontSize: '0.6rem', color: ACCENT, fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 2 }}>{service.category}</p>
-                <p style={{ fontFamily: CORMORANT, fontSize: '0.95rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }} className="truncate">{service.name}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span style={{ fontFamily: INTER, fontSize: '0.8rem', fontWeight: 600, color: ACCENT }}>{formatPrice(service.price)}</span>
-                  <span style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)' }}>{service.duration}</span>
-                </div>
-              </m.div>
-            ))}
-          </div>
-        </div>
-
-        <div className="px-5 pb-6">
-          <div className="flex items-end justify-between mb-4">
-            <div>
-              <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: ACCENT }}>Команда</span>
-              <h2 style={{ fontFamily: CORMORANT, fontSize: '1.6rem', fontWeight: 400, color: '#fff', marginTop: 4 }}>Наши <span style={{ fontStyle: 'italic' }}>мастера</span></h2>
-            </div>
-          </div>
-          <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-2 scrollbar-hide">
-            {masters.map((master, i) => (
-              <div key={i} className="flex-shrink-0 text-center" style={{ width: 100 }}>
-                <div className="w-16 h-16 rounded-full mx-auto mb-2 overflow-hidden" style={{ border: `2px solid ${master.color}40` }}>
-                  <img src={master.photo} alt={master.name} className="w-full h-full object-cover" />
-                </div>
-                <p style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{master.name.split(' ')[0]}</p>
-                <p style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{master.role}</p>
-                <p style={{ fontFamily: INTER, fontSize: '0.55rem', color: ACCENT, marginTop: 2 }}>{master.exp}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="px-5 pb-6">
-          <div className="flex items-end justify-between mb-4">
-            <div>
-              <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: ACCENT }}>Отзывы</span>
-              <h2 style={{ fontFamily: CORMORANT, fontSize: '1.6rem', fontWeight: 400, color: '#fff', marginTop: 4 }}>Говорят <span style={{ fontStyle: 'italic' }}>клиенты</span></h2>
-            </div>
-            <span style={{ fontFamily: INTER, fontSize: '0.7rem', color: ACCENT, fontWeight: 500 }}>{allReviews.length} отзывов</span>
-          </div>
-          <div className="space-y-3">
-            {allReviews.slice(0, 3).map((review, i) => (
-              <div key={i} className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-                <div className="flex items-start gap-3 mb-2.5">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${ACCENT}15` }}>
-                    <span style={{ fontFamily: INTER, fontSize: '0.65rem', fontWeight: 700, color: ACCENT }}>{review.initials}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span style={{ fontFamily: INTER, fontSize: '0.78rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>{review.author}</span>
-                      {review.verified && (
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase" style={{ background: `${ACCENT}15`, color: ACCENT }}>✓</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      {Array.from({ length: 5 }).map((_, j) => (
-                        <Star key={j} className="w-2.5 h-2.5" style={{ fill: j < review.rating ? '#F59E0B' : 'rgba(255,255,255,0.1)', color: j < review.rating ? '#F59E0B' : 'rgba(255,255,255,0.1)' }} />
-                      ))}
-                      <span style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', marginLeft: 4 }}>{review.date}</span>
-                    </div>
-                  </div>
-                </div>
-                <p style={{ fontFamily: CORMORANT, fontSize: '0.95rem', fontStyle: 'italic', lineHeight: 1.55, color: 'rgba(255,255,255,0.6)' }}>
-                  «{review.text}»
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="px-5 pb-8">
-          <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-            <div className="flex items-center gap-3 mb-3">
-              <MapPin className="w-5 h-5" style={{ color: ACCENT }} />
-              <div>
-                <p style={{ fontFamily: INTER, fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>GlowSpa Studio</p>
-                <p style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)' }}>ул. Тверская, 15, Москва</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 mb-3">
-              <Clock className="w-5 h-5" style={{ color: ACCENT }} />
-              <div>
-                <p style={{ fontFamily: INTER, fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>Пн—Сб 9:00 — 21:00</p>
-                <p style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)' }}>Вс 10:00 — 20:00</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Phone className="w-5 h-5" style={{ color: ACCENT }} />
-              <p style={{ fontFamily: INTER, fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>+7 (495) 123-45-67</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ───────── CATALOG PAGE ─────────
-  if (activeTab === 'catalog') {
-    return (
-      <>
-      <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ backgroundColor: BG }}>
-        <DemoSidebar menuItems={sidebarMenuItems} isOpen={sidebar.isOpen} onClose={sidebar.close} onOpen={sidebar.open} accentColor={ACCENT} title="GLOW SPA" subtitle="Салон красоты" />
-
-        <div className="px-5 pt-5 pb-3 demo-nav-safe">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>GLOW SPA</p>
-              <h1 style={{ fontFamily: CORMORANT, fontSize: '30px', fontWeight: 300, letterSpacing: '0.06em', fontStyle: 'italic' }}>Каталог</h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setSearchQuery(searchQuery ? '' : ' ')}
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
-              >
-                <Search className="w-4.5 h-4.5" />
-              </button>
-              <button
-                onClick={sidebar.open}
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
-              >
-                <Filter className="w-4.5 h-4.5" />
-              </button>
-            </div>
-          </div>
-
-          {searchQuery && (
-            <div className="relative mb-3">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(255,255,255,0.3)' }} />
-              <input
-                type="text"
-                placeholder="Поиск по услугам..."
-                value={searchQuery === ' ' ? '' : searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value || ' ')}
-                autoFocus
-                className="w-full pl-10 pr-10 py-2.5 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-1"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.06)', fontFamily: INTER, fontSize: '0.8rem', '--tw-ring-color': `${ACCENT}40` } as any}
-              />
-              <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-                <X className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.3)' }} />
-              </button>
-            </div>
-          )}
-
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className="flex-shrink-0 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all active:scale-95"
-                style={{
-                  background: selectedCategory === cat ? ACCENT : 'rgba(255,255,255,0.07)',
-                  color: selectedCategory === cat ? BG : 'rgba(255,255,255,0.6)',
-                  border: selectedCategory === cat ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
-                  fontSize: '11px',
-                  fontWeight: selectedCategory === cat ? 700 : 500,
-                  letterSpacing: '0.04em',
-                  fontFamily: INTER,
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {filteredServices.length === 0 ? (
-          <div className="px-5 pt-12">
-            <EmptyState type="search" title="Ничего не найдено" description="Попробуйте изменить запрос или выбрать другую категорию" actionLabel="Сбросить фильтры" onAction={() => { setSearchQuery(''); setSelectedCategory('Все'); }} />
-          </div>
-        ) : (
-          <div className="px-4 space-y-3 pb-2">
-            {(() => {
-              const rows: React.ReactNode[] = [];
-              let i = 0;
-              let groupIdx = 0;
-              while (i < filteredServices.length) {
-                const featured = filteredServices[i];
-                const catCfg = categoryConfig[featured.category];
-                rows.push(
-                  <m.div
-                    key={`featured-${featured.id}`}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: groupIdx * 0.1 }}
-                    whileTap={{ scale: 0.985 }}
-                    onClick={() => openService(featured)}
-                    className="relative cursor-pointer rounded-[20px] overflow-hidden"
-                    style={{ height: '280px' }}
-                  >
-                    <LazyImage src={featured.image} alt={featured.name} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-
-                    <div className="absolute top-3.5 left-3.5 flex gap-1.5">
-                      {featured.isNew && (
-                        <span className="px-2 py-1 text-[9px] font-black rounded-full tracking-[0.08em] uppercase" style={{ background: ACCENT, color: BG }}>NEW</span>
-                      )}
-                      <span className="px-2 py-1 text-[9px] font-medium rounded-full" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)', color: 'rgba(255,255,255,0.75)', border: '0.5px solid rgba(255,255,255,0.15)' }}>
-                        {featured.category}
-                      </span>
-                    </div>
-
-                    <div className="absolute top-3.5 right-3.5 flex gap-1.5" onClick={e => e.stopPropagation()}>
-                      <button
-                        onClick={() => setQuickViewService(featured)}
-                        className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                        style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
-                      >
-                        <Eye className="w-3.5 h-3.5 text-white" />
-                      </button>
-                      <button
-                        onClick={() => handleToggleFavorite(featured.id)}
-                        className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                        style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
-                      >
-                        <Heart className="w-3.5 h-3.5" style={isFavorite(String(featured.id)) ? { fill: ACCENT, color: ACCENT } : { color: 'white' }} />
-                      </button>
-                    </div>
-
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <div className="flex items-end justify-between">
-                        <div className="flex-1 mr-3">
-                          <p className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-1" style={{ color: catCfg?.color ?? ACCENT }}>{featured.category}</p>
-                          <p style={{ fontFamily: CORMORANT, fontSize: '1.2rem', fontWeight: 500, lineHeight: 1.15, color: '#fff' }}>{featured.name}</p>
-                          <div className="flex items-center gap-2 mt-1.5">
-                            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: INTER }}>{featured.duration}</span>
-                            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>·</span>
-                            <div className="flex items-center gap-0.5">
-                              {[1,2,3,4,5].map(s => (
-                                <div key={s} className="w-1.5 h-1.5 rounded-full" style={{ background: s <= Math.round(featured.rating) ? ACCENT : 'rgba(255,255,255,0.15)' }} />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="text-base font-bold" style={{ fontFamily: INTER, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: '#fff' }}>
-                            {formatPrice(featured.price)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </m.div>
-                );
-                i++;
-
-                const pair = filteredServices.slice(i, i + 2);
-                if (pair.length > 0) {
-                  rows.push(
-                    <div key={`pair-${groupIdx}`} className="grid grid-cols-2 gap-3">
-                      {pair.map((service, colIdx) => {
-                        const sCatCfg = categoryConfig[service.category];
-                        return (
-                          <m.div
-                            key={service.id}
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: groupIdx * 0.1 + 0.04 + colIdx * 0.03 }}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => openService(service)}
-                            className="cursor-pointer"
-                          >
-                            <div className="relative rounded-[18px] overflow-hidden mb-2.5" style={{ height: colIdx === 0 ? '205px' : '175px' }}>
-                              <LazyImage src={service.image} alt={service.name} className="w-full h-full object-cover" />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-
-                              <div className="absolute top-2 right-2 flex flex-col gap-1.5">
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(service.id); }}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                                  style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
-                                >
-                                  <Heart className="w-3 h-3" style={isFavorite(String(service.id)) ? { fill: ACCENT, color: ACCENT } : { color: 'white' }} />
-                                </button>
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); setQuickViewService(service); }}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                                  style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
-                                >
-                                  <Eye className="w-3 h-3 text-white" />
-                                </button>
-                              </div>
-
-                              {service.isNew && (
-                                <div className="absolute top-2 left-2">
-                                  <span className="px-1.5 py-0.5 text-[9px] font-black rounded-md" style={{ background: ACCENT, color: BG }}>NEW</span>
-                                </div>
-                              )}
-                            </div>
-
-                            <div>
-                              <p className="text-[8px] font-semibold tracking-[0.22em] uppercase mb-0.5 truncate" style={{ color: sCatCfg?.color ?? 'rgba(255,255,255,0.38)' }}>
-                                {service.category}
-                              </p>
-                              <p className="text-[12px] font-semibold leading-tight mb-1 truncate" style={{ fontFamily: CORMORANT, fontSize: '0.85rem', fontWeight: 500, letterSpacing: '-0.01em' }}>
-                                {service.name}
-                              </p>
-                              <div className="flex items-baseline gap-1.5">
-                                <span className="text-[13px] font-bold" style={{ fontFamily: INTER, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em', color: ACCENT }}>
-                                  {formatPrice(service.price)}
-                                </span>
-                                <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: INTER }}>{service.duration}</span>
-                              </div>
-                              <div className="flex items-center gap-0.5 mt-1">
-                                {[1,2,3,4,5].map(s => (
-                                  <div key={s} className="w-1.5 h-1.5 rounded-full" style={{ background: s <= Math.round(service.rating) ? ACCENT : 'rgba(255,255,255,0.15)' }} />
-                                ))}
-                              </div>
-                            </div>
-                          </m.div>
-                        );
-                      })}
-                    </div>
-                  );
-                  i += pair.length;
-                }
-                groupIdx++;
-              }
-              return rows;
-            })()}
-          </div>
-        )}
-
-      </div>
-
-      {createPortal(
-        <AnimatePresence>
-          {quickViewService && (
-              <m.div
-                key="quickview-overlay"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="fixed inset-0 z-[10000] flex items-end justify-center"
-                style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-                onClick={() => setQuickViewService(null)}
-              >
-                <m.div
-                  initial={{ opacity: 0, y: 100, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 100, scale: 0.95 }}
-                  transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] as number[] }}
-                  className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
-                    backdropFilter: 'blur(16px)',
-                    WebkitBackdropFilter: 'blur(16px)',
-                    border: '0.5px solid rgba(255,255,255,0.15)',
-                    boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
-                    maxHeight: '70vh',
-                    paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 140px)',
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flex justify-center pt-3 pb-2">
-                    <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.3)' }} />
-                  </div>
-
-                  <button
-                    onClick={() => setQuickViewService(null)}
-                    className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10"
-                    style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}
-                  >
-                    <X className="w-4 h-4 text-white" />
-                  </button>
-
-                  <div className="px-5 pb-6 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 60px)' }}>
-                    <div style={{ display: 'flex', gap: '14px', marginBottom: '20px' }}>
-                      <div style={{ width: '110px', flexShrink: 0, borderRadius: '16px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', aspectRatio: '2/3' }}>
-                        <LazyImage src={quickViewService.image} alt={quickViewService.name} className="w-full h-full object-cover" />
-                      </div>
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: '2px', minWidth: 0 }}>
-                        <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: categoryConfig[quickViewService.category]?.color ?? ACCENT, marginBottom: '7px', fontFamily: INTER }}>
-                          {quickViewService.category}
-                        </p>
-                        <h3 style={{ fontSize: '21px', fontWeight: 300, fontStyle: 'italic', fontFamily: CORMORANT, letterSpacing: '0.03em', color: 'rgba(255,255,255,0.95)', lineHeight: 1.15, marginBottom: '10px' }}>
-                          {quickViewService.name}
-                        </h3>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginBottom: '14px' }}>
-                          {[1,2,3,4,5].map(s => (
-                            <Star key={s} style={{ width: '11px', height: '11px' }}
-                              fill={s <= Math.round(quickViewService.rating) ? 'rgba(255,255,255,0.85)' : 'transparent'}
-                              stroke={s <= Math.round(quickViewService.rating) ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
-                            />
-                          ))}
-                          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginLeft: '3px', fontFamily: INTER }}>
-                            {quickViewService.rating}
-                          </span>
-                        </div>
-                        <div style={{ marginTop: 'auto' }}>
-                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: INTER, color: '#fff' }}>
-                            {formatPrice(quickViewService.price)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', marginBottom: '18px' }} />
-
-                    <div style={{ marginBottom: '16px' }}>
-                      <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: INTER }}>
-                        Детали
-                      </p>
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
-                          <Clock className="w-4 h-4 mx-auto mb-1.5" style={{ color: categoryConfig[quickViewService.category]?.color ?? ACCENT }} />
-                          <p style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.8)', fontFamily: INTER }}>{quickViewService.duration}</p>
-                          <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', fontFamily: INTER, marginTop: 2 }}>Время</p>
-                        </div>
-                        <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
-                          <Star className="w-4 h-4 mx-auto mb-1.5" style={{ color: '#F59E0B' }} />
-                          <p style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.8)', fontFamily: INTER }}>{quickViewService.rating}</p>
-                          <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', fontFamily: INTER, marginTop: 2 }}>Рейтинг</p>
-                        </div>
-                        <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
-                          <Heart className="w-4 h-4 mx-auto mb-1.5" style={{ color: '#EF4444' }} />
-                          <p style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.8)', fontFamily: INTER }}>{quickViewService.reviewCount}</p>
-                          <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', fontFamily: INTER, marginTop: 2 }}>Отзывы</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ marginBottom: '22px' }}>
-                      <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: INTER }}>
-                        Описание
-                      </p>
-                      <p style={{ fontSize: '13px', lineHeight: 1.6, color: 'rgba(255,255,255,0.6)', fontFamily: INTER }}>
-                        {quickViewService.description}
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        addToCartPersistent({
-                          id: String(quickViewService.id),
-                          name: quickViewService.name,
-                          price: quickViewService.price,
-                          image: quickViewService.image,
-                          color: quickViewService.category,
-                        });
-                        toast({ title: 'Добавлено в записи', description: `${quickViewService.name} • ${quickViewService.duration}`, duration: 2000 });
-                        setQuickViewService(null);
-                      }}
-                      className="w-full active:scale-[0.98] transition-all"
-                      style={{
-                        height: '52px', borderRadius: '14px', background: ACCENT, color: BG,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                        boxShadow: `0 4px 20px ${ACCENT}40`,
-                        marginBottom: '10px',
-                      }}
-                    >
-                      <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: INTER }}>ЗАПИСАТЬСЯ</span>
-                      <span style={{ width: '1px', height: '16px', background: 'rgba(0,0,0,0.2)' }} />
-                      <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', fontFamily: INTER }}>
-                        {formatPrice(quickViewService.price)}
-                      </span>
-                    </button>
-
-                    <button
-                      onClick={() => { openService(quickViewService); setQuickViewService(null); }}
-                      className="w-full py-3 transition-all active:opacity-70"
-                      style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontFamily: INTER, letterSpacing: '0.02em' }}
-                    >
-                      Смотреть полностью →
-                    </button>
-                  </div>
-                </m.div>
-              </m.div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
-      </>
-    );
-  }
-
-  // ───────── CART PAGE ─────────
-  if (activeTab === 'cart') {
-    return (
-      <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ backgroundColor: BG }}>
-        <div className="px-5 pt-4 demo-nav-safe">
-          <div className="flex items-center justify-between">
-            <h1 style={{ fontFamily: CORMORANT, fontSize: '1.6rem', fontWeight: 400, color: '#fff' }}>Мои <span style={{ fontStyle: 'italic' }}>записи</span></h1>
-            {cart.length > 0 && (
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold" style={{ background: `${ACCENT}20`, color: ACCENT }}>
-                {cart.length} {cart.length === 1 ? 'запись' : cart.length < 5 ? 'записи' : 'записей'}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="px-5 pt-4 space-y-4">
-          {cart.length === 0 ? (
-            <EmptyState type="cart" title="Нет активных записей" description="Выберите процедуру из каталога и запишитесь к мастеру" actionLabel="Открыть каталог" onAction={() => onTabChange?.('catalog')} />
-          ) : (
-            <>
-              {cart.map((item) => (
-                <m.div
-                  key={item.id + (item.size || '')}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="rounded-2xl p-4 flex gap-4"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)' }}
-                >
-                  <div className="w-20 h-24 rounded-xl overflow-hidden flex-shrink-0">
-                    <LazyImage src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontFamily: CORMORANT, fontSize: '1.05rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }} className="truncate">{item.name}</p>
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <User className="w-3 h-3" style={{ color: ACCENT }} />
-                      <p style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)' }}>{item.color}</p>
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <Clock className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.3)' }} />
-                      <p style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)' }}>{item.size}</p>
-                    </div>
-                    <div className="flex items-center justify-between mt-2.5">
-                      <span style={{ fontFamily: INTER, fontSize: '0.9rem', fontWeight: 600, color: ACCENT }}>{formatPrice(item.price)}</span>
-                      <button
-                        onClick={() => removeFromCart(item.id, item.size, item.color)}
-                        className="w-8 h-8 rounded-full flex items-center justify-center active:scale-90"
-                        style={{ background: 'rgba(239,68,68,0.08)', border: '0.5px solid rgba(239,68,68,0.15)', transition: 'transform 0.15s ease' }}
-                      >
-                        <X className="w-4 h-4" style={{ color: 'rgba(239,68,68,0.7)' }} />
-                      </button>
-                    </div>
-                  </div>
-                </m.div>
-              ))}
-
-              <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-                <div className="flex justify-between items-center">
-                  <span style={{ fontFamily: INTER, fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Итого:</span>
-                  <span style={{ fontFamily: CORMORANT, fontSize: '1.5rem', fontWeight: 600, color: ACCENT }}>{formatPrice(cartTotal)}</span>
-                </div>
-                <button
-                  onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full py-3.5 rounded-2xl font-semibold active:scale-[0.97]"
-                  style={{ fontFamily: INTER, fontSize: '0.85rem', background: ACCENT, color: BG, transition: 'transform 0.15s ease' }}
-                >
-                  Подтвердить запись
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-
-        <CheckoutDrawer isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} items={cart} total={cartTotal} onOrderComplete={handleCheckout} storeName="GLOW SPA" />
-      </div>
-    );
-  }
-
-  // ───────── PROFILE PAGE ─────────
-  if (activeTab === 'profile') {
-    const loyaltyLevel = ordersCount >= 10 ? 'Platinum' : ordersCount >= 5 ? 'Gold' : ordersCount >= 2 ? 'Silver' : 'Welcome';
-    const nextLevel = loyaltyLevel === 'Platinum' ? null : loyaltyLevel === 'Gold' ? 'Platinum' : loyaltyLevel === 'Silver' ? 'Gold' : 'Silver';
-    const progressToNext = loyaltyLevel === 'Platinum' ? 100 :
-      loyaltyLevel === 'Gold' ? ((ordersCount - 5) / 5) * 100 :
-      loyaltyLevel === 'Silver' ? ((ordersCount - 2) / 3) * 100 :
-      (ordersCount / 2) * 100;
-    const visitsToNext = loyaltyLevel === 'Platinum' ? 0 :
-      loyaltyLevel === 'Gold' ? 10 - ordersCount :
-      loyaltyLevel === 'Silver' ? 5 - ordersCount :
-      2 - ordersCount;
-    const discount = loyaltyLevel === 'Platinum' ? 25 : loyaltyLevel === 'Gold' ? 15 : loyaltyLevel === 'Silver' ? 10 : 5;
-
-    const levelConfig: Record<string, { icon: typeof Crown; color: string }> = {
-      Welcome: { icon: Star, color: '#6B7280' },
-      Silver: { icon: Award, color: '#9CA3AF' },
-      Gold: { icon: Crown, color: '#F59E0B' },
-      Platinum: { icon: Crown, color: '#C9A89B' },
-    };
-    const lvl = levelConfig[loyaltyLevel];
-
-    return (
-      <div className="min-h-screen text-white pb-24 smooth-scroll-page" style={{ backgroundColor: BG }}>
-        <div className="px-5 pt-6 demo-nav-safe">
-          <div className="text-center mb-6">
-            <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${ACCENT}, #B8A8C9)` }}>
-              <User className="w-10 h-10" style={{ color: BG }} />
-            </div>
-            <h2 style={{ fontFamily: CORMORANT, fontSize: '1.6rem', fontWeight: 400, color: '#fff' }}>Анастасия</h2>
-            <div className="flex items-center justify-center gap-2 mt-1">
-              <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ background: `${lvl.color}20`, color: lvl.color, border: `0.5px solid ${lvl.color}30` }}>
-                <lvl.icon className="w-3 h-3" /> {loyaltyLevel}
-              </span>
-            </div>
-          </div>
-
-          <div className="rounded-2xl p-4 mb-5" style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-            <div className="flex items-center justify-between mb-2">
-              <span style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Уровень лояльности</span>
-              <span style={{ fontFamily: INTER, fontSize: '0.65rem', color: ACCENT }}>{discount}% скидка</span>
-            </div>
-            <div className="w-full h-2 rounded-full mb-2" style={{ background: 'rgba(255,255,255,0.06)' }}>
-              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(progressToNext, 100)}%`, background: `linear-gradient(90deg, ${ACCENT}, ${lvl.color})` }} />
-            </div>
-            {nextLevel && (
-              <p style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)' }}>
-                До {nextLevel} — ещё {visitsToNext} {visitsToNext === 1 ? 'визит' : visitsToNext < 5 ? 'визита' : 'визитов'}
-              </p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 mb-5">
-            {[
-              { value: String(ordersCount), label: 'Визитов' },
-              { value: `${discount}%`, label: 'Скидка' },
-              { value: String(favoritesCount), label: 'Избранное' },
-            ].map((stat, i) => (
-              <div key={i} className="rounded-2xl p-3.5 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-                <p style={{ fontFamily: CORMORANT, fontSize: '1.4rem', fontWeight: 600, color: ACCENT }}>{stat.value}</p>
-                <p style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 2 }}>{stat.label}</p>
-              </div>
-            ))}
-          </div>
-
-          {cart.length > 0 && (
-            <div className="mb-5">
-              <p style={{ fontFamily: INTER, fontSize: '0.65rem', fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 10 }}>Ближайшие записи</p>
-              {cart.slice(0, 2).map((item, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-xl mb-2" style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-                  <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
-                    <LazyImage src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontFamily: INTER, fontSize: '0.78rem', fontWeight: 500, color: 'rgba(255,255,255,0.8)' }} className="truncate">{item.name}</p>
-                    <p style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)' }}>{item.color} · {item.size}</p>
-                  </div>
-                  <span style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 600, color: ACCENT }}>{formatPrice(item.price)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {orders.length > 0 && (
-            <div className="mb-5">
-              <p style={{ fontFamily: INTER, fontSize: '0.65rem', fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 10 }}>Последние визиты</p>
-              {orders.slice(0, 3).map((order, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-xl mb-2" style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${ACCENT}15` }}>
-                    <Check className="w-4 h-4" style={{ color: ACCENT }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontFamily: INTER, fontSize: '0.75rem', fontWeight: 500, color: 'rgba(255,255,255,0.7)' }} className="truncate">
-                      {order.items.map(i => i.name).join(', ')}
-                    </p>
-                    <p style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)' }}>Заказ #{order.id.slice(-6)}</p>
-                  </div>
-                  <span style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{formatPrice(order.total)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="space-y-2">
-            {[
-              { icon: Gift, label: 'Бонусная программа', badge: `${ordersCount * 400} баллов` },
-              { icon: Calendar, label: 'История записей', badge: ordersCount > 0 ? `${ordersCount}` : undefined },
-              { icon: Heart, label: 'Избранные процедуры', badge: favoritesCount > 0 ? `${favoritesCount}` : undefined },
-              { icon: MapPin, label: 'Наш адрес' },
-              { icon: Settings, label: 'Настройки' },
-            ].map((item, i) => (
-              <button key={i} className="w-full p-4 rounded-xl flex items-center gap-3 active:scale-[0.98]" style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)', transition: 'transform 0.15s ease' }}>
-                <item.icon className="w-5 h-5" style={{ color: ACCENT }} />
-                <span className="flex-1 text-left" style={{ fontFamily: INTER, fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>{item.label}</span>
-                {item.badge && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: `${ACCENT}15`, color: ACCENT }}>{item.badge}</span>
-                )}
-                <ChevronRight className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.2)' }} />
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
+const FOCUSABLE = 'button,[href],input,[tabindex]:not([tabindex="-1"])';
+function trapTab(e: React.KeyboardEvent, root: HTMLElement | null) {
+  if (e.key !== "Tab" || !root) return;
+  const els = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE))
+    .filter((el) => !el.hasAttribute("disabled") && el.offsetParent !== null);
+  if (!els.length) return;
+  const first = els[0], last = els[els.length - 1];
+  const a = document.activeElement;
+  if (e.shiftKey && (a === first || a === root)) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && a === last) { e.preventDefault(); first.focus(); }
 }
 
-function BeautyWithTheme(props: BeautyProps) {
+/* --- изображение со скелетоном --- */
+function Img({ src, alt, priority }: { src: string; alt: string; priority?: boolean }) {
+  const [loaded, setLoaded] = useState(false);
   return (
-    <DemoThemeProvider themeId="beauty">
-      <Beauty {...props} />
-    </DemoThemeProvider>
+    <div className="relative w-full h-full overflow-hidden" style={{ background: SAND }}>
+      {!loaded && <div className="gs-shim absolute inset-0" aria-hidden="true" />}
+      <img src={src} alt={alt} loading={priority ? "eager" : "lazy"} decoding="async"
+        fetchPriority={priority ? "high" : "auto"} onLoad={() => setLoaded(true)}
+        className="w-full h-full" style={{
+          objectFit: "cover", display: "block",
+          opacity: loaded ? 1 : 0, transition: "opacity .5s ease-out",
+        }} />
+    </div>
   );
 }
 
-export default memo(BeautyWithTheme);
+function Stars({ value, size = 12 }: { value: number; size?: number }) {
+  return <Star size={size} fill={ACCENT} color={ACCENT} strokeWidth={0} aria-hidden="true" />;
+}
+
+/* --- карточка услуги (вертикальная) --- */
+function ServiceCard({ s, fav, onFav, onOpen, w, idx = 0 }: {
+  s: Service; fav: boolean; onFav: () => void; onOpen: () => void; w?: number | string; idx?: number;
+}) {
+  return (
+    <div role="button" tabIndex={0} aria-label={`${s.name}, ${rub(s.price)}`}
+      onClick={onOpen}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }}
+      className="gs-card flex-shrink-0 cursor-pointer"
+      style={{ width: w ?? 230, background: PAPER, borderRadius: 22, overflow: "hidden",
+        animation: "gsUp .55s cubic-bezier(.22,1,.36,1) both", animationDelay: `${Math.min(idx, 9) * 0.05}s` }}>
+      <div className="relative" style={{ aspectRatio: "1 / 1.04" }}>
+        <Img src={s.img} alt={s.name} />
+        {s.badge && (
+          <span className="absolute" style={{ top: 12, left: 12, background: PAPER, color: ACCENT_DEEP,
+            fontSize: T.micro, fontWeight: 600, letterSpacing: "0.04em", padding: "5px 11px", borderRadius: 999 }}>{s.badge}</span>
+        )}
+        <button type="button" onClick={(e) => { e.stopPropagation(); onFav(); }}
+          aria-label={fav ? "Убрать из избранного" : "В избранное"} aria-pressed={fav}
+          className="absolute flex items-center justify-center gs-press" style={{ top: 4, right: 4, width: 44, height: 44 }}>
+          <span className="flex items-center justify-center" style={{ width: 33, height: 33, borderRadius: 999, background: "rgba(255,255,255,0.9)" }}>
+            <Heart key={fav ? "1" : "0"} size={15} strokeWidth={2.2} fill={fav ? ACCENT : "none"} color={fav ? ACCENT_DEEP : INK}
+              style={fav ? { animation: "gsPop .36s ease-out" } : undefined} />
+          </span>
+        </button>
+      </div>
+      <div style={{ padding: "13px 15px 16px" }}>
+        <div style={{ fontFamily: SANS, fontSize: T.micro, color: ACCENT_DEEP, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>{s.cat}</div>
+        <div style={{ ...serif(S.s1, 600), marginTop: 5 }}>{s.name}</div>
+        <div className="flex items-center justify-between" style={{ marginTop: 9 }}>
+          <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 700, color: INK, ...NUM }}>{rub(s.price)}</span>
+          <span className="flex items-center" style={{ gap: 4, fontFamily: SANS, fontSize: T.cap, color: SUB }}>
+            <Clock size={12} color={MUTED} strokeWidth={2} /> {durStr(s.min)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* --- ряд услуги (горизонтальный, для каталога) --- */
+function ServiceRow({ s, onOpen, idx = 0 }: { s: Service; onOpen: () => void; idx?: number }) {
+  return (
+    <div role="button" tabIndex={0} aria-label={`${s.name}, ${rub(s.price)}`}
+      onClick={onOpen}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }}
+      className="gs-card cursor-pointer flex"
+      style={{ background: PAPER, borderRadius: 20, overflow: "hidden", gap: 14, padding: 10,
+        animation: "gsUp .5s cubic-bezier(.22,1,.36,1) both", animationDelay: `${Math.min(idx, 9) * 0.04}s` }}>
+      <div className="relative flex-shrink-0" style={{ width: 96, height: 96, borderRadius: 14, overflow: "hidden" }}>
+        <Img src={s.img} alt={s.name} />
+      </div>
+      <div className="flex flex-col" style={{ flex: 1, minWidth: 0, paddingRight: 6, paddingTop: 2 }}>
+        <div style={{ fontFamily: SANS, fontSize: T.micro, color: ACCENT_DEEP, fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase" }}>{s.cat}</div>
+        <div style={{ ...serif(S.s1, 600), fontSize: "1.3rem", marginTop: 3 }}>{s.name}</div>
+        <div style={{ fontFamily: SANS, fontSize: T.cap, color: SUB, marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.tagline}</div>
+        <div className="flex items-center" style={{ gap: 12, marginTop: "auto", paddingTop: 8 }}>
+          <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 700, color: INK, ...NUM }}>{rub(s.price)}</span>
+          <span className="flex items-center" style={{ gap: 4, fontFamily: SANS, fontSize: T.cap, color: SUB }}>
+            <Clock size={12} color={MUTED} strokeWidth={2} /> {durStr(s.min)}
+          </span>
+          <span className="flex items-center" style={{ gap: 3, fontFamily: SANS, fontSize: T.cap, color: SUB, marginLeft: "auto" }}>
+            <Stars value={s.rating} /> <span style={{ fontWeight: 600, color: INK, ...NUM }}>{s.rating.toFixed(1)}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* --- карточка мастера --- */
+function MasterCard({ m, idx = 0, w }: { m: Master; idx?: number; w?: number }) {
+  return (
+    <div className="flex-shrink-0" style={{ width: w ?? 156,
+      animation: "gsUp .5s cubic-bezier(.22,1,.36,1) both", animationDelay: `${Math.min(idx, 9) * 0.05}s` }}>
+      <div style={{ aspectRatio: "3 / 4", borderRadius: 18, overflow: "hidden" }}>
+        <Img src={m.img} alt={m.name} />
+      </div>
+      <div style={{ ...serif("1.2rem", 600), marginTop: 10 }}>{m.name.split(" ")[0]}</div>
+      <div style={{ fontFamily: SANS, fontSize: T.cap, color: SUB, marginTop: 1 }}>{m.role}</div>
+      <div className="flex items-center" style={{ gap: 4, marginTop: 6 }}>
+        <Stars value={m.rating} />
+        <span style={{ fontFamily: SANS, fontSize: T.cap, color: INK, fontWeight: 600, ...NUM }}>{m.rating.toFixed(1)}</span>
+        <span style={{ fontFamily: SANS, fontSize: T.cap, color: MUTED }}>· {m.exp} {plural(m.exp, ["год", "года", "лет"])}</span>
+      </div>
+    </div>
+  );
+}
+
+function SectionHead({ kick, title, onAll }: { kick: string; title: string; onAll?: () => void }) {
+  return (
+    <div className="flex items-end justify-between" style={{ padding: "0 20px", marginBottom: 14 }}>
+      <div>
+        <div style={kicker}>{kick}</div>
+        <h2 style={{ ...serif(S.s2, 600), marginTop: 6 }}>{title}</h2>
+      </div>
+      {onAll && (
+        <button type="button" onClick={onAll} className="flex items-center gs-press flex-shrink-0"
+          style={{ fontFamily: SANS, fontSize: T.sm, color: ACCENT_DEEP, fontWeight: 600, gap: 2, padding: "10px 0 10px 14px", minHeight: 44 }}>
+          Все <ChevronRight size={15} strokeWidth={SW} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+const CAT_DESC: Record<string, string> = {
+  "Волосы": "Стрижки, окрашивание и уход для здорового блеска",
+  "Ногти": "Маникюр, педикюр и стойкие безупречные покрытия",
+  "Лицо": "Косметология, чистки и массаж для сияющей кожи",
+  "Тело": "SPA-ритуалы и массаж для глубокого расслабления",
+  "Взгляд": "Ресницы и брови для открытого выразительного взгляда",
+};
+const catImage = (c: string) => SERVICES.find((s) => s.cat === c)!.img;
+
+/* --- крупная editorial-плитка услуги --- */
+function ServiceTile({ s, fav, onFav, onOpen, tall, idx = 0 }: {
+  s: Service; fav: boolean; onFav: () => void; onOpen: () => void; tall?: boolean; idx?: number;
+}) {
+  const m = masterById(s.master);
+  return (
+    <div role="button" tabIndex={0} aria-label={`${s.name}, ${rub(s.price)}`}
+      onClick={onOpen}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }}
+      className="gs-tile cursor-pointer relative"
+      style={{ borderRadius: 26, overflow: "hidden", height: tall ? 366 : 246,
+        animation: "gsUp .6s cubic-bezier(.22,1,.36,1) both", animationDelay: `${Math.min(idx, 8) * 0.06}s` }}>
+      <div className="absolute inset-0"><Img src={s.img} alt={s.name} priority={tall} /></div>
+      <div className="absolute inset-0" aria-hidden="true"
+        style={{ background: "linear-gradient(180deg, rgba(28,23,19,0.16) 0%, rgba(28,23,19,0.02) 36%, rgba(28,23,19,0.58) 72%, rgba(28,23,19,0.92) 100%)" }} />
+      <div className="absolute flex items-center justify-between" style={{ left: 16, right: 10, top: 14 }}>
+        <div className="flex items-center" style={{ gap: 7 }}>
+          {s.badge && (
+            <span style={{ background: PAPER, color: ACCENT_DEEP, fontFamily: SANS, fontSize: T.micro, fontWeight: 700,
+              letterSpacing: "0.05em", textTransform: "uppercase", padding: "5px 11px", borderRadius: 999 }}>{s.badge}</span>
+          )}
+          <span className="flex items-center" style={{ gap: 4, background: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)", padding: "5px 10px", borderRadius: 999 }}>
+            <Star size={11} fill="#FFFFFF" color="#FFFFFF" strokeWidth={0} />
+            <span style={{ fontFamily: SANS, fontSize: T.micro, fontWeight: 700, color: "#FFFFFF", ...NUM }}>{s.rating.toFixed(1)}</span>
+          </span>
+        </div>
+        <button type="button" onClick={(e) => { e.stopPropagation(); onFav(); }}
+          aria-label={fav ? "Убрать из избранного" : "В избранное"} aria-pressed={fav}
+          className="flex items-center justify-center gs-press" style={{ width: 44, height: 44 }}>
+          <span className="flex items-center justify-center" style={{ width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,0.94)" }}>
+            <Heart key={fav ? "1" : "0"} size={16} strokeWidth={2.2} fill={fav ? ACCENT : "none"} color={fav ? ACCENT_DEEP : INK}
+              style={fav ? { animation: "gsPop .36s ease-out" } : undefined} />
+          </span>
+        </button>
+      </div>
+      <div className="absolute" style={{ left: 18, right: 18, bottom: 16 }}>
+        <div style={{ fontFamily: SANS, fontSize: T.micro, fontWeight: 700, letterSpacing: "0.13em", textTransform: "uppercase", color: "rgba(255,255,255,0.72)" }}>{s.cat}</div>
+        <div style={{ fontFamily: SERIF, fontSize: tall ? "2.3rem" : "1.85rem", fontWeight: 600, color: "#FFFFFF", lineHeight: 1.03, marginTop: 5 }}>{s.name}</div>
+        <div style={{ fontFamily: SANS, fontSize: T.cap, color: "rgba(255,255,255,0.82)", marginTop: 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.tagline}</div>
+        <div className="flex items-center" style={{ gap: 9, marginTop: 14 }}>
+          <span className="flex items-center justify-center flex-shrink-0" style={{ width: 27, height: 27, borderRadius: 999, overflow: "hidden", border: "1.5px solid rgba(255,255,255,0.55)" }}>
+            <Img src={m.img} alt={m.name} />
+          </span>
+          <span style={{ fontFamily: SANS, fontSize: T.cap, color: "rgba(255,255,255,0.92)", fontWeight: 500 }}>{m.name.split(" ")[0]}</span>
+          <span style={{ width: 3, height: 3, borderRadius: 999, background: "rgba(255,255,255,0.45)" }} aria-hidden="true" />
+          <span className="flex items-center" style={{ gap: 4, fontFamily: SANS, fontSize: T.cap, color: "rgba(255,255,255,0.82)" }}>
+            <Clock size={12} color="rgba(255,255,255,0.7)" strokeWidth={2} /> {durStr(s.min)}
+          </span>
+          <span className="flex items-center" style={{ gap: 9, marginLeft: "auto" }}>
+            <span style={{ fontFamily: SANS, fontSize: T.lg, fontWeight: 700, color: "#FFFFFF", ...NUM }}>{rub(s.price)}</span>
+            <span className="flex items-center justify-center" style={{ width: 40, height: 40, borderRadius: 999, background: PAPER }}>
+              <ChevronRight size={18} color={INK} strokeWidth={2.5} />
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== основной компонент =================== */
+function Beauty({ activeTab, onTabChange, onCartCount }: Props) {
+  const [selected, setSelected] = useState<Service | null>(null);
+  const [favs, setFavs] = useState<Set<string>>(new Set(["s2", "s11"]));
+  const [cart, setCart] = useState<string[]>(["s8", "s5"]);
+  const [toast, setToast] = useState<string | null>(null);
+  const [catFilter, setCatFilter] = useState("Все");
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fire = useCallback((msg: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast(msg);
+    toastTimer.current = setTimeout(() => setToast(null), 2100);
+  }, []);
+  const toggleFav = useCallback((id: string) => {
+    setFavs((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  }, []);
+  const cartCount = cart.length;
+  useEffect(() => { onCartCount?.(cartCount); }, [cartCount, onCartCount]);
+  const addBooking = useCallback((id: string) => {
+    setCart((c) => (c.includes(id) ? c : [...c, id]));
+    fire("Услуга добавлена в запись");
+  }, [fire]);
+  const removeBooking = (id: string) => setCart((c) => c.filter((x) => x !== id));
+  const goCat = (cat: string) => { setCatFilter(cat); onTabChange("catalog"); };
+
+  const tgUser: any = (() => { try { return (window as any).Telegram?.WebApp?.initDataUnsafe?.user || null; } catch { return null; } })();
+  const userName = String(tgUser?.first_name || tgUser?.username || "Виктория");
+
+  const featured = SERVICES.filter((s) => s.badge === "Хит");
+  const fresh = SERVICES.filter((s) => s.badge === "Новое");
+
+  /* --------------- ГЛАВНАЯ --------------- */
+  const Home = (
+    <div className="min-h-full" style={{ background: CANVAS, paddingBottom: 32 }}>
+      <h1 className="gs-sr">GLOW — салон красоты и SPA</h1>
+      <header className="flex items-center justify-between" style={{ padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px" }}>
+        <div>
+          <div style={{ fontFamily: SERIF, fontSize: "1.6rem", fontWeight: 600, color: INK, letterSpacing: "0.14em" }}>GLOW</div>
+          <div className="flex items-center" style={{ gap: 4, marginTop: 1 }}>
+            <MapPin size={11} color={MUTED} strokeWidth={2.2} />
+            <span style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, fontWeight: 500 }}>Москва · Патриаршие</span>
+          </div>
+        </div>
+        <button type="button" onClick={() => onTabChange("profile")} aria-label="Профиль"
+          className="flex items-center justify-center gs-press"
+          style={{ width: 44, height: 44, borderRadius: 999, background: INK, marginRight: -4 }}>
+          <span style={{ fontFamily: SERIF, fontSize: "1.05rem", fontWeight: 600, color: CANVAS }}>{userName.charAt(0).toUpperCase()}</span>
+        </button>
+      </header>
+
+      {/* видео-герой */}
+      <div style={{ padding: "4px 16px 0" }}>
+        <div className="relative" style={{ borderRadius: 28, overflow: "hidden", height: 472 }}>
+          <video src={glowspaHeroVideo} poster={glowspaHeroImg} autoPlay muted loop playsInline
+            aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+          <div className="absolute inset-0" aria-hidden="true"
+            style={{ background: "linear-gradient(180deg, rgba(28,23,19,0.34) 0%, rgba(28,23,19,0.05) 34%, rgba(28,23,19,0.82) 100%)" }} />
+          <div className="absolute" style={{ left: 24, right: 24, top: 26 }}>
+            <span style={{ ...kicker, color: "rgba(255,255,255,0.9)" }}>Салон красоты · SPA</span>
+          </div>
+          <div className="absolute" style={{ left: 24, right: 24, bottom: 26 }}>
+            <h2 style={{ fontFamily: SERIF, fontSize: S.s4, fontWeight: 600, color: "#FFFFFF", lineHeight: 1.0, letterSpacing: "0.005em" }}>
+              Сияйте<br />каждый день
+            </h2>
+            <p style={{ fontFamily: SANS, fontSize: T.sm, color: "rgba(255,255,255,0.86)", fontWeight: 400, lineHeight: 1.5, marginTop: 12, maxWidth: 280 }}>
+              Авторские процедуры, мастера с многолетним опытом и атмосфера, в которой о вас по-настоящему заботятся.
+            </p>
+            <button type="button" onClick={() => onTabChange("catalog")}
+              className="flex items-center justify-center gs-press"
+              style={{ marginTop: 18, height: 50, padding: "0 26px", borderRadius: 999, background: PAPER, gap: 8 }}>
+              <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: INK }}>Записаться онлайн</span>
+              <ChevronRight size={16} color={INK} strokeWidth={2.4} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* статистика */}
+      <div className="flex items-center justify-center" style={{ gap: 0, padding: "22px 20px 6px" }}>
+        {[["4.9", "рейтинг"], ["12", "лет в деле"], ["60K", "гостей"]].map(([v, l], i) => (
+          <div key={l} className="flex items-center" style={{ gap: 0 }}>
+            {i > 0 && <span style={{ width: 1, height: 30, background: LINE, margin: "0 18px" }} aria-hidden="true" />}
+            <div className="text-center">
+              <div style={{ ...serif("1.7rem", 600), color: INK }}>{v}</div>
+              <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, fontWeight: 500, letterSpacing: "0.04em", marginTop: 1 }}>{l}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* категории */}
+      <div style={{ marginTop: 26 }}>
+        <SectionHead kick="Направления" title="Категории услуг" onAll={() => onTabChange("catalog")} />
+        <div className="overflow-x-auto scrollbar-hide gs-strip">
+          <div className="flex" style={{ gap: 12, padding: "0 20px 4px", width: "max-content" }}>
+            {CATEGORIES.map((c, i) => {
+              const n = SERVICES.filter((s) => s.cat === c).length;
+              return (
+                <button type="button" key={c} onClick={() => goCat(c)}
+                  className="flex-shrink-0 text-left gs-press"
+                  style={{ width: 124, animation: "gsUp .5s cubic-bezier(.22,1,.36,1) both", animationDelay: `${i * 0.05}s` }}>
+                  <div className="relative" style={{ width: 124, height: 150, borderRadius: 20, overflow: "hidden" }}>
+                    <Img src={catImage(c)} alt={c} />
+                    <div className="absolute inset-0" aria-hidden="true" style={{ background: "linear-gradient(180deg, rgba(28,23,19,0) 50%, rgba(28,23,19,0.42) 100%)" }} />
+                  </div>
+                  <div style={{ fontFamily: SERIF, fontSize: "1.25rem", fontWeight: 600, color: INK, marginTop: 9 }}>{c}</div>
+                  <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, marginTop: 1 }}>{n} {plural(n, ["услуга", "услуги", "услуг"])}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* выбор GLOW */}
+      <div style={{ marginTop: 30 }}>
+        <SectionHead kick="Выбор гостей" title="Хиты салона" onAll={() => onTabChange("catalog")} />
+        <div className="overflow-x-auto scrollbar-hide gs-strip">
+          <div className="flex" style={{ gap: 14, padding: "0 20px 4px", width: "max-content" }}>
+            {featured.map((s, i) => (
+              <ServiceCard key={s.id} s={s} idx={i} fav={favs.has(s.id)} onFav={() => toggleFav(s.id)} onOpen={() => setSelected(s)} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ритуал недели */}
+      <div style={{ marginTop: 34, padding: "0 20px" }}>
+        <div style={kicker}>Особенное предложение</div>
+        <h2 style={{ ...serif(S.s2, 600), marginTop: 6, marginBottom: 14 }}>Ритуал недели</h2>
+        <ServiceTile s={serviceById("s11")} tall fav={favs.has("s11")}
+          onFav={() => toggleFav("s11")} onOpen={() => setSelected(serviceById("s11"))} />
+      </div>
+
+      {/* редакционный блок — интерьер */}
+      <button type="button" onClick={() => onTabChange("catalog")}
+        className="relative block w-full text-left gs-press"
+        style={{ margin: "32px 16px 0", width: "calc(100% - 32px)", height: 300, borderRadius: 26, overflow: "hidden" }}>
+        <Img src={ED.interior} alt="Интерьер салона GLOW" />
+        <div className="absolute inset-0" aria-hidden="true"
+          style={{ background: "linear-gradient(180deg, rgba(28,23,19,0.1) 30%, rgba(28,23,19,0.78) 100%)" }} />
+        <div className="absolute" style={{ left: 24, right: 24, bottom: 24 }}>
+          <span style={{ ...kicker, color: "rgba(255,255,255,0.9)" }}>О пространстве</span>
+          <div style={{ fontFamily: SERIF, fontSize: S.s2, fontWeight: 600, color: "#FFFFFF", lineHeight: 1.06, marginTop: 8 }}>
+            Место, где о вас<br />заботятся
+          </div>
+          <p style={{ fontFamily: SANS, fontSize: T.sm, color: "rgba(255,255,255,0.84)", lineHeight: 1.5, marginTop: 8, maxWidth: 290 }}>
+            Тёплый свет, натуральные материалы и тишина — салон создан, чтобы каждый визит был маленьким ретритом.
+          </p>
+        </div>
+      </button>
+
+      {/* мастера */}
+      <div style={{ marginTop: 32 }}>
+        <SectionHead kick="Команда GLOW" title="Наши мастера" />
+        <div className="overflow-x-auto scrollbar-hide gs-strip">
+          <div className="flex" style={{ gap: 14, padding: "0 20px 4px", width: "max-content" }}>
+            {MASTERS.map((m, i) => <MasterCard key={m.id} m={m} idx={i} />)}
+          </div>
+        </div>
+      </div>
+
+      {/* отзывы */}
+      <div style={{ marginTop: 32 }}>
+        <SectionHead kick="Впечатления" title="Отзывы гостей" />
+        <div className="overflow-x-auto scrollbar-hide gs-strip">
+          <div className="flex" style={{ gap: 14, padding: "0 20px 4px", width: "max-content" }}>
+            {REVIEWS.map((r, i) => (
+              <div key={r.name} className="flex-shrink-0" style={{ width: 280, background: PAPER, borderRadius: 22, padding: "20px 20px 18px",
+                animation: "gsUp .5s cubic-bezier(.22,1,.36,1) both", animationDelay: `${i * 0.06}s` }}>
+                <div className="flex" style={{ gap: 2 }} aria-hidden="true">
+                  {[0, 1, 2, 3, 4].map((n) => <Star key={n} size={13} fill={ACCENT} color={ACCENT} strokeWidth={0} />)}
+                </div>
+                <p style={{ fontFamily: SERIF, fontSize: "1.2rem", fontWeight: 500, color: INK, lineHeight: 1.4, marginTop: 12, fontStyle: "italic" }}>«{r.text}»</p>
+                <div style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 600, color: INK, marginTop: 14 }}>{r.name}</div>
+                <div style={{ fontFamily: SANS, fontSize: T.cap, color: MUTED, marginTop: 1 }}>{r.service} · {r.date}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* GLOW Club */}
+      <div style={{ padding: "32px 20px 0" }}>
+        <div style={{ background: "linear-gradient(158deg, #F2E9DB 0%, #E6D8C3 100%)", borderRadius: 26, padding: "26px 22px", border: `1px solid ${LINE}` }}>
+          <span style={kicker}>GLOW Club</span>
+          <div style={{ fontFamily: SERIF, fontSize: S.s2, fontWeight: 600, color: INK, lineHeight: 1.08, marginTop: 8 }}>
+            Клуб привилегий<br />для постоянных гостей
+          </div>
+          <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 11 }}>
+            {["Кэшбэк до 15% бонусами на счёт", "Ранняя запись к топ-мастерам", "Подарок и уход в день рождения"].map((p) => (
+              <div key={p} className="flex items-center" style={{ gap: 11 }}>
+                <span className="flex items-center justify-center flex-shrink-0" style={{ width: 24, height: 24, borderRadius: 999, background: PAPER }}>
+                  <Check size={12} color={ACCENT_DEEP} strokeWidth={3} />
+                </span>
+                <span style={{ fontFamily: SANS, fontSize: T.sm, color: SUB, fontWeight: 400 }}>{p}</span>
+              </div>
+            ))}
+          </div>
+          <button type="button" onClick={() => onTabChange("profile")}
+            className="flex items-center justify-center gs-press"
+            style={{ marginTop: 20, height: 48, width: "100%", borderRadius: 999, background: ACCENT,
+              fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: "#FFFFFF" }}>
+            Вступить в клуб
+          </button>
+        </div>
+      </div>
+
+      {/* контакты */}
+      <div style={{ padding: "26px 20px 0" }}>
+        <div style={kicker}>GLOW · Москва</div>
+        <h2 style={{ ...serif(S.s2, 600), marginTop: 6 }}>Будем рады видеть вас</h2>
+        <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 12 }}>
+          {[
+            { ic: <MapPin size={IC.sm} color={ACCENT_DEEP} strokeWidth={SW} />, t: "ул. Малая Бронная, 24", s: "5 минут от м. Маяковская" },
+            { ic: <Clock size={IC.sm} color={ACCENT_DEEP} strokeWidth={SW} />, t: "Ежедневно 9:00 — 22:00", s: "Без выходных" },
+            { ic: <Phone size={IC.sm} color={ACCENT_DEEP} strokeWidth={SW} />, t: "+7 495 000-00-00", s: "Запись и консультации" },
+          ].map((r) => (
+            <div key={r.t} className="flex items-center" style={{ gap: 13 }}>
+              <span className="flex items-center justify-center flex-shrink-0" style={{ width: 42, height: 42, borderRadius: 999, background: TINT }}>{r.ic}</span>
+              <div>
+                <div style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: INK }}>{r.t}</div>
+                <div style={{ fontFamily: SANS, fontSize: T.cap, color: MUTED, marginTop: 1 }}>{r.s}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  /* --------------- КАТАЛОГ --------------- */
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
+  const catServices = SERVICES.filter(
+    (s) => (catFilter === "Все" || s.cat === catFilter) &&
+           (q === "" || (s.name + " " + s.cat + " " + s.tagline).toLowerCase().includes(q))
+  );
+  const Catalog = (
+    <div style={{ background: CANVAS, minHeight: "100%", paddingBottom: 36 }}>
+      <div style={{ padding: "calc(env(safe-area-inset-top, 0px) + 18px) 20px 2px" }}>
+        <div style={kicker}>Прайс-лист GLOW</div>
+        <h1 style={{ ...serif(S.s3, 600), marginTop: 6 }}>Каталог услуг</h1>
+        <p style={{ fontFamily: SANS, fontSize: T.sm, color: SUB, marginTop: 9, lineHeight: 1.5 }}>
+          {SERVICES.length} процедур и {MASTERS.length} мастеров — выберите свой ритуал красоты.
+        </p>
+      </div>
+      <div style={{ padding: "16px 20px 14px" }}>
+        <div className="flex items-center" style={{ gap: 10, background: PAPER, borderRadius: 16, padding: "0 15px", height: 50, border: `1px solid ${LINE}` }}>
+          <Search size={IC.sm} color={MUTED} strokeWidth={SW} aria-hidden="true" />
+          <input type="search" inputMode="search" value={query} onChange={(e) => setQuery(e.target.value)}
+            placeholder="Поиск услуги или ритуала" aria-label="Поиск по услугам"
+            style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontFamily: SANS, fontSize: "1rem", color: INK, minWidth: 0 }} />
+          {query && (
+            <button type="button" onClick={() => setQuery("")} aria-label="Очистить"
+              className="flex items-center justify-center gs-press" style={{ minWidth: 44, height: 44, marginRight: -9, fontFamily: SANS, fontSize: T.sm, color: MUTED, fontWeight: 500 }}>Сброс</button>
+          )}
+        </div>
+      </div>
+      <div className="overflow-x-auto scrollbar-hide" style={{ marginBottom: 4 }}>
+        <div className="flex" style={{ gap: 8, padding: "0 20px", width: "max-content" }} role="group" aria-label="Категории">
+          {["Все", ...CATEGORIES].map((c) => {
+            const on = catFilter === c;
+            return (
+              <button type="button" key={c} onClick={() => setCatFilter(c)} aria-pressed={on}
+                className="flex-shrink-0 gs-press"
+                style={{ height: 40, padding: "0 18px", borderRadius: 999, fontFamily: SANS, fontSize: T.sm, fontWeight: 500,
+                  background: on ? INK : PAPER, color: on ? CANVAS : INK, border: `1px solid ${on ? INK : LINE}`, transition: "background .2s, color .2s" }}>{c}</button>
+            );
+          })}
+        </div>
+      </div>
+      {catServices.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center" style={{ padding: "64px 32px", color: MUTED }}>
+          <Search size={IC.lg} strokeWidth={1.6} aria-hidden="true" />
+          <div style={{ ...serif(S.s1, 600), marginTop: 14 }}>Ничего не найдено</div>
+          <div style={{ fontFamily: SANS, fontSize: T.sm, marginTop: 4 }}>Измените запрос или категорию</div>
+        </div>
+      ) : q !== "" ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "14px 20px 0" }}>
+          {catServices.map((s, i) => (
+            <ServiceTile key={s.id} s={s} idx={i} fav={favs.has(s.id)} onFav={() => toggleFav(s.id)} onOpen={() => setSelected(s)} />
+          ))}
+        </div>
+      ) : catFilter !== "Все" ? (
+        <>
+          <div className="relative" style={{ margin: "12px 20px 0", height: 158, borderRadius: 24, overflow: "hidden" }}>
+            <Img src={catImage(catFilter)} alt={catFilter} />
+            <div className="absolute inset-0" aria-hidden="true" style={{ background: "linear-gradient(180deg, rgba(28,23,19,0.12) 30%, rgba(28,23,19,0.78) 100%)" }} />
+            <div className="absolute" style={{ left: 20, right: 20, bottom: 16 }}>
+              <div style={{ fontFamily: SANS, fontSize: T.micro, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)" }}>
+                {catServices.length} {plural(catServices.length, ["услуга", "услуги", "услуг"])}
+              </div>
+              <div style={{ fontFamily: SERIF, fontSize: S.s2, fontWeight: 600, color: "#FFFFFF", marginTop: 4 }}>{catFilter}</div>
+              <div style={{ fontFamily: SANS, fontSize: T.cap, color: "rgba(255,255,255,0.84)", marginTop: 3 }}>{CAT_DESC[catFilter]}</div>
+            </div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "16px 20px 0" }}>
+            {catServices.map((s, i) => (
+              <ServiceTile key={s.id} s={s} idx={i} fav={favs.has(s.id)} onFav={() => toggleFav(s.id)} onOpen={() => setSelected(s)} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{ padding: "14px 20px 0" }}>
+            <div style={{ ...kicker, marginBottom: 10 }}>Ритуал сезона</div>
+            <ServiceTile s={serviceById("s2")} tall fav={favs.has("s2")}
+              onFav={() => toggleFav("s2")} onOpen={() => setSelected(serviceById("s2"))} />
+          </div>
+          {CATEGORIES.map((c, ci) => {
+            const list = SERVICES.filter((sv) => sv.cat === c);
+            return (
+              <section key={c} style={{ marginTop: 32 }}>
+                <div style={{ padding: "0 20px", marginBottom: 14 }}>
+                  <div className="flex items-baseline" style={{ gap: 10 }}>
+                    <span style={{ fontFamily: SANS, fontSize: T.cap, fontWeight: 700, color: ACCENT_DEEP, ...NUM }}>{String(ci + 1).padStart(2, "0")}</span>
+                    <h2 style={serif(S.s2, 600)}>{c}</h2>
+                    <span style={{ fontFamily: SANS, fontSize: T.cap, color: MUTED, marginLeft: "auto" }}>
+                      {list.length} {plural(list.length, ["услуга", "услуги", "услуг"])}
+                    </span>
+                  </div>
+                  <p style={{ fontFamily: SANS, fontSize: T.cap, color: SUB, marginTop: 5, lineHeight: 1.45 }}>{CAT_DESC[c]}</p>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "0 20px" }}>
+                  {list.map((sv, i) => (
+                    <ServiceTile key={sv.id} s={sv} idx={i} fav={favs.has(sv.id)} onFav={() => toggleFav(sv.id)} onOpen={() => setSelected(sv)} />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </>
+      )}
+    </div>
+  );
+
+  /* --------------- ЗАПИСЬ (booking) --------------- */
+  const [stage, setStage] = useState<"cart" | "time" | "done">("cart");
+  const [dateIdx, setDateIdx] = useState(1);
+  const [slot, setSlot] = useState("");
+  const [processing, setProcessing] = useState(false);
+
+  const bookServices = cart.map(serviceById);
+  const bookTotal = bookServices.reduce((s, x) => s + x.price, 0);
+  const bookMin = bookServices.reduce((s, x) => s + x.min, 0);
+
+  const WD = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
+  const MO = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+  const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d; });
+  const fmtDate = (d: Date) => `${d.getDate()} ${MO[d.getMonth()]}`;
+
+  const Booking = (
+    <div style={{ background: CANVAS, minHeight: "100%", paddingBottom: 130 }}>
+      {stage === "cart" && (
+        <>
+          <div style={{ padding: "calc(env(safe-area-inset-top, 0px) + 18px) 20px 4px" }}>
+            <div style={kicker}>Ваша запись</div>
+            <h1 style={{ ...serif(S.s3, 600), marginTop: 6 }}>Корзина услуг</h1>
+          </div>
+          {cart.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center" style={{ padding: "70px 32px", color: MUTED }}>
+              <Calendar size={IC.lg} strokeWidth={1.6} aria-hidden="true" />
+              <div style={{ ...serif(S.s1, 600), marginTop: 14 }}>Здесь пока пусто</div>
+              <div style={{ fontFamily: SANS, fontSize: T.sm, marginTop: 4 }}>Выберите процедуры из каталога</div>
+              <button type="button" onClick={() => onTabChange("catalog")} className="gs-press"
+                style={{ marginTop: 22, height: 50, padding: "0 28px", borderRadius: 999, background: INK, color: CANVAS, fontFamily: SANS, fontSize: T.sm, fontWeight: 600 }}>
+                Открыть каталог
+              </button>
+            </div>
+          ) : (
+            <div style={{ padding: "18px 20px 0" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {bookServices.map((s) => {
+                  const m = masterById(s.master);
+                  return (
+                    <div key={s.id} className="flex" style={{ gap: 13, background: PAPER, borderRadius: 20, padding: 12 }}>
+                      <button type="button" onClick={() => setSelected(s)} aria-label={`Открыть ${s.name}`}
+                        className="flex-shrink-0 gs-press" style={{ width: 84, height: 84, borderRadius: 14, overflow: "hidden" }}>
+                        <Img src={s.img} alt={s.name} />
+                      </button>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: SANS, fontSize: T.micro, color: ACCENT_DEEP, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>{s.cat}</div>
+                        <div style={{ ...serif("1.3rem", 600), marginTop: 2 }}>{s.name}</div>
+                        <div style={{ fontFamily: SANS, fontSize: T.cap, color: SUB, marginTop: 3 }}>{m.name.split(" ")[0]} · {durStr(s.min)}</div>
+                        <div style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 700, color: INK, marginTop: 6, ...NUM }}>{rub(s.price)}</div>
+                      </div>
+                      <button type="button" onClick={() => removeBooking(s.id)} aria-label={`Убрать ${s.name}`}
+                        className="flex items-center justify-center gs-press flex-shrink-0" style={{ width: 40, height: 40, margin: "-4px -4px 0 0" }}>
+                        <X size={IC.sm} color={MUTED} strokeWidth={SW} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: 20, paddingTop: 18, borderTop: `1px solid ${LINE}` }}>
+                <div className="flex items-center justify-between">
+                  <span style={{ fontFamily: SANS, fontSize: T.sm, color: SUB }}>Длительность визита</span>
+                  <span style={{ fontFamily: SANS, fontSize: T.sm, color: INK, fontWeight: 600 }}>≈ {durStr(bookMin)}</span>
+                </div>
+                <div className="flex items-center justify-between" style={{ marginTop: 12 }}>
+                  <span style={{ ...serif(S.s1, 600) }}>Итого</span>
+                  <span style={{ ...serif(S.s1, 600), ...NUM }}>{rub(bookTotal)}</span>
+                </div>
+              </div>
+              <button type="button" onClick={() => setStage("time")} className="gs-press"
+                style={{ width: "100%", marginTop: 18, height: 56, borderRadius: 999, background: INK, color: CANVAS, fontFamily: SANS, fontSize: T.body, fontWeight: 600 }}>
+                Выбрать дату и время
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      {stage === "time" && (
+        <>
+          <div className="flex items-center" style={{ gap: 8, padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 4px" }}>
+            <button type="button" onClick={() => setStage("cart")} aria-label="Назад"
+              className="flex items-center justify-center gs-press" style={{ width: 40, height: 40, marginLeft: -8 }}>
+              <ArrowLeft size={IC.md} color={INK} strokeWidth={SW} />
+            </button>
+            <div>
+              <div style={kicker}>Шаг 2 из 3</div>
+              <h1 style={{ ...serif(S.s2, 600), marginTop: 4 }}>Дата и время</h1>
+            </div>
+          </div>
+          <div style={{ padding: "16px 20px 0" }}>
+            <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>Выберите день</div>
+          </div>
+          <div className="overflow-x-auto scrollbar-hide" style={{ marginBottom: 4 }}>
+            <div className="flex" style={{ gap: 9, padding: "0 20px", width: "max-content" }}>
+              {days.map((d, i) => {
+                const on = dateIdx === i;
+                return (
+                  <button type="button" key={i} onClick={() => setDateIdx(i)} aria-pressed={on}
+                    className="flex flex-col items-center justify-center flex-shrink-0 gs-press"
+                    style={{ width: 60, height: 76, borderRadius: 18, background: on ? INK : PAPER, border: `1px solid ${on ? INK : LINE}` }}>
+                    <span style={{ fontFamily: SANS, fontSize: T.micro, fontWeight: 600, color: on ? "rgba(244,239,231,0.7)" : MUTED, textTransform: "uppercase" }}>{i === 0 ? "Сегодня" : WD[d.getDay()]}</span>
+                    <span style={{ ...serif("1.5rem", 600), color: on ? CANVAS : INK, marginTop: 3 }}>{d.getDate()}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div style={{ padding: "20px 20px 0" }}>
+            <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 11 }}>Свободное время</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 9 }}>
+              {SLOTS.map((t) => {
+                const on = slot === t;
+                return (
+                  <button type="button" key={t} onClick={() => setSlot(t)} aria-pressed={on}
+                    className="flex items-center justify-center gs-press"
+                    style={{ height: 46, borderRadius: 14, background: on ? INK : PAPER, border: `1px solid ${on ? INK : LINE}`,
+                      fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: on ? CANVAS : INK, ...NUM }}>{t}</button>
+                );
+              })}
+            </div>
+            <div style={{ marginTop: 22, background: PAPER, borderRadius: 20, padding: "16px 18px" }}>
+              <div className="flex items-center justify-between">
+                <span style={{ fontFamily: SANS, fontSize: T.sm, color: SUB }}>{bookServices.length} {plural(bookServices.length, ["услуга", "услуги", "услуг"])} · {durStr(bookMin)}</span>
+                <span style={{ ...serif(S.s1, 600), ...NUM }}>{rub(bookTotal)}</span>
+              </div>
+            </div>
+            <button type="button" disabled={!slot || processing}
+              onClick={() => { setProcessing(true); setTimeout(() => { setProcessing(false); setStage("done"); }, 950); }}
+              className="flex items-center justify-center gs-press"
+              style={{ width: "100%", marginTop: 16, height: 56, borderRadius: 999, background: INK, color: CANVAS,
+                fontFamily: SANS, fontSize: T.body, fontWeight: 600, gap: 9, opacity: !slot || processing ? 0.45 : 1 }}>
+              {processing
+                ? <><Loader2 size={IC.sm} color={CANVAS} strokeWidth={2.4} style={{ animation: "gsSpin .8s linear infinite" }} aria-hidden="true" /> Подтверждаем…</>
+                : <>Подтвердить запись</>}
+            </button>
+            {!slot && <div style={{ fontFamily: SANS, fontSize: T.cap, color: MUTED, textAlign: "center", marginTop: 9 }}>Выберите удобное время</div>}
+          </div>
+        </>
+      )}
+
+      {stage === "done" && (
+        <div className="flex flex-col items-center justify-center text-center" style={{ minHeight: "78vh", padding: "0 32px" }}>
+          <div className="flex items-center justify-center" style={{ width: 80, height: 80, borderRadius: 999, background: INK, animation: "gsPop .5s ease-out" }}>
+            <Check size={36} color={ACCENT} strokeWidth={2.6} aria-hidden="true" />
+          </div>
+          <h1 style={{ ...serif(S.s3, 600), marginTop: 22 }}>Вы записаны</h1>
+          <p style={{ fontFamily: SANS, fontSize: T.sm, color: SUB, marginTop: 10, lineHeight: 1.55 }}>
+            Ждём вас {fmtDate(days[dateIdx])} в {slot}. Напомним о визите за день и пришлём детали в чат.
+          </p>
+          <div style={{ marginTop: 18, background: PAPER, borderRadius: 18, padding: "14px 20px" }}>
+            <span style={{ fontFamily: SERIF, fontSize: "1.3rem", fontWeight: 600, color: INK }}>{fmtDate(days[dateIdx])} · {slot}</span>
+          </div>
+          <button type="button" onClick={() => { setCart([]); setStage("cart"); setSlot(""); onTabChange("home"); }}
+            className="gs-press"
+            style={{ marginTop: 24, height: 52, padding: "0 42px", borderRadius: 999, background: INK, color: CANVAS, fontFamily: SANS, fontSize: T.sm, fontWeight: 600 }}>
+            Готово
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  /* --------------- ПРОФИЛЬ --------------- */
+  const Profile = (
+    <div style={{ background: CANVAS, minHeight: "100%", paddingBottom: 32 }}>
+      <div style={{ padding: "calc(env(safe-area-inset-top, 0px) + 18px) 20px 4px" }}>
+        <div style={kicker}>Личный кабинет</div>
+        <h1 style={{ ...serif(S.s3, 600), marginTop: 6 }}>Профиль</h1>
+      </div>
+      <div className="flex items-center" style={{ gap: 15, padding: "18px 20px 18px" }}>
+        <div className="flex items-center justify-center flex-shrink-0" aria-hidden="true"
+          style={{ width: 66, height: 66, borderRadius: 999, background: INK }}>
+          <span style={{ fontFamily: SERIF, fontSize: "1.7rem", fontWeight: 600, color: CANVAS }}>{userName.charAt(0).toUpperCase()}</span>
+        </div>
+        <div>
+          <div style={{ ...serif(S.s1, 600) }}>{userName}</div>
+          <div className="flex items-center" style={{ gap: 5, marginTop: 3 }}>
+            <Award size={13} color={ACCENT_DEEP} strokeWidth={2.2} />
+            <span style={{ fontFamily: SANS, fontSize: T.cap, color: ACCENT_DEEP, fontWeight: 600 }}>GLOW Club · Gold</span>
+          </div>
+        </div>
+      </div>
+
+      {/* клубная карта */}
+      <div style={{ padding: "0 20px" }}>
+        <div style={{ background: "linear-gradient(158deg, #F2E9DB 0%, #E6D8C3 100%)", borderRadius: 24, padding: "22px 22px 20px", border: `1px solid ${LINE}` }}>
+          <div className="flex items-center justify-between">
+            <span style={kicker}>Баланс бонусов</span>
+            <Sparkles size={IC.sm} color={ACCENT_DEEP} strokeWidth={2} aria-hidden="true" />
+          </div>
+          <div style={{ fontFamily: SERIF, fontSize: S.s3, fontWeight: 600, color: INK, marginTop: 10, ...NUM }}>4 850</div>
+          <div style={{ fontFamily: SANS, fontSize: T.cap, color: SUB }}>бонусов · 1 бонус = 1 ₽</div>
+          <div style={{ height: 6, borderRadius: 999, background: "rgba(38,33,28,0.1)", marginTop: 16, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: "68%", borderRadius: 999, background: ACCENT }} />
+          </div>
+          <div style={{ fontFamily: SANS, fontSize: T.cap, color: SUB, marginTop: 8 }}>До уровня Platinum — ещё 2 визита</div>
+        </div>
+      </div>
+
+      {/* ближайшая запись */}
+      <div style={{ padding: "20px 20px 0" }}>
+        <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>Ближайшая запись</div>
+        <div className="flex items-center" style={{ gap: 14, background: PAPER, borderRadius: 20, padding: 14 }}>
+          <div className="flex flex-col items-center justify-center flex-shrink-0" style={{ width: 60, height: 60, borderRadius: 16, background: TINT }}>
+            <span style={{ ...serif("1.5rem", 600), color: ACCENT_DEEP }}>27</span>
+            <span style={{ fontFamily: SANS, fontSize: T.micro, color: ACCENT_DEEP, fontWeight: 600 }}>мая</span>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ ...serif("1.25rem", 600) }}>Окрашивание Airtouch</div>
+            <div style={{ fontFamily: SANS, fontSize: T.cap, color: SUB, marginTop: 2 }}>16:00 · Алиса Верещагина</div>
+          </div>
+          <ChevronRight size={IC.md} color={MUTED} strokeWidth={SW} aria-hidden="true" />
+        </div>
+      </div>
+
+      <nav aria-label="Меню профиля" style={{ marginTop: 20 }}>
+        {[
+          { r: "История визитов", n: "home" },
+          { r: "Избранные услуги", n: "catalog" },
+          { r: "Любимые мастера", n: "home" },
+          { r: "Подарочные сертификаты", n: "catalog" },
+          { r: "Поддержка и помощь", n: "catalog" },
+        ].map((row) => (
+          <button type="button" key={row.r} onClick={() => onTabChange(row.n)}
+            className="flex items-center justify-between w-full gs-press"
+            style={{ padding: "0 20px", minHeight: 56, borderBottom: `1px solid ${HAIR}` }}>
+            <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 500, color: INK }}>{row.r}</span>
+            <ChevronRight size={IC.md} color={MUTED} strokeWidth={SW} aria-hidden="true" />
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+
+  /* --------------- ДЕТАЛЬ УСЛУГИ --------------- */
+  const detailClose = useRef<HTMLButtonElement>(null);
+  const detailDialog = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (selected) { const t = setTimeout(() => detailClose.current?.focus(), 70); return () => clearTimeout(t); }
+  }, [selected]);
+
+  const Detail = selected && (() => {
+    const m = masterById(selected.master);
+    const similar = SERVICES.filter((x) => x.id !== selected.id && x.cat === selected.cat).slice(0, 4);
+    return (
+      <div ref={detailDialog} className="fixed inset-0 z-[10000] flex justify-center" style={{ background: CANVAS, fontFamily: SANS }}
+        role="dialog" aria-modal="true" aria-label={selected.name}
+        onKeyDown={(e) => { if (e.key === "Escape") setSelected(null); trapTab(e, detailDialog.current); }}>
+        <div className="w-full flex flex-col" style={{ maxWidth: 448, animation: "gsSheet .4s cubic-bezier(.22,1,.36,1) both" }}>
+          <div key={selected.id} className="flex-1 overflow-y-auto scrollbar-hide" style={{ minHeight: 0, paddingBottom: 104 }}>
+            {/* фото-герой */}
+            <div className="relative" style={{ height: 392, overflow: "hidden" }}>
+              <Img src={selected.img} alt={selected.name} priority />
+              <div className="absolute inset-0" aria-hidden="true"
+                style={{ background: "linear-gradient(180deg, rgba(28,23,19,0.34) 0%, rgba(28,23,19,0) 30%, rgba(28,23,19,0) 70%, rgba(244,239,231,1) 100%)" }} />
+              <div className="absolute flex items-center justify-between" style={{ left: 16, right: 16, top: "calc(env(safe-area-inset-top, 0px) + 14px)" }}>
+                <button type="button" ref={detailClose} onClick={() => setSelected(null)} aria-label="Назад"
+                  className="flex items-center justify-center gs-press"
+                  style={{ width: 46, height: 46, borderRadius: 999, background: "rgba(255,255,255,0.92)" }}>
+                  <ArrowLeft size={IC.md} color={INK} strokeWidth={SW} />
+                </button>
+                <button type="button" onClick={() => toggleFav(selected.id)} aria-pressed={favs.has(selected.id)}
+                  aria-label={favs.has(selected.id) ? "Убрать из избранного" : "В избранное"}
+                  className="flex items-center justify-center gs-press"
+                  style={{ width: 46, height: 46, borderRadius: 999, background: "rgba(255,255,255,0.92)" }}>
+                  <Heart key={favs.has(selected.id) ? "1" : "0"} size={IC.sm} strokeWidth={2.2}
+                    fill={favs.has(selected.id) ? ACCENT : "none"} color={favs.has(selected.id) ? ACCENT_DEEP : INK}
+                    style={favs.has(selected.id) ? { animation: "gsPop .36s ease-out" } : undefined} />
+                </button>
+              </div>
+            </div>
+
+            <div style={{ padding: "4px 20px 0", marginTop: -8 }}>
+              <div style={kicker}>{selected.cat}</div>
+              <h1 style={{ ...serif(S.s3, 600), marginTop: 8 }}>{selected.name}</h1>
+              <p style={{ fontFamily: SERIF, fontSize: "1.35rem", fontWeight: 500, fontStyle: "italic", color: ACCENT_DEEP, marginTop: 6, lineHeight: 1.3 }}>{selected.tagline}</p>
+
+              <div className="flex items-center" style={{ gap: 14, marginTop: 16 }}>
+                <span className="flex items-baseline" style={{ gap: 4 }}>
+                  <span style={{ ...serif(S.s2, 600), ...NUM }}>{rub(selected.price)}</span>
+                </span>
+                <span style={{ width: 1, height: 26, background: LINE }} aria-hidden="true" />
+                <span className="flex items-center" style={{ gap: 5, fontFamily: SANS, fontSize: T.sm, color: SUB }}>
+                  <Clock size={14} color={MUTED} strokeWidth={2} /> {durStr(selected.min)}
+                </span>
+                <span className="flex items-center" style={{ gap: 4, fontFamily: SANS, fontSize: T.sm, color: SUB }}>
+                  <Stars value={selected.rating} size={13} />
+                  <span style={{ fontWeight: 600, color: INK, ...NUM }}>{selected.rating.toFixed(1)}</span>
+                  <span style={{ color: MUTED }}>({selected.reviews})</span>
+                </span>
+              </div>
+
+              <p style={{ fontFamily: SANS, fontSize: T.body, color: SUB, lineHeight: 1.62, marginTop: 18 }}>{selected.desc}</p>
+
+              <div style={{ ...kicker, marginTop: 26 }}>Что входит</div>
+              <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 0 }}>
+                {selected.includes.map((step, i) => (
+                  <div key={step} className="flex items-center" style={{ gap: 13, padding: "12px 0", borderBottom: i < selected.includes.length - 1 ? `1px solid ${HAIR}` : "none" }}>
+                    <span className="flex items-center justify-center flex-shrink-0" style={{ width: 28, height: 28, borderRadius: 999, background: TINT,
+                      fontFamily: SERIF, fontSize: "0.95rem", fontWeight: 600, color: ACCENT_DEEP }}>{i + 1}</span>
+                    <span style={{ fontFamily: SANS, fontSize: T.sm, color: INK, fontWeight: 400 }}>{step}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ ...kicker, marginTop: 26 }}>Ваш мастер</div>
+              <div className="flex items-center" style={{ gap: 14, marginTop: 12, background: PAPER, borderRadius: 20, padding: 14 }}>
+                <div className="flex-shrink-0" style={{ width: 64, height: 64, borderRadius: 999, overflow: "hidden" }}>
+                  <Img src={m.img} alt={m.name} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ ...serif("1.3rem", 600) }}>{m.name}</div>
+                  <div style={{ fontFamily: SANS, fontSize: T.cap, color: SUB, marginTop: 1 }}>{m.role} · {m.exp} {plural(m.exp, ["год", "года", "лет"])} опыта</div>
+                  <div className="flex items-center" style={{ gap: 4, marginTop: 5 }}>
+                    <Stars value={m.rating} /><span style={{ fontFamily: SANS, fontSize: T.cap, color: INK, fontWeight: 600, ...NUM }}>{m.rating.toFixed(1)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center" style={{ gap: 16, marginTop: 18, background: TINT, borderRadius: 18, padding: "15px 17px" }}>
+                <div className="flex items-center" style={{ gap: 9 }}>
+                  <ShieldCheck size={IC.sm} color={ACCENT_DEEP} strokeWidth={SW} aria-hidden="true" />
+                  <span style={{ fontFamily: SANS, fontSize: T.cap, color: INK, fontWeight: 500 }}>Сертифицированные мастера</span>
+                </div>
+                <div style={{ width: 1, height: 18, background: LINE }} aria-hidden="true" />
+                <div className="flex items-center" style={{ gap: 9 }}>
+                  <Sparkles size={IC.sm} color={ACCENT_DEEP} strokeWidth={SW} aria-hidden="true" />
+                  <span style={{ fontFamily: SANS, fontSize: T.cap, color: INK, fontWeight: 500 }}>Премиум-косметика</span>
+                </div>
+              </div>
+
+              {similar.length > 0 && (
+                <>
+                  <div style={{ ...kicker, marginTop: 28 }}>Похожие услуги</div>
+                  <div className="overflow-x-auto scrollbar-hide gs-strip" style={{ marginTop: 12, marginLeft: -20, marginRight: -20 }}>
+                    <div className="flex" style={{ gap: 12, padding: "0 20px 4px", width: "max-content" }}>
+                      {similar.map((x, i) => (
+                        <ServiceCard key={x.id} s={x} idx={i} w={186} fav={favs.has(x.id)} onFav={() => toggleFav(x.id)} onOpen={() => setSelected(x)} />
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+            <div style={{ height: 16 }} />
+          </div>
+
+          {/* нижняя панель */}
+          <div style={{ flexShrink: 0, background: CANVAS, borderTop: `1px solid ${LINE}`, padding: "12px 20px max(16px, env(safe-area-inset-bottom))" }}>
+            <button type="button" onClick={() => { addBooking(selected.id); setSelected(null); onTabChange("cart"); }}
+              className="flex items-center justify-between gs-press"
+              style={{ width: "100%", height: 56, borderRadius: 999, background: INK, padding: "0 14px 0 24px" }}>
+              <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: CANVAS }}>Записаться</span>
+              <span className="flex items-center" style={{ gap: 12 }}>
+                <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 700, color: CANVAS, ...NUM }}>{rub(selected.price)}</span>
+                <span className="flex items-center justify-center" style={{ width: 38, height: 38, borderRadius: 999, background: ACCENT }}>
+                  <Calendar size={15} color="#FFFFFF" strokeWidth={2.4} />
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  })();
+
+  return (
+    <div className="gs relative" style={{ minHeight: "100%", background: CANVAS, fontFamily: SANS }}>
+      <style>{`
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap');
+.gs,.gs *{font-family:${SANS}}
+.gs *:focus-visible{outline:2px solid ${ACCENT_DEEP};outline-offset:2px;border-radius:8px}
+.gs button,.gs [role=button],.gs input{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.gs-press{transition:transform .15s ease,opacity .15s ease}
+.gs-press:active{transform:scale(.95);opacity:.9}
+.gs-card{transition:transform .17s cubic-bezier(.22,1,.36,1);box-shadow:0 1px 2px rgba(38,33,28,0.04),0 20px 38px -24px rgba(38,33,28,0.30)}
+.gs-card:active{transform:scale(.978)}
+.gs-tile{transition:transform .2s cubic-bezier(.22,1,.36,1);box-shadow:0 2px 8px rgba(38,33,28,0.10),0 24px 46px -26px rgba(38,33,28,0.46)}
+.gs-tile:active{transform:scale(.985)}
+.gs-strip{scroll-snap-type:x proximity}
+.gs-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.gs-shim{background:linear-gradient(100deg,#e7ddcf 30%,#f1ebe0 50%,#e7ddcf 70%);background-size:220% 100%;animation:gsShim 1.3s linear infinite}
+@keyframes gsShim{from{background-position:220% 0}to{background-position:-220% 0}}
+@keyframes gsUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes gsSheet{from{opacity:0;transform:translateY(42px)}to{opacity:1;transform:none}}
+@keyframes gsFade{from{opacity:0}to{opacity:1}}
+@keyframes gsPop{0%{transform:scale(1)}40%{transform:scale(1.32)}100%{transform:scale(1)}}
+@keyframes gsSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.gs *,.gs *::before,.gs *::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+`}</style>
+      {activeTab === "home" && Home}
+      {activeTab === "catalog" && Catalog}
+      {activeTab === "cart" && Booking}
+      {activeTab === "profile" && Profile}
+      {toast && (
+        <div className="fixed left-1/2 flex items-center" role="status" aria-live="polite" style={{
+          bottom: 128, transform: "translateX(-50%)", gap: 9, zIndex: 10001,
+          background: INK, color: CANVAS, padding: "13px 18px", borderRadius: 999, fontFamily: SANS, fontSize: T.sm, fontWeight: 500,
+          boxShadow: "0 14px 34px rgba(38,33,28,0.34)", maxWidth: "90vw",
+        }}>
+          <Check size={IC.sm} color={ACCENT} strokeWidth={2.6} aria-hidden="true" /> {toast}
+        </div>
+      )}
+      {Detail && createPortal(<div className="gs">{Detail}</div>, document.body)}
+    </div>
+  );
+}
+
+export default memo(Beauty);
