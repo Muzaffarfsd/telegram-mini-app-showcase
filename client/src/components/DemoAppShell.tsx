@@ -24,7 +24,7 @@ interface DemoTheme {
 }
 
 const darkTheme: DemoTheme = {
-  background: '#0A0A0A',
+  background: '#101114',
   isDark: true,
   activeIconColor: '#fff',
   inactiveIconColor: 'rgba(255,255,255,0.45)',
@@ -55,12 +55,24 @@ const demoThemes: Record<string, Partial<DemoTheme>> = {
   'futuristic-fashion-3': { background: '#0A0A0A', isDark: true },
   'futuristic-fashion-4': { background: '#0A0A0A', isDark: true },
   'skincare-aura': { background: '#FFFFFF', isDark: false },
+  'streetwear-vanta': { background: '#FFFFFF', isDark: false },
 };
 
 const getTheme = (demoId: string): DemoTheme => {
   const custom = demoThemes[demoId] || {};
   const base = custom.isDark === false ? lightTheme : darkTheme;
   return { ...base, ...custom };
+};
+
+// Theme-aware demos (skincare-aura) follow the system colour scheme.
+// Pre-match it so the shell never flashes a mismatched colour on entry.
+const initialDemoDark = (id: string): boolean => {
+  if (!id.startsWith('skincare-aura')) return false;
+  try {
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg && tg.colorScheme) return tg.colorScheme === 'dark';
+    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  } catch { return false; }
 };
 
 const DemoLiquidGlassFilter = () => (
@@ -136,7 +148,7 @@ const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, 
 const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShellProps) {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [cartCount, setCartCount] = useState(0);
-  const [demoDark, setDemoDark] = useState(false);
+  const [demoDark, setDemoDark] = useState(() => initialDemoDark(demoId));
   const { hapticFeedback } = useTelegram();
   const { t } = useLanguage();
   
@@ -144,7 +156,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   useEffect(() => {
     scrollToTop();
     setCartCount(0);
-    setDemoDark(false);
+    setDemoDark(initialDemoDark(demoId));
   }, [demoId]);
   
   const getBaseAppType = useCallback((id: string): string => {
@@ -276,12 +288,6 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
         <>
           <DemoLiquidGlassFilter />
 
-          {/* Bottom scrim — app colour behind the floating nav */}
-          <div
-            className="fixed left-0 right-0 z-[9990] pointer-events-none"
-            style={{ bottom: 0, height: '170px', background: `linear-gradient(to top, ${theme.background} 60%, ${theme.background}00 100%)` }}
-          />
-
           {/* Fixed Home Button */}
           <div 
             className="fixed z-[9999] pointer-events-none flex justify-end"
@@ -314,7 +320,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               style={{
                 padding: '5px 6px',
                 gap: '2px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25), 0 0 1px rgba(0,0,0,0.1)',
+                boxShadow: '0 6px 18px rgba(0, 0, 0, 0.16)',
                 background: theme.navOverlay,
               }}
               role="navigation" 
@@ -331,10 +337,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               <div 
                 className="absolute inset-0 z-10 rounded-[22px] pointer-events-none"
                 style={{
-                  boxShadow: theme.isDark
-                    ? 'inset 0 0.5px 0 rgba(255,255,255,0.10), inset 0 -0.5px 0 rgba(255,255,255,0.04)'
-                    : 'inset 0 0.5px 0 rgba(255,255,255,0.40), inset 0 -0.5px 0 rgba(0,0,0,0.04)',
-                  border: theme.isDark ? '0.5px solid rgba(255,255,255,0.08)' : '0.5px solid rgba(0,0,0,0.06)',
+                  border: theme.isDark ? '0.5px solid rgba(255,255,255,0.10)' : '0.5px solid rgba(0,0,0,0.07)',
                 }}
               />
 

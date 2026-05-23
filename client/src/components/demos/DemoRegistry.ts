@@ -122,6 +122,10 @@ export const demoRegistry: Record<string, DemoComponent> = {
   'emily-carter-ai': {
     component: lazy(() => import('./EmilyCarterAI')),
     preload: () => import('./EmilyCarterAI')
+  },
+  'streetwear-vanta': {
+    component: lazy(() => import('./StreetwearStore')),
+    preload: () => import('./StreetwearStore')
   }
 };
 

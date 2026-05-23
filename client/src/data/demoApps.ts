@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'streetwear-vanta',
+    title: 'VANTA',
+    description: 'Премиальный стритвир-бутик: кроссовки, куртки, худи',
+    category: 'Электронная коммерция',
+    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_154829_2fbfd789-76fb-419f-9591-cb69d3d85f4f_min.webp',
+    creator: 'WEB4TG',
+    likes: '11.4k',
+    badge: 'Новинка',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'skincare-aura',
     title: 'Aura',
     description: 'Премиальный магазин косметики и ухода за кожей',

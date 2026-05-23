@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef, memo } from "react";
 import { createPortal } from "react-dom";
 import {
   Search, Heart, Plus, Minus, ChevronRight, Star, ArrowLeft, Check,
-  ShoppingBag, Truck, ShieldCheck, X, Tag, Info, Sparkles, Layers,
+  ShoppingBag, Truck, ShieldCheck, X, Tag, Info, Sparkles, Layers, Droplet, Gift,
 } from "lucide-react";
 
 /* ===================================================================
@@ -444,6 +444,9 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
   const [routineOpen, setRoutineOpen] = useState(false);
   const [routineStep, setRoutineStep] = useState(0);
   const [routinePicks, setRoutinePicks] = useState<Record<string, string>>({});
+  const [diaryOpen, setDiaryOpen] = useState(false);
+  const [diaryMood, setDiaryMood] = useState<string | null>(null);
+  const [bonusOpen, setBonusOpen] = useState(false);
   const [dark, setDark] = useState<boolean>(() => { try { const tg = (window as any).Telegram?.WebApp; if (tg && tg.colorScheme) return tg.colorScheme === "dark"; return typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches; } catch { return false; } });
   useEffect(() => { onTheme?.(dark); }, [dark, onTheme]);
 
@@ -552,26 +555,32 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
       </div>
 
       {/* сервисы Aura */}
-      <div style={{ padding: "0 20px", marginTop: 24 }}>
-        <div className="flex" style={{ gap: 12 }}>
-          <button type="button" onClick={() => { setQuizStep(0); setQuizAns({}); setQuizOpen(true); }}
-            className="flex-1 text-left active:scale-[0.98] transition-transform"
-            style={{ background: LIME_TINT, borderRadius: 20, padding: 16 }}>
-            <span className="flex items-center justify-center" style={{ width: 38, height: 38, borderRadius: 999, background: LIME }}>
-              <Sparkles size={IC.md} color={ON_LIME} strokeWidth={2.2} />
-            </span>
-            <div style={{ fontSize: T.body, fontWeight: 700, color: INK, marginTop: 12 }}>Подбор ухода</div>
-            <div style={{ fontSize: T.cap, color: MUTED, marginTop: 2 }}>Тест за 30 секунд</div>
-          </button>
-          <button type="button" onClick={() => { setRoutineStep(0); setRoutinePicks({}); setRoutineOpen(true); }}
-            className="flex-1 text-left active:scale-[0.98] transition-transform"
-            style={{ background: SOFT, borderRadius: 20, padding: 16 }}>
-            <span className="flex items-center justify-center" style={{ width: 38, height: 38, borderRadius: 999, background: INK }}>
-              <Layers size={IC.md} color={PAPER} strokeWidth={2.2} />
-            </span>
-            <div style={{ fontSize: T.body, fontWeight: 700, color: INK, marginTop: 12 }}>Соберите рутину</div>
-            <div style={{ fontSize: T.cap, color: MUTED, marginTop: 2 }}>Шаг за шагом</div>
-          </button>
+      <div style={{ padding: "0 20px", marginTop: 26 }}>
+        <h2 style={{ fontSize: T.h3, fontWeight: 700, color: INK, letterSpacing: "-0.02em", marginBottom: 12 }}>Сервисы Aura</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          {[
+            { icon: Sparkles, chip: LIME, ink: ON_LIME, bg: LIME_TINT, title: "Подбор ухода", sub: "Тест за 30 секунд",
+              fn: () => { setQuizStep(0); setQuizAns({}); setQuizOpen(true); } },
+            { icon: Layers, chip: INK, ink: PAPER, bg: SOFT, title: "Соберите рутину", sub: "Шаг за шагом",
+              fn: () => { setRoutineStep(0); setRoutinePicks({}); setRoutineOpen(true); } },
+            { icon: Droplet, chip: INK, ink: PAPER, bg: SOFT, title: "Дневник кожи", sub: "Уход на сегодня",
+              fn: () => { setDiaryMood(null); setDiaryOpen(true); } },
+            { icon: Gift, chip: INK, ink: PAPER, bg: LIME_TINT, title: "Бонусы Aura", sub: "2 450 баллов",
+              fn: () => setBonusOpen(true) },
+          ].map((sv) => {
+            const Ic = sv.icon;
+            return (
+              <button type="button" key={sv.title} onClick={sv.fn}
+                className="text-left active:scale-[0.98] transition-transform"
+                style={{ background: sv.bg, borderRadius: 20, padding: 16 }}>
+                <span className="flex items-center justify-center" style={{ width: 38, height: 38, borderRadius: 999, background: sv.chip }}>
+                  <Ic size={IC.md} color={sv.ink} strokeWidth={2.2} />
+                </span>
+                <div style={{ fontSize: T.body, fontWeight: 700, color: INK, marginTop: 12 }}>{sv.title}</div>
+                <div style={{ fontSize: T.cap, color: MUTED, marginTop: 2 }}>{sv.sub}</div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -702,7 +711,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
                 className="flex-shrink-0 flex items-center transition-colors active:scale-95"
                 style={{
                   height: 44, padding: "0 18px", borderRadius: 999, fontSize: T.sm, fontWeight: 600,
-                  background: on ? INK : PAPER, color: on ? "#fff" : INK, border: `1px solid ${on ? INK : LINE}`,
+                  background: on ? INK : PAPER, color: on ? PAPER : INK, border: `1px solid ${on ? INK : LINE}`,
                 }}>{c}</button>
             );
           })}
@@ -1043,7 +1052,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
         onKeyDown={(e) => { if (e.key === "Escape") setSelected(null); }}>
         <div className="w-full flex flex-col" style={{ maxWidth: 448, animation: "auraSheet .34s cubic-bezier(.22,1,.36,1) both" }}>
           <div key={selected.id} className="flex-1 overflow-y-auto scrollbar-hide" style={{ minHeight: 0 }}>
-            <div className="sticky top-0 flex items-center justify-between" style={{ padding: "12px 20px", background: PAPER, zIndex: 3 }}>
+            <div className="sticky top-0 flex items-center justify-between" style={{ padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px", background: PAPER, zIndex: 3 }}>
               <button type="button" ref={detailCloseRef} onClick={() => setSelected(null)} aria-label="Закрыть карточку товара"
                 className="flex items-center justify-center active:scale-90 transition-transform"
                 style={{ width: 44, height: 44, borderRadius: 999, background: SOFT }}>
@@ -1100,7 +1109,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
                     <button type="button" key={s} onClick={() => setSize(s)} aria-pressed={on}
                       className="flex items-center active:scale-95 transition-transform" style={{
                         height: 44, padding: "0 18px", borderRadius: 999, fontSize: T.sm, fontWeight: 600,
-                        background: on ? INK : PAPER, color: on ? "#fff" : INK, border: `1px solid ${on ? INK : LINE}`,
+                        background: on ? INK : PAPER, color: on ? PAPER : INK, border: `1px solid ${on ? INK : LINE}`,
                       }}>{s}</button>
                   );
                 })}
@@ -1269,7 +1278,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
         role="dialog" aria-modal="true" aria-label="Избранное"
         onKeyDown={(e) => { if (e.key === "Escape") setShowFavs(false); }}>
         <div className="w-full flex flex-col" style={{ maxWidth: 448, animation: "auraSheet .34s cubic-bezier(.22,1,.36,1) both" }}>
-          <div className="sticky top-0 flex items-center" style={{ gap: 10, padding: "12px 20px", background: PAPER }}>
+          <div className="sticky top-0 flex items-center" style={{ gap: 10, padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px", background: PAPER }}>
             <button type="button" ref={favCloseRef} onClick={() => setShowFavs(false)} aria-label="Закрыть избранное"
               className="flex items-center justify-center active:scale-90 transition-transform"
               style={{ width: 44, height: 44, borderRadius: 999, background: SOFT }}>
@@ -1311,7 +1320,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
         role="dialog" aria-modal="true" aria-label="Подбор ухода"
         onKeyDown={(e) => { if (e.key === "Escape") setQuizOpen(false); }}>
         <div className="w-full flex flex-col" style={{ maxWidth: 448, animation: "auraSheet .34s cubic-bezier(.22,1,.36,1) both" }}>
-          <div className="flex items-center" style={{ gap: 10, padding: "12px 20px" }}>
+          <div className="flex items-center" style={{ gap: 10, padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px" }}>
             <button type="button"
               onClick={() => { if (quizStep > 0) setQuizStep((s) => s - 1); else setQuizOpen(false); }}
               aria-label="Назад"
@@ -1402,7 +1411,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
         role="dialog" aria-modal="true" aria-label="Конструктор ухода"
         onKeyDown={(e) => { if (e.key === "Escape") setRoutineOpen(false); }}>
         <div className="w-full flex flex-col" style={{ maxWidth: 448, animation: "auraSheet .34s cubic-bezier(.22,1,.36,1) both" }}>
-          <div className="flex items-center" style={{ gap: 10, padding: "12px 20px" }}>
+          <div className="flex items-center" style={{ gap: 10, padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px" }}>
             <button type="button"
               onClick={() => { if (routineStep > 0) setRoutineStep((s) => s - 1); else setRoutineOpen(false); }}
               aria-label="Назад"
@@ -1532,6 +1541,172 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
     </div>
   );
 
+  /* --------------- ДНЕВНИК КОЖИ --------------- */
+  const DIARY_MOODS = [
+    { k: "glow", label: "Сияет", v: "tone glow", note: "Прекрасно! Поддержим сияние лёгким уходом и защитой SPF." },
+    { k: "normal", label: "В норме", v: "", note: "Кожа в балансе — закрепим результат бережным ежедневным уходом." },
+    { k: "dry", label: "Сухость", v: "dryness hydration", note: "Коже не хватает влаги. Усилим увлажнение и питание барьера." },
+    { k: "dull", label: "Тусклость", v: "tone glow", note: "Вернём свежесть — сделаем акцент на сияние и ровный тон." },
+    { k: "irritated", label: "Раздражение", v: "sensitivity", note: "Коже нужен покой. Подберём мягкие успокаивающие средства." },
+    { k: "oily", label: "Жирный блеск", v: "pores", note: "Поработаем над порами и матовостью в течение дня." },
+  ];
+  const diaryHit = DIARY_MOODS.find((m) => m.k === diaryMood) || null;
+  const diaryRecs = diaryHit ? recommend({ concern: diaryHit.v }) : [];
+  const diaryCloseRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (diaryOpen) { const t = setTimeout(() => diaryCloseRef.current?.focus(), 60); return () => clearTimeout(t); }
+  }, [diaryOpen]);
+
+  const Diary = diaryOpen && (
+    <div className={"aura" + (dark ? " dark" : "")}>
+      <div className="fixed inset-0 z-[10000] flex justify-center" style={{ background: PAPER }}
+        role="dialog" aria-modal="true" aria-label="Дневник кожи"
+        onKeyDown={(e) => { if (e.key === "Escape") setDiaryOpen(false); }}>
+        <div className="w-full flex flex-col" style={{ maxWidth: 448, animation: "auraSheet .34s cubic-bezier(.22,1,.36,1) both" }}>
+          <div className="flex items-center" style={{ gap: 10, padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px" }}>
+            <button type="button" ref={diaryCloseRef}
+              onClick={() => { if (diaryMood) setDiaryMood(null); else setDiaryOpen(false); }}
+              aria-label="Назад"
+              className="flex items-center justify-center active:scale-90 transition-transform"
+              style={{ width: 44, height: 44, borderRadius: 999, background: SOFT }}>
+              <ArrowLeft size={IC.md} color={INK} strokeWidth={SW} />
+            </button>
+            <h1 style={{ fontSize: T.h2, fontWeight: 700, color: INK, letterSpacing: "-0.02em" }}>Дневник кожи</h1>
+            <button type="button" onClick={() => setDiaryOpen(false)} aria-label="Закрыть"
+              className="flex items-center justify-center active:scale-90 transition-transform"
+              style={{ width: 44, height: 44, borderRadius: 999, background: SOFT, marginLeft: "auto" }}>
+              <X size={IC.md} color={INK} strokeWidth={SW} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto scrollbar-hide" style={{ minHeight: 0, padding: "4px 20px 28px" }}>
+            {!diaryHit ? (
+              <>
+                <h2 style={{ fontSize: T.h2, fontWeight: 700, color: INK, letterSpacing: "-0.02em", lineHeight: 1.25 }}>
+                  Как ваша кожа сегодня?
+                </h2>
+                <p style={{ fontSize: T.sm, color: MUTED, marginTop: 6, lineHeight: 1.5 }}>
+                  Отметьте состояние — подберём уход именно под него.
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 16 }}>
+                  {DIARY_MOODS.map((m) => (
+                    <button type="button" key={m.k} onClick={() => setDiaryMood(m.k)}
+                      className="text-left active:scale-[0.98] transition-transform"
+                      style={{ padding: 16, borderRadius: 16, border: `1.5px solid ${LINE}`, background: PAPER }}>
+                      <span className="flex items-center justify-center" style={{ width: 34, height: 34, borderRadius: 999, background: SOFT }}>
+                        <Droplet size={IC.sm} color={LIME_DEEP} strokeWidth={2.2} />
+                      </span>
+                      <div style={{ fontSize: T.body, fontWeight: 700, color: INK, marginTop: 10 }}>{m.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <span className="flex items-center justify-center" style={{ width: 48, height: 48, borderRadius: 999, background: LIME, animation: "auraPop .5s ease-out" }}>
+                  <Droplet size={IC.lg} color={ON_LIME} strokeWidth={2.2} />
+                </span>
+                <h2 style={{ fontSize: T.h2, fontWeight: 700, color: INK, letterSpacing: "-0.02em", marginTop: 14 }}>
+                  Кожа: {diaryHit.label.toLowerCase()}
+                </h2>
+                <p style={{ fontSize: T.sm, color: MUTED, lineHeight: 1.55, marginTop: 6 }}>{diaryHit.note}</p>
+                <div style={{ fontSize: T.micro, color: MUTED, fontWeight: 700, letterSpacing: "0.04em", marginTop: 20 }}>УХОД НА СЕГОДНЯ</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 10 }}>
+                  {diaryRecs.map((p, i) => (
+                    <ProductCard key={p.id} p={p} idx={i} w="100%" fav={favs.has(p.id)} onFav={() => toggleFav(p.id)}
+                      onOpen={() => { setDiaryOpen(false); setSelected(p); }} onAdd={() => addToCart(p.id)} />
+                  ))}
+                </div>
+                <button type="button"
+                  onClick={() => { addMany(diaryRecs.map((p) => p.id)); setDiaryOpen(false); fire("Уход дня добавлен в корзину"); }}
+                  className="active:scale-[0.98] transition-transform"
+                  style={{ width: "100%", marginTop: 20, height: 54, borderRadius: 999, background: LIME, color: ON_LIME, fontSize: T.body, fontWeight: 700 }}>
+                  Добавить уход дня
+                </button>
+                <button type="button" onClick={() => setDiaryMood(null)}
+                  className="active:scale-[0.98] transition-transform"
+                  style={{ width: "100%", marginTop: 10, height: 50, borderRadius: 999, background: PAPER, color: INK, border: `1px solid ${LINE}`, fontSize: T.body, fontWeight: 700 }}>
+                  Выбрать другое состояние
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  /* --------------- БОНУСЫ AURA --------------- */
+  const BONUS_PERKS = [
+    { icon: Truck, t: "Бесплатная доставка", s: "На все заказы без минимальной суммы" },
+    { icon: Sparkles, t: "Ранний доступ к новинкам", s: "За 48 часов до старта продаж" },
+    { icon: Gift, t: "Подарок в день рождения", s: "Сюрприз-набор от Aura" },
+    { icon: Tag, t: "−15% на любимые бренды", s: "Каждый месяц новая подборка" },
+  ];
+  const bonusCloseRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (bonusOpen) { const t = setTimeout(() => bonusCloseRef.current?.focus(), 60); return () => clearTimeout(t); }
+  }, [bonusOpen]);
+
+  const Bonus = bonusOpen && (
+    <div className={"aura" + (dark ? " dark" : "")}>
+      <div className="fixed inset-0 z-[10000] flex justify-center" style={{ background: PAPER }}
+        role="dialog" aria-modal="true" aria-label="Бонусы Aura"
+        onKeyDown={(e) => { if (e.key === "Escape") setBonusOpen(false); }}>
+        <div className="w-full flex flex-col" style={{ maxWidth: 448, animation: "auraSheet .34s cubic-bezier(.22,1,.36,1) both" }}>
+          <div className="flex items-center" style={{ gap: 10, padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px" }}>
+            <button type="button" ref={bonusCloseRef} onClick={() => setBonusOpen(false)} aria-label="Закрыть"
+              className="flex items-center justify-center active:scale-90 transition-transform"
+              style={{ width: 44, height: 44, borderRadius: 999, background: SOFT }}>
+              <ArrowLeft size={IC.md} color={INK} strokeWidth={SW} />
+            </button>
+            <h1 style={{ fontSize: T.h2, fontWeight: 700, color: INK, letterSpacing: "-0.02em" }}>Бонусы Aura</h1>
+          </div>
+          <div className="flex-1 overflow-y-auto scrollbar-hide" style={{ minHeight: 0, padding: "8px 20px 28px" }}>
+            <div style={{ borderRadius: 24, padding: 20, background: `linear-gradient(135deg, ${LIME}, #6FBF1E)`, color: ON_LIME }}>
+              <div className="flex items-center justify-between">
+                <span style={{ fontSize: T.sm, fontWeight: 700, letterSpacing: "0.02em" }}>Aura Club · Gold</span>
+                <Gift size={IC.md} color={ON_LIME} strokeWidth={2.2} aria-hidden="true" />
+              </div>
+              <div style={{ fontSize: "2.25rem", fontWeight: 800, marginTop: 18, letterSpacing: "-0.03em", ...NUM }}>2 450</div>
+              <div style={{ fontSize: T.cap, fontWeight: 600, opacity: 0.82 }}>бонусных баллов</div>
+            </div>
+            <div style={{ marginTop: 16, background: SOFT, borderRadius: 16, padding: "14px 16px" }}>
+              <div className="flex items-center justify-between" style={{ fontSize: T.sm }}>
+                <span style={{ color: INK, fontWeight: 600 }}>До уровня Platinum</span>
+                <span style={{ color: LIME_DEEP, fontWeight: 700, ...NUM }}>осталось 550</span>
+              </div>
+              <div style={{ height: 6, borderRadius: 999, background: HAIR, overflow: "hidden", marginTop: 9 }}>
+                <div style={{ height: "100%", borderRadius: 999, background: LIME, width: "82%" }} />
+              </div>
+            </div>
+            <div style={{ fontSize: T.micro, color: MUTED, fontWeight: 700, letterSpacing: "0.04em", marginTop: 22 }}>ВАШИ ПРИВИЛЕГИИ</div>
+            <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+              {BONUS_PERKS.map((perk) => {
+                const Ic = perk.icon;
+                return (
+                  <div key={perk.t} className="flex items-center" style={{ gap: 12, padding: "13px 14px", borderRadius: 14, border: `1px solid ${LINE}` }}>
+                    <span className="flex items-center justify-center flex-shrink-0" style={{ width: 38, height: 38, borderRadius: 999, background: LIME_TINT }}>
+                      <Ic size={IC.sm} color={LIME_DEEP} strokeWidth={2.2} />
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: T.sm, fontWeight: 700, color: INK }}>{perk.t}</div>
+                      <div style={{ fontSize: T.cap, color: MUTED, marginTop: 1 }}>{perk.s}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <button type="button" onClick={() => { setBonusOpen(false); onTabChange("catalog"); }}
+              className="active:scale-[0.98] transition-transform"
+              style={{ width: "100%", marginTop: 20, height: 54, borderRadius: 999, background: INK, color: PAPER, fontSize: T.body, fontWeight: 700 }}>
+              Потратить баллы в каталоге
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className={"aura relative" + (dark ? " dark" : "")} style={{ minHeight: "100%", background: PAPER }}>
       <style>{`
@@ -1573,6 +1748,8 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
       {Favorites && createPortal(Favorites, document.body)}
       {Quiz && createPortal(Quiz, document.body)}
       {Routine && createPortal(Routine, document.body)}
+      {Diary && createPortal(Diary, document.body)}
+      {Bonus && createPortal(Bonus, document.body)}
     </div>
   );
 }
