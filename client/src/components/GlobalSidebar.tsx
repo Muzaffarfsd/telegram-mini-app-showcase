@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, forwardRef, memo, useMemo } from "react";
-import { Sparkles, MessageCircle, Bot, Users, Home, Send, ChevronRight, Bell, BarChart3 } from "lucide-react";
+import { ChevronRight, ArrowUpRight, Send } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { SiInstagram, SiTelegram } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
@@ -8,78 +8,51 @@ import { useLanguage } from "../contexts/LanguageContext";
 interface GlobalSidebarProps {
   currentRoute: string;
   onNavigate: (section: string) => void;
-  user?: {
-    photo_url?: string;
-    first_name?: string;
-  };
+  user?: { photo_url?: string; first_name?: string };
 }
+
+/* ====================================================================
+   WEB4TG — global menu · Apple-grade minimal drawer · OLED black · 2026
+   ==================================================================== */
+
+const FONT = '"Manrope", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+const EM = '#34d399';
+const EM_SOFT = '#6ee7b7';
 
 interface AnimatedHamburgerIconProps {
   isOpen: boolean;
   onClick: () => void;
   ariaLabel: string;
+  testId: string;
 }
 
 const AnimatedHamburgerIcon = memo(forwardRef<HTMLButtonElement, AnimatedHamburgerIconProps>(
-  ({ isOpen, onClick, ariaLabel }, ref) => {
+  ({ isOpen, onClick, ariaLabel, testId }, ref) => {
     const [isHovered, setIsHovered] = useState(false);
-    const rippleRef = useRef<HTMLSpanElement>(null);
-    const rippleTimeoutRef = useRef<number | null>(null);
-    
-    const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-      if (rippleRef.current) {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        rippleRef.current.style.left = `${x}px`;
-        rippleRef.current.style.top = `${y}px`;
-        rippleRef.current.classList.remove('active');
-        void rippleRef.current.offsetWidth;
-        rippleRef.current.classList.add('active');
-        
-        if (rippleTimeoutRef.current) {
-          clearTimeout(rippleTimeoutRef.current);
-        }
-        rippleTimeoutRef.current = window.setTimeout(() => {
-          rippleRef.current?.classList.remove('active');
-        }, 500);
-      }
-      onClick();
-    }, [onClick]);
-    
-    const handleMouseEnter = useCallback(() => setIsHovered(true), []);
-    const handleMouseLeave = useCallback(() => setIsHovered(false), []);
-    
-    const className = useMemo(() => 
-      `hamburger-btn ${isOpen ? 'open' : ''} ${isHovered ? 'hovered' : ''}`,
+    const className = useMemo(
+      () => `hb-btn ${isOpen ? 'open' : ''} ${isHovered ? 'hovered' : ''}`,
       [isOpen, isHovered]
     );
-    
     return (
       <button
         ref={ref}
-        onClick={handleClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onClick={() => onClick()}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         className={className}
         aria-label={ariaLabel}
         aria-expanded={isOpen}
-        data-testid="button-hamburger"
+        data-testid={testId}
       >
-        <div className="hamburger-shine" />
-        <span ref={rippleRef} className="hamburger-ripple" />
-        
-        <div className="hamburger-icon">
-          <span className={`hamburger-line line-1 ${isOpen ? 'open' : ''}`} />
-          <span className={`hamburger-line line-2 ${isOpen ? 'open' : ''}`} />
-          <span className={`hamburger-line line-3 ${isOpen ? 'open' : ''}`} />
-        </div>
+        <span className="hb-icon">
+          <span className={`hb-line l1 ${isOpen ? 'open' : ''}`} />
+          <span className={`hb-line l2 ${isOpen ? 'open' : ''}`} />
+          <span className={`hb-line l3 ${isOpen ? 'open' : ''}`} />
+        </span>
       </button>
     );
   }
 ));
-
 AnimatedHamburgerIcon.displayName = 'AnimatedHamburgerIcon';
 
 export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
@@ -87,181 +60,43 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   const { t, language } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pressedItem, setPressedItem] = useState<string | null>(null);
-
-  // Sync Telegram Secondary Button with language changes
-  useEffect(() => {
-    try {
-      const tg = (window as any).Telegram?.WebApp;
-      if (tg?.SecondaryButton) {
-        tg.SecondaryButton.setText(t('actions.share'));
-      }
-    } catch (e) {}
-  }, [language, t]);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [, setIsAnimating] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
   const touchStartX = useRef<number>(0);
   const touchCurrentX = useRef<number>(0);
   const [swipeOffset, setSwipeOffset] = useState(0);
-  
-  // Swipe to open state
   const [swipeOpenOffset, setSwipeOpenOffset] = useState(0);
   const isSwipingToOpen = useRef(false);
   const edgeSwipeStartX = useRef<number>(0);
   const edgeSwipeStartY = useRef<number>(0);
   const swipeDirection = useRef<'horizontal' | 'vertical' | null>(null);
 
-  // iOS 26 Design System - Professional Theme Colors
-  const colors = useMemo(() => {
-    if (isDark) {
-      // Dark Theme - Glass morphism with emerald accent
-      return {
-        // Text hierarchy
-        textPrimary: '#FFFFFF',
-        textSecondary: 'rgba(255, 255, 255, 0.7)',
-        textMuted: 'rgba(255, 255, 255, 0.45)',
-        textLabel: 'rgba(255, 255, 255, 0.55)',
-        
-        // iOS System accent
-        accent: '#A78BFA',
-        accentLight: 'rgba(167, 139, 250, 0.15)',
-        accentBorder: 'rgba(167, 139, 250, 0.3)',
-        
-        // Surfaces - Glass effect
-        panelBg: 'rgba(28, 28, 30, 0.85)',
-        cardBg: 'rgba(255, 255, 255, 0.04)',
-        cardBorder: 'rgba(255, 255, 255, 0.08)',
-        cardShadow: 'none',
-        
-        // Interactive states
-        hoverBg: 'rgba(255, 255, 255, 0.06)',
-        activeBg: 'rgba(167, 139, 250, 0.12)',
-        
-        // Progress & indicators
-        progressBg: 'rgba(255, 255, 255, 0.1)',
-        progressFill: 'linear-gradient(90deg, #A78BFA 0%, #8B5CF6 100%)',
-        
-        // Semantic
-        success: '#34C759',
-        sectionBorder: 'rgba(255, 255, 255, 0.06)',
-        avatarRing: 'rgba(255, 255, 255, 0.15)',
-        onlineDot: '#30D158',
-        onlineDotBorder: 'rgba(0, 0, 0, 0.9)',
-      };
-    } else {
-      // Light Theme - iOS 26 "Stacked Sheets" with excellent contrast
-      return {
-        // Text hierarchy - High contrast for readability
-        textPrimary: '#1C1C1E',           // Deep black for maximum readability
-        textSecondary: '#3C3C43',          // Dark gray - very readable
-        textMuted: '#636366',              // Medium gray - still readable
-        textLabel: '#8E8E93',              // System gray - visible labels
-        
-        // iOS System Blue
-        accent: '#007AFF',
-        accentLight: 'rgba(0, 122, 255, 0.12)',
-        accentBorder: 'rgba(0, 122, 255, 0.25)',
-        
-        // Surfaces - Clean white with subtle depth
-        panelBg: '#FFFFFF',
-        cardBg: '#F2F2F7',                 // iOS system gray 6
-        cardBorder: 'rgba(0, 0, 0, 0.08)',
-        cardShadow: '0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06)',
-        
-        // Interactive states
-        hoverBg: 'rgba(0, 0, 0, 0.04)',
-        activeBg: 'rgba(0, 122, 255, 0.12)',
-        
-        // Progress & indicators
-        progressBg: 'rgba(0, 0, 0, 0.08)',
-        progressFill: 'linear-gradient(90deg, #007AFF 0%, #5856D6 100%)',
-        
-        // Semantic
-        success: '#34C759',
-        sectionBorder: 'rgba(0, 0, 0, 0.08)',
-        avatarRing: 'rgba(0, 0, 0, 0.1)',
-        onlineDot: '#30D158',
-        onlineDotBorder: '#FFFFFF',
-      };
-    }
-  }, [isDark]);
+  useEffect(() => {
+    try {
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg?.SecondaryButton) tg.SecondaryButton.setText(t('actions.share'));
+    } catch (e) {}
+  }, [language, t]);
 
-  // Monochrome icon colors - professional and minimal
-  const iconStyle = isDark 
-    ? { color: '#A1A1AA', bg: 'rgba(255, 255, 255, 0.06)' }
-    : { color: '#6B7280', bg: 'rgba(0, 0, 0, 0.05)' };
-  
   const menuItems = [
-    { 
-      icon: Home, 
-      label: t('sidebar.home'), 
-      section: '', 
-      routes: ['showcase'],
-      description: t('sidebar.allFeatures'),
-    },
-    { 
-      icon: Sparkles, 
-      label: t('sidebar.businessApps'), 
-      section: 'projects', 
-      routes: ['projects'],
-      description: t('sidebar.readySolutions'),
-    },
-    { 
-      icon: Bot, 
-      label: t('sidebar.aiForBusiness'), 
-      section: 'ai-process', 
-      routes: ['aiProcess', 'aiAgent'],
-      description: t('sidebar.automation247'),
-    },
-    { 
-      icon: Users, 
-      label: t('sidebar.aboutStudio'), 
-      section: 'about', 
-      routes: ['about'],
-      description: t('sidebar.ourTeam'),
-    },
-    { 
-      icon: MessageCircle, 
-      label: t('sidebar.orderProject'), 
-      section: 'constructor', 
-      routes: ['constructor', 'checkout'],
-      description: t('sidebar.customSolution'),
-    },
-    { 
-      icon: Bell, 
-      label: t('sidebar.notifications'), 
-      section: 'notifications', 
-      routes: ['notifications'],
-      description: t('sidebar.telegramBotApi'),
-    },
-    { 
-      icon: BarChart3, 
-      label: t('sidebar.analytics'), 
-      section: 'analytics', 
-      routes: ['analytics'],
-      description: t('sidebar.businessMetrics'),
-    },
+    { label: t('sidebar.home'), section: '', routes: ['showcase'] },
+    { label: t('sidebar.businessApps'), section: 'projects', routes: ['projects'] },
+    { label: t('sidebar.aiForBusiness'), section: 'ai-process', routes: ['aiProcess', 'aiAgent'] },
+    { label: t('sidebar.aboutStudio'), section: 'about', routes: ['about'] },
+    { label: t('sidebar.orderProject'), section: 'constructor', routes: ['constructor', 'checkout'] },
+    { label: t('sidebar.notifications'), section: 'notifications', routes: ['notifications'] },
+    { label: t('sidebar.analytics'), section: 'analytics', routes: ['analytics'] },
   ];
 
-  // Social links use muted colors
-  const socialIconColor = isDark ? '#71717A' : '#9CA3AF';
+  const stages = [t('sidebar.brief'), t('sidebar.design'), t('sidebar.code'), t('sidebar.launch')];
+  const activeStage = 1;
+
   const socialLinks = [
-    { 
-      icon: SiInstagram, 
-      label: 'Instagram', 
-      url: 'https://instagram.com/web4tg',
-    },
-    { 
-      icon: SiTelegram, 
-      label: t('sidebar.telegramChannel'), 
-      url: 'https://t.me/web4_tg',
-    },
-    { 
-      icon: Send, 
-      label: t('sidebar.consultation'), 
-      url: 'https://t.me/web4tgs',
-    },
+    { icon: SiTelegram, label: t('sidebar.telegramChannel'), url: 'https://t.me/web4_tg' },
+    { icon: SiInstagram, label: 'Instagram', url: 'https://instagram.com/web4tg' },
+    { icon: Send, label: t('sidebar.consultation'), url: 'https://t.me/web4tgs' },
   ];
 
   const triggerHaptic = useCallback((type: 'light' | 'medium' | 'heavy' = 'light') => {
@@ -279,9 +114,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     setIsAnimating(true);
     setSidebarOpen(true);
     triggerHaptic('medium');
-    setTimeout(() => {
-      firstFocusableRef.current?.focus();
-    }, 100);
+    setTimeout(() => { firstFocusableRef.current?.focus(); }, 100);
   }, [triggerHaptic]);
 
   const closeSidebar = useCallback(() => {
@@ -297,18 +130,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && sidebarOpen) {
-        closeSidebar();
-      }
+      if (e.key === 'Escape' && sidebarOpen) closeSidebar();
     };
-    
     if (sidebarOpen) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
-    
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
@@ -317,62 +146,43 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
   useEffect(() => {
     if (!sidebarOpen || !sidebarRef.current) return;
-
     const sidebar = sidebarRef.current;
-    const focusableElements = sidebar.querySelectorAll(
+    const focusable = sidebar.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-    const firstElement = focusableElements[0] as HTMLElement;
-    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
-    const handleTabKey = (e: KeyboardEvent) => {
+    const first = focusable[0] as HTMLElement;
+    const last = focusable[focusable.length - 1] as HTMLElement;
+    const handleTab = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
-
       if (e.shiftKey) {
-        if (document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement?.focus();
-        }
+        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
       } else {
-        if (document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement?.focus();
-        }
+        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
       }
     };
-
-    sidebar.addEventListener('keydown', handleTabKey);
-    return () => sidebar.removeEventListener('keydown', handleTabKey);
+    sidebar.addEventListener('keydown', handleTab);
+    return () => sidebar.removeEventListener('keydown', handleTab);
   }, [sidebarOpen]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchCurrentX.current = e.touches[0].clientX;
   }, []);
-
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     touchCurrentX.current = e.touches[0].clientX;
     const diff = touchStartX.current - touchCurrentX.current;
-    if (diff > 0) {
-      setSwipeOffset(Math.min(diff, 320));
-    }
+    if (diff > 0) setSwipeOffset(Math.min(diff, 380));
   }, []);
-
   const handleTouchEnd = useCallback(() => {
     const diff = touchStartX.current - touchCurrentX.current;
-    if (diff > 100) {
-      closeSidebar();
-    } else {
-      setSwipeOffset(0);
-    }
+    if (diff > 100) closeSidebar();
+    else setSwipeOffset(0);
     touchStartX.current = 0;
     touchCurrentX.current = 0;
   }, [closeSidebar]);
 
-  // Edge swipe to open handlers
   const handleEdgeTouchStart = useCallback((e: TouchEvent) => {
     const touch = e.touches[0];
-    // Activate if touch starts within 25px of left edge (smaller zone to avoid conflicts)
     if (touch.clientX <= 25 && !sidebarOpen) {
       isSwipingToOpen.current = true;
       edgeSwipeStartX.current = touch.clientX;
@@ -380,39 +190,24 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       swipeDirection.current = null;
     }
   }, [sidebarOpen]);
-
   const handleEdgeTouchMove = useCallback((e: TouchEvent) => {
     if (!isSwipingToOpen.current) return;
-    
     const touch = e.touches[0];
     const diffX = touch.clientX - edgeSwipeStartX.current;
     const diffY = touch.clientY - edgeSwipeStartY.current;
-    
-    // Determine swipe direction on first significant movement (stronger threshold)
     if (swipeDirection.current === null && (Math.abs(diffX) > 20 || Math.abs(diffY) > 20)) {
-      // Require horizontal movement to be 2x vertical to be considered horizontal swipe
       swipeDirection.current = Math.abs(diffX) > Math.abs(diffY) * 2 ? 'horizontal' : 'vertical';
     }
-    
-    // Only process clear horizontal swipes (diffX > 30 to avoid accidental triggers)
     if (swipeDirection.current === 'horizontal' && diffX > 30) {
-      // Prevent scrolling while swiping to open
       e.preventDefault();
-      const sidebarWidth = Math.min(320, window.innerWidth - 48);
-      const offset = Math.min(diffX, sidebarWidth);
-      setSwipeOpenOffset(offset);
+      const w = Math.min(370, window.innerWidth - 40);
+      setSwipeOpenOffset(Math.min(diffX, w));
     }
   }, []);
-
   const handleEdgeTouchEnd = useCallback(() => {
     if (!isSwipingToOpen.current) return;
-    
-    const sidebarWidth = Math.min(320, window.innerWidth - 48);
-    // Open if swiped more than 30% of sidebar width
-    if (swipeOpenOffset > sidebarWidth * 0.3) {
-      openSidebar();
-    }
-    
+    const w = Math.min(370, window.innerWidth - 40);
+    if (swipeOpenOffset > w * 0.3) openSidebar();
     setSwipeOpenOffset(0);
     isSwipingToOpen.current = false;
     edgeSwipeStartX.current = 0;
@@ -420,14 +215,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     swipeDirection.current = null;
   }, [swipeOpenOffset, openSidebar]);
 
-  // Global edge swipe detection
   useEffect(() => {
     if (sidebarOpen) return;
-    
     document.addEventListener('touchstart', handleEdgeTouchStart, { passive: true });
     document.addEventListener('touchmove', handleEdgeTouchMove, { passive: false });
     document.addEventListener('touchend', handleEdgeTouchEnd, { passive: true });
-    
     return () => {
       document.removeEventListener('touchstart', handleEdgeTouchStart);
       document.removeEventListener('touchmove', handleEdgeTouchMove);
@@ -436,6 +228,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   }, [sidebarOpen, handleEdgeTouchStart, handleEdgeTouchMove, handleEdgeTouchEnd]);
 
   const isActive = (routes: string[]) => routes.includes(currentRoute);
+  const isProfileActive = ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute);
 
   const handleNavClick = useCallback((section: string) => {
     setPressedItem(section);
@@ -444,1057 +237,266 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       onNavigate(section);
       closeSidebar();
       setPressedItem(null);
-    }, 150);
+    }, 170);
   }, [onNavigate, closeSidebar, triggerHaptic]);
-
-  const isProfileActive = ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute);
-  const isProfilePressed = pressedItem === 'profile';
 
   return (
     <>
       <style>{`
-        /* ═══════════════════════════════════════════════════════════════
-           iOS 26 LIQUID GLASS HAMBURGER - OPTIMIZED PROFESSIONAL EDITION
-           GPU-Accelerated with contain and transform3d
-           ═══════════════════════════════════════════════════════════════ */
-        
-        /* Hamburger Button - Main Container */
-        .hamburger-btn {
-          width: 44px;
-          height: 44px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 14px;
-          background: rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1.5px solid rgba(255, 255, 255, 0.12);
-          cursor: pointer;
-          transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-                      background 0.2s ease,
-                      border-color 0.2s ease;
-          -webkit-tap-highlight-color: transparent;
-          position: relative;
-          overflow: visible;
-          isolation: isolate;
-          transform: translate3d(0, 0, 0);
-          backface-visibility: hidden;
+        /* ── hamburger ── */
+        .hb-btn{
+          width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+          border-radius:13px;background:rgba(255,255,255,0.06);
+          border:1px solid rgba(255,255,255,0.11);cursor:pointer;
+          -webkit-tap-highlight-color:transparent;position:relative;
+          transition:transform .24s cubic-bezier(.34,1.5,.64,1),background .2s,border-color .2s;
         }
-        
-        /* Subtle glass shine — single layer */
-        .hamburger-shine {
-          position: absolute;
-          inset: 0;
-          border-radius: 14px;
-          background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%);
-          pointer-events: none;
-          z-index: 1;
+        .hb-btn.hovered{background:rgba(255,255,255,0.1);}
+        .hb-btn.open{background:rgba(52,211,153,0.13);border-color:rgba(52,211,153,0.32);}
+        .hb-btn:active{transform:scale(.9);}
+        .hb-icon{width:17px;height:11px;position:relative;display:flex;flex-direction:column;
+          justify-content:space-between;align-items:flex-start;}
+        .hb-line{display:block;height:1.8px;border-radius:2px;background:#fff;
+          transition:transform .34s cubic-bezier(.68,-0.5,.27,1.5),opacity .2s,width .24s,background .2s;
+          transform-origin:center;}
+        .hb-line.l1{width:100%;} .hb-line.l2{width:62%;} .hb-line.l3{width:100%;}
+        .hb-btn.hovered .hb-line.l2{width:100%;}
+        .hb-line.l1.open{transform:translateY(4.6px) rotate(45deg);width:100%;background:${EM_SOFT};}
+        .hb-line.l2.open{opacity:0;transform:scaleX(0);}
+        .hb-line.l3.open{transform:translateY(-4.6px) rotate(-45deg);width:100%;background:${EM_SOFT};}
+        html.light .hb-btn{background:rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.1);}
+        html.light .hb-btn.hovered{background:rgba(0,0,0,0.08);}
+        html.light .hb-line{background:#16181c;}
+        html.light .hb-btn.open{background:rgba(52,211,153,0.13);border-color:rgba(52,211,153,0.4);}
+
+        /* ── overlay + panel ── */
+        .w4m-overlay{
+          position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,0.34);
+          backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+          opacity:0;pointer-events:none;transition:opacity .32s ease;touch-action:none;
         }
-        
-        /* Ripple Effect - Single reusable element */
-        .hamburger-ripple {
-          position: absolute;
-          width: 10px;
-          height: 10px;
-          background: rgba(255, 255, 255, 0.4);
-          border-radius: 50%;
-          transform: translate3d(-50%, -50%, 0) scale(0);
-          pointer-events: none;
-          z-index: 2;
-          opacity: 0;
+        .w4m-overlay.open{opacity:1;pointer-events:auto;}
+        .w4m-panel{
+          position:fixed;top:0;left:0;height:100%;z-index:100001;
+          width:min(372px,calc(100vw - 38px));
+          background:
+            linear-gradient(155deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.035) 32%, rgba(255,255,255,0.006) 100%),
+            rgba(16,17,20,0.72);
+          backdrop-filter:blur(30px) saturate(150%);
+          -webkit-backdrop-filter:blur(30px) saturate(150%);
+          border-right:1px solid rgba(255,255,255,0.26);
+          border-radius:0 26px 26px 0;
+          box-shadow:36px 0 110px rgba(0,0,0,0.62),
+                     inset 0 2px 0 rgba(255,255,255,0.32),
+                     inset 2px 0 0 rgba(255,255,255,0.14),
+                     inset 0 0 100px rgba(255,255,255,0.06);
+          display:flex;flex-direction:column;
+          overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+          transform:translate3d(-100%,0,0);
+          transition:transform .44s cubic-bezier(.32,.72,0,1);will-change:transform;
         }
-        
-        .hamburger-ripple.active {
-          animation: ripple-expand 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        .w4m-panel.open{transform:translate3d(0,0,0);}
+        .w4m-panel::-webkit-scrollbar{display:none;}
+        .w4m-panel{scrollbar-width:none;}
+
+        /* ── nav row ── */
+        .w4m-row{
+          display:flex;align-items:center;width:100%;
+          padding:17px 4px;background:transparent;border:none;cursor:pointer;
+          border-top:1px solid rgba(255,255,255,0.07);
+          text-align:left;-webkit-tap-highlight-color:transparent;
+          opacity:0;transform:translateX(-10px);
+          transition:opacity .5s ease,transform .5s cubic-bezier(.22,1,.36,1),background-color .18s ease;
         }
-        
-        @keyframes ripple-expand {
-          0% { transform: translate3d(-50%, -50%, 0) scale(0); opacity: 1; }
-          100% { transform: translate3d(-50%, -50%, 0) scale(10); opacity: 0; }
+        .w4m-panel.open .w4m-row{opacity:1;transform:translateX(0);}
+        .w4m-row:active{background-color:rgba(255,255,255,0.045);}
+
+        /* ── controls ── */
+        .w4m-tap{transition:transform .16s cubic-bezier(.22,1,.36,1),background-color .18s ease;-webkit-tap-highlight-color:transparent;}
+        .w4m-tap:active{transform:scale(.97);}
+        .w4m-cta{
+          display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;
+          border-radius:999px;background:${EM};border:none;cursor:pointer;
+          transition:transform .18s cubic-bezier(.22,1,.36,1);-webkit-tap-highlight-color:transparent;
         }
-        
-        /* Hover State */
-        .hamburger-btn.hovered {
-          background: rgba(255, 255, 255, 0.12);
-          border-color: rgba(255, 255, 255, 0.2);
-          transform: translate3d(0, 0, 0) scale(1.02);
+        .w4m-cta:active{transform:scale(.975);}
+        .w4m-soc{
+          width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+          border-radius:14px;background:rgba(255,255,255,0.07);
+          border:1px solid rgba(255,255,255,0.12);cursor:pointer;
+          transition:transform .2s cubic-bezier(.34,1.5,.64,1),background-color .18s ease;
+          -webkit-tap-highlight-color:transparent;
         }
-        
-        /* Open State */
-        .hamburger-btn.open {
-          background: rgba(139, 92, 246, 0.15);
-          border-color: rgba(139, 92, 246, 0.3);
+        .w4m-soc:active{transform:scale(.92);}
+        .w4m-row:focus-visible,.w4m-tap:focus-visible,.w4m-cta:focus-visible,
+        .w4m-soc:focus-visible,.hb-btn:focus-visible{outline:2px solid ${EM};outline-offset:3px;}
+
+        /* ── top bar ── */
+        .w4-topbar{
+          position:fixed;top:0;left:0;right:0;z-index:90;
+          background:rgba(0,0,0,0.55);
+          backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+          border-bottom:1px solid rgba(255,255,255,0.06);
+          padding-top:max(env(safe-area-inset-top,0px),12px);
         }
-        
-        /* Active/Press State */
-        .hamburger-btn:active {
-          transform: translate3d(0, 0, 0) scale(0.9) !important;
-          transition-duration: 0.1s;
-        }
-        
-        /* Hamburger Icon Container */
-        .hamburger-icon {
-          width: 18px;
-          height: 13px;
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          align-items: center;
-          z-index: 3;
-          contain: layout style;
-        }
-        
-        /* Hamburger Lines - GPU Optimized */
-        .hamburger-line {
-          display: block;
-          height: 2px;
-          background: linear-gradient(90deg, rgba(255,255,255,0.9) 0%, #fff 50%, rgba(255,255,255,0.9) 100%);
-          border-radius: 2px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-          transition: transform 0.35s cubic-bezier(0.68, -0.6, 0.32, 1.6),
-                      opacity 0.25s ease,
-                      background 0.25s ease;
-          transform-origin: center;
-          backface-visibility: hidden;
-        }
-        
-        .hamburger-line.line-1 {
-          width: 100%;
-          transform: translate3d(0, 0, 0);
-        }
-        
-        .hamburger-line.line-2 {
-          width: 70%;
-          align-self: flex-end;
-          transform: translate3d(0, 0, 0);
-        }
-        
-        .hamburger-line.line-3 {
-          width: 100%;
-          transform: translate3d(0, 0, 0);
-        }
-        
-        /* Hover animation for lines */
-        .hamburger-btn.hovered .hamburger-line.line-2 {
-          width: 100%;
-        }
-        
-        /* Open State - X Transform */
-        .hamburger-line.line-1.open {
-          transform: translate3d(0, 5.5px, 0) rotate(45deg);
-          width: 100%;
-        }
-        
-        .hamburger-line.line-2.open {
-          opacity: 0;
-          transform: translate3d(10px, 0, 0) scaleX(0);
-        }
-        
-        .hamburger-line.line-3.open {
-          transform: translate3d(0, -5.5px, 0) rotate(-45deg);
-          width: 100%;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════════
-           SIDEBAR OVERLAY - OPTIMIZED
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .sidebar-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 100;
-          background: rgba(0, 0, 0, 0.5);
-          backdrop-filter: blur(12px) saturate(180%);
-          -webkit-backdrop-filter: blur(12px) saturate(180%);
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 0.25s ease;
-          transform: translate3d(0, 0, 0);
-          will-change: opacity;
-          touch-action: none;
-        }
-        
-        .sidebar-overlay.open {
-          opacity: 1;
-          pointer-events: auto;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════════
-           SIDEBAR PANEL - OPTIMIZED
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .sidebar-panel {
-          position: fixed;
-          top: 0;
-          left: 0;
-          height: 100%;
-          z-index: 101;
-          width: min(320px, calc(100vw - 48px));
-          background: rgba(0, 0, 0, 0.05);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border-right: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: 20px 0 60px rgba(0, 0, 0, 0.2);
-          display: flex;
-          flex-direction: column;
-          overflow-y: scroll;
-          overflow-x: visible;
-          overscroll-behavior: contain;
-          transform: translate3d(-100%, 0, 0);
-          transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-          -webkit-overflow-scrolling: touch;
-          contain: strict;
-          will-change: transform;
-        }
-        
-        .sidebar-panel.open {
-          transform: translate3d(0, 0, 0);
-        }
-        
-        /* Top Gradient Line - Simplified */
-        .sidebar-gradient-line {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.3) 10%, rgba(167,139,250,0.6) 30%, rgba(196,181,253,0.8) 50%, rgba(167,139,250,0.6) 70%, rgba(139,92,246,0.3) 90%, transparent 100%);
-          opacity: 0;
-          transform: translate3d(0, 0, 0) scaleX(0);
-          transition: opacity 0.4s ease 0.15s, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
-        }
-        
-        .sidebar-panel.open .sidebar-gradient-line {
-          opacity: 1;
-          transform: translate3d(0, 0, 0) scaleX(1);
-        }
-        
-        /* ═══════════════════════════════════════════════════════════════
-           MENU ITEMS - OPTIMIZED
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .menu-item {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 14px 16px;
-          border-radius: 16px;
-          background: transparent;
-          border: 1px solid transparent;
-          cursor: pointer;
-          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                      background 0.2s ease,
-                      border-color 0.2s ease;
-          position: relative;
-          width: 100%;
-          text-align: left;
-          -webkit-tap-highlight-color: transparent;
-          overflow: hidden;
-          contain: layout style;
-          transform: translate3d(0, 0, 0);
-        }
-        
-        .menu-item:hover {
-          background: rgba(255, 255, 255, 0.05);
-          border-color: rgba(255, 255, 255, 0.06);
-        }
-        
-        .menu-item:active {
-          transform: translate3d(2px, 0, 0) scale(0.97);
-        }
-        
-        .menu-item.active {
-          background: linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(167,139,250,0.06) 100%);
-          border-color: rgba(139, 92, 246, 0.2);
-        }
-        
-        /* Active Indicator */
-        .menu-item-glow {
-          position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translate3d(0, -50%, 0);
-          width: 3px;
-          height: 24px;
-          border-radius: 0 4px 4px 0;
-          background: linear-gradient(180deg, #C4B5FD 0%, #8B5CF6 100%);
-          box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
-        }
-        
-        /* Icon Container */
-        .menu-icon-wrap {
-          width: 44px;
-          height: 44px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 14px;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          contain: layout style;
-          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
-          flex-shrink: 0;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .menu-icon-wrap::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            circle at 30% 30%,
-            rgba(255, 255, 255, 0.1) 0%,
-            transparent 50%
-          );
-          pointer-events: none;
-        }
-        
-        .menu-item:hover .menu-icon-wrap {
-          background: rgba(255, 255, 255, 0.08);
-        }
-        
-        .menu-item.active .menu-icon-wrap {
-          background: rgba(139, 92, 246, 0.15);
-          border-color: rgba(139, 92, 246, 0.25);
-        }
-        
-        /* ═══════════════════════════════════════════════════════════════
-           SOCIAL LINKS - PROFESSIONAL
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .social-link {
-          width: 52px;
-          height: 52px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 16px;
-          background: rgba(255, 255, 255, 0.04);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          cursor: pointer;
-          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
-          -webkit-tap-highlight-color: transparent;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .social-link::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            circle at 30% 30%,
-            rgba(255, 255, 255, 0.08) 0%,
-            transparent 50%
-          );
-          pointer-events: none;
-        }
-        
-        .social-link:hover {
-          transform: translateY(-3px) scale(1.05);
-          background: rgba(255, 255, 255, 0.08);
-          box-shadow: 
-            0 8px 25px rgba(0, 0, 0, 0.25),
-            0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .social-link:active {
-          transform: scale(0.92);
-        }
-        
-        /* ═══════════════════════════════════════════════════════════════
-           BOOST BUTTON - PREMIUM
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .boost-btn {
-          position: relative;
-          width: 100%;
-          padding: 14px 20px;
-          border-radius: 14px;
-          background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 50%, #A78BFA 100%);
-          border: none;
-          cursor: pointer;
-          transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-          -webkit-tap-highlight-color: transparent;
-          box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
-          overflow: hidden;
-        }
-        
-        .boost-btn::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
-          pointer-events: none;
-        }
-        
-        .boost-btn:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
-        }
-        
-        .boost-btn:active {
-          transform: scale(0.97);
-        }
-        
-        
-        /* ═══════════════════════════════════════════════════════════════
-           PROGRESS BAR - ANIMATED
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .progress-bar {
-          position: relative;
-          width: 100%;
-          height: 6px;
-          border-radius: 6px;
-          background: rgba(255, 255, 255, 0.06);
-          overflow: hidden;
-          box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        
-        .progress-fill {
-          position: absolute;
-          left: 0;
-          top: 0;
-          height: 100%;
-          width: 5%;
-          border-radius: 6px;
-          background: linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%);
-          transition: width 0.6s ease-out;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════════
-           TOP BAR - GLASS HEADER
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .top-bar {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          z-index: 90;
-          background: rgba(0, 0, 0, 0.05);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-          padding-top: max(env(safe-area-inset-top, 0px), 12px);
-          overflow: hidden;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════════
-           REDUCED MOTION
-           ═══════════════════════════════════════════════════════════════ */
-        
-        @media (prefers-reduced-motion: reduce) {
-          .hamburger-btn,
-          .hamburger-line,
-          .menu-item,
-          .menu-icon-wrap,
-          .social-link,
-          .boost-btn,
-          .sidebar-overlay,
-          .sidebar-panel,
-          .sidebar-gradient-line,
-          .progress-fill {
-            transition: none !important;
-            animation: none !important;
+        html.light .w4-topbar{background:rgba(250,250,252,0.8);border-bottom-color:rgba(0,0,0,0.07);}
+
+        @media (prefers-reduced-motion:reduce){
+          .hb-btn,.hb-line,.w4m-overlay,.w4m-panel,.w4m-row,.w4m-cta,.w4m-soc,.w4m-tap{
+            transition-duration:.01ms!important;
           }
         }
-        
-        /* ═══════════════════════════════════════════════════════════════
-           LIGHT THEME OVERRIDES
-           ═══════════════════════════════════════════════════════════════ */
-        
-        html.light .hamburger-btn {
-          background: rgba(0, 0, 0, 0.05);
-          border-color: rgba(0, 0, 0, 0.08);
-        }
-        
-        html.light .hamburger-btn.hovered {
-          background: rgba(0, 0, 0, 0.08);
-          border-color: rgba(0, 0, 0, 0.12);
-        }
-        
-        html.light .hamburger-line {
-          background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%);
-        }
-        
-        html.light .hamburger-ripple {
-          background: rgba(0, 0, 0, 0.2);
-        }
-        
-        html.light .sidebar-overlay {
-          background: rgba(255, 255, 255, 0.6);
-        }
-        
-        html.light .sidebar-panel {
-          background: rgba(248, 250, 252, 0.95);
-          border-right-color: rgba(0, 0, 0, 0.08);
-          box-shadow: 20px 0 60px rgba(0, 0, 0, 0.1);
-        }
-        
-        html.light .sidebar-menu-item {
-          background: rgba(0, 0, 0, 0.03);
-          border-color: rgba(0, 0, 0, 0.05);
-          color: #1e293b;
-        }
-        
-        html.light .sidebar-menu-item:hover,
-        html.light .sidebar-menu-item.active {
-          background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(99,102,241,0.05) 100%);
-          border-color: rgba(59, 130, 246, 0.2);
-        }
-        
-        html.light .sidebar-menu-item .menu-item-glow {
-          background: rgba(59, 130, 246, 0.15);
-        }
-        
-        html.light .top-bar {
-          background: rgba(248, 250, 252, 0.8);
-          border-bottom-color: rgba(0, 0, 0, 0.06);
-        }
-        
-        html.light .social-link {
-          background: rgba(0, 0, 0, 0.04);
-          border-color: rgba(0, 0, 0, 0.06);
-        }
-        
-        html.light .social-link:hover {
-          background: rgba(0, 0, 0, 0.08);
-        }
-        
       `}</style>
 
-      <div 
-        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+      {/* overlay */}
+      <div
+        className={`w4m-overlay ${sidebarOpen ? 'open' : ''}`}
         onClick={closeSidebar}
         aria-hidden="true"
         style={{
-          opacity: sidebarOpen ? 1 : swipeOpenOffset > 0 ? swipeOpenOffset / 320 : 0,
-          pointerEvents: sidebarOpen ? 'auto' : swipeOpenOffset > 0 ? 'auto' : 'none'
+          opacity: sidebarOpen ? 1 : swipeOpenOffset > 0 ? swipeOpenOffset / 370 : 0,
+          pointerEvents: sidebarOpen ? 'auto' : swipeOpenOffset > 0 ? 'auto' : 'none',
         }}
       />
-      
-      <div 
+
+      {/* panel */}
+      <div
         ref={sidebarRef}
-        className={`sidebar-panel global-sidebar-panel ${sidebarOpen ? 'open' : ''}`}
+        className={`w4m-panel ${sidebarOpen ? 'open' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-label={t('sidebar.navigation')}
         style={{
-          transform: sidebarOpen 
-            ? `translateX(${-swipeOffset}px)` 
+          transform: sidebarOpen
+            ? `translateX(${-swipeOffset}px)`
             : swipeOpenOffset > 0
               ? `translateX(calc(-100% + ${swipeOpenOffset}px))`
               : 'translateX(-100%)',
-          transition: swipeOpenOffset > 0 ? 'none' : undefined
+          transition: swipeOpenOffset > 0 ? 'none' : undefined,
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="sidebar-gradient-line" />
+        <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 18px) 24px 0' }}>
+          {/* close */}
+          <div className="flex items-center justify-end">
+            <AnimatedHamburgerIcon ref={firstFocusableRef} isOpen={true} onClick={closeSidebar} ariaLabel={t('sidebar.closeMenu')} testId="button-menu-close" />
+          </div>
 
-        <div style={{ 
-          padding: '60px 24px 28px 24px',
-          borderBottom: `1px solid ${colors.sectionBorder}`,
-          overflow: 'visible'
-        }}>
-          <div className="flex items-center justify-between gap-3" style={{ overflow: 'visible' }}>
-            <div className="flex items-center gap-4 min-w-0 flex-1">
-              <div style={{ position: 'relative', flexShrink: 0 }}>
-                <UserAvatar
-                  photoUrl={user?.photo_url}
-                  firstName={user?.first_name}
-                  size="md"
-                  className="ring-2 ring-white/10"
-                />
-                <div style={{
-                  position: 'absolute',
-                  bottom: '2px',
-                  right: '2px',
-                  width: '10px',
-                  height: '10px',
-                  borderRadius: '50%',
-                  background: '#22C55E',
-                  border: `2px solid ${colors.onlineDotBorder}`
-                }} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  letterSpacing: '-0.02em',
-                  color: colors.textPrimary,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>
-                  {user?.first_name || t('sidebar.guest')}
-                </p>
-                
-                <div style={{ marginTop: '8px' }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: '6px'
-                  }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}>
-                      <div style={{
-                        padding: '2px 8px',
-                        borderRadius: '6px',
-                        background: colors.accentLight,
-                        border: `1px solid ${colors.accentBorder}`
-                      }}>
-                        <span style={{
-                          fontSize: '10px',
-                          fontWeight: 700,
-                          color: colors.accent,
-                          letterSpacing: '0.02em'
-                        }}>
-                          {t('sidebar.level')} 1
-                        </span>
-                      </div>
-                      <span style={{
-                        fontSize: '11px',
-                        color: colors.textMuted
-                      }}>
-                        {t('sidebar.beginner')}
-                      </span>
-                    </div>
-                    <span style={{
-                      fontSize: '10px',
-                      fontWeight: 600,
-                      color: colors.textSecondary
-                    }}>
-                      0/100 {t('sidebar.xpProgress')}
-                    </span>
-                  </div>
-                  
-                  <div className="progress-bar" role="progressbar" aria-valuenow={0} aria-valuemin={0} aria-valuemax={100} aria-label={`${t('sidebar.xpProgress')} 0%`}>
-                    <div className="progress-fill" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <AnimatedHamburgerIcon
-              ref={firstFocusableRef}
-              isOpen={true}
-              onClick={closeSidebar}
-              ariaLabel={t('sidebar.closeMenu')}
-            />
-          </div>
-          
-          <div style={{ marginTop: '24px' }}>
-            <p style={{
-              fontSize: '10px',
-              fontWeight: 700,
-              letterSpacing: '0.15em',
-              color: colors.textMuted,
-              textTransform: 'uppercase',
-              marginBottom: '12px'
-            }}>
-              {t('sidebar.projectStatus')}
-            </p>
-            
-            <div style={{
-              padding: '16px',
-              borderRadius: '14px',
-              background: colors.cardBg,
-              border: `1px solid ${colors.cardBorder}`
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '16px'
-              }}>
-                <span style={{
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  color: colors.textPrimary,
-                  letterSpacing: '-0.01em'
-                }}>
-                  {t('sidebar.appDevelopment')}
-                </span>
-                <span style={{
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  color: colors.textSecondary
-                }}>
-                  0%
-                </span>
-              </div>
-              
-              <div style={{
-                width: '100%',
-                height: '4px',
-                borderRadius: '2px',
-                background: colors.progressBg,
-                marginBottom: '16px',
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  height: '100%',
-                  width: '2%',
-                  borderRadius: '2px',
-                  background: colors.progressFill,
-                  transition: 'width 0.4s ease'
-                }} />
-              </div>
-              
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                gap: '8px'
-              }}>
-                {[
-                  { name: t('sidebar.brief'), num: 1, active: true },
-                  { name: t('sidebar.design'), num: 2, active: false },
-                  { name: t('sidebar.code'), num: 3, active: false },
-                  { name: t('sidebar.launch'), num: 4, active: false }
-                ].map((stage) => (
-                  <div key={stage.name} style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}>
-                    <div style={{
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: '50%',
-                      background: stage.active 
-                        ? (isDark ? 'rgba(167, 139, 250, 0.15)' : 'rgba(59, 130, 246, 0.1)')
-                        : (isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'),
-                      border: stage.active 
-                        ? `1.5px solid ${isDark ? 'rgba(167, 139, 250, 0.4)' : 'rgba(59, 130, 246, 0.3)'}`
-                        : `1.5px solid ${colors.cardBorder}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <span style={{
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        color: stage.active ? colors.accent : colors.textMuted
-                      }}>
-                        {stage.num}
-                      </span>
-                    </div>
-                    <span style={{
-                      fontSize: '10px',
-                      fontWeight: stage.active ? 600 : 500,
-                      color: stage.active ? colors.textSecondary : colors.textMuted,
-                      textAlign: 'center'
-                    }}>
-                      {stage.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <nav style={{ padding: '24px 16px', flex: 1 }}>
-          <p style={{
-            fontSize: '10px',
-            fontWeight: 700,
-            letterSpacing: '0.15em',
-            color: colors.textMuted,
-            textTransform: 'uppercase',
-            padding: '0 16px',
-            marginBottom: '12px'
-          }}>
-            {t('sidebar.navigation')}
-          </p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {menuItems.map((item) => {
-              const active = isActive(item.routes);
-              const isPressed = pressedItem === item.section;
-              
-              return (
-                <button
-                  key={item.section}
-                  onClick={() => handleNavClick(item.section)}
-                  className={`menu-item global-sidebar-item ${active ? 'active' : ''} ${isPressed ? 'pressed' : ''}`}
-                  data-testid={`button-nav-${item.section || 'home'}`}
-                >
-                  {active && <div className="menu-item-glow" />}
-                  
-                  <div 
-                    className="menu-icon-wrap"
-                    style={{
-                      background: iconStyle.bg,
-                      borderRadius: '10px',
-                      width: '36px',
-                      height: '36px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}
-                  >
-                    <item.icon 
-                      size={20} 
-                      color={iconStyle.color} 
-                    />
-                  </div>
-                  
-                  <div style={{ flex: 1 }}>
-                    <span style={{
-                      fontSize: '15px',
-                      fontWeight: isPressed || active ? 600 : 500,
-                      color: isPressed || active ? colors.textPrimary : colors.textSecondary,
-                      display: 'block'
-                    }}>
-                      {item.label}
-                    </span>
-                    <span style={{
-                      fontSize: '11px',
-                      color: colors.textMuted,
-                      marginTop: '2px',
-                      display: 'block'
-                    }}>
-                      {item.description}
-                    </span>
-                  </div>
-                  
-                  <ChevronRight 
-                    size={16} 
-                    color={active ? colors.accent : colors.textMuted}
-                    style={{ opacity: active ? 1 : 0.5 }}
-                  />
-                </button>
-              );
-            })}
-          </div>
-          
-          <div style={{
-            height: '1px',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%)',
-            margin: '16px 0'
-          }} />
-          
+          {/* profile */}
           <button
             onClick={() => handleNavClick('profile')}
-            className={`menu-item global-sidebar-item ${isProfileActive ? 'active' : ''} ${isProfilePressed ? 'pressed' : ''}`}
+            className="w4m-tap flex items-center"
             data-testid="button-nav-profile"
+            style={{
+              width: '100%', gap: 13, marginTop: 8, padding: '14px 4px',
+              borderBottom: '1px solid rgba(255,255,255,0.07)', background: 'transparent',
+              border: 'none', borderBottomWidth: 1, borderBottomStyle: 'solid',
+              borderBottomColor: 'rgba(255,255,255,0.07)', textAlign: 'left', cursor: 'pointer',
+            }}
           >
-            {isProfileActive && <div className="menu-item-glow" />}
-            
-            <div style={{
-              position: 'relative',
-              width: '40px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <UserAvatar
-                photoUrl={user?.photo_url}
-                firstName={user?.first_name}
-                size="sm"
-                className={isProfilePressed || isProfileActive ? 'ring-2 ring-violet-400/40' : ''}
-              />
-            </div>
-            
-            <div style={{ flex: 1 }}>
+            <UserAvatar photoUrl={user?.photo_url} firstName={user?.first_name} size="md" />
+            <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{
-                fontSize: '15px',
-                fontWeight: isProfilePressed || isProfileActive ? 600 : 500,
-                color: isProfilePressed || isProfileActive ? colors.textPrimary : colors.textSecondary,
-                display: 'block'
-              }}>
+                display: 'block', fontFamily: FONT, fontSize: '1rem', fontWeight: 600, color: '#fff',
+                letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>{user?.first_name || t('sidebar.guest')}</span>
+              <span style={{ display: 'block', fontFamily: FONT, fontSize: '0.8rem', fontWeight: 500, color: 'rgba(255,255,255,0.62)', marginTop: 2 }}>
                 {t('sidebar.myProfile')}
               </span>
-              <span style={{
-                fontSize: '11px',
-                color: colors.textMuted,
-                marginTop: '2px',
-                display: 'block'
-              }}>
-                {t('sidebar.rewardsAchievements')}
-              </span>
-            </div>
-            
-            <ChevronRight 
-              size={16} 
-              color={isProfileActive ? colors.accent : colors.textMuted}
-              style={{ opacity: isProfileActive ? 1 : 0.5 }}
-            />
+            </span>
+            <ChevronRight size={17} color={isProfileActive ? EM : 'rgba(255,255,255,0.32)'} />
           </button>
-        </nav>
-        
-        <div style={{ 
-          padding: '16px 20px',
-          marginTop: 'auto'
-        }}>
-          <div style={{
-            padding: '20px',
-            borderRadius: '16px',
-            background: colors.cardBg,
-            border: `1px solid ${colors.cardBorder}`
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              marginBottom: '10px'
-            }}>
-              <Sparkles size={18} color={colors.accent} />
-              <span style={{
-                fontSize: '14px',
-                fontWeight: 600,
-                color: colors.textPrimary
-              }}>
-                {t('sidebar.boostWithAi')} <span style={{ color: colors.accent }}>AI</span>
+
+          {/* project status */}
+          <div style={{ marginTop: 24 }}>
+            <div style={{ fontFamily: FONT, fontSize: '0.6875rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>
+              {t('sidebar.projectStatus')}
+            </div>
+            <div className="flex items-baseline justify-between" style={{ marginTop: 11 }}>
+              <span style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
+                {stages[activeStage - 1]}
+              </span>
+              <span style={{ fontFamily: FONT, fontSize: '0.8rem', fontWeight: 500, color: 'rgba(255,255,255,0.62)', fontVariantNumeric: 'tabular-nums' }}>
+                {language === 'ru' ? `Этап ${activeStage} из 4` : `Step ${activeStage} of 4`}
               </span>
             </div>
-            <p style={{
-              fontSize: '12px',
-              color: colors.textSecondary,
-              lineHeight: 1.5,
-              marginBottom: '16px'
-            }}>
-              {t('sidebar.aiAssistantDesc')}
-            </p>
-            
-            <button
-              onClick={() => handleNavClick('ai-process')}
-              className="boost-btn"
-              data-testid="button-upgrade-pro"
-            >
-              <span style={{
-                position: 'relative',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#FFFFFF',
-                letterSpacing: '0.02em'
-              }}>
-                {t('sidebar.learnMore')}
-              </span>
-            </button>
+            <div style={{ marginTop: 10, height: 3, borderRadius: 999, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${(activeStage / 4) * 100}%`, background: EM, borderRadius: 999 }} />
+            </div>
+          </div>
+
+          {/* navigation */}
+          <div style={{ marginTop: 28 }}>
+            <div style={{ fontFamily: FONT, fontSize: '0.6875rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>
+              {t('sidebar.navigation')}
+            </div>
+            <div>
+              {menuItems.map((item, i) => {
+                const active = isActive(item.routes);
+                return (
+                  <button
+                    key={item.section || 'home'}
+                    onClick={() => handleNavClick(item.section)}
+                    className="w4m-row"
+                    data-testid={`button-nav-${item.section || 'home'}`}
+                    style={{ transitionDelay: sidebarOpen ? `${0.12 + i * 0.04}s` : '0s' }}
+                  >
+                    <span style={{
+                      flex: 1, minWidth: 0, fontFamily: FONT, fontSize: '1.0625rem',
+                      fontWeight: active ? 600 : 500, letterSpacing: '-0.015em',
+                      color: active ? EM : 'rgba(255,255,255,0.9)',
+                    }}>{item.label}</span>
+                    <ChevronRight size={17} color={active ? EM : 'rgba(255,255,255,0.26)'} style={{ flexShrink: 0 }} />
+                  </button>
+                );
+              })}
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }} />
+            </div>
           </div>
         </div>
 
-        <div style={{
-          padding: '20px 24px 28px',
-          borderTop: `1px solid ${colors.sectionBorder}`,
-          background: isDark 
-            ? 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.2) 100%)'
-            : 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.03) 100%)'
-        }}>
-          <p style={{
-            fontSize: '10px',
-            fontWeight: 700,
-            letterSpacing: '0.15em',
-            color: colors.textMuted,
-            textTransform: 'uppercase',
-            marginBottom: '12px'
-          }}>
-            {t('sidebar.contactUs')}
-          </p>
-          
-          <div style={{
-            display: 'flex',
-            gap: '10px',
-            marginBottom: '20px'
-          }}>
-            {socialLinks.map((social) => (
-              <a
-                key={social.label}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-link"
-                aria-label={social.label}
-                data-testid={`link-social-${social.label.toLowerCase().replace(' ', '-')}`}
-              >
-                <social.icon size={20} color={socialIconColor} />
+        {/* bottom */}
+        <div style={{ marginTop: 'auto', padding: '26px 24px calc(env(safe-area-inset-bottom, 0px) + 24px)' }}>
+          <button onClick={() => handleNavClick('constructor')} className="w4m-cta" data-testid="button-discuss-project">
+            <span style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 700, color: '#04140d', letterSpacing: '-0.01em' }}>
+              {language === 'ru' ? 'Обсудить проект' : 'Discuss a project'}
+            </span>
+            <ArrowUpRight size={17} color="#04140d" strokeWidth={2.6} />
+          </button>
+          <div className="flex items-center" style={{ gap: 9, marginTop: 16 }}>
+            {socialLinks.map((s) => (
+              <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer"
+                className="w4m-soc" aria-label={s.label}
+                data-testid={`link-social-${s.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                <s.icon size={17} color="rgba(255,255,255,0.6)" aria-hidden="true" focusable={false} />
               </a>
             ))}
-          </div>
-          
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <p 
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: colors.textSecondary
-                }}
-              >
-                {t('sidebar.studioName')}
-              </p>
-              <p style={{
-                fontSize: '11px',
-                color: colors.textMuted,
-                marginTop: '2px'
-              }}>
-                {t('sidebar.studioYear')}
-              </p>
-            </div>
-            <div style={{
-              padding: '6px 10px',
-              borderRadius: '8px',
-              background: 'rgba(34, 197, 94, 0.1)',
-              border: '1px solid rgba(34, 197, 94, 0.2)'
-            }}>
-              <p style={{
-                fontSize: '10px',
-                fontWeight: 600,
-                color: colors.success,
-                letterSpacing: '0.02em'
-              }}>
-                {t('sidebar.online')}
-              </p>
-            </div>
           </div>
         </div>
       </div>
 
-      <div className="top-bar">
-        <div className="max-w-md mx-auto px-5 pt-16 pb-1 flex items-end justify-between gap-4" style={{ position: 'relative', zIndex: 2 }}>
+      {/* top bar */}
+      <div className="w4-topbar">
+        <div className="max-w-md mx-auto px-5 pt-16 pb-1 flex items-end justify-between gap-4" style={{ position: 'relative' }}>
           <div className="w-[52px]">
-            <AnimatedHamburgerIcon 
+            <AnimatedHamburgerIcon
               ref={triggerButtonRef}
-              isOpen={false} 
-              onClick={() => sidebarOpen ? closeSidebar() : openSidebar()} 
+              isOpen={false}
+              onClick={() => (sidebarOpen ? closeSidebar() : openSidebar())}
               ariaLabel={sidebarOpen ? t('sidebar.closeMenu') : t('sidebar.openMenu')}
+              testId="button-hamburger"
             />
           </div>
-          
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center">
-            <p style={{
-              fontSize: '14px',
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <span style={{
+              fontFamily: '"Syne", system-ui, sans-serif', fontSize: '14px', fontWeight: 800, letterSpacing: '-0.03em',
               color: isDark ? 'rgba(255,255,255,0.7)' : '#000000',
-              fontFamily: '"Syne", system-ui, sans-serif',
-              textShadow: isDark ? '0 0 20px rgba(255,255,255,0.15)' : 'none'
-            }}>
-              WEB4TG
-            </p>
+              textShadow: isDark ? '0 0 20px rgba(255,255,255,0.15)' : 'none',
+            }}>WEB4TG</span>
           </div>
-          
+          <div className="w-[52px]" aria-hidden="true" />
         </div>
       </div>
     </>
