@@ -5,6 +5,78 @@
 > AI reads the last 20-30 entries at the start of every session.
 
 
+## 2026-05-25 — ShowcasePage v3: Apple-grade rebuild + elite AI media
+
+- Full structural rethink of the WEB4TG homepage to an Apple-grade cinematic
+  chapter scroll (user: "переосмыслить структуру, уровень Apple"). 685 -> 547 lines.
+- Structure dropped the card-grid SaaS look: now Hero -> Statement -> 3 full-bleed
+  cinematic chapters (store / booking / craft) -> clean capability list ->
+  +280% number -> Наши работы (kept) -> minimal process -> CTA -> footer.
+- Typography rebuilt on a single clean family — Manrope, weights for hierarchy,
+  tight negative tracking (Apple SF-Display feel). Dropped the Stengazeta poster
+  font from the homepage. True black #000000. Emerald used only as an accent.
+  Subtle SVG film-grain overlay (.w4-grain) to kill OLED banding.
+- AI media regenerated via the image-first pipeline + PROMPT_CRAFT.md framework:
+  hero + 3 chapter shots first as Nano-Banana-Pro stills, then the phone-UI shots
+  (hero / store / booking) re-done on gpt_image_2 (OpenAI — crisp real interface
+  rendering), then the hero animated to a seamless loop via Seedance 2.0
+  image-to-video. All assets referenced by cloudfront URL (HF const).
+- Verified: quick_check 0 errors; every section browser-screenshotted at 430x932,
+  hero video plays, no page errors.
+
+
+## 2026-05-25 — ShowcasePage: full cinematic-luxury rebrand (homepage)
+
+- Complete rewrite of `client/src/components/ShowcasePage.tsx` — WEB4TG
+  homepage rebuilt as a world-class cinematic-luxury landing. 431 → 685 lines.
+- Direction: "кинематографичный люкс" on OLED black (#050505), emerald
+  (#34d399) accent, Stengazeta display + Manrope body, parallax scroll.
+- New media via Higgsfield (seedance_2_0 video + nano_banana images):
+  hero loop video (phone-in-void emerald glow), hero poster, 3-phones
+  editorial image, 3 abstract textures (aurora / network / topo).
+  Referenced by cloudfront URL (HF const) — sandbox cannot reach cloudfront.
+- 9 sections: Hero (AI video bg, parallax, headline + dual CTA + metric
+  chips + scroll cue) → Metrics 2×2 → Возможности (6 capability cards) →
+  Почему Telegram (editorial image banner + 4-point list) → Процесс
+  (4 steps) → Результат (+280% texture block) → Наши работы (KEPT — case
+  studies video cards) → Отзывы (3 review cards) → Финальный CTA → Footer.
+- Bilingual (ru/en) preserved. Reduced-motion respected. Touch targets
+  ≥44px, focus-visible rings, lazy images, aria labels — ui-ux-pro-max pass.
+- Verified: quick_check 0 errors; all 9 sections browser-screenshotted at
+  430×932, no page errors (only benign Telegram requestFullscreen warning).
+
+
+## 2026-05-25 — RADIANCE: full world-class rebrand (PremiumFashionStore)
+
+- Complete rewrite of `client/src/components/demos/PremiumFashionStore.tsx`
+  (`clothing-store` / `premium-fashion` demo). 3636 lines → 1490 lines,
+  self-contained single-file architecture (own CSS-in-JS tokens, keyframes
+  in a `<style>` block, portaled overlays, `useHaptic`, focus-trap).
+- New design system: warm editorial luxury — oat canvas `#EEEAE2`,
+  cognac accent `#A65A33`, Playfair Display serif + Inter. No black blocks.
+- Video kept in the hero but re-styled (rounded card, FW26 kicker,
+  serif headline, warm bottom gradient).
+- Catalog reimagined as an editorial lookbook: gender + category filters,
+  search, large "Образ недели" featured tile, rich 2-col product grid.
+- 18 products (was 8): 10 reuse existing `@assets` photos, 8 use new
+  Higgsfield `nano_banana_pro` imagery; 2 editorial campaign stills.
+- Full 3-stage cart→checkout→done flow, promo code (RADIANCE10),
+  free-ship meter, delivery/payment pickers; Profile with club card,
+  stats, order history, stylist block; Detail sheet with colour/size
+  selectors, tabbed info, related products; Favourites sheet.
+- Fixes during verification:
+  · cart bottom CTA was hidden behind the floating nav — moved into a
+    `createPortal(document.body)` panel (transformed ancestor was
+    containing the `position:fixed`).
+  · Detail/Favourites sheets sat under the nav (`z 9999`) — bumped sheet
+    z-index to `100000`, toast to `100020`.
+- `DemoAppShell.tsx` `demoThemes`: `clothing-store` + `premium-fashion`
+  → warm light theme `{ #EEEAE2, isDark:false, accent:#A65A33 }`.
+- `demoApps.ts`: card description → "Премиальный fashion-бутик верхней одежды".
+- Verified: quick_check 0 errors; all 4 tabs + detail + favourites +
+  full checkout browser-tested, no page errors.
+
+
 ## 2026-05-23 — DemoAppShell: solid nav backing + per-demo cart badge
 
 - Black block under pages fixed: the floating bottom nav had no backing,

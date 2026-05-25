@@ -75,7 +75,7 @@ export const demoApps: DemoApp[] = [
   {
     id: 'clothing-store',
     title: 'Radiance',
-    description: 'Магазин модной одежды и аксессуаров',
+    description: 'Премиальный fashion-бутик верхней одежды',
     category: 'Электронная коммерция',
     image: '/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg',
     creator: 'WEB4TG',

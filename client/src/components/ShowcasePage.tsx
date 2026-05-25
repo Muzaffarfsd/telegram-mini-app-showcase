@@ -1,10 +1,11 @@
-import { ArrowUpRight, ChevronRight, Play, Zap, CreditCard, Bot, BarChart3, Palette, Rocket, Clock, TrendingUp, Shield, Sparkles } from "lucide-react";
+import {
+  ArrowUpRight, ArrowRight, ChevronRight, Play, TrendingUp, ArrowDown, Check,
+} from "lucide-react";
 import { useCallback, useState, useEffect, useRef, useMemo } from "react";
-import { m, AnimatePresence, useInView, useScroll, useTransform } from '@/utils/LazyMotionProvider';
+import { m, useInView, useScroll, useTransform } from '@/utils/LazyMotionProvider';
 import { useTelegram } from '../hooks/useTelegram';
 import { useHaptic } from '../hooks/useHaptic';
 import { useVideoLazyLoad } from '../hooks/useVideoLazyLoad';
-import { AutoplayVideo } from './shared/AutoplayVideo';
 import { useViewedDemos } from '../hooks/useTelegramStorage';
 import { FavoriteButton } from './FavoriteButton';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -20,850 +21,528 @@ interface ShowcasePageProps {
   onOpenDemo: (demoId: string) => void;
 }
 
-const SYNE = '"Syne", system-ui, sans-serif';
-const INSTRUMENT = '"Instrument Serif", Georgia, serif';
-const INTER = '"Inter", -apple-system, system-ui, sans-serif';
-const MANROPE = '"Manrope", -apple-system, system-ui, sans-serif';
+/* ====================================================================
+   WEB4TG — главная · Apple-grade cinematic chapter scroll · OLED black
+   Higgsfield image-first media · Manrope · ui-ux-pro-max · 2026
+   ==================================================================== */
+
+const HF = "https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/";
+const HERO_IMG  = HF + "hf_20260525_184629_d8c956fe-93d3-4ac0-96b5-87813f8004dc_min.webp";
+const HERO_VIDEO = HF + "hf_20260525_173800_1c25b882-673f-435a-94e4-382a807cf060.mp4";
+const IMG_STORE = HF + "hf_20260525_191419_c5e7aaf0-5e12-4cc5-8796-1a2db461c65b_min.webp";
+const IMG_BOOK  = HF + "hf_20260525_191423_4fc7d9a6-c616-4b7e-b11a-f6e7fecb1d23_min.webp";
+const IMG_FORM  = HF + "hf_20260525_183551_0ac4fb31-08fa-4eca-b487-0b4838605a74_min.webp";
+const IMG_MACRO = HF + "hf_20260525_183556_335bc750-5e32-42f2-809f-3a0322e47fa5_min.webp";
+
+const FONT = '"Manrope", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+const DISPLAY = '"Stengazeta", "Manrope", system-ui, sans-serif';
+const ONDER = '"Onder", "Manrope", system-ui, sans-serif';
 const EMERALD = '#34d399';
+const EMERALD_SOFT = '#6ee7b7';
+const BG = '#000000';
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+const T = {
+  ink: '#FFFFFF',
+  sub: 'rgba(255,255,255,0.60)',
+  faint: 'rgba(255,255,255,0.40)',
+  hair: 'rgba(255,255,255,0.10)',
+  hairSoft: 'rgba(255,255,255,0.06)',
+  surface: 'rgba(255,255,255,0.045)',
+};
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-function Cin({ children, className = "", delay = 0 }: {
-  children: React.ReactNode; className?: string; delay?: number;
+/* — slow cinematic scroll reveal — */
+function Reveal({ children, className = "", delay = 0, y = 34 }: {
+  children: React.ReactNode; className?: string; delay?: number; y?: number;
 }) {
   const r = useRef(null);
-  const v = useInView(r, { once: true, margin: "-80px" });
+  const v = useInView(r, { once: true, margin: "-12% 0px" });
   const rm = prefersReducedMotion();
   return (
     <m.div ref={r}
-      initial={rm ? { opacity: 1 } : { opacity: 0, y: 40 }}
+      initial={rm ? { opacity: 1 } : { opacity: 0, y }}
       animate={v ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: rm ? 0 : 0.8, ease: EASE, delay: rm ? 0 : delay }}
+      transition={{ duration: rm ? 0 : 0.95, ease: EASE, delay: rm ? 0 : delay }}
       className={className}>
       {children}
     </m.div>
   );
 }
 
-function Ct({ to, suffix = "" }: { to: number; suffix?: string }) {
-  const r = useRef(null);
-  const v = useInView(r, { once: true });
-  const rm = prefersReducedMotion();
-  const [n, setN] = useState(rm ? to : 0);
-  useEffect(() => {
-    if (!v || rm) { setN(to); return; }
-    let dead = false;
-    const s = performance.now();
-    const loop = (t: number) => {
-      if (dead) return;
-      const p = Math.min((t - s) / 1600, 1);
-      setN(Math.round((1 - Math.pow(1 - p, 5)) * to));
-      if (p < 1) requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
-    return () => { dead = true; };
-  }, [v, to, rm]);
-  return <span ref={r}>{n}{suffix}</span>;
+/* — eyebrow label — */
+function Eyebrow({ children, center = false }: { children: React.ReactNode; center?: boolean }) {
+  return (
+    <div className="flex items-center" style={{ gap: 8, justifyContent: center ? 'center' : 'flex-start' }}>
+      <span style={{ width: 5, height: 5, borderRadius: 99, background: EMERALD, display: 'inline-block' }} />
+      <span style={{
+        fontFamily: ONDER, fontSize: '0.52rem', fontWeight: 700,
+        letterSpacing: '0.12em', textTransform: 'uppercase', color: EMERALD_SOFT,
+      }}>{children}</span>
+    </div>
+  );
 }
 
-const TAG_WORDS = {
-  ru: ["конкурентов", "рынка", "ожиданий", "привычного"],
-  en: ["competition", "expectations", "the ordinary", "the status quo"],
-};
+/* — display heading — */
+function Display({ children, size = 'clamp(2.1rem, 9.6vw, 3rem)', style }: {
+  children: React.ReactNode; size?: string; style?: React.CSSProperties;
+}) {
+  return (
+    <h2 style={{
+      fontFamily: DISPLAY, fontSize: size, fontWeight: 700, color: T.ink,
+      letterSpacing: '0.012em', lineHeight: 1.07, ...style,
+    }}>{children}</h2>
+  );
+}
 
-const FEATURES = [
-  { icon: Rocket, color: '#34d399', tRu: 'Запуск за 24ч', tEn: 'Launch in 24h', sRu: 'От идеи до работающего приложения — один день', sEn: 'From idea to working app — one day' },
-  { icon: CreditCard, color: '#60a5fa', tRu: 'Платежи', tEn: 'Payments', sRu: 'Stripe, YooKassa, криптовалюты — любой способ оплаты', sEn: 'Stripe, YooKassa, crypto — any payment method' },
-  { icon: Bot, color: '#a78bfa', tRu: 'AI-ассистент', tEn: 'AI Assistant', sRu: 'Умный бот отвечает клиентам 24/7, увеличивает конверсию на 40%', sEn: 'Smart bot answers customers 24/7, boosts conversion by 40%' },
-  { icon: BarChart3, color: '#f97316', tRu: 'Аналитика', tEn: 'Analytics', sRu: 'Воронка продаж, когорты, LTV — всё в реальном времени', sEn: 'Sales funnel, cohorts, LTV — all in real-time' },
-  { icon: Palette, color: '#f472b6', tRu: 'Премиум дизайн', tEn: 'Premium Design', sRu: 'Уровень Apple Store. Каждый пиксель проработан', sEn: 'Apple Store level. Every pixel perfected' },
-  { icon: Zap, color: '#facc15', tRu: '0% комиссий', tEn: '0% Commission', sRu: 'Маркетплейсы берут до 25%. Мы — ноль', sEn: 'Marketplaces take up to 25%. We take zero' },
-];
+/* — body copy — */
+function Body({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <p style={{
+      fontFamily: FONT, fontSize: '1.0625rem', fontWeight: 400, lineHeight: 1.6,
+      color: T.sub, letterSpacing: '-0.005em', ...style,
+    }}>{children}</p>
+  );
+}
 
 export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePageProps) {
   useTelegram();
   const haptic = useHaptic();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const ru = language === 'ru';
   const { videoRef } = useVideoLazyLoad({ threshold: 0.25 });
   const { markAsViewed } = useViewedDemos();
   const queryClient = useQueryClient();
-
-  const words = ru ? TAG_WORDS.ru : TAG_WORDS.en;
-  const [wi, setWi] = useState(0);
+  const rm = prefersReducedMotion();
 
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries();
-    await new Promise(resolve => setTimeout(resolve, 600));
+    await new Promise(r => setTimeout(r, 600));
   }, [queryClient]);
   const { pullDistance, isRefreshing, progress, shouldShowIndicator } = usePullToRefresh({
     onRefresh: handleRefresh, threshold: 70, maxPullDistance: 100,
   });
 
-  useEffect(() => {
-    if (prefersReducedMotion()) return;
-    const id = setInterval(() => setWi(i => (i + 1) % words.length), 2600);
-    return () => clearInterval(id);
-  }, [words.length]);
-
   const openDemo = useCallback((id: string) => {
     haptic.light(); markAsViewed(id); onOpenDemo(id);
   }, [haptic, onOpenDemo, markAsViewed]);
-
   const nav = useCallback((s: string) => {
     haptic.light(); onNavigate(s);
   }, [haptic, onNavigate]);
 
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 80]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const heroImgY = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  const heroImgScale = useTransform(scrollYProgress, [0, 1], [1, 1.13]);
+  const heroTextY = useTransform(scrollYProgress, [0, 1], [0, 130]);
+  const heroFade = useTransform(scrollYProgress, [0, 0.62], [1, 0]);
+
+  const chapters = [
+    {
+      img: IMG_STORE, eyebrow: ru ? 'Коммерция' : 'Commerce',
+      title: ru ? <>Магазин<br />внутри чата</> : <>A store<br />inside the chat</>,
+      body: ru
+        ? 'Каталог, корзина, оплата и доставка — клиент покупает, не выходя из Telegram. Без сайта и без установки из стора.'
+        : 'Catalog, cart, checkout and delivery — your client buys without ever leaving Telegram.',
+    },
+    {
+      img: IMG_BOOK, eyebrow: ru ? 'Услуги' : 'Services',
+      title: ru ? <>Запись и оплата<br />за секунды</> : <>Booking & pay<br />in seconds</>,
+      body: ru
+        ? 'Свободные слоты, напоминания и предоплата — приём записей и денег работает сам, без единого звонка.'
+        : 'Open slots, reminders and prepay — bookings and money flow in on their own.',
+    },
+    {
+      img: IMG_MACRO, eyebrow: ru ? 'Ремесло' : 'Craft',
+      title: ru ? <>Выверено<br />до пикселя</> : <>Refined<br />to the pixel</>,
+      body: ru
+        ? 'Каждый экран, отступ и переход продуман. Приложение, которое приятно открывать каждый день.'
+        : 'Every screen, margin and transition considered — an app people love opening daily.',
+    },
+  ];
+
+  const capsExtra = [
+    { t: ru ? 'Боты и автоворонки' : 'Bots & funnels', d: ru ? 'Рассылки, прогрев и поддержка на автопилоте' : 'Broadcasts and support on autopilot' },
+    { t: ru ? 'Аналитика и CRM' : 'Analytics & CRM', d: ru ? 'Клиенты, заказы и выручка в одной панели' : 'Clients, orders and revenue in one panel' },
+    { t: ru ? 'Платежи без комиссий' : 'Zero-fee payments', d: ru ? 'Telegram Stars, карты и СБП — деньги сразу вам' : 'Stars, cards and instant pay — straight to you' },
+    { t: ru ? 'Уведомления' : 'Notifications', d: ru ? 'Возврат клиентов прямо в их ленту Telegram' : 'Bring clients back, right into their Telegram feed' },
+  ];
+
+  const steps = [
+    { n: '01', t: ru ? 'Бриф' : 'Brief', d: ru ? 'Созваниваемся и погружаемся в ваш бизнес.' : 'We call and dive into your business.' },
+    { n: '02', t: ru ? 'Дизайн' : 'Design', d: ru ? 'Прототип и визуал, который вы утверждаете.' : 'A prototype and visuals you approve.' },
+    { n: '03', t: ru ? 'Сборка' : 'Build', d: ru ? 'Разрабатываем, наполняем, тестируем.' : 'We develop, fill and test.' },
+    { n: '04', t: ru ? 'Запуск' : 'Launch', d: ru ? 'Публикуем в Telegram и передаём аналитику.' : 'We publish and hand over analytics.' },
+  ];
 
   const cases = useMemo(() => [
-    { id: 'electronics', vid: true, src: "/videos/techstore_2025.mp4", poster: "/videos/techstore_2025_poster.jpg", label: 'TechStore', sub: ru ? 'Электроника' : 'Electronics', growth: '+220%', cat: ru ? 'Техника' : 'Tech' },
-    { id: 'luxury-watches', vid: true, src: "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4", poster: "/videos/timeelite_poster.jpg", label: 'TimeElite', sub: ru ? 'Премиум часы' : 'Premium watches', growth: '+340%', cat: ru ? 'Люкс' : 'Luxury' },
-    { id: 'luxury-perfume', vid: true, src: "/videos/luxury_fragrance.mp4", poster: "/videos/fragrance_poster.jpg", label: 'FragranceRoyale', sub: ru ? 'Нишевая парфюмерия' : 'Niche perfumery', growth: '+290%', cat: ru ? 'Бьюти' : 'Beauty' },
-    { id: 'sneaker-store', vid: false, src: nikeGreenImage, label: 'SneakerVault', sub: ru ? 'Культ кроссовок' : 'Sneaker culture', growth: '+280%', cat: ru ? 'Мода' : 'Fashion' },
-    { id: 'clothing-store', vid: false, src: rascalImage, label: 'Rascal', sub: ru ? 'Уличная мода' : 'Street fashion', growth: '+195%', cat: ru ? 'Мода' : 'Fashion' },
-  ], [ru]);
-
-  const testimonials = useMemo(() => [
-    {
-      text: ru ? 'Мы потратили полгода на маркетплейс и потеряли 3 миллиона на комиссиях. С WEB4TG запустились за день. Продажи — плюс 340% за первый месяц.' : 'We spent six months on a marketplace and lost $40k in fees. With WEB4TG we launched in one day. Sales — up 340% in the first month.',
-      name: ru ? 'Александр М.' : 'Alexander M.',
-      role: ru ? 'Основатель TimeElite' : 'Founder, TimeElite',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-    },
-    {
-      text: ru ? 'AI-ассистент закрывает 70% вопросов клиентов автоматически. Мы сократили расходы на поддержку вдвое и увеличили средний чек на 25%.' : 'AI assistant handles 70% of customer questions automatically. We cut support costs in half and increased average order by 25%.',
-      name: ru ? 'Марина К.' : 'Marina K.',
-      role: ru ? 'CEO FragranceRoyale' : 'CEO, FragranceRoyale',
-      avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-    },
-    {
-      text: ru ? 'Дизайн нашего магазина не отличить от приложения Apple. Клиенты думают что мы — крупный бренд. Это сразу увеличило доверие и конверсию.' : 'Our store design is indistinguishable from an Apple app. Customers think we\'re a major brand. This immediately boosted trust and conversion.',
-      name: ru ? 'Дмитрий Р.' : 'Dmitry R.',
-      role: ru ? 'Владелец SneakerVault' : 'Owner, SneakerVault',
-      avatar: 'https://randomuser.me/api/portraits/men/75.jpg',
-    },
-    {
-      text: ru ? 'За 2 недели после запуска мини-приложения мы получили 1200 новых клиентов через Telegram. Раньше на это уходило 3 месяца рекламы.' : 'Within 2 weeks of launching our mini app, we gained 1,200 new customers through Telegram. Previously this took 3 months of ads.',
-      name: ru ? 'Елена В.' : 'Elena V.',
-      role: ru ? 'Основатель BouquetLab' : 'Founder, BouquetLab',
-      avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
-    },
-    {
-      text: ru ? 'Наш ресторан перешёл полностью на заказы через Telegram. Нет комиссий агрегаторов, прямая связь с клиентом. Выручка выросла на 180%.' : 'Our restaurant switched entirely to Telegram orders. No aggregator fees, direct customer contact. Revenue grew 180%.',
-      name: ru ? 'Игорь Т.' : 'Igor T.',
-      role: ru ? 'Управляющий GrillMasters' : 'Manager, GrillMasters',
-      avatar: 'https://randomuser.me/api/portraits/men/46.jpg',
-    },
+    { id: 'electronics', vid: true, src: "/videos/techstore_2025.mp4", poster: "/videos/techstore_2025_poster.jpg", label: 'TechStore', sub: ru ? 'Электроника' : 'Electronics', growth: '+220%' },
+    { id: 'luxury-watches', vid: true, src: "/videos/ac56ea9bc8429fb2f0ffacfac0abe74d_1762353025450.mp4", poster: "/videos/timeelite_poster.jpg", label: 'TimeElite', sub: ru ? 'Премиум часы' : 'Premium watches', growth: '+340%' },
+    { id: 'luxury-perfume', vid: true, src: "/videos/luxury_fragrance.mp4", poster: "/videos/fragrance_poster.jpg", label: 'FragranceRoyale', sub: ru ? 'Парфюмерия' : 'Perfumery', growth: '+290%' },
+    { id: 'sneaker-store', vid: false, src: nikeGreenImage, label: 'SneakerVault', sub: ru ? 'Кроссовки' : 'Sneakers', growth: '+280%' },
+    { id: 'clothing-store', vid: false, src: rascalImage, label: 'Radiance', sub: ru ? 'Премиум-мода' : 'Premium fashion', growth: '+195%' },
   ], [ru]);
 
   return (
-    <div className="min-h-screen select-none overflow-x-hidden showcase-page" style={{ backgroundColor: '#050505' }}>
-      <div className="relative z-10">
+    <div className="min-h-screen select-none overflow-x-hidden showcase-page" style={{ backgroundColor: BG }}>
+      <div className="w4-grain" aria-hidden="true" />
+      <div className="relative" style={{ zIndex: 1 }}>
         <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} shouldShow={shouldShowIndicator} progress={progress} />
-
         <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
 
-          {/* ═══════ HERO ═══════ */}
-          <header ref={heroRef} className="relative px-6 pt-14 pb-14 overflow-hidden" role="banner" style={{ minHeight: '85vh' }}>
+          {/* ═══════════ HERO ═══════════ */}
+          <header ref={heroRef} className="relative overflow-hidden" role="banner" style={{ minHeight: '100dvh' }}>
+            <m.div className="absolute inset-0" style={{ y: rm ? 0 : heroImgY, scale: rm ? 1 : heroImgScale }}>
+              <video src={HERO_VIDEO} poster={HERO_IMG} autoPlay muted loop playsInline preload="auto"
+                className="absolute inset-0 w-full h-full object-cover" style={{ opacity: 0.96 }} />
+              <div className="absolute inset-0" aria-hidden="true" style={{
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.62) 22%, rgba(0,0,0,0.06) 46%, rgba(0,0,0,0.34) 74%, #000 100%)',
+              }} />
+            </m.div>
 
-            <div className="absolute inset-0 z-0 overflow-hidden">
-              <AutoplayVideo
-                src="/videos/hero.mp4"
-                eager
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ opacity: 0.5, filter: 'saturate(0.5) contrast(1.1)' }}
-                fallback={
-                  <div className="absolute inset-0" style={{
-                    background: `radial-gradient(ellipse at 30% 70%, ${EMERALD}18 0%, transparent 60%), radial-gradient(ellipse at 70% 30%, rgba(99,102,241,0.08) 0%, transparent 60%), #0a0a0a`,
-                  }} />
-                }
-              />
-              <div className="absolute inset-0" style={{
-                background: 'linear-gradient(180deg, #050505 0%, rgba(5,5,5,0.3) 40%, rgba(5,5,5,0.3) 60%, #050505 100%)',
-              }} />
-              <div className="absolute inset-0" style={{
-                background: `radial-gradient(ellipse at 20% 80%, ${EMERALD}0a 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.04) 0%, transparent 50%)`,
-              }} />
+            <div className="relative flex items-center justify-between px-6"
+              style={{ zIndex: 2, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}>
+              <span style={{ fontFamily: DISPLAY, fontSize: '1.18rem', fontWeight: 700, letterSpacing: '0.04em', color: T.ink }}>
+                WEB4TG
+              </span>
+              <span style={{ fontFamily: FONT, fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.13em', textTransform: 'uppercase', color: T.faint }}>
+                {ru ? 'Telegram-студия' : 'Telegram studio'}
+              </span>
             </div>
 
-            <m.div className="relative z-10 flex flex-col justify-end" style={{ minHeight: '72vh', y: heroY, opacity: heroOpacity }}>
-
-              <m.h1
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                style={{ fontFamily: SYNE, lineHeight: 0.92, letterSpacing: '-0.06em' }}
-              >
-                <m.span
-                  className="block"
-                  initial={{ opacity: 0, y: 60 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, ease: EASE, delay: 0.5 }}
-                  style={{ fontSize: 'clamp(3rem, 11vw, 4.5rem)', fontWeight: 800, color: '#fff' }}
-                >
-                  {ru ? 'Впереди' : 'Beyond'}
+            <m.div className="relative px-6" style={{
+              zIndex: 2, paddingTop: 'clamp(38px, 13vh, 104px)',
+              y: rm ? 0 : heroTextY, opacity: rm ? 1 : heroFade,
+            }}>
+              <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: EASE, delay: 0.3 }}>
+                <Eyebrow>{ru ? 'Студия Telegram-приложений' : 'Telegram mini-app studio'}</Eyebrow>
+              </m.div>
+              <h1 style={{ fontFamily: DISPLAY, fontWeight: 700, letterSpacing: '0.012em', lineHeight: 1.0, marginTop: 20 }}>
+                <m.span className="block" initial={rm ? { opacity: 1 } : { opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: rm ? 0 : 0.9, ease: EASE, delay: rm ? 0 : 0.42 }}
+                  style={{ fontSize: 'clamp(2.7rem, 13vw, 3.9rem)', color: T.ink }}>
+                  {ru ? 'Telegram-приложения,' : 'Telegram apps'}
                 </m.span>
-
-                <span className="block overflow-hidden" style={{ height: 'clamp(3.2rem, 12vw, 5rem)' }}>
-                  <AnimatePresence mode="wait">
-                    <m.span
-                      key={wi}
-                      className="block"
-                      initial={{ y: '110%', opacity: 0 }}
-                      animate={{ y: '0%', opacity: 1 }}
-                      exit={{ y: '-100%', opacity: 0 }}
-                      transition={{ duration: 0.5, ease: EASE }}
-                      style={{
-                        fontSize: 'clamp(3rem, 11vw, 4.5rem)', fontWeight: 800,
-                        fontFamily: INSTRUMENT, fontStyle: 'italic',
-                        background: `linear-gradient(135deg, ${EMERALD}, #a7f3d0)`,
-                        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                      }}
-                    >
-                      {words[wi]}
-                    </m.span>
-                  </AnimatePresence>
-                </span>
-              </m.h1>
-
-              <m.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.9 }}
-                className="mt-6 max-w-xs"
-                style={{
-                  fontFamily: MANROPE, fontSize: 'clamp(1.05rem, 3vw, 1.15rem)',
-                  lineHeight: 1.6, color: 'rgba(255,255,255,0.75)', fontWeight: 400,
-                }}
-              >
-                {ru
-                  ? 'Создаём мини-приложения для Telegram, которые продают. Без комиссий. Запуск — за 24 часа.'
-                  : 'We build Telegram mini apps that sell. Zero fees. Ready in 24 hours.'}
-              </m.p>
-
-              <m.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: EASE, delay: 1.1 }}
-                className="mt-7 flex items-center gap-4"
-              >
-                <button
-                  onClick={() => nav('projects')}
-                  className="group flex items-center gap-2.5 rounded-full px-6 transition-all duration-500 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
-                  style={{ height: 48, background: '#fff' }}
-                >
-                  <span style={{ fontFamily: SYNE, fontSize: '0.8125rem', fontWeight: 700, color: '#000', letterSpacing: '-0.01em' }}>
-                    {ru ? 'Начать проект' : 'Start a Project'}
+                <m.span className="block" initial={rm ? { opacity: 1 } : { opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: rm ? 0 : 0.9, ease: EASE, delay: rm ? 0 : 0.54 }}
+                  style={{ fontSize: 'clamp(2.7rem, 13vw, 3.9rem)', color: EMERALD }}>
+                  {ru ? 'которые продают.' : 'that sell.'}
+                </m.span>
+              </h1>
+              <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.78 }}>
+                <Body style={{ marginTop: 22, maxWidth: 360 }}>
+                  {ru
+                    ? 'Студия WEB4TG проектирует и запускает мини-приложения мирового уровня — без скачиваний, без комиссий, за 24 часа.'
+                    : 'WEB4TG designs and ships world-class mini apps — no installs, no fees, in 24 hours.'}
+                </Body>
+              </m.div>
+              <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: EASE, delay: 0.94 }}
+                className="flex items-center" style={{ gap: 14, marginTop: 30 }}>
+                <button onClick={() => nav('projects')}
+                  className="group flex items-center transition-transform duration-300 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+                  style={{ height: 54, padding: '0 26px', borderRadius: 999, background: T.ink, gap: 8 }}>
+                  <span style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 700, color: '#000', letterSpacing: '-0.01em' }}>
+                    {ru ? 'Начать проект' : 'Start a project'}
                   </span>
                   <ArrowUpRight className="w-4 h-4 text-black transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.5} />
                 </button>
-
-                <button
-                  onClick={() => openDemo('clothing-store')}
-                  onTouchStart={() => preloadDemo('clothing-store')}
-                  onMouseEnter={() => preloadDemo('clothing-store')}
-                  className="flex items-center gap-2 rounded-full px-4 transition-all duration-300 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/40 focus-visible:outline-offset-2"
-                  style={{ height: 48, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
-                  aria-label={ru ? 'Посмотреть демо' : 'View demo'}
-                >
-                  <Play className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.6)' }} fill="rgba(255,255,255,0.6)" />
-                  <span style={{ fontFamily: INTER, fontSize: '0.8125rem', fontWeight: 500, color: 'rgba(255,255,255,0.6)' }}>
+                <button onClick={() => { preloadDemo('electronics'); openDemo('electronics'); }}
+                  onTouchStart={() => preloadDemo('electronics')} onMouseEnter={() => preloadDemo('electronics')}
+                  className="flex items-center transition-opacity duration-300 active:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/40 focus-visible:outline-offset-2"
+                  style={{ height: 54, gap: 7 }} aria-label={ru ? 'Открыть демо' : 'Open demo'}>
+                  <span className="flex items-center justify-center" style={{ width: 30, height: 30, borderRadius: 999, border: `1px solid ${T.hair}` }}>
+                    <Play className="w-3 h-3" style={{ color: EMERALD, marginLeft: 1 }} fill={EMERALD} />
+                  </span>
+                  <span style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 600, color: T.ink }}>
                     {ru ? 'Демо' : 'Demo'}
                   </span>
                 </button>
               </m.div>
             </m.div>
+
+            <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1.3 }}
+              className="absolute left-1/2" style={{ bottom: 18, transform: 'translateX(-50%)', zIndex: 2 }} aria-hidden="true">
+              <m.div animate={rm ? {} : { y: [0, 7, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
+                <ArrowDown className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.5)' }} strokeWidth={2} />
+              </m.div>
+            </m.div>
           </header>
 
-          {/* ═══════ MARQUEE ═══════ */}
-          <div className="py-4 overflow-hidden" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-            <m.div
-              animate={prefersReducedMotion() ? {} : { x: ['0%', '-50%'] }}
-              transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-              className="flex items-center gap-8 whitespace-nowrap"
-              style={{ width: 'max-content' }}
-            >
-              {[0, 1].map(rep => (
-                <div key={rep} className="flex items-center gap-8">
-                  {(ru
-                    ? ['22 демо-приложения', '0% комиссий', 'Запуск за 24ч', 'AI-ассистент 24/7', 'Премиум дизайн', 'Аналитика', 'Telegram Mini Apps']
-                    : ['22 Demo Apps', '0% Fees', 'Launch in 24h', 'AI Assistant 24/7', 'Premium Design', 'Analytics', 'Telegram Mini Apps']
-                  ).map((txt, j) => (
-                    <span key={j} className="flex items-center gap-8">
-                      <span style={{
-                        fontFamily: SYNE, fontSize: '0.6875rem',
-                        fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' as const,
-                        color: 'rgba(255,255,255,0.3)',
-                      }}>{txt}</span>
-                      <span style={{ color: EMERALD, opacity: 0.35, fontSize: '5px' }}>●</span>
+          {/* ═══════════ STATEMENT ═══════════ */}
+          <section className="px-6" style={{ paddingTop: 104, paddingBottom: 104 }}>
+            <Reveal>
+              <p style={{
+                fontFamily: DISPLAY, fontSize: 'clamp(1.75rem, 7.6vw, 2.55rem)', fontWeight: 700,
+                letterSpacing: '0.012em', lineHeight: 1.3, color: 'rgba(255,255,255,0.5)',
+              }}>
+                {ru ? <>В Telegram уже 900 миллионов человек.{' '}
+                  <span style={{ color: T.ink }}>Мы превращаем их в ваших клиентов.</span></>
+                  : <>900 million people are already on Telegram.{' '}
+                  <span style={{ color: T.ink }}>We turn them into your customers.</span></>}
+              </p>
+            </Reveal>
+          </section>
+
+          {/* ═══════════ CHAPTERS ═══════════ */}
+          {chapters.map((ch, i) => (
+            <section key={i} style={{ paddingTop: i === 0 ? 0 : 100, paddingBottom: 100 }}>
+              <Reveal className="px-6">
+                <Eyebrow>{ch.eyebrow}</Eyebrow>
+                <Display style={{ marginTop: 16 }}>{ch.title}</Display>
+                <Body style={{ marginTop: 17, maxWidth: 380 }}>{ch.body}</Body>
+              </Reveal>
+              <Reveal delay={0.06}>
+                <div className="relative" style={{ marginTop: 34, height: '76vh', maxHeight: 600, overflow: 'hidden' }}>
+                  <img src={ch.img} alt="" loading="lazy" draggable={false}
+                    className="absolute inset-0 w-full h-full" style={{ objectFit: 'cover', objectPosition: 'center' }} />
+                  <div className="absolute inset-0" aria-hidden="true" style={{
+                    background: 'linear-gradient(180deg, #000 0%, rgba(0,0,0,0) 16%, rgba(0,0,0,0) 80%, #000 100%)',
+                  }} />
+                </div>
+              </Reveal>
+            </section>
+          ))}
+
+          {/* ═══════════ CAPABILITIES (clean list) ═══════════ */}
+          <section className="px-6" style={{ paddingTop: 4, paddingBottom: 104 }}>
+            <Reveal>
+              <Eyebrow>{ru ? 'И это ещё не всё' : 'And more'}</Eyebrow>
+              <Display style={{ marginTop: 16 }}>
+                {ru ? <>Полный продукт,<br />а не страница</> : <>A full product,<br />not a page</>}
+              </Display>
+            </Reveal>
+            <div style={{ marginTop: 30 }}>
+              {capsExtra.map((c, i) => (
+                <Reveal key={i} delay={i * 0.05} y={22}>
+                  <div className="flex items-start" style={{
+                    gap: 16, padding: '22px 2px',
+                    borderTop: i ? `1px solid ${T.hairSoft}` : `1px solid ${T.hair}`,
+                  }}>
+                    <span className="flex items-center justify-center flex-shrink-0" style={{
+                      width: 26, height: 26, borderRadius: 999, marginTop: 2,
+                      background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.28)',
+                    }}>
+                      <Check className="w-3.5 h-3.5" style={{ color: EMERALD }} strokeWidth={2.6} />
                     </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: DISPLAY, fontSize: '1.24rem', fontWeight: 700, color: T.ink, letterSpacing: '0.01em' }}>
+                        {c.t}
+                      </div>
+                      <div style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 400, color: T.sub, lineHeight: 1.5, marginTop: 4 }}>
+                        {c.d}
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+
+          {/* ═══════════ THE NUMBER ═══════════ */}
+          <section className="relative overflow-hidden" style={{ paddingTop: 96, paddingBottom: 96 }}>
+            <div className="absolute inset-0" aria-hidden="true" style={{
+              background: `radial-gradient(ellipse 64% 44% at 50% 44%, rgba(52,211,153,0.16) 0%, transparent 70%)`,
+            }} />
+            <div className="relative px-6 text-center">
+              <Reveal>
+                <div className="flex justify-center"><Eyebrow center>{ru ? 'Результаты клиентов' : 'Client results'}</Eyebrow></div>
+                <div style={{
+                  fontFamily: DISPLAY, fontSize: 'clamp(4.6rem, 26vw, 8rem)', fontWeight: 700,
+                  letterSpacing: '0.005em', lineHeight: 0.94, color: T.ink, marginTop: 22,
+                }}>
+                  +280<span style={{ color: EMERALD }}>%</span>
+                </div>
+                <Body style={{ marginTop: 20, maxWidth: 300, marginLeft: 'auto', marginRight: 'auto' }}>
+                  {ru
+                    ? 'средний рост продаж за первые три месяца после запуска приложения WEB4TG'
+                    : 'average sales growth in the first three months after a WEB4TG launch'}
+                </Body>
+                <div className="flex items-stretch justify-center" style={{ marginTop: 34 }}>
+                  {[
+                    { v: '47', l: ru ? 'проектов' : 'projects' },
+                    { v: '12', l: ru ? 'ниш' : 'industries' },
+                    { v: '4.9', l: ru ? 'рейтинг' : 'rating' },
+                  ].map((x, i) => (
+                    <div key={i} style={{
+                      padding: '0 20px',
+                      borderLeft: i ? `1px solid ${T.hair}` : 'none',
+                    }}>
+                      <div style={{ fontFamily: DISPLAY, fontSize: '1.74rem', fontWeight: 700, color: T.ink, letterSpacing: '0.01em' }}>{x.v}</div>
+                      <div style={{ fontFamily: FONT, fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: T.faint, marginTop: 5 }}>{x.l}</div>
+                    </div>
                   ))}
                 </div>
-              ))}
-            </m.div>
-          </div>
+              </Reveal>
+            </div>
+          </section>
 
-          {/* ═══════ CASE STUDIES ═══════ */}
-          <section className="py-14" aria-label={ru ? 'Кейсы' : 'Case studies'}>
-            <Cin className="px-6 mb-6">
+          {/* ═══════════ НАШИ РАБОТЫ ═══════════ */}
+          <section style={{ paddingTop: 8, paddingBottom: 104 }} aria-label={ru ? 'Наши работы' : 'Our work'}>
+            <Reveal className="px-6">
               <div className="flex items-end justify-between">
                 <div>
-                  <span style={{
-                    fontFamily: SYNE, fontSize: '0.6875rem',
-                    fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' as const,
-                    color: 'rgba(255,255,255,0.25)',
-                  }}>
-                    {ru ? 'Портфолио' : 'Portfolio'}
-                  </span>
-                  <h2 className="mt-2" style={{
-                    fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
-                    fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
-                  }}>
-                    {ru ? <>Наши <span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.4)' }}>работы</span></> : <>Selected <span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.4)' }}>Work</span></>}
-                  </h2>
+                  <Eyebrow>{ru ? 'Портфолио' : 'Portfolio'}</Eyebrow>
+                  <Display style={{ marginTop: 16 }}>{ru ? 'Наши работы' : 'Selected work'}</Display>
                 </div>
-                <button onClick={() => nav('projects')} className="flex items-center gap-0.5 active:opacity-50 transition-opacity pb-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2 rounded">
-                  <span style={{ fontFamily: INTER, fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
-                    {ru ? 'Все 22' : 'All 22'}
-                  </span>
-                  <ChevronRight className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
+                <button onClick={() => nav('projects')}
+                  className="flex items-center active:opacity-50 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50 focus-visible:outline-offset-2 rounded"
+                  style={{ gap: 2, paddingBottom: 4, minHeight: 44 }}>
+                  <span style={{ fontFamily: FONT, fontSize: '0.82rem', fontWeight: 600, color: T.sub }}>{ru ? 'Все 22' : 'All 22'}</span>
+                  <ChevronRight className="w-4 h-4" style={{ color: T.sub }} />
                 </button>
               </div>
-            </Cin>
-
-            <div className="overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
-              <div className="flex gap-4 px-6" style={{ width: 'max-content', paddingRight: 24 }}>
-                {cases.map((c, i) => (
-                    <article
-                      key={c.id}
-                      className="relative flex-shrink-0 rounded-[22px] overflow-hidden cursor-pointer group"
-                      style={{ width: 290, height: 400 }}
+            </Reveal>
+            <Reveal delay={0.05}>
+              <div className="overflow-x-auto scrollbar-hide" style={{ marginTop: 24, WebkitOverflowScrolling: 'touch' }}>
+                <div className="flex" style={{ gap: 14, padding: '0 24px', width: 'max-content' }}>
+                  {cases.map((c, i) => (
+                    <article key={c.id}
+                      className="relative flex-shrink-0 overflow-hidden cursor-pointer group"
+                      style={{ width: 292, height: 400, borderRadius: 26, border: `1px solid ${T.hair}` }}
                       role="button" tabIndex={0}
                       aria-label={`${ru ? 'Открыть' : 'Open'} ${c.label}`}
                       onClick={() => openDemo(c.id)}
-                      onTouchStart={() => preloadDemo(c.id)}
-                      onMouseEnter={() => preloadDemo(c.id)}
-                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDemo(c.id); } }}
-                    >
+                      onTouchStart={() => preloadDemo(c.id)} onMouseEnter={() => preloadDemo(c.id)}
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDemo(c.id); } }}>
                       {c.vid ? (
                         <video ref={i === 0 ? videoRef : undefined} src={c.src} loop muted playsInline autoPlay
-                          preload="auto"
-                          poster={c.poster}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-active:scale-[1.04]"
-                          style={{ filter: 'brightness(0.7) saturate(1.1)' }} />
+                          preload="auto" poster={c.poster}
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-active:scale-[1.05]"
+                          style={{ filter: 'brightness(0.78) saturate(1.05)' }} />
                       ) : (
                         <img src={c.src} alt={c.label} loading="lazy" draggable={false}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-active:scale-[1.04]"
-                          style={{ filter: 'brightness(0.7) saturate(1.1)' }} />
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-active:scale-[1.05]"
+                          style={{ filter: 'brightness(0.78) saturate(1.05)' }} />
                       )}
-
-                      <div className="absolute inset-0" style={{
-                        background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.12) 50%, rgba(0,0,0,0.82) 100%)',
+                      <div className="absolute inset-0" aria-hidden="true" style={{
+                        background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 46%, rgba(0,0,0,0.9) 100%)',
                       }} />
-
-                      <div className="absolute top-3.5 right-3.5 z-10" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
+                      <div className="absolute top-4 right-4" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
                         <FavoriteButton demoId={c.id} size="md" />
                       </div>
-
-                      <div className="absolute top-3.5 left-3.5">
-                        <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1" style={{
-                          background: 'rgba(52,211,153,0.1)',
-                          backdropFilter: 'blur(16px)',
-                          WebkitBackdropFilter: 'blur(16px)',
-                          border: '1px solid rgba(52,211,153,0.15)',
-                          fontFamily: SYNE, fontSize: '0.6rem', fontWeight: 700, color: EMERALD,
+                      <div className="absolute top-4 left-4">
+                        <span className="inline-flex items-center" style={{
+                          gap: 4, padding: '5px 10px', borderRadius: 999,
+                          background: 'rgba(52,211,153,0.13)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+                          border: '1px solid rgba(52,211,153,0.24)',
+                          fontFamily: FONT, fontSize: '0.66rem', fontWeight: 700, color: EMERALD,
                         }}>
-                          <TrendingUp size={9} strokeWidth={2.5} />
-                          {c.growth}
+                          <TrendingUp size={10} strokeWidth={2.6} />{c.growth}
                         </span>
                       </div>
-
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <span className="inline-block rounded-full px-2 py-0.5 mb-2.5" style={{
-                          background: 'rgba(255,255,255,0.06)',
-                          backdropFilter: 'blur(8px)',
-                          WebkitBackdropFilter: 'blur(8px)',
-                          fontFamily: INTER, fontSize: '0.55rem', fontWeight: 500, color: 'rgba(255,255,255,0.45)',
-                          letterSpacing: '0.06em', textTransform: 'uppercase' as const,
-                        }}>{c.cat}</span>
-                        <h3 style={{
-                          fontFamily: SYNE, fontSize: '1.25rem',
-                          fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1.15,
-                        }}>{c.label}</h3>
-                        <p className="mt-1" style={{
-                          fontFamily: INSTRUMENT, fontSize: '0.875rem',
-                          fontStyle: 'italic', color: 'rgba(255,255,255,0.45)',
-                        }}>{c.sub}</p>
-                        <div className="mt-3 flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                          <span style={{ fontFamily: INTER, fontSize: '0.65rem', fontWeight: 500 }}>
-                            {ru ? 'Открыть' : 'Explore'}
+                      <div className="absolute left-0 right-0 bottom-0" style={{ padding: 20 }}>
+                        <h3 style={{ fontFamily: DISPLAY, fontSize: '1.62rem', fontWeight: 700, color: T.ink, letterSpacing: '0.015em', lineHeight: 1.1 }}>
+                          {c.label}
+                        </h3>
+                        <div className="flex items-center justify-between" style={{ marginTop: 6 }}>
+                          <p style={{ fontFamily: FONT, fontSize: '0.86rem', fontWeight: 400, color: T.sub }}>{c.sub}</p>
+                          <span className="flex items-center" style={{ gap: 4, color: EMERALD }}>
+                            <span style={{ fontFamily: FONT, fontSize: '0.74rem', fontWeight: 700 }}>{ru ? 'Открыть' : 'Open'}</span>
+                            <ArrowRight size={12} strokeWidth={2.4} />
                           </span>
-                          <ArrowUpRight size={11} strokeWidth={2} />
                         </div>
                       </div>
                     </article>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            </Reveal>
           </section>
 
-          {/* ═══════ SOCIAL PROOF STRIP ═══════ */}
-          <Cin className="px-6 pb-10">
-            <div className="flex items-center justify-between py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-              {[
-                { n: '22', l: ru ? 'приложения' : 'apps' },
-                { n: '50+', l: ru ? 'клиентов' : 'clients' },
-                { n: '340%', l: ru ? 'макс. рост' : 'max growth' },
-              ].map((s, i) => (
-                <div key={i} className="text-center flex-1">
-                  <div style={{
-                    fontFamily: SYNE, fontSize: 'clamp(1.1rem, 3.5vw, 1.5rem)',
-                    fontWeight: 800, color: '#fff', letterSpacing: '-0.04em',
-                  }}>
-                    {i === 0 ? <Ct to={22} /> : i === 1 ? <Ct to={50} suffix="+" /> : <Ct to={340} suffix="%" />}
-                  </div>
-                  <div style={{
-                    fontFamily: INTER, fontSize: '0.625rem', fontWeight: 500,
-                    color: 'rgba(255,255,255,0.35)', letterSpacing: '0.03em', textTransform: 'uppercase' as const, marginTop: 2,
-                  }}>{s.l}</div>
-                </div>
-              ))}
-            </div>
-          </Cin>
-
-          {/* ═══════ FEATURES ═══════ */}
-          <section className="px-6 py-12" aria-label={ru ? 'Возможности' : 'Features'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 600px' }}>
-            <Cin>
-              <h2 className="mb-8" style={{
-                fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
-                fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
-              }}>
-                {ru ? <>Полный стек.<br />Ничего лишнего.</> : <>Full stack.<br />Nothing extra.</>}
-              </h2>
-            </Cin>
-
-            <div className="space-y-2.5">
-              {FEATURES.map((f, i) => {
-                const Icon = f.icon;
-                return (
-                  <Cin key={i} delay={i * 0.04}>
-                    <div
-                      className="flex items-start gap-4 rounded-2xl p-4 transition-all duration-400 group"
-                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}
-                    >
-                      <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${f.color}12` }}>
-                        <Icon className="w-5 h-5" style={{ color: f.color }} strokeWidth={1.8} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 style={{
-                          fontFamily: SYNE, fontSize: '0.9rem',
-                          fontWeight: 700, color: '#fff', letterSpacing: '-0.02em',
-                        }}>{ru ? f.tRu : f.tEn}</h3>
-                        <p className="mt-0.5" style={{
-                          fontFamily: INTER, fontSize: '0.75rem',
-                          lineHeight: 1.55, color: 'rgba(255,255,255,0.4)',
-                        }}>{ru ? f.sRu : f.sEn}</p>
-                      </div>
-                    </div>
-                  </Cin>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* ═══════ BIG NUMBERS ═══════ */}
-          <section className="px-6 py-16" aria-label={ru ? 'Метрики' : 'Metrics'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 500px' }}>
-            <div className="space-y-14">
-              {[
-                { num: 900, sfx: 'M+', title: ru ? 'пользователей Telegram' : 'Telegram users', desc: ru ? 'Ваш магазин — прямо у них в кармане. Без скачиваний, без App Store.' : 'Your store — right in their pocket. No downloads, no App Store.' },
-                { num: 0, sfx: '%', title: ru ? 'комиссий маркетплейсов' : 'marketplace commission', desc: ru ? 'Wildberries берёт 15–25%. Ozon — до 20%. Вы оставляете себе всё.' : 'Amazon takes 15%. eBay takes 13%. You keep everything.' },
-                { num: 24, sfx: ru ? 'ч' : 'h', title: ru ? 'от идеи до первого заказа' : 'from idea to first order', desc: ru ? 'Выбираете шаблон утром — вечером принимаете оплату.' : 'Pick a template in the morning — accept payments by evening.' },
-              ].map((met, i) => (
-                <Cin key={i} delay={i * 0.06}>
-                  <div className="flex items-start gap-5">
-                    <div className="flex-shrink-0" style={{
-                      fontFamily: SYNE, fontSize: 'clamp(3rem, 12vw, 5rem)',
-                      fontWeight: 800, lineHeight: 0.85, letterSpacing: '-0.06em',
-                      color: i === 0 ? '#fff' : 'transparent',
-                      WebkitTextStroke: i === 0 ? 'none' : '1.5px rgba(255,255,255,0.12)',
-                      minWidth: 'clamp(90px, 30vw, 140px)',
-                    }}>
-                      <Ct to={met.num} suffix={met.sfx} />
-                    </div>
-                    <div className="pt-2">
-                      <div style={{
-                        fontFamily: SYNE, fontSize: 'clamp(0.75rem, 1.8vw, 0.875rem)',
-                        fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '-0.02em',
-                      }}>{met.title}</div>
-                      <p className="mt-1" style={{
-                        fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)',
-                        lineHeight: 1.6, color: 'rgba(255,255,255,0.35)',
-                      }}>{met.desc}</p>
+          {/* ═══════════ ПРОЦЕСС ═══════════ */}
+          <section className="px-6" style={{ paddingTop: 4, paddingBottom: 104 }} aria-label={ru ? 'Процесс' : 'Process'}>
+            <Reveal>
+              <Eyebrow>{ru ? 'Процесс' : 'Process'}</Eyebrow>
+              <Display style={{ marginTop: 16 }}>{ru ? 'От идеи до запуска' : 'From idea to launch'}</Display>
+              <Body style={{ marginTop: 16, maxWidth: 360 }}>
+                {ru ? 'Один день, четыре шага, полная прозрачность на каждом.' : 'One day, four steps, full transparency at each.'}
+              </Body>
+            </Reveal>
+            <div style={{ marginTop: 26 }}>
+              {steps.map((s, i) => (
+                <Reveal key={i} delay={i * 0.05} y={22}>
+                  <div className="flex items-baseline" style={{ gap: 18, padding: '24px 0', borderTop: `1px solid ${i ? T.hairSoft : T.hair}` }}>
+                    <span style={{
+                      fontFamily: FONT, fontSize: '1rem', fontWeight: 700, letterSpacing: '0.04em',
+                      color: i === steps.length - 1 ? EMERALD : T.faint, minWidth: 30,
+                    }}>{s.n}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontFamily: DISPLAY, fontSize: '1.5rem', fontWeight: 700, color: T.ink, letterSpacing: '0.015em' }}>{s.t}</div>
+                      <div style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 400, color: T.sub, lineHeight: 1.5, marginTop: 5 }}>{s.d}</div>
                     </div>
                   </div>
-                </Cin>
+                </Reveal>
               ))}
             </div>
           </section>
 
-          {/* ═══════ TESTIMONIALS ═══════ */}
-          <section className="py-14" aria-label={ru ? 'Отзывы' : 'Testimonials'}>
-            <Cin className="px-6 mb-5">
-              <h2 style={{
-                fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
-                fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
-              }}>
-                {ru ? 'Клиенты говорят' : 'Clients speak'}
-              </h2>
-            </Cin>
-
-            <div className="overflow-x-auto scrollbar-hide snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
-              <div className="flex gap-4 px-6" style={{ width: 'max-content', paddingRight: 24 }}>
-                {testimonials.map((tm, i) => (
-                  <figure
-                    key={i}
-                    className="flex-shrink-0 rounded-2xl p-5 flex flex-col justify-between snap-start"
-                    style={{
-                      width: 290, minHeight: 200,
-                      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-                    }}
-                  >
-                    <figcaption className="flex items-center gap-3 mb-4">
-                      <img
-                        src={tm.avatar}
-                        alt={tm.name}
-                        className="w-11 h-11 rounded-full object-cover flex-shrink-0"
-                        style={{ border: '2px solid rgba(255,255,255,0.12)' }}
-                        loading="lazy"
-                      />
-                      <div>
-                        <div style={{ fontFamily: SYNE, fontSize: '0.8rem', fontWeight: 700, color: 'rgba(255,255,255,0.75)' }}>
-                          {tm.name}
-                        </div>
-                        <div style={{ fontFamily: INTER, fontSize: '0.6875rem', color: EMERALD, opacity: 0.7 }}>
-                          {tm.role}
-                        </div>
-                      </div>
-                    </figcaption>
-
-                    <blockquote>
-                      <p style={{
-                        fontFamily: INSTRUMENT, fontSize: '0.9375rem',
-                        fontStyle: 'italic', lineHeight: 1.55, color: 'rgba(255,255,255,0.5)',
-                      }}>
-                        &ldquo;{tm.text}&rdquo;
-                      </p>
-                    </blockquote>
-                  </figure>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* ═══════ COMPARISON — Bento Grid ═══════ */}
-          <section className="px-5 py-16" aria-label={ru ? 'Сравнение' : 'Comparison'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1100px' }}>
-            <Cin>
-              <h2 className="mb-3" style={{
-                fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
-                fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
-              }}>
-                {ru ? <>Маркетплейс<br /><span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.3)' }}>vs</span> WEB4TG</> : <>Marketplace<br /><span style={{ fontFamily: INSTRUMENT, fontStyle: 'italic', color: 'rgba(255,255,255,0.3)' }}>vs</span> WEB4TG</>}
-              </h2>
-              <p className="mb-10" style={{ fontFamily: INTER, fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)', lineHeight: 1.6, maxWidth: '28ch' }}>
-                {ru ? 'Цифры, которые решают всё за вас.' : 'Numbers that speak for themselves.'}
-              </p>
-            </Cin>
-
-            <div className="grid grid-cols-2 gap-2.5" style={{ gridAutoRows: 'auto' }}>
-
-              <Cin delay={0.04}>
-                <div className="col-span-1 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,60,60,0.07) 0%, transparent 70%)' }} />
-                  <div style={{ fontFamily: INTER, fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'rgba(255,100,100,0.4)' }}>
-                    {ru ? 'Маркетплейс' : 'Marketplace'}
-                  </div>
-                  <div className="mt-2" style={{ fontFamily: SYNE, fontSize: 'clamp(2rem, 8vw, 2.6rem)', fontWeight: 800, color: 'rgba(255,255,255,0.12)', letterSpacing: '-0.06em', lineHeight: 1 }}>
-                    25%
-                  </div>
-                  <div className="mt-1" style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.18)', lineHeight: 1.4 }}>
-                    {ru ? 'комиссия с каждой продажи' : 'commission on every sale'}
-                  </div>
-                </div>
-              </Cin>
-
-              <Cin delay={0.08}>
-                <div className="col-span-1 rounded-[20px] p-5 relative overflow-hidden" style={{ background: `${EMERALD}08`, border: `1px solid ${EMERALD}18` }}>
-                  <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full pointer-events-none" style={{ background: `radial-gradient(circle, ${EMERALD}12 0%, transparent 70%)` }} />
-                  <div style={{ fontFamily: INTER, fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: `${EMERALD}70` }}>
-                    WEB4TG
-                  </div>
-                  <div className="mt-2" style={{ fontFamily: SYNE, fontSize: 'clamp(2rem, 8vw, 2.6rem)', fontWeight: 800, color: EMERALD, letterSpacing: '-0.06em', lineHeight: 1 }}>
-                    <Ct to={0} suffix="%" />
-                  </div>
-                  <div className="mt-1" style={{ fontFamily: INTER, fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>
-                    {ru ? 'комиссий — навсегда' : 'commission — forever'}
-                  </div>
-                </div>
-              </Cin>
-
-              <Cin delay={0.12}>
-                <div className="col-span-2 rounded-[20px] relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${EMERALD}06 0%, rgba(255,255,255,0.015) 100%)`, border: `1px solid ${EMERALD}12` }}>
-                  <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 20% 50%, ${EMERALD}08 0%, transparent 50%)` }} />
-                  <div className="relative p-5 flex items-center justify-between gap-4">
-                    <div className="flex-1">
-                      <div style={{ fontFamily: SYNE, fontSize: 'clamp(1.8rem, 7vw, 2.4rem)', fontWeight: 800, color: EMERALD, letterSpacing: '-0.05em', lineHeight: 1 }}>
-                        {ru ? <>~<Ct to={3} />.2 млн ₽</> : <>~$<Ct to={40} />k</>}
-                      </div>
-                      <div className="mt-1.5" style={{ fontFamily: INTER, fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
-                        {ru ? 'средняя экономия за первый год без комиссий' : 'average first-year savings without fees'}
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center" style={{ background: `${EMERALD}10`, border: `1px solid ${EMERALD}20` }}>
-                      <TrendingUp size={20} color={EMERALD} strokeWidth={2.5} />
-                    </div>
-                  </div>
-                </div>
-              </Cin>
-
-              <Cin delay={0.16}>
-                <div className="col-span-1 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                      <Clock size={13} color="rgba(255,255,255,0.4)" strokeWidth={2} />
-                    </div>
-                    <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.25)' }}>
-                      {ru ? 'Запуск' : 'Launch'}
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 500, color: 'rgba(255,255,255,0.12)' }}>
-                      {ru ? '2–6 мес' : '2–6 mo'}
-                    </span>
-                    <span style={{ color: 'rgba(255,255,255,0.08)', fontSize: '0.7rem' }}>→</span>
-                  </div>
-                  <div className="mt-1" style={{ fontFamily: SYNE, fontSize: '1.4rem', fontWeight: 800, color: EMERALD, letterSpacing: '-0.04em' }}>
-                    <Ct to={24} suffix="h" />
-                  </div>
-                </div>
-              </Cin>
-
-              <Cin delay={0.2}>
-                <div className="col-span-1 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                      <Sparkles size={13} color="rgba(255,255,255,0.4)" strokeWidth={2} />
-                    </div>
-                    <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.25)' }}>
-                      {ru ? 'Дизайн' : 'Design'}
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span style={{ fontFamily: INTER, fontSize: '0.7rem', fontWeight: 500, color: 'rgba(255,255,255,0.12)' }}>
-                      {ru ? 'Шаблон' : 'Template'}
-                    </span>
-                    <span style={{ color: 'rgba(255,255,255,0.08)', fontSize: '0.7rem' }}>→</span>
-                  </div>
-                  <div className="mt-1" style={{ fontFamily: SYNE, fontSize: '1.4rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.04em' }}>
-                    {ru ? 'Премиум' : 'Premium'}
-                  </div>
-                </div>
-              </Cin>
-
-              <Cin delay={0.24}>
-                <div className="col-span-2 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className="grid grid-cols-3 gap-4">
-                    {[
-                      { Icon: Bot, color: '#a78bfa', val: '24/7', sub: ru ? 'AI-бот' : 'AI bot' },
-                      { Icon: BarChart3, color: '#60a5fa', val: ru ? 'Полная' : 'Full', sub: ru ? 'аналитика' : 'analytics' },
-                      { Icon: Shield, color: EMERALD, val: ru ? 'Ваши' : 'Yours', sub: ru ? 'данные' : 'data' },
-                    ].map((f, i) => (
-                      <div key={i} className="text-center">
-                        <div className="w-10 h-10 rounded-2xl mx-auto flex items-center justify-center mb-2" style={{ background: `${f.color}0a`, border: `1px solid ${f.color}18` }}>
-                          <f.Icon size={18} color={f.color} strokeWidth={1.8} />
-                        </div>
-                        <div style={{ fontFamily: SYNE, fontSize: '0.85rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{f.val}</div>
-                        <div style={{ fontFamily: INTER, fontSize: '0.6rem', color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{f.sub}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Cin>
-
-              <Cin delay={0.28}>
-                <div className="col-span-2 rounded-[20px] p-5 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className="flex items-center gap-2" style={{ marginBottom: 12 }}>
-                    <CreditCard size={13} color="rgba(255,255,255,0.3)" strokeWidth={2} />
-                    <span style={{ fontFamily: INTER, fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.2)' }}>
-                      {ru ? 'Платежи' : 'Payments'}
-                    </span>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                      <div className="flex items-center gap-1.5 flex-1" style={{ fontFamily: INTER, fontSize: '0.65rem', color: 'rgba(255,255,255,0.15)' }}>
-                        <span>{ru ? 'Площадка' : 'Platform'}</span>
-                        <span style={{ color: 'rgba(255,255,255,0.06)' }}>›</span>
-                        <span>{ru ? 'Посредник' : 'Middleman'}</span>
-                        <span style={{ color: 'rgba(255,255,255,0.06)' }}>›</span>
-                        <span>{ru ? 'Вы' : 'You'}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: `${EMERALD}06`, border: `1px solid ${EMERALD}12` }}>
-                      <div className="flex items-center gap-2 flex-1" style={{ fontFamily: SYNE, fontSize: '0.75rem', fontWeight: 700, color: EMERALD }}>
-                        <span>{ru ? 'Клиент' : 'Customer'}</span>
-                        <span style={{ color: `${EMERALD}50` }}>→</span>
-                        <span>{ru ? 'Вы' : 'You'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Cin>
-
-            </div>
-          </section>
-
-          {/* ═══════ PROCESS ═══════ */}
-          <section className="px-6 py-14" aria-label={ru ? 'Процесс' : 'Process'} style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 600px' }}>
-            <Cin>
-              <span style={{
-                fontFamily: SYNE, fontSize: '0.6875rem',
-                fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' as const,
-                color: 'rgba(255,255,255,0.25)',
-              }}>
-                {ru ? 'Как это работает' : 'How it works'}
-              </span>
-              <h2 className="mt-2 mb-8" style={{
-                fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
-                fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
-              }}>
-                {ru ? 'Три шага' : 'Three steps'}
-              </h2>
-            </Cin>
-
-            <div className="relative">
-              <div className="absolute left-[19px] top-4 bottom-4 w-px" style={{
-                background: `linear-gradient(180deg, transparent, rgba(255,255,255,0.06) 20%, rgba(255,255,255,0.06) 80%, transparent)`,
-              }} />
-
-              {[
-                { n: '01', t: ru ? 'Бриф' : 'Brief', d: ru ? 'Выберите шаблон из 22 готовых или расскажите свою идею. Мы начнём в тот же день.' : 'Pick from 22 ready templates or share your idea. We start the same day.' },
-                { n: '02', t: ru ? 'Сборка' : 'Build', d: ru ? 'Дизайн, фронтенд, бэкенд, платежи, AI-ассистент — всё за 24–48 часов.' : 'Design, frontend, backend, payments, AI assistant — all in 24–48 hours.' },
-                { n: '03', t: ru ? 'Запуск' : 'Launch', d: ru ? 'Деплой в Telegram. Аналитика подключена. Ваш бизнес работает.' : 'Deploy to Telegram. Analytics connected. Your business is live.' },
-              ].map((s, i) => (
-                <Cin key={i} delay={i * 0.08}>
-                  <div className="flex items-start gap-4 mb-8 last:mb-0 relative">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center z-10" style={{
-                      background: i === 2 ? `${EMERALD}15` : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${i === 2 ? `${EMERALD}30` : 'rgba(255,255,255,0.06)'}`,
-                    }}>
-                      <span style={{
-                        fontFamily: SYNE, fontSize: '0.6875rem', fontWeight: 800,
-                        color: i === 2 ? EMERALD : 'rgba(255,255,255,0.25)',
-                      }}>{s.n}</span>
-                    </div>
-                    <div className="pt-1.5">
-                      <h3 style={{
-                        fontFamily: SYNE, fontSize: '1rem',
-                        fontWeight: 700, color: '#fff', letterSpacing: '-0.03em',
-                      }}>{s.t}</h3>
-                      <p className="mt-1" style={{
-                        fontFamily: INTER, fontSize: '0.8rem',
-                        lineHeight: 1.6, color: 'rgba(255,255,255,0.4)',
-                      }}>{s.d}</p>
-                    </div>
-                  </div>
-                </Cin>
-              ))}
-            </div>
-          </section>
-
-          {/* ═══════ TECH STACK ═══════ */}
-          <Cin className="px-6 py-10">
-            <div className="text-center mb-4">
-              <span style={{
-                fontFamily: SYNE, fontSize: '0.6875rem',
-                fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' as const,
-                color: 'rgba(255,255,255,0.2)',
-              }}>
-                {ru ? 'Технологии' : 'Tech Stack'}
-              </span>
-            </div>
-            <div className="flex items-center justify-center gap-6 flex-wrap">
-              {['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Stripe', 'Telegram API', 'OpenAI'].map((tech, i) => (
-                <span key={i} style={{
-                  fontFamily: INTER, fontSize: '0.6875rem', fontWeight: 500,
-                  color: 'rgba(255,255,255,0.2)', letterSpacing: '0.02em',
-                }}>{tech}</span>
-              ))}
-            </div>
-          </Cin>
-
-          {/* ═══════ FINAL CTA ═══════ */}
-          <section className="px-6 pt-6 pb-8" aria-label="CTA" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 350px' }}>
-            <Cin>
-              <div className="relative overflow-hidden rounded-2xl py-12 px-6 text-center" style={{ border: '1px solid rgba(255,255,255,0.04)' }}>
-                <div className="absolute inset-0 pointer-events-none" style={{
-                  background: `radial-gradient(ellipse at 50% 120%, ${EMERALD}0c 0%, transparent 70%)`,
+          {/* ═══════════ FINAL CTA ═══════════ */}
+          <section className="relative overflow-hidden" style={{ paddingTop: 24, paddingBottom: 40 }}>
+            <Reveal className="px-6">
+              <div className="relative overflow-hidden text-center" style={{ borderRadius: 32, padding: '64px 26px 60px' }}>
+                <img src={IMG_FORM} alt="" loading="lazy" draggable={false}
+                  className="absolute inset-0 w-full h-full" style={{ objectFit: 'cover', opacity: 0.6 }} />
+                <div className="absolute inset-0" aria-hidden="true" style={{
+                  background: 'linear-gradient(180deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.86) 100%)',
                 }} />
-
-                <div className="relative z-10">
+                <div className="absolute inset-0" aria-hidden="true" style={{
+                  background: `radial-gradient(ellipse 70% 52% at 50% 46%, rgba(52,211,153,0.22) 0%, transparent 72%)`,
+                }} />
+                <div className="relative">
                   <h2 style={{
-                    fontFamily: SYNE, fontSize: 'clamp(1.6rem, 6vw, 2.25rem)',
-                    fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.05,
+                    fontFamily: DISPLAY, fontSize: 'clamp(2.4rem, 11vw, 3.4rem)', fontWeight: 700,
+                    letterSpacing: '0.012em', lineHeight: 1.05, color: T.ink,
                   }}>
-                    {ru ? 'Ваш ход' : 'Your move'}
+                    {ru ? <>Запустим ваше<br />приложение?</> : <>Shall we launch<br />your app?</>}
                   </h2>
-                  <p className="mt-3 mx-auto" style={{
-                    maxWidth: 280,
-                    fontFamily: INTER, fontSize: '0.875rem',
-                    color: 'rgba(255,255,255,0.4)', lineHeight: 1.55,
-                  }}>
-                    {ru ? 'Бесплатная консультация. Первый прототип — завтра. Без обязательств.' : 'Free consultation. First prototype — tomorrow. No strings attached.'}
-                  </p>
-
-                  <button
-                    onClick={() => nav('projects')}
-                    className="mt-6 inline-flex items-center gap-2 rounded-full px-7 transition-all duration-500 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
-                    style={{ height: 48, background: '#fff' }}
-                  >
-                    <span style={{ fontFamily: SYNE, fontSize: '0.8125rem', fontWeight: 700, color: '#000' }}>
-                      {ru ? 'Начать' : 'Get Started'}
+                  <Body style={{ marginTop: 18, maxWidth: 300, marginLeft: 'auto', marginRight: 'auto' }}>
+                    {ru ? 'Расскажите о задаче — пришлём концепт и смету в течение дня.'
+                      : 'Tell us your goal — concept and quote within a day.'}
+                  </Body>
+                  <button onClick={() => nav('projects')}
+                    className="group inline-flex items-center transition-transform duration-300 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
+                    style={{ height: 56, padding: '0 30px', borderRadius: 999, background: T.ink, gap: 8, marginTop: 30 }}>
+                    <span style={{ fontFamily: FONT, fontSize: '0.98rem', fontWeight: 700, color: '#000', letterSpacing: '-0.01em' }}>
+                      {ru ? 'Обсудить проект' : 'Discuss a project'}
                     </span>
-                    <ArrowUpRight className="w-4 h-4 text-black" strokeWidth={2.5} />
+                    <ArrowUpRight className="w-4 h-4 text-black transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.5} />
                   </button>
-
-                  <p className="mt-4" style={{
-                    fontFamily: INTER, fontSize: '0.6875rem',
-                    color: 'rgba(255,255,255,0.2)',
-                  }}>
+                  <div style={{ fontFamily: FONT, fontSize: '0.78rem', fontWeight: 500, color: T.faint, marginTop: 18 }}>
                     {ru ? 'Ответим в течение часа' : 'We reply within an hour'}
-                  </p>
+                  </div>
                 </div>
               </div>
-            </Cin>
+            </Reveal>
           </section>
 
-          {/* ═══════ FOOTER ═══════ */}
-          <footer className="px-6 py-8 mb-20" role="contentinfo" style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}>
-            <Cin>
-              <div className="flex items-center justify-between">
-                <span style={{ fontFamily: SYNE, fontSize: '0.8rem', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '-0.03em' }}>
-                  WEB4TG
-                </span>
-                <span style={{ fontFamily: INTER, fontSize: '0.625rem', color: 'rgba(255,255,255,0.15)' }}>
-                  &copy; {new Date().getFullYear()}
-                </span>
+          {/* ═══════════ FOOTER ═══════════ */}
+          <footer className="px-6 text-center" role="contentinfo" style={{ paddingTop: 36, paddingBottom: 8, marginBottom: 96 }}>
+            <Reveal>
+              <div style={{ fontFamily: DISPLAY, fontSize: '1.6rem', fontWeight: 700, color: T.ink, letterSpacing: '0.04em' }}>WEB4TG</div>
+              <p style={{ fontFamily: FONT, fontSize: '0.82rem', fontWeight: 400, color: T.faint, lineHeight: 1.55, marginTop: 10, maxWidth: 260, marginLeft: 'auto', marginRight: 'auto' }}>
+                {ru ? 'Студия Telegram-приложений. Проектируем, разрабатываем, запускаем.'
+                  : 'Telegram mini-app studio. We design, build and launch.'}
+              </p>
+              <div style={{ fontFamily: FONT, fontSize: '0.66rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.26)', marginTop: 18 }}>
+                {`Москва · © ${new Date().getFullYear()}`}
               </div>
-            </Cin>
+            </Reveal>
           </footer>
 
         </div>
       </div>
+
+      <style>{`
+        .showcase-page .w4-grain{
+          position:fixed; inset:0; z-index:40; pointer-events:none; opacity:0.05;
+          background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+        @media (prefers-reduced-motion: reduce){
+          .showcase-page *{ animation-duration:.01ms!important; transition-duration:.01ms!important; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,21 +1,10 @@
-import React, { useState, useEffect, memo, useRef, useMemo } from "react";
+import { useState, useCallback, useEffect, useRef, memo } from "react";
 import { createPortal } from "react-dom";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Home, Grid, Tag, Plus, Minus, Eye, Truck, RotateCcw, ShieldCheck } from "lucide-react";
-import { OptimizedImage } from "../OptimizedImage";
-import { ConfirmDrawer } from "../ui/modern-drawer";
-import { Skeleton } from "../ui/skeleton";
-import { useFilter } from "@/hooks/useFilter";
-import { scrollToTop } from "@/hooks/useScrollToTop";
-import { usePersistentCart } from "@/hooks/usePersistentCart";
-import { usePersistentFavorites } from "@/hooks/usePersistentFavorites";
-import { usePersistentOrders } from "@/hooks/usePersistentOrders";
-import { useToast } from "@/hooks/use-toast";
-import { EmptyState } from "@/components/shared/EmptyState";
-import { CheckoutDrawer } from "@/components/shared/CheckoutDrawer";
-import { LazyImage, UrgencyIndicator, TrustBadges, DemoThemeProvider, AutoplayVideo } from "@/components/shared";
-import DemoSidebar, { useDemoSidebar } from "./DemoSidebar";
+import {
+  Search, Heart, Plus, Minus, ChevronRight, ArrowLeft, Check, X, Tag,
+  ShoppingBag, Truck, ShieldCheck, RotateCcw, Loader2, Star,
+} from "lucide-react";
+import { useHaptic } from "@/hooks/useHaptic";
 import blackHoodieImage from "@assets/c63bf9171394787.646e06bedc2c7_1761732722277.jpg";
 import colorfulHoodieImage from "@assets/fb10cc201496475.6675676d24955_1761732737648.jpg";
 import olivePufferImage from "@assets/olive_puffer.jpg";
@@ -27,3610 +16,1474 @@ import blackBomberImage from "@assets/black_bomber.jpg";
 import beigeTrenchImage from "@assets/beige_trench.jpg";
 import carbonHoodieImage from "@assets/carbon_hoodie.jpg";
 
-// Video served from public/videos/ to reduce Docker image size  
 const fashionVideo = "/videos/4e4993d0ac079a607a0bee301af06749_1761775010830.mp4";
 
-interface PremiumFashionStoreProps {
-  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
-  onTabChange?: (tab: string) => void;
-}
+/* ===================================================================
+   RADIANCE — fashion-бутик (демо)
+   Тёплый editorial-люкс · Playfair + Inter · ui-ux-pro-max · 2026
+   =================================================================== */
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  size: string;
-  quantity: number;
-  image: string;
-  color: string;
-}
+const INK = "#1C1A17";
+const PAPER = "#FFFFFF";
+const CANVAS = "#EEEAE2";
+const SAND = "#E3DCCF";
+const TINT = "#E9E3D7";
+const MUTED = "#8B8377";
+const SUB = "#5A5349";
+const ACCENT = "#A65A33";
+const ACCENT_DEEP = "#8A4825";
+const LINE = "rgba(28,26,23,0.12)";
+const HAIR = "rgba(28,26,23,0.06)";
 
-interface Order {
-  id: number;
-  items: CartItem[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
+const SERIF = "'Playfair Display', 'Times New Roman', Georgia, serif";
+const SANS = "'Inter', system-ui, -apple-system, sans-serif";
+
+const T = { micro: "0.6875rem", cap: "0.75rem", sm: "0.8125rem", body: "0.9375rem", lg: "1.0625rem" };
+const S = { s1: "1.5rem", s2: "2rem", s3: "2.6rem", s4: "3.3rem" };
+const IC = { sm: 16, md: 20, lg: 24 };
+const SW = 1.7;
+const FREE_SHIP = 30000;
+
+const IMG = "https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/";
+
+interface Props {
+  activeTab: "home" | "catalog" | "cart" | "profile";
+  onTabChange: (tab: string) => void;
+  onCartCount?: (n: number) => void;
 }
 
 interface Product {
-  id: number;
+  id: string;
+  brand: string;
   name: string;
+  cat: string;
+  gender: string;
   price: number;
   oldPrice?: number;
-  image: string;
-  hoverImage: string;
-  description: string;
-  sizes: string[];
-  colors: string[];
-  colorHex: string[];
-  category: string;
-  gender: 'Men' | 'Woman' | 'Children';
-  inStock: number;
+  img: string;
+  tag?: string;
   rating: number;
-  brand: string;
-  isNew?: boolean;
-  isTrending?: boolean;
+  reviews: number;
+  colors: { name: string; hex: string }[];
+  sizes: string[];
+  desc: string;
   composition: string;
-  fit: 'regular' | 'relaxed' | 'slim';
-  sizeChart: Record<string, string>;
+  fit: string;
 }
 
-const products: Product[] = [
-  { 
-    id: 1, 
-    name: 'Carbon Collection Hoodie', 
-    price: 12900, 
-    oldPrice: 15900,
-    image: carbonHoodieImage, 
-    hoverImage: carbonHoodieImage,
-    description: 'Культовое худи свободного кроя из премиального японского хлопка плотностью 320 г/м², выращенного на органических плантациях префектуры Окаяма. Каждое изделие проходит специальную обработку enzyme wash для достижения бархатистой мягкости без потери структуры ткани. Матовая фурнитура ручной работы из состаренной латуни создает утонченный контраст с глубоким черным оттенком. Двойные усиленные швы и рибана премиум-класса гарантируют безупречную посадку даже после многократных стирок.', 
-    sizes: ['S', 'M', 'L', 'XL'], 
-    colors: ['Черный', 'Белый', 'Серый', 'Бежевый'], 
-    colorHex: ['#1A1A1A', '#FAFAFA', '#6B7280', '#D4A574'],
-    category: 'Худи', 
-    gender: 'Men',
-    inStock: 15, 
-    rating: 5.0, 
-    brand: 'CARBON STUDIO',
-    isNew: true,
-    isTrending: true,
-    composition: '100% органический хлопок',
-    fit: 'relaxed',
-    sizeChart: { S: 'грудь 104, длина 68', M: 'грудь 110, длина 70', L: 'грудь 116, длина 72', XL: 'грудь 122, длина 74' }
+const CATEGORIES = ["Куртки", "Пальто", "Худи", "Трикотаж", "Брюки", "Аксессуары"];
+const GENDERS = ["Все", "Женское", "Мужское", "Унисекс"];
+
+const SZ = ["XS", "S", "M", "L", "XL"];
+
+const PRODUCTS: Product[] = [
+  {
+    id: "r1", brand: "ATELIER NOIR", name: "Camel Overcoat", cat: "Пальто", gender: "Женское",
+    price: 64000, oldPrice: 79000, img: IMG + "hf_20260523_194017_5051e987-dcc2-4fab-b126-f108897c131b_min.webp",
+    tag: "Хит", rating: 4.9, reviews: 86,
+    colors: [{ name: "Кэмел", hex: "#B68A5B" }, { name: "Чёрный", hex: "#1C1A17" }, { name: "Серый", hex: "#8B8377" }],
+    sizes: ["XS", "S", "M", "L"],
+    desc: "Двубортное пальто из плотной итальянской шерсти с лёгким ворсом. Чистая линия плеча, мягкая структура и длина миди — вещь, которая определяет силуэт всего образа.",
+    composition: "Шерсть 90%, кашемир 10%", fit: "Свободный",
   },
-  { 
-    id: 2, 
-    name: 'Colorblock Hoodie', 
-    price: 13900, 
-    oldPrice: 17900,
-    image: colorblockHoodieNew, 
-    hoverImage: colorblockHoodieNew,
-    description: 'Лимитированное худи из эксклюзивной арт-коллаборации с парижским уличным художником, сочетающее смелые цветовые блоки в единую гармоничную композицию. Основа выполнена из бархатистого французского флиса плотностью 400 г/м² с добавлением органического хлопка из долины Луары. Уникальная технология окрашивания garment dye обеспечивает глубину цвета и благородное старение ткани со временем. Каждый экземпляр пронумерован и сопровождается сертификатом подлинности с подписью дизайнера.', 
-    sizes: ['S', 'M', 'L', 'XL'], 
-    colors: ['Черный', 'Белый', 'Серый', 'Синий'], 
-    colorHex: ['#1A1A1A', '#FAFAFA', '#6B7280', '#3B82F6'],
-    category: 'Худи', 
-    gender: 'Men',
-    inStock: 8, 
-    rating: 4.9, 
-    brand: 'URBAN ATELIER',
-    isNew: true,
-    isTrending: true,
-    composition: '80% хлопок, 20% полиэстер',
-    fit: 'relaxed',
-    sizeChart: { S: 'грудь 106, длина 69', M: 'грудь 112, длина 71', L: 'грудь 118, длина 73', XL: 'грудь 124, длина 75' }
+  {
+    id: "r2", brand: "MAISON B", name: "Heritage Trench", cat: "Пальто", gender: "Женское",
+    price: 57000, img: beigeTrenchImage, tag: "Хит", rating: 5.0, reviews: 142,
+    colors: [{ name: "Бежевый", hex: "#CDB48C" }, { name: "Чёрный", hex: "#1C1A17" }],
+    sizes: ["S", "M", "L"],
+    desc: "Тренч из водоотталкивающего хлопкового габардина. Классический двубортный крой с поясом — британская школа в современном прочтении.",
+    composition: "Хлопковый габардин 100%", fit: "Прямой",
   },
-  { 
-    id: 3, 
-    name: 'Olive Puffer', 
-    price: 52900, 
-    oldPrice: 67000,
-    image: olivePufferImage, 
-    hoverImage: olivePufferImage,
-    description: 'Премиальный пуховик в милитари-эстетике с наполнителем из отборного канадского гусиного пуха 800 Fill Power, собранного на сертифицированных фермах провинции Альберта. Внешняя ткань из японского рипстоп-нейлона Toray с водоотталкивающей пропиткой C6 DWR обеспечивает защиту от осадков без потери воздухопроницаемости. Анатомический крой разработан совместно с альпинистами для максимальной свободы движений при экстремальных температурах до -30°C. Фирменные застежки YKK Aquaguard и внутренние карманы с флисовой подкладкой для защиты электроники.', 
-    sizes: ['XS', 'S', 'M', 'L'], 
-    colors: ['Черный', 'Белый', 'Оливковый', 'Бежевый'], 
-    colorHex: ['#1A1A1A', '#FAFAFA', '#9CAF88', '#D4A574'],
-    category: 'Куртки', 
-    gender: 'Men',
-    inStock: 5, 
-    rating: 5.0, 
-    brand: 'NORD ATELIER',
-    isNew: true,
-    isTrending: true,
-    composition: '100% нейлон, наполнитель: гусиный пух',
-    fit: 'regular',
-    sizeChart: { XS: 'грудь 100, длина 65', S: 'грудь 106, длина 67', M: 'грудь 112, длина 69', L: 'грудь 118, длина 71' }
+  {
+    id: "r3", brand: "NORD ATELIER", name: "Olive Puffer", cat: "Куртки", gender: "Унисекс",
+    price: 52900, oldPrice: 67000, img: olivePufferImage, tag: "Хит", rating: 5.0, reviews: 210,
+    colors: [{ name: "Оливковый", hex: "#7E8262" }, { name: "Чёрный", hex: "#1C1A17" }],
+    sizes: ["XS", "S", "M", "L"],
+    desc: "Пуховик в милитари-эстетике с наполнителем 800 Fill Power и нейлоном рипстоп. Тепло до −30 °C без лишнего объёма.",
+    composition: "Нейлон, гусиный пух", fit: "Прямой",
   },
-  { 
-    id: 4, 
-    name: 'Orange Oversized', 
-    price: 25500, 
-    oldPrice: 35000,
-    image: orangeOversizedImage, 
-    hoverImage: orangeOversizedImage,
-    description: 'Эффектная оверсайз-куртка яркого оранжевого оттенка из эксклюзивного итальянского полиамида, окрашенного вручную мастерами красильни Tintoria di Quaregna с полуторавековой историей. Инновационная технология термосварных швов создает абсолютно герметичную конструкцию без единого видимого стежка. Скрытые молнии YKK Excella с позолоченными зубцами и магнитные клапаны карманов обеспечивают элегантный минималистичный силуэт. Легкий утеплитель Primaloft Gold обеспечивает тепло при весе всего 380 граммов.', 
-    sizes: ['S', 'M', 'L', 'XL'], 
-    colors: ['Черный', 'Белый', 'Серый', 'Розовый'], 
-    colorHex: ['#1A1A1A', '#FAFAFA', '#6B7280', '#EC4899'],
-    category: 'Куртки', 
-    gender: 'Woman',
-    inStock: 8, 
-    rating: 4.9, 
-    brand: 'STUDIO X',
-    isNew: true,
-    isTrending: true,
-    composition: '100% итальянский полиамид',
-    fit: 'relaxed',
-    sizeChart: { S: 'грудь 114, длина 70', M: 'грудь 120, длина 72', L: 'грудь 126, длина 74', XL: 'грудь 132, длина 76' }
+  {
+    id: "r4", brand: "STUDIO X", name: "Amber Oversized", cat: "Куртки", gender: "Женское",
+    price: 25500, oldPrice: 35000, img: orangeOversizedImage, tag: "−27%", rating: 4.9, reviews: 98,
+    colors: [{ name: "Янтарный", hex: "#D07A2E" }, { name: "Чёрный", hex: "#1C1A17" }],
+    sizes: ["S", "M", "L", "XL"],
+    desc: "Эффектная оверсайз-куртка из итальянского полиамида с термосварными швами и скрытыми молниями. Лёгкий утеплитель, выразительный цвет.",
+    composition: "Полиамид 100%", fit: "Оверсайз",
   },
-  { 
-    id: 5, 
-    name: 'Pink Classic', 
-    price: 35000, 
-    image: pinkClassicImage, 
-    hoverImage: pinkClassicImage,
-    description: 'Изысканная куртка в нежной розовой палитре, вдохновленная коллекциями haute couture парижских домов моды и созданная для современных ценительниц утонченного стиля. Наполнитель из отборного французского утиного пуха 90/10 с показателем упругости 750 Fill Power обеспечивает исключительное тепло при минимальном объеме. Роскошная подкладка из натурального шелка-сатина с фирменным жаккардовым узором создает ощущение невесомости при надевании. Приталенный силуэт с регулируемой кулиской подчеркивает женственность, а перламутровые кнопки Riri добавляют нотку парижского шика.', 
-    sizes: ['XS', 'S', 'M', 'L'], 
-    colors: ['Черный', 'Белый', 'Розовый', 'Бежевый'], 
-    colorHex: ['#1A1A1A', '#FAFAFA', '#EC4899', '#D4A574'],
-    category: 'Куртки', 
-    gender: 'Woman',
-    inStock: 10, 
-    rating: 5.0, 
-    brand: 'MAISON P',
-    isTrending: true,
-    composition: '90% утиный пух, 10% перо',
-    fit: 'slim',
-    sizeChart: { XS: 'грудь 92, длина 62', S: 'грудь 98, длина 64', M: 'грудь 104, длина 66', L: 'грудь 110, длина 68' }
+  {
+    id: "r5", brand: "ATELIER NOIR", name: "Leather Biker", cat: "Куртки", gender: "Унисекс",
+    price: 48000, img: IMG + "hf_20260523_194045_36ac36f5-d93b-464d-8ac7-61496a4452f4_min.webp",
+    tag: "Новинка", rating: 4.9, reviews: 54,
+    colors: [{ name: "Чёрный", hex: "#1C1A17" }],
+    sizes: ["XS", "S", "M", "L", "XL"],
+    desc: "Косуха из мягкой ягнячьей кожи с асимметричной молнией. Минимум фурнитуры, выверенная посадка — вещь на десятилетия.",
+    composition: "Натуральная кожа 100%", fit: "Приталенный",
   },
-  { 
-    id: 6, 
-    name: 'Blue Winter', 
-    price: 43000, 
-    image: blueWinterImage, 
-    hoverImage: blueWinterImage,
-    description: 'Детская куртка экспедиционного класса, разработанная в сотрудничестве со скандинавскими исследователями Арктики и адаптированная для активных игр в самые суровые морозы до -30°C. Инновационный утеплитель 3M Thinsulate Featherless сохраняет тепло даже во влажном состоянии, обеспечивая надежную защиту во время зимних приключений. Все швы проклеены специальной термолентой для полной герметичности, а светоотражающие элементы 3M Scotchlite гарантируют видимость ребенка в темное время суток. Съемный капюшон с мягкой флисовой подкладкой и эластичные манжеты с отверстиями для большого пальца не дадут холоду проникнуть внутрь.', 
-    sizes: ['S', 'M', 'L'], 
-    colors: ['Черный', 'Белый', 'Синий', 'Серый'], 
-    colorHex: ['#1A1A1A', '#FAFAFA', '#3B82F6', '#6B7280'],
-    category: 'Куртки', 
-    gender: 'Children',
-    inStock: 6, 
-    rating: 4.8, 
-    brand: 'ALPINE',
-    composition: '100% полиэстер, утеплитель Thinsulate',
-    fit: 'regular',
-    sizeChart: { S: 'грудь 86, длина 52', M: 'грудь 92, длина 56', L: 'грудь 98, длина 60' }
+  {
+    id: "r6", brand: "DENIM CO.", name: "Indigo Denim Jacket", cat: "Куртки", gender: "Унисекс",
+    price: 19900, img: IMG + "hf_20260523_194052_f46b341d-b0d0-49c6-909c-0a52c081f750_min.webp",
+    rating: 4.8, reviews: 176,
+    colors: [{ name: "Индиго", hex: "#3A4A66" }],
+    sizes: ["S", "M", "L", "XL"],
+    desc: "Джинсовка структурного кроя из плотного денима с лёгкой стиркой. Универсальная вещь среднего слоя на весь год.",
+    composition: "Хлопок 100%", fit: "Прямой",
   },
-  { 
-    id: 7, 
-    name: 'Black Bomber', 
-    price: 31000, 
-    image: blackBomberImage, 
-    hoverImage: blackBomberImage,
-    description: 'Классический бомбер вневременного силуэта из легендарного японского денима Kurabo плотностью 14 унций, сотканного на челночных станках 1950-х годов в Окаяме. Каждый метр ткани производится со скоростью всего 3 метра в час, что придает полотну уникальную текстуру selvedge edge с характерной красной кромкой. Винтажная латунная фурнитура с патинированной отделкой и оригинальные клепки создают аутентичный образ в духе американской классики 1960-х. Подкладка из стеганого хлопка с традиционным ромбовидным узором обеспечивает комфорт в межсезонье.', 
-    sizes: ['XS', 'S', 'M', 'L', 'XL'], 
-    colors: ['Черный', 'Белый', 'Серый', 'Синий'], 
-    colorHex: ['#1A1A1A', '#FAFAFA', '#6B7280', '#3B82F6'],
-    category: 'Куртки', 
-    gender: 'Men',
-    inStock: 12, 
-    rating: 4.9, 
-    brand: 'ATELIER NOIR',
-    isNew: true,
-    composition: '100% японский деним',
-    fit: 'regular',
-    sizeChart: { XS: 'грудь 100, длина 62', S: 'грудь 106, длина 64', M: 'грудь 112, длина 66', L: 'грудь 118, длина 68', XL: 'грудь 124, длина 70' }
+  {
+    id: "r7", brand: "ALPINE", name: "Alpine Parka", cat: "Куртки", gender: "Унисекс",
+    price: 43000, img: blueWinterImage, rating: 4.8, reviews: 71,
+    colors: [{ name: "Синий", hex: "#3C5A7A" }, { name: "Серый", hex: "#8B8377" }],
+    sizes: ["S", "M", "L"],
+    desc: "Парка экспедиционного класса с утеплителем Thinsulate и проклеенными швами. Создана для города и снежных маршрутов.",
+    composition: "Полиэстер, Thinsulate", fit: "Прямой",
   },
-  { 
-    id: 8, 
-    name: 'Beige Trench', 
-    price: 57000, 
-    image: beigeTrenchImage, 
-    hoverImage: beigeTrenchImage,
-    description: 'Элегантный тренчкот в традициях британского портновского искусства из водоотталкивающего габардина Thomas Mason, который производится на одноименной мануфактуре в Ланкашире с 1796 года. Плотное плетение cotton gabardine с показателем водонепроницаемости 10000 мм надежно защищает от английской непогоды без дополнительной мембраны. Натуральные роговые пуговицы индивидуально подобраны по оттенку и вручную отполированы мастерами из Коринальдо, Италия. Классический двубортный крой с погонами и поясом D-образными кольцами отдает дань уважения оригинальным офицерским пальто Первой мировой войны.', 
-    sizes: ['S', 'M', 'L'], 
-    colors: ['Черный', 'Белый', 'Бежевый', 'Серый'], 
-    colorHex: ['#1A1A1A', '#FAFAFA', '#D4A574', '#6B7280'],
-    category: 'Пальто', 
-    gender: 'Woman',
-    inStock: 4, 
-    rating: 5.0, 
-    brand: 'MAISON B',
-    composition: '100% хлопковый габардин',
-    fit: 'slim',
-    sizeChart: { S: 'грудь 96, длина 105', M: 'грудь 102, длина 108', L: 'грудь 108, длина 111' }
+  {
+    id: "r8", brand: "STUDIO X", name: "Quilted Gilet", cat: "Куртки", gender: "Унисекс",
+    price: 22900, img: IMG + "hf_20260523_194056_f755cd03-d872-4e9d-9985-5b4fbff26d87_min.webp",
+    tag: "Новинка", rating: 4.7, reviews: 63,
+    colors: [{ name: "Чёрный", hex: "#1C1A17" }],
+    sizes: ["S", "M", "L", "XL"],
+    desc: "Стёганый жилет с матовой поверхностью — идеальный средний слой. Лёгкий, тёплый, легко складывается в дорогу.",
+    composition: "Нейлон, синтетический пух", fit: "Прямой",
+  },
+  {
+    id: "r9", brand: "MAISON P", name: "Rose Down Jacket", cat: "Куртки", gender: "Женское",
+    price: 35000, img: pinkClassicImage, rating: 5.0, reviews: 124,
+    colors: [{ name: "Розовый", hex: "#D8A0A8" }, { name: "Бежевый", hex: "#CDB48C" }],
+    sizes: ["XS", "S", "M", "L"],
+    desc: "Куртка в нежной палитре с французским утиным пухом и шёлковой подкладкой. Приталенный силуэт, парижская лёгкость.",
+    composition: "Утиный пух 90%", fit: "Приталенный",
+  },
+  {
+    id: "r10", brand: "CARBON STUDIO", name: "Carbon Hoodie", cat: "Худи", gender: "Мужское",
+    price: 12900, oldPrice: 15900, img: carbonHoodieImage, tag: "Хит", rating: 5.0, reviews: 264,
+    colors: [{ name: "Чёрный", hex: "#1C1A17" }, { name: "Серый", hex: "#8B8377" }, { name: "Бежевый", hex: "#CDB48C" }],
+    sizes: ["S", "M", "L", "XL"],
+    desc: "Худи свободного кроя из японского органического хлопка 320 г/м² с обработкой enzyme wash. Бархатистая мягкость и плотная структура.",
+    composition: "Органический хлопок 100%", fit: "Свободный",
+  },
+  {
+    id: "r11", brand: "URBAN ATELIER", name: "Prism Hoodie", cat: "Худи", gender: "Унисекс",
+    price: 13900, oldPrice: 17900, img: colorfulHoodieImage, tag: "−22%", rating: 4.9, reviews: 188,
+    colors: [{ name: "Колор-блок", hex: "#C56B3A" }, { name: "Чёрный", hex: "#1C1A17" }],
+    sizes: ["S", "M", "L", "XL"],
+    desc: "Худи из арт-коллаборации с уличным художником: смелые цветовые блоки на бархатистом французском флисе. Лимитированный тираж.",
+    composition: "Хлопок 80%, полиэстер 20%", fit: "Свободный",
+  },
+  {
+    id: "r12", brand: "URBAN ATELIER", name: "Colorblock Hoodie", cat: "Худи", gender: "Мужское",
+    price: 13900, img: colorblockHoodieNew, rating: 4.8, reviews: 96,
+    colors: [{ name: "Колор-блок", hex: "#6B7280" }, { name: "Синий", hex: "#3C5A7A" }],
+    sizes: ["S", "M", "L", "XL"],
+    desc: "Графичное худи с контрастными панелями на плотном футере. Уверенная вещь для повседневного образа.",
+    composition: "Хлопок 80%, полиэстер 20%", fit: "Свободный",
+  },
+  {
+    id: "r13", brand: "CARBON STUDIO", name: "Noir Hoodie", cat: "Худи", gender: "Унисекс",
+    price: 11900, img: blackHoodieImage, tag: "Новинка", rating: 4.9, reviews: 142,
+    colors: [{ name: "Чёрный", hex: "#1C1A17" }],
+    sizes: ["XS", "S", "M", "L", "XL"],
+    desc: "Базовое чёрное худи идеальной посадки из тяжёлого футера. Та вещь, которую носишь чаще всего.",
+    composition: "Органический хлопок 100%", fit: "Прямой",
+  },
+  {
+    id: "r14", brand: "KNIT HOUSE", name: "Cable Knit Sweater", cat: "Трикотаж", gender: "Унисекс",
+    price: 14900, img: IMG + "hf_20260523_194022_41f3f2b9-d5a8-40fb-b2c2-97e7c71b7f48_min.webp",
+    tag: "Новинка", rating: 4.9, reviews: 117,
+    colors: [{ name: "Овсяный", hex: "#D6CBB2" }, { name: "Серый", hex: "#8B8377" }],
+    sizes: ["S", "M", "L", "XL"],
+    desc: "Объёмный свитер крупной косой вязки из мягкой шерстяной пряжи. Тёплый, уютный, с характером.",
+    composition: "Шерсть 70%, акрил 30%", fit: "Оверсайз",
+  },
+  {
+    id: "r15", brand: "ATELIER NOIR", name: "Wide-Leg Trousers", cat: "Брюки", gender: "Женское",
+    price: 16900, img: IMG + "hf_20260523_194048_54e42d77-5198-4967-bd43-bfa0f6625efb_min.webp",
+    rating: 4.8, reviews: 88,
+    colors: [{ name: "Камень", hex: "#9C9384" }, { name: "Чёрный", hex: "#1C1A17" }],
+    sizes: ["XS", "S", "M", "L"],
+    desc: "Широкие брюки на высокой посадке с защипами и безупречной стрелкой. Архитектурный силуэт, мягкая ткань.",
+    composition: "Вискоза, шерсть", fit: "Свободный",
+  },
+  {
+    id: "r16", brand: "ATELIER NOIR", name: "Noir Bomber", cat: "Куртки", gender: "Мужское",
+    price: 31000, img: blackBomberImage, rating: 4.9, reviews: 134,
+    colors: [{ name: "Чёрный", hex: "#1C1A17" }, { name: "Синий", hex: "#3C5A7A" }],
+    sizes: ["XS", "S", "M", "L", "XL"],
+    desc: "Бомбер вневременного силуэта из японского сельвидж-денима с винтажной фурнитурой. Аутентичная классика.",
+    composition: "Японский деним 100%", fit: "Прямой",
+  },
+  {
+    id: "r17", brand: "MAISON B", name: "Cashmere Scarf", cat: "Аксессуары", gender: "Унисекс",
+    price: 9900, img: IMG + "hf_20260523_194214_bdb01f74-6665-478d-96c0-d4c3e6cf851f_min.webp",
+    rating: 5.0, reviews: 203,
+    colors: [{ name: "Бежевый", hex: "#CDB48C" }, { name: "Серый", hex: "#8B8377" }],
+    sizes: ["ONE"],
+    desc: "Объёмный шарф из чистого кашемира — невесомое тепло и благородная фактура. Финальный штрих образа.",
+    composition: "Кашемир 100%", fit: "—",
+  },
+  {
+    id: "r18", brand: "MAISON B", name: "Structured Tote", cat: "Аксессуары", gender: "Женское",
+    price: 38000, img: IMG + "hf_20260523_194217_4a3f86e7-99ef-4b4a-8b26-f848eed36c1d_min.webp",
+    tag: "Хит", rating: 4.9, reviews: 167,
+    colors: [{ name: "Тан", hex: "#B68A5B" }, { name: "Чёрный", hex: "#1C1A17" }],
+    sizes: ["ONE"],
+    desc: "Структурная сумка-тоут из гладкой кожи с архитектурной формой. Вместительная, лаконичная, на каждый день.",
+    composition: "Натуральная кожа 100%", fit: "—",
   },
 ];
 
-const categories = ['Все', 'Худи', 'Куртки', 'Пальто'];
-const genderFilters = ['Все', 'Мужское', 'Женское', 'Детское'];
-const genderMap: Record<string, string> = { 'Мужское': 'Men', 'Женское': 'Woman', 'Детское': 'Children' };
-
-function PremiumFashionStore({ activeTab, onTabChange }: PremiumFashionStoreProps) {
-  const { t, language } = useLanguage();
-  const isRu = language === 'ru';
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedSize, setSelectedSize] = useState<string>('');
-  const [selectedColor, setSelectedColor] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>(isRu ? 'Все' : 'All');
-  const [selectedGender, setSelectedGender] = useState<string>(isRu ? 'Все' : 'All');
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [activeProductTab, setActiveProductTab] = useState<'description' | 'characteristics' | 'reviews'>('description');
-  const [showStickyHeader, setShowStickyHeader] = useState(false);
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  const [quickViewSize, setQuickViewSize] = useState<string>('');
-  const [quickViewColor, setQuickViewColor] = useState<string>('');
-  const [promoCode, setPromoCode] = useState<string>('');
-  const [promoApplied, setPromoApplied] = useState<boolean>(false);
-  const [promoDiscountPct, setPromoDiscountPct] = useState<number>(0);
-  const [showSizeGuide, setShowSizeGuide] = useState(false);
-  const [productExiting, setProductExiting] = useState(false);
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
-
-  const handleProductBack = () => {
-    setProductExiting(true);
-    setTimeout(() => {
-      setProductExiting(false);
-      setSelectedProduct(null);
-    }, 340);
-  };
-
-  const productPageVariants = {
-    initial: { opacity: 0, y: 28, scale: 0.985 },
-    animate: { opacity: 1, y: 0, scale: 1 },
-    exit: { opacity: 0, y: 40, scale: 0.975 },
-  };
-
-  const contentStagger = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.065,
-        delayChildren: 0.22,
-      },
-    },
-  };
-
-  const contentItem = {
-    hidden: { opacity: 0, y: 18 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] },
-    },
-  };
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowStickyHeader(window.scrollY > 300);
-    };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  
-  const mockReviews = [
-    { name: 'Анна М.', rating: 5, text: 'Отличное качество! Ткань очень приятная, размер подошёл идеально.', date: '2 дня назад' },
-    { name: 'Дмитрий К.', rating: 4, text: 'Хорошая вещь за свои деньги. Доставка быстрая.', date: '5 дней назад' },
-    { name: 'Елена В.', rating: 5, text: 'Покупаю уже второй раз. Качество на высоте!', date: '1 неделю назад' },
-    { name: 'Михаил С.', rating: 5, text: 'Супер! Рекомендую всем.', date: '2 недели назад' },
-  ];
-  
-  const fitTranslations: Record<string, string> = {
-    regular: 'Обычная',
-    relaxed: 'Свободная',
-    slim: 'Приталенная'
-  };
-  
-  const { toast } = useToast();
-  const sidebar = useDemoSidebar();
-  
-  const { 
-    cartItems: cart, 
-    addToCart: addToCartPersistent, 
-    removeFromCart, 
-    updateQuantity,
-    clearCart, 
-    totalAmount: cartTotal,
-    totalItems: cartCount 
-  } = usePersistentCart({ storageKey: 'radiance_cart' });
-  
-  const { 
-    favorites, 
-    toggleFavorite, 
-    isFavorite,
-    favoritesCount 
-  } = usePersistentFavorites({ storageKey: 'radiance_favorites' });
-  
-  const { 
-    orders, 
-    createOrder,
-    ordersCount 
-  } = usePersistentOrders({ storageKey: 'radiance_orders' });
-  
-  const sidebarMenuItems = [
-    { icon: <Home className="w-5 h-5" />, label: t('demos.fashion.home'), active: activeTab === 'home' },
-    { icon: <Grid className="w-5 h-5" />, label: t('demos.fashion.catalog'), active: activeTab === 'catalog' },
-    { icon: <Heart className="w-5 h-5" />, label: t('demos.fashion.favorites'), badge: favoritesCount > 0 ? String(favoritesCount) : undefined },
-    { icon: <ShoppingBag className="w-5 h-5" />, label: t('demos.fashion.cart'), badge: cartCount > 0 ? String(cartCount) : undefined, badgeColor: 'var(--theme-primary)' },
-    { icon: <Tag className="w-5 h-5" />, label: isRu ? 'Акции' : 'Sales' },
-    { icon: <User className="w-5 h-5" />, label: t('demos.fashion.profile'), active: activeTab === 'profile' },
-    { icon: <Settings className="w-5 h-5" />, label: isRu ? 'Настройки' : 'Settings' },
-  ];
-
-  const { filteredItems, searchQuery, handleSearch } = useFilter({
-    items: products,
-    searchFields: ['name', 'description', 'category', 'brand'] as (keyof Product)[],
-  });
-
-  useEffect(() => {
-    scrollToTop();
-    if (activeTab !== 'catalog') {
-      setSelectedProduct(null);
-    }
-    if (activeTab !== 'home') {
-      setSelectedGender('Все');
-    }
-  }, [activeTab]);
-
-  const filteredProducts = filteredItems.filter(p => {
-    const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
-    
-    if (activeTab === 'home') {
-      const genderMatch = selectedGender === 'Все' || p.gender === (genderMap[selectedGender] ?? selectedGender);
-      return categoryMatch && genderMatch;
-    }
-    
-    return categoryMatch;
-  });
-
-  const handleImageLoad = (productId: number) => {
-    setLoadedImages(prev => new Set(prev).add(productId));
-  };
-
-  const handleToggleFavorite = (productId: number) => {
-    toggleFavorite(productId);
-    const isNowFavorite = !isFavorite(productId);
-    toast({
-      title: isNowFavorite ? (isRu ? 'Добавлено в избранное' : 'Added to favorites') : (isRu ? 'Удалено из избранного' : 'Removed from favorites'),
-      duration: 1500,
-    });
-  };
-
-  const PROMO_CODES: Record<string, number> = { 'RADIANCE10': 10, 'STYLE20': 20, 'SS26': 15 };
-
-  const handleApplyPromo = () => {
-    const discount = PROMO_CODES[promoCode.trim().toUpperCase()];
-    if (discount) {
-      setPromoDiscountPct(discount);
-      setPromoApplied(true);
-      toast({ title: `Промокод применён — скидка ${discount}%`, duration: 2000 });
-    } else {
-      toast({ title: 'Неверный промокод', description: 'Попробуйте: RADIANCE10 или STYLE20', duration: 2500 });
-    }
-  };
-
-  const promoSaving = promoApplied ? Math.round(cartTotal * promoDiscountPct / 100) : 0;
-  const oldPriceSaving = cart.reduce((acc, item) => {
-    const product = products.find(p => p.id === parseInt(item.id));
-    return acc + (product?.oldPrice ? (product.oldPrice - product.price) * item.quantity : 0);
-  }, 0);
-  const totalSaving = promoSaving + oldPriceSaving;
-  const finalTotal = cartTotal - promoSaving;
-
-  const openProduct = (product: Product) => {
-    scrollToTop();
-    onTabChange?.('catalog');
-    setSelectedProduct(product);
-    setSelectedSize(product.sizes[0]);
-    setSelectedColor(product.colors[0]);
-    setCurrentImageIndex(0);
-  };
-
-  const addToCart = () => {
-    if (!selectedProduct) return;
-    
-    addToCartPersistent({
-      id: String(selectedProduct.id),
-      name: selectedProduct.name,
-      price: selectedProduct.price,
-      size: selectedSize,
-      image: selectedProduct.image,
-      color: selectedColor
-    });
-    
-    toast({
-      title: 'Добавлено в корзину',
-      description: `${selectedProduct.name} • ${selectedColor} • ${selectedSize}`,
-      duration: 2000,
-    });
-    
-    setSelectedProduct(null);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
-  const handleCheckout = (orderId: string) => {
-    const orderItems = cart.map(item => ({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-      image: item.image,
-      size: item.size,
-      color: item.color
-    }));
-    
-    createOrder(orderItems, cartTotal, {
-      address: 'Москва',
-      phone: '+7 (999) 123-45-67'
-    });
-    
-    clearCart();
-    setIsCheckoutOpen(false);
-    
-    toast({
-      title: t('demos.fashion.orderSuccess'),
-      description: `Номер заказа: ${orderId}`,
-      duration: 3000,
-    });
-  };
-
-  // PRODUCT PAGE - iOS 2026 Liquid Glass Design (Full-bleed Hero)
-  if (activeTab === 'catalog' && selectedProduct) {
-    // Static premium dark background (like Carbon Collection) - doesn't change with color selection
-    const bgColor = '#0A0A0A';
-    const productImages = [...new Set([selectedProduct.image, selectedProduct.hoverImage])];
-    
-    return (
-      <m.div
-        className="h-screen text-white overflow-hidden relative flex flex-col"
-        style={{ backgroundColor: bgColor }}
-        variants={productPageVariants}
-        initial="initial"
-        animate={productExiting ? 'exit' : 'animate'}
-        transition={{
-          duration: productExiting ? 0.32 : 0.35,
-          ease: productExiting ? [0.32, 0, 0.67, 0] : [0.22, 1, 0.36, 1],
-        }}
-      >
-        
-        {/* ===== STICKY GLASS HEADER: Shows on scroll past hero ===== */}
-        <AnimatePresence>
-          {showStickyHeader && (
-            <m.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-              className="fixed top-0 left-0 right-0 z-[100]"
-              style={{
-                paddingTop: 'max(12px, env(safe-area-inset-top))',
-                paddingBottom: '12px',
-                paddingLeft: '16px',
-                paddingRight: '16px',
-              }}
-            >
-              <div 
-                className="flex items-center justify-between gap-3 px-3 py-2 rounded-[20px]"
-                style={{
-                  background: 'linear-gradient(145deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: '0.5px solid rgba(255,255,255,0.3)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4)',
-                }}
-              >
-                <button 
-                  onClick={() => setSelectedProduct(null)}
-                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-transform"
-                  style={{ 
-                    background: 'rgba(255,255,255,0.15)',
-                  }}
-                  data-testid="button-sticky-back"
-                >
-                  <ChevronLeft className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.9)' }} strokeWidth={2.5} />
-                </button>
-                
-                <div className="flex-1 min-w-0 text-center">
-                  <p 
-                    className="text-[15px] font-semibold truncate"
-                    style={{ 
-                      color: 'rgba(255,255,255,0.95)',
-                      letterSpacing: '-0.01em',
-                    }}
-                  >
-                    {selectedProduct.name}
-                  </p>
-                  <p 
-                    className="text-[13px] font-medium"
-                    style={{ 
-                      color: 'rgba(255,255,255,0.6)',
-                      fontFeatureSettings: "'tnum'",
-                    }}
-                  >
-                    {formatPrice(selectedProduct.price)}
-                  </p>
-                </div>
-                
-                <button 
-                  onClick={() => {
-                    onTabChange?.('cart');
-                  }}
-                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-transform relative"
-                  style={{ 
-                    background: 'rgba(255,255,255,0.15)',
-                  }}
-                  data-testid="button-sticky-cart"
-                >
-                  <ShoppingBag className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.9)' }} />
-                  {cartCount > 0 && (
-                    <span 
-                      className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold"
-                      style={{
-                        background: 'var(--theme-primary)',
-                        color: '#000',
-                      }}
-                    >
-                      {cartCount}
-                    </span>
-                  )}
-                </button>
-              </div>
-            </m.div>
-          )}
-        </AnimatePresence>
-        
-        {/* SCROLLABLE CONTENT CONTAINER */}
-        <div 
-          className="flex-1 overflow-y-auto"
-          style={{ paddingBottom: '180px' }}
-          onScroll={(e) => setShowStickyHeader(e.currentTarget.scrollTop > 300)}
-        >
-        
-        {/* ===== HERO SECTION: Full-bleed image with floating controls ===== */}
-        <div className="relative flex-shrink-0" style={{ height: '70vh', minHeight: '420px' }}>
-          
-          {/* Full-bleed Image Gallery - iOS-style snap scroll */}
-          <div 
-            className="absolute inset-0 overflow-x-auto overflow-y-hidden scrollbar-hide"
-            style={{ 
-              scrollSnapType: 'x mandatory',
-              WebkitOverflowScrolling: 'touch',
-              scrollBehavior: 'smooth',
-            }}
-            onScroll={(e) => {
-              const container = e.currentTarget;
-              const scrollLeft = container.scrollLeft;
-              const width = container.offsetWidth;
-              const newIndex = Math.round(scrollLeft / width);
-              if (newIndex !== currentImageIndex && newIndex >= 0 && newIndex < productImages.length) {
-                setCurrentImageIndex(newIndex);
-              }
-            }}
-          >
-            <m.div
-              className="flex h-full w-full"
-              initial={{ scale: 1.06, filter: 'brightness(0.72)' }}
-              animate={productExiting
-                ? { scale: 1.04, filter: 'brightness(0.65)' }
-                : { scale: 1, filter: 'brightness(1)' }
-              }
-              transition={{ duration: productExiting ? 0.32 : 0.65, ease: [0.32, 0.72, 0, 1] }}
-            >
-              {productImages.map((img, idx) => (
-                <div 
-                  key={idx} 
-                  className="min-w-full h-full flex-shrink-0 relative"
-                  style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
-                >
-                  <LazyImage
-                    src={img}
-                    alt={`${selectedProduct.name} - фото ${idx + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </m.div>
-            
-            {/* Top gradient for button visibility */}
-            <div 
-              className="absolute top-0 left-0 right-0 pointer-events-none"
-              style={{
-                height: '120px',
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)'
-              }}
-            />
-            
-            {/* Bottom gradient for content card transition */}
-            <div 
-              className="absolute bottom-0 left-0 right-0 pointer-events-none"
-              style={{
-                height: '100px',
-                background: `linear-gradient(0deg, ${bgColor} 0%, transparent 100%)`
-              }}
-            />
-          </div>
-          
-          {/* ===== FLOATING NAV: Back & Favorite buttons lower ===== */}
-          <div 
-            className="absolute left-0 right-0 z-50 flex items-center justify-between px-4"
-            style={{ 
-              top: 'calc(max(12px, env(safe-area-inset-top)) + 48px)',
-            }}
-          >
-            {/* Back Button - Liquid Glass */}
-            <button 
-              onClick={handleProductBack}
-              className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
-              style={{ 
-                background: 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: '0.5px solid rgba(255,255,255,0.6)',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7)'
-              }}
-              data-testid="button-back"
-            >
-              <ChevronLeft className="w-6 h-6" style={{ color: 'rgba(0,0,0,0.8)' }} strokeWidth={2.5} />
-            </button>
-            
-            {/* Center spacer (counter removed) */}
-            <div style={{ width: '44px' }} />
-            
-            {/* Favorite Button - Liquid Glass */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleFavorite(selectedProduct.id);
-              }}
-              className="w-11 h-11 rounded-[14px] flex items-center justify-center active:scale-95 transition-all duration-200"
-              style={{ 
-                background: isFavorite(selectedProduct.id) 
-                  ? 'linear-gradient(145deg, rgba(255,59,48,0.35) 0%, rgba(255,59,48,0.15) 100%)'
-                  : 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.25) 100%)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: isFavorite(selectedProduct.id) 
-                  ? '0.5px solid rgba(255,59,48,0.5)'
-                  : '0.5px solid rgba(255,255,255,0.6)',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7)'
-              }}
-              aria-label={isFavorite(selectedProduct.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-              data-testid={`button-favorite-${selectedProduct.id}`}
-            >
-              <Heart 
-                className="w-5 h-5"
-                style={{ color: isFavorite(selectedProduct.id) ? '#FF3B30' : 'rgba(0,0,0,0.75)' }}
-                fill={isFavorite(selectedProduct.id) ? '#FF3B30' : 'none'}
-                strokeWidth={2}
-              />
-            </button>
-          </div>
-          
-          {/* Editorial badge — NEW / TRENDING, bottom-left of hero */}
-          {(selectedProduct.isNew || selectedProduct.isTrending) && (
-            <div className="absolute z-40" style={{ bottom: '52px', left: '16px' }}>
-              <span style={{
-                fontSize: '9px', fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase',
-                background: 'var(--theme-primary)', color: '#000',
-                padding: '5px 11px', borderRadius: '99px',
-                fontFamily: "'Satoshi', 'Inter', sans-serif",
-                display: 'inline-block',
-              }}>
-                {selectedProduct.isNew ? 'Новинка' : 'В тренде'} · SS'26
-              </span>
-            </div>
-          )}
-
-          {/* Dots Indicator — hidden when only 1 image */}
-          {productImages.length > 1 && <div 
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2 px-3 py-2 rounded-full"
-            style={{
-              background: 'rgba(0,0,0,0.35)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              border: '0.5px solid rgba(255,255,255,0.15)',
-            }}
-          >
-            {productImages.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentImageIndex(idx)}
-                className="transition-all duration-300"
-                style={{
-                  width: currentImageIndex === idx ? '20px' : '7px',
-                  height: '7px',
-                  borderRadius: '4px',
-                  background: currentImageIndex === idx 
-                    ? 'rgba(255,255,255,0.95)' 
-                    : 'rgba(255,255,255,0.35)',
-                }}
-                data-testid={`gallery-dot-${idx}`}
-              />
-            ))}
-          </div>}
-        </div>
-
-        {/* ===== CONTENT SHEET: Slides up over hero ===== */}
-        <m.div
-          className="relative"
-          style={{ paddingBottom: '176px', marginTop: '-32px' }}
-          variants={contentStagger}
-          initial="hidden"
-          animate={productExiting ? 'hidden' : 'visible'}
-        >
-          <div 
-            className="relative rounded-t-[28px]"
-            style={{
-              padding: '28px 24px 24px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '24px',
-              background: '#0D0D0D',
-              borderTop: '0.5px solid rgba(255,255,255,0.1)',
-            }}
-          >
-            {/* Product Title & Price — editorial 2026 */}
-            <m.div variants={contentItem}>
-              {/* Brand + Rating row */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <p
-                  style={{
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    letterSpacing: '0.3em',
-                    textTransform: 'uppercase',
-                    color: 'rgba(255,255,255,0.5)',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif",
-                  }}
-                >
-                  {selectedProduct.brand}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <div style={{ display: 'flex', gap: '2px' }}>
-                    {[1,2,3,4,5].map(s => (
-                      <Star key={s} style={{ width: '10px', height: '10px' }}
-                        fill={s <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.85)' : 'transparent'}
-                        stroke={s <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
-                      />
-                    ))}
-                  </div>
-                  <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.55)', letterSpacing: '-0.01em' }}>
-                    {selectedProduct.rating}
-                  </span>
-                </div>
-              </div>
-
-              {/* Name — Cormorant Garamond editorial */}
-              <h2
-                style={{
-                  fontSize: '32px',
-                  fontWeight: 300,
-                  fontStyle: 'italic',
-                  letterSpacing: '0.01em',
-                  lineHeight: 1.1,
-                  color: 'rgba(255,255,255,0.97)',
-                  marginBottom: '16px',
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                }}
-              >
-                {selectedProduct.name}
-              </h2>
-
-              {/* Price row — hero price */}
-              <div className="flex items-baseline gap-3" style={{ marginBottom: '10px' }}>
-                <p
-                  style={{
-                    fontSize: '30px',
-                    fontWeight: 800,
-                    letterSpacing: '-0.03em',
-                    fontVariantNumeric: 'tabular-nums',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif",
-                    color: 'rgba(255,255,255,0.97)',
-                    lineHeight: 1,
-                  }}
-                >
-                  {formatPrice(selectedProduct.price)}
-                </p>
-              </div>
-              {/* Secondary row: old price + discount badge + stock pill */}
-              {(selectedProduct.oldPrice || selectedProduct.inStock <= 5) && (
-                <div className="flex items-center flex-wrap gap-2" style={{ marginBottom: '4px' }}>
-                  {selectedProduct.oldPrice && (
-                    <p
-                      style={{
-                        fontSize: '15px',
-                        textDecoration: 'line-through',
-                        color: 'rgba(255,255,255,0.28)',
-                        fontVariantNumeric: 'tabular-nums',
-                        fontFamily: "'Satoshi', 'Inter', sans-serif",
-                      }}
-                    >
-                      {formatPrice(selectedProduct.oldPrice)}
-                    </p>
-                  )}
-                  {selectedProduct.oldPrice && (
-                    <div
-                      className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black"
-                      style={{
-                        background: 'rgba(var(--theme-primary-rgb, 205,255,56), 0.15)',
-                        color: 'var(--theme-primary)',
-                        border: '0.5px solid rgba(var(--theme-primary-rgb, 205,255,56), 0.35)',
-                        letterSpacing: '0.08em',
-                        textTransform: 'uppercase',
-                        fontFamily: "'Satoshi', 'Inter', sans-serif",
-                      }}
-                    >
-                      −{Math.round((1 - selectedProduct.price / selectedProduct.oldPrice) * 100)}%
-                    </div>
-                  )}
-                  {selectedProduct.inStock <= 5 && (
-                    <div
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-                      style={{
-                        background: 'rgba(239,68,68,0.12)',
-                        border: '0.5px solid rgba(239,68,68,0.3)',
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: '5px', height: '5px', borderRadius: '50%',
-                          background: '#EF4444', display: 'inline-block',
-                          animation: 'pulse 1.5s ease-in-out infinite',
-                        }}
-                      />
-                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#EF4444', letterSpacing: '0.05em', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                        Осталось {selectedProduct.inStock} шт.
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </m.div>
-
-            {/* Color Selection — left-aligned editorial */}
-            <m.div variants={contentItem} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <p style={{
-                  fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em',
-                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
-                  fontFamily: "'Satoshi', 'Inter', sans-serif",
-                }}>
-                  Цвет
-                </p>
-                <p style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.01em' }}>
-                  {selectedColor}
-                </p>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                {selectedProduct.colors.map((color, idx) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className="relative transition-all duration-200 active:scale-95"
-                    style={{
-                      width: '32px', height: '32px', borderRadius: '50%',
-                      backgroundColor: selectedProduct.colorHex[idx],
-                      border: selectedColor === color
-                        ? '2px solid rgba(255,255,255,0.95)'
-                        : '1.5px solid rgba(255,255,255,0.2)',
-                      boxShadow: selectedColor === color
-                        ? '0 0 0 2.5px rgba(255,255,255,0.15)'
-                        : 'none',
-                      transform: selectedColor === color ? 'scale(1.12)' : 'scale(1)',
-                    }}
-                    data-testid={`button-color-${color}`}
-                  />
-                ))}
-              </div>
-            </m.div>
-
-            {/* Size Selection — full-width editorial grid */}
-            <m.div variants={contentItem} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <p style={{
-                    fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em',
-                    textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif",
-                  }}>
-                    Размер
-                  </p>
-                  <p style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.01em' }}>
-                    {selectedSize}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowSizeGuide(true)}
-                  style={{
-                    fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.4)',
-                    letterSpacing: '0.02em', fontFamily: "'Satoshi', 'Inter', sans-serif",
-                    borderBottom: '0.5px solid rgba(255,255,255,0.25)', lineHeight: 1.2,
-                    background: 'none', padding: 0,
-                  }}
-                >
-                  Гид по размерам →
-                </button>
-              </div>
-              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                {selectedProduct.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className="transition-all duration-200 active:scale-95"
-                    style={{
-                      flex: 1,
-                      padding: '13px 8px',
-                      borderRadius: '12px',
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      letterSpacing: '0.02em',
-                      fontFamily: "'Satoshi', 'Inter', sans-serif",
-                      background: selectedSize === size
-                        ? 'var(--theme-primary)'
-                        : 'rgba(255,255,255,0.06)',
-                      color: selectedSize === size ? '#000' : 'rgba(255,255,255,0.65)',
-                      border: selectedSize === size
-                        ? 'none'
-                        : '0.5px solid rgba(255,255,255,0.12)',
-                    }}
-                    data-testid={`button-size-${size}`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </m.div>
-
-            {/* Services strip — Net-a-Porter style */}
-            <m.div
-              variants={contentItem}
-              style={{
-                display: 'flex',
-                alignItems: 'stretch',
-                borderRadius: '16px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '0.5px solid rgba(255,255,255,0.08)',
-                overflow: 'hidden',
-              }}
-            >
-              {[
-                { Icon: Truck, label: 'Доставка', sub: 'Бесплатно' },
-                { Icon: RotateCcw, label: 'Возврат', sub: '30 дней' },
-                { Icon: ShieldCheck, label: 'Оригинал', sub: 'Гарантия' },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '16px 8px',
-                    gap: '6px',
-                    borderRight: i < 2 ? '0.5px solid rgba(255,255,255,0.07)' : 'none',
-                  }}
-                >
-                  <item.Icon
-                    style={{ width: '18px', height: '18px', color: 'var(--theme-primary)', strokeWidth: 1.5 }}
-                  />
-                  <p style={{
-                    fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em',
-                    color: 'rgba(255,255,255,0.88)', textTransform: 'uppercase',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif", lineHeight: 1,
-                  }}>
-                    {item.label}
-                  </p>
-                  <p style={{
-                    fontSize: '9px', color: 'rgba(255,255,255,0.38)', letterSpacing: '0.04em',
-                    fontFamily: "'Satoshi', 'Inter', sans-serif", lineHeight: 1,
-                  }}>
-                    {item.sub}
-                  </p>
-                </div>
-              ))}
-            </m.div>
-
-            {/* Editorial underline tabs */}
-            <m.div variants={contentItem} style={{ borderBottom: '0.5px solid rgba(255,255,255,0.1)' }}>
-              <div className="flex" role="tablist">
-                {[
-                  { key: 'description', label: 'Описание' },
-                  { key: 'characteristics', label: 'Детали' },
-                  { key: 'reviews', label: `Отзывы (${mockReviews.length})` }
-                ].map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setActiveProductTab(tab.key as typeof activeProductTab)}
-                    className="flex-1 transition-all duration-200"
-                    style={{
-                      padding: '12px 4px 13px',
-                      fontSize: '11px',
-                      fontWeight: activeProductTab === tab.key ? 700 : 500,
-                      color: activeProductTab === tab.key ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.4)',
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                      fontFamily: "'Satoshi', 'Inter', sans-serif",
-                      borderBottom: activeProductTab === tab.key
-                        ? '1.5px solid var(--theme-primary)'
-                        : '1.5px solid transparent',
-                      marginBottom: '-0.5px',
-                      background: 'transparent',
-                    }}
-                    data-testid={`tab-${tab.key}`}
-                    role="tab"
-                    aria-selected={activeProductTab === tab.key}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </m.div>
-
-            {/* Tab Content Panels */}
-            <m.div variants={contentItem} style={{ minHeight: '200px' }}>
-              {/* Description Tab */}
-              {activeProductTab === 'description' && (
-                <div id="panel-description" style={{ paddingTop: '4px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <p style={{
-                    fontSize: '15px',
-                    color: 'rgba(255,255,255,0.75)',
-                    lineHeight: 1.7,
-                    letterSpacing: '0em',
-                    fontFamily: "'Cormorant Garamond', Georgia, serif",
-                    fontWeight: 400,
-                  }}>
-                    {selectedProduct.description}
-                  </p>
-                  {/* Inline material pill row */}
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    {[
-                      { label: selectedProduct.composition },
-                      { label: fitTranslations[selectedProduct.fit] },
-                      { label: selectedProduct.category },
-                    ].map((tag, i) => (
-                      <span key={i} style={{
-                        fontSize: '10px',
-                        fontWeight: 600,
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-                        color: 'rgba(255,255,255,0.55)',
-                        background: 'rgba(255,255,255,0.06)',
-                        border: '0.5px solid rgba(255,255,255,0.1)',
-                        padding: '6px 12px',
-                        borderRadius: '99px',
-                        fontFamily: "'Satoshi', 'Inter', sans-serif",
-                      }}>
-                        {tag.label}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Characteristics Tab */}
-              {activeProductTab === 'characteristics' && (
-                <div id="panel-characteristics" style={{ display: 'flex', flexDirection: 'column', gap: '12px', opacity: 1, transition: 'opacity 300ms' }}>
-                  {[
-                    { label: 'Бренд', value: selectedProduct.brand },
-                    { label: 'Категория', value: selectedProduct.category },
-                    { label: 'Состав', value: selectedProduct.composition },
-                    { label: 'Посадка', value: fitTranslations[selectedProduct.fit] },
-                    { label: 'Рейтинг', value: '__stars__' },
-                  ].map((item, idx) => (
-                    <div 
-                      key={idx}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px',
-                        borderRadius: '12px',
-                        background: 'rgba(255,255,255,0.08)',
-                        border: '0.5px solid rgba(255,255,255,0.1)'
-                      }}
-                    >
-                      <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', letterSpacing: '0.02em', fontFamily: "'Satoshi','Inter',sans-serif" }}>{item.label}</span>
-                      {item.value === '__stars__' ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <div style={{ display: 'flex', gap: '2px' }}>
-                            {[1,2,3,4,5].map(s => (
-                              <Star key={s} style={{ width: '13px', height: '13px' }}
-                                fill={s <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.9)' : 'transparent'}
-                                stroke={s <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)'}
-                              />
-                            ))}
-                          </div>
-                          <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.6)', letterSpacing: '-0.01em' }}>
-                            {selectedProduct.rating}
-                          </span>
-                        </div>
-                      ) : (
-                        <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '13px', fontWeight: 500, letterSpacing: '-0.01em' }}>
-                          {item.value}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                  
-                  {/* Size Chart */}
-                  <div 
-                    style={{
-                      padding: '16px',
-                      borderRadius: '12px',
-                      background: 'rgba(255,255,255,0.08)',
-                      border: '0.5px solid rgba(255,255,255,0.1)',
-                      marginTop: '16px'
-                    }}
-                  >
-                    <p style={{ 
-                      color: 'rgba(255,255,255,0.7)',
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      marginBottom: '12px',
-                      letterSpacing: '0.05em'
-                    }}>
-                      Размерная сетка (см)
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {Object.entries(selectedProduct.sizeChart).map(([size, measurements]) => (
-                        <div key={size} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span 
-                            style={{ 
-                              fontSize: '14px',
-                              fontWeight: 600,
-                              padding: '8px 8px',
-                              borderRadius: '8px',
-                              background: 'rgba(255,255,255,0.15)',
-                              color: 'rgba(255,255,255,0.9)',
-                              letterSpacing: '-0.01em'
-                            }}
-                          >
-                            {size}
-                          </span>
-                          <span style={{ 
-                            color: 'rgba(255,255,255,0.6)',
-                            fontSize: '12px',
-                            letterSpacing: '-0.01em'
-                          }}>
-                            {measurements}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Reviews Tab */}
-              {activeProductTab === 'reviews' && (
-                <div id="panel-reviews" style={{ display: 'flex', flexDirection: 'column', gap: '16px', opacity: 1, transition: 'opacity 300ms' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star 
-                            key={star} 
-                            className="w-4 h-4" 
-                            fill={star <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.95)' : 'transparent'}
-                            stroke={star <= Math.round(selectedProduct.rating) ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.25)'}
-                          />
-                        ))}
-                      </div>
-                      <span style={{ 
-                        color: 'rgba(255,255,255,0.9)',
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        letterSpacing: '-0.01em'
-                      }}>
-                        {selectedProduct.rating}
-                      </span>
-                    </div>
-                    <span style={{ 
-                      color: 'rgba(255,255,255,0.5)',
-                      fontSize: '12px',
-                      letterSpacing: '-0.01em'
-                    }}>
-                      {mockReviews.length} отзывов
-                    </span>
-                  </div>
-                  
-                  {mockReviews.map((review, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        padding: '16px',
-                        borderRadius: '16px',
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '0.5px solid rgba(255,255,255,0.08)',
-                      }}
-                    >
-                      {/* Reviewer header */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                        {/* Avatar */}
-                        <div style={{
-                          width: '34px', height: '34px', borderRadius: '50%',
-                          background: 'rgba(255,255,255,0.1)',
-                          border: '0.5px solid rgba(255,255,255,0.15)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          flexShrink: 0,
-                        }}>
-                          <span style={{
-                            fontSize: '13px', fontWeight: 700,
-                            color: 'rgba(255,255,255,0.75)',
-                            fontFamily: "'Satoshi', 'Inter', sans-serif",
-                          }}>
-                            {review.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.01em' }}>
-                            {review.name}
-                          </p>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                            <div style={{ display: 'flex', gap: '2px' }}>
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Star
-                                  key={star}
-                                  style={{ width: '10px', height: '10px' }}
-                                  fill={star <= review.rating ? 'rgba(255,255,255,0.85)' : 'transparent'}
-                                  stroke={star <= review.rating ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
-                                />
-                              ))}
-                            </div>
-                            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.02em' }}>
-                              {review.date}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <p style={{
-                        color: 'rgba(255,255,255,0.65)',
-                        fontSize: '14px',
-                        lineHeight: 1.65,
-                        letterSpacing: '-0.01em',
-                        fontFamily: "'Cormorant Garamond', Georgia, serif",
-                        fontWeight: 400,
-                      }}>
-                        {review.text}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </m.div>
-
-            {/* Recommended Products Carousel */}
-            {(() => {
-              // Get products from same category first
-              const sameCategoryProducts = products.filter(
-                p => p.category === selectedProduct.category && p.id !== selectedProduct.id
-              );
-              // Add products from other categories to fill up to 8 items
-              const otherProducts = products.filter(
-                p => p.category !== selectedProduct.category && p.id !== selectedProduct.id
-              );
-              const recommendedProducts = [...sameCategoryProducts, ...otherProducts].slice(0, 8);
-              
-              if (recommendedProducts.length === 0) return null;
-              
-              return (
-                <m.div variants={contentItem} style={{ paddingTop: '24px' }}>
-                  <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.12)', flex: 1 }} />
-                    <p
-                      style={{
-                        fontSize: '9px',
-                        fontWeight: 700,
-                        letterSpacing: '0.25em',
-                        textTransform: 'uppercase',
-                        color: 'rgba(255,255,255,0.4)',
-                        fontFamily: "'Satoshi', 'Inter', sans-serif",
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      Вам также понравится
-                    </p>
-                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.12)', flex: 1 }} />
-                  </div>
-                  <div 
-                    className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-6 px-6"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                  >
-                    {recommendedProducts.map((product) => (
-                      <div
-                        key={product.id}
-                        onClick={() => {
-                          setSelectedProduct(product);
-                          setSelectedSize(product.sizes[0]);
-                          setSelectedColor(product.colors[0]);
-                          setCurrentImageIndex(0);
-                          setActiveProductTab('description');
-                          scrollToTop();
-                        }}
-                        className="flex-shrink-0 snap-start cursor-pointer active:scale-[0.98] transition-transform duration-150"
-                        style={{ width: '140px' }}
-                        data-testid={`recommended-product-${product.id}`}
-                      >
-                        {/* Card image with bottom gradient */}
-                        <div 
-                          className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2.5"
-                          style={{ background: 'rgba(255,255,255,0.06)' }}
-                        >
-                          <LazyImage
-                            src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                          />
-                          {/* Bottom fade for legibility */}
-                          <div style={{
-                            position: 'absolute', bottom: 0, left: 0, right: 0, height: '60px',
-                            background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 100%)',
-                            pointerEvents: 'none',
-                          }} />
-                          {/* Small NEW badge inside image */}
-                          {product.isNew && (
-                            <span style={{
-                              position: 'absolute', top: '8px', left: '8px',
-                              fontSize: '7px', fontWeight: 800, letterSpacing: '0.2em',
-                              textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif",
-                              background: 'var(--theme-primary)', color: '#000',
-                              padding: '3px 7px', borderRadius: '99px',
-                            }}>NEW</span>
-                          )}
-                        </div>
-                        
-                        {/* Brand */}
-                        <p 
-                          style={{ 
-                            fontSize: '8px', fontWeight: 700, letterSpacing: '0.22em',
-                            textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
-                            fontFamily: "'Satoshi','Inter',sans-serif",
-                            marginBottom: '3px',
-                          }}
-                        >
-                          {product.brand}
-                        </p>
-                        {/* Product name — Cormorant */}
-                        <p 
-                          style={{ 
-                            fontSize: '13px', fontWeight: 300, fontStyle: 'italic',
-                            fontFamily: "'Cormorant Garamond', Georgia, serif",
-                            color: 'rgba(255,255,255,0.85)',
-                            marginBottom: '4px',
-                            lineHeight: 1.2,
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                          } as React.CSSProperties}
-                        >
-                          {product.name}
-                        </p>
-                        {/* Price */}
-                        <p 
-                          style={{ 
-                            fontSize: '13px', fontWeight: 700, letterSpacing: '-0.02em',
-                            color: 'rgba(255,255,255,0.95)',
-                            fontFeatureSettings: "'tnum'",
-                            fontFamily: "'Satoshi','Inter',sans-serif",
-                          }}
-                        >
-                          {formatPrice(product.price)}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </m.div>
-              );
-            })()}
-          </div>
-        </m.div>
-        </div>
-        {/* END SCROLLABLE CONTENT CONTAINER */}
-
-        {/* ===== SIZE GUIDE MODAL ===== */}
-        <AnimatePresence>
-          {showSizeGuide && (
-            <>
-              {/* Backdrop */}
-              <m.div
-                key="size-guide-backdrop"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                onClick={() => setShowSizeGuide(false)}
-                className="fixed inset-0 z-[110]"
-                style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
-              />
-              {/* Bottom sheet */}
-              <m.div
-                key="size-guide-sheet"
-                initial={{ y: '100%' }}
-                animate={{ y: 0 }}
-                exit={{ y: '100%' }}
-                transition={{ type: 'spring', damping: 32, stiffness: 320 }}
-                className="fixed left-0 right-0 z-[120] overflow-y-auto"
-                style={{
-                  bottom: 0,
-                  maxHeight: '82vh',
-                  borderRadius: '28px 28px 0 0',
-                  background: '#141414',
-                  border: '0.5px solid rgba(255,255,255,0.12)',
-                  paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
-                }}
-              >
-                {/* Handle */}
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-                  <div style={{ width: '36px', height: '4px', borderRadius: '99px', background: 'rgba(255,255,255,0.15)' }} />
-                </div>
-
-                {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 24px 20px' }}>
-                  <div>
-                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '4px' }}>
-                      {selectedProduct.brand}
-                    </p>
-                    <h3 style={{ fontSize: '22px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", color: 'rgba(255,255,255,0.95)', letterSpacing: '0.01em' }}>
-                      Гид по размерам
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => setShowSizeGuide(false)}
-                    style={{
-                      width: '36px', height: '36px', borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.12)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: 'rgba(255,255,255,0.6)', fontSize: '18px', lineHeight: 1,
-                    }}
-                  >
-                    ×
-                  </button>
-                </div>
-
-                <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
-
-                  {/* Product-specific size chart */}
-                  <div>
-                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '14px' }}>
-                      Замеры изделия (см)
-                    </p>
-                    <div style={{ borderRadius: '14px', overflow: 'hidden', border: '0.5px solid rgba(255,255,255,0.1)' }}>
-                      {/* Table header */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr 1fr', background: 'rgba(255,255,255,0.06)', padding: '10px 16px' }}>
-                        {['Размер', 'Грудь', 'Длина'].map(h => (
-                          <span key={h} style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{h}</span>
-                        ))}
-                      </div>
-                      {/* Rows */}
-                      {Object.entries(selectedProduct.sizeChart).map(([sz, measurements], idx) => {
-                        const parts = measurements.split(',').map(s => s.trim());
-                        const chest = parts[0]?.replace(/грудь\s*/i, '') ?? '—';
-                        const length = parts[1]?.replace(/длина\s*/i, '') ?? '—';
-                        const isSelected = selectedSize === sz;
-                        return (
-                          <button
-                            key={sz}
-                            onClick={() => { setSelectedSize(sz); setShowSizeGuide(false); }}
-                            style={{
-                              display: 'grid', gridTemplateColumns: '60px 1fr 1fr',
-                              padding: '13px 16px', width: '100%', textAlign: 'left',
-                              background: isSelected ? 'rgba(var(--theme-primary-rgb, 205,255,56), 0.1)' : idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
-                              borderTop: '0.5px solid rgba(255,255,255,0.07)',
-                              transition: 'background 0.15s',
-                            }}
-                          >
-                            <span style={{ fontSize: '14px', fontWeight: isSelected ? 800 : 600, color: isSelected ? 'var(--theme-primary)' : 'rgba(255,255,255,0.9)', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: isSelected ? '0.02em' : 0 }}>{sz}</span>
-                            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{chest}</span>
-                            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', fontFamily: "'Satoshi','Inter',sans-serif" }}>{length}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '8px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.01em' }}>
-                      Нажмите на размер, чтобы выбрать его
-                    </p>
-                  </div>
-
-                  {/* International size conversion */}
-                  <div>
-                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '14px' }}>
-                      Международная конвертация
-                    </p>
-                    <div style={{ borderRadius: '14px', overflow: 'hidden', border: '0.5px solid rgba(255,255,255,0.1)' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', background: 'rgba(255,255,255,0.06)', padding: '10px 16px' }}>
-                        {['RU', 'EU', 'US', 'IT', 'UK'].map(h => (
-                          <span key={h} style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'center' }}>{h}</span>
-                        ))}
-                      </div>
-                      {[
-                        ['XS', '32', '2', '36', '6'],
-                        ['S',  '34', '4', '38', '8'],
-                        ['M',  '36', '6', '40', '10'],
-                        ['L',  '38', '8', '42', '12'],
-                        ['XL', '40', '10', '44', '14'],
-                      ].map(([ru, eu, us, it, uk], idx) => {
-                        const isSelected = selectedSize === ru;
-                        return (
-                          <div key={ru} style={{
-                            display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)',
-                            padding: '12px 16px',
-                            background: isSelected ? 'rgba(var(--theme-primary-rgb, 205,255,56), 0.1)' : idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
-                            borderTop: '0.5px solid rgba(255,255,255,0.07)',
-                          }}>
-                            {[ru, eu, us, it, uk].map((v, i) => (
-                              <span key={i} style={{ fontSize: '13px', fontWeight: i === 0 ? (isSelected ? 800 : 600) : 400, color: i === 0 && isSelected ? 'var(--theme-primary)' : i === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.55)', fontFamily: "'Satoshi','Inter',sans-serif", textAlign: 'center' }}>{v}</span>
-                            ))}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* How to measure */}
-                  <div>
-                    <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '14px' }}>
-                      Как снять мерки
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {[
-                        { icon: '⬡', label: 'Обхват груди', text: 'Измерьте горизонтально по самой широкой части груди, лента должна быть параллельна полу' },
-                        { icon: '↕', label: 'Длина изделия', text: 'От высшей точки плеча до нижнего края изделия по вертикали' },
-                        { icon: '○', label: 'Обхват талии', text: 'Измерьте по самой узкой части талии, обычно на 2–3 см выше пупка' },
-                      ].map((tip, i) => (
-                        <div key={i} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', padding: '14px', borderRadius: '14px', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
-                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px' }}>
-                            {tip.icon}
-                          </div>
-                          <div>
-                            <p style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.9)', marginBottom: '4px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.01em' }}>{tip.label}</p>
-                            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.55, fontFamily: "'Satoshi','Inter',sans-serif" }}>{tip.text}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Fit note */}
-                  <div style={{ padding: '14px 16px', borderRadius: '14px', background: 'rgba(var(--theme-primary-rgb,205,255,56),0.07)', border: '0.5px solid rgba(var(--theme-primary-rgb,205,255,56),0.2)', marginBottom: '8px' }}>
-                    <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--theme-primary)', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.02em', marginBottom: '4px' }}>
-                      Посадка этого изделия: {selectedProduct.fit === 'regular' ? 'Стандартная' : selectedProduct.fit === 'oversized' ? 'Оверсайз' : selectedProduct.fit === 'slim' ? 'Приталенная' : selectedProduct.fit === 'relaxed' ? 'Свободная' : selectedProduct.fit}
-                    </p>
-                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: "'Satoshi','Inter',sans-serif", lineHeight: 1.5 }}>
-                      {selectedProduct.fit === 'oversized'
-                        ? 'Рекомендуем выбрать размер меньше обычного для более чёткого силуэта'
-                        : selectedProduct.fit === 'slim'
-                        ? 'Рекомендуем выбрать размер больше обычного для комфортной посадки'
-                        : 'Соответствует стандартной размерной сетке'}
-                    </p>
-                  </div>
-
-                </div>
-              </m.div>
-            </>
-          )}
-        </AnimatePresence>
-
-        {/* FIXED Bottom CTA — premium 2026 */}
-        <div
-          className="fixed left-0 right-0 z-[90]"
-          style={{
-            bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))',
-            padding: '12px 16px',
-            background: 'linear-gradient(to top, #0A0A0A 70%, transparent)',
-          }}
-        >
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {/* Favorite button */}
-            <button
-              onClick={() => handleToggleFavorite(selectedProduct.id)}
-              aria-label={isFavorite(selectedProduct.id) ? 'Убрать из избранного' : 'В избранное'}
-              className="flex-shrink-0 transition-all active:scale-95"
-              style={{
-                width: '52px', height: '52px', borderRadius: '14px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: isFavorite(selectedProduct.id)
-                  ? 'rgba(255,59,48,0.15)'
-                  : 'rgba(255,255,255,0.08)',
-                border: isFavorite(selectedProduct.id)
-                  ? '0.5px solid rgba(255,59,48,0.4)'
-                  : '0.5px solid rgba(255,255,255,0.12)',
-              }}
-            >
-              <Heart
-                style={{ width: '20px', height: '20px' }}
-                fill={isFavorite(selectedProduct.id) ? '#FF3B30' : 'none'}
-                stroke={isFavorite(selectedProduct.id) ? '#FF3B30' : 'rgba(255,255,255,0.7)'}
-                strokeWidth={2}
-              />
-            </button>
-
-            {/* Add to cart — price inside */}
-            <ConfirmDrawer
-              trigger={
-                <button
-                  className="flex-1 transition-all duration-200 active:scale-[0.98]"
-                  style={{
-                    height: '52px',
-                    borderRadius: '14px',
-                    background: 'var(--theme-primary)',
-                    color: '#000',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    boxShadow: '0 4px 20px rgba(var(--theme-primary-rgb, 99,102,241),0.4)',
-                  }}
-                  data-testid="button-buy-now"
-                >
-                  <span style={{
-                    fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em',
-                    textTransform: 'uppercase', fontFamily: "'Satoshi', 'Inter', sans-serif",
-                  }}>
-                    В КОРЗИНУ
-                  </span>
-                  <span style={{
-                    width: '1px', height: '16px', background: 'rgba(0,0,0,0.2)',
-                  }} />
-                  <span style={{
-                    fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em',
-                    fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi', 'Inter', sans-serif",
-                  }}>
-                    {formatPrice(selectedProduct.price)}
-                  </span>
-                </button>
-              }
-              title="Добавить в корзину?"
-              description={`${selectedProduct.name} · ${selectedColor} · ${selectedSize}`}
-              confirmText="Добавить"
-              cancelText="Отмена"
-              variant="default"
-              onConfirm={addToCart}
-            />
-          </div>
-        </div>
-      </m.div>
-    );
-  }
-
-  // HOME PAGE — 2026 EDITORIAL FASHION DESIGN
-  if (activeTab === 'home') {
-    return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
-        <DemoSidebar
-          isOpen={sidebar.isOpen}
-          onClose={sidebar.close}
-          onOpen={sidebar.open}
-          menuItems={sidebarMenuItems}
-          title="RADIANCE"
-          subtitle="FASHION STUDIO"
-          accentColor="var(--theme-primary)"
-          bgColor="var(--theme-background)"
-        />
-
-        {/* ─── HEADER ─── */}
-        <div className="px-5 pt-5 pb-4">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={sidebar.open}
-              aria-label="Меню"
-              data-testid="button-view-menu"
-              className="w-10 h-10 flex items-center justify-center rounded-full"
-              style={{ background: 'rgba(255,255,255,0.06)' }}
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-
-            {/* Center wordmark */}
-            <div className="text-center">
-              <div
-                className="text-[20px] font-black tracking-[0.2em] leading-none"
-                style={{ fontFamily: "'Satoshi', 'Inter', sans-serif" }}
-              >
-                RADIANCE
-              </div>
-              <div
-                className="text-[7.5px] font-light tracking-[0.38em] mt-0.5"
-                style={{ color: 'rgba(255,255,255,0.3)', fontFamily: "'Satoshi', 'Inter', sans-serif" }}
-              >
-                FASHION STUDIO
-              </div>
-            </div>
-
-            {/* Right icons */}
-            <div className="flex items-center gap-2">
-              <button
-                aria-label="Избранное"
-                data-testid="button-view-favorites"
-                className="w-10 h-10 flex items-center justify-center rounded-full"
-                style={{ background: 'rgba(255,255,255,0.06)' }}
-              >
-                <Heart className="w-5 h-5" />
-              </button>
-              <button
-                aria-label="Корзина"
-                data-testid="button-view-cart"
-                onClick={() => onTabChange?.('cart')}
-                className="relative w-10 h-10 flex items-center justify-center rounded-full"
-                style={{ background: 'rgba(255,255,255,0.06)' }}
-              >
-                <ShoppingBag className="w-5 h-5" />
-                {cartCount > 0 && (
-                  <span
-                    className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-black text-[9px] font-black flex items-center justify-center"
-                    style={{ background: 'var(--theme-primary)' }}
-                  >
-                    {cartCount}
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Search bar */}
-          <div
-            className="flex items-center gap-2 mt-4 px-4 py-2.5 rounded-full"
-            style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
-          >
-            <Search className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.35)' }} />
-            <input
-              type="text"
-              placeholder={t('demos.fashion.searchProducts')}
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="bg-transparent text-white placeholder:text-white/35 outline-none flex-1 text-sm"
-              data-testid="input-search"
-            />
-          </div>
-
-          {/* Gender filter — underline style */}
-          <div className="flex items-center gap-1 mt-4">
-            {genderFilters.map((gender) => (
-              <button
-                key={gender}
-                onClick={() => setSelectedGender(gender)}
-                className="relative px-3 py-1.5 text-sm transition-all"
-                data-testid={`button-filter-${gender.toLowerCase()}`}
-                style={{
-                  color: selectedGender === gender ? '#fff' : 'rgba(255,255,255,0.32)',
-                  fontWeight: selectedGender === gender ? 700 : 400,
-                  letterSpacing: selectedGender === gender ? '-0.01em' : '0',
-                }}
-              >
-                {gender}
-                {selectedGender === gender && (
-                  <m.div
-                    layoutId="gender-underline"
-                    className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full"
-                    style={{ background: 'var(--theme-primary)' }}
-                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                  />
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ─── MARQUEE STRIP ─── */}
-        <div
-          className="overflow-hidden py-2.5 mb-1"
-          style={{ borderTop: '0.5px solid rgba(255,255,255,0.07)', borderBottom: '0.5px solid rgba(255,255,255,0.07)' }}
-        >
-          <m.div
-            className="flex gap-0 whitespace-nowrap"
-            animate={{ x: ['0%', '-50%'] }}
-            transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
-            style={{ width: 'max-content' }}
-          >
-            {[...Array(2)].map((_, rep) => (
-              <span key={rep} className="inline-flex items-center gap-6 pr-6">
-                {['RADIANCE', '✦', 'SS\'26', '✦', 'НОВАЯ КОЛЛЕКЦИЯ', '✦', 'FASHION STUDIO', '✦', 'ВЕСНА / ЛЕТО', '✦', 'PREMIUM EDIT', '✦', 'ЭКСКЛЮЗИВ', '✦'].map((word, wi) => (
-                  <span
-                    key={wi}
-                    className="text-[10px] font-semibold tracking-[0.25em] uppercase"
-                    style={{
-                      color: word === '✦' ? 'var(--theme-primary)' : 'rgba(255,255,255,0.35)',
-                    }}
-                  >
-                    {word}
-                  </span>
-                ))}
-              </span>
-            ))}
-          </m.div>
-        </div>
-
-        {/* ─── VIDEO HERO ─── */}
-        <div className="relative mx-4 mt-3 rounded-[26px] overflow-hidden" style={{ height: '400px' }}>
-          <AutoplayVideo
-            className="absolute inset-0 w-full h-full object-cover"
-            data-testid="video-hero-banner"
-          >
-            <source src={fashionVideo} type="video/mp4" />
-          </AutoplayVideo>
-          {/* Layered gradient for depth */}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 35%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.92) 100%)' }} />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.2) 0%, transparent 50%)' }} />
-
-          {/* Season tag — top left */}
-          <div className="absolute top-4 left-4">
-            <span
-              className="text-[9px] font-bold tracking-[0.35em] uppercase px-3 py-1.5 rounded-full"
-              style={{
-                background: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(16px)',
-                color: 'rgba(255,255,255,0.7)',
-                border: '0.5px solid rgba(255,255,255,0.18)',
-              }}
-            >
-              SS&apos;26
-            </span>
-          </div>
-
-          {/* Issue number — top right (editorial magazine feel) */}
-          <div className="absolute top-4 right-4 text-right">
-            <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.3)' }}>
-              VOL.I
-            </p>
-            <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.2)' }}>
-              №001
-            </p>
-          </div>
-
-          {/* Hero text — left-aligned editorial */}
-          <div className="absolute bottom-0 left-0 right-0 p-6">
-            <m.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {/* Super large display text */}
-              <div style={{ lineHeight: 0.9, marginBottom: '10px' }}>
-                <div
-                  className="block"
-                  style={{ fontSize: '52px', fontWeight: 900, letterSpacing: '-0.05em', color: '#fff' }}
-                >
-                  НОВАЯ
-                </div>
-                <div
-                  className="block"
-                  style={{ fontSize: '52px', fontWeight: 100, letterSpacing: '-0.02em', color: 'rgba(255,255,255,0.55)', fontStyle: 'italic' }}
-                >
-                  коллекция
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 mt-5">
-                <button
-                  className="px-5 py-2.5 rounded-full text-[13px] font-black text-black transition-all active:scale-95"
-                  style={{ background: 'var(--theme-primary)', letterSpacing: '-0.01em' }}
-                  onClick={() => onTabChange?.('catalog')}
-                  data-testid="button-view-collection"
-                >
-                  Смотреть →
-                </button>
-                <p
-                  className="text-[10px] tracking-[0.2em] uppercase"
-                  style={{ color: 'rgba(255,255,255,0.4)' }}
-                >
-                  Весна — Лето 2026
-                </p>
-              </div>
-            </m.div>
-          </div>
-        </div>
-
-        {/* ─── THE EDIT — Featured product ─── */}
-        <div className="px-4 mt-10">
-          {/* Editorial section divider */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
-            <div className="flex items-end gap-3">
-              <div>
-                <p
-                  className="text-[8px] font-semibold tracking-[0.35em] uppercase text-center mb-0.5"
-                  style={{ color: 'rgba(255,255,255,0.3)' }}
-                >
-                  Editorial
-                </p>
-                <h2
-                  className="leading-none text-center"
-                  style={{
-                    fontSize: '34px',
-                    fontWeight: 300,
-                    letterSpacing: '0.08em',
-                    fontFamily: "'Cormorant Garamond', Georgia, serif",
-                    fontStyle: 'italic',
-                  }}
-                >
-                  The Edit
-                </h2>
-              </div>
-            </div>
-            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
-          </div>
-
-          {filteredProducts[0] && (
-            <m.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              onClick={() => openProduct(filteredProducts[0])}
-              className="relative cursor-pointer rounded-[22px] overflow-hidden"
-              style={{ height: '430px' }}
-              data-testid={`featured-product-${filteredProducts[0].id}`}
-            >
-              <div className="absolute inset-0">
-                <LazyImage
-                  src={filteredProducts[0].image}
-                  alt={filteredProducts[0].name}
-                  className="w-full h-full object-cover"
-                  onLoadComplete={() => handleImageLoad(filteredProducts[0].id)}
-                  priority
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-
-              {/* Badges */}
-              <div className="absolute top-4 left-4 flex gap-2">
-                {filteredProducts[0].isNew && (
-                  <span
-                    className="px-2.5 py-1 text-[9px] font-black rounded-full tracking-[0.1em] uppercase text-black"
-                    style={{ background: 'var(--theme-primary)' }}
-                  >
-                    NEW
-                  </span>
-                )}
-                <span
-                  className="px-2.5 py-1 text-[9px] font-semibold rounded-full tracking-wide uppercase"
-                  style={{
-                    background: 'rgba(0,0,0,0.45)',
-                    backdropFilter: 'blur(10px)',
-                    color: 'rgba(255,255,255,0.8)',
-                    border: '0.5px solid rgba(255,255,255,0.18)',
-                  }}
-                >
-                  {filteredProducts[0].category}
-                </span>
-              </div>
-
-              {/* Quick view + heart */}
-              <div className="absolute top-4 right-4 flex gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setQuickViewProduct(filteredProducts[0]);
-                    setQuickViewSize(filteredProducts[0].sizes[0]);
-                    setQuickViewColor(filteredProducts[0].colors[0]);
-                  }}
-                  aria-label="Быстрый просмотр"
-                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                  style={{
-                    background: 'rgba(0,0,0,0.4)',
-                    backdropFilter: 'blur(16px)',
-                    border: '0.5px solid rgba(255,255,255,0.2)',
-                  }}
-                  data-testid={`button-quickview-home-${filteredProducts[0].id}`}
-                >
-                  <Eye className="w-4 h-4 text-white" />
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(filteredProducts[0].id); }}
-                  aria-label={isFavorite(filteredProducts[0].id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                  className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                  style={{
-                    background: 'rgba(0,0,0,0.4)',
-                    backdropFilter: 'blur(16px)',
-                    border: '0.5px solid rgba(255,255,255,0.2)',
-                  }}
-                  data-testid={`button-favorite-${filteredProducts[0].id}`}
-                >
-                  <Heart
-                    className={`w-4 h-4 ${isFavorite(filteredProducts[0].id) ? 'fill-white' : ''} text-white`}
-                  />
-                </button>
-              </div>
-
-              {/* Bottom info */}
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <p
-                  className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-1"
-                  style={{ color: 'rgba(255,255,255,0.45)' }}
-                >
-                  {filteredProducts[0].brand}
-                </p>
-                <h3
-                  className="mb-4 leading-tight"
-                  style={{
-                    fontSize: '26px',
-                    fontWeight: 300,
-                    fontStyle: 'italic',
-                    fontFamily: "'Cormorant Garamond', Georgia, serif",
-                    letterSpacing: '0.04em',
-                    lineHeight: 1.15,
-                  }}
-                >
-                  {filteredProducts[0].name}
-                </h3>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-baseline gap-2">
-                    <span
-                      className="text-xl font-bold"
-                      style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
-                    >
-                      {formatPrice(filteredProducts[0].price)}
-                    </span>
-                    {filteredProducts[0].oldPrice && (
-                      <span
-                        className="text-sm line-through"
-                        style={{ color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}
-                      >
-                        {formatPrice(filteredProducts[0].oldPrice)}
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); openProduct(filteredProducts[0]); }}
-                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[12px] font-black text-black active:scale-95 transition-all"
-                    style={{ background: 'var(--theme-primary)', letterSpacing: '0.03em' }}
-                    data-testid={`button-add-to-cart-${filteredProducts[0].id}`}
-                  >
-                    Открыть →
-                  </button>
-                </div>
-              </div>
-            </m.div>
-          )}
-        </div>
-
-        {/* ─── JUST DROPPED — Horizontal scroll ─── */}
-        <div className="mt-14">
-          <div className="px-4 mb-6">
-            <div className="flex items-center gap-3 mb-0.5">
-              <div
-                className="w-2 h-2 rounded-full animate-pulse"
-                style={{ background: 'var(--theme-primary)' }}
-              />
-              <p
-                className="text-[9px] font-bold tracking-[0.35em] uppercase"
-                style={{ color: 'var(--theme-primary)' }}
-              >
-                Новые поступления
-              </p>
-            </div>
-            <h2
-              className="leading-none"
-              style={{
-                fontSize: '34px',
-                fontWeight: 300,
-                letterSpacing: '0.06em',
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontStyle: 'italic',
-              }}
-            >
-              Just Dropped
-            </h2>
-          </div>
-
-          <div
-            className="flex gap-4 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide"
-            style={{ scrollbarWidth: 'none' }}
-          >
-            {filteredProducts.slice(1, 6).map((product, idx) => (
-              <m.div
-                key={product.id}
-                initial={{ opacity: 0, x: 18 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 + idx * 0.07 }}
-                onClick={() => openProduct(product)}
-                className="flex-shrink-0 snap-start cursor-pointer active:scale-[0.97] transition-transform"
-                style={{ width: '162px' }}
-                data-testid={`featured-product-${product.id}`}
-              >
-                <div
-                  className="relative rounded-[20px] overflow-hidden mb-3"
-                  style={{ height: '208px' }}
-                >
-                  <LazyImage
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                    onLoadComplete={() => handleImageLoad(product.id)}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
-
-                  {/* Heart */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
-                    aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                    className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                    style={{
-                      background: 'rgba(0,0,0,0.38)',
-                      backdropFilter: 'blur(12px)',
-                      border: '0.5px solid rgba(255,255,255,0.18)',
-                    }}
-                    data-testid={`button-favorite-${product.id}`}
-                  >
-                    <Heart className={`w-3.5 h-3.5 ${isFavorite(product.id) ? 'fill-white' : ''} text-white`} />
-                  </button>
-
-                  {/* Quick view */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setQuickViewProduct(product);
-                      setQuickViewSize(product.sizes[0]);
-                      setQuickViewColor(product.colors[0]);
-                    }}
-                    aria-label="Быстрый просмотр"
-                    className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                    style={{
-                      background: 'rgba(0,0,0,0.38)',
-                      backdropFilter: 'blur(12px)',
-                      border: '0.5px solid rgba(255,255,255,0.18)',
-                    }}
-                    data-testid={`button-quickview-home-${product.id}`}
-                  >
-                    <Eye className="w-3.5 h-3.5 text-white" />
-                  </button>
-
-                  {/* Price */}
-                  <div className="absolute bottom-3 left-3">
-                    <span
-                      className="text-sm font-bold"
-                      style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }}
-                    >
-                      {formatPrice(product.price)}
-                    </span>
-                  </div>
-                </div>
-
-                <p
-                  style={{
-                    fontSize: '8px', fontWeight: 700, letterSpacing: '0.28em',
-                    textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
-                    fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '4px',
-                  }}
-                >
-                  {product.brand}
-                </p>
-                <p
-                  style={{
-                    fontSize: '15px', fontWeight: 300, fontStyle: 'italic',
-                    fontFamily: "'Cormorant Garamond', Georgia, serif",
-                    lineHeight: 1.2, letterSpacing: '0.02em',
-                    color: 'rgba(255,255,255,0.9)',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                  } as React.CSSProperties}
-                >
-                  {product.name}
-                </p>
-              </m.div>
-            ))}
-          </div>
-        </div>
-
-        {/* ─── LOOKBOOK — Staggered 2-col grid ─── */}
-        {filteredProducts.length > 4 && (
-          <div className="px-4 mt-14">
-            {/* Section with editorial divider lines */}
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
-              <div className="text-center">
-                <p
-                  className="text-[8px] font-semibold tracking-[0.35em] uppercase mb-0.5"
-                  style={{ color: 'rgba(255,255,255,0.3)' }}
-                >
-                  Актуальные образы
-                </p>
-                <h2
-                  className="leading-none text-center"
-                  style={{
-                    fontSize: '34px',
-                    fontWeight: 300,
-                    letterSpacing: '0.08em',
-                    fontFamily: "'Cormorant Garamond', Georgia, serif",
-                    fontStyle: 'italic',
-                  }}
-                >
-                  Lookbook
-                </h2>
-              </div>
-              <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {filteredProducts.slice(4, 8).map((product, idx) => (
-                <m.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25 + idx * 0.07 }}
-                  onClick={() => openProduct(product)}
-                  className="cursor-pointer active:scale-[0.97] transition-transform"
-                  data-testid={`featured-product-${product.id}`}
-                >
-                  <div
-                    className="relative rounded-[20px] overflow-hidden mb-2.5"
-                    style={{ height: idx % 2 === 0 ? '230px' : '188px' }}
-                  >
-                    <LazyImage
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                      onLoadComplete={() => handleImageLoad(product.id)}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
-
-                    {/* Quick view + Heart row */}
-                    <div className="absolute top-2 right-2 flex flex-col gap-1.5">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
-                        aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                        className="w-7 h-7 rounded-full flex items-center justify-center active:scale-90 transition-all"
-                        style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.15)' }}
-                        data-testid={`button-favorite-${product.id}`}
-                      >
-                        <Heart className={`w-3 h-3 ${isFavorite(product.id) ? 'fill-white' : ''} text-white`} />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setQuickViewProduct(product);
-                          setQuickViewSize(product.sizes[0]);
-                          setQuickViewColor(product.colors[0]);
-                        }}
-                        aria-label="Быстрый просмотр"
-                        className="w-7 h-7 rounded-full flex items-center justify-center active:scale-90 transition-all"
-                        style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.12)' }}
-                        data-testid={`button-quickview-home-${product.id}`}
-                      >
-                        <Eye className="w-3 h-3 text-white" />
-                      </button>
-                    </div>
-
-                    <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <p
-                        style={{
-                          fontSize: '8px', fontWeight: 700, letterSpacing: '0.22em',
-                          textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
-                          fontFamily: "'Satoshi','Inter',sans-serif", marginBottom: '3px',
-                        }}
-                      >
-                        {product.brand}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: '14px', fontWeight: 300, fontStyle: 'italic',
-                          fontFamily: "'Cormorant Garamond', Georgia, serif",
-                          lineHeight: 1.15, letterSpacing: '0.01em',
-                          color: 'rgba(255,255,255,0.92)',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          marginBottom: '3px',
-                        } as React.CSSProperties}
-                      >
-                        {product.name}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: '12px', fontWeight: 600, letterSpacing: '-0.01em',
-                          color: 'rgba(255,255,255,0.65)', fontVariantNumeric: 'tabular-nums',
-                          fontFamily: "'Satoshi','Inter',sans-serif",
-                        }}
-                      >
-                        {formatPrice(product.price)}
-                      </p>
-                    </div>
-                  </div>
-                </m.div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Bottom spacer */}
-        <div className="h-6" />
-        
-        {/* ===== QUICK VIEW MODAL for HOME PAGE ===== */}
-        {createPortal(<AnimatePresence>
-          {quickViewProduct && (
-            <m.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[10000] flex items-end justify-center"
-              style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-              onClick={() => setQuickViewProduct(null)}
-            >
-              <m.div
-                initial={{ opacity: 0, y: 100, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 100, scale: 0.95 }}
-                transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-                className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: '0.5px solid rgba(255,255,255,0.15)',
-                  boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
-                  maxHeight: '70vh',
-                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 140px)',
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Drag Handle */}
-                <div className="flex justify-center pt-3 pb-2">
-                  <div 
-                    className="w-10 h-1 rounded-full"
-                    style={{ background: 'rgba(255,255,255,0.3)' }}
-                  />
-                </div>
-                
-                {/* Close Button */}
-                <button
-                  onClick={() => setQuickViewProduct(null)}
-                  className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10"
-                  style={{
-                    background: 'rgba(255,255,255,0.15)',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                  data-testid="button-close-quickview-home"
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
-                
-                <div className="px-5 pb-6 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 60px)' }}>
-                  {/* Hero row: image + info side-by-side */}
-                  <div style={{ display: 'flex', gap: '14px', marginBottom: '20px' }}>
-                    {/* Product image — compact portrait */}
-                    <div style={{ width: '110px', flexShrink: 0, borderRadius: '16px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', aspectRatio: '2/3' }}>
-                      <LazyImage src={quickViewProduct.image} alt={quickViewProduct.name} className="w-full h-full object-cover" />
-                    </div>
-                    {/* Info column */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: '2px', minWidth: 0 }}>
-                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: '7px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                        {quickViewProduct.brand}
-                      </p>
-                      <h3 style={{ fontSize: '21px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '0.03em', color: 'rgba(255,255,255,0.95)', lineHeight: 1.15, marginBottom: '10px' }}>
-                        {quickViewProduct.name}
-                      </h3>
-                      {/* Stars */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginBottom: '14px' }}>
-                        {[1,2,3,4,5].map(s => (
-                          <Star key={s} style={{ width: '11px', height: '11px' }}
-                            fill={s <= Math.round(quickViewProduct.rating) ? 'rgba(255,255,255,0.85)' : 'transparent'}
-                            stroke={s <= Math.round(quickViewProduct.rating) ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
-                          />
-                        ))}
-                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginLeft: '3px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                          {quickViewProduct.rating}
-                        </span>
-                      </div>
-                      {/* Price */}
-                      <div style={{ marginTop: 'auto' }}>
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                            {formatPrice(quickViewProduct.price)}
-                          </span>
-                          {quickViewProduct.oldPrice && (
-                            <span style={{ fontSize: '13px', textDecoration: 'line-through', color: 'rgba(255,255,255,0.28)', fontVariantNumeric: 'tabular-nums' }}>
-                              {formatPrice(quickViewProduct.oldPrice)}
-                            </span>
-                          )}
-                        </div>
-                        {quickViewProduct.oldPrice && (
-                          <span style={{ display: 'inline-block', marginTop: '5px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.05em', color: '#000', background: 'var(--theme-primary)', borderRadius: '6px', padding: '2px 8px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                            −{Math.round((1 - quickViewProduct.price / quickViewProduct.oldPrice) * 100)}%
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', marginBottom: '18px' }} />
-
-                  {/* Color */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                      Цвет <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>— {quickViewColor}</span>
-                    </p>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      {quickViewProduct.colors.map((color, idx) => (
-                        <button
-                          key={color}
-                          onClick={() => setQuickViewColor(color)}
-                          className="active:scale-90 transition-all"
-                          style={{
-                            width: '32px', height: '32px', borderRadius: '50%',
-                            background: quickViewProduct.colorHex[idx],
-                            border: quickViewColor === color ? '2.5px solid var(--theme-primary)' : '2px solid rgba(255,255,255,0.15)',
-                            boxShadow: quickViewColor === color ? '0 0 10px rgba(var(--theme-primary-rgb,205,255,56),0.35)' : 'none',
-                          }}
-                          data-testid={`quickview-home-color-${color}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Size */}
-                  <div style={{ marginBottom: '22px' }}>
-                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                      Размер
-                    </p>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
-                      {quickViewProduct.sizes.map((size) => (
-                        <button
-                          key={size}
-                          onClick={() => setQuickViewSize(size)}
-                          className="active:scale-95 transition-all"
-                          style={{
-                            padding: '9px 4px', borderRadius: '10px',
-                            fontSize: '12px', fontWeight: quickViewSize === size ? 700 : 500,
-                            fontFamily: "'Satoshi','Inter',sans-serif",
-                            background: quickViewSize === size ? 'var(--theme-primary)' : 'rgba(255,255,255,0.07)',
-                            color: quickViewSize === size ? '#000' : 'rgba(255,255,255,0.7)',
-                            border: quickViewSize === size ? 'none' : '0.5px solid rgba(255,255,255,0.12)',
-                          }}
-                          data-testid={`quickview-home-size-${size}`}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* CTA — matches product detail style */}
-                  <button
-                    onClick={() => {
-                      addToCartPersistent({
-                        id: String(quickViewProduct.id),
-                        name: quickViewProduct.name,
-                        price: quickViewProduct.price,
-                        size: quickViewSize,
-                        image: quickViewProduct.image,
-                        color: quickViewColor,
-                      });
-                      toast({ title: 'Добавлено в корзину', description: `${quickViewProduct.name} • ${quickViewColor} • ${quickViewSize}`, duration: 2000 });
-                      setQuickViewProduct(null);
-                    }}
-                    className="w-full active:scale-[0.98] transition-all"
-                    style={{
-                      height: '52px', borderRadius: '14px', background: 'var(--theme-primary)', color: '#000',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                      boxShadow: '0 4px 20px rgba(var(--theme-primary-rgb,205,255,56),0.25)',
-                      marginBottom: '10px',
-                    }}
-                    data-testid="button-quickview-home-add-to-cart"
-                  >
-                    <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                      В КОРЗИНУ
-                    </span>
-                    <span style={{ width: '1px', height: '16px', background: 'rgba(0,0,0,0.2)' }} />
-                    <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                      {formatPrice(quickViewProduct.price)}
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => { openProduct(quickViewProduct); setQuickViewProduct(null); }}
-                    className="w-full py-3 transition-all active:opacity-70"
-                    style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.02em' }}
-                    data-testid="button-quickview-home-details"
-                  >
-                    Смотреть полностью →
-                  </button>
-                </div>
-              </m.div>
-            </m.div>
-          )}
-        </AnimatePresence>, document.body)}
-      </div>
-    );
-  }
-
-  // CATALOG PAGE — 2026 ASYMMETRIC GRID
-  if (activeTab === 'catalog') {
-    return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
-        {/* ─── Catalog Header ─── */}
-        <div className="px-5 pt-5 pb-3">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p
-                className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
-              >
-                RADIANCE
-              </p>
-              <h1
-                className="leading-none"
-                style={{
-                  fontSize: '30px',
-                  fontWeight: 300,
-                  letterSpacing: '0.06em',
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontStyle: 'italic',
-                }}
-              >
-                {t('demos.fashion.catalog')}
-              </h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
-                aria-label={isRu ? 'Поиск' : 'Search'}
-                data-testid="button-view-search"
-              >
-                <Search className="w-4.5 h-4.5" />
-              </button>
-              <button
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}
-                aria-label={isRu ? 'Фильтр' : 'Filter'}
-                data-testid="button-view-filter"
-              >
-                <Filter className="w-4.5 h-4.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Category chips */}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className="flex-shrink-0 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all active:scale-95"
-                style={{
-                  background:
-                    selectedCategory === cat ? 'var(--theme-primary)' : 'rgba(255,255,255,0.07)',
-                  color: selectedCategory === cat ? '#000' : 'rgba(255,255,255,0.6)',
-                  border: selectedCategory === cat ? 'none' : '0.5px solid rgba(255,255,255,0.1)',
-                  fontSize: '11px',
-                  fontWeight: selectedCategory === cat ? 700 : 500,
-                  letterSpacing: '0.04em',
-                  fontFamily: "'Satoshi', 'Inter', sans-serif",
-                }}
-                data-testid={`button-filter-${cat.toLowerCase()}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ─── Products — Interleaved Asymmetric Grid ─── */}
-        <div className="px-4 space-y-3 pb-2">
-          {(() => {
-            const rows: React.ReactNode[] = [];
-            let i = 0;
-            let groupIdx = 0;
-            while (i < filteredProducts.length) {
-              const featured = filteredProducts[i];
-              // Full-width featured card
-              rows.push(
-                <m.div
-                  key={`featured-${featured.id}`}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: groupIdx * 0.1 }}
-                  whileTap={{ scale: 0.985 }}
-                  onClick={() => openProduct(featured)}
-                  className="relative cursor-pointer rounded-[20px] overflow-hidden"
-                  style={{ height: '280px' }}
-                  data-testid={`product-card-${featured.id}`}
-                >
-                  <LazyImage
-                    src={featured.image}
-                    alt={featured.name}
-                    className="w-full h-full object-cover"
-                    onLoadComplete={() => handleImageLoad(featured.id)}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-
-                  <div className="absolute top-3.5 left-3.5 flex gap-1.5">
-                    {featured.isNew && (
-                      <span
-                        className="px-2 py-1 text-[9px] font-black rounded-full tracking-[0.08em] uppercase text-black"
-                        style={{ background: 'var(--theme-primary)' }}
-                      >
-                        NEW
-                      </span>
-                    )}
-                    <span
-                      className="px-2 py-1 text-[9px] font-medium rounded-full"
-                      style={{
-                        background: 'rgba(0,0,0,0.45)',
-                        backdropFilter: 'blur(8px)',
-                        color: 'rgba(255,255,255,0.75)',
-                        border: '0.5px solid rgba(255,255,255,0.15)',
-                      }}
-                    >
-                      {featured.category}
-                    </span>
-                  </div>
-
-                  <div className="absolute top-3.5 right-3.5 flex gap-1.5">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setQuickViewProduct(featured);
-                        setQuickViewSize(featured.sizes[0]);
-                        setQuickViewColor(featured.colors[0]);
-                      }}
-                      aria-label="Быстрый просмотр"
-                      className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                      style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
-                      data-testid={`button-quickview-${featured.id}`}
-                    >
-                      <Eye className="w-3.5 h-3.5 text-white" />
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleToggleFavorite(featured.id); }}
-                      aria-label={isFavorite(featured.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                      className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                      style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '0.5px solid rgba(255,255,255,0.2)' }}
-                      data-testid={`button-favorite-catalog-${featured.id}`}
-                    >
-                      <Heart className={`w-3.5 h-3.5 ${isFavorite(featured.id) ? 'fill-white' : ''} text-white`} />
-                    </button>
-                  </div>
-
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <div className="flex items-end justify-between">
-                      <div className="flex-1 mr-3">
-                        <p className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>
-                          {featured.brand}
-                        </p>
-                        <p className="text-[16px] font-black leading-tight" style={{ letterSpacing: '-0.02em' }}>
-                          {featured.name}
-                        </p>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-base font-bold" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
-                          {formatPrice(featured.price)}
-                        </p>
-                        {featured.oldPrice && (
-                          <p className="text-[10px] line-through" style={{ color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}>
-                            {formatPrice(featured.oldPrice)}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </m.div>
-              );
-              i++;
-
-              // 2-col pair
-              const pair = filteredProducts.slice(i, i + 2);
-              if (pair.length > 0) {
-                rows.push(
-                  <div key={`pair-${groupIdx}`} className="grid grid-cols-2 gap-3">
-                    {pair.map((product, colIdx) => (
-                      <m.div
-                        key={product.id}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: groupIdx * 0.1 + 0.04 + colIdx * 0.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => openProduct(product)}
-                        className="cursor-pointer"
-                        data-testid={`product-card-${product.id}`}
-                      >
-                        <div
-                          className="relative rounded-[18px] overflow-hidden mb-2.5"
-                          style={{ height: colIdx === 0 ? '205px' : '175px' }}
-                        >
-                          <LazyImage
-                            src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                            onLoadComplete={() => handleImageLoad(product.id)}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-
-                          <div className="absolute top-2 right-2 flex flex-col gap-1.5">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleToggleFavorite(product.id); }}
-                              aria-label={isFavorite(product.id) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                              className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                              style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
-                              data-testid={`button-favorite-catalog-${product.id}`}
-                            >
-                              <Heart className={`w-3 h-3 ${isFavorite(product.id) ? 'fill-white' : ''} text-white`} />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setQuickViewProduct(product);
-                                setQuickViewSize(product.sizes[0]);
-                                setQuickViewColor(product.colors[0]);
-                              }}
-                              aria-label="Быстрый просмотр"
-                              className="w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition-all"
-                              style={{ background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(10px)', border: '0.5px solid rgba(255,255,255,0.18)' }}
-                              data-testid={`button-quickview-${product.id}`}
-                            >
-                              <Eye className="w-3 h-3 text-white" />
-                            </button>
-                          </div>
-
-                          {product.oldPrice && (
-                            <div className="absolute top-2 left-2">
-                              <span
-                                className="px-1.5 py-0.5 text-[9px] font-black rounded-md text-black"
-                                style={{ background: 'var(--theme-primary)' }}
-                              >
-                                −{Math.round((1 - product.price / product.oldPrice) * 100)}%
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div>
-                          <p className="text-[8px] font-semibold tracking-[0.22em] uppercase mb-0.5 truncate" style={{ color: 'rgba(255,255,255,0.38)' }}>
-                            {product.brand}
-                          </p>
-                          <p className="text-[12px] font-semibold leading-tight mb-1 truncate" style={{ letterSpacing: '-0.01em' }}>
-                            {product.name}
-                          </p>
-                          <div className="flex items-baseline gap-1.5">
-                            <span className="text-[13px] font-bold" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }}>
-                              {formatPrice(product.price)}
-                            </span>
-                            {product.oldPrice && (
-                              <span className="text-[10px] line-through" style={{ color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}>
-                                {formatPrice(product.oldPrice)}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-0.5 mt-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <div
-                                key={star}
-                                className="w-1.5 h-1.5 rounded-full"
-                                style={{ background: star <= Math.round(product.rating) ? 'var(--theme-primary)' : 'rgba(255,255,255,0.15)' }}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </m.div>
-                    ))}
-                  </div>
-                );
-                i += pair.length;
-              }
-              groupIdx++;
-            }
-            return rows;
-          })()}
-        </div>
-        
-        {/* ===== QUICK VIEW MODAL ===== */}
-        {createPortal(<AnimatePresence>
-          {quickViewProduct && (
-            <m.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[10000] flex items-end justify-center"
-              style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-              onClick={() => setQuickViewProduct(null)}
-            >
-              <m.div
-                initial={{ opacity: 0, y: 100, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 100, scale: 0.95 }}
-                transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-                className="w-full max-w-lg rounded-t-[32px] overflow-hidden"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(40,40,40,0.95) 0%, rgba(25,25,25,0.98) 100%)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: '0.5px solid rgba(255,255,255,0.15)',
-                  boxShadow: '0 -20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
-                  maxHeight: '70vh',
-                  paddingBottom: 'calc(max(24px, env(safe-area-inset-bottom)) + 140px)',
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Drag Handle */}
-                <div className="flex justify-center pt-3 pb-2">
-                  <div 
-                    className="w-10 h-1 rounded-full"
-                    style={{ background: 'rgba(255,255,255,0.3)' }}
-                  />
-                </div>
-                
-                {/* Close Button */}
-                <button
-                  onClick={() => setQuickViewProduct(null)}
-                  className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center z-10"
-                  style={{
-                    background: 'rgba(255,255,255,0.15)',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                  data-testid="button-close-quickview"
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
-                
-                <div className="px-5 pb-6 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 60px)' }}>
-                  {/* Hero row: image + info side-by-side */}
-                  <div style={{ display: 'flex', gap: '14px', marginBottom: '20px' }}>
-                    <div style={{ width: '110px', flexShrink: 0, borderRadius: '16px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', aspectRatio: '2/3' }}>
-                      <LazyImage src={quickViewProduct.image} alt={quickViewProduct.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: '2px', minWidth: 0 }}>
-                      <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: '7px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                        {quickViewProduct.brand}
-                      </p>
-                      <h3 style={{ fontSize: '21px', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '0.03em', color: 'rgba(255,255,255,0.95)', lineHeight: 1.15, marginBottom: '10px' }}>
-                        {quickViewProduct.name}
-                      </h3>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginBottom: '14px' }}>
-                        {[1,2,3,4,5].map(s => (
-                          <Star key={s} style={{ width: '11px', height: '11px' }}
-                            fill={s <= Math.round(quickViewProduct.rating) ? 'rgba(255,255,255,0.85)' : 'transparent'}
-                            stroke={s <= Math.round(quickViewProduct.rating) ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
-                          />
-                        ))}
-                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginLeft: '3px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                          {quickViewProduct.rating}
-                        </span>
-                      </div>
-                      <div style={{ marginTop: 'auto' }}>
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                            {formatPrice(quickViewProduct.price)}
-                          </span>
-                          {quickViewProduct.oldPrice && (
-                            <span style={{ fontSize: '13px', textDecoration: 'line-through', color: 'rgba(255,255,255,0.28)', fontVariantNumeric: 'tabular-nums' }}>
-                              {formatPrice(quickViewProduct.oldPrice)}
-                            </span>
-                          )}
-                        </div>
-                        {quickViewProduct.oldPrice && (
-                          <span style={{ display: 'inline-block', marginTop: '5px', fontSize: '10px', fontWeight: 700, color: '#000', background: 'var(--theme-primary)', borderRadius: '6px', padding: '2px 8px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                            −{Math.round((1 - quickViewProduct.price / quickViewProduct.oldPrice) * 100)}%
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', marginBottom: '18px' }} />
-
-                  {/* Color */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                      Цвет <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>— {quickViewColor}</span>
-                    </p>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      {quickViewProduct.colors.map((color, idx) => (
-                        <button key={color} onClick={() => setQuickViewColor(color)}
-                          className="active:scale-90 transition-all"
-                          style={{
-                            width: '32px', height: '32px', borderRadius: '50%',
-                            background: quickViewProduct.colorHex[idx],
-                            border: quickViewColor === color ? '2.5px solid var(--theme-primary)' : '2px solid rgba(255,255,255,0.15)',
-                            boxShadow: quickViewColor === color ? '0 0 10px rgba(var(--theme-primary-rgb,205,255,56),0.35)' : 'none',
-                          }}
-                          data-testid={`quickview-color-${color}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Size */}
-                  <div style={{ marginBottom: '22px' }}>
-                    <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                      Размер
-                    </p>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
-                      {quickViewProduct.sizes.map((size) => (
-                        <button key={size} onClick={() => setQuickViewSize(size)}
-                          className="active:scale-95 transition-all"
-                          style={{
-                            padding: '9px 4px', borderRadius: '10px',
-                            fontSize: '12px', fontWeight: quickViewSize === size ? 700 : 500,
-                            fontFamily: "'Satoshi','Inter',sans-serif",
-                            background: quickViewSize === size ? 'var(--theme-primary)' : 'rgba(255,255,255,0.07)',
-                            color: quickViewSize === size ? '#000' : 'rgba(255,255,255,0.7)',
-                            border: quickViewSize === size ? 'none' : '0.5px solid rgba(255,255,255,0.12)',
-                          }}
-                          data-testid={`quickview-size-${size}`}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      addToCartPersistent({
-                        id: String(quickViewProduct.id),
-                        name: quickViewProduct.name,
-                        price: quickViewProduct.price,
-                        size: quickViewSize,
-                        image: quickViewProduct.image,
-                        color: quickViewColor,
-                      });
-                      toast({ title: 'Добавлено в корзину', description: `${quickViewProduct.name} • ${quickViewColor} • ${quickViewSize}`, duration: 2000 });
-                      setQuickViewProduct(null);
-                    }}
-                    className="w-full active:scale-[0.98] transition-all"
-                    style={{
-                      height: '52px', borderRadius: '14px', background: 'var(--theme-primary)', color: '#000',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                      boxShadow: '0 4px 20px rgba(var(--theme-primary-rgb,205,255,56),0.25)',
-                      marginBottom: '10px',
-                    }}
-                    data-testid="button-quickview-add-to-cart"
-                  >
-                    <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: "'Satoshi','Inter',sans-serif" }}>В КОРЗИНУ</span>
-                    <span style={{ width: '1px', height: '16px', background: 'rgba(0,0,0,0.2)' }} />
-                    <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                      {formatPrice(quickViewProduct.price)}
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => { openProduct(quickViewProduct); setQuickViewProduct(null); }}
-                    className="w-full py-3 transition-all active:opacity-70"
-                    style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.02em' }}
-                    data-testid="button-quickview-details"
-                  >
-                    Смотреть полностью →
-                  </button>
-                </div>
-              </m.div>
-            </m.div>
-          )}
-        </AnimatePresence>, document.body)}
-      </div>
-    );
-  }
-
-  // CART PAGE — 2026 CLEAN REDESIGN
-  if (activeTab === 'cart') {
-    return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-40 smooth-scroll-page">
-        {/* ─── Cart Header ─── */}
-        <div className="px-5 pt-5 pb-5">
-          <p
-            className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
-            style={{ color: 'rgba(255,255,255,0.35)' }}
-          >
-            RADIANCE
-          </p>
-          <div className="flex items-center justify-between">
-            <h1
-              className="leading-none"
-              style={{
-                fontSize: '30px',
-                fontWeight: 300,
-                letterSpacing: '0.06em',
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontStyle: 'italic',
-              }}
-            >
-              {t('demos.fashion.cart')}
-            </h1>
-            {cart.length > 0 && (
-              <span
-                className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
-                style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  color: 'rgba(255,255,255,0.55)',
-                  border: '0.5px solid rgba(255,255,255,0.12)',
-                }}
-              >
-                {cart.length} {isRu ? (cart.length === 1 ? 'товар' : cart.length < 5 ? 'товара' : 'товаров') : (cart.length === 1 ? 'item' : 'items')}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {cart.length === 0 ? (
-          <EmptyState
-            type="cart"
-            actionLabel="В каталог"
-            onAction={() => onTabChange?.('catalog')}
-            className="py-20"
-          />
-        ) : (
-          <>
-            {/* Cart items */}
-            <div className="px-4 space-y-3">
-              {cart.map((item) => (
-                <div
-                  key={`${item.id}-${item.size}-${item.color}`}
-                  className="rounded-[18px] overflow-hidden flex gap-0"
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '0.5px solid rgba(255,255,255,0.09)',
-                  }}
-                  data-testid={`cart-item-${item.id}`}
-                >
-                  {/* Image */}
-                  <div className="flex-shrink-0 w-[88px] h-[108px] overflow-hidden rounded-l-[18px]">
-                    <LazyImage
-                      src={item.image || ''}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 px-4 py-3 flex flex-col justify-between">
-                    <div>
-                      <h3
-                        className="text-[13px] font-bold leading-tight mb-0.5"
-                        style={{ letterSpacing: '-0.01em' }}
-                      >
-                        {item.name}
-                      </h3>
-                      <p
-                        className="text-[11px]"
-                        style={{ color: 'rgba(255,255,255,0.45)' }}
-                      >
-                        {item.color} · {item.size}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p
-                        className="text-[15px] font-bold"
-                        style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
-                      >
-                        {formatPrice(item.price * item.quantity)}
-                      </p>
-
-                      {/* Quantity control */}
-                      <div
-                        className="flex items-center rounded-full overflow-hidden"
-                        style={{
-                          background: 'rgba(255,255,255,0.09)',
-                          border: '0.5px solid rgba(255,255,255,0.12)',
-                        }}
-                      >
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center transition-all active:scale-90"
-                          aria-label="Уменьшить количество"
-                          data-testid={`button-decrease-${item.id}`}
-                        >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span
-                          className="text-[13px] font-bold px-1"
-                          style={{ minWidth: '20px', textAlign: 'center' }}
-                        >
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
-                          className="w-8 h-8 flex items-center justify-center transition-all active:scale-90"
-                          aria-label="Увеличить количество"
-                          data-testid={`button-increase-${item.id}`}
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Remove */}
-                  <button
-                    onClick={() => removeFromCart(item.id, item.size, item.color)}
-                    aria-label="Удалить из корзины"
-                    className="flex-shrink-0 px-3 flex items-center justify-center transition-all active:scale-90"
-                    style={{ color: 'rgba(255,255,255,0.5)' }}
-                    data-testid={`button-remove-${item.id}`}
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Promo code */}
-            <div className="px-4 mt-4">
-              {promoApplied ? (
-                <div
-                  className="rounded-[14px] px-4 py-3 flex items-center justify-between"
-                  style={{ background: 'rgba(var(--theme-primary-rgb,205,255,56),0.1)', border: '0.5px solid rgba(var(--theme-primary-rgb,205,255,56),0.25)' }}
-                >
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" style={{ color: 'var(--theme-primary)' }} />
-                    <span className="text-[13px] font-semibold" style={{ color: 'var(--theme-primary)', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                      {promoCode.toUpperCase()} — скидка {promoDiscountPct}%
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => { setPromoApplied(false); setPromoDiscountPct(0); setPromoCode(''); }}
-                    className="w-6 h-6 flex items-center justify-center rounded-full active:scale-90 transition-all"
-                    style={{ background: 'rgba(255,255,255,0.1)' }}
-                  >
-                    <X className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.6)' }} />
-                  </button>
-                </div>
-              ) : (
-                <div
-                  className="rounded-[14px] overflow-hidden flex"
-                  style={{ border: '0.5px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}
-                >
-                  <input
-                    type="text"
-                    placeholder="Промокод"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleApplyPromo()}
-                    className="flex-1 bg-transparent px-4 py-3 text-[13px] outline-none placeholder:text-white/25 text-white"
-                    style={{ fontFamily: "'Satoshi','Inter',sans-serif", letterSpacing: '0.06em' }}
-                  />
-                  <button
-                    onClick={handleApplyPromo}
-                    className="px-4 py-3 text-[12px] font-bold active:scale-95 transition-all"
-                    style={{
-                      color: promoCode.length > 0 ? 'var(--theme-primary)' : 'rgba(255,255,255,0.25)',
-                      letterSpacing: '0.06em', fontFamily: "'Satoshi','Inter',sans-serif",
-                      borderLeft: '0.5px solid rgba(255,255,255,0.08)',
-                    }}
-                  >
-                    ПРИМЕНИТЬ
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Summary card */}
-            <div className="px-4 mt-3">
-              <div
-                className="rounded-[18px] p-4 space-y-3"
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '0.5px solid rgba(255,255,255,0.09)',
-                }}
-              >
-                <div className="flex items-center justify-between text-[13px]">
-                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>Товары ({cartCount})</span>
-                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatPrice(cartTotal)}</span>
-                </div>
-                {promoApplied && (
-                  <div className="flex items-center justify-between text-[13px]">
-                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>Промокод ({promoDiscountPct}%)</span>
-                    <span className="font-semibold" style={{ color: 'var(--theme-primary)', fontVariantNumeric: 'tabular-nums' }}>−{formatPrice(promoSaving)}</span>
-                  </div>
-                )}
-                <div className="flex items-center justify-between text-[13px]">
-                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>Доставка</span>
-                  <span className="font-semibold" style={{ color: 'var(--theme-primary)' }}>Бесплатно</span>
-                </div>
-                {totalSaving > 0 && (
-                  <div
-                    className="rounded-[10px] px-3 py-2 flex items-center justify-between text-[12px]"
-                    style={{ background: 'rgba(var(--theme-primary-rgb,205,255,56),0.07)', border: '0.5px solid rgba(var(--theme-primary-rgb,205,255,56),0.15)' }}
-                  >
-                    <span style={{ color: 'rgba(255,255,255,0.55)' }}>Ваша экономия</span>
-                    <span className="font-bold" style={{ color: 'var(--theme-primary)', fontVariantNumeric: 'tabular-nums' }}>−{formatPrice(totalSaving)}</span>
-                  </div>
-                )}
-                <div className="h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                <div className="flex items-center justify-between">
-                  <span className="text-[15px] font-bold" style={{ letterSpacing: '-0.01em' }}>Итого</span>
-                  <span className="text-[18px] font-black" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.03em' }}>
-                    {formatPrice(finalTotal)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Trust badges */}
-            <div className="px-4 mt-3">
-              <TrustBadges variant="compact" />
-            </div>
-
-            {/* Fixed checkout button */}
-            <div
-              className="fixed left-0 right-0 px-4 py-3"
-              style={{
-                bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))',
-                background:
-                  'linear-gradient(to top, var(--theme-background) 60%, transparent)',
-              }}
-            >
-              <button
-                onClick={() => setIsCheckoutOpen(true)}
-                className="w-full py-4 rounded-full font-black text-black text-[15px] transition-all active:scale-[0.98]"
-                style={{
-                  background: 'var(--theme-primary)',
-                  letterSpacing: '-0.01em',
-                }}
-                data-testid="button-checkout"
-              >
-                {t('demos.fashion.checkout')} · {formatPrice(finalTotal)}
-              </button>
-            </div>
-
-            <CheckoutDrawer
-              isOpen={isCheckoutOpen}
-              onClose={() => setIsCheckoutOpen(false)}
-              items={cart.map(item => ({
-                id: parseInt(item.id) || 0,
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity,
-                size: item.size,
-                color: item.color,
-                image: item.image
-              }))}
-              total={finalTotal}
-              currency="₽"
-              onOrderComplete={handleCheckout}
-              storeName="RADIANCE"
-            />
-          </>
-        )}
-      </div>
-    );
-  }
-
-  // PROFILE PAGE — 2026 MEMBERSHIP TIER REDESIGN
-  if (activeTab === 'profile') {
-    const membershipTier = ordersCount >= 5 ? 'Gold' : ordersCount >= 2 ? 'Silver' : 'Bronze';
-    const membershipTierRu = ordersCount >= 5 ? 'Золотой' : ordersCount >= 2 ? 'Серебряный' : 'Бронзовый';
-    const tierGradient =
-      membershipTier === 'Gold'
-        ? 'linear-gradient(135deg, #B8860B 0%, #FFD700 40%, #DAA520 70%, #B8860B 100%)'
-        : membershipTier === 'Silver'
-        ? 'linear-gradient(135deg, #606060 0%, #C0C0C0 40%, #A8A8A8 70%, #707070 100%)'
-        : 'linear-gradient(135deg, #7C4A1E 0%, #CD7F32 40%, #A0602A 70%, #7C4A1E 100%)';
-
-    return (
-      <div className="min-h-screen bg-[var(--theme-background)] text-white pb-24 smooth-scroll-page">
-        {/* ─── Profile Header ─── */}
-        <div className="px-5 pt-5 pb-4">
-          <p
-            className="text-[9px] font-semibold tracking-[0.3em] uppercase mb-0.5"
-            style={{ color: 'rgba(255,255,255,0.35)' }}
-          >
-            RADIANCE
-          </p>
-          <h1
-            className="leading-none"
-            style={{
-              fontSize: '30px',
-              fontWeight: 300,
-              letterSpacing: '0.06em',
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontStyle: 'italic',
-            }}
-          >
-            {t('demos.fashion.profile')}
-          </h1>
-        </div>
-
-        {/* ─── Membership Card ─── */}
-        <div className="px-4 mb-5">
-          <div
-            className="relative rounded-[22px] overflow-hidden p-5"
-            style={{
-              background: tierGradient,
-              minHeight: '140px',
-            }}
-          >
-            {/* Shine sweep animation */}
-            <m.div
-              className="absolute inset-0 pointer-events-none"
-              animate={{ x: ['-100%', '200%'] }}
-              transition={{ duration: 3.5, repeat: Infinity, repeatDelay: 4, ease: 'easeInOut' }}
-              style={{
-                background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%)',
-                zIndex: 1,
-              }}
-            />
-            {/* Decorative circles */}
-            <div
-              className="absolute -right-8 -top-8 w-36 h-36 rounded-full opacity-20"
-              style={{ background: 'rgba(255,255,255,0.4)' }}
-            />
-            <div
-              className="absolute -right-2 top-12 w-20 h-20 rounded-full opacity-15"
-              style={{ background: 'rgba(255,255,255,0.4)' }}
-            />
-
-            {/* User row */}
-            <div className="flex items-center gap-3 mb-4 relative z-10">
-              {/* Initials avatar */}
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 select-none"
-                style={{ background: 'rgba(0,0,0,0.28)', border: '1.5px solid rgba(255,255,255,0.3)' }}
-              >
-                <span style={{ fontSize: '16px', fontWeight: 800, color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.02em', fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                  АП
-                </span>
-              </div>
-              <div>
-                <p className="text-[15px] font-black text-white leading-tight" style={{ letterSpacing: '-0.02em' }}>
-                  Александр Петров
-                </p>
-                <p className="text-[11px] text-white/70">+7 (999) 123-45-67</p>
-              </div>
-            </div>
-
-            {/* Membership tier + stats */}
-            <div className="relative z-10">
-              <div className="flex items-end justify-between mb-3">
-                <div>
-                  <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/60 mb-0.5">
-                    Статус участника
-                  </p>
-                  <p className="text-[20px] font-black text-white leading-none" style={{ letterSpacing: '-0.03em' }}>
-                    {membershipTierRu} Участник
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[9px] font-semibold tracking-[0.15em] uppercase text-white/60 mb-0.5">
-                    Бонусы
-                  </p>
-                  <p className="text-[20px] font-black text-white leading-none" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.03em' }}>
-                    {(ordersCount * 450).toLocaleString('ru-RU')} ₽
-                  </p>
-                </div>
-              </div>
-              {/* Tier progress bar */}
-              {membershipTier !== 'Gold' && (
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-[9px] text-white/50" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                      {membershipTier === 'Bronze'
-                        ? `${ordersCount} из 2 заказов до Серебряного`
-                        : `${ordersCount} из 5 заказов до Золотого`}
-                    </p>
-                    <p className="text-[9px] font-bold text-white/70" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                      {membershipTier === 'Bronze'
-                        ? `${Math.min(100, Math.round(ordersCount / 2 * 100))}%`
-                        : `${Math.min(100, Math.round(ordersCount / 5 * 100))}%`}
-                    </p>
-                  </div>
-                  <div className="rounded-full overflow-hidden" style={{ height: '4px', background: 'rgba(0,0,0,0.25)' }}>
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: membershipTier === 'Bronze'
-                          ? `${Math.min(100, ordersCount / 2 * 100)}%`
-                          : `${Math.min(100, ordersCount / 5 * 100)}%`,
-                        background: 'rgba(255,255,255,0.85)',
-                        transition: 'width 0.6s ease',
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-              {membershipTier === 'Gold' && (
-                <p className="text-[10px] font-semibold text-white/70 tracking-[0.1em] uppercase" style={{ fontFamily: "'Satoshi','Inter',sans-serif" }}>
-                  ✦ Максимальный статус достигнут
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ─── Quick Stats ─── */}
-        <div className="px-4 mb-5">
-          <div className="grid grid-cols-2 gap-3">
-            <div
-              className="rounded-[18px] p-4"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '0.5px solid rgba(255,255,255,0.09)',
-              }}
-            >
-              <p
-                className="text-[9px] font-semibold tracking-[0.2em] uppercase mb-1"
-                style={{ color: 'rgba(255,255,255,0.4)' }}
-              >
-                {t('demos.fashion.orders')}
-              </p>
-              <p
-                className="text-[32px] font-black leading-none"
-                style={{ letterSpacing: '-0.04em' }}
-              >
-                {ordersCount}
-              </p>
-            </div>
-            <div
-              className="rounded-[18px] p-4"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '0.5px solid rgba(255,255,255,0.09)',
-              }}
-            >
-              <p
-                className="text-[9px] font-semibold tracking-[0.2em] uppercase mb-1"
-                style={{ color: 'rgba(255,255,255,0.4)' }}
-              >
-                {t('demos.fashion.favorites')}
-              </p>
-              <p
-                className="text-[32px] font-black leading-none"
-                style={{ letterSpacing: '-0.04em' }}
-              >
-                {favoritesCount}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── Recent Orders ─── */}
-        <div className="px-4 mb-5">
-          <p
-            className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-3"
-            style={{ color: 'rgba(255,255,255,0.35)' }}
-          >
-            Последние заказы
-          </p>
-
-          {orders.length === 0 ? (
-            <div
-              className="rounded-[18px] p-6 text-center"
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '0.5px solid rgba(255,255,255,0.08)',
-              }}
-            >
-              <Package
-                className="w-10 h-10 mx-auto mb-2"
-                style={{ color: 'rgba(255,255,255,0.2)' }}
-              />
-              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                У вас пока нет заказов
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {orders.slice(0, 3).map((order) => (
-                <div
-                  key={order.id}
-                  className="rounded-[16px] px-4 py-3.5 flex items-center justify-between"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '0.5px solid rgba(255,255,255,0.08)',
-                  }}
-                  data-testid={`order-${order.id}`}
-                >
-                  <div>
-                    <p className="text-[12px] font-bold" style={{ letterSpacing: '-0.01em' }}>
-                      Заказ #{order.id.slice(-6)}
-                    </p>
-                    <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                      {order.items.length} {order.items.length === 1 ? 'товар' : order.items.length < 5 ? 'товара' : 'товаров'} · {formatPrice(order.total)}
-                    </p>
-                  </div>
-                  <span
-                    className="text-[9px] font-bold px-2.5 py-1 rounded-full tracking-[0.08em] uppercase"
-                    style={{
-                      background: 'rgba(var(--theme-primary-rgb, 16,185,129),0.15)',
-                      color: 'var(--theme-primary)',
-                      border: '0.5px solid rgba(var(--theme-primary-rgb, 16,185,129),0.25)',
-                    }}
-                  >
-                    {order.status === 'pending'
-                      ? 'Ожидает'
-                      : order.status === 'confirmed'
-                      ? 'Подтверждён'
-                      : order.status === 'processing'
-                      ? 'В обработке'
-                      : order.status === 'shipped'
-                      ? 'Отправлен'
-                      : 'Доставлен'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ─── Menu ─── */}
-        <div className="px-4 space-y-2">
-          {[
-            { icon: Package, label: 'История заказов', testId: 'button-orders' },
-            { icon: Heart, label: 'Избранное', testId: 'button-favorites' },
-            { icon: CreditCard, label: 'Способы оплаты', testId: 'button-payment' },
-            { icon: MapPin, label: 'Адреса доставки', testId: 'button-address' },
-            { icon: Settings, label: 'Настройки', testId: 'button-settings' },
-          ].map(({ icon: Icon, label, testId }) => (
-            <button
-              key={testId}
-              className="w-full flex items-center justify-between px-4 py-3.5 rounded-[16px] transition-all active:scale-[0.98]"
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '0.5px solid rgba(255,255,255,0.08)',
-              }}
-              data-testid={testId}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center"
-                  style={{ background: 'rgba(255,255,255,0.08)' }}
-                >
-                  <Icon className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.6)' }} />
-                </div>
-                <span className="text-[14px] font-medium" style={{ letterSpacing: '-0.01em' }}>
-                  {label}
-                </span>
-              </div>
-              <ChevronLeft
-                className="w-4 h-4 rotate-180"
-                style={{ color: 'rgba(255,255,255,0.25)' }}
-              />
-            </button>
-          ))}
-
-          {/* Logout */}
-          <button
-            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-[16px] transition-all active:scale-[0.98] mt-2"
-            style={{
-              background: 'rgba(239,68,68,0.07)',
-              border: '0.5px solid rgba(239,68,68,0.18)',
-            }}
-            data-testid="button-logout"
-          >
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(239,68,68,0.12)' }}
-            >
-              <LogOut className="w-4 h-4 text-red-400" />
-            </div>
-            <span className="text-[14px] font-medium text-red-400" style={{ letterSpacing: '-0.01em' }}>
-              Выйти
-            </span>
-          </button>
-        </div>
-
-        <div className="h-4" />
-      </div>
-    );
-  }
-
-  return null;
+const ED = {
+  campaign: IMG + "hf_20260523_194221_e5f7e0f3-fda6-43d7-80e1-bb63bfc2e0f9_min.webp",
+  still: IMG + "hf_20260523_194225_737e4fda-753a-49e9-b210-bcf8410fe7b0_min.webp",
+};
+
+const PAY = [
+  { id: "card", label: "Банковская карта" },
+  { id: "sbp", label: "СБП" },
+  { id: "split", label: "Сплит — 4 платежа" },
+];
+const DELIVERY = [
+  { id: "courier", label: "Курьер", sub: "Завтра, бесплатно от " + 30000, price: 0 },
+  { id: "express", label: "Экспресс", sub: "Сегодня, 2–3 часа", price: 690 },
+  { id: "pickup", label: "Бутик RADIANCE", sub: "Самовывоз, Патриаршие", price: 0 },
+];
+
+const rub = (n: number) => n.toLocaleString("ru-RU") + " ₽";
+const NUM = { fontVariantNumeric: "tabular-nums" as const };
+const pct = (p: Product) => (p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0);
+const plural = (n: number, f: [string, string, string]) => {
+  const a = n % 10, b = n % 100;
+  if (a === 1 && b !== 11) return f[0];
+  if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return f[1];
+  return f[2];
+};
+const byId = (id: string) => PRODUCTS.find((p) => p.id === id)!;
+
+const serif = (size: string, weight = 600): React.CSSProperties => ({
+  fontFamily: SERIF, fontSize: size, fontWeight: weight, color: INK, lineHeight: 1.08, letterSpacing: "0.005em",
+});
+const kicker: React.CSSProperties = {
+  fontFamily: SANS, fontSize: T.micro, fontWeight: 600, letterSpacing: "0.2em",
+  textTransform: "uppercase", color: ACCENT_DEEP,
+};
+
+const FOCUSABLE = 'button,[href],input,[tabindex]:not([tabindex="-1"])';
+function trapTab(e: React.KeyboardEvent, root: HTMLElement | null) {
+  if (e.key !== "Tab" || !root) return;
+  const els = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE))
+    .filter((el) => !el.hasAttribute("disabled") && el.offsetParent !== null);
+  if (!els.length) return;
+  const first = els[0], last = els[els.length - 1];
+  const a = document.activeElement;
+  if (e.shiftKey && (a === first || a === root)) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && a === last) { e.preventDefault(); first.focus(); }
 }
 
-function PremiumFashionStoreWithTheme(props: PremiumFashionStoreProps) {
+/* --- изображение со скелетоном --- */
+function Img({ src, alt, priority }: { src: string; alt: string; priority?: boolean }) {
+  const [loaded, setLoaded] = useState(false);
   return (
-    <DemoThemeProvider themeId="premiumFashion">
-      <PremiumFashionStore {...props} />
-    </DemoThemeProvider>
+    <div className="relative w-full h-full overflow-hidden" style={{ background: SAND }}>
+      {!loaded && <div className="rd-shim absolute inset-0" aria-hidden="true" />}
+      <img src={src} alt={alt} loading={priority ? "eager" : "lazy"} decoding="async"
+        fetchPriority={priority ? "high" : "auto"} onLoad={() => setLoaded(true)}
+        className="w-full h-full" style={{
+          objectFit: "cover", display: "block",
+          opacity: loaded ? 1 : 0, transition: "opacity .5s ease-out",
+        }} />
+    </div>
   );
 }
 
-export default memo(PremiumFashionStoreWithTheme);
+/* --- карточка товара --- */
+const ProductCard = memo(function ProductCard({ p, fav, onFav, onOpen, idx = 0 }: {
+  p: Product; fav: boolean; onFav: () => void; onOpen: () => void; idx?: number;
+}) {
+  const d = pct(p);
+  return (
+    <div role="button" tabIndex={0} aria-label={`${p.name}, ${rub(p.price)}`}
+      onClick={onOpen}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }}
+      className="rd-card cursor-pointer"
+      style={{ animation: "rdUp .55s cubic-bezier(.22,1,.36,1) both", animationDelay: `${Math.min(idx, 9) * 0.05}s` }}>
+      <div className="relative" style={{ aspectRatio: "3 / 4", borderRadius: 18, overflow: "hidden", background: SAND }}>
+        <Img src={p.img} alt={p.name} />
+        {p.tag && (
+          <span className="absolute" style={{
+            top: 12, left: 12, background: p.tag.includes("%") ? ACCENT : PAPER, color: p.tag.includes("%") ? "#FFFFFF" : INK,
+            fontFamily: SANS, fontSize: T.micro, fontWeight: 700, letterSpacing: "0.04em",
+            padding: "5px 10px", borderRadius: 999,
+          }}>{p.tag}</span>
+        )}
+        <button type="button" onClick={(e) => { e.stopPropagation(); onFav(); }}
+          aria-label={fav ? "Убрать из избранного" : "В избранное"} aria-pressed={fav}
+          className="absolute flex items-center justify-center rd-press" style={{ top: 4, right: 4, width: 44, height: 44 }}>
+          <span className="flex items-center justify-center" style={{ width: 33, height: 33, borderRadius: 999, background: "rgba(255,255,255,0.92)" }}>
+            <Heart key={fav ? "1" : "0"} size={15} strokeWidth={2.2} fill={fav ? INK : "none"} color={INK}
+              style={fav ? { animation: "rdPop .36s ease-out" } : undefined} />
+          </span>
+        </button>
+      </div>
+      <div style={{ marginTop: 11 }}>
+        <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{p.brand}</div>
+        <div style={{ ...serif("1.2rem", 600), marginTop: 4 }}>{p.name}</div>
+        <div className="flex items-baseline" style={{ gap: 7, marginTop: 6 }}>
+          <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 700, color: INK, ...NUM }}>{rub(p.price)}</span>
+          {p.oldPrice && <span style={{ fontFamily: SANS, fontSize: T.cap, color: MUTED, textDecoration: "line-through", ...NUM }}>{rub(p.oldPrice)}</span>}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+function SectionHead({ kick, title, onAll }: { kick: string; title: string; onAll?: () => void }) {
+  return (
+    <div className="flex items-end justify-between" style={{ padding: "0 20px", marginBottom: 15 }}>
+      <div>
+        <div style={kicker}>{kick}</div>
+        <h2 style={{ ...serif(S.s2, 600), marginTop: 7 }}>{title}</h2>
+      </div>
+      {onAll && (
+        <button type="button" onClick={onAll} className="flex items-center rd-press flex-shrink-0"
+          style={{ fontFamily: SANS, fontSize: T.sm, color: ACCENT_DEEP, fontWeight: 600, gap: 2, padding: "10px 0 10px 14px", minHeight: 44 }}>
+          Все <ChevronRight size={15} strokeWidth={SW} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+function Steps({ active }: { active: 1 | 2 | 3 }) {
+  const labels = ["Корзина", "Оформление", "Готово"];
+  return (
+    <div style={{ padding: "2px 20px 12px" }}>
+      <div className="flex" style={{ gap: 6 }}>
+        {[1, 2, 3].map((n) => (
+          <div key={n} style={{ flex: 1, height: 3, borderRadius: 999, background: n <= active ? INK : LINE, transition: "background .3s" }} />
+        ))}
+      </div>
+      <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, fontWeight: 600, marginTop: 8, letterSpacing: "0.04em" }}>
+        Шаг {active} из 3 · {labels[active - 1]}
+      </div>
+    </div>
+  );
+}
+
+/* =================== основной компонент =================== */
+function PremiumFashionStore({ activeTab, onTabChange, onCartCount }: Props) {
+  const haptic = useHaptic();
+  const [selected, setSelected] = useState<Product | null>(null);
+  const [favs, setFavs] = useState<Set<string>>(new Set(["r1", "r5"]));
+  const [cart, setCart] = useState<{ id: string; size: string; color: string; qty: number }[]>([
+    { id: "r2", size: "M", color: "Бежевый", qty: 1 },
+    { id: "r10", size: "L", color: "Чёрный", qty: 1 },
+  ]);
+  const [toast, setToast] = useState<string | null>(null);
+  const [showFavs, setShowFavs] = useState(false);
+  const [catFilter, setCatFilter] = useState("Все");
+  const [genderFilter, setGenderFilter] = useState("Все");
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fire = useCallback((msg: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast(msg);
+    toastTimer.current = setTimeout(() => setToast(null), 2100);
+  }, []);
+  const toggleFav = useCallback((id: string) => {
+    haptic.light();
+    setFavs((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  }, [haptic]);
+  const addToCart = useCallback((id: string, size: string, color: string, qty = 1) => {
+    setCart((c) => {
+      const ex = c.find((i) => i.id === id && i.size === size && i.color === color);
+      if (ex) return c.map((i) => (i === ex ? { ...i, qty: i.qty + qty } : i));
+      return [...c, { id, size, color, qty }];
+    });
+    fire("Добавлено в корзину");
+    haptic.success();
+  }, [fire, haptic]);
+
+  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
+  useEffect(() => { onCartCount?.(cartCount); }, [cartCount, onCartCount]);
+  const favProducts = PRODUCTS.filter((p) => favs.has(p.id));
+  const goCat = (c: string) => { setCatFilter(c); setGenderFilter("Все"); onTabChange("catalog"); };
+
+  const tgUser: any = (() => { try { return (window as any).Telegram?.WebApp?.initDataUnsafe?.user || null; } catch { return null; } })();
+  const userName = String(tgUser?.first_name || tgUser?.username || "Алиса");
+
+  const fresh = PRODUCTS.filter((p) => p.tag === "Новинка").concat(PRODUCTS.filter((p) => p.tag !== "Новинка")).slice(0, 8);
+  const bestsellers = PRODUCTS.filter((p) => p.tag === "Хит" || p.rating >= 4.9).slice(0, 8);
+
+  /* --------------- ГЛАВНАЯ --------------- */
+  const Home = (
+    <div className="min-h-full" style={{ background: CANVAS, paddingBottom: 34 }}>
+      <h1 className="rd-sr">RADIANCE — премиальный fashion-бутик</h1>
+      <header className="flex items-center justify-between" style={{ padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px" }}>
+        <div style={{ fontFamily: SERIF, fontSize: "1.7rem", fontWeight: 700, color: INK, letterSpacing: "0.02em" }}>Radiance</div>
+        <div className="flex items-center" style={{ gap: 2 }}>
+          <button type="button" onClick={() => onTabChange("catalog")} aria-label="Поиск"
+            className="flex items-center justify-center rd-press" style={{ width: 44, height: 44 }}>
+            <Search size={IC.md} color={INK} strokeWidth={SW} />
+          </button>
+          <button type="button" onClick={() => setShowFavs(true)} aria-label="Избранное"
+            className="relative flex items-center justify-center rd-press" style={{ width: 44, height: 44, marginRight: -8 }}>
+            <Heart size={IC.md} color={INK} strokeWidth={SW} />
+            {favs.size > 0 && <span className="absolute" style={{ top: 9, right: 9, width: 6, height: 6, borderRadius: 999, background: ACCENT }} />}
+          </button>
+        </div>
+      </header>
+
+      {/* видео-герой */}
+      <div style={{ padding: "2px 16px 0" }}>
+        <div className="relative" style={{ borderRadius: 26, overflow: "hidden", height: 486 }}>
+          <video src={fashionVideo} autoPlay muted loop playsInline aria-hidden="true"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+          <div className="absolute inset-0" aria-hidden="true"
+            style={{ background: "linear-gradient(180deg, rgba(20,18,15,0.36) 0%, rgba(20,18,15,0.04) 32%, rgba(20,18,15,0.84) 100%)" }} />
+          <div className="absolute" style={{ left: 22, right: 22, top: 24 }}>
+            <span style={{ ...kicker, color: "rgba(255,255,255,0.92)" }}>Коллекция FW26</span>
+          </div>
+          <div className="absolute" style={{ left: 22, right: 22, bottom: 24 }}>
+            <h2 style={{ fontFamily: SERIF, fontSize: S.s4, fontWeight: 700, color: "#FFFFFF", lineHeight: 1.0, letterSpacing: "0.01em" }}>
+              Новый сезон.<br />Новый силуэт.
+            </h2>
+            <p style={{ fontFamily: SANS, fontSize: T.sm, color: "rgba(255,255,255,0.86)", lineHeight: 1.5, marginTop: 12, maxWidth: 290 }}>
+              Кураторская коллекция верхней одежды и трикотажа от ателье, которым доверяют.
+            </p>
+            <button type="button" onClick={() => onTabChange("catalog")}
+              className="flex items-center justify-center rd-press"
+              style={{ marginTop: 18, height: 50, padding: "0 26px", borderRadius: 999, background: PAPER, gap: 8 }}>
+              <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: INK }}>Смотреть коллекцию</span>
+              <ChevronRight size={16} color={INK} strokeWidth={2.4} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ценности */}
+      <div className="flex" style={{ gap: 8, padding: "16px 16px 0" }}>
+        {[
+          { ic: <Truck size={15} color={ACCENT_DEEP} strokeWidth={SW} />, t: "Доставка завтра" },
+          { ic: <RotateCcw size={15} color={ACCENT_DEEP} strokeWidth={SW} />, t: "Возврат 30 дней" },
+          { ic: <ShieldCheck size={15} color={ACCENT_DEEP} strokeWidth={SW} />, t: "Только оригинал" },
+        ].map((v) => (
+          <div key={v.t} className="flex items-center justify-center" style={{ flex: 1, gap: 6, background: PAPER, borderRadius: 13, padding: "11px 6px" }}>
+            {v.ic}
+            <span style={{ fontFamily: SANS, fontSize: T.micro, fontWeight: 600, color: SUB }}>{v.t}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* новинки */}
+      <div style={{ marginTop: 32 }}>
+        <SectionHead kick="Только привезли" title="Новые поступления" onAll={() => onTabChange("catalog")} />
+        <div className="overflow-x-auto scrollbar-hide rd-strip">
+          <div className="flex" style={{ gap: 14, padding: "0 20px 4px", width: "max-content" }}>
+            {fresh.map((p, i) => (
+              <div key={p.id} style={{ width: 212, flexShrink: 0 }}>
+                <ProductCard p={p} idx={i} fav={favs.has(p.id)} onFav={() => toggleFav(p.id)} onOpen={() => setSelected(p)} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* редакционный баннер */}
+      <button type="button" onClick={() => onTabChange("catalog")}
+        className="relative block w-full text-left rd-press"
+        style={{ margin: "34px 16px 0", width: "calc(100% - 32px)", height: 420, borderRadius: 26, overflow: "hidden" }}>
+        <Img src={ED.campaign} alt="Кампания Radiance FW26" />
+        <div className="absolute inset-0" aria-hidden="true"
+          style={{ background: "linear-gradient(180deg, rgba(20,18,15,0.08) 36%, rgba(20,18,15,0.82) 100%)" }} />
+        <div className="absolute" style={{ left: 24, right: 24, bottom: 24 }}>
+          <span style={{ ...kicker, color: "rgba(255,255,255,0.92)" }}>Кампания сезона</span>
+          <div style={{ fontFamily: SERIF, fontSize: S.s3, fontWeight: 700, color: "#FFFFFF", lineHeight: 1.04, marginTop: 8 }}>
+            Тепло, которое<br />хочется носить
+          </div>
+          <span className="inline-flex items-center" style={{
+            marginTop: 14, height: 42, padding: "0 20px", borderRadius: 999, background: PAPER, gap: 7,
+            fontFamily: SANS, fontSize: T.sm, fontWeight: 600, color: INK,
+          }}>Открыть лукбук <ChevronRight size={14} strokeWidth={2.4} /></span>
+        </div>
+      </button>
+
+      {/* категории */}
+      <div style={{ marginTop: 34 }}>
+        <SectionHead kick="Гардероб" title="Категории" onAll={() => onTabChange("catalog")} />
+        <div className="overflow-x-auto scrollbar-hide rd-strip">
+          <div className="flex" style={{ gap: 12, padding: "0 20px 4px", width: "max-content" }}>
+            {CATEGORIES.map((c, i) => {
+              const n = PRODUCTS.filter((p) => p.cat === c).length;
+              const cover = PRODUCTS.find((p) => p.cat === c)!.img;
+              return (
+                <button type="button" key={c} onClick={() => goCat(c)}
+                  className="flex-shrink-0 text-left rd-press"
+                  style={{ width: 130, animation: "rdUp .5s cubic-bezier(.22,1,.36,1) both", animationDelay: `${i * 0.05}s` }}>
+                  <div className="relative" style={{ width: 130, height: 168, borderRadius: 18, overflow: "hidden" }}>
+                    <Img src={cover} alt={c} />
+                    <div className="absolute inset-0" aria-hidden="true" style={{ background: "linear-gradient(180deg, rgba(20,18,15,0) 52%, rgba(20,18,15,0.4) 100%)" }} />
+                  </div>
+                  <div style={{ ...serif("1.2rem", 600), marginTop: 9 }}>{c}</div>
+                  <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, marginTop: 1 }}>{n} {plural(n, ["модель", "модели", "моделей"])}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* бестселлеры */}
+      <div style={{ marginTop: 34 }}>
+        <SectionHead kick="Выбор сезона" title="Бестселлеры" onAll={() => onTabChange("catalog")} />
+        <div className="overflow-x-auto scrollbar-hide rd-strip">
+          <div className="flex" style={{ gap: 14, padding: "0 20px 4px", width: "max-content" }}>
+            {bestsellers.map((p, i) => (
+              <div key={p.id} style={{ width: 212, flexShrink: 0 }}>
+                <ProductCard p={p} idx={i} fav={favs.has(p.id)} onFav={() => toggleFav(p.id)} onOpen={() => setSelected(p)} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* атмосфера */}
+      <button type="button" onClick={() => onTabChange("catalog")}
+        className="relative block w-full text-left rd-press"
+        style={{ margin: "34px 16px 0", width: "calc(100% - 32px)", height: 230, borderRadius: 24, overflow: "hidden" }}>
+        <Img src={ED.still} alt="Атмосфера Radiance" />
+        <div className="absolute inset-0" aria-hidden="true"
+          style={{ background: "linear-gradient(110deg, rgba(20,18,15,0.74) 6%, rgba(20,18,15,0.12) 72%)" }} />
+        <div className="absolute" style={{ left: 22, right: 22, top: 22 }}>
+          <span style={{ ...kicker, color: "rgba(255,255,255,0.9)" }}>Philosophy</span>
+          <div style={{ fontFamily: SERIF, fontSize: S.s2, fontWeight: 700, color: "#FFFFFF", lineHeight: 1.06, marginTop: 8 }}>
+            Меньше вещей —<br />больше смысла
+          </div>
+          <p style={{ fontFamily: SANS, fontSize: T.sm, color: "rgba(255,255,255,0.84)", lineHeight: 1.5, marginTop: 8, maxWidth: 250 }}>
+            Каждая вещь Radiance создана служить годами, а не один сезон.
+          </p>
+        </div>
+      </button>
+
+      {/* бренд-футер */}
+      <div style={{ padding: "30px 20px 0", textAlign: "center" }}>
+        <div style={{ fontFamily: SERIF, fontSize: "2.4rem", fontWeight: 700, color: INK, letterSpacing: "0.02em" }}>Radiance</div>
+        <p style={{ fontFamily: SANS, fontSize: T.cap, color: MUTED, marginTop: 6, lineHeight: 1.55 }}>
+          Бутик премиальной одежды · Москва, Большая Никитская 12<br />Ежедневно 10:00 — 22:00
+        </p>
+      </div>
+    </div>
+  );
+
+  /* --------------- доп. состояние --------------- */
+  const [query, setQuery] = useState("");
+  const [stage, setStage] = useState<"cart" | "checkout" | "done">("cart");
+  const [delivery, setDelivery] = useState("courier");
+  const [pay, setPay] = useState("card");
+  const [promoText, setPromoText] = useState("");
+  const [promoOn, setPromoOn] = useState(false);
+  const [placing, setPlacing] = useState(false);
+  const [lastOrder, setLastOrder] = useState<{ no: string; total: number } | null>(null);
+
+  const cartItems = cart.map((i) => ({ ...i, p: byId(i.id) }));
+  const subtotal = cartItems.reduce((s, i) => s + i.p.price * i.qty, 0);
+  const oldSum = cartItems.reduce((s, i) => s + (i.p.oldPrice || i.p.price) * i.qty, 0);
+  const itemSavings = oldSum - subtotal;
+  const promoDisc = promoOn ? Math.round(subtotal * 0.1) : 0;
+  const deliveryObj = DELIVERY.find((d) => d.id === delivery)!;
+  const freeShip = subtotal >= FREE_SHIP;
+  const shipCost = delivery === "courier" ? (freeShip ? 0 : 390) : deliveryObj.price;
+  const total = Math.max(0, subtotal - promoDisc) + (cartItems.length ? shipCost : 0);
+  const shipLeft = Math.max(0, FREE_SHIP - subtotal);
+  const shipProgress = Math.min(1, subtotal / FREE_SHIP);
+
+  const setQty = useCallback((it: { id: string; size: string; color: string }, delta: number) => {
+    haptic.light();
+    setCart((c) => c.flatMap((i) => {
+      if (i.id === it.id && i.size === it.size && i.color === it.color) {
+        const q = i.qty + delta;
+        return q <= 0 ? [] : [{ ...i, qty: q }];
+      }
+      return [i];
+    }));
+  }, [haptic]);
+  const removeItem = useCallback((it: { id: string; size: string; color: string }) => {
+    haptic.medium();
+    setCart((c) => c.filter((i) => !(i.id === it.id && i.size === it.size && i.color === it.color)));
+    fire("Удалено из корзины");
+  }, [haptic, fire]);
+  const applyPromo = useCallback(() => {
+    if (promoText.trim().toUpperCase() === "RADIANCE10") {
+      setPromoOn(true); haptic.success(); fire("Промокод применён · −10%");
+    } else {
+      setPromoOn(false); haptic.error(); fire("Промокод не найден");
+    }
+  }, [promoText, haptic, fire]);
+  const placeOrder = useCallback(() => {
+    setPlacing(true); haptic.heavy();
+    setTimeout(() => {
+      setPlacing(false);
+      setLastOrder({ no: "RD-" + Math.floor(100000 + Math.random() * 899999), total });
+      setStage("done");
+      haptic.success();
+    }, 1700);
+  }, [haptic, total]);
+
+  /* --------------- КАТАЛОГ --------------- */
+  const q = query.trim().toLowerCase();
+  const catalogAll = PRODUCTS.filter((p) => {
+    const gOk = genderFilter === "Все" || p.gender === genderFilter ||
+      (genderFilter !== "Унисекс" && p.gender === "Унисекс");
+    const cOk = catFilter === "Все" || p.cat === catFilter;
+    const sOk = !q || (p.name + " " + p.brand + " " + p.cat).toLowerCase().includes(q);
+    return gOk && cOk && sOk;
+  });
+  const featured = catalogAll[0];
+  const restList = catalogAll.slice(1);
+
+  const Pill = ({ on, children, onClick, solid }: { on: boolean; children: React.ReactNode; onClick: () => void; solid?: boolean }) => (
+    <button type="button" onClick={onClick} className="rd-press flex-shrink-0" style={{
+      height: solid ? 38 : 34, padding: solid ? "0 16px" : "0 14px", borderRadius: 999,
+      background: solid ? (on ? INK : PAPER) : "transparent",
+      border: solid ? "none" : `1px solid ${on ? INK : LINE}`,
+      color: solid ? (on ? PAPER : SUB) : (on ? INK : MUTED),
+      fontFamily: SANS, fontSize: solid ? T.sm : T.cap, fontWeight: 600,
+      transition: "background .2s, border-color .2s, color .2s",
+    }}>{children}</button>
+  );
+
+  const Catalog = (
+    <div className="min-h-full" style={{ background: CANVAS, paddingBottom: 36 }}>
+      <header style={{ padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 4px" }}>
+        <div style={kicker}>Бутик Radiance</div>
+        <h1 style={{ ...serif(S.s2, 600), marginTop: 7 }}>Каталог</h1>
+      </header>
+
+      <div style={{ padding: "12px 16px 0" }}>
+        <div className="flex items-center" style={{ gap: 10, background: PAPER, borderRadius: 14, padding: "0 14px", height: 50 }}>
+          <Search size={IC.sm} color={MUTED} strokeWidth={SW} />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Поиск по бутику"
+            aria-label="Поиск по каталогу"
+            style={{ flex: 1, minWidth: 0, border: "none", outline: "none", background: "transparent", fontFamily: SANS, fontSize: T.body, color: INK }} />
+          {query && (
+            <button type="button" onClick={() => setQuery("")} aria-label="Очистить поиск"
+              className="rd-press flex items-center justify-center" style={{ width: 30, height: 30 }}>
+              <X size={15} color={MUTED} strokeWidth={SW} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="overflow-x-auto scrollbar-hide" style={{ marginTop: 12 }}>
+        <div className="flex" style={{ gap: 8, padding: "0 16px", width: "max-content" }}>
+          {GENDERS.map((g) => (
+            <Pill key={g} solid on={genderFilter === g} onClick={() => { setGenderFilter(g); haptic.light(); }}>{g}</Pill>
+          ))}
+        </div>
+      </div>
+
+      <div className="overflow-x-auto scrollbar-hide" style={{ marginTop: 9 }}>
+        <div className="flex" style={{ gap: 8, padding: "0 16px", width: "max-content" }}>
+          {["Все", ...CATEGORIES].map((c) => (
+            <Pill key={c} on={catFilter === c} onClick={() => { setCatFilter(c); haptic.light(); }}>{c}</Pill>
+          ))}
+        </div>
+      </div>
+
+      {catalogAll.length === 0 ? (
+        <div style={{ padding: "64px 40px", textAlign: "center" }}>
+          <div className="flex items-center justify-center" style={{ width: 66, height: 66, borderRadius: 999, background: TINT, margin: "0 auto" }}>
+            <Search size={26} color={MUTED} strokeWidth={SW} />
+          </div>
+          <div style={{ ...serif("1.5rem", 600), marginTop: 16 }}>Ничего не найдено</div>
+          <p style={{ fontFamily: SANS, fontSize: T.sm, color: MUTED, marginTop: 6, lineHeight: 1.5 }}>
+            Попробуйте изменить фильтры<br />или поисковый запрос
+          </p>
+          <button type="button" onClick={() => { setQuery(""); setCatFilter("Все"); setGenderFilter("Все"); haptic.light(); }}
+            className="rd-press" style={{ marginTop: 20, height: 46, padding: "0 24px", borderRadius: 999, background: INK, color: PAPER, fontFamily: SANS, fontSize: T.sm, fontWeight: 600 }}>
+            Сбросить фильтры
+          </button>
+        </div>
+      ) : (
+        <>
+          <div style={{ fontFamily: SANS, fontSize: T.cap, color: MUTED, padding: "18px 20px 0", fontWeight: 600, letterSpacing: "0.02em" }}>
+            {catalogAll.length} {plural(catalogAll.length, ["вещь", "вещи", "вещей"])} в подборке
+          </div>
+
+          <button type="button" onClick={() => setSelected(featured)}
+            className="relative block text-left rd-press"
+            style={{ margin: "12px 16px 0", width: "calc(100% - 32px)", height: 366, borderRadius: 24, overflow: "hidden" }}>
+            <Img src={featured.img} alt={featured.name} priority />
+            <div className="absolute inset-0" aria-hidden="true" style={{ background: "linear-gradient(180deg, rgba(20,18,15,0) 38%, rgba(20,18,15,0.82) 100%)" }} />
+            <span className="absolute" style={{ top: 16, left: 16, ...kicker, color: "rgba(255,255,255,0.92)" }}>Образ недели</span>
+            <div className="absolute" style={{ left: 20, right: 20, bottom: 20 }}>
+              <div style={{ fontFamily: SANS, fontSize: T.micro, color: "rgba(255,255,255,0.78)", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>{featured.brand}</div>
+              <div style={{ fontFamily: SERIF, fontSize: S.s2, fontWeight: 700, color: "#FFFFFF", lineHeight: 1.06, marginTop: 5 }}>{featured.name}</div>
+              <div className="flex items-center justify-between" style={{ marginTop: 12 }}>
+                <span style={{ fontFamily: SANS, fontSize: T.lg, fontWeight: 700, color: "#FFFFFF", ...NUM }}>{rub(featured.price)}</span>
+                <span className="inline-flex items-center" style={{ height: 40, padding: "0 18px", borderRadius: 999, background: PAPER, gap: 6, fontFamily: SANS, fontSize: T.sm, fontWeight: 600, color: INK }}>
+                  Подробнее <ChevronRight size={14} strokeWidth={2.4} />
+                </span>
+              </div>
+            </div>
+          </button>
+
+          <div className="grid grid-cols-2" style={{ gap: 14, padding: "18px 16px 0" }}>
+            {restList.map((p, i) => (
+              <ProductCard key={p.id} p={p} idx={i} fav={favs.has(p.id)} onFav={() => toggleFav(p.id)} onOpen={() => setSelected(p)} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  /* --------------- КОРЗИНА --------------- */
+  const Cart = (
+    <div className="min-h-full" style={{ background: CANVAS, paddingBottom: 200 }}>
+      <header style={{ padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 6px" }}>
+        <div style={kicker}>{stage === "done" ? "Спасибо за заказ" : "Ваш выбор"}</div>
+        <h1 style={{ ...serif(S.s2, 600), marginTop: 7 }}>
+          {stage === "cart" ? "Корзина" : stage === "checkout" ? "Оформление" : "Заказ принят"}
+        </h1>
+      </header>
+
+      {cartItems.length > 0 && stage !== "done" && <Steps active={stage === "cart" ? 1 : 2} />}
+
+      {/* ----- пустая корзина ----- */}
+      {cartItems.length === 0 && stage !== "done" && (
+        <div style={{ padding: "60px 40px", textAlign: "center" }}>
+          <div className="flex items-center justify-center" style={{ width: 76, height: 76, borderRadius: 999, background: TINT, margin: "0 auto" }}>
+            <ShoppingBag size={30} color={MUTED} strokeWidth={SW} />
+          </div>
+          <div style={{ ...serif("1.6rem", 600), marginTop: 18 }}>В корзине пока пусто</div>
+          <p style={{ fontFamily: SANS, fontSize: T.sm, color: MUTED, marginTop: 7, lineHeight: 1.55 }}>
+            Загляните в каталог — там новая<br />коллекция верхней одежды FW26
+          </p>
+          <button type="button" onClick={() => onTabChange("catalog")}
+            className="rd-press" style={{ marginTop: 22, height: 50, padding: "0 28px", borderRadius: 999, background: INK, color: PAPER, fontFamily: SANS, fontSize: T.body, fontWeight: 600 }}>
+            Перейти в каталог
+          </button>
+        </div>
+      )}
+
+      {/* ----- шаг 1: товары ----- */}
+      {cartItems.length > 0 && stage === "cart" && (
+        <div style={{ padding: "4px 16px 0" }}>
+          {/* прогресс бесплатной доставки */}
+          <div style={{ background: PAPER, borderRadius: 16, padding: "13px 15px", marginBottom: 12 }}>
+            <div className="flex items-center" style={{ gap: 8 }}>
+              <Truck size={15} color={ACCENT_DEEP} strokeWidth={SW} />
+              <span style={{ fontFamily: SANS, fontSize: T.cap, color: SUB, fontWeight: 600 }}>
+                {freeShip ? "Бесплатная доставка курьером — ваш заказ проходит" : `До бесплатной доставки — ${rub(shipLeft)}`}
+              </span>
+            </div>
+            <div style={{ height: 5, borderRadius: 999, background: TINT, marginTop: 9, overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${shipProgress * 100}%`, background: freeShip ? "#5C7A52" : ACCENT, borderRadius: 999, transition: "width .4s ease-out" }} />
+            </div>
+          </div>
+
+          {cartItems.map((it) => (
+            <div key={it.id + it.size + it.color} className="flex" style={{ gap: 12, background: PAPER, borderRadius: 18, padding: 11, marginBottom: 10 }}>
+              <button type="button" onClick={() => setSelected(it.p)} aria-label={`Открыть ${it.p.name}`}
+                style={{ width: 86, height: 112, borderRadius: 13, overflow: "hidden", flexShrink: 0 }}>
+                <Img src={it.p.img} alt={it.p.name} />
+              </button>
+              <div className="flex-1" style={{ minWidth: 0 }}>
+                <div className="flex items-start justify-between" style={{ gap: 8 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{it.p.brand}</div>
+                    <div style={{ ...serif("1.12rem", 600), marginTop: 3 }}>{it.p.name}</div>
+                  </div>
+                  <button type="button" onClick={() => removeItem(it)} aria-label="Удалить"
+                    className="rd-press flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32, marginTop: -4, marginRight: -2 }}>
+                    <X size={16} color={MUTED} strokeWidth={SW} />
+                  </button>
+                </div>
+                <div style={{ fontFamily: SANS, fontSize: T.micro, color: SUB, marginTop: 4 }}>
+                  Размер {it.size} · {it.color}
+                </div>
+                <div className="flex items-center justify-between" style={{ marginTop: 9 }}>
+                  <div className="flex items-center" style={{ gap: 2, background: CANVAS, borderRadius: 999, padding: 3 }}>
+                    <button type="button" onClick={() => setQty(it, -1)} aria-label="Меньше"
+                      className="rd-press flex items-center justify-center" style={{ width: 30, height: 30, borderRadius: 999, background: PAPER }}>
+                      <Minus size={13} color={INK} strokeWidth={2.4} />
+                    </button>
+                    <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 700, color: INK, minWidth: 22, textAlign: "center", ...NUM }}>{it.qty}</span>
+                    <button type="button" onClick={() => setQty(it, 1)} aria-label="Больше"
+                      className="rd-press flex items-center justify-center" style={{ width: 30, height: 30, borderRadius: 999, background: PAPER }}>
+                      <Plus size={13} color={INK} strokeWidth={2.4} />
+                    </button>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 700, color: INK, ...NUM }}>{rub(it.p.price * it.qty)}</div>
+                    {it.p.oldPrice && <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, textDecoration: "line-through", ...NUM }}>{rub(it.p.oldPrice * it.qty)}</div>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* промокод */}
+          <div style={{ background: PAPER, borderRadius: 16, padding: 12, marginTop: 2 }}>
+            <div className="flex items-center" style={{ gap: 8 }}>
+              <Tag size={15} color={ACCENT_DEEP} strokeWidth={SW} />
+              <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 600, color: SUB }}>Промокод</span>
+              <span style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, marginLeft: "auto" }}>попробуйте RADIANCE10</span>
+            </div>
+            <div className="flex" style={{ gap: 8, marginTop: 10 }}>
+              <input value={promoText} onChange={(e) => setPromoText(e.target.value)} placeholder="Введите код"
+                aria-label="Промокод" style={{
+                  flex: 1, minWidth: 0, height: 44, borderRadius: 11, border: `1px solid ${LINE}`, background: CANVAS,
+                  padding: "0 13px", fontFamily: SANS, fontSize: T.sm, color: INK, outline: "none",
+                }} />
+              <button type="button" onClick={applyPromo} className="rd-press" style={{
+                height: 44, padding: "0 18px", borderRadius: 11, background: INK, color: PAPER,
+                fontFamily: SANS, fontSize: T.sm, fontWeight: 600,
+              }}>Применить</button>
+            </div>
+            {promoOn && (
+              <div className="flex items-center" style={{ gap: 6, marginTop: 9 }}>
+                <Check size={13} color="#5C7A52" strokeWidth={3} />
+                <span style={{ fontFamily: SANS, fontSize: T.micro, color: "#5C7A52", fontWeight: 600 }}>RADIANCE10 активен — скидка 10%</span>
+              </div>
+            )}
+          </div>
+
+          {/* итоги */}
+          <div style={{ background: PAPER, borderRadius: 16, padding: "15px 16px", marginTop: 12 }}>
+            {[
+              ["Товары", rub(subtotal)],
+              ...(itemSavings > 0 ? [["Ваша выгода", "−" + rub(itemSavings)] as [string, string]] : []),
+              ...(promoDisc > 0 ? [["Промокод RADIANCE10", "−" + rub(promoDisc)] as [string, string]] : []),
+              ["Доставка", freeShip || shipCost === 0 ? "Бесплатно" : rub(shipCost)],
+            ].map(([k, v]) => {
+              const good = String(v).startsWith("−") || v === "Бесплатно";
+              return (
+                <div key={k} className="flex items-center justify-between" style={{ marginBottom: 9 }}>
+                  <span style={{ fontFamily: SANS, fontSize: T.sm, color: SUB }}>{k}</span>
+                  <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 600, color: good ? "#5C7A52" : INK, ...NUM }}>{v}</span>
+                </div>
+              );
+            })}
+            <div style={{ height: 1, background: HAIR, margin: "4px 0 11px" }} />
+            <div className="flex items-baseline justify-between">
+              <span style={{ ...serif("1.3rem", 600) }}>Итого</span>
+              <span style={{ fontFamily: SANS, fontSize: T.lg, fontWeight: 800, color: INK, ...NUM }}>{rub(total)}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ----- шаг 2: оформление ----- */}
+      {cartItems.length > 0 && stage === "checkout" && (
+        <div style={{ padding: "4px 16px 0" }}>
+          <button type="button" onClick={() => { setStage("cart"); haptic.light(); }}
+            className="flex items-center rd-press" style={{ gap: 5, fontFamily: SANS, fontSize: T.sm, color: SUB, fontWeight: 600, minHeight: 40 }}>
+            <ArrowLeft size={15} strokeWidth={SW} /> Назад к корзине
+          </button>
+
+          <div style={{ background: PAPER, borderRadius: 16, padding: "14px 16px", marginTop: 4 }}>
+            <div style={kicker}>Получатель</div>
+            <div style={{ ...serif("1.18rem", 600), marginTop: 8 }}>{userName}</div>
+            <div style={{ fontFamily: SANS, fontSize: T.sm, color: SUB, marginTop: 3 }}>+7 ··· ·· 42 · Москва</div>
+          </div>
+
+          <div style={{ marginTop: 14, marginBottom: 9, ...kicker }}>Способ доставки</div>
+          {DELIVERY.map((d) => {
+            const on = delivery === d.id;
+            return (
+              <button type="button" key={d.id} onClick={() => { setDelivery(d.id); haptic.light(); }}
+                className="flex items-center w-full text-left rd-press" style={{
+                  gap: 12, background: PAPER, borderRadius: 14, padding: "13px 14px", marginBottom: 8,
+                  border: `1.5px solid ${on ? INK : "transparent"}`, transition: "border-color .2s",
+                }}>
+                <span className="flex items-center justify-center flex-shrink-0" style={{
+                  width: 21, height: 21, borderRadius: 999, border: `2px solid ${on ? INK : LINE}`,
+                }}>{on && <span style={{ width: 9, height: 9, borderRadius: 999, background: INK }} />}</span>
+                <span className="flex-1" style={{ minWidth: 0 }}>
+                  <span style={{ display: "block", fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: INK }}>{d.label}</span>
+                  <span style={{ display: "block", fontFamily: SANS, fontSize: T.micro, color: MUTED, marginTop: 2 }}>{d.sub}</span>
+                </span>
+                <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 700, color: d.id === "courier" && freeShip ? "#5C7A52" : INK, ...NUM }}>
+                  {d.id === "courier" ? (freeShip ? "Бесплатно" : rub(390)) : d.price === 0 ? "Бесплатно" : rub(d.price)}
+                </span>
+              </button>
+            );
+          })}
+
+          <div style={{ marginTop: 14, marginBottom: 9, ...kicker }}>Оплата</div>
+          {PAY.map((m) => {
+            const on = pay === m.id;
+            return (
+              <button type="button" key={m.id} onClick={() => { setPay(m.id); haptic.light(); }}
+                className="flex items-center w-full text-left rd-press" style={{
+                  gap: 12, background: PAPER, borderRadius: 14, padding: "13px 14px", marginBottom: 8,
+                  border: `1.5px solid ${on ? INK : "transparent"}`, transition: "border-color .2s",
+                }}>
+                <span className="flex items-center justify-center flex-shrink-0" style={{
+                  width: 21, height: 21, borderRadius: 999, border: `2px solid ${on ? INK : LINE}`,
+                }}>{on && <span style={{ width: 9, height: 9, borderRadius: 999, background: INK }} />}</span>
+                <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: INK }}>{m.label}</span>
+              </button>
+            );
+          })}
+
+          <div style={{ background: PAPER, borderRadius: 16, padding: "15px 16px", marginTop: 14 }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: 9 }}>
+              <span style={{ fontFamily: SANS, fontSize: T.sm, color: SUB }}>Товары · {cartCount} шт.</span>
+              <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 600, color: INK, ...NUM }}>{rub(subtotal)}</span>
+            </div>
+            {promoDisc > 0 && (
+              <div className="flex items-center justify-between" style={{ marginBottom: 9 }}>
+                <span style={{ fontFamily: SANS, fontSize: T.sm, color: SUB }}>Промокод</span>
+                <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 600, color: "#5C7A52", ...NUM }}>−{rub(promoDisc)}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between" style={{ marginBottom: 11 }}>
+              <span style={{ fontFamily: SANS, fontSize: T.sm, color: SUB }}>Доставка</span>
+              <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 600, color: shipCost === 0 ? "#5C7A52" : INK, ...NUM }}>{shipCost === 0 ? "Бесплатно" : rub(shipCost)}</span>
+            </div>
+            <div style={{ height: 1, background: HAIR, margin: "0 0 11px" }} />
+            <div className="flex items-baseline justify-between">
+              <span style={{ ...serif("1.3rem", 600) }}>К оплате</span>
+              <span style={{ fontFamily: SANS, fontSize: T.lg, fontWeight: 800, color: INK, ...NUM }}>{rub(total)}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ----- шаг 3: успех ----- */}
+      {stage === "done" && (
+        <div style={{ padding: "30px 24px 0", textAlign: "center" }}>
+          <div className="flex items-center justify-center" style={{ width: 88, height: 88, borderRadius: 999, background: INK, margin: "0 auto", animation: "rdPop .5s cubic-bezier(.22,1,.36,1)" }}>
+            <Check size={40} color={PAPER} strokeWidth={2.6} />
+          </div>
+          <div style={{ ...serif(S.s2, 700), marginTop: 20 }}>Заказ оформлен</div>
+          <p style={{ fontFamily: SANS, fontSize: T.body, color: SUB, marginTop: 8, lineHeight: 1.55 }}>
+            Спасибо, {userName}. Мы передали заказ<br />в работу — стилист бутика свяжется<br />с вами для подтверждения.
+          </p>
+          <div style={{ background: PAPER, borderRadius: 18, padding: "18px 20px", marginTop: 22, textAlign: "left" }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+              <span style={{ fontFamily: SANS, fontSize: T.sm, color: MUTED }}>Номер заказа</span>
+              <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 700, color: INK, ...NUM }}>{lastOrder?.no}</span>
+            </div>
+            <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+              <span style={{ fontFamily: SANS, fontSize: T.sm, color: MUTED }}>Сумма</span>
+              <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 700, color: INK, ...NUM }}>{rub(lastOrder?.total || 0)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span style={{ fontFamily: SANS, fontSize: T.sm, color: MUTED }}>Доставка</span>
+              <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 700, color: INK }}>{deliveryObj.label} · завтра</span>
+            </div>
+          </div>
+          <button type="button" onClick={() => { setCart([]); setStage("cart"); setPromoOn(false); setPromoText(""); onTabChange("home"); }}
+            className="rd-press" style={{ marginTop: 22, height: 52, width: "100%", borderRadius: 999, background: INK, color: PAPER, fontFamily: SANS, fontSize: T.body, fontWeight: 600 }}>
+            Вернуться на главную
+          </button>
+        </div>
+      )}
+
+    </div>
+  );
+
+  /* --------------- ПРОФИЛЬ --------------- */
+  const photo = tgUser?.photo_url as string | undefined;
+  const initials = userName.slice(0, 1).toUpperCase();
+  const clubSpent = 64200;
+  const clubGoal = 100000;
+  const orders = [
+    { no: "RD-840271", date: "12 мая", items: "Heritage Trench, Cashmere Scarf", sum: 66900, status: "Доставлен" },
+    { no: "RD-815640", date: "28 апр", items: "Carbon Hoodie ×2", sum: 25800, status: "Доставлен" },
+  ];
+  const menu = [
+    { ic: <ShoppingBag size={17} color={INK} strokeWidth={SW} />, t: "Мои заказы", s: "2 завершённых", go: () => onTabChange("cart") },
+    { ic: <Heart size={17} color={INK} strokeWidth={SW} />, t: "Избранное", s: `${favs.size} ${plural(favs.size, ["вещь", "вещи", "вещей"])}`, go: () => setShowFavs(true) },
+    { ic: <Truck size={17} color={INK} strokeWidth={SW} />, t: "Адреса доставки", s: "Москва, по умолчанию", go: () => fire("Раздел в разработке") },
+    { ic: <Tag size={17} color={INK} strokeWidth={SW} />, t: "Способы оплаты", s: "Карта ·· 42", go: () => fire("Раздел в разработке") },
+    { ic: <ShieldCheck size={17} color={INK} strokeWidth={SW} />, t: "Помощь и поддержка", s: "Стилист на связи 10–22", go: () => fire("Стилист скоро ответит") },
+  ];
+
+  const Profile = (
+    <div className="min-h-full" style={{ background: CANVAS, paddingBottom: 36 }}>
+      <header style={{ padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 4px" }}>
+        <div style={kicker}>Личный кабинет</div>
+        <h1 style={{ ...serif(S.s2, 600), marginTop: 7 }}>Профиль</h1>
+      </header>
+
+      {/* карточка пользователя */}
+      <div style={{ padding: "12px 16px 0" }}>
+        <div style={{ background: PAPER, borderRadius: 22, padding: 18 }}>
+          <div className="flex items-center" style={{ gap: 14 }}>
+            <div className="flex items-center justify-center flex-shrink-0" style={{
+              width: 62, height: 62, borderRadius: 999, overflow: "hidden",
+              background: INK, color: PAPER, fontFamily: SERIF, fontSize: "1.6rem", fontWeight: 700,
+            }}>
+              {photo ? <img src={photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ ...serif("1.5rem", 600) }}>{userName}</div>
+              <div className="flex items-center" style={{ gap: 5, marginTop: 4 }}>
+                <Star size={12} color={ACCENT} fill={ACCENT} strokeWidth={0} />
+                <span style={{ fontFamily: SANS, fontSize: T.cap, color: ACCENT_DEEP, fontWeight: 700, letterSpacing: "0.04em" }}>КЛУБ RADIANCE · GOLD</span>
+              </div>
+            </div>
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: 7 }}>
+              <span style={{ fontFamily: SANS, fontSize: T.micro, color: SUB, fontWeight: 600 }}>До статуса Platinum</span>
+              <span style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, ...NUM }}>{rub(clubSpent)} / {rub(clubGoal)}</span>
+            </div>
+            <div style={{ height: 6, borderRadius: 999, background: TINT, overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${(clubSpent / clubGoal) * 100}%`, background: ACCENT, borderRadius: 999 }} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* статистика */}
+      <div className="flex" style={{ gap: 8, padding: "10px 16px 0" }}>
+        {[
+          { n: "12", t: "заказов" },
+          { n: String(favs.size), t: "в избранном" },
+          { n: "4 200", t: "бонусов" },
+        ].map((x) => (
+          <div key={x.t} style={{ flex: 1, background: PAPER, borderRadius: 15, padding: "14px 8px", textAlign: "center" }}>
+            <div style={{ fontFamily: SERIF, fontSize: "1.7rem", fontWeight: 700, color: INK, ...NUM }}>{x.n}</div>
+            <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, marginTop: 2 }}>{x.t}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* меню */}
+      <div style={{ padding: "18px 16px 0" }}>
+        <div style={{ background: PAPER, borderRadius: 18, overflow: "hidden" }}>
+          {menu.map((m, i) => (
+            <button type="button" key={m.t} onClick={() => { haptic.light(); m.go(); }}
+              className="flex items-center w-full text-left rd-press" style={{
+                gap: 13, padding: "14px 16px", borderTop: i ? `1px solid ${HAIR}` : "none",
+              }}>
+              <span className="flex items-center justify-center flex-shrink-0" style={{ width: 38, height: 38, borderRadius: 11, background: CANVAS }}>{m.ic}</span>
+              <span className="flex-1" style={{ minWidth: 0 }}>
+                <span style={{ display: "block", fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: INK }}>{m.t}</span>
+                <span style={{ display: "block", fontFamily: SANS, fontSize: T.micro, color: MUTED, marginTop: 1 }}>{m.s}</span>
+              </span>
+              <ChevronRight size={17} color={MUTED} strokeWidth={SW} />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* история заказов */}
+      <div style={{ padding: "22px 0 0" }}>
+        <SectionHead kick="История" title="Последние заказы" />
+        <div style={{ padding: "0 16px" }}>
+          {orders.map((o) => (
+            <div key={o.no} style={{ background: PAPER, borderRadius: 16, padding: "13px 15px", marginBottom: 10 }}>
+              <div className="flex items-center justify-between">
+                <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 700, color: INK, ...NUM }}>{o.no}</span>
+                <span className="flex items-center" style={{ gap: 5, fontFamily: SANS, fontSize: T.micro, color: "#5C7A52", fontWeight: 600 }}>
+                  <Check size={12} strokeWidth={3} /> {o.status}
+                </span>
+              </div>
+              <div style={{ fontFamily: SANS, fontSize: T.sm, color: SUB, marginTop: 6, lineHeight: 1.4 }}>{o.items}</div>
+              <div className="flex items-center justify-between" style={{ marginTop: 8 }}>
+                <span style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED }}>{o.date} · доставлен курьером</span>
+                <span style={{ fontFamily: SANS, fontSize: T.sm, fontWeight: 700, color: INK, ...NUM }}>{rub(o.sum)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* стилист */}
+      <div style={{ padding: "8px 16px 0" }}>
+        <div className="relative" style={{ borderRadius: 20, overflow: "hidden", padding: "20px 18px", background: INK }}>
+          <div style={{ ...kicker, color: "rgba(255,255,255,0.7)" }}>Персональный сервис</div>
+          <div style={{ fontFamily: SERIF, fontSize: S.s1, fontWeight: 700, color: PAPER, lineHeight: 1.1, marginTop: 8 }}>
+            Личный стилист<br />Radiance
+          </div>
+          <p style={{ fontFamily: SANS, fontSize: T.sm, color: "rgba(255,255,255,0.74)", lineHeight: 1.5, marginTop: 8, maxWidth: 250 }}>
+            Соберём капсулу под ваш гардероб и образ жизни — бесплатно для участников клуба.
+          </p>
+          <button type="button" onClick={() => fire("Стилист скоро свяжется с вами")}
+            className="rd-press" style={{
+              marginTop: 14, height: 44, padding: "0 20px", borderRadius: 999, background: PAPER, color: INK,
+              fontFamily: SANS, fontSize: T.sm, fontWeight: 600,
+            }}>Записаться на консультацию</button>
+        </div>
+      </div>
+
+      <div style={{ padding: "22px 20px 0", textAlign: "center" }}>
+        <div style={{ fontFamily: SERIF, fontSize: "1.5rem", fontWeight: 700, color: INK }}>Radiance</div>
+        <p style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, marginTop: 4 }}>Версия 4.0 · премиальный fashion-бутик · 2026</p>
+      </div>
+    </div>
+  );
+
+  /* --------------- РЕНДЕР --------------- */
+  return (
+    <div className="rd-root" style={{ background: CANVAS, minHeight: "100%" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+        .rd-root *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        .rd-press{ transition:transform .14s cubic-bezier(.22,1,.36,1),opacity .14s; }
+        .rd-press:active{ transform:scale(.965); }
+        .rd-card{ will-change:transform,opacity; }
+        .rd-sr{ position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0; }
+        .rd-strip{ -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity; }
+        .rd-strip > div > div{ scroll-snap-align:start; }
+        .scrollbar-hide::-webkit-scrollbar{ display:none; }
+        .scrollbar-hide{ -ms-overflow-style:none; scrollbar-width:none; }
+        .rd-shim{ background:linear-gradient(100deg,${SAND} 30%,${TINT} 50%,${SAND} 70%); background-size:220% 100%; animation:rdShim 1.3s ease-in-out infinite; }
+        .rd-spin{ animation:rdSpin .9s linear infinite; }
+        .rd-root input::placeholder{ color:${MUTED}; }
+        .rd-root button:focus-visible,.rd-root input:focus-visible,.rd-root [role=button]:focus-visible{ outline:2px solid ${ACCENT}; outline-offset:2px; }
+        @keyframes rdUp{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:translateY(0); } }
+        @keyframes rdPop{ 0%{ transform:scale(.4); } 60%{ transform:scale(1.12); } 100%{ transform:scale(1); } }
+        @keyframes rdShim{ from{ background-position:140% 0; } to{ background-position:-140% 0; } }
+        @keyframes rdSpin{ to{ transform:rotate(360deg); } }
+        @keyframes rdFade{ from{ opacity:0; } to{ opacity:1; } }
+        @keyframes rdSheet{ from{ opacity:0; transform:translateY(100%); } to{ opacity:1; transform:translateY(0); } }
+        @keyframes rdToast{ 0%{ opacity:0; transform:translateY(20px) scale(.96); } 12%,88%{ opacity:1; transform:translateY(0) scale(1); } 100%{ opacity:0; transform:translateY(20px) scale(.96); } }
+        @media (prefers-reduced-motion:reduce){
+          .rd-root *,.rd-card{ animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
+        }
+      `}</style>
+
+      {activeTab === "home" && Home}
+      {activeTab === "catalog" && Catalog}
+      {activeTab === "cart" && Cart}
+      {activeTab === "profile" && Profile}
+
+      {selected && createPortal(
+        <DetailSheet
+          product={selected}
+          fav={favs.has(selected.id)}
+          onFav={() => toggleFav(selected.id)}
+          onClose={() => setSelected(null)}
+          onAdd={addToCart}
+          onOpen={(p) => setSelected(p)}
+        />, document.body)}
+
+      {showFavs && createPortal(
+        <FavSheet
+          products={favProducts}
+          favsSet={favs}
+          onToggle={toggleFav}
+          onOpen={(p) => { setShowFavs(false); setSelected(p); }}
+          onClose={() => setShowFavs(false)}
+          onBrowse={() => { setShowFavs(false); onTabChange("catalog"); }}
+        />, document.body)}
+
+      {toast && createPortal(
+        <div role="status" aria-live="polite" style={{
+          position: "fixed", left: "50%", transform: "translateX(-50%)",
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 100px)", zIndex: 100020,
+          background: INK, color: PAPER, fontFamily: SANS, fontSize: T.sm, fontWeight: 600,
+          padding: "13px 22px", borderRadius: 999, boxShadow: "0 14px 36px rgba(20,18,15,0.34)",
+          animation: "rdToast 2.1s ease-in-out forwards", whiteSpace: "nowrap",
+        }}>{toast}</div>, document.body)}
+
+      {activeTab === "cart" && cartItems.length > 0 && stage !== "done" && createPortal(
+        <div style={{
+          position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 70, pointerEvents: "none",
+          padding: "22px 16px calc(env(safe-area-inset-bottom, 0px) + 104px)",
+          background: `linear-gradient(180deg, rgba(238,234,226,0) 0%, ${CANVAS} 34%)`,
+        }}>
+          <button type="button"
+            onClick={() => { if (placing) return; if (stage === "cart") { setStage("checkout"); haptic.medium(); } else placeOrder(); }}
+            disabled={placing}
+            className="flex items-center justify-center rd-press" style={{
+              width: "100%", height: 56, borderRadius: 999, background: INK, gap: 9,
+              opacity: placing ? 0.7 : 1, pointerEvents: "auto",
+              boxShadow: "0 14px 32px rgba(20,18,15,0.28)",
+            }}>
+            {placing ? (
+              <><Loader2 size={18} color={PAPER} className="rd-spin" /><span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: PAPER }}>Оформляем заказ…</span></>
+            ) : (
+              <>
+                <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: PAPER }}>
+                  {stage === "cart" ? "Перейти к оформлению" : "Подтвердить заказ"}
+                </span>
+                <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 800, color: PAPER, ...NUM }}>· {rub(total)}</span>
+              </>
+            )}
+          </button>
+        </div>, document.body)}
+    </div>
+  );
+}
+
+/* =================== Detail Sheet =================== */
+function DetailSheet({ product, fav, onFav, onClose, onAdd, onOpen }: {
+  product: Product; fav: boolean; onFav: () => void; onClose: () => void;
+  onAdd: (id: string, size: string, color: string, qty?: number) => void;
+  onOpen: (p: Product) => void;
+}) {
+  const haptic = useHaptic();
+  const [color, setColor] = useState(product.colors[0].name);
+  const [size, setSize] = useState<string | null>(product.sizes.length === 1 ? product.sizes[0] : null);
+  const [tab, setTab] = useState<"desc" | "care" | "ship">("desc");
+  const ref = useRef<HTMLDivElement>(null);
+  const d = pct(product);
+  const related = PRODUCTS.filter((p) => p.cat === product.cat && p.id !== product.id).slice(0, 6);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const el = ref.current?.querySelector<HTMLElement>("button");
+    el?.focus();
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
+  const add = () => {
+    if (!size) { haptic.error(); return; }
+    onAdd(product.id, size, color, 1);
+    onClose();
+  };
+
+  const tabContent: Record<string, React.ReactNode> = {
+    desc: <p style={{ fontFamily: SANS, fontSize: T.sm, color: SUB, lineHeight: 1.62 }}>{product.desc}</p>,
+    care: (
+      <div>
+        {[["Состав", product.composition], ["Посадка", product.fit], ["Уход", "Сухая чистка · не отбеливать"]].map(([k, v]) => (
+          <div key={k} className="flex justify-between" style={{ padding: "7px 0", borderBottom: `1px solid ${HAIR}` }}>
+            <span style={{ fontFamily: SANS, fontSize: T.sm, color: MUTED }}>{k}</span>
+            <span style={{ fontFamily: SANS, fontSize: T.sm, color: INK, fontWeight: 600, textAlign: "right", maxWidth: "60%" }}>{v}</span>
+          </div>
+        ))}
+      </div>
+    ),
+    ship: (
+      <div style={{ fontFamily: SANS, fontSize: T.sm, color: SUB, lineHeight: 1.62 }}>
+        Курьер по Москве — завтра, бесплатно от {rub(FREE_SHIP)}. Экспресс за 2–3 часа или самовывоз из бутика на Патриарших. Возврат и обмен в течение 30 дней.
+      </div>
+    ),
+  };
+
+  return (
+    <div ref={ref} role="dialog" aria-modal="true" aria-label={product.name}
+      onKeyDown={(e) => { if (e.key === "Escape") onClose(); else trapTab(e, ref.current); }}
+      style={{ position: "fixed", inset: 0, zIndex: 100000, display: "flex", flexDirection: "column" }}>
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(20,18,15,0.5)", animation: "rdFade .25s ease-out" }} />
+      <div style={{
+        position: "relative", marginTop: "auto", maxHeight: "94%", display: "flex", flexDirection: "column",
+        background: CANVAS, borderRadius: "26px 26px 0 0", overflow: "hidden", animation: "rdSheet .42s cubic-bezier(.22,1,.36,1)",
+      }}>
+        <div className="scrollbar-hide" style={{ overflowY: "auto", flex: 1 }}>
+          {/* фото */}
+          <div className="relative" style={{ width: "100%", aspectRatio: "4 / 5", background: SAND }}>
+            <Img src={product.img} alt={product.name} priority />
+            {product.tag && (
+              <span className="absolute" style={{
+                top: 16, left: 16, background: product.tag.includes("%") ? ACCENT : PAPER,
+                color: product.tag.includes("%") ? "#FFFFFF" : INK,
+                fontFamily: SANS, fontSize: T.micro, fontWeight: 700, letterSpacing: "0.04em", padding: "6px 12px", borderRadius: 999,
+              }}>{product.tag}</span>
+            )}
+            <button type="button" onClick={onClose} aria-label="Закрыть"
+              className="absolute flex items-center justify-center rd-press"
+              style={{ top: 14, right: 14, width: 40, height: 40, borderRadius: 999, background: "rgba(255,255,255,0.94)" }}>
+              <X size={19} color={INK} strokeWidth={SW} />
+            </button>
+            <button type="button" onClick={onFav} aria-label={fav ? "Убрать из избранного" : "В избранное"} aria-pressed={fav}
+              className="absolute flex items-center justify-center rd-press"
+              style={{ bottom: 14, right: 14, width: 46, height: 46, borderRadius: 999, background: "rgba(255,255,255,0.94)" }}>
+              <Heart size={19} strokeWidth={2.2} fill={fav ? INK : "none"} color={INK} style={fav ? { animation: "rdPop .36s ease-out" } : undefined} />
+            </button>
+          </div>
+
+          <div style={{ padding: "20px 20px 0" }}>
+            <div className="flex items-center justify-between">
+              <div style={{ fontFamily: SANS, fontSize: T.micro, color: MUTED, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>{product.brand}</div>
+              <div className="flex items-center" style={{ gap: 4 }}>
+                <Star size={13} color={ACCENT} fill={ACCENT} strokeWidth={0} />
+                <span style={{ fontFamily: SANS, fontSize: T.cap, fontWeight: 700, color: INK, ...NUM }}>{product.rating.toFixed(1)}</span>
+                <span style={{ fontFamily: SANS, fontSize: T.cap, color: MUTED, ...NUM }}>· {product.reviews} {plural(product.reviews, ["отзыв", "отзыва", "отзывов"])}</span>
+              </div>
+            </div>
+            <h2 style={{ ...serif(S.s2, 600), marginTop: 7 }}>{product.name}</h2>
+            <div className="flex items-baseline" style={{ gap: 9, marginTop: 9 }}>
+              <span style={{ fontFamily: SANS, fontSize: "1.5rem", fontWeight: 800, color: INK, ...NUM }}>{rub(product.price)}</span>
+              {product.oldPrice && <span style={{ fontFamily: SANS, fontSize: T.body, color: MUTED, textDecoration: "line-through", ...NUM }}>{rub(product.oldPrice)}</span>}
+              {d > 0 && <span style={{ fontFamily: SANS, fontSize: T.cap, fontWeight: 700, color: "#FFFFFF", background: ACCENT, padding: "3px 9px", borderRadius: 999 }}>−{d}%</span>}
+            </div>
+
+            {/* цвет */}
+            <div style={{ marginTop: 20 }}>
+              <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
+                <span style={{ ...kicker }}>Цвет</span>
+                <span style={{ fontFamily: SANS, fontSize: T.cap, color: SUB, fontWeight: 600 }}>{color}</span>
+              </div>
+              <div className="flex" style={{ gap: 10 }}>
+                {product.colors.map((c) => {
+                  const on = color === c.name;
+                  return (
+                    <button type="button" key={c.name} onClick={() => { setColor(c.name); haptic.light(); }}
+                      aria-label={c.name} className="rd-press flex items-center justify-center" style={{
+                        width: 38, height: 38, borderRadius: 999,
+                        border: `2px solid ${on ? INK : "transparent"}`, padding: 3,
+                      }}>
+                      <span style={{ width: "100%", height: "100%", borderRadius: 999, background: c.hex, border: `1px solid ${HAIR}` }} />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* размер */}
+            <div style={{ marginTop: 20 }}>
+              <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
+                <span style={{ ...kicker }}>Размер</span>
+                <span style={{ fontFamily: SANS, fontSize: T.cap, color: ACCENT_DEEP, fontWeight: 600 }}>Таблица размеров</span>
+              </div>
+              <div className="flex" style={{ gap: 8, flexWrap: "wrap" }}>
+                {product.sizes.map((s) => {
+                  const on = size === s;
+                  return (
+                    <button type="button" key={s} onClick={() => { setSize(s); haptic.light(); }}
+                      className="rd-press flex items-center justify-center" style={{
+                        minWidth: 50, height: 46, padding: "0 14px", borderRadius: 12,
+                        background: on ? INK : PAPER, color: on ? PAPER : INK,
+                        fontFamily: SANS, fontSize: T.sm, fontWeight: 600,
+                        border: `1.5px solid ${on ? INK : "transparent"}`, transition: "background .18s",
+                      }}>{s}</button>
+                  );
+                })}
+              </div>
+              {!size && <div style={{ fontFamily: SANS, fontSize: T.micro, color: ACCENT_DEEP, marginTop: 9 }}>Выберите размер, чтобы добавить в корзину</div>}
+            </div>
+
+            {/* табы */}
+            <div style={{ marginTop: 22 }}>
+              <div className="flex" style={{ gap: 4, borderBottom: `1px solid ${HAIR}` }}>
+                {([["desc", "Описание"], ["care", "Состав и уход"], ["ship", "Доставка"]] as const).map(([k, l]) => {
+                  const on = tab === k;
+                  return (
+                    <button type="button" key={k} onClick={() => setTab(k)} className="rd-press" style={{
+                      padding: "0 4px 10px", marginRight: 14, fontFamily: SANS, fontSize: T.sm,
+                      fontWeight: 600, color: on ? INK : MUTED,
+                      borderBottom: `2px solid ${on ? INK : "transparent"}`, marginBottom: -1,
+                    }}>{l}</button>
+                  );
+                })}
+              </div>
+              <div style={{ paddingTop: 14 }}>{tabContent[tab]}</div>
+            </div>
+
+            {/* преимущества */}
+            <div className="flex" style={{ gap: 8, marginTop: 18 }}>
+              {[
+                { ic: <Truck size={14} color={ACCENT_DEEP} strokeWidth={SW} />, t: "Доставка завтра" },
+                { ic: <RotateCcw size={14} color={ACCENT_DEEP} strokeWidth={SW} />, t: "Возврат 30 дней" },
+                { ic: <ShieldCheck size={14} color={ACCENT_DEEP} strokeWidth={SW} />, t: "Оригинал" },
+              ].map((v) => (
+                <div key={v.t} className="flex items-center justify-center" style={{ flex: 1, gap: 5, background: PAPER, borderRadius: 12, padding: "10px 4px" }}>
+                  {v.ic}<span style={{ fontFamily: SANS, fontSize: "0.625rem", fontWeight: 600, color: SUB }}>{v.t}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* похожие */}
+            {related.length > 0 && (
+              <div style={{ margin: "26px -20px 0" }}>
+                <div style={{ ...kicker, padding: "0 20px", marginBottom: 12 }}>Сочетается с этим</div>
+                <div className="overflow-x-auto scrollbar-hide">
+                  <div className="flex" style={{ gap: 12, padding: "0 20px", width: "max-content" }}>
+                    {related.map((rp) => (
+                      <button type="button" key={rp.id} onClick={() => onOpen(rp)} className="text-left rd-press" style={{ width: 124, flexShrink: 0 }}>
+                        <div style={{ width: 124, height: 156, borderRadius: 14, overflow: "hidden" }}>
+                          <Img src={rp.img} alt={rp.name} />
+                        </div>
+                        <div style={{ ...serif("1rem", 600), marginTop: 8 }}>{rp.name}</div>
+                        <div style={{ fontFamily: SANS, fontSize: T.cap, fontWeight: 700, color: INK, marginTop: 2, ...NUM }}>{rub(rp.price)}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            <div style={{ height: 20 }} />
+          </div>
+        </div>
+
+        {/* действие */}
+        <div style={{ padding: "12px 20px calc(env(safe-area-inset-bottom, 0px) + 16px)", background: PAPER, borderTop: `1px solid ${HAIR}` }}>
+          <button type="button" onClick={add} disabled={!size}
+            className="flex items-center justify-center rd-press" style={{
+              width: "100%", height: 56, borderRadius: 999, gap: 9,
+              background: size ? INK : SAND, opacity: size ? 1 : 0.9,
+            }}>
+            <ShoppingBag size={18} color={size ? PAPER : MUTED} strokeWidth={SW} />
+            <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 600, color: size ? PAPER : MUTED }}>
+              {size ? "Добавить в корзину" : "Выберите размер"}
+            </span>
+            {size && <span style={{ fontFamily: SANS, fontSize: T.body, fontWeight: 800, color: PAPER, ...NUM }}>· {rub(product.price)}</span>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== Favorites Sheet =================== */
+function FavSheet({ products, favsSet, onToggle, onOpen, onClose, onBrowse }: {
+  products: Product[]; favsSet: Set<string>; onToggle: (id: string) => void;
+  onOpen: (p: Product) => void; onClose: () => void; onBrowse: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    ref.current?.querySelector<HTMLElement>("button")?.focus();
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
+  return (
+    <div ref={ref} role="dialog" aria-modal="true" aria-label="Избранное"
+      onKeyDown={(e) => { if (e.key === "Escape") onClose(); else trapTab(e, ref.current); }}
+      style={{ position: "fixed", inset: 0, zIndex: 100000, display: "flex", flexDirection: "column" }}>
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(20,18,15,0.5)", animation: "rdFade .25s ease-out" }} />
+      <div style={{
+        position: "relative", marginTop: "auto", height: "90%", display: "flex", flexDirection: "column",
+        background: CANVAS, borderRadius: "26px 26px 0 0", overflow: "hidden", animation: "rdSheet .42s cubic-bezier(.22,1,.36,1)",
+      }}>
+        <div className="flex items-center justify-between" style={{ padding: "20px 20px 14px" }}>
+          <div>
+            <div style={kicker}>Сохранённое</div>
+            <h2 style={{ ...serif(S.s2, 600), marginTop: 6 }}>Избранное</h2>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Закрыть"
+            className="flex items-center justify-center rd-press" style={{ width: 40, height: 40, borderRadius: 999, background: PAPER }}>
+            <X size={19} color={INK} strokeWidth={SW} />
+          </button>
+        </div>
+
+        {products.length === 0 ? (
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 40px", textAlign: "center" }}>
+            <div className="flex items-center justify-center" style={{ width: 76, height: 76, borderRadius: 999, background: TINT }}>
+              <Heart size={30} color={MUTED} strokeWidth={SW} />
+            </div>
+            <div style={{ ...serif("1.6rem", 600), marginTop: 18 }}>Здесь пока пусто</div>
+            <p style={{ fontFamily: SANS, fontSize: T.sm, color: MUTED, marginTop: 7, lineHeight: 1.55 }}>
+              Отмечайте вещи сердечком — соберём<br />вашу персональную подборку
+            </p>
+            <button type="button" onClick={onBrowse} className="rd-press" style={{
+              marginTop: 20, height: 48, padding: "0 26px", borderRadius: 999, background: INK, color: PAPER,
+              fontFamily: SANS, fontSize: T.body, fontWeight: 600,
+            }}>В каталог</button>
+          </div>
+        ) : (
+          <div className="scrollbar-hide" style={{ overflowY: "auto", flex: 1, padding: "0 16px calc(env(safe-area-inset-bottom, 0px) + 24px)" }}>
+            <div className="grid grid-cols-2" style={{ gap: 14 }}>
+              {products.map((p, i) => (
+                <ProductCard key={p.id} p={p} idx={i} fav={favsSet.has(p.id)} onFav={() => onToggle(p.id)} onOpen={() => onOpen(p)} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default memo(PremiumFashionStore);
