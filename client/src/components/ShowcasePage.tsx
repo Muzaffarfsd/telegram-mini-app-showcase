@@ -27,7 +27,6 @@ interface ShowcasePageProps {
    ==================================================================== */
 
 const HF = "https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/";
-const HERO_IMG  = HF + "hf_20260525_184629_d8c956fe-93d3-4ac0-96b5-87813f8004dc_min.webp";
 const HERO_VIDEO = HF + "hf_20260525_173800_1c25b882-673f-435a-94e4-382a807cf060.mp4";
 const IMG_STORE = HF + "hf_20260525_191419_c5e7aaf0-5e12-4cc5-8796-1a2db461c65b_min.webp";
 const IMG_BOOK  = HF + "hf_20260525_191423_4fc7d9a6-c616-4b7e-b11a-f6e7fecb1d23_min.webp";
@@ -195,7 +194,7 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
           {/* ═══════════ HERO ═══════════ */}
           <header ref={heroRef} className="relative overflow-hidden" role="banner" style={{ minHeight: '100dvh' }}>
             <m.div className="absolute inset-0" style={{ y: rm ? 0 : heroImgY, scale: rm ? 1 : heroImgScale }}>
-              <video src={HERO_VIDEO} poster={HERO_IMG} autoPlay muted loop playsInline preload="auto"
+              <video src={HERO_VIDEO} autoPlay muted loop playsInline preload="auto"
                 className="absolute inset-0 w-full h-full object-cover" style={{ opacity: 0.96 }} />
               <div className="absolute inset-0" aria-hidden="true" style={{
                 background: 'linear-gradient(180deg, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.62) 22%, rgba(0,0,0,0.06) 46%, rgba(0,0,0,0.34) 74%, #000 100%)',
