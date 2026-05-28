@@ -38,7 +38,12 @@ export function useTelegramViewport() {
       // clients (it stays 0), so any layout that respects only safe-area
       // gets clipped by those buttons.  We add an explicit ~60px buffer
       // when fullscreen is active to push our top UI below those controls.
-      const isFullscreen = !!(WebApp as any).isFullscreen;
+      // Telegram WebApp.isFullscreen is unreliable across clients.  Use it
+      // as one signal AND check the html[data-tg-fullscreen='1'] attribute we
+      // set ourselves in index.html the moment we called requestFullscreen.
+      const isFullscreen =
+        !!(WebApp as any).isFullscreen ||
+        document.documentElement.dataset.tgFullscreen === '1';
       const fullscreenOverlayBuffer = isFullscreen ? 60 : 0;
       const effectiveTopOverlay = Math.max(contentSafeAreaTop, fullscreenOverlayBuffer);
 

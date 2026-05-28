@@ -234,8 +234,18 @@
       tg.ready();
       tg.expand();
       /* Immediately request fullscreen (Bot API 8.0+) so the bot header
-         collapses BEFORE first paint - this is what kills the layout jump. */
-      try{ if(typeof tg.requestFullscreen==='function') tg.requestFullscreen(); }catch(e){}
+         collapses BEFORE first paint - this is what kills the layout jump.
+         Telegram leaves floating "X Закрыть / down-arrow / triple-dot"
+         controls overlaid on our viewport in fullscreen mode and does NOT
+         report their height via contentSafeAreaInset on most clients, so we
+         set --csat=60px ourselves the moment we request fullscreen. */
+      try{
+        if(typeof tg.requestFullscreen==='function'){
+          tg.requestFullscreen();
+          __htmlEl.dataset.tgFullscreen='1';
+          __htmlEl.style.setProperty('--csat','60px');
+        }
+      }catch(e){}
       try{
         if(typeof tg.setBottomBarColor==='function') tg.setBottomBarColor('#000000');
         if(typeof tg.setBackgroundColor==='function') tg.setBackgroundColor('#000000');
