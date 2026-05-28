@@ -229,47 +229,7 @@ export const AIAgentButton = memo(() => {
     };
   }, [handleToast]);
 
-  useEffect(() => {
-    let lastShakeTime = 0;
-
-    const handleMotion = (e: DeviceMotionEvent) => {
-      const acc = e.accelerationIncludingGravity;
-      if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
-
-      const now = Date.now();
-      const timeDiff = now - shakeLastTime.current;
-
-      if (timeDiff > 100) {
-        const diffX = Math.abs(acc.x - shakeLastX.current);
-        const diffY = Math.abs(acc.y - shakeLastY.current);
-        const diffZ = Math.abs(acc.z - shakeLastZ.current);
-        const speed = (diffX + diffY + diffZ) / (timeDiff / 1000);
-
-        if (speed > SHAKE_THRESHOLD && now - lastShakeTime > SHAKE_COOLDOWN) {
-          lastShakeTime = now;
-          if (!isOpen) {
-            queueMicrotask(() => hapticFeedback.heavy());
-            const ctx = route.component;
-            const pageLabel = language === "ru"
-              ? `Вижу, ты на странице "${ctx}". Чем помочь?`
-              : `I see you're on the "${ctx}" page. How can I help?`;
-            if (shakeToastTimerRef.current) clearTimeout(shakeToastTimerRef.current);
-            setAiToast(pageLabel);
-            shakeToastTimerRef.current = setTimeout(() => setAiToast(null), 4000);
-            handleOpenRef.current();
-          }
-        }
-
-        shakeLastTime.current = now;
-        shakeLastX.current = acc.x;
-        shakeLastY.current = acc.y;
-        shakeLastZ.current = acc.z;
-      }
-    };
-
-    window.addEventListener("devicemotion", handleMotion);
-    return () => window.removeEventListener("devicemotion", handleMotion);
-  }, [isOpen, route.component, language]);
+  /* shake-to-open removed: was triggering accidentally on any phone motion */
 
   const handleOpen = useCallback(() => {
     setIsOpen(true);
