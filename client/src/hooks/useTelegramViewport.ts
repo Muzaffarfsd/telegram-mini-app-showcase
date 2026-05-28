@@ -44,7 +44,7 @@ export function useTelegramViewport() {
       const isFullscreen =
         !!(WebApp as any).isFullscreen ||
         document.documentElement.dataset.tgFullscreen === '1';
-      const fullscreenOverlayBuffer = isFullscreen ? 44 : 0;
+      const fullscreenOverlayBuffer = isFullscreen ? 50 : 0;
       const effectiveTopOverlay = Math.max(contentSafeAreaTop, fullscreenOverlayBuffer);
 
       document.documentElement.style.setProperty('--csat', `${effectiveTopOverlay}px`);
