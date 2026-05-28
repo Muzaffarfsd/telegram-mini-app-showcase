@@ -53,6 +53,61 @@ const EMERALD_SOFT_V7 = "#6ee7b7";
 const ONDER_FONT = '"Onder", "Manrope", system-ui, sans-serif';
 const DISPLAY_FONT_V7 = '"Stengazeta", "Manrope", system-ui, sans-serif';
 
+/* ──────────────────────────────────────────────────────────────────
+   v7 wave 3 — AlexOrb: replaces emoji avatar with editorial vector identity
+   Dual-ring core (OLED + emerald rim) + slow conic-gradient halo rotation.
+   Respects prefers-reduced-motion (no rotation).
+   ────────────────────────────────────────────────────────────────── */
+const AlexOrb = ({ size = 40, accent = "#34d399", soft = "#6ee7b7", live = false }: {
+  size?: number; accent?: string; soft?: string; live?: boolean;
+}) => {
+  const ringStroke = Math.max(1, Math.round(size * 0.04));
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        position: "relative", width: size, height: size,
+        borderRadius: "50%",
+        flexShrink: 0,
+      }}
+    >
+      {/* outer conic halo (slow rotation) */}
+      <div className="alex-orb-halo" style={{
+        position: "absolute", inset: -2, borderRadius: "50%",
+        background: `conic-gradient(from 0deg, ${accent} 0%, transparent 30%, ${soft}aa 50%, transparent 70%, ${accent} 100%)`,
+        opacity: live ? 0.95 : 0.55,
+        filter: `blur(${Math.max(2, size * 0.06)}px)`,
+        transition: "opacity 0.35s cubic-bezier(0.32,0.72,0,1)",
+      }} />
+      {/* dark core */}
+      <div style={{
+        position: "absolute", inset: 2, borderRadius: "50%",
+        background: "radial-gradient(circle at 30% 25%, #1a1a1f 0%, #050507 70%)",
+        border: `0.5px solid rgba(255,255,255,0.12)`,
+      }} />
+      {/* inner emerald rim */}
+      <div style={{
+        position: "absolute", inset: Math.max(2, size * 0.18), borderRadius: "50%",
+        border: `${ringStroke}px solid ${accent}`,
+        boxShadow: `0 0 ${Math.round(size * 0.28)}px ${accent}55, inset 0 0 ${Math.round(size * 0.16)}px ${accent}33`,
+        opacity: 0.92,
+      }} />
+      {/* inner dot */}
+      <div style={{
+        position: "absolute",
+        top: "50%", left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: Math.max(3, Math.round(size * 0.14)),
+        height: Math.max(3, Math.round(size * 0.14)),
+        borderRadius: "50%",
+        background: accent,
+        boxShadow: `0 0 ${Math.round(size * 0.22)}px ${accent}`,
+        animation: live ? "alex-orb-pulse 2.4s cubic-bezier(0.32,0.72,0,1) infinite" : undefined,
+      }} />
+    </div>
+  );
+};
+
 const ChevronDownIcon = ({ size = 18, color = "currentColor" }: { size?: number; color?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 9l6 6 6-6" />
@@ -280,6 +335,34 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [thinkingSeconds, setThinkingSeconds] = useState(0);
   const thinkingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  /* v7 wave 3: track mobile keyboard via visualViewport — panel adapts smoothly */
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const update = () => {
+      const offset = window.innerHeight - vv.height - vv.offsetTop;
+      setKeyboardHeight(Math.max(0, offset));
+    };
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    update();
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, []);
+
+  /* auto-scroll to bottom when keyboard opens (so the latest message stays visible above keyboard) */
+  useEffect(() => {
+    if (keyboardHeight > 0 && scrollRef.current) {
+      const el = scrollRef.current;
+      requestAnimationFrame(() => {
+        el.scrollTop = el.scrollHeight;
+      });
+    }
+  }, [keyboardHeight]);
+
 
   const lastStreamContent = useMemo(() => {
     const last = messages[messages.length - 1];
@@ -484,7 +567,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
             transition={{ type: "spring", damping: 34, stiffness: 420, mass: 0.65 }}
             style={{
               position: "fixed", bottom: 0, left: 0, right: 0,
-              height: "88dvh", zIndex: 9999,
+              height: keyboardHeight > 0 ? `calc(100dvh - ${keyboardHeight}px)` : "88dvh", zIndex: 9999,
               display: "flex", flexDirection: "column",
               background: PANEL.bg,
               borderRadius: "24px 24px 0 0",
@@ -519,21 +602,19 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <div style={{
-                  width: "40px", height: "40px", borderRadius: "20px",
-                  background: `linear-gradient(145deg, ${activePersona.color}dd, ${activePersona.color}66)`,
+                  position: "relative",
+                  width: "44px", height: "44px",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "16px", fontWeight: 600, color: "#fff",
-                  letterSpacing: "-0.02em", position: "relative",
-                  boxShadow: `0 2px 12px ${activePersona.color}40, 0 0 ${Math.round(dealTemperature * 24)}px ${stageColor}${Math.round(dealTemperature * 50).toString(16).padStart(2, "0")}`,
+                  boxShadow: `0 0 ${Math.round(dealTemperature * 20)}px ${stageColor}${Math.round(dealTemperature * 70).toString(16).padStart(2, "0")}`,
+                  borderRadius: "50%",
                   transition: "box-shadow 1.2s ease",
-                  border: "0.5px solid rgba(255,255,255,0.25)",
                 }}>
-                  {activePersona.emoji}
+                  <AlexOrb size={44} accent={activePersona.color} soft={activePersona.color} live={isLoading} />
                   <div style={{
-                    position: "absolute", bottom: "0px", right: "0px",
-                    width: "11px", height: "11px", borderRadius: "50%",
+                    position: "absolute", bottom: "-1px", right: "-1px",
+                    width: "12px", height: "12px", borderRadius: "50%",
                     background: stageColor,
-                    border: "2px solid rgba(28,28,30,0.8)",
+                    border: "2px solid #0a0a0c",
                     transition: "background 0.6s",
                     boxShadow: `0 0 6px ${stageColor}80`,
                   }} />

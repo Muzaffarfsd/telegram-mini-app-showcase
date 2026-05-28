@@ -7570,6 +7570,23 @@ html:not(.light) .bottom-nav-premium {
   50% { opacity: 0.05; transform: scale(2.2); }
 }
 
+/* v7 wave 3: Alex orb halo slow rotation + inner-dot live pulse */
+.alex-orb-halo {
+  animation: alex-orb-spin 60s linear infinite;
+  will-change: transform;
+}
+@keyframes alex-orb-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes alex-orb-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.35); opacity: 0.62; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .alex-orb-halo { animation: none !important; }
+}
+
 @keyframes ai-menu-in {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }

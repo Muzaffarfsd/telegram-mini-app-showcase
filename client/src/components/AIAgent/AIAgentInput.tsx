@@ -508,10 +508,9 @@ export const AIAgentInput = memo(
       <div style={{
         padding: "10px 16px",
         paddingBottom: "max(10px, env(safe-area-inset-bottom))",
-        borderTop: "0.5px solid rgba(255,255,255,0.06)",
-        background: "rgba(28,28,30,0.6)",
-        backdropFilter: "saturate(180%) blur(40px)",
-        WebkitBackdropFilter: "saturate(180%) blur(40px)",
+        borderTop: "1px solid rgba(255,255,255,0.06)",
+        /* v7 wave 3: opaque OLED instead of heavy backdrop-filter — kills keyboard-open lag on mobile */
+        background: "#0a0a0c",
         position: "relative",
       }}>
         {showEmoji && (

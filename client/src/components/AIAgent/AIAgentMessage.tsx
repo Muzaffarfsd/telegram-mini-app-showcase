@@ -198,10 +198,11 @@ const PERSONA_EMOJIS: Record<string, string> = {
 };
 
 const GLASS_MSG = {
-  assistant: "rgba(255,255,255,0.06)",
-  assistantBorder: "rgba(255,255,255,0.08)",
-  user: "rgba(52,211,153,0.18)",
-  userBorder: "rgba(52,211,153,0.25)",
+  /* v7 wave 3: emerald-tinted assistant bubble material + bold user bubble */
+  assistant: "linear-gradient(165deg, rgba(52,211,153,0.06) 0%, rgba(255,255,255,0.025) 60%, rgba(255,255,255,0.015) 100%)",
+  assistantBorder: "rgba(52,211,153,0.16)",
+  user: "linear-gradient(155deg, rgba(52,211,153,0.22) 0%, rgba(52,211,153,0.14) 100%)",
+  userBorder: "rgba(52,211,153,0.32)",
 };
 
 const CopyIcon = ({ size = 12 }: { size?: number }) => (
@@ -718,13 +719,16 @@ export const AIAgentMessage = memo(
           onContextMenu={e => { e.preventDefault(); setMenuPos({ x: e.clientX, y: e.clientY }); }}
           style={{
             maxWidth: "85%",
-            padding: isUser ? "10px 16px" : "12px 16px",
+            padding: isUser ? "11px 16px" : "13px 16px 13px 18px",
             borderRadius: isUser ? "20px 20px 6px 20px" : "20px 20px 20px 6px",
             background: isUser ? GLASS_MSG.user : GLASS_MSG.assistant,
-            border: `0.5px solid ${isUser ? GLASS_MSG.userBorder : (message.persona && message.persona !== "alex" ? personaColor + "18" : GLASS_MSG.assistantBorder)}`,
-            color: isUser ? "#fff" : "rgba(255,255,255,0.88)",
-            fontSize: "14px", lineHeight: "1.6", wordBreak: "break-word",
-            letterSpacing: "-0.01em",
+            border: `1px solid ${isUser ? GLASS_MSG.userBorder : (message.persona && message.persona !== "alex" ? personaColor + "26" : GLASS_MSG.assistantBorder)}`,
+            /* v7 wave 3: 3px emerald left-bar marker for AI bubble */
+            borderLeft: isUser ? `1px solid ${GLASS_MSG.userBorder}` : `3px solid ${personaColor}`,
+            color: isUser ? "#fff" : "rgba(255,255,255,0.94)",
+            fontSize: "14.5px", lineHeight: "1.62", wordBreak: "break-word",
+            letterSpacing: "-0.005em",
+            position: "relative",
             boxShadow: isUser
               ? "inset 0 1px 0 rgba(255,255,255,0.08)"
               : "inset 0 1px 0 rgba(255,255,255,0.04)",
@@ -774,15 +778,27 @@ export const AIAgentMessage = memo(
                 <div dangerouslySetInnerHTML={{ __html: renderedContent }} style={{ display: "inline" }} />
                 {message.isStreaming && (
                   <span aria-hidden="true" style={{
+                    position: "relative",
                     display: "inline-block",
-                    width: "2px", height: "16px",
-                    marginLeft: "3px", marginBottom: "-3px",
-                    background: personaColor,
-                    borderRadius: "1px",
-                    animation: "ai-v7-caret 1.1s cubic-bezier(0.32,0.72,0,1) infinite",
-                    boxShadow: `0 0 6px ${personaColor}88`,
+                    width: "12px", height: "18px",
+                    marginLeft: "4px", marginBottom: "-3px",
                     verticalAlign: "baseline",
-                  }} />
+                  }}>
+                    <span style={{
+                      position: "absolute", inset: -2,
+                      borderRadius: "8px",
+                      background: `radial-gradient(closest-side, ${personaColor}44 0%, transparent 70%)`,
+                      filter: "blur(2px)",
+                    }} />
+                    <span style={{
+                      position: "absolute", top: 2, left: 5,
+                      width: "2px", height: "14px",
+                      background: personaColor,
+                      borderRadius: "1px",
+                      animation: "ai-v7-caret 1.1s cubic-bezier(0.32,0.72,0,1) infinite",
+                      boxShadow: `0 0 8px ${personaColor}aa`,
+                    }} />
+                  </span>
                 )}
               </div>
               {message.widgets?.map((w, i) => (

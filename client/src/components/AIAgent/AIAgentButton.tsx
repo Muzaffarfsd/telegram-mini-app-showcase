@@ -579,25 +579,55 @@ export const AIAgentButton = memo(() => {
         whileTap={{ scale: 0.92 }}
         style={{
           position: "fixed", right: "16px", bottom: "90px",
-          width: "54px", height: "54px", borderRadius: "27px",
-          border: "0.5px solid rgba(255,255,255,0.15)",
-          background: showMenu
-            ? "rgba(52,211,153,0.95)"
-            : "rgba(52,211,153,0.85)",
-          backdropFilter: "saturate(180%) blur(20px)",
-          WebkitBackdropFilter: "saturate(180%) blur(20px)",
+          width: "56px", height: "56px", borderRadius: "50%",
+          border: "1px solid rgba(255,255,255,0.10)",
+          /* v7 wave 3: solid OLED + emerald orb inside (no translucent fill, no blur) */
+          background: "#0a0a0c",
           boxShadow: showMenu
-            ? "0 4px 28px rgba(52,211,153,0.5), 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2)"
-            : "0 4px 20px rgba(52,211,153,0.3), 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2)",
+            ? "0 0 0 1px rgba(52,211,153,0.45), 0 10px 28px rgba(52,211,153,0.32), 0 4px 14px rgba(0,0,0,0.55)"
+            : "0 0 0 1px rgba(52,211,153,0.18), 0 10px 24px rgba(52,211,153,0.18), 0 4px 12px rgba(0,0,0,0.5)",
           cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
           zIndex: 9990,
           WebkitTapHighlightColor: "transparent",
-          transition: "background 0.3s, box-shadow 0.3s",
+          transition: "box-shadow 0.32s cubic-bezier(0.32,0.72,0,1), transform 0.18s ease",
+          overflow: "hidden",
         }}
         aria-label={showMenu ? "Close menu" : "Chat with Alex"}
       >
-        {showMenu ? <X size={20} color="#fff" strokeWidth={2.2} /> : <BotMessageSquare size={24} color="#fff" strokeWidth={1.8} />}
+        {showMenu ? (
+          <X size={22} color="#fff" strokeWidth={1.8} />
+        ) : (
+          /* mini-orb visual identity for FAB */
+          <div aria-hidden="true" style={{
+            position: "relative", width: 38, height: 38,
+          }}>
+            <div className="alex-orb-halo" style={{
+              position: "absolute", inset: -2, borderRadius: "50%",
+              background: "conic-gradient(from 0deg, #34d399 0%, transparent 30%, #6ee7b7 50%, transparent 70%, #34d399 100%)",
+              opacity: 0.85,
+              filter: "blur(2px)",
+            }} />
+            <div style={{
+              position: "absolute", inset: 2, borderRadius: "50%",
+              background: "radial-gradient(circle at 30% 25%, #1a1a1f 0%, #050507 70%)",
+              border: "0.5px solid rgba(255,255,255,0.14)",
+            }} />
+            <div style={{
+              position: "absolute", inset: 7, borderRadius: "50%",
+              border: "1.5px solid #34d399",
+              boxShadow: "0 0 12px rgba(52,211,153,0.34), inset 0 0 8px rgba(52,211,153,0.22)",
+              opacity: 0.94,
+            }} />
+            <div style={{
+              position: "absolute", top: "50%", left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 5, height: 5, borderRadius: "50%",
+              background: "#34d399",
+              boxShadow: "0 0 8px #34d399",
+            }} />
+          </div>
+        )}
       </m.button>
 
       {hasOpened && (
