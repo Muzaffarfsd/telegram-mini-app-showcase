@@ -257,7 +257,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       <style>{`
         /* ── hamburger ── */
         .hb-btn{
-          width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+          width:48px;height:48px;display:flex;align-items:center;justify-content:center;
           border-radius:13px;background:rgba(255,255,255,0.06);
           border:1px solid rgba(255,255,255,0.11);cursor:pointer;
           -webkit-tap-highlight-color:transparent;position:relative;
@@ -497,8 +497,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
       {/* top bar */}
       <div className="w4-topbar">
-        <div className="max-w-md mx-auto px-5 pt-3 pb-1 flex items-end justify-between gap-4" style={{ position: 'relative' }}>
-          <div className="w-[52px]">
+        <div className="max-w-md mx-auto px-5 pt-4 pb-1 flex items-end justify-between gap-4" style={{ position: 'relative' }}>
+          <div className="w-[56px]">
             <AnimatedHamburgerIcon
               ref={triggerButtonRef}
               isOpen={false}
@@ -514,7 +514,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               textShadow: isDark ? '0 0 20px rgba(255,255,255,0.15)' : 'none',
             }}>WEB4TG</span>
           </div>
-          <div className="w-[52px]" aria-hidden="true" />
+          <div className="w-[56px]" aria-hidden="true" />
         </div>
       </div>
     </>
