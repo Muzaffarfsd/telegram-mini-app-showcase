@@ -623,11 +623,16 @@ export const AIAgentButton = memo(() => {
             <div style={{
               position: "absolute", top: "50%", left: "50%",
               transform: "translate(-50%, -50%)",
-              width: 5, height: 5, borderRadius: "50%",
-              background: "#34d399",
-              boxShadow: "0 0 10px #34d399, 0 0 18px rgba(52,211,153,0.45)",
-              animation: "alex-orb-pulse 2.4s cubic-bezier(0.32,0.72,0,1) infinite",
-            }} />
+              fontFamily: '"Manrope", -apple-system, system-ui, sans-serif',
+              fontSize: 10.5,
+              fontWeight: 800,
+              letterSpacing: "0.04em",
+              color: "#34d399",
+              textShadow: "0 0 8px rgba(52,211,153,0.55), 0 0 14px rgba(52,211,153,0.32)",
+              lineHeight: 1,
+              userSelect: "none",
+              pointerEvents: "none",
+            }}>AI</div>
           </div>
         )}
       </m.button>
