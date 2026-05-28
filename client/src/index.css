@@ -7587,6 +7587,19 @@ html:not(.light) .bottom-nav-premium {
   .alex-orb-halo { animation: none !important; }
 }
 
+/* v7 wave 3 polish: gentle FAB breathing — subtle presence, not flashy */
+.alex-fab-breathing {
+  animation: alex-fab-breath 4.6s cubic-bezier(0.32,0.72,0,1) infinite;
+  will-change: transform;
+}
+@keyframes alex-fab-breath {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.018); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .alex-fab-breathing { animation: none !important; }
+}
+
 /* v7 wave 4: FAB "substance" — orbiting plasma blobs + breathing core + periodic glance */
 .alex-fab-substance {
   animation: alex-fab-breath 4.6s cubic-bezier(0.32,0.72,0,1) infinite;

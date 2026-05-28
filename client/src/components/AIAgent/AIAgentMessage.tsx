@@ -97,7 +97,7 @@ const DemoPreviewCard = memo(function DemoPreviewCard({
       {/* meta */}
       <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
         <div style={{
-          fontFamily: '"Onder", "Manrope", system-ui, sans-serif',
+          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
           fontSize: "0.52rem", fontWeight: 700,
           letterSpacing: "0.14em", textTransform: "uppercase" as const,
           color: demo.accent,
@@ -198,9 +198,9 @@ const PERSONA_EMOJIS: Record<string, string> = {
 };
 
 const GLASS_MSG = {
-  /* v7 wave 3: emerald-tinted assistant bubble material + bold user bubble */
-  assistant: "linear-gradient(165deg, rgba(52,211,153,0.06) 0%, rgba(255,255,255,0.025) 60%, rgba(255,255,255,0.015) 100%)",
-  assistantBorder: "rgba(52,211,153,0.16)",
+  /* v7 wave 4: neutral assistant material; user keeps emerald accent */
+  assistant: "rgba(255,255,255,0.045)",
+  assistantBorder: "rgba(255,255,255,0.10)",
   user: "linear-gradient(155deg, rgba(52,211,153,0.22) 0%, rgba(52,211,153,0.14) 100%)",
   userBorder: "rgba(52,211,153,0.32)",
 };
@@ -641,6 +641,11 @@ export const AIAgentMessage = memo(
     const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const displayedContent = useTypewriter(message.content, !!message.isStreaming);
+    /* v7 wave 4: memoize demo detection — was running regex on every render */
+    const detectedDemos = useMemo(
+      () => (!message.isStreaming && message.role === "assistant") ? detectDemos(message.content || "") : [],
+      [message.content, message.isStreaming, message.role]
+    );
 
     useEffect(() => {
       return () => {
@@ -719,12 +724,10 @@ export const AIAgentMessage = memo(
           onContextMenu={e => { e.preventDefault(); setMenuPos({ x: e.clientX, y: e.clientY }); }}
           style={{
             maxWidth: "85%",
-            padding: isUser ? "11px 16px" : "13px 16px 13px 18px",
+            padding: isUser ? "11px 16px" : "12px 16px",
             borderRadius: isUser ? "20px 20px 6px 20px" : "20px 20px 20px 6px",
             background: isUser ? GLASS_MSG.user : GLASS_MSG.assistant,
             border: `1px solid ${isUser ? GLASS_MSG.userBorder : (message.persona && message.persona !== "alex" ? personaColor + "26" : GLASS_MSG.assistantBorder)}`,
-            /* v7 wave 3: 3px emerald left-bar marker for AI bubble */
-            borderLeft: isUser ? `1px solid ${GLASS_MSG.userBorder}` : `3px solid ${personaColor}`,
             color: isUser ? "#fff" : "rgba(255,255,255,0.94)",
             fontSize: "14.5px", lineHeight: "1.62", wordBreak: "break-word",
             letterSpacing: "-0.005em",
@@ -804,18 +807,14 @@ export const AIAgentMessage = memo(
               {message.widgets?.map((w, i) => (
                 <WidgetRenderer key={i} widget={w} />
               ))}
-              {/* v7: live demo preview cards detected in content */}
-              {!isUser && !message.isStreaming && (() => {
-                const detected = detectDemos(message.content || "");
-                if (detected.length === 0) return null;
-                return (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
-                    {detected.map((d) => (
-                      <DemoPreviewCard key={d.id} demo={d} onOpen={onOpenDemo} language={typeof navigator !== "undefined" && navigator.language?.startsWith("ru") ? "ru" : "en"} />
-                    ))}
-                  </div>
-                );
-              })()}
+              {/* v7: live demo preview cards detected in content (memoized so regex doesn't run on every render) */}
+              {!isUser && !message.isStreaming && detectedDemos.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
+                  {detectedDemos.map((d) => (
+                    <DemoPreviewCard key={d.id} demo={d} onOpen={onOpenDemo} language={typeof navigator !== "undefined" && navigator.language?.startsWith("ru") ? "ru" : "en"} />
+                  ))}
+                </div>
+              )}
             </>
           ) : message.isStreaming ? (
             <ThinkingIndicator seconds={thinkingSeconds || 0} personaColor={personaColor} phrase={thinkingPhrase} />

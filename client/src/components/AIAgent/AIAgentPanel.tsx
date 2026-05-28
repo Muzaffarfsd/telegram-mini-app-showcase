@@ -50,7 +50,7 @@ const PANEL = {
 };
 const EMERALD_V7 = "#34d399";
 const EMERALD_SOFT_V7 = "#6ee7b7";
-const ONDER_FONT = '"Onder", "Manrope", system-ui, sans-serif';
+const ONDER_FONT = '"Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 const DISPLAY_FONT_V7 = '"Stengazeta", "Manrope", system-ui, sans-serif';
 
 /* ──────────────────────────────────────────────────────────────────
@@ -335,21 +335,41 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [thinkingSeconds, setThinkingSeconds] = useState(0);
   const thinkingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  /* v7 wave 3: track mobile keyboard via visualViewport — panel adapts smoothly */
+  /* v7 wave 4: keyboard tracking — visualViewport + Telegram viewportChanged + window resize fallback */
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   useEffect(() => {
-    if (typeof window === "undefined" || !window.visualViewport) return;
-    const vv = window.visualViewport;
+    if (typeof window === "undefined") return;
+    let baseHeight = window.innerHeight;
     const update = () => {
-      const offset = window.innerHeight - vv.height - vv.offsetTop;
-      setKeyboardHeight(Math.max(0, offset));
+      let offset = 0;
+      const vv = window.visualViewport;
+      if (vv) {
+        offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      } else {
+        offset = Math.max(0, baseHeight - window.innerHeight);
+      }
+      setKeyboardHeight(offset > 80 ? offset : 0);  /* ignore small bars/notches */
     };
-    vv.addEventListener("resize", update);
-    vv.addEventListener("scroll", update);
+    /* Telegram WebApp viewport */
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg?.onEvent) {
+      tg.onEvent("viewportChanged", update);
+    }
+    /* visualViewport (modern browsers + WebKit) */
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", update);
+      window.visualViewport.addEventListener("scroll", update);
+    }
+    /* Fallback — window resize (older Android WebView) */
+    window.addEventListener("resize", update);
     update();
     return () => {
-      vv.removeEventListener("resize", update);
-      vv.removeEventListener("scroll", update);
+      if (tg?.offEvent) tg.offEvent("viewportChanged", update);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", update);
+        window.visualViewport.removeEventListener("scroll", update);
+      }
+      window.removeEventListener("resize", update);
     };
   }, []);
 
@@ -362,6 +382,54 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
       });
     }
   }, [keyboardHeight]);
+
+  /* v7 wave 4 — swipe-down-to-close (iOS bottom-sheet pattern).
+     Three behaviours combined:
+       1. Fast downward flick (velocity > 0.65 px/ms) from anywhere → closes.
+       2. Drag from top "grabber zone" (~100px) → always tracks finger + closes if > 120px.
+       3. Drag from messages area → only if scroll is at the top + > 120px. */
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartY = useRef(0);
+  const touchStartTime = useRef(0);
+  const touchStartScrollTop = useRef(0);
+  const touchInGrabberZone = useRef(false);
+
+  const onPanelTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    const t = e.touches[0];
+    touchStartY.current = t.clientY;
+    touchStartTime.current = Date.now();
+    touchStartScrollTop.current = scrollRef.current?.scrollTop ?? 0;
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    touchInGrabberZone.current = (t.clientY - rect.top) < 100;
+  }, []);
+
+  const onPanelTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    const delta = e.touches[0].clientY - touchStartY.current;
+    if (delta < 6) return;
+    /* only react to downward swipes from grabber-zone OR top of scroll */
+    if (touchInGrabberZone.current || touchStartScrollTop.current <= 0) {
+      if (!isDragging) setIsDragging(true);
+      setDragY(Math.max(0, delta * 0.92));
+    }
+  }, [isDragging]);
+
+  const onPanelTouchEnd = useCallback(() => {
+    const duration = Date.now() - touchStartTime.current;
+    const velocity = dragY / Math.max(duration, 1);
+    /* also catch a "fast flick down" gesture regardless of scroll position */
+    const flick = !isDragging && (Date.now() - touchStartTime.current) < 250;
+    if (dragY > 120 || velocity > 0.65 || (flick && dragY > 60)) {
+      queueMicrotask(() => hapticFeedback.light());
+      onClose();
+      setDragY(0);
+      setIsDragging(false);
+      return;
+    }
+    setDragY(0);
+    setIsDragging(false);
+  }, [dragY, isDragging, onClose, hapticFeedback]);
+
 
 
   const lastStreamContent = useMemo(() => {
@@ -562,9 +630,13 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
 
           <m.div
             initial={{ y: "100%" }}
-            animate={{ y: 0 }}
+            animate={{ y: dragY }}
             exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 34, stiffness: 420, mass: 0.65 }}
+            transition={isDragging ? { type: "tween", duration: 0 } : { type: "spring", damping: 34, stiffness: 420, mass: 0.65 }}
+            onTouchStart={onPanelTouchStart}
+            onTouchMove={onPanelTouchMove}
+            onTouchEnd={onPanelTouchEnd}
+            onTouchCancel={onPanelTouchEnd}
             style={{
               position: "fixed", bottom: 0, left: 0, right: 0,
               height: keyboardHeight > 0 ? `calc(100dvh - ${keyboardHeight}px)` : "88dvh", zIndex: 9999,
@@ -805,9 +877,33 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                     <div>
                       <div style={{
                         fontSize: "20px", fontWeight: 600, color: "#fff",
-                        marginBottom: "8px", letterSpacing: "-0.03em",
+                        marginBottom: "8px", letterSpacing: "-0.01em",
                       }}>
-                        {language === "ru" ? `Привет! Я ${activePersona.name} )` : `Hey! I'm ${activePersona.name} )`}
+                        {language === "ru" ? (
+                          <>
+                            Привет! Я{" "}
+                            <span style={{
+                              fontFamily: ONDER_FONT, fontWeight: 700,
+                              letterSpacing: "0.06em", textTransform: "uppercase",
+                              color: activePersona.color,
+                            }}>
+                              {activePersona.name}
+                            </span>
+                            {" )"}
+                          </>
+                        ) : (
+                          <>
+                            Hey! I&rsquo;m{" "}
+                            <span style={{
+                              fontFamily: ONDER_FONT, fontWeight: 700,
+                              letterSpacing: "0.06em", textTransform: "uppercase",
+                              color: activePersona.color,
+                            }}>
+                              {activePersona.name}
+                            </span>
+                            {" )"}
+                          </>
+                        )}
                       </div>
                       <div style={{
                         fontSize: "14px", color: "rgba(255,255,255,0.4)", lineHeight: "1.6",
