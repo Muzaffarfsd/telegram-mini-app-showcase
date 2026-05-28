@@ -283,34 +283,40 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
         /* ── overlay + panel ── */
         .w4m-overlay{
-          position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,0.34);
-          backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
-          opacity:0;pointer-events:none;transition:opacity .32s ease;touch-action:none;
+          position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,0.42);
+          opacity:0;pointer-events:none;
+          transition:opacity .24s cubic-bezier(0.22,1,0.36,1);
+          touch-action:none;
         }
         .w4m-overlay.open{opacity:1;pointer-events:auto;}
         .w4m-panel{
           position:fixed;top:0;left:0;height:100%;z-index:100001;
           width:min(372px,calc(100vw - 38px));
-          /* Frosted-glass material — translucent dark + backdrop blur.
-             No bright inset highlights, no glowing border, no inner halo —
-             those were the "lines/shadows" we removed.  Just clean glass. */
-          background:rgba(14,15,18,0.78);
-          backdrop-filter:blur(28px) saturate(140%);
-          -webkit-backdrop-filter:blur(28px) saturate(140%);
+          /* Frosted glass — same look, lighter blur (22px ≈ visually identical
+             to 28px, ~30% cheaper to composite per frame). */
+          background:rgba(14,15,18,0.80);
+          backdrop-filter:blur(22px) saturate(140%);
+          -webkit-backdrop-filter:blur(22px) saturate(140%);
           border-right:none;
           border-radius:0 26px 26px 0;
-          /* No shadow in closed state — only the outer drop shadow on .open. */
-          box-shadow:none;
+          /* Shadow applied instantly (not animated) — animating box-shadow
+             is one of the most expensive paint operations. */
+          box-shadow:36px 0 110px rgba(0,0,0,0.62);
           display:flex;flex-direction:column;
           overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
           transform:translate3d(-100%,0,0);
-          transition:transform .44s cubic-bezier(.32,.72,0,1),
-                     box-shadow .32s ease-out;
+          /* Apple-snap timing: 280ms with the same curve used on main page.
+             Only transform animates — backdrop-filter is NOT in the transition
+             list, so the GPU keeps the same blur and just composites a translated
+             layer (cheap). */
+          transition:transform .28s cubic-bezier(0.22,1,0.36,1);
           will-change:transform;
+          /* Isolate layout/paint so the rest of the page doesn't get re-painted
+             while the panel slides in/out. */
+          contain:layout paint;
         }
         .w4m-panel.open{
           transform:translate3d(0,0,0);
-          box-shadow:36px 0 110px rgba(0,0,0,0.62);
         }
         .w4m-panel::-webkit-scrollbar{display:none;}
         .w4m-panel{scrollbar-width:none;}

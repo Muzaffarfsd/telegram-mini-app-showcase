@@ -623,8 +623,10 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
             onClick={handleClose}
             style={{
               position: "fixed", inset: 0,
-              background: "rgba(0,0,0,0.45)", zIndex: 9998,
-              backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+              background: "rgba(0,0,0,0.55)", zIndex: 9998,
+              /* backdrop-filter removed: it was re-blurring the full viewport
+                 every frame during the slide-up, causing the visible freeze.
+                 Slightly deeper scrim (0.45 -> 0.55) covers the visual gap. */
             }}
           />
 
@@ -632,7 +634,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
             initial={{ y: "100%" }}
             animate={{ y: dragY }}
             exit={{ y: "100%" }}
-            transition={isDragging ? { type: "tween", duration: 0 } : { type: "spring", damping: 34, stiffness: 420, mass: 0.65 }}
+            transition={isDragging ? { type: "tween", duration: 0 } : { type: "spring", damping: 36, stiffness: 600, mass: 0.55 }}
             onTouchStart={onPanelTouchStart}
             onTouchMove={onPanelTouchMove}
             onTouchEnd={onPanelTouchEnd}
