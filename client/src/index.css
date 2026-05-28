@@ -7574,7 +7574,7 @@ html:not(.light) .bottom-nav-premium {
 
 /* v7 wave 3: Alex orb halo slow rotation + inner-dot live pulse */
 .alex-orb-halo {
-  animation: alex-orb-spin 60s linear infinite;
+  animation: alex-orb-spin 8s linear infinite;
   will-change: transform;
 }
 @keyframes alex-orb-spin {
