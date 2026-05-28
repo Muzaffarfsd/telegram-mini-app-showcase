@@ -279,11 +279,15 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .w4m-panel{
           position:fixed;top:0;left:0;height:100%;z-index:100001;
           width:min(372px,calc(100vw - 38px));
-          /* opaque OLED — no glass tint, no inset highlights, no visible edge lines */
-          background:#0a0a0c;
+          /* Frosted-glass material — translucent dark + backdrop blur.
+             No bright inset highlights, no glowing border, no inner halo —
+             those were the "lines/shadows" we removed.  Just clean glass. */
+          background:rgba(14,15,18,0.78);
+          backdrop-filter:blur(28px) saturate(140%);
+          -webkit-backdrop-filter:blur(28px) saturate(140%);
           border-right:none;
           border-radius:0 26px 26px 0;
-          /* no shadow in closed state — only the outer drop shadow on .open */
+          /* No shadow in closed state — only the outer drop shadow on .open. */
           box-shadow:none;
           display:flex;flex-direction:column;
           overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
