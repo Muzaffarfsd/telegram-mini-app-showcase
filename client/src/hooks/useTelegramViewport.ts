@@ -30,8 +30,19 @@ export function useTelegramViewport() {
       const contentSafeAreaBottom = WebApp.contentSafeAreaInset?.bottom || 0;
       const contentSafeAreaLeft = WebApp.contentSafeAreaInset?.left || 0;
       const contentSafeAreaRight = WebApp.contentSafeAreaInset?.right || 0;
-      
-      document.documentElement.style.setProperty('--csat', `${contentSafeAreaTop}px`);
+
+      // Telegram fullscreen overlay buffer.
+      // In fullscreen mode (requestFullscreen) Telegram keeps floating
+      // "X Закрыть / down-arrow / triple-dot" controls overlaid on the
+      // viewport.  These do NOT show up in contentSafeAreaInset.top on most
+      // clients (it stays 0), so any layout that respects only safe-area
+      // gets clipped by those buttons.  We add an explicit ~60px buffer
+      // when fullscreen is active to push our top UI below those controls.
+      const isFullscreen = !!(WebApp as any).isFullscreen;
+      const fullscreenOverlayBuffer = isFullscreen ? 60 : 0;
+      const effectiveTopOverlay = Math.max(contentSafeAreaTop, fullscreenOverlayBuffer);
+
+      document.documentElement.style.setProperty('--csat', `${effectiveTopOverlay}px`);
       document.documentElement.style.setProperty('--csab', `${contentSafeAreaBottom}px`);
       document.documentElement.style.setProperty('--csal', `${contentSafeAreaLeft}px`);
       document.documentElement.style.setProperty('--csar', `${contentSafeAreaRight}px`);
@@ -42,11 +53,18 @@ export function useTelegramViewport() {
     WebApp.onEvent('viewportChanged', updateViewport);
     WebApp.onEvent('safeAreaChanged', updateViewport);
     WebApp.onEvent('contentSafeAreaChanged', updateViewport);
-    
+    // Fullscreen state changes don't have a standard event in older Telegram
+    // clients; subscribe defensively and also poll once after a short delay
+    // so the buffer is correct even if requestFullscreen() resolves async.
+    try { (WebApp as any).onEvent('fullscreenChanged', updateViewport); } catch (e) {}
+    const fullscreenSettleTimer = setTimeout(updateViewport, 600);
+
     return () => {
       WebApp.offEvent('viewportChanged', updateViewport);
       WebApp.offEvent('safeAreaChanged', updateViewport);
       WebApp.offEvent('contentSafeAreaChanged', updateViewport);
+      try { (WebApp as any).offEvent('fullscreenChanged', updateViewport); } catch (e) {}
+      clearTimeout(fullscreenSettleTimer);
     };
   }, []);
 }
