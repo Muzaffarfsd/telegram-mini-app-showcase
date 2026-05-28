@@ -1695,7 +1695,9 @@ html.light :root,
 
   /* Utility Classes - Native Safe Area */
   .safe-area-top {
-    padding-top: env(safe-area-inset-top);
+    /* env() covers the device notch; var(--csat) covers Telegram's floating
+       fullscreen controls (X Закрыть / ⌄ / ⋮).  Take whichever is bigger. */
+    padding-top: max(env(safe-area-inset-top, 0px), var(--csat, 0px));
   }
   
   .safe-area-bottom {
@@ -1793,7 +1795,7 @@ html.light :root,
   /* Учитывает safe area + дополнительный padding для fullscreen режима Telegram */
   /* Симметричные отступы слева и справа для правильного центрирования на мобильных */
   .demo-nav-safe {
-    padding-top: max(env(safe-area-inset-top, 0px), 3.5rem);
+    padding-top: max(env(safe-area-inset-top, 0px), var(--csat, 0px), 3.5rem);
     padding-left: max(env(safe-area-inset-left, 0px), 0px);
     padding-right: max(env(safe-area-inset-right, 0px), 0px);
     padding-bottom: 0.5rem;
@@ -1868,7 +1870,7 @@ html.light :root,
   /* Small screens optimization (iPhone SE, small Android) */
   @media (max-width: 350px) {
     .demo-nav-safe {
-      padding-top: max(env(safe-area-inset-top, 0px), 3rem);
+      padding-top: max(env(safe-area-inset-top, 0px), var(--csat, 0px), 3rem);
     }
     
     .text-responsive-hero { font-size: 1.375rem; }

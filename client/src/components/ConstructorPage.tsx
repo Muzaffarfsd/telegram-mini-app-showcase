@@ -520,7 +520,7 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
             </m.div>
 
             <div className="relative flex items-center justify-between px-6"
-              style={{ zIndex: 2, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}>
+              style={{ zIndex: 2, paddingTop: 'calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px)) + 20px)' }}>
               <span style={{ fontFamily: DISPLAY, fontSize: '1.18rem', fontWeight: 700, letterSpacing: '0.04em', color: T.ink }}>
                 WEB4TG
               </span>
