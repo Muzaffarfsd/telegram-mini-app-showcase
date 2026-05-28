@@ -7740,14 +7740,16 @@ html:not(.light) .bottom-nav-premium {
   src: url('/fonts/Stengazeta.ttf') format('truetype');
   font-weight: 400 700;
   font-style: normal;
-  font-display: swap;
+  /* block: hide text until our font is ready (no flash, no fallback).
+     preload links in index.html make this near-instant on warm caches. */
+  font-display: block;
 }
 @font-face {
   font-family: 'Onder';
   src: url('/fonts/Onder-Regular.ttf') format('truetype');
   font-weight: 400 700;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 /* ── Profile page typography: Droid 1997 headings + Onder body (FONT ONLY, native sizes) ── */
