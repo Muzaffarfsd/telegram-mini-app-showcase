@@ -577,54 +577,98 @@ export const AIAgentButton = memo(() => {
         onPointerUp={handleFabPointerUp}
         onPointerCancel={handleFabPointerUp}
         whileTap={{ scale: 0.92 }}
+        className="alex-fab-substance"
         style={{
           position: "fixed", right: "16px", bottom: "90px",
-          width: "56px", height: "56px", borderRadius: "50%",
-          border: "1px solid rgba(255,255,255,0.10)",
-          /* v7 wave 3: solid OLED + emerald orb inside (no translucent fill, no blur) */
-          background: "#0a0a0c",
+          width: "60px", height: "60px", borderRadius: "50%",
+          border: "none",
+          /* v7 wave 4: living glass sphere with emerald plasma inside */
+          background: "radial-gradient(ellipse 80% 80% at 30% 22%, #1d1d22 0%, #08080c 55%, #02020a 100%)",
           boxShadow: showMenu
-            ? "0 0 0 1px rgba(52,211,153,0.45), 0 10px 28px rgba(52,211,153,0.32), 0 4px 14px rgba(0,0,0,0.55)"
-            : "0 0 0 1px rgba(52,211,153,0.18), 0 10px 24px rgba(52,211,153,0.18), 0 4px 12px rgba(0,0,0,0.5)",
+            ? "0 0 0 1px rgba(52,211,153,0.5), 0 14px 36px rgba(52,211,153,0.38), 0 6px 18px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(0,0,0,0.4)"
+            : "0 0 0 1px rgba(52,211,153,0.22), 0 14px 32px rgba(52,211,153,0.22), 0 6px 16px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.4)",
           cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
           zIndex: 9990,
           WebkitTapHighlightColor: "transparent",
-          transition: "box-shadow 0.32s cubic-bezier(0.32,0.72,0,1), transform 0.18s ease",
+          transition: "box-shadow 0.32s cubic-bezier(0.32,0.72,0,1)",
           overflow: "hidden",
+          isolation: "isolate",
         }}
         aria-label={showMenu ? "Close menu" : "Chat with Alex"}
       >
         {showMenu ? (
           <X size={22} color="#fff" strokeWidth={1.8} />
         ) : (
-          /* mini-orb visual identity for FAB */
+          /* v7 wave 4 — "substance" inner: orbiting plasma blobs + glass highlights + breathing core */
           <div aria-hidden="true" style={{
-            position: "relative", width: 38, height: 38,
+            position: "absolute", inset: 0, borderRadius: "50%",
+            overflow: "hidden", pointerEvents: "none",
           }}>
-            <div className="alex-orb-halo" style={{
-              position: "absolute", inset: -2, borderRadius: "50%",
-              background: "conic-gradient(from 0deg, #34d399 0%, transparent 30%, #6ee7b7 50%, transparent 70%, #34d399 100%)",
+            {/* Plasma blob A — emerald, orbiting slow */}
+            <div className="alex-fab-blob-a" style={{
+              position: "absolute",
+              width: "70%", height: "70%",
+              top: "10%", left: "10%",
+              borderRadius: "50%",
+              background: "radial-gradient(closest-side, #34d399 0%, rgba(52,211,153,0.32) 40%, transparent 75%)",
+              filter: "blur(6px)",
+              mixBlendMode: "screen",
               opacity: 0.85,
-              filter: "blur(2px)",
             }} />
-            <div style={{
-              position: "absolute", inset: 2, borderRadius: "50%",
-              background: "radial-gradient(circle at 30% 25%, #1a1a1f 0%, #050507 70%)",
-              border: "0.5px solid rgba(255,255,255,0.14)",
+            {/* Plasma blob B — emerald soft, orbiting opposite */}
+            <div className="alex-fab-blob-b" style={{
+              position: "absolute",
+              width: "55%", height: "55%",
+              top: "30%", left: "35%",
+              borderRadius: "50%",
+              background: "radial-gradient(closest-side, #6ee7b7 0%, rgba(110,231,183,0.28) 45%, transparent 80%)",
+              filter: "blur(5px)",
+              mixBlendMode: "screen",
+              opacity: 0.78,
             }} />
-            <div style={{
-              position: "absolute", inset: 7, borderRadius: "50%",
-              border: "1.5px solid #34d399",
-              boxShadow: "0 0 12px rgba(52,211,153,0.34), inset 0 0 8px rgba(52,211,153,0.22)",
-              opacity: 0.94,
+            {/* Plasma blob C — cool teal accent */}
+            <div className="alex-fab-blob-c" style={{
+              position: "absolute",
+              width: "45%", height: "45%",
+              top: "45%", left: "12%",
+              borderRadius: "50%",
+              background: "radial-gradient(closest-side, #5eead4 0%, rgba(94,234,212,0.22) 50%, transparent 80%)",
+              filter: "blur(7px)",
+              mixBlendMode: "screen",
+              opacity: 0.62,
             }} />
+            {/* Inner glass core — refraction effect */}
             <div style={{
+              position: "absolute", inset: "26%", borderRadius: "50%",
+              background: "radial-gradient(circle at 32% 28%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 18%, transparent 45%)",
+              boxShadow: "inset 0 0 12px rgba(52,211,153,0.4)",
+              pointerEvents: "none",
+            }} />
+            {/* Center specular dot (breathing) */}
+            <div className="alex-fab-core" style={{
               position: "absolute", top: "50%", left: "50%",
               transform: "translate(-50%, -50%)",
-              width: 5, height: 5, borderRadius: "50%",
-              background: "#34d399",
-              boxShadow: "0 0 8px #34d399",
+              width: "8px", height: "8px", borderRadius: "50%",
+              background: "radial-gradient(circle at 40% 35%, #ffffff 0%, #6ee7b7 35%, #34d399 100%)",
+              boxShadow: "0 0 14px #34d399, 0 0 26px rgba(52,211,153,0.4)",
+            }} />
+            {/* Top-left glass highlight crescent (gives sphere a physical material feel) */}
+            <div style={{
+              position: "absolute",
+              top: "8%", left: "14%",
+              width: "30%", height: "18%",
+              borderRadius: "50%",
+              background: "radial-gradient(ellipse at center, rgba(255,255,255,0.32) 0%, transparent 70%)",
+              filter: "blur(1.5px)",
+              pointerEvents: "none",
+            }} />
+            {/* Periodic glance — outer rim brightens for 800ms every 7s */}
+            <div className="alex-fab-glance" style={{
+              position: "absolute", inset: 0, borderRadius: "50%",
+              background: "radial-gradient(circle, transparent 55%, rgba(52,211,153,0.0) 70%, rgba(52,211,153,0.18) 78%, transparent 90%)",
+              pointerEvents: "none",
+              opacity: 0,
             }} />
           </div>
         )}

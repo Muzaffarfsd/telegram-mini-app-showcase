@@ -7587,6 +7587,76 @@ html:not(.light) .bottom-nav-premium {
   .alex-orb-halo { animation: none !important; }
 }
 
+/* v7 wave 4: FAB "substance" — orbiting plasma blobs + breathing core + periodic glance */
+.alex-fab-substance {
+  animation: alex-fab-breath 4.6s cubic-bezier(0.32,0.72,0,1) infinite;
+  will-change: transform;
+}
+.alex-fab-substance:hover { transform: scale(1.04); }
+.alex-fab-substance:active { transform: scale(0.95); }
+
+.alex-fab-blob-a {
+  animation: alex-fab-orbit-a 11s cubic-bezier(0.4,0,0.6,1) infinite;
+  will-change: transform;
+}
+.alex-fab-blob-b {
+  animation: alex-fab-orbit-b 14s cubic-bezier(0.4,0,0.6,1) infinite;
+  will-change: transform;
+}
+.alex-fab-blob-c {
+  animation: alex-fab-orbit-c 17s cubic-bezier(0.4,0,0.6,1) infinite;
+  will-change: transform;
+}
+.alex-fab-core {
+  animation: alex-fab-core-breath 3.2s cubic-bezier(0.32,0.72,0,1) infinite;
+}
+.alex-fab-glance {
+  animation: alex-fab-glance 7s ease-in-out infinite;
+}
+
+@keyframes alex-fab-breath {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.018); }
+}
+@keyframes alex-fab-orbit-a {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-12%, 8%); }
+  50%  { transform: translate(-4%, 14%); }
+  75%  { transform: translate(8%, 6%); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes alex-fab-orbit-b {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(10%, -10%); }
+  50%  { transform: translate(2%, -14%); }
+  75%  { transform: translate(-8%, -6%); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes alex-fab-orbit-c {
+  0%   { transform: translate(0, 0); }
+  33%  { transform: translate(14%, 10%); }
+  66%  { transform: translate(-6%, 16%); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes alex-fab-core-breath {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
+  50%      { transform: translate(-50%, -50%) scale(1.35); opacity: 0.88; }
+}
+@keyframes alex-fab-glance {
+  0%, 85%, 100% { opacity: 0; }
+  90%           { opacity: 1; }
+  95%           { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alex-fab-substance,
+  .alex-fab-blob-a,
+  .alex-fab-blob-b,
+  .alex-fab-blob-c,
+  .alex-fab-core,
+  .alex-fab-glance { animation: none !important; }
+}
+
 @keyframes ai-menu-in {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
