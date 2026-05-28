@@ -33,8 +33,8 @@ import { useLanguage } from "../contexts/LanguageContext";
 // iOS 26 Design System Palette
 const createProfilePalette = (isDark: boolean) => ({
   // Surface colors
-  surface: isDark ? '#0f0f11' : '#F2F4F6',
-  cardBg: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(255, 255, 255, 0.98)',
+  surface: isDark ? '#000000' : '#F2F4F6',
+  cardBg: isDark ? 'rgba(255, 255, 255, 0.045)' : 'rgba(255, 255, 255, 0.98)',
   cardBorder: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
   cardShadow: isDark ? 'none' : '0 0 0 0.5px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.03)',
   
@@ -45,8 +45,8 @@ const createProfilePalette = (isDark: boolean) => ({
   textQuaternary: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(60, 60, 67, 0.18)',
   
   // Accent colors
-  accent: isDark ? '#A78BFA' : '#007AFF',
-  accentBg: isDark ? 'rgba(167, 139, 250, 0.15)' : 'rgba(0, 122, 255, 0.1)',
+  accent: isDark ? '#34d399' : '#007AFF',
+  accentBg: isDark ? 'rgba(52, 211, 153, 0.15)' : 'rgba(0, 122, 255, 0.1)',
   
   // Interactive states
   hoverBg: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
