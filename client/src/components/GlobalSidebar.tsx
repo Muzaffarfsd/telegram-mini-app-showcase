@@ -86,7 +86,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     { label: t('sidebar.aiForBusiness'), section: 'ai-process', routes: ['aiProcess', 'aiAgent'] },
     { label: t('sidebar.aboutStudio'), section: 'about', routes: ['about'] },
     { label: t('sidebar.orderProject'), section: 'constructor', routes: ['constructor', 'checkout'] },
-    { label: t('sidebar.notifications'), section: 'notifications', routes: ['notifications'] },
     { label: t('sidebar.analytics'), section: 'analytics', routes: ['analytics'] },
   ];
 
@@ -475,14 +474,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         </div>
 
         {/* bottom */}
-        <div style={{ marginTop: 'auto', padding: '26px 24px calc(env(safe-area-inset-bottom, 0px) + 24px)' }}>
+        <div style={{ padding: '28px 24px calc(env(safe-area-inset-bottom, 0px) + 22px)' }}>
           <button onClick={() => handleNavClick('constructor')} className="w4m-cta" data-testid="button-discuss-project">
             <span style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 700, color: '#04140d', letterSpacing: '-0.01em' }}>
               {language === 'ru' ? 'Обсудить проект' : 'Discuss a project'}
             </span>
             <ArrowUpRight size={17} color="#04140d" strokeWidth={2.6} />
           </button>
-          <div className="flex items-center" style={{ gap: 9, marginTop: 16 }}>
+          <div className="flex items-center justify-between" style={{ gap: 8, marginTop: 18 }}>
             {socialLinks.map((s) => (
               <a key={s.label} href={s.url}
                 onClick={(e) => { e.preventDefault(); openExternal(s.url); }}
