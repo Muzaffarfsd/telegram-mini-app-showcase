@@ -30,6 +30,25 @@ Manual recording: `memory_record({kind, text, tags, pinned, context})`. Recall: 
 5. **Vite HMR clientPort:443 is Railway-only.** Locally: `clientPort:5000 + port:5000 + host:'localhost'`, native FS watch (`usePolling:false`).
 6. **Playwright needs `chromium-headless-shell-1223`** not `chromium-1223`. Install with `PLAYWRIGHT_BROWSERS_PATH=0`.
 7. **NEVER embed user-leaked secrets in scripts.** Always tell the user to revoke + rotate.
+8. **`git add -A`, `git add .`, `git reset --mixed HEAD`, `git reset HEAD -- .` are BANNED on this repo.** Windows-mount stat-cache makes them stage thousands of phantom deletions (real bug we shipped: commit `764adda` deleted 964 files including `tsconfig.json` / `vite.config.ts`). ONLY stage explicit paths. Read the full protocol below before every commit.
+
+## Git commit protocol — MANDATORY
+
+This repo lives on a Windows mount that lies to git about file stat. `.git/index` corrupts often (`bad signature 0x00000000`), and after rebuild the stat-cache makes git see thousands of files as "deleted". One careless `git add -A` deleted half the repo and broke Railway. To prevent recurrence:
+
+### The five rules
+
+1. **NEVER use bulk staging.** `git add -A`, `git add .`, `git reset HEAD -- .`, `git reset --mixed HEAD` are all BANNED here. Only `git add path/to/file1 path/to/file2` with explicit paths.
+2. **ALWAYS inspect `git diff --cached --stat` before commit.** The file list MUST match what you intentionally changed. If you touched 2 files and stat shows 800 — STOP, do not commit, the index is poisoned.
+3. **If `.git/index` is corrupt**, recover ONLY via `rm -f .git/index && git read-tree HEAD`. Do NOT use `git reset --mixed HEAD` (re-stages phantom deletions). Do NOT use `git reset --hard` unless you've copied your uncommitted work to `/tmp` first.
+4. **If `git diff` shows nothing but you know the file is modified** (stat-cache lie): `touch <file> && git update-index --refresh -- <file>`. Then re-check `git diff`.
+5. **Prefer `scripts/safe-commit.sh`** — wraps the above. Usage: `bash scripts/safe-commit.sh -m "msg" path/to/file1 path/to/file2`. Refuses to commit if more files than the listed paths end up staged.
+
+### Push protocol
+
+After commit, ALWAYS verify with `git show --stat HEAD | head -20` BEFORE pushing. The file count must equal what you intended. If the stat shows a `delete mode` line for a file you didn't touch — DO NOT push. Reset, re-stage explicit paths, recommit.
+
+When pushing, redact the token: `git push origin HEAD:main 2>&1 | sed -E 's#https://[^@ ]*@#https://***TOKEN***@#g'`.
 
 ## Primary edit path
 
