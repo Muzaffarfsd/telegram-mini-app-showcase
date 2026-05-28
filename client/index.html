@@ -179,21 +179,30 @@
       50% { transform: scale(1.1); opacity: 0.7; }
     }
     
-    /* Full screen layout - CRITICAL for Telegram */
+    /* Full screen layout - CRITICAL for Telegram
+       Use stable height from Telegram + lvh (large viewport) so layout
+       does NOT reflow when the bot header collapses. */
     html, body {
       width: 100%;
       min-height: 100vh;
-      min-height: 100dvh;
+      min-height: 100lvh;
+      min-height: var(--tg-viewport-stable-height, 100lvh);
       overflow-x: hidden;
       /* CRITICAL: Same background on html prevents different colored footer area */
       background: var(--bg);
     }
-    
+
     #root {
       width: 100%;
       min-height: 100vh;
-      min-height: 100dvh;
+      min-height: 100lvh;
+      min-height: var(--tg-viewport-stable-height, 100lvh);
     }
+
+    /* TG boot mask — hide content until Telegram viewport settles to prevent
+       the visible "header collapsing -> layout reflow" jump on first paint. */
+    html.tg-booting #root { opacity: 0; }
+    html.tg-ready   #root { opacity: 1; transition: opacity .22s ease-out; }
   </style>
   
   <!-- CRITICAL: Preconnect к Telegram SDK -->
@@ -212,18 +221,59 @@
   <script>
     if('scrollRestoration' in history) history.scrollRestoration='manual';
     window.scrollTo(0,0);
+    var __htmlEl = document.documentElement;
+    __htmlEl.classList.add('tg-booting');
+
+    function __tgReady(){
+      __htmlEl.classList.remove('tg-booting');
+      __htmlEl.classList.add('tg-ready');
+    }
+
     if(window.Telegram&&window.Telegram.WebApp){
       var tg=window.Telegram.WebApp;
       tg.ready();
       tg.expand();
+      /* Immediately request fullscreen (Bot API 8.0+) so the bot header
+         collapses BEFORE first paint - this is what kills the layout jump. */
+      try{ if(typeof tg.requestFullscreen==='function') tg.requestFullscreen(); }catch(e){}
       try{
         if(typeof tg.setBottomBarColor==='function') tg.setBottomBarColor('#000000');
         if(typeof tg.setBackgroundColor==='function') tg.setBackgroundColor('#000000');
         if(typeof tg.setHeaderColor==='function') tg.setHeaderColor('#000000');
       }catch(e){}
-      document.documentElement.style.setProperty('--tg-viewport-height',window.innerHeight+'px');
-      setTimeout(function(){tg.expand()},100);
-      setTimeout(function(){tg.expand();window.scrollTo(0,0)},300);
+
+      var __stableH = tg.viewportStableHeight || tg.viewportHeight || window.innerHeight;
+      __htmlEl.style.setProperty('--tg-viewport-height', (tg.viewportHeight||window.innerHeight)+'px');
+      __htmlEl.style.setProperty('--tg-viewport-stable-height', __stableH+'px');
+
+      /* Re-trigger expand a couple of times - some clients ignore the first call */
+      setTimeout(function(){ tg.expand(); }, 100);
+      setTimeout(function(){ tg.expand(); window.scrollTo(0,0); }, 300);
+
+      /* Reveal the app only after viewport settles to the stable (expanded) size,
+         OR after a safety timeout - whichever comes first. */
+      var __revealed = false;
+      var __reveal = function(){
+        if(__revealed) return;
+        __revealed = true;
+        __htmlEl.style.setProperty('--tg-viewport-stable-height', (tg.viewportStableHeight||tg.viewportHeight||window.innerHeight)+'px');
+        requestAnimationFrame(__tgReady);
+      };
+      try{
+        tg.onEvent('viewportChanged', function(e){
+          var sh = tg.viewportStableHeight || tg.viewportHeight || window.innerHeight;
+          __htmlEl.style.setProperty('--tg-viewport-height', (tg.viewportHeight||window.innerHeight)+'px');
+          __htmlEl.style.setProperty('--tg-viewport-stable-height', sh+'px');
+          /* isStateStable is true when the user finished the gesture / header settled */
+          if(e && e.isStateStable===false) return;
+          __reveal();
+        });
+      }catch(e){}
+      /* Safety net - never keep content hidden longer than 700ms */
+      setTimeout(__reveal, 700);
+    } else {
+      /* Not inside Telegram - reveal immediately */
+      __tgReady();
     }
   </script>
   

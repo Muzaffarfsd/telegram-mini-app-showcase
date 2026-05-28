@@ -7,6 +7,12 @@ export function useTelegramViewport() {
       // Viewport height
       const vh = WebApp.viewportHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+      // Stable height (height after bot header collapses) - used by layout to
+      // prevent reflow when the Telegram bot header shows/hides on boot.
+      const stableH = (WebApp as any).viewportStableHeight || WebApp.viewportHeight;
+      document.documentElement.style.setProperty('--tg-viewport-stable-height', `${stableH}px`);
+      document.documentElement.style.setProperty('--tg-viewport-height', `${WebApp.viewportHeight}px`);
       
       // Safe Area Insets (всегда устанавливаем для всех платформ)
       const safeAreaTop = WebApp.safeAreaInset?.top || 0;
