@@ -279,18 +279,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .w4m-panel{
           position:fixed;top:0;left:0;height:100%;z-index:100001;
           width:min(372px,calc(100vw - 38px));
-          background:
-            linear-gradient(155deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.035) 32%, rgba(255,255,255,0.006) 100%),
-            rgba(16,17,20,0.72);
-          backdrop-filter:blur(30px) saturate(150%);
-          -webkit-backdrop-filter:blur(30px) saturate(150%);
-          border-right:1px solid rgba(255,255,255,0.26);
+          /* opaque OLED — no glass tint, no inset highlights, no visible edge lines */
+          background:#0a0a0c;
+          border-right:none;
           border-radius:0 26px 26px 0;
-          /* v7: NO shadow in closed state — it was leaking visibly on every page.
-             Only inset highlights here; outer shadow moves to .open below. */
-          box-shadow:inset 0 2px 0 rgba(255,255,255,0.32),
-                     inset 2px 0 0 rgba(255,255,255,0.14),
-                     inset 0 0 100px rgba(255,255,255,0.06);
+          /* no shadow in closed state — only the outer drop shadow on .open */
+          box-shadow:none;
           display:flex;flex-direction:column;
           overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
           transform:translate3d(-100%,0,0);
@@ -300,10 +294,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         .w4m-panel.open{
           transform:translate3d(0,0,0);
-          box-shadow:36px 0 110px rgba(0,0,0,0.62),
-                     inset 0 2px 0 rgba(255,255,255,0.32),
-                     inset 2px 0 0 rgba(255,255,255,0.14),
-                     inset 0 0 100px rgba(255,255,255,0.06);
+          box-shadow:36px 0 110px rgba(0,0,0,0.62);
         }
         .w4m-panel::-webkit-scrollbar{display:none;}
         .w4m-panel{scrollbar-width:none;}
@@ -511,3 +502,4 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     </>
   );
 }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
