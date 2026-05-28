@@ -228,8 +228,8 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
               <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.78 }}>
                 <Body style={{ marginTop: 22, maxWidth: 360 }}>
                   {ru
-                    ? 'Ему не нужно скачивать приложение. Вам не нужно платить 30% маркетплейсу. Запускаем mini-app за неделю — с ИИ-агентом, который сам подбирает товары и принимает оплату.'
-                    : 'No App Store, no 30% marketplace cut. We ship a mini-app in a week — with an AI agent that picks products and takes payment.'}
+                    ? 'Mini-app, который продаёт ему там.'
+                    : 'A mini-app that sells to them there.'}
                 </Body>
               </m.div>
               <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: EASE, delay: 0.94 }}
