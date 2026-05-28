@@ -286,16 +286,25 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           -webkit-backdrop-filter:blur(30px) saturate(150%);
           border-right:1px solid rgba(255,255,255,0.26);
           border-radius:0 26px 26px 0;
-          box-shadow:36px 0 110px rgba(0,0,0,0.62),
-                     inset 0 2px 0 rgba(255,255,255,0.32),
+          /* v7: NO shadow in closed state — it was leaking visibly on every page.
+             Only inset highlights here; outer shadow moves to .open below. */
+          box-shadow:inset 0 2px 0 rgba(255,255,255,0.32),
                      inset 2px 0 0 rgba(255,255,255,0.14),
                      inset 0 0 100px rgba(255,255,255,0.06);
           display:flex;flex-direction:column;
           overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
           transform:translate3d(-100%,0,0);
-          transition:transform .44s cubic-bezier(.32,.72,0,1);will-change:transform;
+          transition:transform .44s cubic-bezier(.32,.72,0,1),
+                     box-shadow .32s ease-out;
+          will-change:transform;
         }
-        .w4m-panel.open{transform:translate3d(0,0,0);}
+        .w4m-panel.open{
+          transform:translate3d(0,0,0);
+          box-shadow:36px 0 110px rgba(0,0,0,0.62),
+                     inset 0 2px 0 rgba(255,255,255,0.32),
+                     inset 2px 0 0 rgba(255,255,255,0.14),
+                     inset 0 0 100px rgba(255,255,255,0.06);
+        }
         .w4m-panel::-webkit-scrollbar{display:none;}
         .w4m-panel{scrollbar-width:none;}
 
