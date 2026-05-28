@@ -353,7 +353,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           background:rgba(0,0,0,0.55);
           backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
           border-bottom:1px solid rgba(255,255,255,0.06);
-          padding-top:max(env(safe-area-inset-top,0px),12px);
+          padding-top:max(env(safe-area-inset-top,0px),var(--csat,0px),12px);
         }
         html.light .w4-topbar{background:rgba(250,250,252,0.8);border-bottom-color:rgba(0,0,0,0.07);}
 
@@ -394,7 +394,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 18px) 24px 0' }}>
+        <div style={{ padding: 'calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px)) + 18px) 24px 0' }}>
           {/* close */}
           <div className="flex items-center justify-end">
             <AnimatedHamburgerIcon ref={firstFocusableRef} isOpen={true} onClick={closeSidebar} ariaLabel={t('sidebar.closeMenu')} testId="button-menu-close" />
