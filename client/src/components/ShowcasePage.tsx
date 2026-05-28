@@ -217,19 +217,19 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 <m.span className="block" initial={rm ? { opacity: 1 } : { opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: rm ? 0 : 0.9, ease: EASE, delay: rm ? 0 : 0.42 }}
                   style={{ fontSize: 'clamp(2.7rem, 13vw, 3.9rem)', color: T.ink }}>
-                  {ru ? 'Ваш клиент' : "Your customer's"}
+                  {ru ? 'Магазин внутри Telegram' : 'A store inside Telegram'}
                 </m.span>
                 <m.span className="block" initial={rm ? { opacity: 1 } : { opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: rm ? 0 : 0.9, ease: EASE, delay: rm ? 0 : 0.54 }}
                   style={{ fontSize: 'clamp(2.7rem, 13vw, 3.9rem)', color: EMERALD }}>
-                  {ru ? 'уже в Telegram.' : 'already in Telegram.'}
+                  {ru ? 'без скачиваний и комиссий.' : 'no downloads, no commissions.'}
                 </m.span>
               </h1>
               <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.78 }}>
                 <Body style={{ marginTop: 22, maxWidth: 360 }}>
                   {ru
-                    ? 'Mini-app, который продаёт ему там.'
-                    : 'A mini-app that sells to them there.'}
+                    ? 'ИИ-агент отвечает клиентам и принимает заказы 24/7. Запуск за неделю.'
+                    : 'An AI agent replies and takes orders 24/7. Live in a week.'}
                 </Body>
               </m.div>
               <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: EASE, delay: 0.94 }}
