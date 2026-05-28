@@ -8,10 +8,142 @@ interface AIAgentMessageProps {
   onReply?: (text: string) => void;
   onRetry?: (messageId: string) => void;
   onFeedback?: (messageId: string, feedback: "up" | "down" | null) => void;
+  onOpenDemo?: (demoId: string) => void;
   isSpeaking?: boolean;
   thinkingSeconds?: number;
   thinkingPhrase?: string;
 }
+
+/* v7 — demo registry for live preview detection inside Alex messages */
+interface DemoMini {
+  id: string;
+  name: string;
+  category: string;
+  image: string;
+  accent: string;
+  pattern: RegExp;
+}
+const DEMO_PREVIEW_REGISTRY: DemoMini[] = [
+  { id: 'tech-nova',        name: 'NOVA',           category: 'Электроника',     image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp', accent: '#a78bfa', pattern: /\bNOVA\b/i },
+  { id: 'streetwear-vanta', name: 'VANTA',          category: 'Стритвир',        image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp', accent: '#fbbf24', pattern: /\bVANTA\b/i },
+  { id: 'skincare-aura',    name: 'Aura',           category: 'Косметика',       image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp', accent: '#f472b6', pattern: /\bAura\b/i },
+  { id: 'clothing-store',   name: 'Radiance',       category: 'Премиум-мода',    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp', accent: '#34d399', pattern: /\bRadiance\b/i },
+  { id: 'electronics',      name: 'TechMart',       category: 'Техно-маркет',    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp', accent: '#60a5fa', pattern: /\bTechMart\b/i },
+  { id: 'beauty',           name: 'GlowSpa',        category: 'Спа & красота',   image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp', accent: '#34d399', pattern: /\bGlowSpa\b/i },
+  { id: 'luxury-watches',   name: 'TimeElite',      category: 'Премиум часы',    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp', accent: '#fbbf24', pattern: /\bTimeElite\b/i },
+  { id: 'luxury-perfume',   name: 'FragranceRoyale', category: 'Парфюмерия',     image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp', accent: '#a78bfa', pattern: /\bFragranceRoyale\b/i },
+];
+
+function detectDemos(content: string): DemoMini[] {
+  if (!content) return [];
+  const matched: DemoMini[] = [];
+  const seen = new Set<string>();
+  for (const demo of DEMO_PREVIEW_REGISTRY) {
+    if (demo.pattern.test(content) && !seen.has(demo.id)) {
+      matched.push(demo);
+      seen.add(demo.id);
+    }
+  }
+  return matched.slice(0, 3);
+}
+
+/* v7 — Live demo preview card. iPhone-frame mock + name + open CTA */
+const DemoPreviewCard = memo(function DemoPreviewCard({
+  demo, onOpen, language,
+}: { demo: DemoMini; onOpen?: (id: string) => void; language: string }) {
+  return (
+    <div style={{
+      marginTop: 12,
+      padding: 14,
+      borderRadius: 22,
+      background: "rgba(255,255,255,0.035)",
+      border: "1px solid rgba(255,255,255,0.08)",
+      display: "flex", alignItems: "center", gap: 14,
+      position: "relative", overflow: "hidden",
+    }} data-testid={`demo-preview-${demo.id}`}>
+      <div aria-hidden="true" style={{
+        position: "absolute", inset: 0,
+        background: `radial-gradient(60% 100% at 14% 50%, ${demo.accent}14 0%, transparent 70%)`,
+        pointerEvents: "none",
+      }} />
+      {/* iPhone mock frame */}
+      <div style={{
+        position: "relative", flexShrink: 0,
+        width: 64, height: 132,
+        borderRadius: 14,
+        background: "#0a0a0c",
+        border: "1.5px solid rgba(255,255,255,0.14)",
+        boxShadow: `0 8px 24px rgba(0,0,0,0.45), 0 0 28px ${demo.accent}22, inset 0 1px 0 rgba(255,255,255,0.06)`,
+        overflow: "hidden",
+      }}>
+        {/* dynamic island */}
+        <div style={{
+          position: "absolute", top: 5, left: "50%", transform: "translateX(-50%)",
+          width: 22, height: 6, borderRadius: 99,
+          background: "#000",
+          zIndex: 2,
+        }} />
+        {/* image */}
+        <img src={demo.image} alt="" loading="lazy" draggable={false}
+          style={{
+            position: "absolute", inset: 0, width: "100%", height: "100%",
+            objectFit: "cover", opacity: 0.92,
+          }} />
+        <div aria-hidden="true" style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.55) 100%)",
+        }} />
+      </div>
+      {/* meta */}
+      <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
+        <div style={{
+          fontFamily: '"Onder", "Manrope", system-ui, sans-serif',
+          fontSize: "0.52rem", fontWeight: 700,
+          letterSpacing: "0.14em", textTransform: "uppercase" as const,
+          color: demo.accent,
+        }}>
+          {language === "ru" ? "Демо · WEB4TG" : "Demo · WEB4TG"}
+        </div>
+        <div style={{
+          fontFamily: '"Stengazeta", "Manrope", system-ui, sans-serif',
+          fontSize: "1.16rem", fontWeight: 700,
+          color: "rgba(255,255,255,0.96)",
+          letterSpacing: "0.012em", marginTop: 6, lineHeight: 1.1,
+        }}>
+          {demo.name}
+        </div>
+        <div style={{
+          fontFamily: "Manrope, system-ui, sans-serif",
+          fontSize: "0.78rem", color: "rgba(255,255,255,0.62)",
+          marginTop: 4, letterSpacing: "-0.005em",
+        }}>
+          {demo.category}
+        </div>
+        <button
+          type="button"
+          onClick={() => onOpen?.(demo.id)}
+          className="active:scale-[0.97]"
+          style={{
+            marginTop: 12, minHeight: 36,
+            padding: "8px 14px", borderRadius: 999,
+            background: "rgba(255,255,255,0.06)",
+            border: `1px solid ${demo.accent}55`,
+            color: "rgba(255,255,255,0.96)",
+            fontFamily: "Manrope, system-ui, sans-serif",
+            fontSize: "0.82rem", fontWeight: 600,
+            display: "inline-flex", alignItems: "center", gap: 6,
+            cursor: "pointer",
+            transition: "transform 0.18s cubic-bezier(0.32,0.72,0,1), background 0.2s",
+          }}
+          data-testid={`demo-preview-open-${demo.id}`}
+        >
+          {language === "ru" ? "Открыть демо" : "Open demo"}
+          <span style={{ color: demo.accent, fontWeight: 700 }}>→</span>
+        </button>
+      </div>
+    </div>
+  );
+});
 
 function escapeHtml(text: string): string {
   return text
@@ -168,29 +300,47 @@ function useTypewriter(content: string, isStreaming: boolean) {
 }
 
 function ThinkingIndicator({ seconds, personaColor, phrase }: { seconds: number; personaColor: string; phrase?: string }) {
+  /* v7: emerald block-caret + breathing dot + tabular-nums seconds */
   return (
     <div style={{
-      display: "flex", alignItems: "center", gap: "10px",
+      display: "flex", alignItems: "center", gap: "12px",
       padding: "6px 0",
     }}>
-      <div style={{ display: "flex", gap: "3px", alignItems: "center" }}>
-        {[0, 1, 2].map(i => (
-          <div key={i} style={{
-            width: "6px", height: "6px", borderRadius: "3px",
-            background: personaColor,
-            animation: `ai-thinking-bounce 1.4s ease-in-out ${i * 0.16}s infinite`,
-            opacity: 0.8,
-          }} />
-        ))}
-      </div>
+      <span aria-hidden="true" style={{
+        position: "relative", display: "inline-block",
+        width: "10px", height: "10px",
+      }}>
+        <span style={{
+          position: "absolute", inset: 0, borderRadius: 99,
+          background: personaColor, opacity: 0.4,
+          animation: "ai-v7-pulse 1.6s cubic-bezier(0.32,0.72,0,1) infinite",
+        }} />
+        <span style={{
+          position: "absolute", inset: 0, borderRadius: 99,
+          background: personaColor,
+          transform: "scale(0.55)", opacity: 1,
+        }} />
+      </span>
       <span style={{
-        fontSize: "12px", color: "rgba(255,255,255,0.45)",
-        fontVariantNumeric: "tabular-nums", letterSpacing: "-0.01em",
-        fontStyle: "italic",
+        fontFamily: '"Manrope", system-ui, sans-serif',
+        fontSize: "12.5px", color: "rgba(255,255,255,0.72)",
+        fontVariantNumeric: "tabular-nums", letterSpacing: "-0.005em",
+        fontWeight: 500,
       }}>
         {phrase || "Думаю над ответом..."}
-        {seconds > 2 && <span style={{ color: "rgba(255,255,255,0.25)", marginLeft: "6px" }}>{seconds}s</span>}
       </span>
+      {seconds > 1 && (
+        <span style={{
+          fontFamily: '"Manrope", system-ui, sans-serif',
+          fontSize: "10.5px", color: "rgba(255,255,255,0.34)",
+          fontVariantNumeric: "tabular-nums", letterSpacing: "0.04em",
+          padding: "2px 7px", borderRadius: 999,
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}>
+          {seconds}s
+        </span>
+      )}
     </div>
   );
 }
@@ -479,7 +629,7 @@ const RetryIcon = ({ size = 12 }: { size?: number }) => (
 );
 
 export const AIAgentMessage = memo(
-  ({ message, onSpeak, onButtonClick, onReply, onRetry, onFeedback, isSpeaking, thinkingSeconds, thinkingPhrase }: AIAgentMessageProps) => {
+  ({ message, onSpeak, onButtonClick, onReply, onRetry, onFeedback, onOpenDemo, isSpeaking, thinkingSeconds, thinkingPhrase }: AIAgentMessageProps) => {
     const [copied, setCopied] = useState(false);
     const [feedback, setFeedback] = useState<"up" | "down" | null>(message.feedback || null);
     const [feedbackToast, setFeedbackToast] = useState(false);
@@ -620,17 +770,39 @@ export const AIAgentMessage = memo(
             <ThinkingIndicator seconds={thinkingSeconds || 0} personaColor={personaColor} phrase={thinkingPhrase} />
           ) : renderedContent ? (
             <>
-              <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
+              <div style={{ position: "relative", display: "inline" }}>
+                <div dangerouslySetInnerHTML={{ __html: renderedContent }} style={{ display: "inline" }} />
+                {message.isStreaming && (
+                  <span aria-hidden="true" style={{
+                    display: "inline-block",
+                    width: "2px", height: "16px",
+                    marginLeft: "3px", marginBottom: "-3px",
+                    background: personaColor,
+                    borderRadius: "1px",
+                    animation: "ai-v7-caret 1.1s cubic-bezier(0.32,0.72,0,1) infinite",
+                    boxShadow: `0 0 6px ${personaColor}88`,
+                    verticalAlign: "baseline",
+                  }} />
+                )}
+              </div>
               {message.widgets?.map((w, i) => (
                 <WidgetRenderer key={i} widget={w} />
               ))}
+              {/* v7: live demo preview cards detected in content */}
+              {!isUser && !message.isStreaming && (() => {
+                const detected = detectDemos(message.content || "");
+                if (detected.length === 0) return null;
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
+                    {detected.map((d) => (
+                      <DemoPreviewCard key={d.id} demo={d} onOpen={onOpenDemo} language={typeof navigator !== "undefined" && navigator.language?.startsWith("ru") ? "ru" : "en"} />
+                    ))}
+                  </div>
+                );
+              })()}
             </>
           ) : message.isStreaming ? (
-            <div style={{ display: "flex", gap: "5px", padding: "4px 0" }}>
-              <div className="ai-typing-dot" style={{ animationDelay: "0ms" }} />
-              <div className="ai-typing-dot" style={{ animationDelay: "150ms" }} />
-              <div className="ai-typing-dot" style={{ animationDelay: "300ms" }} />
-            </div>
+            <ThinkingIndicator seconds={thinkingSeconds || 0} personaColor={personaColor} phrase={thinkingPhrase} />
           ) : null}
         </div>
 

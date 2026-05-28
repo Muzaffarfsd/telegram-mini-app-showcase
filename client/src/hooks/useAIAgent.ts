@@ -348,6 +348,8 @@ export function useAIAgent(pageContext?: PageContext) {
   const sessionStartRef = useRef(Date.now());
   const messageCountRef = useRef(0);
   const memoryRef = useRef<AIMemory>(loadMemory());
+  const [memorySnap, setMemorySnap] = useState<AIMemory>(() => memoryRef.current);
+  const syncMemorySnap = useCallback(() => setMemorySnap({ ...memoryRef.current }), []);
   const [thinkingPhrase, setThinkingPhrase] = useState("Думаю над ответом...");
 
   useEffect(() => {
@@ -576,6 +578,7 @@ export function useAIAgent(pageContext?: PageContext) {
 
       memoryRef.current = extractMemoryFromText(content.trim(), memoryRef.current);
       saveMemory(memoryRef.current);
+      syncMemorySnap();
 
       const userMessage: AIMessage = {
         id: `user-${Date.now()}`,
@@ -972,5 +975,20 @@ export function useAIAgent(pageContext?: PageContext) {
     cancelFollowup,
     setMessageFeedback,
     pagesVisited: pagesVisited.current,
+    memory: memorySnap,
+    updateMemory: (patch: Partial<AIMemory>) => {
+      memoryRef.current = { ...memoryRef.current, ...patch, lastSeen: Date.now() };
+      saveMemory(memoryRef.current);
+      syncMemorySnap();
+    },
+    clearMemoryField: (field: keyof AIMemory) => {
+      const next: any = { ...memoryRef.current };
+      if (field === 'preferences' || field === 'lastTopics') next[field] = [];
+      else if (field === 'interactionCount') next[field] = 0;
+      else delete next[field];
+      memoryRef.current = { ...next, lastSeen: Date.now() };
+      saveMemory(memoryRef.current);
+      syncMemorySnap();
+    },
   };
 }

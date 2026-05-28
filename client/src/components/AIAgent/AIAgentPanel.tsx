@@ -36,6 +36,23 @@ const GLASS = {
   btnBg: "rgba(255,255,255,0.08)",
 };
 
+/* v7: opaque OLED panel + OKLCH text scale */
+const PANEL = {
+  bg: "#0a0a0c",
+  bgRaised: "rgba(255,255,255,0.035)",
+  borderTopGlow: "rgba(52,211,153,0.18)",
+  ink: "rgba(255,255,255,0.94)",
+  body: "rgba(255,255,255,0.72)",
+  sub: "rgba(255,255,255,0.52)",
+  meta: "rgba(255,255,255,0.36)",
+  hair: "rgba(255,255,255,0.08)",
+  hairSoft: "rgba(255,255,255,0.05)",
+};
+const EMERALD_V7 = "#34d399";
+const EMERALD_SOFT_V7 = "#6ee7b7";
+const ONDER_FONT = '"Onder", "Manrope", system-ui, sans-serif';
+const DISPLAY_FONT_V7 = '"Stengazeta", "Manrope", system-ui, sans-serif';
+
 const ChevronDownIcon = ({ size = 18, color = "currentColor" }: { size?: number; color?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 9l6 6 6-6" />
@@ -252,6 +269,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
     shareConversation, speechLang,
     scheduleFollowup, cancelFollowup,
     thinkingPhrase, pagesVisited, setMessageFeedback,
+    memory, updateMemory, clearMemoryField,
   } = useAIAgent(pageContext);
   const { language } = useLanguage();
   const { hapticFeedback } = useTelegram();
@@ -338,6 +356,18 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
     setIsAtBottom(true);
     sendMessage(text);
   };
+
+  const handleOpenDemo = useCallback((demoId: string) => {
+    queueMicrotask(() => hapticFeedback.medium());
+    cancelFollowup();
+    onClose();
+    /* navigate after the close animation finishes */
+    setTimeout(() => {
+      if (typeof window !== "undefined") {
+        window.location.hash = `#/demos/${demoId}/app`;
+      }
+    }, 280);
+  }, [hapticFeedback, cancelFollowup, onClose]);
 
   const handleReply = useCallback((text: string) => {
     const prefix = `> ${text.slice(0, 60)}${text.length > 60 ? "..." : ""}\n\n`;
@@ -456,19 +486,18 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
               position: "fixed", bottom: 0, left: 0, right: 0,
               height: "88dvh", zIndex: 9999,
               display: "flex", flexDirection: "column",
-              background: GLASS.bg,
-              backdropFilter: GLASS.blur,
-              WebkitBackdropFilter: GLASS.blur,
+              background: PANEL.bg,
               borderRadius: "24px 24px 0 0",
-              border: `0.5px solid ${GLASS.border}`,
+              border: `0.5px solid ${PANEL.hair}`,
+              borderTop: `1px solid ${PANEL.borderTopGlow}`,
               borderBottom: "none",
               overflow: "hidden",
-              boxShadow: "0 -8px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12)",
+              boxShadow: "0 -16px 80px rgba(0,0,0,0.65), 0 -2px 24px rgba(52,211,153,0.08), inset 0 1px 0 rgba(255,255,255,0.04)",
             }}
           >
             <div style={{
               position: "absolute", top: 0, left: 0, right: 0, height: "1px",
-              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)",
+              background: `linear-gradient(90deg, transparent 8%, ${EMERALD_V7}66 50%, transparent 92%)`,
               zIndex: 1,
             }} />
 
@@ -511,8 +540,9 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                 </div>
                 <div>
                   <div style={{
-                    fontSize: "17px", fontWeight: 600, color: "#fff",
-                    letterSpacing: "-0.02em",
+                    fontFamily: ONDER_FONT,
+                    fontSize: "0.95rem", fontWeight: 600, color: PANEL.ink,
+                    letterSpacing: "0.06em", textTransform: "uppercase" as const,
                   }}>
                     {activePersona.name}
                   </div>
@@ -813,6 +843,92 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                   </div>
                 )}
 
+                {/* v7: Memory rail — visible "what I know about you" */}
+                {(memory && (memory.userName || memory.businessType || memory.businessName || (memory.lastTopics && memory.lastTopics.length > 0))) && (
+                  <div style={{
+                    margin: "0 0 14px",
+                    padding: "14px 16px 12px",
+                    borderRadius: 18,
+                    background: PANEL.bgRaised,
+                    border: `1px solid ${PANEL.hair}`,
+                    position: "relative",
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
+                      <span style={{
+                        fontFamily: ONDER_FONT, fontSize: "0.5rem", fontWeight: 700,
+                        letterSpacing: "0.14em", textTransform: "uppercase" as const,
+                        color: EMERALD_SOFT_V7,
+                        display: "inline-flex", alignItems: "center", gap: 6,
+                      }}>
+                        <span style={{ width: 5, height: 5, borderRadius: 99, background: EMERALD_V7, display: "inline-block", boxShadow: `0 0 6px ${EMERALD_V7}` }} />
+                        {language === "ru" ? "Что я знаю о вас" : "What I know about you"}
+                      </span>
+                      <span style={{ fontFamily: "Manrope", fontSize: "0.66rem", color: PANEL.meta }}>
+                        {language === "ru" ? "Тап чтобы убрать" : "Tap to remove"}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {memory.userName && (
+                        <button
+                          type="button"
+                          onClick={() => { hapticFeedback?.light?.(); clearMemoryField?.('userName'); }}
+                          aria-label={language === "ru" ? `Удалить имя ${memory.userName}` : `Remove name ${memory.userName}`}
+                          style={{
+                            padding: "6px 11px 6px 9px", borderRadius: 999, minHeight: 30,
+                            background: "rgba(52,211,153,0.10)", border: "1px solid rgba(52,211,153,0.28)",
+                            display: "inline-flex", alignItems: "center", gap: 6,
+                            fontFamily: "Manrope", fontSize: "0.78rem", fontWeight: 600, color: PANEL.ink,
+                            cursor: "pointer", transition: "all 0.2s ease",
+                          }}
+                          data-testid="memory-chip-name"
+                        >
+                          <span style={{ color: EMERALD_SOFT_V7, fontWeight: 700, fontSize: "0.62rem", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>{language === "ru" ? "Имя" : "Name"}</span>
+                          <span>{memory.userName}</span>
+                          <span style={{ color: PANEL.meta, fontSize: "0.8rem", lineHeight: 1 }}>×</span>
+                        </button>
+                      )}
+                      {(memory.businessName || memory.businessType) && (
+                        <button
+                          type="button"
+                          onClick={() => { hapticFeedback?.light?.(); clearMemoryField?.(memory.businessName ? 'businessName' : 'businessType'); }}
+                          aria-label={language === "ru" ? "Удалить бизнес" : "Remove business"}
+                          style={{
+                            padding: "6px 11px 6px 9px", borderRadius: 999, minHeight: 30,
+                            background: "rgba(96,165,250,0.10)", border: "1px solid rgba(96,165,250,0.28)",
+                            display: "inline-flex", alignItems: "center", gap: 6,
+                            fontFamily: "Manrope", fontSize: "0.78rem", fontWeight: 600, color: PANEL.ink,
+                            cursor: "pointer", transition: "all 0.2s ease",
+                          }}
+                          data-testid="memory-chip-business"
+                        >
+                          <span style={{ color: "#93c5fd", fontWeight: 700, fontSize: "0.62rem", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>{language === "ru" ? "Бизнес" : "Business"}</span>
+                          <span>{memory.businessName || memory.businessType}</span>
+                          <span style={{ color: PANEL.meta, fontSize: "0.8rem", lineHeight: 1 }}>×</span>
+                        </button>
+                      )}
+                      {(memory.lastTopics || []).slice(-3).map((topic, i) => (
+                        <button
+                          type="button"
+                          key={`topic-${i}-${topic}`}
+                          onClick={() => { hapticFeedback?.light?.(); updateMemory?.({ lastTopics: (memory.lastTopics || []).filter((t) => t !== topic) }); }}
+                          aria-label={language === "ru" ? `Удалить тему ${topic}` : `Remove topic ${topic}`}
+                          style={{
+                            padding: "6px 11px 6px 9px", borderRadius: 999, minHeight: 30,
+                            background: "rgba(255,255,255,0.04)", border: `1px solid ${PANEL.hair}`,
+                            display: "inline-flex", alignItems: "center", gap: 6,
+                            fontFamily: "Manrope", fontSize: "0.78rem", fontWeight: 500, color: PANEL.body,
+                            cursor: "pointer", transition: "all 0.2s ease",
+                          }}
+                          data-testid={`memory-chip-topic-${i}`}
+                        >
+                          <span>{topic}</span>
+                          <span style={{ color: PANEL.meta, fontSize: "0.8rem", lineHeight: 1 }}>×</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {displayMessages.map((msg) => {
                   const dateLabel = getDateLabel(msg.timestamp, language);
                   const showDate = dateLabel !== lastDateLabel;
@@ -848,6 +964,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                           onReply={handleReply}
                           onRetry={retryMessage}
                           onFeedback={handleFeedback}
+                          onOpenDemo={handleOpenDemo}
                           isSpeaking={isSpeaking}
                           thinkingSeconds={thinkingSeconds}
                           thinkingPhrase={thinkingPhrase}
