@@ -603,11 +603,20 @@ export const AIAgentButton = memo(() => {
           <div aria-hidden="true" style={{
             position: "relative", width: 38, height: 38,
           }}>
+            {/* layer A — clockwise, tighter, soft blur */}
             <div className="alex-orb-halo" style={{
-              position: "absolute", inset: -2, borderRadius: "50%",
-              background: "conic-gradient(from 0deg, #34d399 0%, transparent 30%, #6ee7b7 50%, transparent 70%, #34d399 100%)",
-              opacity: 0.85,
-              filter: "blur(2px)",
+              position: "absolute", inset: -3, borderRadius: "50%",
+              background: "conic-gradient(from 0deg, #34d399 0%, transparent 32%, #6ee7b7 52%, transparent 72%, #34d399 100%)",
+              opacity: 0.68,
+              filter: "blur(5px)",
+            }} />
+            {/* layer B — counter-clockwise, wider, heavier blur, screen-blended for living glow */}
+            <div className="alex-orb-halo-b" style={{
+              position: "absolute", inset: -4, borderRadius: "50%",
+              background: "conic-gradient(from 90deg, transparent 0%, #34d399 18%, transparent 42%, #6ee7b7 68%, transparent 92%)",
+              opacity: 0.50,
+              filter: "blur(7px)",
+              mixBlendMode: "screen",
             }} />
             <div style={{
               position: "absolute", inset: 2, borderRadius: "50%",

@@ -7572,21 +7572,32 @@ html:not(.light) .bottom-nav-premium {
   50% { opacity: 0.05; transform: scale(2.2); }
 }
 
-/* v7 wave 3: Alex orb halo slow rotation + inner-dot live pulse */
+/* v7 wave 4: Alex orb halo — two counter-rotating layers, breathing scale.
+   Designed to read as ORGANIC living smoke, not a clean rotating pattern. */
 .alex-orb-halo {
-  animation: alex-orb-spin 8s linear infinite;
+  animation: alex-orb-spin 7s linear infinite;
+  will-change: transform;
+}
+.alex-orb-halo-b {
+  animation: alex-orb-spin-rev 11s linear infinite;
   will-change: transform;
 }
 @keyframes alex-orb-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  0%   { transform: rotate(0deg)   scale(1); }
+  50%  { transform: rotate(180deg) scale(1.08); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+@keyframes alex-orb-spin-rev {
+  0%   { transform: rotate(360deg) scale(0.94); }
+  50%  { transform: rotate(180deg) scale(1.06); }
+  100% { transform: rotate(0deg)   scale(0.94); }
 }
 @keyframes alex-orb-pulse {
   0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   50% { transform: translate(-50%, -50%) scale(1.35); opacity: 0.62; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .alex-orb-halo { animation: none !important; }
+  .alex-orb-halo, .alex-orb-halo-b { animation: none !important; }
 }
 
 /* v7 wave 3 polish: gentle FAB breathing — subtle presence, not flashy */
