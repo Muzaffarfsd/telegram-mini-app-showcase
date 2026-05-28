@@ -217,19 +217,19 @@ export default function ShowcasePage({ onNavigate, onOpenDemo }: ShowcasePagePro
                 <m.span className="block" initial={rm ? { opacity: 1 } : { opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: rm ? 0 : 0.9, ease: EASE, delay: rm ? 0 : 0.42 }}
                   style={{ fontSize: 'clamp(2.7rem, 13vw, 3.9rem)', color: T.ink }}>
-                  {ru ? 'Telegram-приложения,' : 'Telegram apps'}
+                  {ru ? 'Ваш клиент' : "Your customer's"}
                 </m.span>
                 <m.span className="block" initial={rm ? { opacity: 1 } : { opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: rm ? 0 : 0.9, ease: EASE, delay: rm ? 0 : 0.54 }}
                   style={{ fontSize: 'clamp(2.7rem, 13vw, 3.9rem)', color: EMERALD }}>
-                  {ru ? 'которые продают.' : 'that sell.'}
+                  {ru ? 'уже в Telegram.' : 'already in Telegram.'}
                 </m.span>
               </h1>
               <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.78 }}>
                 <Body style={{ marginTop: 22, maxWidth: 360 }}>
                   {ru
-                    ? 'Студия WEB4TG проектирует и запускает мини-приложения мирового уровня — без скачиваний, без комиссий, за 24 часа.'
-                    : 'WEB4TG designs and ships world-class mini apps — no installs, no fees, in 24 hours.'}
+                    ? 'Ему не нужно скачивать приложение. Вам не нужно платить 30% маркетплейсу. Запускаем mini-app за неделю — с ИИ-агентом, который сам подбирает товары и принимает оплату.'
+                    : 'No App Store, no 30% marketplace cut. We ship a mini-app in a week — with an AI agent that picks products and takes payment.'}
                 </Body>
               </m.div>
               <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: EASE, delay: 0.94 }}
