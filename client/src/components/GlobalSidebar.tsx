@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef, forwardRef, memo, useMemo } from "react";
 import { ChevronRight, ArrowUpRight, Send } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
-import { SiInstagram, SiTelegram } from "react-icons/si";
+import { SiInstagram, SiTelegram, SiYoutube, SiTiktok } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
 import { useLanguage } from "../contexts/LanguageContext";
 
@@ -93,9 +93,22 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   const stages = [t('sidebar.brief'), t('sidebar.design'), t('sidebar.code'), t('sidebar.launch')];
   const activeStage = 1;
 
+  // openExternal: route http(s) URL through the OS so iOS/Android Universal
+  // Links / App Links open the native app (TikTok, YouTube, Instagram...) instead
+  // of Telegram's in-app browser.  Falls back to a normal new-tab open elsewhere.
+  const openExternal = useCallback((url: string) => {
+    try {
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg?.openLink) { tg.openLink(url, { try_instant_view: false }); return; }
+    } catch (e) {}
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }, []);
+
   const socialLinks = [
     { icon: SiTelegram, label: t('sidebar.telegramChannel'), url: 'https://t.me/web4_tg' },
     { icon: SiInstagram, label: 'Instagram', url: 'https://instagram.com/web4tg' },
+    { icon: SiTiktok, label: 'TikTok', url: 'https://tiktok.com/@web4tg' },
+    { icon: SiYoutube, label: 'YouTube', url: 'https://www.youtube.com/channel/UCnI08ZJJAB6CpEW5nLH5J5Q' },
     { icon: Send, label: t('sidebar.consultation'), url: 'https://t.me/web4tgs' },
   ];
 
@@ -471,7 +484,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </button>
           <div className="flex items-center" style={{ gap: 9, marginTop: 16 }}>
             {socialLinks.map((s) => (
-              <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer"
+              <a key={s.label} href={s.url}
+                onClick={(e) => { e.preventDefault(); openExternal(s.url); }}
+                target="_blank" rel="noopener noreferrer"
                 className="w4m-soc" aria-label={s.label}
                 data-testid={`link-social-${s.label.toLowerCase().replace(/\s+/g, '-')}`}>
                 <s.icon size={17} color="rgba(255,255,255,0.6)" aria-hidden="true" focusable={false} />
