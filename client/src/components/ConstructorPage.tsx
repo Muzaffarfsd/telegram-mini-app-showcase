@@ -519,15 +519,8 @@ function ConstructorPage({ onNavigate }: ConstructorPageProps) {
               }} />
             </m.div>
 
-            <div className="relative flex items-center justify-between px-6"
-              style={{ zIndex: 2, paddingTop: 'calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px)) + 20px)' }}>
-              <span style={{ fontFamily: DISPLAY, fontSize: '1.18rem', fontWeight: 700, letterSpacing: '0.04em', color: T.ink }}>
-                WEB4TG
-              </span>
-              <span style={{ fontFamily: FONT, fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.13em', textTransform: 'uppercase', color: T.faint }}>
-                {ru ? 'Заказ' : 'Order'}
-              </span>
-            </div>
+            {/* spacer — see ShowcasePage for rationale */}
+            <div aria-hidden="true" style={{ zIndex: 2, height: 'calc(env(safe-area-inset-top, 0px) + 44px)' }} />
 
             <m.div className="relative px-6" style={{
               zIndex: 2, paddingTop: 'clamp(38px, 13vh, 104px)',
