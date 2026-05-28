@@ -375,7 +375,7 @@ export const AIAgentButton = memo(() => {
             transition={{ type: "spring", damping: 24, stiffness: 300 }}
             onClick={handleOpen}
             style={{
-              position: "fixed", right: "16px", bottom: "155px",
+              position: "fixed", right: "16px", bottom: "205px",
               background: GLASS.bg,
               backdropFilter: GLASS.blur,
               WebkitBackdropFilter: GLASS.blur,
@@ -429,7 +429,7 @@ export const AIAgentButton = memo(() => {
               exit={{ opacity: 0, y: 20, scale: 0.9 }}
               transition={{ type: "spring", damping: 22, stiffness: 320, mass: 0.6 }}
               style={{
-                position: "fixed", right: "16px", bottom: "155px",
+                position: "fixed", right: "16px", bottom: "205px",
                 background: GLASS.bg,
                 backdropFilter: GLASS.blur,
                 WebkitBackdropFilter: GLASS.blur,
@@ -535,7 +535,7 @@ export const AIAgentButton = memo(() => {
             transition={{ type: "spring", damping: 24, stiffness: 300 }}
             onClick={() => { dismissClipboard(); handleOpen(); }}
             style={{
-              position: "fixed", right: "78px", bottom: "100px",
+              position: "fixed", right: "78px", bottom: "150px",
               background: "rgba(10,14,18,0.92)",
               backdropFilter: GLASS.blur,
               WebkitBackdropFilter: GLASS.blur,
@@ -579,7 +579,7 @@ export const AIAgentButton = memo(() => {
         whileTap={{ scale: 0.92 }}
         className="alex-fab-breathing"
         style={{
-          position: "fixed", right: "16px", bottom: "90px",
+          position: "fixed", right: "16px", bottom: "140px",
           width: "56px", height: "56px", borderRadius: "50%",
           border: "1px solid rgba(255,255,255,0.10)",
           /* v7 wave 3 polish: solid OLED + emerald orb inside, gentle breathing scale */
