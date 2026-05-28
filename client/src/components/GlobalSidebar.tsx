@@ -299,9 +299,10 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           -webkit-backdrop-filter:blur(22px) saturate(140%);
           border-right:none;
           border-radius:0 26px 26px 0;
-          /* Shadow applied instantly (not animated) — animating box-shadow
-             is one of the most expensive paint operations. */
-          box-shadow:36px 0 110px rgba(0,0,0,0.62);
+          /* No shadow on the closed panel — the shadow extends 36+110px to
+             the right of the panel and would leak onto the page even when
+             translated off-screen.  Shadow set instantly on .open. */
+          box-shadow:none;
           display:flex;flex-direction:column;
           overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
           transform:translate3d(-100%,0,0);
@@ -317,6 +318,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         .w4m-panel.open{
           transform:translate3d(0,0,0);
+          box-shadow:36px 0 110px rgba(0,0,0,0.62);
         }
         .w4m-panel::-webkit-scrollbar{display:none;}
         .w4m-panel{scrollbar-width:none;}
