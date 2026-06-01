@@ -73,7 +73,6 @@ const AnalyticsPage = lazyWithRetry(() => import("./pages/analytics"));
 const CoinShopPage = lazyWithRetry(() => import("./components/CoinShopPage"));
 
 import GlobalSidebar from "./components/GlobalSidebar";
-import OnboardingFlow, { useOnboarding } from "./components/OnboardingFlow";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 const AIAgentButton = lazy(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
@@ -419,7 +418,6 @@ const NonCachedRoute = memo(({
 function AppContent() {
   const [orderData, setOrderData] = useState<any>(null);
   const { hapticFeedback, user } = useTelegram();
-  const { showOnboarding, completeOnboarding } = useOnboarding();
   
   const { route } = useRouting();
   const { trackNavigation } = useNavigationTracking();
@@ -597,15 +595,6 @@ function AppContent() {
                 <OfflineIndicator />
               </Suspense>
 
-              {showOnboarding && (
-                <OnboardingFlow
-                  onNavigate={(section) => {
-                    navigate(`/${section}`);
-                    queueMicrotask(() => hapticFeedback.light());
-                  }}
-                  onComplete={completeOnboarding}
-                />
-              )}
             </LazyXPNotificationProvider>
           </LazyRewardsProvider>
         </Suspense>
