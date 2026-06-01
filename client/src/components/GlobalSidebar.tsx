@@ -257,8 +257,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       <style>{`
         /* ── hamburger ── */
         .hb-btn{
-          width:56px;height:56px;display:flex;align-items:center;justify-content:center;
-          border-radius:13px;background:rgba(255,255,255,0.06);
+          width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+          border-radius:11px;background:rgba(255,255,255,0.06);
           border:1px solid rgba(255,255,255,0.11);cursor:pointer;
           -webkit-tap-highlight-color:transparent;position:relative;
           transition:transform .24s cubic-bezier(.34,1.5,.64,1),background .2s,border-color .2s;
@@ -266,16 +266,16 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .hb-btn.hovered{background:rgba(255,255,255,0.1);}
         .hb-btn.open{background:rgba(52,211,153,0.13);border-color:rgba(52,211,153,0.32);}
         .hb-btn:active{transform:scale(.9);}
-        .hb-icon{width:17px;height:11px;position:relative;display:flex;flex-direction:column;
+        .hb-icon{width:14px;height:9px;position:relative;display:flex;flex-direction:column;
           justify-content:space-between;align-items:flex-start;}
-        .hb-line{display:block;height:1.8px;border-radius:2px;background:#fff;
+        .hb-line{display:block;height:1.6px;border-radius:2px;background:#fff;
           transition:transform .34s cubic-bezier(.68,-0.5,.27,1.5),opacity .2s,width .24s,background .2s;
           transform-origin:center;}
         .hb-line.l1{width:100%;} .hb-line.l2{width:62%;} .hb-line.l3{width:100%;}
         .hb-btn.hovered .hb-line.l2{width:100%;}
-        .hb-line.l1.open{transform:translateY(4.6px) rotate(45deg);width:100%;background:${EM_SOFT};}
+        .hb-line.l1.open{transform:translateY(3.7px) rotate(45deg);width:100%;background:${EM_SOFT};}
         .hb-line.l2.open{opacity:0;transform:scaleX(0);}
-        .hb-line.l3.open{transform:translateY(-4.6px) rotate(-45deg);width:100%;background:${EM_SOFT};}
+        .hb-line.l3.open{transform:translateY(-3.7px) rotate(-45deg);width:100%;background:${EM_SOFT};}
         html.light .hb-btn{background:rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.1);}
         html.light .hb-btn.hovered{background:rgba(0,0,0,0.08);}
         html.light .hb-line{background:#16181c;}
