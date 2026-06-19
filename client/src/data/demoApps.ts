@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'stray-store',
+    title: 'STRAY',
+    description: 'Минималистичный стритвир-магазин: одежда, обувь, аксессуары',
+    category: 'Электронная коммерция',
+    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_3F02JzQ7VwcjzsSuotlPzYO9aEk/hf_20260619_122532_b28cb4c9-8ff7-4a54-b736-b1c89f1b22b7.jpeg',
+    creator: 'WEB4TG',
+    likes: '15.1k',
+    badge: 'Новинка',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'tech-nova',
     title: 'NOVA',
     description: 'Магазин премиальной электроники: смартфоны, ноутбуки, планшеты',
