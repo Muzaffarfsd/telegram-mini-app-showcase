@@ -28,7 +28,8 @@ async function openProfile(page) {
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth),true);
       assert.match(await page.locator('.profile-page').evaluate(e=>getComputedStyle(e).fontFamily),/Google Sans App/);
       assert.equal(await page.evaluate(()=>document.fonts.check('16px "Google Sans App"')),true);
-      assert.match(await page.locator('.profile-page').evaluate(e=>getComputedStyle(e,'::before').backgroundImage),/profile-background/);
+      assert.equal(await page.locator('.profile-page').evaluate(e=>getComputedStyle(e,'::before').backgroundImage),'none');
+      assert.equal(await page.locator('.profile-page').evaluate(e=>getComputedStyle(e,'::before').backgroundColor),'rgb(255, 255, 255)');
       assert.equal(await page.locator('.profile-row-icon .profile-glyph').first().evaluate(e=>getComputedStyle(e).maskImage.includes('.svg')),true);
       const add=page.getByRole('button',{name:'Создать проект'}).first();
       const rect=await add.boundingBox(); assert.ok(rect.width>=44 && rect.height>=44);
