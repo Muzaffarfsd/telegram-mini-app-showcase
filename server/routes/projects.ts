@@ -1,13 +1,15 @@
 import { Router } from "express";
 import { z } from 'zod';
+import { verifyTelegramUser } from './shared';
 
 const router = Router();
 
 const userProjects = new Map<string, any[]>();
 
-router.get("/api/user-projects/:telegramId", (req, res) => {
+router.get("/api/user-projects/:telegramId", verifyTelegramUser, (req, res) => {
   try {
     const { telegramId } = req.params;
+    if (String(req.telegramUser?.id) !== telegramId) return res.status(403).json({ error: 'Forbidden' });
     const projects = userProjects.get(telegramId) || [];
     res.json(projects);
   } catch (error) {

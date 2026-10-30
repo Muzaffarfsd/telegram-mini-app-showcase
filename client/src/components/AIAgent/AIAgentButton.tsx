@@ -105,7 +105,7 @@ const GLASS = {
 
 
 
-export const AIAgentButton = memo(() => {
+export const AIAgentButton = memo(({ profileMode = false }: { profileMode?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -236,7 +236,6 @@ export const AIAgentButton = memo(() => {
     setHasOpened(true);
     setShowProactive(false);
     setShowMenu(false);
-    setShowPreview(false);
     dismissedPages.current.add(route.component);
     queueMicrotask(() => hapticFeedback.medium());
   }, [route.component, hapticFeedback]);
@@ -258,7 +257,6 @@ export const AIAgentButton = memo(() => {
     longPressTimer.current = setTimeout(() => {
       menuOpenedViaLongPress.current = true;
       setShowMenu(true);
-      setShowPreview(false);
       queueMicrotask(() => hapticFeedback.medium());
     }, 400);
   }, [hapticFeedback]);
@@ -375,7 +373,7 @@ export const AIAgentButton = memo(() => {
             transition={{ type: "spring", damping: 24, stiffness: 300 }}
             onClick={handleOpen}
             style={{
-              position: "fixed", right: "16px", bottom: "205px",
+              position: "fixed", right: "16px", bottom: profileMode ? undefined : "205px", top: profileMode ? "110px" : undefined,
               background: GLASS.bg,
               backdropFilter: GLASS.blur,
               WebkitBackdropFilter: GLASS.blur,
@@ -429,7 +427,7 @@ export const AIAgentButton = memo(() => {
               exit={{ opacity: 0, y: 20, scale: 0.9 }}
               transition={{ type: "spring", damping: 22, stiffness: 320, mass: 0.6 }}
               style={{
-                position: "fixed", right: "16px", bottom: "205px",
+                position: "fixed", right: "16px", bottom: profileMode ? undefined : "205px", top: profileMode ? "110px" : undefined,
                 background: GLASS.bg,
                 backdropFilter: GLASS.blur,
                 WebkitBackdropFilter: GLASS.blur,
@@ -535,7 +533,7 @@ export const AIAgentButton = memo(() => {
             transition={{ type: "spring", damping: 24, stiffness: 300 }}
             onClick={() => { dismissClipboard(); handleOpen(); }}
             style={{
-              position: "fixed", right: "78px", bottom: "150px",
+              position: "fixed", right: "78px", bottom: profileMode ? undefined : "150px", top: profileMode ? "35px" : undefined,
               background: "rgba(10,14,18,0.92)",
               backdropFilter: GLASS.blur,
               WebkitBackdropFilter: GLASS.blur,

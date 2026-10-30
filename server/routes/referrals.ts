@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "../db";
 import { users, referrals } from "../../shared/schema";
 import { desc, eq, sql } from "drizzle-orm";
-import { withTimeout, isDbTimeoutError, validationError, notFoundError, duplicateEntryError, dbTimeoutError, internalError } from "../apiUtils";
+import { isDbTimeoutError, validationError, notFoundError, duplicateEntryError, dbTimeoutError, internalError } from "../apiUtils";
 import { verifyTelegramUser, referralApplySchema, generateReferralCode, calculateTier } from "./shared";
 
 const router = Router();
@@ -34,7 +34,14 @@ router.post("/api/referrals/user/init", verifyTelegramUser, async (req: any, res
       lastName: last_name,
       referralCode: referralCode,
       referredByCode: referred_by_code || null,
-    }).returning();
+    }).onConflictDoNothing({ target: users.telegramId }).returning();
+
+    // Another request may have created the same Telegram account concurrently.
+    if (!newUser) {
+      const [createdByOtherRequest] = await db.select().from(users).where(eq(users.telegramId, telegram_id));
+      if (!createdByOtherRequest) throw new Error('User initialization failed');
+      return res.json(createdByOtherRequest);
+    }
 
     if (referred_by_code) {
       const [referrer] = await db.select().from(users).where(eq(users.referralCode, referred_by_code));
@@ -130,67 +137,43 @@ router.post("/api/referral/apply", verifyTelegramUser, async (req: any, res) => 
     const validationResult = referralApplySchema.safeParse(req.body);
     if (!validationResult.success) {
       return validationError(res, 'Validation failed', { 
-        errors: validationResult.error.errors 
+        errors: validationResult.error.issues
       });
     }
     
-    const { userId, referralCode } = req.body;
-
-    if (!userId || !referralCode) {
-      return validationError(res, 'userId and referralCode are required');
+    const userId = req.telegramUser.id as number;
+    if (validationResult.data.userId !== undefined && validationResult.data.userId !== userId) {
+      return res.status(403).json({ error: 'Пользователь не совпадает с аккаунтом Telegram' });
     }
+    const referralCode = validationResult.data.referralCode.trim().toUpperCase();
+    if (!/^[A-Z0-9]{4,50}$/.test(referralCode)) return validationError(res, 'Неверный формат кода');
 
-    const codePrefix = 'W4T';
-    if (!referralCode.startsWith(codePrefix)) {
-      return validationError(res, 'Неверный формат кода');
-    }
-
-    const encodedId = referralCode.slice(codePrefix.length);
-    const referrerTelegramId = parseInt(encodedId, 36);
-
-    if (isNaN(referrerTelegramId)) {
-      return validationError(res, 'Неверный реферальный код');
-    }
-
-    if (referrerTelegramId === userId) {
-      return validationError(res, 'Нельзя использовать свой собственный код');
-    }
-
-    const [referrer] = await withTimeout(
-      db.select().from(users).where(eq(users.telegramId, referrerTelegramId))
-    );
-    if (!referrer) {
-      return notFoundError(res, 'Пользователь с таким кодом не найден');
-    }
-
-    const [existingReferral] = await withTimeout(
-      db.select().from(referrals).where(eq(referrals.referredTelegramId, userId))
-    );
-    
-    if (existingReferral) {
-      return duplicateEntryError(res, 'Вы уже использовали реферальный код', {
-        existingReferrerId: existingReferral.referrerTelegramId,
-      });
-    }
-
-    const bonusAmount = "100";
-    await withTimeout(
-      db.insert(referrals).values({
-        referrerTelegramId: referrerTelegramId,
-        referredTelegramId: userId,
-        bonusAmount: bonusAmount,
-        status: 'pending',
-      })
-    );
-
-    await withTimeout(
-      db.update(users)
-        .set({ 
-          totalReferrals: sql`COALESCE(${users.totalReferrals}, 0) + 1`,
-          totalEarnings: sql`COALESCE(${users.totalEarnings}, 0) + 100`
-        })
-        .where(eq(users.telegramId, referrerTelegramId))
-    );
+    const outcome = await db.transaction(async (tx) => {
+      // Serializes applications for the same recipient across server processes.
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(${userId}::bigint)`);
+      const [recipient] = await tx.select({ id: users.telegramId }).from(users).where(eq(users.telegramId, userId)).limit(1);
+      if (!recipient) return { kind: 'recipient_missing' as const };
+      let [referrer] = await tx.select({ id: users.telegramId }).from(users).where(eq(users.referralCode, referralCode)).limit(1);
+      // Existing profile links used W4T + base36 Telegram ID; keep them valid.
+      if (!referrer && /^W4T[0-9A-Z]+$/.test(referralCode)) {
+        const encoded = referralCode.slice(3);
+        const id = parseInt(encoded, 36);
+        if (Number.isSafeInteger(id) && id > 0 && id.toString(36).toUpperCase() === encoded) {
+          [referrer] = await tx.select({ id: users.telegramId }).from(users).where(eq(users.telegramId, id)).limit(1);
+        }
+      }
+      if (!referrer) return { kind: 'not_found' as const };
+      if (referrer.id === userId) return { kind: 'self' as const };
+      const [existing] = await tx.select({ id: referrals.id }).from(referrals).where(eq(referrals.referredTelegramId, userId)).limit(1);
+      if (existing) return { kind: 'duplicate' as const };
+      await tx.insert(referrals).values({ referrerTelegramId: referrer.id, referredTelegramId: userId, bonusAmount: '100', status: 'pending' });
+      await tx.update(users).set({ totalReferrals: sql`COALESCE(${users.totalReferrals}, 0) + 1`, totalEarnings: sql`COALESCE(${users.totalEarnings}, 0) + 100` }).where(eq(users.telegramId, referrer.id));
+      return { kind: 'ok' as const };
+    });
+    if (outcome.kind === 'recipient_missing') return notFoundError(res, 'Аккаунт не найден. Откройте реферальную программу.');
+    if (outcome.kind === 'not_found') return notFoundError(res, 'Пользователь с таким кодом не найден');
+    if (outcome.kind === 'self') return validationError(res, 'Нельзя использовать свой собственный код');
+    if (outcome.kind === 'duplicate') return duplicateEntryError(res, 'Вы уже использовали реферальный код');
 
     res.json({ success: true, message: 'Реферальный код успешно применён!' });
   } catch (error) {

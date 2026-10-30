@@ -97,7 +97,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/csrf-token", async (req, res) => {
     const sessionId = req.headers['x-telegram-init-data'] as string || req.ip || 'anonymous';
-    const token = await generateCSRFToken(sessionId);
+    const token = await generateCSRFToken(sessionId, !!req.headers['x-telegram-init-data']);
     res.json({ csrfToken: token });
   });
 

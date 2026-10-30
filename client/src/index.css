@@ -5,15 +5,38 @@
 /* Apple Quality Standards */
 @import './styles/apple.css';
 
-/* Language-specific font families */
-:root {
-  --font-heading-ru: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body-ru: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-heading-en: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body-en: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+/* Google Sans, with the reference's 18pt optical size and variable weight. */
+@font-face {
+  font-family: 'Google Sans App';
+  src: url('/fonts/GoogleSans-Variable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0530-1C7F, U+1C90-1DFF, U+1F00-1FFF, U+2150-218F,
+    U+2200-2211, U+2213-2214, U+2216-259F, U+2600-26FF, U+27C0-FDFF,
+    U+FE10-FEFE, U+FF00-FFFC, U+10000-10FFFF;
+}
+/* Prefer the smaller Latin/Cyrillic subset; load the full face for other scripts. */
+@font-face {
+  font-family: 'Google Sans App';
+  src: url('/fonts/GoogleSans-Core.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0000-052F, U+1C80-1C8F, U+1E00-1EFF, U+2000-214F,
+    U+2190-21FF, U+2212, U+2215, U+25A0-25FF, U+2700-27BF,
+    U+FE00-FE0F, U+FEFF, U+FFFD;
 }
 
-/* Russian language - Inter for everything */
+/* Language-specific font families */
+:root {
+  --font-heading-ru: 'Google Sans App', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body-ru: 'Google Sans App', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading-en: 'Google Sans App', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body-en: 'Google Sans App', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Language-specific defaults */
 html.lang-ru {
   --font-heading: var(--font-heading-ru);
   --font-body: var(--font-body-ru);
@@ -27,7 +50,7 @@ html.lang-ru h1, html.lang-ru h2, html.lang-ru h3, html.lang-ru h4, html.lang-ru
   font-family: var(--font-heading-ru);
 }
 
-/* English language - Satoshi Premium (Best Font 2025) */
+/* English language */
 html.lang-en {
   --font-heading: var(--font-heading-en);
   --font-body: var(--font-body-en);
@@ -735,9 +758,9 @@ input, textarea {
   --tracking-wider: 0.05em;
   
   /* Typography */
-  --font-system: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
+  --font-system: 'Google Sans App', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-montserrat: 'Montserrat', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-primary: 'Inter Variable', system-ui, sans-serif;
+  --font-primary: 'Google Sans App', 'Inter', system-ui, sans-serif;
   
   /* iOS Radius */
   --radius-large: 20px;
@@ -1172,6 +1195,8 @@ html.light :root,
   body {
     @apply antialiased bg-background text-foreground;
     font-family: var(--font-system);
+    /* Keep the font's default 18pt optical design used by the reference. */
+    font-optical-sizing: none;
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;

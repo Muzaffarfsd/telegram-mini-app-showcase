@@ -73,6 +73,8 @@ const AnalyticsPage = lazyWithRetry(() => import("./pages/analytics"));
 const CoinShopPage = lazyWithRetry(() => import("./components/CoinShopPage"));
 
 import GlobalSidebar from "./components/GlobalSidebar";
+import { ProfileSkeleton } from "./components/ProfileSkeleton";
+import { ProfileGlyph } from "./components/ProfileIcons";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 const AIAgentButton = lazy(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
@@ -174,6 +176,7 @@ const NavTab = memo(({ onClick, isActive, ariaLabel, testId, label, children }: 
     }}
     onClick={onClick}
     aria-label={ariaLabel}
+    aria-current={isActive ? 'page' : undefined}
     data-testid={testId}
   >
     <div className="relative z-10 flex-shrink-0 nav-tab-icon">
@@ -225,7 +228,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
         }}
       >
         <nav 
-          className="relative flex items-center rounded-[22px] gpu-layer"
+          className={`relative flex items-center rounded-[22px] gpu-layer ${route.component === 'profile' ? 'profile-nav' : ''}`}
           style={{
             padding: '5px 6px',
             gap: '2px',
@@ -254,14 +257,14 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
             testId="nav-showcase"
             label={language === 'ru' ? 'Главная' : 'Home'}
           >
-            <Home
+            {route.component === 'profile' ? <ProfileGlyph name="home" /> : <Home
               className="w-[21px] h-[21px]"
               style={{
                 color: route.component === 'showcase' ? '#fff' : 'rgba(255,255,255,0.45)',
                 transition: 'color 0.2s ease-out',
               }}
               strokeWidth={route.component === 'showcase' ? 2 : 1.5}
-            />
+            />}
           </NavTab>
           
           <NavTab
@@ -271,14 +274,14 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
             testId="nav-ai"
             label={language === 'ru' ? 'ИИ' : 'AI'}
           >
-            <Bot
+            {route.component === 'profile' ? <ProfileGlyph name="robot" /> : <Bot
               className="w-[21px] h-[21px]"
               style={{
                 color: isAI ? '#fff' : 'rgba(255,255,255,0.45)',
                 transition: 'color 0.2s ease-out',
               }}
               strokeWidth={isAI ? 2 : 1.5}
-            />
+            />}
           </NavTab>
           
           <NavTab
@@ -288,14 +291,14 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
             testId="nav-projects"
             label={language === 'ru' ? 'Кейсы' : 'Cases'}
           >
-            <Briefcase
+            {route.component === 'profile' ? <ProfileGlyph name="briefcase" /> : <Briefcase
               className="w-[21px] h-[21px]"
               style={{
                 color: route.component === 'projects' ? '#fff' : 'rgba(255,255,255,0.45)',
                 transition: 'color 0.2s ease-out',
               }}
               strokeWidth={route.component === 'projects' ? 2 : 1.5}
-            />
+            />}
           </NavTab>
           
           <NavTab
@@ -305,14 +308,14 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
             testId="nav-constructor"
             label={language === 'ru' ? 'Заказ' : 'Order'}
           >
-            <ShoppingCart
+            {route.component === 'profile' ? <ProfileGlyph name="shoppingBag" /> : <ShoppingCart
               className="w-[21px] h-[21px]"
               style={{
                 color: route.component === 'constructor' ? '#fff' : 'rgba(255,255,255,0.45)',
                 transition: 'color 0.2s ease-out',
               }}
               strokeWidth={route.component === 'constructor' ? 2 : 1.5}
-            />
+            />}
           </NavTab>
           
           <NavTab
@@ -322,14 +325,14 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
             testId="nav-profile"
             label={language === 'ru' ? 'Профиль' : 'Profile'}
           >
-            <UserAvatar
+            {route.component === 'profile' && !user?.photo_url ? <ProfileGlyph name="userCircle" /> : <UserAvatar
               photoUrl={user?.photo_url}
               firstName={user?.first_name}
               size="sm"
               className={`w-6 h-6 ${
                 isProfile ? 'ring-[1.5px] ring-white/40' : 'opacity-45'
               }`}
-            />
+            />}
           </NavTab>
         </nav>
       </div>
@@ -416,6 +419,7 @@ const NonCachedRoute = memo(({
 });
 
 function AppContent() {
+  const { language } = useLanguage();
   const [orderData, setOrderData] = useState<any>(null);
   const { hapticFeedback, user } = useTelegram();
   
@@ -544,8 +548,8 @@ function AppContent() {
                   )}
                   {visitedTabs.has('profile') && (
                     <div style={{ display: route.component === 'profile' ? 'block' : 'none' }}>
-                      <Suspense fallback={null}>
-                        <ProfilePage onNavigate={handleNavigate} />
+                      <Suspense fallback={<ProfileSkeleton label={language === 'ru' ? 'Загрузка профиля' : 'Loading profile'} />}>
+                        <ProfilePage onNavigate={handleNavigate} active={route.component === 'profile'} />
                       </Suspense>
                     </div>
                   )}
@@ -587,7 +591,7 @@ function AppContent() {
               
               {shouldShowBottomNav && (
                 <Suspense fallback={null}>
-                  <AIAgentButton />
+                  <div className={route.component === 'profile' ? 'profile-ai-surface' : undefined}><AIAgentButton profileMode={route.component === 'profile'} /></div>
                 </Suspense>
               )}
 

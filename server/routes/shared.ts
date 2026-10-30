@@ -7,6 +7,7 @@ import {
 } from '../telegramAuth';
 import type { TelegramUserData } from '../types/api';
 import Stripe from 'stripe';
+import { createSignedCsrfToken, verifySignedCsrfToken } from '../csrfTokens';
 
 const XSS_SANITIZE_FIELDS = new Set(['text', 'comment', 'message', 'description', 'bio', 'content']);
 
@@ -46,7 +47,9 @@ export function sanitizeBodyMiddleware(req: Request, res: Response, next: NextFu
   next();
 }
 
-export async function generateCSRFToken(sessionId: string): Promise<string> {
+export async function generateCSRFToken(sessionId: string, telegramSession = false): Promise<string> {
+  const secret = process.env.CSRF_SECRET || process.env.TELEGRAM_BOT_TOKEN;
+  if (telegramSession && secret) return createSignedCsrfToken(secret, sessionId);
   const token = crypto.randomBytes(32).toString('hex');
   const key = `csrf:${sessionId}`;
   await setCache(key, token, 3600);
@@ -77,10 +80,17 @@ export function validateCSRF(req: Request, res: Response, next: NextFunction) {
   }
   
   const csrfToken = req.headers['x-csrf-token'] as string;
-  const sessionId = req.headers['x-telegram-init-data'] as string || req.ip || 'anonymous';
+  const telegramSession = req.headers['x-telegram-init-data'] as string | undefined;
+  const sessionId = telegramSession || req.ip || 'anonymous';
   
   if (!csrfToken) {
     return res.status(403).json({ error: 'Missing CSRF token' });
+  }
+
+  if (csrfToken.startsWith('v1.')) {
+    const secret = process.env.CSRF_SECRET || process.env.TELEGRAM_BOT_TOKEN;
+    if (telegramSession && secret && verifySignedCsrfToken(secret, sessionId, csrfToken)) return next();
+    return res.status(403).json({ error: 'Invalid or expired CSRF token' });
   }
   
   (async () => {

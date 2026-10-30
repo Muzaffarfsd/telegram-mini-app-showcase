@@ -41,27 +41,37 @@ class APIClientError extends Error {
 
 let csrfToken: string | null = null;
 let csrfTokenPromise: Promise<string> | null = null;
+let csrfSession: string | null = null;
+let csrfRefreshAt = 0;
 
 async function getCSRFToken(): Promise<string> {
-  if (csrfToken) return csrfToken;
+  const session = getTelegramInitData();
+  if (csrfSession !== session) {
+    csrfSession = session;
+    csrfToken = null;
+    csrfTokenPromise = null;
+    csrfRefreshAt = 0;
+  }
+  if (csrfToken && Date.now() < csrfRefreshAt) return csrfToken;
   
   if (csrfTokenPromise) return csrfTokenPromise;
   
-  csrfTokenPromise = fetch('/api/csrf-token', { credentials: 'include' })
-    .then(res => res.json())
+  const pending = fetch('/api/csrf-token', { credentials: 'include', headers: session ? { 'X-Telegram-Init-Data': session } : {} })
+    .then(res => { if (!res.ok) throw new Error('CSRF token request failed'); return res.json(); })
     .then(data => {
-      csrfToken = data.token;
-      return csrfToken!;
+      if (typeof data.token !== 'string' || !data.token) throw new Error('Invalid CSRF token response');
+      if (csrfSession === session) { csrfToken = data.token; csrfRefreshAt = Date.now() + 50 * 60 * 1000; }
+      return data.token as string;
     })
     .catch(err => {
       logger.warn('Failed to fetch CSRF token', { error: err.message });
       return '';
     })
     .finally(() => {
-      csrfTokenPromise = null;
+      if (csrfTokenPromise === pending) csrfTokenPromise = null;
     });
-  
-  return csrfTokenPromise;
+  csrfTokenPromise = pending;
+  return pending;
 }
 
 function getTelegramInitData(): string {
@@ -139,6 +149,7 @@ async function request<T>(
         logger.warn('Unauthorized request', { url });
         csrfToken = null;
       }
+      if (response.status === 403) { csrfToken = null; csrfRefreshAt = 0; }
 
       if (response.status === 429) {
         const retryAfter = response.headers.get('Retry-After');

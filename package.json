@@ -9,6 +9,9 @@
     "build:analyze": "ANALYZE=true vite build",
     "start": "NODE_ENV=production node dist/server/index.js",
     "check": "tsc",
+    "test:profile:security": "tsx --test tests/profile-security.test.ts tests/csrfTokens.test.ts",
+    "test:profile:e2e": "node tests/profile-mobile.e2e.cjs",
+    "test:profile:integration": "tsx tests/profile-referral.integration.mts",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
@@ -149,8 +152,11 @@
     "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.20",
+    "axe-core": "^4.11.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "esbuild": "^0.25.0",
+    "pg-mem": "^3.0.5",
+    "playwright": "^1.60.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.18",
     "tsx": "^4.21.0",
