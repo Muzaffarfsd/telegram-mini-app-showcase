@@ -64,7 +64,7 @@ function ProfilePage({ onNavigate, active }: Props) {
     image.onload = () => {
       const decoded = typeof image.decode === 'function' ? image.decode() : Promise.resolve();
       decoded.then(() => {
-        if (!cancelled) frame = requestAnimationFrame(() => { if (!cancelled) setIconArtReady(true); });
+        if (!cancelled) frame = requestAnimationFrame(() => { if (!cancelled) frame = requestAnimationFrame(() => { if (!cancelled) setIconArtReady(true); }); });
       }).catch(() => { if (!cancelled) setIconArtReady(false); });
     };
     image.onerror = () => setIconArtReady(false);
