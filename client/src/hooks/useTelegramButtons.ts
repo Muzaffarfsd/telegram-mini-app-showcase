@@ -110,8 +110,10 @@ export function useTelegramButtons(
       case 'constructor':
         config = {
           mainButton: {
-            text: t('telegramButtons.placeOrder'),
-            onClick: () => navigate('/checkout'),
+            text: document.querySelector('.order-page')?.getAttribute('data-order-step') === '3'
+              ? (language === 'ru' ? 'Открыть заявку' : 'Open request')
+              : (language === 'ru' ? 'Продолжить' : 'Continue'),
+            onClick: () => window.dispatchEvent(new Event('web4tg:order-continue')),
           },
         };
         break;
@@ -180,6 +182,11 @@ export function useTelegramButtons(
         break;
     }
 
+    const updateOrderLabel = (event: Event) => {
+      if (currentRoute === 'constructor') mainButton.setText((event as CustomEvent<string>).detail);
+    };
+    if (currentRoute === 'constructor') window.addEventListener('web4tg:order-label', updateOrderLabel);
+
     if (config.mainButton) {
       mainButton.show(
         config.mainButton.text,
@@ -199,6 +206,7 @@ export function useTelegramButtons(
     }
 
     cleanupRef.current = () => {
+      window.removeEventListener('web4tg:order-label', updateOrderLabel);
       mainButton.hide();
       secondaryButton.hide();
     };

@@ -55,7 +55,7 @@ const PremiumAppsPage = lazyWithRetry(() => import("./components/PremiumAppsPage
 const ProjectsPage = lazyWithRetry(() => import("./components/ProjectsPage"));
 const AboutPage = lazyWithRetry(() => import("./components/AboutPage"));
 const DemoAppLanding = lazyWithRetry(() => import("./components/DemoAppLanding"));
-const ConstructorPage = lazyWithRetry(() => import("./components/ConstructorPage"));
+const ConstructorPage = lazyWithRetry(() => import("./components/OrderExperience"));
 const ProfilePage = lazyWithRetry(() => import("./components/ProfilePage"));
 const CheckoutPage = lazyWithRetry(() => import("./components/CheckoutPage"));
 const DemoAppShell = lazyWithRetry(() => import("./components/DemoAppShell"));
@@ -74,6 +74,7 @@ const CoinShopPage = lazyWithRetry(() => import("./components/CoinShopPage"));
 
 import GlobalSidebar from "./components/GlobalSidebar";
 import { ProfileSkeleton } from "./components/ProfileSkeleton";
+import { OrderSkeleton } from "./components/OrderSkeleton";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 const AIAgentButton = lazy(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
@@ -92,7 +93,7 @@ const prefetchAllRoutes = () => {
   const critical = [
     () => import("./components/ShowcasePage"),
     () => import("./components/ProjectsPage"),
-    () => import("./components/ConstructorPage"),
+    () => import("./components/OrderExperience"),
     () => import("./components/ProfilePage"),
     () => import("./components/AIProcessPage"),
   ];
@@ -227,7 +228,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
         }}
       >
         <nav 
-          className={`relative flex items-center rounded-[22px] gpu-layer ${route.component === 'profile' ? 'profile-nav' : ''}`}
+          className={`relative flex items-center rounded-[22px] gpu-layer ${route.component === 'profile' ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : ''}`}
           style={{
             padding: '5px 6px',
             gap: '2px',
@@ -516,7 +517,7 @@ function AppContent() {
                   </ErrorBoundary>
                 )}
                 
-                <div className="pb-36" data-scroll="main">
+                <div className="pb-36" data-scroll="main" style={route.component === 'constructor' ? { backgroundColor: '#fff' } : undefined}>
                   {visitedTabs.has('showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={null}>
@@ -540,7 +541,7 @@ function AppContent() {
                   )}
                   {visitedTabs.has('constructor') && (
                     <div style={{ display: route.component === 'constructor' ? 'block' : 'none' }}>
-                      <Suspense fallback={null}>
+                      <Suspense fallback={<OrderSkeleton label={language === 'ru' ? 'Загрузка страницы заказа' : 'Loading order page'} />}>
                         <ConstructorPage onNavigate={handleNavigate} />
                       </Suspense>
                     </div>
@@ -590,7 +591,7 @@ function AppContent() {
               
               {shouldShowBottomNav && (
                 <Suspense fallback={null}>
-                  <div className={route.component === 'profile' ? 'profile-ai-surface' : undefined}><AIAgentButton profileMode={route.component === 'profile'} /></div>
+                  <div className={route.component === 'profile' ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : undefined}><AIAgentButton profileMode={route.component === 'profile' || route.component === 'constructor'} /></div>
                 </Suspense>
               )}
 
