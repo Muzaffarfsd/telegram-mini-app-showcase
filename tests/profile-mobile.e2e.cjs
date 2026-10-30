@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 
 const siteUrl = process.env.PROFILE_TEST_URL || 'http://127.0.0.1:5000/';
 async function setup(browser, width, withUser = false, firstName = 'Мария') {
-  const context = await browser.newContext({ viewport:{width,height:844}, isMobile:true, hasTouch:true, deviceScaleFactor:2, locale:'ru-RU', reducedMotion:'reduce' });
+  const context = await browser.newContext({ viewport:{width,height:844}, isMobile:true, hasTouch:true, deviceScaleFactor:2, locale:'ru-RU', reducedMotion:'reduce', serviceWorkers:'block' });
   await context.addInitScript(({withUser,firstName}) => { localStorage.setItem('app-language','ru'); if (withUser) sessionStorage.setItem('__telegram__initParams',JSON.stringify({tgWebAppData:'user='+encodeURIComponent(JSON.stringify({id:12345,first_name:firstName,last_name:'Иванова',username:'maria',language_code:'ru'})),tgWebAppVersion:'9.0',tgWebAppPlatform:'ios'})); }, {withUser,firstName});
   await context.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({contentType:'text/javascript',body:''}));
   const page = await context.newPage();
@@ -28,9 +28,8 @@ async function openProfile(page) {
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth),true);
       assert.match(await page.locator('.profile-page').evaluate(e=>getComputedStyle(e).fontFamily),/Google Sans App/);
       assert.equal(await page.evaluate(()=>document.fonts.check('16px "Google Sans App"')),true);
-      assert.equal(await page.locator('.profile-page').evaluate(e=>getComputedStyle(e,'::before').backgroundImage),'none');
-      assert.equal(await page.locator('.profile-page').evaluate(e=>getComputedStyle(e,'::before').backgroundColor),'rgb(255, 255, 255)');
-      assert.equal(await page.locator('.profile-row-icon .profile-glyph').first().evaluate(e=>getComputedStyle(e).maskImage.includes('.svg')),true);
+      assert.match(await page.locator('.profile-page').evaluate(e=>getComputedStyle(e,'::before').backgroundImage),/profile-background/);
+      assert.equal(await page.locator('.profile-row-icon svg.profile-glyph path').first().count(),1);
       const add=page.getByRole('button',{name:'Создать проект'}).first();
       const rect=await add.boundingBox(); assert.ok(rect.width>=44 && rect.height>=44);
       if(width===390 && process.env.PROFILE_SCREENSHOT) await page.screenshot({path:process.env.PROFILE_SCREENSHOT});
