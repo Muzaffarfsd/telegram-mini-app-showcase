@@ -120,6 +120,17 @@ async function openProfile(page) {
     assert.equal(await iconCase.page.locator('.profile-empty-icon .profile-glyph').evaluate(e=>getComputedStyle(e).visibility),'visible');
     await iconCase.context.close();
     console.log('offline artwork: vector icons stay visible');
+    const loadingIconCase=await setup(browser,390);
+    let releaseIcon;
+    const iconGate=new Promise(resolve=>{releaseIcon=resolve;});
+    await loadingIconCase.page.route('**/profile-icons-selected.webp*', async route=>{await iconGate;await route.continue();});
+    await openProfile(loadingIconCase.page);
+    const fallbackIcon=loadingIconCase.page.locator('.profile-empty-icon .profile-glyph');
+    assert.equal(await fallbackIcon.evaluate(e=>getComputedStyle(e).visibility),'visible');
+    releaseIcon();
+    await loadingIconCase.page.locator('.has-icon-art .profile-empty-icon').waitFor({timeout:10000});
+    await loadingIconCase.context.close();
+    console.log('slow artwork: vector icon remains visible until the image is ready');
     const longCase=await setup(browser,320,true,'Александра'.repeat(6));
     await longCase.page.route('**/api/user-projects/12345',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([{id:1,name:'Оченьдлинноеназваниепроекта'.repeat(5),status:'В разработке',progress:40}])}));
     await longCase.page.route('**/api/referrals/stats/12345',route=>route.fulfill({contentType:'application/json',body:'{"referralCode":"WEB4TGSELF"}'}));

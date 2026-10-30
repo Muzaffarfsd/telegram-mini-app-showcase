@@ -42,6 +42,8 @@ async function assertDrawnIcon(locator, label) {
       assert.match(await header.evaluate(e => getComputedStyle(e).backdropFilter), /blur/, 'profile header should be glass');
       assert.equal(await header.innerText(), 'WEB4TG');
       assert.match(await header.locator('span').filter({hasText:'WEB4TG'}).evaluate(e => getComputedStyle(e).fontFamily), /Syne/);
+      const logoOffset = await header.locator('span').filter({hasText:'WEB4TG'}).evaluate(e => { const r=e.getBoundingClientRect(); return Math.abs(r.left+r.width/2-innerWidth/2); });
+      assert.ok(logoOffset < 1, `header logo is not centered: offset ${logoOffset}px`);
       const navFilters = await nav.evaluate(e => [getComputedStyle(e).backdropFilter, getComputedStyle(e.firstElementChild).backdropFilter]);
       assert.ok(navFilters.some(filter => /blur/.test(filter)), 'navigation should be glass, including in low-performance mode');
       assert.match(await nav.evaluate(e => getComputedStyle(e).backgroundColor), /rgba\(255, 255, 255, 0\./, 'navigation should remain translucent');

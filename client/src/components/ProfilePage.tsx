@@ -59,10 +59,17 @@ function ProfilePage({ onNavigate, active }: Props) {
 
   useEffect(() => {
     const image = new Image();
-    image.onload = () => setIconArtReady(true);
+    let cancelled = false;
+    let frame = 0;
+    image.onload = () => {
+      const decoded = typeof image.decode === 'function' ? image.decode() : Promise.resolve();
+      decoded.then(() => {
+        if (!cancelled) frame = requestAnimationFrame(() => { if (!cancelled) setIconArtReady(true); });
+      }).catch(() => { if (!cancelled) setIconArtReady(false); });
+    };
     image.onerror = () => setIconArtReady(false);
     image.src = `${import.meta.env.BASE_URL}profile-icons-selected.webp`;
-    return () => { image.onload = null; image.onerror = null; };
+    return () => { cancelled = true; if (frame) cancelAnimationFrame(frame); image.onload = null; image.onerror = null; };
   }, []);
 
   useEffect(() => {

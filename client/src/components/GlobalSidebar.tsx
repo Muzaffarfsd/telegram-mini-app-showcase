@@ -524,7 +524,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               testId="button-hamburger"
             />
           </div>
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="profile-brand absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <span style={{
               fontFamily: '"Syne", system-ui, sans-serif', fontSize: '14px', fontWeight: 800, letterSpacing: '-0.03em',
               color: currentRoute === 'profile' ? '#2b2b30' : isDark ? 'rgba(255,255,255,0.7)' : '#000000',
