@@ -74,7 +74,6 @@ const CoinShopPage = lazyWithRetry(() => import("./components/CoinShopPage"));
 
 import GlobalSidebar from "./components/GlobalSidebar";
 import { ProfileSkeleton } from "./components/ProfileSkeleton";
-import { ProfileGlyph } from "./components/ProfileIcons";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 const AIAgentButton = lazy(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
@@ -257,14 +256,14 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
             testId="nav-showcase"
             label={language === 'ru' ? 'Главная' : 'Home'}
           >
-            {route.component === 'profile' ? <ProfileGlyph name="home" /> : <Home
+            <Home
               className="w-[21px] h-[21px]"
               style={{
                 color: route.component === 'showcase' ? '#fff' : 'rgba(255,255,255,0.45)',
                 transition: 'color 0.2s ease-out',
               }}
               strokeWidth={route.component === 'showcase' ? 2 : 1.5}
-            />}
+            />
           </NavTab>
           
           <NavTab
@@ -274,14 +273,14 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
             testId="nav-ai"
             label={language === 'ru' ? 'ИИ' : 'AI'}
           >
-            {route.component === 'profile' ? <ProfileGlyph name="robot" /> : <Bot
+            <Bot
               className="w-[21px] h-[21px]"
               style={{
                 color: isAI ? '#fff' : 'rgba(255,255,255,0.45)',
                 transition: 'color 0.2s ease-out',
               }}
               strokeWidth={isAI ? 2 : 1.5}
-            />}
+            />
           </NavTab>
           
           <NavTab
@@ -291,14 +290,14 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
             testId="nav-projects"
             label={language === 'ru' ? 'Кейсы' : 'Cases'}
           >
-            {route.component === 'profile' ? <ProfileGlyph name="briefcase" /> : <Briefcase
+            <Briefcase
               className="w-[21px] h-[21px]"
               style={{
                 color: route.component === 'projects' ? '#fff' : 'rgba(255,255,255,0.45)',
                 transition: 'color 0.2s ease-out',
               }}
               strokeWidth={route.component === 'projects' ? 2 : 1.5}
-            />}
+            />
           </NavTab>
           
           <NavTab
@@ -308,14 +307,14 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
             testId="nav-constructor"
             label={language === 'ru' ? 'Заказ' : 'Order'}
           >
-            {route.component === 'profile' ? <ProfileGlyph name="shoppingBag" /> : <ShoppingCart
+            <ShoppingCart
               className="w-[21px] h-[21px]"
               style={{
                 color: route.component === 'constructor' ? '#fff' : 'rgba(255,255,255,0.45)',
                 transition: 'color 0.2s ease-out',
               }}
               strokeWidth={route.component === 'constructor' ? 2 : 1.5}
-            />}
+            />
           </NavTab>
           
           <NavTab
@@ -325,14 +324,14 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
             testId="nav-profile"
             label={language === 'ru' ? 'Профиль' : 'Profile'}
           >
-            {route.component === 'profile' && !user?.photo_url ? <ProfileGlyph name="userCircle" /> : <UserAvatar
+            <UserAvatar
               photoUrl={user?.photo_url}
               firstName={user?.first_name}
               size="sm"
               className={`w-6 h-6 ${
                 isProfile ? 'ring-[1.5px] ring-white/40' : 'opacity-45'
               }`}
-            />}
+            />
           </NavTab>
         </nav>
       </div>

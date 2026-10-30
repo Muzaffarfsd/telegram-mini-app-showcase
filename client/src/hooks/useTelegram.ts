@@ -392,7 +392,7 @@ export function useTelegram() {
 
   // MainButton methods
   const mainButton = {
-    show: (text: string, onClick: () => void, color?: string) => {
+    show: (text: string, onClick: () => void, color?: string, textColor?: string) => {
       if (webApp?.MainButton) {
         // CRITICAL: Remove old handler before adding new one
         if (mainButtonHandlerRef.current) {
@@ -400,8 +400,8 @@ export function useTelegram() {
         }
         
         webApp.MainButton.setText(text);
-        if (color) {
-          webApp.MainButton.setParams({ color });
+        if (color || textColor) {
+          webApp.MainButton.setParams({ ...(color ? { color } : {}), ...(textColor ? { text_color: textColor } : {}) });
         }
         
         // Store and set new handler
@@ -442,7 +442,7 @@ export function useTelegram() {
 
   // SecondaryButton methods
   const secondaryButton = {
-    show: (text: string, onClick: () => void, color?: string) => {
+    show: (text: string, onClick: () => void, color?: string, textColor?: string) => {
       if (webApp?.SecondaryButton) {
         // CRITICAL: Remove old handler before adding new one
         if (secondaryButtonHandlerRef.current) {
@@ -450,8 +450,8 @@ export function useTelegram() {
         }
         
         webApp.SecondaryButton.setText(text);
-        if (color) {
-          webApp.SecondaryButton.setParams({ color });
+        if (color || textColor) {
+          webApp.SecondaryButton.setParams({ ...(color ? { color } : {}), ...(textColor ? { text_color: textColor } : {}) });
         }
         
         // Store and set new handler

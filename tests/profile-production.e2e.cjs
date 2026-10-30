@@ -5,16 +5,16 @@ const assert = require('node:assert/strict');
 const site = process.env.PROFILE_TEST_URL || 'http://127.0.0.1:5175/';
 async function assertDrawnIcon(locator, label) {
   assert.equal(await locator.count(), 1, `${label}: missing SVG`);
-  assert.equal(await locator.locator('path').count(), 1, `${label}: missing path`);
+  assert.ok(await locator.locator('path, circle, rect, line, polyline, polygon').count() > 0, `${label}: missing icon geometry`);
   const image = await locator.screenshot();
   const { data, info } = await sharp(image).removeAlpha().raw().toBuffer({ resolveWithObject: true });
-  let dark = 0, light = 0;
+  let minimum = 255, maximum = 0;
   for (let i = 0; i < data.length; i += info.channels) {
     const average = (data[i] + data[i + 1] + data[i + 2]) / 3;
-    if (average < 155) dark++;
-    if (average > 205) light++;
+    minimum = Math.min(minimum, average);
+    maximum = Math.max(maximum, average);
   }
-  assert.ok(dark > 5 && light > 5, `${label}: expected a drawn shape on a light background; got dark=${dark}, light=${light}`);
+  assert.ok(maximum - minimum > 30, `${label}: icon does not contrast with its background`);
 }
 
 (async () => {
@@ -31,25 +31,24 @@ async function assertDrawnIcon(locator, label) {
       await page.getByTestId('nav-profile').tap({ timeout: 30000 });
       await page.getByTestId('profile-page').waitFor({ timeout: 20000 });
       await page.waitForFunction(() => document.documentElement.classList.contains('low-performance'));
-      const background = await page.locator('.profile-page').evaluate(e => getComputedStyle(e, '::before').backgroundImage);
-      assert.match(background, /profile-background.*\.webp/i, 'chosen background must remain in low-performance mode');
-      const bgUrl = background.match(/url\(["']?(.*?)["']?\)/)?.[1];
-      assert.ok(bgUrl, 'background URL missing');
-      const bgResponse = await page.request.get(bgUrl);
-      assert.equal(bgResponse.ok(), true);
-      assert.match(bgResponse.headers()['content-type'] || '', /image\/webp/);
+      const background = await page.locator('.profile-page').evaluate(e => ({ color: getComputedStyle(e).backgroundColor, image: getComputedStyle(e, '::before').backgroundImage }));
+      assert.deepEqual(background, { color: 'rgb(255, 255, 255)', image: 'none' }, 'profile background should stay white');
       const overlayOpacity = await page.locator('.w4m-overlay').evaluate(e => getComputedStyle(e).opacity);
       assert.equal(overlayOpacity, '0', 'closed menu should not dim page');
       const nav = page.locator('.profile-nav');
       const navShadow = await nav.evaluate(e => getComputedStyle(e).boxShadow);
       assert.ok(!navShadow.includes('0.4)'), `mobile dark shadow overrode profile design: ${navShadow}`);
-      const header = await page.locator('.profile-topbar').evaluate(e => getComputedStyle(e).backdropFilter);
-      assert.equal(header, 'none', 'header should not apply a blur or saturation filter');
-      assert.equal(await page.locator('.profile-topbar').evaluate(e => getComputedStyle(e).backgroundColor), 'rgb(255, 255, 255)', 'header should not wash out text behind it');
+      const header = page.locator('.profile-topbar');
+      assert.match(await header.evaluate(e => getComputedStyle(e).backdropFilter), /blur/, 'profile header should be glass');
+      assert.equal(await header.innerText(), 'WEB4TG');
+      assert.match(await header.locator('span').filter({hasText:'WEB4TG'}).evaluate(e => getComputedStyle(e).fontFamily), /Syne/);
+      const navFilters = await nav.evaluate(e => [getComputedStyle(e).backdropFilter, getComputedStyle(e.firstElementChild).backdropFilter]);
+      assert.ok(navFilters.some(filter => /blur/.test(filter)), 'navigation should be glass, including in low-performance mode');
+      assert.match(await nav.evaluate(e => getComputedStyle(e).backgroundColor), /rgba\(255, 255, 255, 0\./, 'navigation should remain translucent');
       assert.equal(await page.locator('.profile-page').evaluate(e => getComputedStyle(e).opacity), '1', 'profile content should not be faded');
       assert.equal(await page.locator('.profile-page').evaluate(e => getComputedStyle(e).filter), 'none', 'profile colors should not be filtered');
       for (const id of ['nav-showcase', 'nav-ai', 'nav-projects', 'nav-constructor']) {
-        await assertDrawnIcon(page.getByTestId(id).locator('svg.profile-glyph'), `${width}px ${id}`);
+        await assertDrawnIcon(page.getByTestId(id).locator('svg.lucide'), `${width}px ${id}`);
       }
       const coloredIcon = page.locator('.has-icon-art .profile-empty-icon.profile-icon-folder');
       await coloredIcon.waitFor({ timeout: 10000 });
@@ -64,7 +63,7 @@ async function assertDrawnIcon(locator, label) {
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
       if (width === 390 && process.env.PROFILE_SCREENSHOT) await page.screenshot({ path: process.env.PROFILE_SCREENSHOT });
       assert.deepEqual(errors, []);
-      console.log(`${width}px production: background, overlay, navigation and rendered icon pixels passed`);
+      console.log(`${width}px production: white profile, glass header and navigation, rendered icon pixels passed`);
       await context.close();
     }
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2, locale: 'ru-RU', reducedMotion: 'reduce', serviceWorkers: 'block' });

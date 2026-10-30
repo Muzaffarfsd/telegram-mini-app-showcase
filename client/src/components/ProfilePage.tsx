@@ -39,7 +39,7 @@ function ProfilePage({ onNavigate, active }: Props) {
   const ru = language === 'ru';
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(!!user?.id);
-  const [projectsError, setProjectsError] = useState(false);
+  const [projectsError, setProjectsError] = useState<'auth' | 'unavailable' | null>(null);
   const [projectsReload, setProjectsReload] = useState(0);
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [referralLoading, setReferralLoading] = useState(false);
@@ -67,16 +67,16 @@ function ProfilePage({ onNavigate, active }: Props) {
 
   useEffect(() => {
     if (!active) return;
-    if (!user?.id) { setLoading(false); setProjects([]); setProjectsError(false); return; }
-    if (!initData) { setLoading(false); setProjects([]); setProjectsError(true); return; }
+    if (!user?.id) { setLoading(false); setProjects([]); setProjectsError(null); return; }
+    if (!initData) { setLoading(false); setProjects([]); setProjectsError('auth'); return; }
     const controller = new AbortController();
     let timedOut = false;
     const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, 15000);
-    setLoading(true); setProjectsError(false);
+    setLoading(true); setProjectsError(null);
     fetch(`/api/user-projects/${user.id}`, { headers: { 'x-telegram-init-data': initData }, signal: controller.signal })
-      .then(response => { if (!response.ok) throw new Error('Projects unavailable'); return response.json(); })
+      .then(response => { if (response.status === 401 || response.status === 403) throw new Error('telegram-auth'); if (!response.ok) throw new Error('Projects unavailable'); return response.json(); })
       .then(data => { if (!Array.isArray(data)) throw new Error('Invalid projects response'); setProjects(data); })
-      .catch(error => { if (timedOut || error.name !== 'AbortError') { setProjects([]); setProjectsError(true); } })
+      .catch(error => { if (timedOut || error.name !== 'AbortError') { setProjects([]); setProjectsError(error.message === 'telegram-auth' ? 'auth' : 'unavailable'); } })
       .finally(() => { clearTimeout(timeout); if (!controller.signal.aborted || timedOut) setLoading(false); });
     return () => { clearTimeout(timeout); controller.abort(); };
   }, [active, user?.id, initData, projectsReload]);
@@ -163,13 +163,13 @@ function ProfilePage({ onNavigate, active }: Props) {
 
       <section className="profile-identity" aria-label={ru ? 'Ваш профиль' : 'Your profile'}>
         <div className="profile-avatar" data-testid="user-avatar">{user?.photo_url && !photoFailed ? <img src={user.photo_url} alt="" onError={() => setPhotoFailed(true)} /> : user ? <span>{initials}</span> : <ProfileGlyph name="user" />}</div>
-        <div className="profile-identity-copy"><h2 data-testid="user-name">{name}</h2><p data-testid="user-username">{user?.username ? `@${user.username}` : (user ? t('profilePage.activeInTelegram') : (ru ? 'Откройте приложение в Telegram' : 'Open the app in Telegram'))}</p><span className={`profile-status${user && isAvailable ? '' : ' profile-status-guest'}`}><span />{user && isAvailable ? (ru ? 'Telegram подключён' : 'Telegram connected') : (ru ? 'Гостевой режим' : 'Guest mode')}</span></div>
+        <div className="profile-identity-copy"><h2 data-testid="user-name">{name}</h2><p data-testid="user-username">{user?.username ? `@${user.username}` : (user ? t('profilePage.activeInTelegram') : (ru ? 'Откройте приложение в Telegram' : 'Open the app in Telegram'))}</p>{(!user || !isAvailable) && <span className="profile-status profile-status-guest"><span />{ru ? 'Гостевой режим' : 'Guest mode'}</span>}</div>
       </section>
 
       <section className="profile-section" aria-labelledby="profile-projects-title">
         <div className="profile-section-heading"><h2 id="profile-projects-title">{t('profilePage.myProjects')}</h2>{projects.length > 0 && <button className="profile-icon-button" type="button" onClick={() => onNavigate('constructor')} aria-label={t('profilePage.createNewProject')}><Plus size={20} /></button>}</div>
         <div className="profile-project-card">
-          {loading ? <ProfileProjectsSkeleton label={t('profilePage.loadingProjects')} /> : projectsError ? <div className="profile-project-error"><p role="alert">{ru ? 'Не удалось загрузить проекты.' : 'Could not load projects.'}</p><button type="button" className="profile-text-button" onClick={() => setProjectsReload(n => n + 1)}>{ru ? 'Попробовать снова' : 'Try again'}</button></div> : projects.length ? <><div className="profile-stats"><div><strong>{projects.length}</strong><span>{t('profilePage.projects')}</span></div><div><strong>{completed}</strong><span>{t('profilePage.completedCount')}</span></div><div><strong>{projects.length - completed}</strong><span>{t('profilePage.inWork')}</span></div></div><div className="profile-project-list">{projects.map(project => <ProjectRow key={project.id} project={project} ru={ru}/>)}</div></> : <div className="profile-empty"><span className="profile-empty-icon profile-icon-folder"><ProfileGlyph name="folder" /></span><div><h3>{ru ? 'Ваши проекты' : 'Your projects'}</h3><p>{ru ? 'Здесь появятся ваши приложения' : 'Your apps will appear here'}</p></div><button className="profile-text-button" type="button" onClick={() => onNavigate('constructor')}>{t('profilePage.createNewProject')} <ArrowUpRight size={15} /></button></div>}
+          {loading ? <ProfileProjectsSkeleton label={t('profilePage.loadingProjects')} /> : projectsError ? <div className="profile-empty profile-project-error"><span className="profile-empty-icon profile-icon-folder"><ProfileGlyph name="folder" /></span><div><h3>{ru ? 'Ваши проекты' : 'Your projects'}</h3><p role="alert">{projectsError === 'auth' ? (ru ? 'Не удалось подтвердить вход в Telegram. Закройте и снова откройте приложение.' : 'Could not verify your Telegram session. Close and reopen the app.') : (ru ? 'Не удалось загрузить проекты.' : 'Could not load projects.')}</p></div><button type="button" className="profile-text-button" onClick={() => setProjectsReload(n => n + 1)}>{ru ? 'Попробовать снова' : 'Try again'}</button></div> : projects.length ? <><div className="profile-stats"><div><strong>{projects.length}</strong><span>{t('profilePage.projects')}</span></div><div><strong>{completed}</strong><span>{t('profilePage.completedCount')}</span></div><div><strong>{projects.length - completed}</strong><span>{t('profilePage.inWork')}</span></div></div><div className="profile-project-list">{projects.map(project => <ProjectRow key={project.id} project={project} ru={ru}/>)}</div></> : <div className="profile-empty"><span className="profile-empty-icon profile-icon-folder"><ProfileGlyph name="folder" /></span><div><h3>{ru ? 'Ваши проекты' : 'Your projects'}</h3><p>{ru ? 'Здесь появятся ваши приложения' : 'Your apps will appear here'}</p></div><button className="profile-text-button" type="button" onClick={() => onNavigate('constructor')}>{t('profilePage.createNewProject')} <ArrowUpRight size={15} /></button></div>}
         </div>
       </section>
 

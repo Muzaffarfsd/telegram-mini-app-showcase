@@ -12,7 +12,7 @@ interface GlobalSidebarProps {
 }
 
 /* ====================================================================
-   WEB4TG — global menu · Apple-grade minimal drawer · OLED black · 2026
+   WEB4TG — global menu · light glass drawer
    ==================================================================== */
 
 const FONT = '"Google Sans App", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
@@ -283,7 +283,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
         /* ── overlay + panel ── */
         .w4m-overlay{
-          position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,0.42);
+          position:fixed;inset:0;z-index:100000;background:rgba(30,32,38,0.19);
           opacity:0;pointer-events:none;
           transition:opacity .24s cubic-bezier(0.22,1,0.36,1);
           touch-action:none;
@@ -292,13 +292,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .w4m-panel{
           position:fixed;top:0;left:0;height:100%;z-index:100001;
           width:min(372px,calc(100vw - 38px));
-          /* Frosted glass — same look, lighter blur (22px ≈ visually identical
-             to 28px, ~30% cheaper to composite per frame). */
-          background:rgba(14,15,18,0.80);
-          backdrop-filter:blur(22px) saturate(140%);
-          -webkit-backdrop-filter:blur(22px) saturate(140%);
-          border-right:none;
+          background:rgba(250,250,252,0.86);
+          backdrop-filter:blur(22px) saturate(130%);
+          -webkit-backdrop-filter:blur(22px) saturate(130%);
+          border-right:1px solid rgba(255,255,255,0.75);
           border-radius:0 26px 26px 0;
+          color:#252529;font-family:${FONT};
           /* No shadow on the closed panel — the shadow extends 36+110px to
              the right of the panel and would leak onto the page even when
              translated off-screen.  Shadow set instantly on .open. */
@@ -318,42 +317,49 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         .w4m-panel.open{
           transform:translate3d(0,0,0);
-          box-shadow:36px 0 110px rgba(0,0,0,0.62);
+          box-shadow:18px 0 55px rgba(34,37,46,0.16);
         }
         .w4m-panel::-webkit-scrollbar{display:none;}
         .w4m-panel{scrollbar-width:none;}
+        .w4m-panel,.w4m-panel button,.w4m-panel span,.w4m-panel a{font-family:${FONT}!important;font-optical-sizing:none;}
+        .w4m-panel [data-testid="button-nav-profile"] > div{background-color:rgba(70,72,80,0.06);}
+        .w4m-panel [data-testid="button-nav-profile"] > div svg{color:#6f7178;}
 
         /* ── nav row ── */
         .w4m-row{
           display:flex;align-items:center;width:100%;
           padding:17px 4px;background:transparent;border:none;cursor:pointer;
-          border-top:1px solid rgba(255,255,255,0.07);
+          border-top:1px solid rgba(40,40,48,0.09);
           text-align:left;-webkit-tap-highlight-color:transparent;
           opacity:0;transform:translateX(-10px);
           transition:opacity .5s ease,transform .5s cubic-bezier(.22,1,.36,1),background-color .18s ease;
         }
         .w4m-panel.open .w4m-row{opacity:1;transform:translateX(0);}
-        .w4m-row:active{background-color:rgba(255,255,255,0.045);}
+        .w4m-row:active{background-color:rgba(40,40,48,0.04);}
 
         /* ── controls ── */
         .w4m-tap{transition:transform .16s cubic-bezier(.22,1,.36,1),background-color .18s ease;-webkit-tap-highlight-color:transparent;}
         .w4m-tap:active{transform:scale(.97);}
         .w4m-cta{
           display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;
-          border-radius:999px;background:${EM};border:none;cursor:pointer;
+          border-radius:999px;background:rgba(255,255,255,0.66);border:1px solid rgba(255,255,255,0.9);cursor:pointer;
+          box-shadow:0 3px 14px rgba(45,48,57,0.06),inset 0 1px 0 rgba(255,255,255,0.9);
           transition:transform .18s cubic-bezier(.22,1,.36,1);-webkit-tap-highlight-color:transparent;
         }
         .w4m-cta:active{transform:scale(.975);}
         .w4m-soc{
           width:44px;height:44px;display:flex;align-items:center;justify-content:center;
-          border-radius:14px;background:rgba(255,255,255,0.07);
-          border:1px solid rgba(255,255,255,0.12);cursor:pointer;
+          border-radius:14px;background:rgba(255,255,255,0.55);
+          border:1px solid rgba(255,255,255,0.9);cursor:pointer;
           transition:transform .2s cubic-bezier(.34,1.5,.64,1),background-color .18s ease;
           -webkit-tap-highlight-color:transparent;
         }
         .w4m-soc:active{transform:scale(.92);}
         .w4m-row:focus-visible,.w4m-tap:focus-visible,.w4m-cta:focus-visible,
         .w4m-soc:focus-visible,.hb-btn:focus-visible{outline:2px solid ${EM};outline-offset:3px;}
+        .w4m-panel .hb-btn.open{background:rgba(255,255,255,0.62);border-color:rgba(255,255,255,0.9);border-radius:50%;}
+        .w4m-panel .hb-line.l1.open,.w4m-panel .hb-line.l3.open{background:#34343a;}
+        @media (prefers-reduced-transparency:reduce){.w4m-panel{background:#fafafc;backdrop-filter:none;-webkit-backdrop-filter:none;}}
 
         /* ── top bar ── */
         .w4-topbar{
@@ -418,45 +424,45 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             data-testid="button-nav-profile"
             style={{
               width: '100%', gap: 13, marginTop: 8, padding: '14px 4px',
-              borderBottom: '1px solid rgba(255,255,255,0.07)', background: 'transparent',
+              borderBottom: '1px solid rgba(40,40,48,0.09)', background: 'transparent',
               border: 'none', borderBottomWidth: 1, borderBottomStyle: 'solid',
-              borderBottomColor: 'rgba(255,255,255,0.07)', textAlign: 'left', cursor: 'pointer',
+              borderBottomColor: 'rgba(40,40,48,0.09)', textAlign: 'left', cursor: 'pointer',
             }}
           >
             <UserAvatar photoUrl={user?.photo_url} firstName={user?.first_name} size="md" />
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{
-                display: 'block', fontFamily: FONT, fontSize: '1rem', fontWeight: 600, color: '#fff',
+                display: 'block', fontFamily: FONT, fontSize: '1rem', fontWeight: 600, color: '#252529',
                 letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               }}>{user?.first_name || t('sidebar.guest')}</span>
-              <span style={{ display: 'block', fontFamily: FONT, fontSize: '0.8rem', fontWeight: 500, color: 'rgba(255,255,255,0.62)', marginTop: 2 }}>
+              <span style={{ display: 'block', fontFamily: FONT, fontSize: '0.8rem', fontWeight: 500, color: '#6b6c73', marginTop: 2 }}>
                 {t('sidebar.myProfile')}
               </span>
             </span>
-            <ChevronRight size={17} color={isProfileActive ? EM : 'rgba(255,255,255,0.32)'} />
+            <ChevronRight size={17} color={isProfileActive ? '#34343a' : '#92939a'} />
           </button>
 
           {/* project status */}
           <div style={{ marginTop: 24 }}>
-            <div style={{ fontFamily: FONT, fontSize: '0.6875rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>
+            <div style={{ fontFamily: FONT, fontSize: '0.6875rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#74757d' }}>
               {t('sidebar.projectStatus')}
             </div>
             <div className="flex items-baseline justify-between" style={{ marginTop: 11 }}>
-              <span style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
+              <span style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 600, color: '#252529', letterSpacing: '-0.01em' }}>
                 {stages[activeStage - 1]}
               </span>
-              <span style={{ fontFamily: FONT, fontSize: '0.8rem', fontWeight: 500, color: 'rgba(255,255,255,0.62)', fontVariantNumeric: 'tabular-nums' }}>
+              <span style={{ fontFamily: FONT, fontSize: '0.8rem', fontWeight: 500, color: '#6b6c73', fontVariantNumeric: 'tabular-nums' }}>
                 {language === 'ru' ? `Этап ${activeStage} из 4` : `Step ${activeStage} of 4`}
               </span>
             </div>
-            <div style={{ marginTop: 10, height: 3, borderRadius: 999, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${(activeStage / 4) * 100}%`, background: EM, borderRadius: 999 }} />
+            <div style={{ marginTop: 10, height: 3, borderRadius: 999, background: 'rgba(40,40,48,0.1)', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${(activeStage / 4) * 100}%`, background: '#5b5d64', borderRadius: 999 }} />
             </div>
           </div>
 
           {/* navigation */}
           <div style={{ marginTop: 28 }}>
-            <div style={{ fontFamily: FONT, fontSize: '0.6875rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>
+            <div style={{ fontFamily: FONT, fontSize: '0.6875rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#74757d', marginBottom: 4 }}>
               {t('sidebar.navigation')}
             </div>
             <div>
@@ -473,13 +479,13 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                     <span style={{
                       flex: 1, minWidth: 0, fontFamily: FONT, fontSize: '1.0625rem',
                       fontWeight: active ? 600 : 500, letterSpacing: '-0.015em',
-                      color: active ? EM : 'rgba(255,255,255,0.9)',
+                      color: active ? '#18181b' : '#404047',
                     }}>{item.label}</span>
-                    <ChevronRight size={17} color={active ? EM : 'rgba(255,255,255,0.26)'} style={{ flexShrink: 0 }} />
+                    <ChevronRight size={17} color={active ? '#34343a' : '#a2a2a8'} style={{ flexShrink: 0 }} />
                   </button>
                 );
               })}
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }} />
+              <div style={{ borderTop: '1px solid rgba(40,40,48,0.09)' }} />
             </div>
           </div>
         </div>
@@ -487,10 +493,10 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         {/* bottom */}
         <div style={{ padding: '28px 24px calc(env(safe-area-inset-bottom, 0px) + 22px)' }}>
           <button onClick={() => handleNavClick('constructor')} className="w4m-cta" data-testid="button-discuss-project">
-            <span style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 700, color: '#04140d', letterSpacing: '-0.01em' }}>
+            <span style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 700, color: '#28282d', letterSpacing: '-0.01em' }}>
               {language === 'ru' ? 'Обсудить проект' : 'Discuss a project'}
             </span>
-            <ArrowUpRight size={17} color="#04140d" strokeWidth={2.6} />
+            <ArrowUpRight size={17} color="#28282d" strokeWidth={2.6} />
           </button>
           <div className="flex items-center justify-between" style={{ gap: 8, marginTop: 18 }}>
             {socialLinks.map((s) => (
@@ -499,7 +505,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                 target="_blank" rel="noopener noreferrer"
                 className="w4m-soc" aria-label={s.label}
                 data-testid={`link-social-${s.label.toLowerCase().replace(/\s+/g, '-')}`}>
-                <s.icon size={17} color="rgba(255,255,255,0.6)" aria-hidden="true" focusable={false} />
+                <s.icon size={17} color="#686a72" aria-hidden="true" focusable={false} />
               </a>
             ))}
           </div>
@@ -520,7 +526,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           </div>
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <span style={{
-              fontFamily: currentRoute === 'profile' ? '"Google Sans App", system-ui, sans-serif' : '"Syne", system-ui, sans-serif', fontSize: '14px', fontWeight: 800, letterSpacing: '-0.03em',
+              fontFamily: '"Syne", system-ui, sans-serif', fontSize: '14px', fontWeight: 800, letterSpacing: '-0.03em',
               color: currentRoute === 'profile' ? '#2b2b30' : isDark ? 'rgba(255,255,255,0.7)' : '#000000',
               textShadow: currentRoute !== 'profile' && isDark ? '0 0 20px rgba(255,255,255,0.15)' : 'none',
             }}>WEB4TG</span>

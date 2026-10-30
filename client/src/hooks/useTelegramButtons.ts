@@ -6,16 +6,17 @@ interface ButtonConfig {
   mainButton?: {
     text: string;
     onClick: () => void;
-    color?: string;
   };
   secondaryButton?: {
     text: string;
     onClick: () => void;
-    color?: string;
   };
 }
 
 type RouteType = 'showcase' | 'projects' | 'constructor' | 'checkout' | 'profile' | 'demoLanding' | 'demoApp' | 'about' | 'help' | 'review' | 'aiAgent' | 'aiProcess' | 'referral' | 'rewards' | 'earning' | 'photoGallery' | 'other';
+
+const NATIVE_BUTTON_COLOR = '#FFFFFF';
+const NATIVE_BUTTON_TEXT_COLOR = '#1C1C1E';
 
 export function useTelegramButtons(
   currentRoute: RouteType,
@@ -84,7 +85,6 @@ export function useTelegramButtons(
           mainButton: {
             text: t('telegramButtons.orderProject'),
             onClick: handleOrderProject,
-            color: '#8B5CF6',
           },
           secondaryButton: {
             text: t('telegramButtons.share'),
@@ -99,7 +99,6 @@ export function useTelegramButtons(
           mainButton: {
             text: t('telegramButtons.wantSame'),
             onClick: handleOrderProject,
-            color: '#10B981',
           },
           secondaryButton: {
             text: t('telegramButtons.share'),
@@ -113,7 +112,6 @@ export function useTelegramButtons(
           mainButton: {
             text: t('telegramButtons.placeOrder'),
             onClick: () => navigate('/checkout'),
-            color: '#8B5CF6',
           },
         };
         break;
@@ -127,7 +125,6 @@ export function useTelegramButtons(
           mainButton: {
             text: t('telegramButtons.connectAI'),
             onClick: handleOrderProject,
-            color: '#8B5CF6',
           },
           secondaryButton: {
             text: t('telegramButtons.consultation'),
@@ -141,7 +138,6 @@ export function useTelegramButtons(
           mainButton: {
             text: t('telegramButtons.startProject'),
             onClick: handleOrderProject,
-            color: '#8B5CF6',
           },
           secondaryButton: {
             text: t('telegramButtons.consultation'),
@@ -155,7 +151,6 @@ export function useTelegramButtons(
           mainButton: {
             text: t('telegramButtons.inviteFriend'),
             onClick: handleShare,
-            color: '#10B981',
           },
         };
         break;
@@ -167,7 +162,6 @@ export function useTelegramButtons(
           mainButton: {
             text: t('telegramButtons.inviteFriends'),
             onClick: handleShare,
-            color: '#10B981',
           },
         };
         break;
@@ -178,7 +172,6 @@ export function useTelegramButtons(
           mainButton: {
             text: t('telegramButtons.contactUs'),
             onClick: handleConsultation,
-            color: '#8B5CF6',
           },
         };
         break;
@@ -191,7 +184,8 @@ export function useTelegramButtons(
       mainButton.show(
         config.mainButton.text,
         config.mainButton.onClick,
-        config.mainButton.color
+        NATIVE_BUTTON_COLOR,
+        NATIVE_BUTTON_TEXT_COLOR
       );
     }
 
@@ -199,7 +193,8 @@ export function useTelegramButtons(
       secondaryButton.show(
         config.secondaryButton.text,
         config.secondaryButton.onClick,
-        config.secondaryButton.color
+        NATIVE_BUTTON_COLOR,
+        NATIVE_BUTTON_TEXT_COLOR
       );
     }
 
