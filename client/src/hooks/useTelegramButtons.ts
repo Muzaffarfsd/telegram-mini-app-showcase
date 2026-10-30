@@ -125,12 +125,8 @@ export function useTelegramButtons(
       case 'aiProcess':
         config = {
           mainButton: {
-            text: t('telegramButtons.connectAI'),
-            onClick: handleOrderProject,
-          },
-          secondaryButton: {
-            text: t('telegramButtons.consultation'),
-            onClick: handleConsultation,
+            text: language === 'ru' ? 'Обсудить консультанта' : 'Discuss your consultant',
+            onClick: () => window.dispatchEvent(new Event('web4tg:consultant-contact')),
           },
         };
         break;

@@ -61,8 +61,8 @@ const CheckoutPage = lazyWithRetry(() => import("./components/CheckoutPage"));
 const DemoAppShell = lazyWithRetry(() => import("./components/DemoAppShell"));
 const HelpPage = lazyWithRetry(() => import("./components/HelpPage"));
 const ReviewPage = lazyWithRetry(() => import("./components/ReviewPage"));
-const AIAgentPage = lazyWithRetry(() => import("./components/AIAgentPage"));
-const AIProcessPage = lazyWithRetry(() => import("./components/AIProcessPage"));
+const AIAgentPage = lazyWithRetry(() => import("./components/AIConsultantPage"));
+const AIProcessPage = AIAgentPage;
 const PhotoGallery = lazyWithRetry(() => import("./pages/PhotoGallery"));
 const NotFoundPage = lazyWithRetry(() => import("./pages/NotFound"));
 const ReferralProgram = lazy(() => import("./components/ReferralProgram").then(m => ({ default: m.ReferralProgram })));
@@ -75,6 +75,7 @@ const CoinShopPage = lazyWithRetry(() => import("./components/CoinShopPage"));
 import GlobalSidebar from "./components/GlobalSidebar";
 import { ProfileSkeleton } from "./components/ProfileSkeleton";
 import { OrderSkeleton } from "./components/OrderSkeleton";
+import { AIConsultantSkeleton } from "./components/AIConsultantSkeleton";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 const AIAgentButton = lazy(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
@@ -95,7 +96,7 @@ const prefetchAllRoutes = () => {
     () => import("./components/ProjectsPage"),
     () => import("./components/OrderExperience"),
     () => import("./components/ProfilePage"),
-    () => import("./components/AIProcessPage"),
+    () => import("./components/AIConsultantPage"),
   ];
   const secondary = [
     () => import("./components/PremiumAppsPage"),
@@ -105,7 +106,7 @@ const prefetchAllRoutes = () => {
     () => import("./components/CheckoutPage"),
     () => import("./components/HelpPage"),
     () => import("./components/ReviewPage"),
-    () => import("./components/AIAgentPage"),
+    () => import("./components/AIConsultantPage"),
     () => import("./components/CoinShopPage"),
     () => import("./components/ReferralProgram"),
     () => import("./components/GamificationHub"),
@@ -228,7 +229,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
         }}
       >
         <nav 
-          className={`relative flex items-center rounded-[22px] gpu-layer ${route.component === 'profile' ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : ''}`}
+          className={`relative flex items-center rounded-[22px] gpu-layer ${route.component === 'profile' ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : isAI ? 'consultant-nav' : ''}`}
           style={{
             padding: '5px 6px',
             gap: '2px',
@@ -517,7 +518,7 @@ function AppContent() {
                   </ErrorBoundary>
                 )}
                 
-                <div className="pb-36" data-scroll="main" style={route.component === 'constructor' ? { backgroundColor: '#fff' } : undefined}>
+                <div className="pb-36" data-scroll="main" style={['constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {visitedTabs.has('showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={null}>
@@ -534,7 +535,7 @@ function AppContent() {
                   )}
                   {visitedTabs.has('aiProcess') && (
                     <div style={{ display: route.component === 'aiProcess' ? 'block' : 'none' }}>
-                      <Suspense fallback={null}>
+                      <Suspense fallback={<AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} />}>
                         <AIProcessPage onNavigate={handleNavigate} />
                       </Suspense>
                     </div>
@@ -556,7 +557,7 @@ function AppContent() {
                   {!isCachedTab && (
                     <PageTransition routeKey={`${route.component}-${route.params?.id || ''}`}>
                       <ErrorBoundary>
-                        <Suspense fallback={null}>
+                        <Suspense fallback={route.component === 'aiAgent' ? <AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} /> : null}>
                           <NonCachedRoute
                             route={route}
                             handleNavigate={handleNavigate}
@@ -589,7 +590,7 @@ function AppContent() {
 
               <Toaster />
               
-              {shouldShowBottomNav && (
+              {shouldShowBottomNav && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
                 <Suspense fallback={null}>
                   <div className={route.component === 'profile' ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : undefined}><AIAgentButton profileMode={route.component === 'profile' || route.component === 'constructor'} /></div>
                 </Suspense>

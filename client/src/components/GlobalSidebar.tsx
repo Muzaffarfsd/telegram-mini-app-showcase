@@ -513,7 +513,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       </div>
 
       {/* top bar */}
-      <div className={`w4-topbar ${currentRoute === 'profile' ? 'profile-topbar' : currentRoute === 'constructor' ? 'order-topbar' : ''}`}>
+      <div className={`w4-topbar ${currentRoute === 'profile' ? 'profile-topbar' : currentRoute === 'constructor' ? 'order-topbar' : currentRoute === 'aiProcess' || currentRoute === 'aiAgent' ? 'consultant-topbar' : ''}`}>
         <div className="max-w-md mx-auto px-5 pt-6 pb-1 flex items-end justify-between gap-4" style={{ position: 'relative' }}>
           <div className="w-[64px]">
             <AnimatedHamburgerIcon
@@ -527,8 +527,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           <div className="profile-brand absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <span style={{
               fontFamily: '"Syne", system-ui, sans-serif', fontSize: '14px', fontWeight: 800, letterSpacing: '-0.03em',
-              color: currentRoute === 'profile' || currentRoute === 'constructor' ? '#2b2b30' : isDark ? 'rgba(255,255,255,0.7)' : '#000000',
-              textShadow: currentRoute !== 'profile' && currentRoute !== 'constructor' && isDark ? '0 0 20px rgba(255,255,255,0.15)' : 'none',
+              color: currentRoute === 'profile' || currentRoute === 'constructor' || currentRoute === 'aiProcess' || currentRoute === 'aiAgent' ? '#2b2b30' : isDark ? 'rgba(255,255,255,0.7)' : '#000000',
+              textShadow: !['profile', 'constructor', 'aiProcess', 'aiAgent'].includes(currentRoute) && isDark ? '0 0 20px rgba(255,255,255,0.15)' : 'none',
             }}>WEB4TG</span>
           </div>
           <div className="w-[64px]" aria-hidden="true" />
