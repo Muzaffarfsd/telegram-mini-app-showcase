@@ -24,7 +24,8 @@
 .order-heading h1 { max-width: 320px; margin: 0 auto; color: #17181b; font-size: clamp(25px, 7.4vw, 30px); line-height: 1.09; letter-spacing: -.045em; font-weight: 650; }
 .order-heading p { margin: 10px auto 17px; max-width: 340px; color: #808289; font-size: 13px; line-height: 1.45; }
 .order-template-list { display: grid; gap: 9px; }
-.order-template { position: relative; display: flex; align-items: center; width: 100%; min-height: 96px; padding: 13px 104px 13px 18px; overflow: hidden; text-align: left; border: 1px solid transparent; border-radius: 19px; color: #17181b; background: #f7f8f9; cursor: pointer; transition: border-color .2s ease, background-color .2s ease, transform .2s ease; }
+.order-template-wrap { position: relative; }
+.order-template { position: relative; display: flex; align-items: center; width: 100%; min-height: 126px; padding: 13px 104px 43px 18px; overflow: hidden; text-align: left; border: 1px solid transparent; border-radius: 19px; color: #17181b; background: #f7f8f9; cursor: pointer; transition: border-color .2s ease, background-color .2s ease, transform .2s ease; }
 .order-template.is-selected { border-color: #26272a; background: #fff; }
 .order-template:active { transform: scale(.985); }
 .order-template-copy { display: flex; position: relative; z-index: 1; flex-direction: column; gap: 4px; min-width: 0; }
@@ -32,6 +33,8 @@
 .order-template-copy > span { color: #85878e; font-size: 11px; line-height: 1.3; }
 .order-template-copy small { color: #33353a; font-size: 11px; font-weight: 650; margin-top: 4px; }
 .order-template-art { position: absolute; width: 94px; height: 94px; object-fit: contain; right: 8px; bottom: 0; pointer-events: none; }
+.order-template-info { position: absolute; left: 9px; bottom: 2px; display: inline-flex; align-items: center; gap: 2px; min-height: 44px; padding: 0 9px; border: 0; border-radius: 12px; color: #5c5f67; background: transparent; font-size: 12px !important; font-weight: 650 !important; cursor: pointer; }
+.order-template-info svg { color: #777b82; }
 .order-choice { position: absolute; top: 10px; right: 10px; z-index: 2; width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center; color: white; background: transparent; }
 .order-template.is-selected .order-choice { background: #222327; }
 .order-notice { margin: 0; padding: 4px 4px 0; color: #ba4f43; font-size: 12px; }
@@ -63,12 +66,14 @@
 .order-group-meta small { display: grid; place-items: center; min-width: 21px; height: 21px; border-radius: 50%; background: #f1f2f3; color: #777980; font-size: 10px; }
 .order-group[open] summary svg, .order-support[open] summary > svg { transform: rotate(180deg); }
 .order-group-list { padding: 0 14px 5px; }
-.order-feature { display: flex; align-items: center; width: 100%; min-height: 45px; padding: 5px 0; text-align: left; border: 0; border-top: 1px solid #f1f1f2; background: transparent; color: #26272b; cursor: pointer; gap: 10px; }
+.order-feature-row { display: flex; align-items: center; border-top: 1px solid #f1f1f2; }
+.order-feature { display: flex; flex: 1; min-width: 0; align-items: center; min-height: 48px; padding: 5px 0; text-align: left; border: 0; background: transparent; color: #26272b; cursor: pointer; gap: 10px; }
 .order-feature[aria-disabled="true"] { cursor: default; }
 .order-feature-check { flex: none; width: 21px; height: 21px; border: 1px solid #dadce0; border-radius: 50%; display: grid; place-items: center; color: #a0a2a8; }
 .order-feature-check.is-active { border-color: #25272a; color: white; background: #25272a; }
-.order-feature-name { flex: 1; min-width: 0; font-size: 12px; line-height: 1.3; }
+.order-feature-name { flex: 1; min-width: 0; font-size: 13px; line-height: 1.3; }
 .order-feature-price { color: #888b92; font-size: 11px; white-space: nowrap; }
+.order-row-info { display: grid; flex: 0 0 44px; width: 44px; height: 48px; place-items: center; padding: 0; border: 0; color: #858991; background: transparent; cursor: pointer; }
 .order-price-inline { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 20px 2px 0; font-size: 12px; color: #888a90; }
 .order-price-inline strong { font-size: 15px; color: #242529; white-space: nowrap; }
 .order-review-hero { display: flex; align-items: center; min-height: 105px; padding: 10px; gap: 9px; border-radius: 20px; background: #f7f8f9; }
@@ -90,19 +95,25 @@
 .order-support { border: 1px solid #ededef; border-radius: 17px; overflow: hidden; }
 .order-support > summary { display: flex; justify-content: space-between; align-items: center; min-height: 70px; padding: 13px 15px; }
 .order-support > summary > span { display: grid; gap: 4px; }
-.order-support > summary strong { font-size: 13px; }
-.order-support > summary small { color: #999ba1; font-size: 11px; }
+.order-support > summary strong { font-size: 15px; }
+.order-support > summary small { color: #777b82; font-size: 12px; }
 .order-support > summary svg { color: #999ba1; }
 .order-support-body { padding: 0 14px 14px; }
-.order-support-body > p { margin: 2px 0 12px; color: #8d8f95; font-size: 11px; line-height: 1.45; }
+.order-support-body > p { margin: 2px 0 12px; color: #686b72; font-size: 13px; line-height: 1.45; }
 .order-period { display: flex; padding: 3px; border-radius: 10px; background: #f2f3f4; }
-.order-period button { flex: 1; min-height: 36px; border: 0; border-radius: 8px; background: transparent; color: #85878c; font-size: 11px; cursor: pointer; }
+.order-period button { flex: 1; min-height: 44px; border: 0; border-radius: 8px; background: transparent; color: #696d74; font-size: 13px; cursor: pointer; }
 .order-period button[aria-pressed="true"] { background: white; color: #252629; box-shadow: 0 1px 4px #00000010; }
+.order-support-body > p.order-period-note { margin: 8px 2px 10px; color: #6f737b; font-size: 12px; }
 .order-plans { display: grid; gap: 6px; margin-top: 10px; }
-.order-plans > button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 53px; padding: 10px 11px; border: 1px solid #ededee; border-radius: 12px; background: white; text-align: left; color: #292a2e; font-size: 12px; cursor: pointer; }
-.order-plans > button.is-selected { border-color: #292a2e; }
-.order-plans > button > span:first-child { display: grid; gap: 4px; }
-.order-plans small { display: block; color: #96989e; font-size: 10px; font-weight: 400; }
+.order-plans > button, .order-plan-row { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 53px; border: 1px solid #ededee; border-radius: 12px; background: white; text-align: left; color: #292a2e; font-size: 12px; }
+.order-plans > button { padding: 10px 11px; cursor: pointer; }
+.order-plans > button.is-selected, .order-plan-row.is-selected { border-color: #292a2e; }
+.order-plans > button > span:first-child, .order-plan-choice > span:first-child { display: grid; gap: 4px; }
+.order-plan-choice { display: flex; flex: 1; min-width: 0; min-height: 53px; align-items: center; justify-content: space-between; gap: 5px; padding: 10px 0 10px 11px; border: 0; border-radius: 12px; background: transparent; text-align: left; color: #292a2e; font-size: 13px !important; cursor: pointer; }
+.order-plan-row .order-row-info { height: 53px; }
+.order-plan-row .order-plan-info { display: flex; flex: 0 0 68px; flex-direction: column; justify-content: center; gap: 2px; width: 68px; font-size: 10px; color: #62666e; }
+.order-plan-info span { white-space: nowrap; }
+.order-plans small { display: block; color: #74777e; font-size: 11px; font-weight: 400; }
 .order-plan-price { text-align: right; font-weight: 650; white-space: nowrap; }
 @media (max-width: 340px) { .order-page { padding-left: 15px; padding-right: 15px; }.order-template { padding-left: 14px; }.order-template-copy strong { font-size: 14px; }.order-template-art { width: 90px; height: 90px; }.order-feature-price { font-size: 10px; } }
 @media (prefers-reduced-motion: reduce) { .order-page *, .order-page *::before, .order-page *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }

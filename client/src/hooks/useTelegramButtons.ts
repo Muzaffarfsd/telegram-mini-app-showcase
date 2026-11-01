@@ -178,12 +178,25 @@ export function useTelegramButtons(
         break;
     }
 
+    let orderButtonText = config.mainButton?.text || '';
+    let orderInfoOpen = currentRoute === 'constructor' && document.body.dataset.orderInfoOpen === 'true';
     const updateOrderLabel = (event: Event) => {
-      if (currentRoute === 'constructor') mainButton.setText((event as CustomEvent<string>).detail);
+      if (currentRoute !== 'constructor') return;
+      orderButtonText = (event as CustomEvent<string>).detail;
+      if (!orderInfoOpen) mainButton.setText(orderButtonText);
     };
-    if (currentRoute === 'constructor') window.addEventListener('web4tg:order-label', updateOrderLabel);
+    const updateOrderInfo = (event: Event) => {
+      if (currentRoute !== 'constructor' || !config.mainButton) return;
+      orderInfoOpen = (event as CustomEvent<boolean>).detail;
+      if (orderInfoOpen) mainButton.hide();
+      else mainButton.show(orderButtonText, config.mainButton.onClick, NATIVE_BUTTON_COLOR, NATIVE_BUTTON_TEXT_COLOR);
+    };
+    if (currentRoute === 'constructor') {
+      window.addEventListener('web4tg:order-label', updateOrderLabel);
+      window.addEventListener('web4tg:order-info', updateOrderInfo);
+    }
 
-    if (config.mainButton) {
+    if (config.mainButton && !orderInfoOpen) {
       mainButton.show(
         config.mainButton.text,
         config.mainButton.onClick,
@@ -203,6 +216,7 @@ export function useTelegramButtons(
 
     cleanupRef.current = () => {
       window.removeEventListener('web4tg:order-label', updateOrderLabel);
+      window.removeEventListener('web4tg:order-info', updateOrderInfo);
       mainButton.hide();
       secondaryButton.hide();
     };
