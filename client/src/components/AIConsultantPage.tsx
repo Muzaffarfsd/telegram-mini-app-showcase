@@ -1,136 +1,156 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, ChevronDown } from 'lucide-react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { AIConsultantSkeleton } from './AIConsultantSkeleton';
+import { AIConsultantDemo } from './AIConsultantDemo';
+import {
+  industryNames,
+  industryScenes,
+  taskNames,
+  type ConsultantChannel,
+  type ConsultantIndustry,
+  type ConsultantTask,
+  type ConsultantTone,
+} from './consultantJourneyData';
 import orb from '../assets/consultant/consultant-orb.webp';
 import appArtwork from '../assets/consultant/channel-app-latest.webp';
 import chatArtwork from '../assets/consultant/channel-chat-latest.webp';
-import sneakerPhoto from '../assets/consultant/example-nike.webp';
 import humanSupport from '../assets/consultant/human-support.webp';
+import knowledgeArt from '../assets/consultant/knowledge-v1.webp';
+import handoffArt from '../assets/consultant/handoff-v1.webp';
+import tuningArt from '../assets/consultant/tuning-v1.webp';
+import shopArt from '../assets/order/shop-v5.webp';
+import servicesArt from '../assets/order/services-v4.webp';
+import restaurantArt from '../assets/order/restaurant-v2.webp';
 import './AIConsultantPage.css';
+import './AIConsultantExperience.css';
 
-type Channel = 'app' | 'chat';
-type Example = 'choice' | 'booking' | 'question';
-
-const examples: Record<Example, { ru: { label: string; question: string; answer: string; reply: string; next: string }; en: { label: string; question: string; answer: string; reply: string; next: string } }> = {
-  choice: {
-    ru: { label: 'Выбор', question: 'Хочу такие кроссовки. Есть 42 размер?', answer: 'Да, эта пара есть в 42-м размере!', reply: 'Отлично! Как их заказать?', next: 'Помогу оформить заказ. Подобрать ещё средство для ухода за парой?' },
-    en: { label: 'Choosing', question: 'I like these sneakers. Is size 42 available?', answer: 'Yes, this pair is available in size 42!', reply: 'Great! How can I order them?', next: 'I can help you order. Would you also like a care product for them?' },
-  },
-  booking: {
-    ru: { label: 'Запись', question: 'Хочу записаться. С чего начать?', answer: 'Помогу с записью. Какая услуга вас интересует?', reply: 'Маникюр в субботу.', next: 'Уточню доступное время и помогу с записью.' },
-    en: { label: 'Booking', question: 'I’d like to book. Where do I start?', answer: 'I can help. What service are you interested in?', reply: 'A manicure on Saturday.', next: 'I’ll help find a suitable time and arrange it.' },
-  },
-  question: {
-    ru: { label: 'Вопросы', question: 'Как узнать условия доставки?', answer: 'Подскажу условия. В какой город нужен заказ?', reply: 'В Казань.', next: 'Расскажу о вариантах и сроках доставки.' },
-    en: { label: 'Questions', question: 'How can I learn about delivery?', answer: 'I can help with that. Which city is the order for?', reply: 'Manchester.', next: 'I’ll explain the available delivery options.' },
-  },
+type Screen = 'home' | 'industries' | 'demo' | 'inside' | 'configure' | 'review';
+type Props = { onNavigate: (path: string) => void };
+const industries: ConsultantIndustry[] = ['shop', 'services', 'restaurant', 'other'];
+const tasks: ConsultantTask[] = ['questions', 'selection', 'booking', 'orders', 'handoff'];
+const industryArt: Record<ConsultantIndustry, string> = {
+  shop: shopArt,
+  services: servicesArt,
+  restaurant: restaurantArt,
+  other: appArtwork,
+};
+const channelNames: Record<ConsultantChannel, { ru: string; en: string }> = {
+  app: { ru: 'В Mini App', en: 'In the Mini App' },
+  chat: { ru: 'В Telegram-чате', en: 'In Telegram chat' },
+  both: { ru: 'В Mini App и Telegram-чате', en: 'In the Mini App and Telegram chat' },
 };
 
-type ExampleCopy = typeof examples[Example]['ru'];
-type DemoMessage = { role: 'customer' | 'assistant'; text: string; photo?: boolean };
-
-function ConversationPreview({ content, showPhoto, ru }: { content: ExampleCopy; showPhoto: boolean; ru: boolean }) {
-  const conversationRef = useRef<HTMLDivElement>(null);
-  const [started, setStarted] = useState(false);
-  const [messages, setMessages] = useState<DemoMessage[]>([]);
-  const [typing, setTyping] = useState(false);
-  const [done, setDone] = useState(false);
-  const [replay, setReplay] = useState(0);
-  const [productSelected, setProductSelected] = useState(false);
-
-  useEffect(() => {
-    const target = conversationRef.current;
-    if (!target) return;
-    if (!('IntersectionObserver' in window)) { setStarted(true); return; }
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) { setStarted(true); observer.disconnect(); }
-    }, { root: document.getElementById('root'), threshold: 0.1 });
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!started) return;
-    const full: DemoMessage[] = [
-      { role: 'customer', text: content.question, photo: showPhoto },
-      { role: 'assistant', text: content.answer },
-      { role: 'customer', text: content.reply },
-      { role: 'assistant', text: content.next },
-    ];
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      setMessages(full); setProductSelected(false); setTyping(false); setDone(true); return;
-    }
-    let cancelled = false;
-    let timer = 0;
-    const schedule = (callback: () => void, delay: number) => {
-      timer = window.setTimeout(() => { if (!cancelled) callback(); }, delay);
-    };
-    const typeMessage = (text: string, after: () => void) => {
-      setTyping(false);
-      setMessages((current) => [...current, { role: 'assistant', text: '' }]);
-      const letters = Array.from(text);
-      let position = 0;
-      const typeNext = () => {
-        position += 1;
-        setMessages((current) => current.map((message, index) => index === current.length - 1 ? { ...message, text: letters.slice(0, position).join('') } : message));
-        if (position < letters.length) schedule(typeNext, 18);
-        else schedule(after, 450);
-      };
-      schedule(typeNext, 35);
-    };
-    const showFinal = () => { setTyping(true); schedule(() => typeMessage(content.next, () => setDone(true)), 600); };
-    const showReply = () => { setMessages((current) => [...current, full[2]]); schedule(showFinal, 550); };
-    setDone(false); setProductSelected(false); setTyping(false); setMessages([full[0]]);
-    schedule(() => { setTyping(true); schedule(() => typeMessage(content.answer, showReply), 650); }, 500);
-    return () => { cancelled = true; window.clearTimeout(timer); };
-  }, [content, replay, showPhoto, started]);
-
-  return <>
-    <div ref={conversationRef} className="consultant-conversation" data-testid="consultant-example-conversation" aria-label={ru ? 'Пример диалога' : 'Example conversation'}>
-      {messages.map((message, index) => <Fragment key={index}><div className={`consultant-message ${message.role === 'customer' ? 'is-customer' : 'is-assistant'}`}>
-        <span className="profile-visually-hidden">{message.role === 'customer' ? (ru ? 'Клиент: ' : 'Customer: ') : (ru ? 'Консультант: ' : 'Consultant: ')}</span>
-        {message.photo && <img className="consultant-message-photo" src={sneakerPhoto} alt={ru ? 'Пример фотографии кроссовок Nike' : 'Example photograph of Nike sneakers'} width="480" height="480" />}
-        <span>{message.text}</span>
-      </div>{showPhoto && index === 1 && message.text === content.answer && <div className="consultant-product-preview" data-testid="consultant-example-product"><img src={sneakerPhoto} alt="" width="480" height="480" /><div><strong>Nike Air Force 1</strong><small>{ru ? 'Размер 42 · пример' : 'Size 42 · example'}</small><button type="button" aria-pressed={productSelected} onClick={() => setProductSelected(!productSelected)}>{productSelected ? (ru ? 'Выбрано в примере' : 'Selected in example') : (ru ? 'Выбрать' : 'Select')}</button></div></div>}</Fragment>)}
-      {typing && <div className="consultant-typing" aria-hidden="true"><i /><i /><i /></div>}
-    </div>
-    <span className="profile-visually-hidden" role="status">{typing ? (ru ? 'Консультант печатает' : 'The consultant is typing') : done ? (ru ? 'Пример диалога показан' : 'Example conversation complete') : ''}</span>
-    <div className="consultant-demo-footer"><p className="consultant-demo-note">{ru ? 'Пример диалога. Ответы настраиваются под ваш бизнес.' : 'An example conversation. Responses are tailored to your business.'}</p><button type="button" onClick={() => setReplay((value) => value + 1)} aria-label={ru ? 'Повторить пример диалога' : 'Replay example conversation'}>{ru ? 'Повторить' : 'Replay'}</button></div>
-  </>;
-}
-
-export default function AIConsultantPage(_props: { onNavigate: (path: string) => void }) {
+export default function AIConsultantPage({ onNavigate }: Props) {
   const { language } = useLanguage();
   const ru = language === 'ru';
-  const [channel, setChannel] = useState<Channel>('app');
+  const [screen, setScreen] = useState<Screen>('home');
+  const [industry, setIndustry] = useState<ConsultantIndustry>('shop');
+  const [industryChosen, setIndustryChosen] = useState(false);
+  const [branchId, setBranchId] = useState<string | null>(null);
+  const [view, setView] = useState<'customer' | 'business'>('customer');
+  const [demoChannel, setDemoChannel] = useState<'app' | 'chat'>('app');
+  const [channel, setChannel] = useState<ConsultantChannel | null>(null);
+  const [selectedTasks, setSelectedTasks] = useState<ConsultantTask[]>([]);
+  const [tone, setTone] = useState<ConsultantTone | null>(null);
+  const [projectName, setProjectName] = useState('');
   const [comparison, setComparison] = useState<'ai' | 'human'>('ai');
-  const [bothChannels, setBothChannels] = useState(false);
-  const [example, setExample] = useState<Example>('choice');
   const [artReady, setArtReady] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
-  const demoRef = useRef<HTMLElement>(null);
-  const comparisonRef = useRef<HTMLElement>(null);
-  const currentExample = examples[example][language];
+  const screenRef = useRef<Screen>('home');
+  const historyRef = useRef<Screen[]>([]);
+  const scrollRef = useRef<Partial<Record<Screen, number>>>({});
+  const restoreScrollRef = useRef(0);
+  const industryDestination = useRef<Screen>('demo');
 
   useEffect(() => {
     let active = true;
-    const timer = window.setTimeout(() => { if (active) setArtReady(true); }, 6000);
-    Promise.all([orb, appArtwork, chatArtwork, humanSupport].map((src) => new Promise<void>((resolve) => {
-      const image = new Image();
-      image.onload = () => resolve();
-      image.onerror = () => resolve();
-      image.src = src;
-    }))).then(() => { if (active) { clearTimeout(timer); setArtReady(true); } });
-    return () => { active = false; clearTimeout(timer); };
+    const image = new Image();
+    const finish = () => {
+      if (active) setArtReady(true);
+    };
+    const timer = window.setTimeout(finish, 5000);
+    image.onload = () => {
+      const decoded = typeof image.decode === 'function' ? image.decode().catch(() => {}) : Promise.resolve();
+      void decoded.then(() => {
+        window.clearTimeout(timer);
+        finish();
+      });
+    };
+    image.onerror = () => {
+      window.clearTimeout(timer);
+      finish();
+    };
+    image.src = orb;
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+      image.onload = null;
+      image.onerror = null;
+    };
   }, []);
+
+  useEffect(() => {
+    if (!artReady) return;
+    const timer = window.setTimeout(() => {
+      [shopArt, servicesArt, restaurantArt, appArtwork].forEach((src) => {
+        const image = new Image();
+        image.src = src;
+        if (typeof image.decode === 'function') void image.decode().catch(() => {});
+      });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [artReady]);
+
+  const moveTo = useCallback((next: Screen, back = false) => {
+    const previous = screenRef.current;
+    if (previous === next) return;
+    const scroll = document.getElementById('root');
+    scrollRef.current[previous] = scroll?.scrollTop || 0;
+    if (!back) historyRef.current.push(previous);
+    restoreScrollRef.current = back ? scrollRef.current[next] || 0 : 0;
+    screenRef.current = next;
+    setScreen(next);
+  }, []);
+
+  const goBack = useCallback(() => {
+    const previous = historyRef.current.pop() || 'home';
+    moveTo(previous, true);
+  }, [moveTo]);
+
+  useLayoutEffect(() => {
+    document.getElementById('root')?.scrollTo({ top: restoreScrollRef.current, behavior: 'auto' });
+  }, [screen, artReady]);
 
   const openRequest = useCallback(() => {
     if (!artReady || !rootRef.current?.getClientRects().length) return;
-    const selectedChannel = bothChannels ? (ru ? 'В Mini App и Telegram-чате' : 'In the Mini App and Telegram chat') : channel === 'app' ? (ru ? 'Внутри Mini App' : 'Inside a Mini App') : (ru ? 'В Telegram-чате' : 'In a Telegram chat');
+    const chosenIndustry = industryChosen
+      ? industryNames[industry][language]
+      : ru
+        ? 'Обсудим'
+        : 'To be discussed';
+    const chosenChannel = channel ? channelNames[channel][language] : ru ? 'Обсудим' : 'To be discussed';
+    const chosenTasks = selectedTasks.length
+      ? selectedTasks.map((item) => `• ${taskNames[item][language]}`).join('\n')
+      : ru
+        ? '• Обсудим подходящие задачи'
+        : '• Discuss suitable tasks';
+    const chosenTone =
+      tone === 'warm'
+        ? ru
+          ? 'Дружелюбный'
+          : 'Friendly'
+        : tone === 'business'
+          ? ru
+            ? 'Деловой'
+            : 'Professional'
+          : ru
+            ? 'Обсудим'
+            : 'To be discussed';
+    const name = projectName.trim().replace(/\s+/g, ' ') || (ru ? 'Обсудим позже' : 'To be discussed');
     const message = ru
-      ? `Здравствуйте! Хочу обсудить ИИ-консультанта для моего бизнеса.\n\n📍 Где будет работать: ${selectedChannel}\n💬 Интересующий сценарий: ${currentExample.label}\n\nРасскажите, пожалуйста, как можно настроить консультанта, и сориентируйте по стоимости и срокам.`
-      : `Hello! I’d like to discuss an AI consultant for my business.\n\n📍 Channel: ${selectedChannel}\n💬 Use case: ${currentExample.label}\n\nPlease tell me how the consultant can be set up and provide an estimate for cost and timeline.`;
+      ? `Здравствуйте! Хочу обсудить ИИ-консультанта для моего бизнеса.\n\n📍 ПРОЕКТ\nНазвание: ${name}\nНаправление: ${chosenIndustry}\nКанал: ${chosenChannel}\n\n💬 ЗАДАЧИ КОНСУЛЬТАНТА\n${chosenTasks}\n\n✨ ОБЩЕНИЕ\nТон: ${chosenTone}\n\nРасскажите, пожалуйста, как можно настроить консультанта, и сориентируйте по стоимости и срокам.`
+      : `Hello! I’d like to discuss an AI consultant for my business.\n\n📍 PROJECT\nName: ${name}\nBusiness: ${chosenIndustry}\nChannel: ${chosenChannel}\n\n💬 CONSULTANT TASKS\n${chosenTasks}\n\n✨ COMMUNICATION\nTone: ${chosenTone}\n\nPlease tell me how the consultant can be set up and provide an estimate for cost and timeline.`;
     const url = `https://t.me/web4tgs?text=${encodeURIComponent(message)}`;
     try {
       if (window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(url);
@@ -138,108 +158,752 @@ export default function AIConsultantPage(_props: { onNavigate: (path: string) =>
     } catch {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
-  }, [artReady, bothChannels, channel, currentExample.label, ru]);
+  }, [artReady, channel, industry, industryChosen, language, projectName, ru, selectedTasks, tone]);
 
   useEffect(() => {
     window.addEventListener('web4tg:consultant-contact', openRequest);
     return () => window.removeEventListener('web4tg:consultant-contact', openRequest);
   }, [openRequest]);
 
-  const scrollTo = (element: HTMLElement | null) => {
-    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    element?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  useEffect(() => {
+    const back = window.Telegram?.WebApp?.BackButton;
+    if (!back) return;
+    const onConsultantRoute = () =>
+      ['#/ai-process', '#/ai-agent'].includes(window.location.hash.split('?')[0]);
+    const active = () => onConsultantRoute() && Boolean(rootRef.current?.getClientRects().length);
+    let frame = 0;
+    const sync = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        if (active()) back.show();
+        else if (!onConsultantRoute()) back.hide();
+      });
+    };
+    const handle = () => {
+      if (!active()) return;
+      if (screenRef.current === 'home') onNavigate('/');
+      else goBack();
+    };
+    back.onClick(handle);
+    window.addEventListener('hashchange', sync);
+    sync();
+    return () => {
+      window.cancelAnimationFrame(frame);
+      back.offClick(handle);
+      window.removeEventListener('hashchange', sync);
+      if (active()) back.hide();
+    };
+  }, [artReady, goBack, onNavigate]);
+
+  const openIndustries = (destination: Screen) => {
+    industryDestination.current = destination;
+    moveTo('industries');
+  };
+  const selectIndustry = (item: ConsultantIndustry) => {
+    if (item !== industry) {
+      setBranchId(null);
+      setView('customer');
+    }
+    setIndustry(item);
+    setIndustryChosen(true);
+    moveTo(industryDestination.current);
+  };
+  const selectDemoChannel = (item: 'app' | 'chat') => {
+    setDemoChannel(item);
+    setChannel(item);
+  };
+  const toggleTask = (item: ConsultantTask) =>
+    setSelectedTasks((current) =>
+      current.includes(item) ? current.filter((value) => value !== item) : [...current, item],
+    );
+  const toneLabel =
+    tone === 'warm'
+      ? ru
+        ? 'Дружелюбный'
+        : 'Friendly'
+      : tone === 'business'
+        ? ru
+          ? 'Деловой'
+          : 'Professional'
+        : ru
+          ? 'Обсудим'
+          : 'To be discussed';
+  const goHome = () => {
+    historyRef.current = [];
+    scrollRef.current.home = 0;
+    moveTo('home', true);
+  };
+  const screenLabels: Record<Screen, string> = {
+    home: '',
+    industries: ru ? 'Сценарий' : 'Scenario',
+    demo: ru ? 'Пример диалога' : 'Example conversation',
+    inside: ru ? 'Как это работает' : 'How it works',
+    configure: ru ? 'Ваш консультант' : 'Your consultant',
+    review: ru ? 'Обсуждение' : 'Your request',
   };
 
-  if (!artReady) return <AIConsultantSkeleton label={ru ? 'Загрузка страницы консультанта' : 'Loading consultant page'} />;
+  if (!artReady)
+    return <AIConsultantSkeleton label={ru ? 'Загрузка страницы консультанта' : 'Loading consultant page'} />;
 
-  return <main ref={rootRef} className="consultant-page" data-testid="consultant-page">
-    <div className="consultant-shell">
-      <section className="consultant-hero" aria-labelledby="consultant-title">
-        <h1 id="consultant-title">{ru ? <>Ваш <em>ИИ-консультант</em> для бизнеса</> : <>Your <em>AI consultant</em> for business</>}</h1>
-        <div className="consultant-hero-art">
-          <span className="consultant-greeting">{ru ? 'Привет!' : 'Hello!'}</span>
-          <img src={orb} width="640" height="640" alt="" draggable={false} />
-        </div>
-        <p>{ru ? 'Поможет клиентам с выбором и ответит на вопросы — в приложении и в чате.' : 'Helps customers find what they need and answers questions in your app and chat.'}</p>
-        <button type="button" className="consultant-primary" onClick={() => scrollTo(comparisonRef.current)} data-testid="consultant-show-demo"><span>{ru ? 'Посмотреть, как это работает' : 'See how it works'}</span><ArrowRight size={18} /></button>
-      </section>
+  return (
+    <main
+      ref={rootRef}
+      className="consultant-page consultant-v2"
+      data-testid="consultant-page"
+      data-consultant-screen={screen}
+    >
+      <div className="consultant-shell ai2-shell">
+        {screen !== 'home' && (
+          <nav
+            className="ai2-screen-nav"
+            aria-label={ru ? 'Навигация по консультанту' : 'Consultant navigation'}
+          >
+            <button
+              type="button"
+              onClick={goBack}
+              aria-label={ru ? 'Назад' : 'Back'}
+              data-testid="consultant-back"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <span>{screenLabels[screen]}</span>
+            <button
+              type="button"
+              onClick={goHome}
+              aria-label={ru ? 'На главную консультанта' : 'Consultant home'}
+              data-testid="consultant-home-link"
+            >
+              <span className="ai2-nav-dot" />
+              <span>{ru ? 'Обзор' : 'Overview'}</span>
+            </button>
+          </nav>
+        )}
 
-      <section className="consultant-comparison" ref={comparisonRef} aria-labelledby="consultant-comparison-title">
-        <div className="consultant-section-label">{ru ? 'КОГДА КЛИЕНТУ НУЖНА ПОМОЩЬ' : 'WHEN CUSTOMERS NEED HELP'}</div>
-        <h2 id="consultant-comparison-title">{ru ? 'Кто поможет вашему клиенту?' : 'Who helps your customer?'}</h2>
-        <p className="consultant-section-intro">{ru ? 'Выберите вариант и посмотрите, как он работает.' : 'Choose an option to see how it works.'}</p>
-        <div className="consultant-compare-switch" role="group" aria-label={ru ? 'Сравнить консультантов' : 'Compare consultants'}>
-          <button type="button" aria-pressed={comparison === 'ai'} onClick={() => setComparison('ai')} data-testid="consultant-compare-ai">{ru ? 'ИИ-консультант' : 'AI consultant'}</button>
-          <button type="button" aria-pressed={comparison === 'human'} onClick={() => setComparison('human')} data-testid="consultant-compare-human">{ru ? 'Специалист' : 'Specialist'}</button>
-        </div>
-        <div key={comparison} className={`consultant-compare-stage is-${comparison}`} aria-live="polite" data-testid="consultant-comparison-card">
-          <div className="consultant-compare-stage-copy"><span className="consultant-compare-chip"><i />{comparison === 'ai' ? (ru ? 'ВАШ ИИ-КОНСУЛЬТАНТ' : 'YOUR AI CONSULTANT') : (ru ? 'СПЕЦИАЛИСТ КОМАНДЫ' : 'YOUR TEAM SPECIALIST')}</span><h3>{comparison === 'ai' ? (ru ? 'Рядом, даже когда вы заняты' : 'There even when you’re busy') : (ru ? 'Личный опыт в нужный момент' : 'Personal expertise when it matters')}</h3><p>{comparison === 'ai' ? (ru ? 'Поможет с вопросами и подбором даже вне рабочего графика.' : 'Helps with questions and choices, even outside working hours.') : (ru ? 'Подключается к сложным вопросам и помогает принять решение.' : 'Steps in for complex questions and helps make decisions.')}</p></div>
-          <img className="consultant-compare-art" src={comparison === 'ai' ? orb : humanSupport} alt="" />
-          <div className="consultant-compare-detail"><span>{comparison === 'ai' ? (ru ? 'НЕСКОЛЬКО ДИАЛОГОВ' : 'MULTIPLE CONVERSATIONS') : (ru ? 'ВНИМАНИЕ К ДЕТАЛЯМ' : 'ATTENTION TO DETAIL')}</span><strong>{comparison === 'ai' ? (ru ? 'Может отвечать параллельно' : 'Can respond in parallel') : (ru ? 'Разбирает нестандартные ситуации' : 'Handles unusual situations')}</strong></div>
-        </div>
-        <p className="consultant-compare-note">{ru ? 'Возможности зависят от настройки и доступности сервиса.' : 'Capabilities depend on setup and service availability.'}</p>
-        <div className="consultant-sales-card"><div><span>{ru ? 'НАСТРАИВАЕТСЯ ПОД ВАШ БИЗНЕС' : 'TAILORED TO YOUR BUSINESS'}</span><h3>{ru ? 'Думает о клиенте и о продаже' : 'Thoughtful for customers and sales'}</h3><p>{ru ? 'В сценариях можно учесть техники продаж, маркетинг и психологию общения — с вашим продуктом и аудиторией в центре.' : 'Your scenarios can reflect sales, marketing and communication principles, with your products and customers at the centre.'}</p></div><div className="consultant-sales-extra"><strong>{ru ? 'Помогает увеличить средний чек' : 'Supports a higher order value'}</strong><span>{ru ? 'Когда уместно, предложит подходящее дополнение к покупке.' : 'Suggests a relevant addition to a purchase when appropriate.'}</span></div></div>
-        <button type="button" className="consultant-see-example" onClick={() => scrollTo(demoRef.current)} data-testid="consultant-to-example"><span>{ru ? 'Посмотреть пример диалога' : 'See an example conversation'}</span><ArrowRight size={17} /></button>
-      </section>
+        {screen === 'home' && (
+          <section className="ai2-home" aria-labelledby="consultant-title">
+            <h1 id="consultant-title">
+              {ru ? (
+                <>
+                  Ваш <em>ИИ-консультант</em> для бизнеса
+                </>
+              ) : (
+                <>
+                  Your <em>AI consultant</em> for business
+                </>
+              )}
+            </h1>
+            <div className="ai2-hero-art">
+              <span className="ai2-greeting">
+                {ru ? 'Привет! Покажу, как я помогу.' : 'Hello! Let me show you.'}
+              </span>
+              <img src={orb} alt="" width="640" height="640" fetchPriority="high" />
+            </div>
+            <p className="ai2-hero-copy">
+              {ru
+                ? 'Помогу клиентам с выбором, отвечу на вопросы и буду рядом, когда нужна помощь.'
+                : 'Help your customers choose, answer questions and be there when they need support.'}
+            </p>
+            <button
+              className="ai2-primary"
+              type="button"
+              onClick={() => openIndustries('demo')}
+              data-testid="consultant-show-demo"
+            >
+              <span>{ru ? 'Посмотреть в действии' : 'See it in action'}</span>
+              <ArrowRight size={18} />
+            </button>
+            <button
+              className="ai2-hero-contact"
+              type="button"
+              onClick={openRequest}
+              data-testid="consultant-contact"
+            >
+              {ru ? 'Сразу обсудить проект' : 'Discuss your project'}
+            </button>
+            <div className="ai2-home-intro">
+              <div>
+                <span className="ai2-kicker">{ru ? 'ЗНАКОМЬТЕСЬ' : 'MEET YOUR ASSISTANT'}</span>
+                <h2>
+                  {ru
+                    ? 'Один помощник. Больше внимания клиентам.'
+                    : 'One assistant. More attention for customers.'}
+                </h2>
+              </div>
+              <p>
+                {ru
+                  ? 'Посмотрите историю с двух сторон и подберите сценарий для своего бизнеса.'
+                  : 'Explore both sides of a conversation and find a scenario for your business.'}
+              </p>
+            </div>
+            <div className="ai2-home-links">
+              <button
+                type="button"
+                className="ai2-home-link"
+                onClick={() => openIndustries('demo')}
+                data-testid="consultant-open-demo"
+              >
+                <span>
+                  <strong>{ru ? 'Пример диалога' : 'Conversation example'}</strong>
+                  <small>{ru ? 'Побыть клиентом' : 'Try the customer view'}</small>
+                </span>
+                <img src={appArtwork} alt="" loading="lazy" />
+                <ArrowRight size={17} />
+              </button>
+              <button
+                type="button"
+                className="ai2-home-link"
+                onClick={() => moveTo('inside')}
+                data-testid="consultant-open-inside"
+              >
+                <span>
+                  <strong>{ru ? 'Как это работает' : 'How it works'}</strong>
+                  <small>{ru ? 'Взгляд бизнеса' : 'The business view'}</small>
+                </span>
+                <img src={knowledgeArt} alt="" loading="lazy" />
+                <ArrowRight size={17} />
+              </button>
+              <button
+                type="button"
+                className="ai2-home-link is-wide"
+                onClick={() => moveTo('configure')}
+                data-testid="consultant-open-configure"
+              >
+                <span>
+                  <strong>{ru ? 'Подобрать для себя' : 'Make it yours'}</strong>
+                  <small>{ru ? 'Каналы и задачи' : 'Channels and tasks'}</small>
+                </span>
+                <img src={tuningArt} alt="" loading="lazy" />
+                <ArrowRight size={17} />
+              </button>
+            </div>
+            <button
+              className="ai2-home-terms"
+              type="button"
+              onClick={() => moveTo('review')}
+              data-testid="consultant-open-review"
+            >
+              <span>{ru ? 'Условия и стоимость' : 'Terms and pricing'}</span>
+              <ChevronRight size={18} />
+            </button>
+          </section>
+        )}
 
-      <section className="consultant-channels" ref={demoRef} aria-labelledby="consultant-channels-title">
-        <div className="consultant-section-label">{ru ? 'ОДИН ПОМОЩНИК · ДВА КАНАЛА' : 'ONE ASSISTANT · TWO CHANNELS'}</div>
-        <h2 id="consultant-channels-title">{ru ? 'Рядом с клиентом, где бы он ни был' : 'There for your customers, wherever they are'}</h2>
-        <p className="consultant-section-intro">{ru ? 'Выберите, где хотите общаться с клиентами.' : 'Choose where you want to connect with your customers.'}</p>
-        <div className="consultant-channel-grid" role="group" aria-label={ru ? 'Канал общения' : 'Communication channel'}>
-          <button type="button" className={`consultant-channel consultant-channel-app ${channel === 'app' ? 'is-selected' : ''}`} aria-pressed={channel === 'app'} onClick={() => { setChannel('app'); setBothChannels(false); }} data-testid="consultant-channel-app">
-            <span className="consultant-channel-copy"><strong>{ru ? 'В приложении' : 'In the app'}</strong><small>{ru ? 'Помощь рядом с товарами и услугами' : 'Help alongside your products and services'}</small></span>
-            <img src={appArtwork} alt="" width="340" height="340" draggable={false} />
-            <span className="consultant-channel-check" aria-hidden="true">{channel === 'app' && <Check size={12} strokeWidth={3} />}</span>
-          </button>
-          <button type="button" className={`consultant-channel consultant-channel-chat ${channel === 'chat' ? 'is-selected' : ''}`} aria-pressed={channel === 'chat'} onClick={() => { setChannel('chat'); setBothChannels(false); }} data-testid="consultant-channel-chat">
-            <span className="consultant-channel-copy"><strong>{ru ? 'В Telegram-чате' : 'In Telegram chat'}</strong><small>{ru ? 'Разговор прямо в чате вашего бота' : 'A conversation in your bot’s chat'}</small></span>
-            <img src={chatArtwork} alt="" width="340" height="340" draggable={false} />
-            <span className="consultant-channel-check" aria-hidden="true">{channel === 'chat' && <Check size={12} strokeWidth={3} />}</span>
-          </button>
-        </div>
-        <button type="button" className={`consultant-both ${bothChannels ? 'is-selected' : ''}`} aria-pressed={bothChannels} onClick={() => setBothChannels(!bothChannels)} data-testid="consultant-both"><span className="consultant-both-check" aria-hidden="true">{bothChannels && <Check size={12} strokeWidth={3} />}</span><span>{ru ? 'Мне интересны оба канала' : 'I’m interested in both channels'}</span></button>
-        <div className="consultant-demo" aria-label={ru ? 'Пример диалога' : 'Example conversation'}>
-          <div className="consultant-example-heading"><span>{ru ? 'ПОСМОТРИТЕ В ДЕЙСТВИИ' : 'SEE IT IN ACTION'}</span><h3>{ru ? 'Один вопрос — и диалог начинается' : 'One question starts a conversation'}</h3><p>{channel === 'app' ? (ru ? 'Покупатель задаёт вопрос прямо в приложении.' : 'A customer asks a question directly in your app.') : (ru ? 'Покупатель пишет вашему боту в Telegram.' : 'A customer messages your bot in Telegram.')}</p></div>
-          <div className="consultant-scenarios" role="group" aria-label={ru ? 'Пример задачи' : 'Example use case'}>
-            {(Object.keys(examples) as Example[]).map((id) => <button type="button" key={id} className={example === id ? 'is-selected' : ''} aria-pressed={example === id} onClick={() => setExample(id)} data-testid={`consultant-example-${id}`}>{examples[id][language].label}</button>)}
-          </div>
-          <div className="consultant-chat-window"><div className="consultant-demo-header"><span className="consultant-demo-avatar"><img src={orb} alt="" /></span><span><strong>{ru ? 'ИИ-консультант' : 'AI consultant'}</strong><small>{channel === 'app' ? 'Mini App' : 'Telegram'}</small></span><span className="consultant-demo-tag">{ru ? 'ПРИМЕР' : 'EXAMPLE'}</span></div><div className="consultant-chat-canvas"><ConversationPreview key={`${example}-${channel}-${language}`} content={currentExample} showPhoto={example === 'choice'} ru={ru} /></div></div>
-        </div>
-      </section>
+        {screen === 'industries' && (
+          <section className="ai2-industries" aria-labelledby="ai2-industries-title">
+            <div className="ai2-page-heading">
+              <span className="ai2-kicker">{ru ? 'НАЧНЁМ С ПРИМЕРА' : 'START WITH AN EXAMPLE'}</span>
+              <h1 id="ai2-industries-title">
+                {ru ? 'Какой у вас бизнес?' : 'What kind of business do you have?'}
+              </h1>
+              <p>
+                {ru
+                  ? 'Выберите направление — покажем подходящую историю общения с клиентом.'
+                  : 'Choose a direction to see a relevant customer conversation.'}
+              </p>
+            </div>
+            <div className="ai2-industry-list">
+              {industries.map((item) => (
+                <button
+                  type="button"
+                  className={`ai2-industry is-${item}`}
+                  key={item}
+                  onClick={() => selectIndustry(item)}
+                  data-testid={`consultant-industry-${item}`}
+                >
+                  <span>
+                    <strong>{industryNames[item][language]}</strong>
+                    <small>
+                      {item === 'shop'
+                        ? ru
+                          ? 'Товары и помощь с выбором'
+                          : 'Products and recommendations'
+                        : item === 'services'
+                          ? ru
+                            ? 'Запись и вопросы клиентов'
+                            : 'Bookings and customer questions'
+                          : item === 'restaurant'
+                            ? ru
+                              ? 'Меню и условия доставки'
+                              : 'Menu and delivery details'
+                            : ru
+                              ? 'Подберём сценарий вместе'
+                              : 'Find a suitable scenario together'}
+                    </small>
+                    <i>
+                      {ru ? 'Посмотреть пример' : 'See an example'} <ArrowRight size={14} />
+                    </i>
+                  </span>
+                  <img src={industryArt[item]} alt="" loading="lazy" />
+                  <span className="ai2-industry-arrow">
+                    <ArrowRight size={17} />
+                  </span>
+                </button>
+              ))}
+            </div>
+            <p className="ai2-industry-note">
+              {ru
+                ? 'Направление можно изменить в любой момент.'
+                : 'You can change the direction at any time.'}
+            </p>
+          </section>
+        )}
 
-      <section className="consultant-benefits" aria-labelledby="consultant-benefits-title">
-        <div className="consultant-section-label">{ru ? 'ЧЕМ ПОМОЖЕТ' : 'WHAT IT CAN DO'}</div>
-        <h2 id="consultant-benefits-title">{ru ? 'Больше внимания каждому клиенту' : 'More attention for every customer'}</h2>
-        <div className="consultant-benefit-list">
-          <div><span>01</span><p><strong>{ru ? 'Ответы на вопросы' : 'Answer questions'}</strong><small>{ru ? 'Расскажет об услугах, товарах и условиях на основе ваших материалов.' : 'Explain your services, products and policies using your materials.'}</small></p></div>
-          <div><span>02</span><p><strong>{ru ? 'Помощь с выбором' : 'Help customers choose'}</strong><small>{ru ? 'Уточнит пожелания и поможет найти подходящий вариант.' : 'Ask what matters and help find a suitable option.'}</small></p></div>
-          <div><span>03</span><p><strong>{ru ? 'Связь с командой' : 'Connect to your team'}</strong><small>{ru ? 'При необходимости можно настроить передачу вопроса специалисту.' : 'A handoff to your team can be set up when needed.'}</small></p></div>
-        </div>
-      </section>
+        {screen === 'demo' && (
+          <AIConsultantDemo
+            key={industry}
+            industry={industry}
+            language={language}
+            branchId={branchId}
+            onBranch={setBranchId}
+            view={view}
+            onView={setView}
+            channel={demoChannel}
+            onChannel={selectDemoChannel}
+            onChangeIndustry={() => openIndustries('demo')}
+            onContinue={() => moveTo('inside')}
+          />
+        )}
 
-      <section className="consultant-faq" aria-labelledby="consultant-faq-title">
-        <div className="consultant-section-label">{ru ? 'ПОЛЕЗНО ЗНАТЬ' : 'GOOD TO KNOW'}</div>
-        <h2 id="consultant-faq-title">{ru ? 'Частые вопросы' : 'Frequently asked questions'}</h2>
-        <div className="consultant-faq-list">
-          <details><summary>{ru ? 'Что нужно подготовить?' : 'What do I need to prepare?'}<ChevronDown size={18} aria-hidden="true" /></summary><p>{ru ? 'Расскажите о бизнесе и соберите материалы, на которые консультант сможет опираться: описание услуг, каталог и ответы на частые вопросы.' : 'Tell us about your business and gather material the consultant can use, such as service descriptions, a catalogue and common answers.'}</p></details>
-          <details><summary>{ru ? 'Можно использовать оба канала?' : 'Can I use both channels?'}<ChevronDown size={18} aria-hidden="true" /></summary><p>{ru ? 'Да, можно обсудить работу консультанта в Mini App и в чате бота. Состав функций и подключение определим для вашего проекта.' : 'We can discuss a consultant for your Mini App and bot chat. The features and connection will be tailored to your project.'}</p></details>
-          <details><summary>{ru ? 'Как узнать стоимость?' : 'How do I get an estimate?'}<ChevronDown size={18} aria-hidden="true" /></summary><p>{ru ? 'Стоимость зависит от задач, данных и выбранных каналов. Напишите нам — уточним детали и подготовим предложение.' : 'The cost depends on your goals, information and chosen channels. Contact us to discuss the details and receive an estimate.'}</p></details>
-        </div>
-      </section>
+        {screen === 'inside' && (
+          <section className="ai2-inside" aria-labelledby="ai2-inside-title">
+            <div className="ai2-page-heading">
+              <span className="ai2-kicker">{ru ? 'ВЗГЛЯД ИЗНУТРИ' : 'A LOOK INSIDE'}</span>
+              <h1 id="ai2-inside-title">{ru ? 'Ваш бизнес — его основа' : 'Built around your business'}</h1>
+              <p>
+                {ru
+                  ? 'Согласуем, что консультант знает, как отвечает и когда подключает команду.'
+                  : 'Agree what the consultant knows, how it responds and when your team steps in.'}
+              </p>
+            </div>
+            <div className="ai2-knowledge-card">
+              <div>
+                <span className="ai2-kicker">{ru ? 'ЗНАНИЯ БИЗНЕСА' : 'YOUR BUSINESS KNOWLEDGE'}</span>
+                <h2>{ru ? 'Ответы из ваших материалов' : 'Answers from your information'}</h2>
+                <p>
+                  {ru
+                    ? 'Каталог, услуги, частые вопросы и условия — всё, на что вы хотите опираться.'
+                    : 'Your catalogue, services, common questions and policies can form the basis.'}
+                </p>
+              </div>
+              <img src={knowledgeArt} alt="" loading="lazy" />
+            </div>
+            <div className="ai2-capabilities">
+              <div>
+                <span>01</span>
+                <p>
+                  <strong>{ru ? 'Сначала понимает задачу' : 'Starts with the customer’s need'}</strong>
+                  <small>
+                    {ru
+                      ? 'Уточняет пожелания, чтобы предложить подходящий следующий шаг.'
+                      : 'Asks what matters to offer a relevant next step.'}
+                  </small>
+                </p>
+              </div>
+              <div>
+                <span>02</span>
+                <p>
+                  <strong>{ru ? 'Помогает с выбором' : 'Helps with a choice'}</strong>
+                  <small>
+                    {ru
+                      ? 'Может рассказать о товаре и уместно предложить дополнение.'
+                      : 'Can explain a product and suggest a relevant addition.'}
+                  </small>
+                </p>
+              </div>
+              <div>
+                <span>03</span>
+                <p>
+                  <strong>{ru ? 'Подключает команду' : 'Involves your team'}</strong>
+                  <small>
+                    {ru
+                      ? 'Сценарий передачи специалисту можно согласовать при настройке.'
+                      : 'A handoff to a specialist can be agreed during setup.'}
+                  </small>
+                </p>
+              </div>
+            </div>
+            <div className="ai2-comparison">
+              <div className="ai2-section-heading">
+                <span className="ai2-kicker">{ru ? 'ОДНА КОМАНДА' : 'ONE TEAM'}</span>
+                <h2>{ru ? 'Помощник и специалист' : 'Assistant and specialist'}</h2>
+                <p>{ru ? 'Выберите, чтобы увидеть их роли.' : 'Choose a view to see their roles.'}</p>
+              </div>
+              <div className="ai2-segment" role="group" aria-label={ru ? 'Сравнить роли' : 'Compare roles'}>
+                <button
+                  type="button"
+                  aria-pressed={comparison === 'ai'}
+                  onClick={() => setComparison('ai')}
+                  data-testid="consultant-compare-ai"
+                >
+                  {ru ? 'ИИ-консультант' : 'AI consultant'}
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={comparison === 'human'}
+                  onClick={() => setComparison('human')}
+                  data-testid="consultant-compare-human"
+                >
+                  {ru ? 'Специалист' : 'Specialist'}
+                </button>
+              </div>
+              <div className={`ai2-compare-card is-${comparison}`} data-testid="consultant-comparison-card">
+                <div>
+                  <strong>
+                    {comparison === 'ai'
+                      ? ru
+                        ? 'Рядом, когда клиенту нужна помощь'
+                        : 'There when customers need help'
+                      : ru
+                        ? 'Личный опыт в сложный момент'
+                        : 'Personal expertise when it matters'}
+                  </strong>
+                  <p>
+                    {comparison === 'ai'
+                      ? ru
+                        ? 'Может отвечать на типовые вопросы и помогать с выбором.'
+                        : 'Can answer common questions and help with choices.'
+                      : ru
+                        ? 'Разбирает нестандартные ситуации и принимает важные решения.'
+                        : 'Handles unusual situations and makes important decisions.'}
+                  </p>
+                </div>
+                <img src={comparison === 'ai' ? orb : humanSupport} alt="" loading="lazy" />
+              </div>
+              <p className="ai2-disclaimer">
+                {ru
+                  ? 'Возможности зависят от настройки и доступности сервиса.'
+                  : 'Capabilities depend on setup and service availability.'}
+              </p>
+            </div>
+            <div className="ai2-sales-note">
+              <Sparkles size={19} />
+              <div>
+                <strong>{ru ? 'Внимание к клиенту и продаже' : 'Thoughtful for customers and sales'}</strong>
+                <p>
+                  {ru
+                    ? 'В сценариях можно учесть принципы продаж, маркетинга и общения с вашей аудиторией.'
+                    : 'Scenarios can reflect sales, marketing and communication principles for your audience.'}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="ai2-primary"
+              onClick={() => moveTo('configure')}
+              data-testid="consultant-inside-continue"
+            >
+              <span>{ru ? 'Подобрать для своего бизнеса' : 'Make it fit your business'}</span>
+              <ArrowRight size={18} />
+            </button>
+          </section>
+        )}
 
-      <section className="consultant-process" aria-labelledby="consultant-process-title">
-        <div className="consultant-section-label">{ru ? 'КАК МЫ НАСТРОИМ' : 'HOW WE SET IT UP'}</div>
-        <h2 id="consultant-process-title">{ru ? 'С учётом вашего бизнеса' : 'Built around your business'}</h2>
-        <div className="consultant-process-list"><div><span>1</span><p><strong>{ru ? 'Познакомимся с задачей' : 'Understand your needs'}</strong><small>{ru ? 'Обсудим клиентов, продукты и вопросы, с которыми нужна помощь.' : 'Discuss your customers, products and the questions they ask.'}</small></p></div><div><span>2</span><p><strong>{ru ? 'Подготовим материалы' : 'Prepare your information'}</strong><small>{ru ? 'Согласуем знания, ответы и случаи, когда нужен специалист.' : 'Agree on the information, responses and when to involve your team.'}</small></p></div><div><span>3</span><p><strong>{ru ? 'Выберем канал' : 'Choose a channel'}</strong><small>{ru ? 'Продумайте с нами подключение в приложении, чате или обоих местах.' : 'Plan a connection in your app, chat, or both.'}</small></p></div></div>
-      </section>
+        {screen === 'configure' && (
+          <section className="ai2-configure" aria-labelledby="ai2-configure-title">
+            <div className="ai2-page-heading">
+              <span className="ai2-kicker">{ru ? 'СОБЕРЁМ ВМЕСТЕ' : 'LET’S BUILD IT TOGETHER'}</span>
+              <h1 id="ai2-configure-title">
+                {ru ? 'Каким будет ваш консультант?' : 'What will your consultant be like?'}
+              </h1>
+              <p>
+                {ru
+                  ? 'Выберите то, что вам интересно. Детали можно обсудить позже.'
+                  : 'Choose what interests you. We can discuss the details later.'}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="ai2-choice-context"
+              onClick={() => openIndustries('configure')}
+              data-testid="consultant-config-industry"
+            >
+              <img src={industryChosen ? industryArt[industry] : appArtwork} alt="" />
+              <span>
+                <small>{ru ? 'НАПРАВЛЕНИЕ' : 'BUSINESS'}</small>
+                <strong>
+                  {industryChosen
+                    ? industryNames[industry][language]
+                    : ru
+                      ? 'Выбрать направление'
+                      : 'Choose a business type'}
+                </strong>
+              </span>
+              <ChevronRight size={18} />
+            </button>
+            <div className="ai2-form-section">
+              <div className="ai2-section-heading">
+                <h2>{ru ? 'Где он будет общаться?' : 'Where will it talk to customers?'}</h2>
+                <p>{ru ? 'Выберите один или оба канала.' : 'Choose one or both channels.'}</p>
+              </div>
+              <div className="ai2-channel-cards">
+                <button
+                  type="button"
+                  className="ai2-channel-card is-app"
+                  aria-pressed={channel === 'app'}
+                  onClick={() => setChannel('app')}
+                  data-testid="consultant-channel-app"
+                >
+                  <strong>{ru ? 'В приложении' : 'In the app'}</strong>
+                  <small>{ru ? 'Рядом с товарами и услугами' : 'Alongside products and services'}</small>
+                  <img src={appArtwork} alt="" loading="lazy" />
+                  <span>{channel === 'app' && <Check size={13} />}</span>
+                </button>
+                <button
+                  type="button"
+                  className="ai2-channel-card is-chat"
+                  aria-pressed={channel === 'chat'}
+                  onClick={() => setChannel('chat')}
+                  data-testid="consultant-channel-chat"
+                >
+                  <strong>{ru ? 'В Telegram-чате' : 'In Telegram chat'}</strong>
+                  <small>{ru ? 'В диалоге с вашим ботом' : 'In your bot’s conversation'}</small>
+                  <img src={chatArtwork} alt="" loading="lazy" />
+                  <span>{channel === 'chat' && <Check size={13} />}</span>
+                </button>
+              </div>
+              <button
+                type="button"
+                className="ai2-both-channel"
+                aria-pressed={channel === 'both'}
+                onClick={() => setChannel((current) => (current === 'both' ? null : 'both'))}
+                data-testid="consultant-both"
+              >
+                <span>{channel === 'both' && <Check size={13} />}</span>
+                {ru ? 'Мне интересны оба канала' : 'I’m interested in both channels'}
+              </button>
+            </div>
+            <div className="ai2-form-section">
+              <div className="ai2-section-heading">
+                <h2>{ru ? 'С чем он поможет?' : 'What should it help with?'}</h2>
+                <p>{ru ? 'Можно выбрать несколько задач.' : 'Choose as many tasks as you need.'}</p>
+              </div>
+              <div
+                className="ai2-task-list"
+                role="group"
+                aria-label={ru ? 'Задачи консультанта' : 'Consultant tasks'}
+              >
+                {tasks.map((item) => (
+                  <button
+                    type="button"
+                    key={item}
+                    aria-pressed={selectedTasks.includes(item)}
+                    onClick={() => toggleTask(item)}
+                    data-testid={`consultant-task-${item}`}
+                  >
+                    <span>{selectedTasks.includes(item) && <Check size={13} />}</span>
+                    <strong>{taskNames[item][language]}</strong>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="ai2-form-section">
+              <div className="ai2-tone-heading">
+                <div className="ai2-section-heading">
+                  <h2>{ru ? 'Как он будет говорить?' : 'How should it sound?'}</h2>
+                  <p>{ru ? 'Выберите настроение ответа.' : 'Choose a response style.'}</p>
+                </div>
+                <img src={tuningArt} alt="" loading="lazy" />
+              </div>
+              <div
+                className="ai2-segment"
+                role="group"
+                aria-label={ru ? 'Тон общения' : 'Communication style'}
+              >
+                <button
+                  type="button"
+                  aria-pressed={tone === 'warm'}
+                  onClick={() => setTone('warm')}
+                  data-testid="consultant-tone-warm"
+                >
+                  {ru ? 'Дружелюбно' : 'Friendly'}
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={tone === 'business'}
+                  onClick={() => setTone('business')}
+                  data-testid="consultant-tone-business"
+                >
+                  {ru ? 'По-деловому' : 'Professional'}
+                </button>
+              </div>
+              <div className="ai2-tone-preview" aria-live="polite">
+                <span className="ai2-tone-avatar">
+                  <img src={orb} alt="" />
+                </span>
+                <p>
+                  {tone === null
+                    ? ru
+                      ? 'Выберите стиль — здесь появится пример ответа.'
+                      : 'Choose a style to see an example response.'
+                    : tone === 'warm'
+                      ? ru
+                        ? 'Здравствуйте! С удовольствием помогу вам выбрать подходящий вариант.'
+                        : 'Hello! I’d be happy to help you find the right option.'
+                      : ru
+                        ? 'Здравствуйте. Помогу подобрать подходящее решение и уточнить детали.'
+                        : 'Hello. I can help you choose a suitable solution and clarify the details.'}
+                </p>
+              </div>
+              <small className="ai2-form-note">
+                {ru
+                  ? 'Пример тона — окончательные ответы согласуем с вами.'
+                  : 'Example tone; final responses are agreed with you.'}
+              </small>
+            </div>
+            <div className="ai2-form-section">
+              <label className="ai2-input-label" htmlFor="consultant-project-name">
+                {ru ? 'Название проекта' : 'Project name'} <span>{ru ? 'необязательно' : 'optional'}</span>
+              </label>
+              <input
+                id="consultant-project-name"
+                className="ai2-input"
+                maxLength={80}
+                value={projectName}
+                onChange={(event) => setProjectName(event.target.value)}
+                placeholder={ru ? 'Например, название вашего бизнеса' : 'For example, your business name'}
+              />
+            </div>
+            <button
+              type="button"
+              className="ai2-primary"
+              onClick={() => moveTo('review')}
+              data-testid="consultant-config-continue"
+            >
+              <span>{ru ? 'Посмотреть заявку' : 'Review your request'}</span>
+              <ArrowRight size={18} />
+            </button>
+          </section>
+        )}
 
-      <section className="consultant-contact" aria-labelledby="consultant-contact-title">
-        <div><span>{ru ? 'ВАШ БИЗНЕС · ВАШ КОНСУЛЬТАНТ' : 'YOUR BUSINESS · YOUR CONSULTANT'}</span><h2 id="consultant-contact-title">{ru ? 'Обсудим вашу идею?' : 'Shall we discuss your idea?'}</h2><p>{ru ? 'Расскажите о своей задаче — вместе подберём подходящий сценарий.' : 'Tell us what you need and we’ll find the right approach together.'}</p></div>
-        <img src={orb} alt="" />
-        <button type="button" className="consultant-primary" onClick={openRequest} data-testid="consultant-contact"><span>{ru ? 'Обсудить консультанта' : 'Discuss your consultant'}</span><ArrowRight size={18} /></button>
-        <small>{ru ? 'Откроется подготовленное сообщение в Telegram.' : 'A prepared Telegram message will open.'}</small>
-      </section>
-    </div>
-  </main>;
+        {screen === 'review' && (
+          <section className="ai2-review" aria-labelledby="ai2-review-title">
+            <div className="ai2-page-heading">
+              <span className="ai2-kicker">{ru ? 'ВАШ КОНСУЛЬТАНТ' : 'YOUR CONSULTANT'}</span>
+              <h1 id="ai2-review-title">{ru ? 'Обсудим вашу идею?' : 'Shall we discuss your idea?'}</h1>
+              <p>
+                {ru
+                  ? 'Проверьте пожелания — они появятся в сообщении для нашей команды.'
+                  : 'Review your preferences; they will appear in your message to our team.'}
+              </p>
+            </div>
+            <div className="ai2-review-hero">
+              <div>
+                <small>{ru ? 'ВАШ ПРОЕКТ' : 'YOUR PROJECT'}</small>
+                <h2>{projectName.trim() || (ru ? 'ИИ-консультант' : 'AI consultant')}</h2>
+                <p>
+                  {industryChosen
+                    ? industryNames[industry][language]
+                    : ru
+                      ? 'Направление обсудим вместе'
+                      : 'We can discuss your business'}
+                </p>
+              </div>
+              <img src={orb} alt="" />
+            </div>
+            <div className="ai2-summary">
+              <div>
+                <span>{ru ? 'Канал' : 'Channel'}</span>
+                <strong>
+                  {channel ? channelNames[channel][language] : ru ? 'Обсудим' : 'To be discussed'}
+                </strong>
+              </div>
+              <div>
+                <span>{ru ? 'Задачи' : 'Tasks'}</span>
+                <strong>
+                  {selectedTasks.length
+                    ? selectedTasks.map((item) => taskNames[item][language]).join(' · ')
+                    : ru
+                      ? 'Обсудим вместе'
+                      : 'To be discussed'}
+                </strong>
+              </div>
+              <div>
+                <span>{ru ? 'Тон общения' : 'Tone'}</span>
+                <strong>{toneLabel}</strong>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="ai2-edit"
+              onClick={() => moveTo('configure')}
+              data-testid="consultant-review-edit"
+            >
+              {ru ? 'Изменить пожелания' : 'Edit preferences'} <ArrowRight size={16} />
+            </button>
+            <div className="ai2-cost">
+              <div>
+                <span className="ai2-kicker">{ru ? 'УСЛОВИЯ' : 'TERMS'}</span>
+                <h2>{ru ? 'Из чего складывается стоимость' : 'What affects the cost'}</h2>
+                <p>
+                  {ru
+                    ? 'Состав зависит от задач, каналов и подключений. Сначала обсудим проект, затем подготовим предложение.'
+                    : 'The scope depends on tasks, channels and integrations. We’ll discuss your project before preparing an estimate.'}
+                </p>
+              </div>
+              <ul>
+                <li>
+                  <span>{ru ? 'Разработка и настройка' : 'Development and setup'}</span>
+                  <strong>{ru ? 'По составу проекта' : 'Based on project scope'}</strong>
+                </li>
+                <li>
+                  <span>{ru ? 'ИИ-сервис и сопровождение' : 'AI service and ongoing support'}</span>
+                  <strong>{ru ? 'Согласуем отдельно' : 'Agreed separately'}</strong>
+                </li>
+              </ul>
+            </div>
+            <div className="ai2-faq">
+              <h2>{ru ? 'Полезно знать' : 'Good to know'}</h2>
+              <details>
+                <summary>
+                  {ru ? 'Что потребуется для настройки?' : 'What is needed for setup?'}
+                  <ChevronDown size={18} />
+                </summary>
+                <p>
+                  {ru
+                    ? 'Расскажите о бизнесе и подготовьте материалы: описание услуг, каталог и ответы на частые вопросы.'
+                    : 'Tell us about your business and gather service descriptions, your catalogue and common answers.'}
+                </p>
+              </details>
+              <details>
+                <summary>
+                  {ru ? 'Можно использовать оба канала?' : 'Can I use both channels?'}
+                  <ChevronDown size={18} />
+                </summary>
+                <p>
+                  {ru
+                    ? 'Да, можно обсудить подключение в Mini App и Telegram-чате. Состав и возможности определим для проекта.'
+                    : 'We can discuss both Mini App and Telegram chat. The scope is tailored to your project.'}
+                </p>
+              </details>
+              <details>
+                <summary>
+                  {ru ? 'Что происходит после заявки?' : 'What happens after I contact you?'}
+                  <ChevronDown size={18} />
+                </summary>
+                <p>
+                  {ru
+                    ? 'Обсудим задачи, материалы и каналы, затем предложим подходящий состав и условия.'
+                    : 'We’ll discuss your goals, information and channels, then propose a suitable scope and terms.'}
+                </p>
+              </details>
+            </div>
+            <button
+              type="button"
+              className="ai2-primary"
+              onClick={openRequest}
+              data-testid="consultant-review-contact"
+            >
+              <span>{ru ? 'Открыть заявку в Telegram' : 'Open request in Telegram'}</span>
+              <ArrowRight size={18} />
+            </button>
+            <p className="ai2-contact-note">
+              {ru
+                ? 'Откроется подготовленное сообщение — проверьте и отправьте его сами.'
+                : 'A prepared message will open for you to review and send.'}
+            </p>
+          </section>
+        )}
+      </div>
+    </main>
+  );
 }
