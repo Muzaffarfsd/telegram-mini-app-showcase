@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, RotateCcw } from 'lucide-react';
+import { ArrowRight, CheckCheck, RotateCcw } from 'lucide-react';
 import type { ConsultantIndustry, ConsultantLanguage } from './consultantJourneyData';
 import { industryScenes } from './consultantJourneyData';
-import orb from '../assets/consultant/consultant-orb.webp';
 import sneakerPhoto from '../assets/consultant/example-nike.webp';
 import handoffArt from '../assets/consultant/handoff-v1.webp';
+import { AIConsultantChannelPreview } from './AIConsultantChannelPreview';
 
 type Props = {
   industry: ConsultantIndustry;
@@ -81,8 +81,8 @@ export function AIConsultantDemo({
   const ru = language === 'ru';
   const scene = industryScenes[industry][language];
   const branch = useMemo(() => scene.branches.find((item) => item.id === branchId), [scene, branchId]);
-  const [introInstant, setIntroInstant] = useState(false);
-  const [answerInstant, setAnswerInstant] = useState(false);
+  const [introInstant, setIntroInstant] = useState(Boolean(branchId));
+  const [answerInstant, setAnswerInstant] = useState(Boolean(branchId));
   const [replay, setReplay] = useState(0);
   const [productSelected, setProductSelected] = useState(false);
   const intro = useAnimatedText(scene.introduction, true, introInstant, replay);
@@ -112,20 +112,144 @@ export function AIConsultantDemo({
     onView('customer');
   };
 
+  const choices = scene.branches.map((option) => (
+    <button
+      type="button"
+      key={option.id}
+      aria-pressed={branchId === option.id}
+      onClick={() => chooseBranch(option.id)}
+      data-testid={`consultant-reply-${option.id}`}
+    >
+      {option.label}
+    </button>
+  ));
+  const selectionLabel = productSelected
+    ? ru
+      ? 'Выбрано в примере'
+      : 'Selected in example'
+    : ru
+      ? 'Выбрать'
+      : 'Select';
+  const messages = (
+    <>
+      <div className="ai2-message is-customer">
+        {industry === 'shop' && channel === 'chat' && (
+          <img
+            src={sneakerPhoto}
+            className="ai2-message-photo"
+            alt={ru ? 'Пример фотографии кроссовок Nike' : 'Example photograph of Nike sneakers'}
+            width="480"
+            height="480"
+          />
+        )}
+        <span>{scene.question}</span>
+        {channel === 'chat' && (
+          <span className="ai4-message-time" aria-hidden="true">
+            12:41 <CheckCheck size={13} />
+          </span>
+        )}
+      </div>
+      {intro.typing && (
+        <div className="ai2-typing" aria-label={ru ? 'Консультант печатает' : 'The consultant is typing'}>
+          <i />
+          <i />
+          <i />
+        </div>
+      )}
+      {intro.visible && (
+        <div className="ai2-message is-assistant">
+          <span aria-hidden={!intro.done}>{intro.visible}</span>
+          {channel === 'chat' && intro.done && (
+            <span className="ai4-message-time" aria-hidden="true">
+              12:41
+            </span>
+          )}
+        </div>
+      )}
+      {branch && (
+        <>
+          <div className="ai2-message is-customer">
+            <span>{channel === 'chat' ? branch.label : branch.customer}</span>
+            {channel === 'chat' && (
+              <span className="ai4-message-time" aria-hidden="true">
+                12:42 <CheckCheck size={13} />
+              </span>
+            )}
+          </div>
+          {answer.typing && (
+            <div className="ai2-typing" aria-label={ru ? 'Консультант печатает' : 'The consultant is typing'}>
+              <i />
+              <i />
+              <i />
+            </div>
+          )}
+          {answer.visible && (
+            <div className="ai2-message is-assistant">
+              <span aria-hidden={!answer.done}>{answer.visible}</span>
+              {channel === 'chat' && answer.done && (
+                <span className="ai4-message-time" aria-hidden="true">
+                  12:42
+                </span>
+              )}
+            </div>
+          )}
+          {branch.product &&
+            (answer.done || answerInstant) &&
+            (channel === 'chat' ? (
+              <div className="ai4-telegram-product" data-testid="consultant-example-product">
+                <div>
+                  <img src={sneakerPhoto} alt="" width="480" height="480" />
+                  <strong>Nike Air Force 1</strong>
+                  <small>{ru ? 'Размер 42 · пример' : 'Size 42 · example'}</small>
+                </div>
+                <button
+                  type="button"
+                  aria-pressed={productSelected}
+                  onClick={() => setProductSelected(!productSelected)}
+                >
+                  {selectionLabel}
+                </button>
+              </div>
+            ) : (
+              <div className="ai2-product" data-testid="consultant-example-product">
+                <img src={sneakerPhoto} alt="" width="480" height="480" />
+                <div>
+                  <strong>Nike Air Force 1</strong>
+                  <small>{ru ? 'Размер 42 · пример' : 'Size 42 · example'}</small>
+                  <button
+                    type="button"
+                    aria-pressed={productSelected}
+                    onClick={() => setProductSelected(!productSelected)}
+                  >
+                    {selectionLabel}
+                  </button>
+                </div>
+              </div>
+            ))}
+        </>
+      )}
+      <span className="profile-visually-hidden" role="status">
+        {intro.typing || answer.typing
+          ? ru
+            ? 'Консультант печатает'
+            : 'The consultant is typing'
+          : answer.done
+            ? ru
+              ? 'Ответ показан'
+              : 'Answer shown'
+            : ''}
+      </span>
+    </>
+  );
+
   return (
     <section className="ai2-demo-screen" aria-labelledby="ai2-demo-title">
       <div className="ai2-page-heading">
-        <span className="ai2-kicker">
-          {ru ? 'ОДНА ИСТОРИЯ · ДВА ВЗГЛЯДА' : 'ONE STORY · TWO PERSPECTIVES'}
-        </span>
+        <span className="ai2-kicker">{ru ? 'ПРИМЕР ОБЩЕНИЯ' : 'AN EXAMPLE CONVERSATION'}</span>
         <h1 id="ai2-demo-title">
-          {ru ? 'Посмотрите разговор в действии' : 'See the conversation in action'}
+          {ru ? 'Один диалог. Два взгляда.' : 'One conversation. Two perspectives.'}
         </h1>
-        <p>
-          {ru
-            ? 'Выберите продолжение и посмотрите, как помощник может ответить.'
-            : 'Choose what happens next and see how an assistant could respond.'}
-        </p>
+        <p>{ru ? 'Выберите, что спросит клиент.' : 'Choose what the customer asks next.'}</p>
       </div>
       <div className="ai2-context-row">
         <span>{scene.name}</span>
@@ -179,126 +303,24 @@ export function AIConsultantDemo({
               Telegram
             </button>
           </div>
-          <div className="ai2-chat-window" data-testid="consultant-example-conversation">
-            <div className="ai2-chat-head">
-              <span className="ai2-chat-avatar">
-                <img src={orb} alt="" />
-              </span>
-              <span>
-                <strong>{ru ? 'ИИ-консультант' : 'AI consultant'}</strong>
-                <small>{channel === 'app' ? 'Mini App' : 'Telegram'}</small>
-              </span>
-              <span className="ai2-demo-badge">{ru ? 'ПРИМЕР' : 'EXAMPLE'}</span>
-            </div>
-            <div className="ai2-chat-body">
-              <div className="ai2-message is-customer">
-                {industry === 'shop' && (
-                  <img
-                    src={sneakerPhoto}
-                    className="ai2-message-photo"
-                    alt={ru ? 'Пример фотографии кроссовок Nike' : 'Example photograph of Nike sneakers'}
-                    width="480"
-                    height="480"
-                  />
-                )}
-                <span>{scene.question}</span>
-              </div>
-              {intro.typing && (
-                <div
-                  className="ai2-typing"
-                  aria-label={ru ? 'Консультант печатает' : 'The consultant is typing'}
-                >
-                  <i />
-                  <i />
-                  <i />
-                </div>
-              )}
-              {intro.visible && (
-                <div className="ai2-message is-assistant">
-                  <span aria-hidden={!intro.done}>{intro.visible}</span>
-                </div>
-              )}
-              {(intro.done || introInstant) && (
-                <div
-                  className="ai2-replies"
-                  role="group"
-                  aria-label={ru ? 'Выберите продолжение' : 'Choose what happens next'}
-                >
-                  {scene.branches.map((option) => (
-                    <button
-                      type="button"
-                      key={option.id}
-                      aria-pressed={branchId === option.id}
-                      onClick={() => chooseBranch(option.id)}
-                      data-testid={`consultant-reply-${option.id}`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {branch && (
-                <>
-                  <div className="ai2-message is-customer">
-                    <span>{branch.customer}</span>
-                  </div>
-                  {answer.typing && (
-                    <div
-                      className="ai2-typing"
-                      aria-label={ru ? 'Консультант печатает' : 'The consultant is typing'}
-                    >
-                      <i />
-                      <i />
-                      <i />
-                    </div>
-                  )}
-                  {answer.visible && (
-                    <div className="ai2-message is-assistant">
-                      <span aria-hidden={!answer.done}>{answer.visible}</span>
-                    </div>
-                  )}
-                  {branch.product && (answer.done || answerInstant) && (
-                    <div className="ai2-product" data-testid="consultant-example-product">
-                      <img src={sneakerPhoto} alt="" width="480" height="480" />
-                      <div>
-                        <strong>Nike Air Force 1</strong>
-                        <small>{ru ? 'Размер 42 · пример' : 'Size 42 · example'}</small>
-                        <button
-                          type="button"
-                          aria-pressed={productSelected}
-                          onClick={() => setProductSelected(!productSelected)}
-                        >
-                          {productSelected
-                            ? ru
-                              ? 'Выбрано в примере'
-                              : 'Selected in example'
-                            : ru
-                              ? 'Выбрать'
-                              : 'Select'}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-              <span className="profile-visually-hidden" role="status">
-                {intro.typing || answer.typing
-                  ? ru
-                    ? 'Консультант печатает'
-                    : 'The consultant is typing'
-                  : answer.done
-                    ? ru
-                      ? 'Ответ показан'
-                      : 'Answer shown'
-                    : ''}
-              </span>
-            </div>
-          </div>
+          <AIConsultantChannelPreview
+            channel={channel}
+            industry={industry}
+            language={language}
+            scene={scene}
+            messages={messages}
+            choices={choices}
+            choicesReady={intro.done || introInstant}
+          />
           <div className="ai2-demo-foot">
             <p>
-              {ru
-                ? 'Демонстрация: ответы и наличие показаны на примере.'
-                : 'Demonstration: answers and availability are illustrative.'}
+              {channel === 'chat'
+                ? ru
+                  ? 'Выберите кнопку: настоящие сообщения не отправляются.'
+                  : 'Choose a button; no real messages are sent.'
+                : ru
+                  ? 'Пример: ответы и действия не меняют реальные данные.'
+                  : 'Example: replies and actions do not change real data.'}
             </p>
             <button
               type="button"
@@ -330,11 +352,12 @@ export function AIConsultantDemo({
             data-testid="consultant-show-business"
           >
             <span>
-              <strong>{ru ? 'А что видит бизнес?' : 'What does the business see?'}</strong>
+              <small className="ai3-behind-label">{ru ? 'ЗА КАДРОМ' : 'BEHIND THE SCENES'}</small>
+              <strong>
+                {branch ? branch.insight : ru ? 'А что видит бизнес?' : 'What does the business see?'}
+              </strong>
               <small>
-                {ru
-                  ? 'Посмотреть этот же разговор с другой стороны'
-                  : 'See the same conversation from the other side'}
+                {ru ? 'Посмотреть историю со стороны бизнеса' : 'See the story from the business perspective'}
               </small>
             </span>
             <ArrowRight size={19} />

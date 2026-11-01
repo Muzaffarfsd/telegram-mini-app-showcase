@@ -207,6 +207,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
   const isProfile = ['profile', 'referral', 'rewards', 'earning'].includes(route.component);
 
   const navAction = useCallback((path: string) => {
+    if (path === '/ai-process') window.dispatchEvent(new Event('web4tg:consultant-home'));
     navigate(path);
     queueMicrotask(() => hapticFeedback.light());
   }, [hapticFeedback]);

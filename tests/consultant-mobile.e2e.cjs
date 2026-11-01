@@ -155,7 +155,7 @@ async function captureRequest(page, id) {
     await lp.getByTestId('consultant-page').waitFor({ state: 'visible', timeout: 20000 });
     await lp.waitForFunction(
       () => {
-        const img = document.querySelector('.ai2-hero-art img');
+        const img = document.querySelector('.ai2-hero-art > img');
         return img?.complete && img.naturalWidth > 0;
       },
       null,
@@ -180,10 +180,24 @@ async function captureRequest(page, id) {
         /Google Sans App/,
       );
       assert.equal(
-        await page.locator('.ai2-hero-art img').evaluate((el) => getComputedStyle(el).animationName),
+        await page.locator('.ai2-hero-art > img').evaluate((el) => getComputedStyle(el).animationName),
         'none',
       );
+      const artBounds = await page.locator('.ai2-hero-art > img').boundingBox();
+      const copyBounds = await page.locator('.ai2-hero-copy').boundingBox();
+      assert.ok(artBounds.y + artBounds.height <= copyBounds.y, 'hero image must not overlap the copy');
+      assert.equal(
+        await page.locator('.ai2-hero-art img').count(),
+        1,
+        'only the consultant appears beside the hero copy',
+      );
+      assert.match(await page.locator('.ai3-hero-greeting').innerText(), /Привет.*личный ИИ-консультант/);
+      assert.doesNotMatch(await page.locator('.ai2-hero-art').innerText(), /42/);
       assert.match(await page.locator('#consultant-title').innerText(), /ИИ-консультант/);
+      assert.match(await page.locator('.ai2-hero-copy').innerText(), /Telegram.*приложении/);
+      assert.match(await page.locator('.ai5-benefit-list').innerText(), /Ответит на вопросы/);
+      assert.match(await page.locator('.ai5-benefit-list').innerText(), /Поможет с выбором/);
+      assert.match(await page.locator('.ai5-benefit-list').innerText(), /Передаст специалисту/);
       assert.equal(await page.getByText('ИИ ДЛЯ ВАШЕГО БИЗНЕСА').count(), 0);
       for (const id of ['consultant-show-demo', 'consultant-contact']) {
         const b = await page.getByTestId(id).boundingBox();
@@ -192,6 +206,8 @@ async function captureRequest(page, id) {
       const cta = await page.getByTestId('consultant-show-demo').boundingBox();
       const nav = await page.locator('nav.consultant-nav').boundingBox();
       assert.ok(cta.y + cta.height <= nav.y, 'primary action is visible above bottom navigation');
+      const contact = await page.getByTestId('consultant-contact').boundingBox();
+      assert.ok(contact.y + contact.height <= nav.y, 'contact action is visible above bottom navigation');
       if (width === 390) await snap(page, '01-home');
       if (width === 320) await snap(page, '320-home');
       const direct = await captureRequest(page, 'consultant-contact');
@@ -201,6 +217,52 @@ async function captureRequest(page, id) {
       await page.evaluate(() => {
         window.__requestUrl = null;
       });
+      for (const id of [
+        'consultant-preview-shop',
+        'consultant-preview-services',
+        'consultant-preview-restaurant',
+      ]) {
+        const box = await page.getByTestId(id).boundingBox();
+        assert.ok(box.width >= 44 && box.height >= 44, id);
+      }
+      await tap(page.getByTestId('consultant-preview-services'));
+      assert.equal(await selected(page, 'consultant-preview-services'), 'true');
+      assert.match(await page.getByTestId('consultant-story-preview').innerText(), /11:00/);
+      await tap(page.getByTestId('consultant-preview-restaurant'));
+      assert.equal(await selected(page, 'consultant-preview-restaurant'), 'true');
+      assert.match(await page.getByTestId('consultant-story-preview').innerText(), /доставк/i);
+      assert.match(await page.getByTestId('consultant-story-preview').innerText(), /пример/i);
+      await tap(page.getByTestId('consultant-preview-channel-chat'));
+      assert.equal(await selected(page, 'consultant-preview-channel-chat'), 'true');
+      assert.equal(
+        await page.locator('.ai3-story-question').evaluate((el) => getComputedStyle(el).animationName),
+        'none',
+      );
+      if (width === 390) {
+        const afterBrowsing = await captureRequest(page, 'consultant-contact');
+        assert.match(afterBrowsing, /Направление: Обсудим/);
+        await page.evaluate(() => {
+          window.__requestUrl = null;
+        });
+      }
+      if (width === 390 || width === 320) {
+        await page.locator('.ai3-story-intro').evaluate((el) => {
+          const root = document.getElementById('root');
+          root.scrollTo(0, root.scrollTop + el.getBoundingClientRect().top - 105);
+        });
+        await snap(page, width === 390 ? '08-stories' : '320-stories');
+      }
+      await tap(page.getByTestId('consultant-preview-open'));
+      await screen(page, 'demo');
+      assert.equal(
+        await page.getByTestId('consultant-example-conversation').getAttribute('data-demo-channel'),
+        'telegram',
+      );
+      assert.equal(await selected(page, 'consultant-reply-delivery'), 'true');
+      assert.match(await page.getByTestId('consultant-show-business').innerText(), /доставке/);
+      await tap(page.getByTestId('consultant-home-link'));
+      await screen(page, 'home');
+      assert.equal(await selected(page, 'consultant-preview-restaurant'), 'true');
       await tap(page.getByTestId('consultant-show-demo'));
       await screen(page, 'industries');
       await noOverflow(page);
@@ -212,8 +274,25 @@ async function captureRequest(page, id) {
       if (width === 320) await snap(page, '320-industries');
       await tap(page.getByTestId('consultant-industry-shop'));
       await screen(page, 'demo');
+      await tap(page.getByTestId('consultant-demo-channel-app'));
       await page.getByAltText('Пример фотографии кроссовок Nike').waitFor({ state: 'visible' });
       await page.getByTestId('consultant-reply-size').waitFor({ state: 'visible' });
+      assert.equal(
+        await page.getByTestId('consultant-example-conversation').getAttribute('data-demo-channel'),
+        'app',
+      );
+      assert.match(await page.locator('.ai4-app-context').innerText(), /Nike Air Force 1/);
+      await tap(page.getByTestId('consultant-app-chat-toggle'));
+      assert.equal(
+        await page.getByTestId('consultant-app-chat-toggle').getAttribute('aria-expanded'),
+        'false',
+      );
+      assert.equal(await page.getByTestId('consultant-reply-size').count(), 0);
+      await tap(page.getByTestId('consultant-app-chat-toggle'));
+      assert.equal(
+        await page.getByTestId('consultant-app-chat-toggle').getAttribute('aria-expanded'),
+        'true',
+      );
       assert.equal(
         await page.locator('.ai2-chat-body').evaluate((el) => getComputedStyle(el).backgroundColor),
         'rgb(247, 248, 249)',
@@ -236,6 +315,20 @@ async function captureRequest(page, id) {
       );
       await tap(page.getByTestId('consultant-demo-channel-chat'));
       assert.equal(await selected(page, 'consultant-demo-channel-chat'), 'true');
+      assert.equal(
+        await page.getByTestId('consultant-example-conversation').getAttribute('data-demo-channel'),
+        'telegram',
+      );
+      assert.equal(await page.locator('.ai4-telegram-keyboard button').count(), 3);
+      assert.equal(await page.getByAltText('Пример фотографии кроссовок Nike').count(), 1);
+      const customerCount = await page.locator('.ai4-telegram-messages .ai2-message.is-customer').count();
+      await tap(product.getByRole('button', { name: 'Выбрано в примере' }));
+      assert.equal(
+        await page.locator('.ai4-telegram-messages .ai2-message.is-customer').count(),
+        customerCount,
+        'inline product action must not send a chat message',
+      );
+      await tap(product.getByRole('button', { name: 'Выбрать' }));
       await tap(page.getByTestId('consultant-view-business'));
       assert.match(await page.locator('.ai2-story-timeline').innerText(), /нужный размер/);
       if (width === 390) {
@@ -246,6 +339,11 @@ async function captureRequest(page, id) {
       assert.equal(await selected(page, 'consultant-reply-size'), 'true');
       await tap(page.getByTestId('consultant-reply-human'));
       await page.getByText(/Подготовлю обращение специалисту/).waitFor({ state: 'visible' });
+      assert.match(
+        await page.locator('.ai4-telegram-messages .ai2-message.is-customer').last().innerText(),
+        /Нужен специалист/,
+        'reply keyboard sends its button text',
+      );
       await tap(page.getByTestId('consultant-reply-alternative'));
       await page.getByText(/похожие варианты/i).waitFor({ state: 'visible' });
       await tap(page.getByTestId('consultant-change-industry'));
@@ -274,6 +372,12 @@ async function captureRequest(page, id) {
         await page.locator('.ai2-channel-card.is-app').evaluate((el) => getComputedStyle(el).backgroundColor),
         'rgb(247, 248, 249)',
       );
+      assert.equal(
+        await selected(page, 'consultant-channel-chat'),
+        'false',
+        'viewing a demo must not preselect a project channel',
+      );
+      await tap(page.getByTestId('consultant-channel-chat'));
       assert.equal(await selected(page, 'consultant-channel-chat'), 'true');
       await tap(page.getByTestId('consultant-both'));
       assert.equal(await selected(page, 'consultant-both'), 'true');
@@ -324,6 +428,25 @@ async function captureRequest(page, id) {
       assert.equal(await selected(page, 'consultant-both'), 'true');
       await tap(page.getByTestId('consultant-home-link'));
       await screen(page, 'home');
+      await tap(page.getByTestId('consultant-show-demo'));
+      await screen(page, 'industries');
+      await page.getByTestId('nav-ai').tap();
+      await screen(page, 'home');
+      await tap(page.getByTestId('consultant-open-configure'));
+      await screen(page, 'configure');
+      await page.getByTestId('nav-showcase').tap();
+      await page.waitForFunction(() => window.location.hash === '#/');
+      await page.getByTestId('consultant-page').waitFor({ state: 'hidden' });
+      await page.getByTestId('nav-ai').tap();
+      await page.getByTestId('consultant-page').waitFor({ state: 'visible' });
+      await screen(page, 'home');
+      await tap(page.getByTestId('consultant-open-configure'));
+      await screen(page, 'configure');
+      assert.equal(
+        await selected(page, 'consultant-both'),
+        'true',
+        'returning home keeps project preferences',
+      );
       assert.deepEqual(errors, []);
       await context.close();
       console.log(`${width}×${height}: end-to-end journey, appearance and request passed`);
@@ -378,6 +501,7 @@ async function captureRequest(page, id) {
 
     const english = await open(browser, { lang: 'en', route: 'ai-agent' });
     assert.match(await english.page.locator('#consultant-title').innerText(), /AI consultant/);
+    assert.match(await english.page.locator('.ai2-hero-copy').innerText(), /Telegram.*app/);
     await tap(english.page.getByTestId('consultant-show-demo'));
     await tap(english.page.getByTestId('consultant-industry-restaurant'));
     await tap(english.page.getByTestId('consultant-reply-delivery'));
@@ -390,6 +514,11 @@ async function captureRequest(page, id) {
     console.log('English and alternate route passed');
 
     const animated = await open(browser, { motion: 'no-preference' });
+    await tap(animated.page.getByTestId('consultant-preview-services'));
+    assert.equal(
+      await animated.page.locator('.ai3-story-question').evaluate((el) => getComputedStyle(el).animationName),
+      'ai3-story-in',
+    );
     await tap(animated.page.getByTestId('consultant-show-demo'));
     await tap(animated.page.getByTestId('consultant-industry-shop'));
     await animated.page.locator('.ai2-typing').waitFor({ state: 'visible', timeout: 5000 });

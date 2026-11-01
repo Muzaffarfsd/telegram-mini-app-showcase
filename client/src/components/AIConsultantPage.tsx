@@ -28,6 +28,8 @@ import './AIConsultantExperience.css';
 type Screen = 'home' | 'industries' | 'demo' | 'inside' | 'configure' | 'review';
 type Props = { onNavigate: (path: string) => void };
 const industries: ConsultantIndustry[] = ['shop', 'services', 'restaurant', 'other'];
+const previewIndustries = ['shop', 'services', 'restaurant'] as const;
+const previewBranchIds = { shop: 'size', services: 'time', restaurant: 'delivery' } as const;
 const tasks: ConsultantTask[] = ['questions', 'selection', 'booking', 'orders', 'handoff'];
 const industryArt: Record<ConsultantIndustry, string> = {
   shop: shopArt,
@@ -55,6 +57,8 @@ export default function AIConsultantPage({ onNavigate }: Props) {
   const [tone, setTone] = useState<ConsultantTone | null>(null);
   const [projectName, setProjectName] = useState('');
   const [comparison, setComparison] = useState<'ai' | 'human'>('ai');
+  const [previewIndustry, setPreviewIndustry] = useState<(typeof previewIndustries)[number]>('shop');
+  const [previewChannel, setPreviewChannel] = useState<'app' | 'chat'>('app');
   const [artReady, setArtReady] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
   const screenRef = useRef<Screen>('home');
@@ -210,7 +214,6 @@ export default function AIConsultantPage({ onNavigate }: Props) {
   };
   const selectDemoChannel = (item: 'app' | 'chat') => {
     setDemoChannel(item);
-    setChannel(item);
   };
   const toggleTask = (item: ConsultantTask) =>
     setSelectedTasks((current) =>
@@ -228,10 +231,30 @@ export default function AIConsultantPage({ onNavigate }: Props) {
         : ru
           ? 'Обсудим'
           : 'To be discussed';
-  const goHome = () => {
+  const goHome = useCallback(() => {
     historyRef.current = [];
     scrollRef.current.home = 0;
-    moveTo('home', true);
+    if (screenRef.current === 'home') {
+      document.getElementById('root')?.scrollTo({ top: 0, behavior: 'auto' });
+    } else {
+      moveTo('home', true);
+    }
+  }, [moveTo]);
+  useEffect(() => {
+    window.addEventListener('web4tg:consultant-home', goHome);
+    return () => window.removeEventListener('web4tg:consultant-home', goHome);
+  }, [goHome]);
+  const previewScene = industryScenes[previewIndustry][language];
+  const previewBranch =
+    previewScene.branches.find((branch) => branch.id === previewBranchIds[previewIndustry]) ??
+    previewScene.branches[0];
+  const openPreview = () => {
+    setIndustry(previewIndustry);
+    setIndustryChosen(true);
+    setBranchId(previewBranch.id);
+    setView('customer');
+    setDemoChannel(previewChannel);
+    moveTo('demo');
   };
   const screenLabels: Record<Screen, string> = {
     home: '',
@@ -284,24 +307,28 @@ export default function AIConsultantPage({ onNavigate }: Props) {
             <h1 id="consultant-title">
               {ru ? (
                 <>
-                  Ваш <em>ИИ-консультант</em> для бизнеса
+                  ИИ-консультант
+                  <br />
+                  для бизнеса
                 </>
               ) : (
                 <>
-                  Your <em>AI consultant</em> for business
+                  AI consultant
+                  <br />
+                  for your business
                 </>
               )}
             </h1>
-            <div className="ai2-hero-art">
-              <span className="ai2-greeting">
-                {ru ? 'Привет! Покажу, как я помогу.' : 'Hello! Let me show you.'}
+            <div className="ai2-hero-art" aria-hidden="true">
+              <span className="ai3-hero-greeting">
+                {ru ? 'Привет! Я ваш личный ИИ-консультант.' : 'Hello! I’m your personal AI consultant.'}
               </span>
               <img src={orb} alt="" width="640" height="640" fetchPriority="high" />
             </div>
             <p className="ai2-hero-copy">
               {ru
-                ? 'Помогу клиентам с выбором, отвечу на вопросы и буду рядом, когда нужна помощь.'
-                : 'Help your customers choose, answer questions and be there when they need support.'}
+                ? 'Ответы и помощь с выбором — в Telegram и приложении.'
+                : 'Answers and help with choosing — in Telegram and your app.'}
             </p>
             <button
               className="ai2-primary"
@@ -309,7 +336,7 @@ export default function AIConsultantPage({ onNavigate }: Props) {
               onClick={() => openIndustries('demo')}
               data-testid="consultant-show-demo"
             >
-              <span>{ru ? 'Посмотреть в действии' : 'See it in action'}</span>
+              <span>{ru ? 'Посмотреть пример' : 'See an example'}</span>
               <ArrowRight size={18} />
             </button>
             <button
@@ -320,35 +347,148 @@ export default function AIConsultantPage({ onNavigate }: Props) {
             >
               {ru ? 'Сразу обсудить проект' : 'Discuss your project'}
             </button>
-            <div className="ai2-home-intro">
+            <div className="ai2-home-intro ai5-benefit-intro">
+              <span className="ai2-kicker">{ru ? 'ЧТО УМЕЕТ' : 'WHAT IT CAN DO'}</span>
+              <h2>{ru ? 'Чем он поможет' : 'What it can do'}</h2>
+              <p>
+                {ru
+                  ? 'Настроим помощника по вашим товарам, услугам и правилам работы.'
+                  : 'We can tailor the assistant to your products, services and policies.'}
+              </p>
+            </div>
+            <div className="ai5-benefit-list">
+              <article>
+                <img src={knowledgeArt} alt="" loading="lazy" />
+                <div>
+                  <h3>{ru ? 'Ответит на вопросы' : 'Answer questions'}</h3>
+                  <p>
+                    {ru
+                      ? 'Расскажет об условиях, товарах и услугах по вашим материалам.'
+                      : 'Explain your terms, products and services using your information.'}
+                  </p>
+                </div>
+              </article>
+              <article>
+                <img src={appArtwork} alt="" loading="lazy" />
+                <div>
+                  <h3>{ru ? 'Поможет с выбором' : 'Help customers choose'}</h3>
+                  <p>
+                    {ru
+                      ? 'Уточнит пожелания клиента и предложит подходящий следующий шаг.'
+                      : 'Clarify what the customer needs and suggest a suitable next step.'}
+                  </p>
+                </div>
+              </article>
+              <article>
+                <img src={handoffArt} alt="" loading="lazy" />
+                <div>
+                  <h3>{ru ? 'Передаст специалисту' : 'Bring in your team'}</h3>
+                  <p>
+                    {ru
+                      ? 'Подключит человека по сценарию, который мы согласуем с вами.'
+                      : 'Involve a person using a handoff agreed with you.'}
+                  </p>
+                </div>
+              </article>
+            </div>
+            <div className="ai2-home-intro ai3-story-intro">
               <div>
-                <span className="ai2-kicker">{ru ? 'ЗНАКОМЬТЕСЬ' : 'MEET YOUR ASSISTANT'}</span>
-                <h2>
-                  {ru
-                    ? 'Один помощник. Больше внимания клиентам.'
-                    : 'One assistant. More attention for customers.'}
-                </h2>
+                <span className="ai2-kicker">{ru ? 'КАК ЭТО ВЫГЛЯДИТ' : 'SEE HOW IT WORKS'}</span>
+                <h2>{ru ? 'Попробуйте пример' : 'Try an example'}</h2>
               </div>
               <p>
                 {ru
-                  ? 'Посмотрите историю с двух сторон и подберите сценарий для своего бизнеса.'
-                  : 'Explore both sides of a conversation and find a scenario for your business.'}
+                  ? 'Выберите бизнес и канал, чтобы посмотреть разговор глазами клиента.'
+                  : 'Choose a business and channel to see a customer conversation.'}
               </p>
             </div>
-            <div className="ai2-home-links">
+            <div
+              className="ai3-story-tabs"
+              role="group"
+              aria-label={ru ? 'Ситуация клиента' : 'Customer situation'}
+            >
+              {previewIndustries.map((item) => (
+                <button
+                  type="button"
+                  key={item}
+                  aria-pressed={previewIndustry === item}
+                  onClick={() => setPreviewIndustry(item)}
+                  data-testid={`consultant-preview-${item}`}
+                >
+                  {item === 'shop'
+                    ? ru
+                      ? 'Магазин'
+                      : 'Store'
+                    : item === 'services'
+                      ? ru
+                        ? 'Услуги'
+                        : 'Services'
+                      : ru
+                        ? 'Ресторан'
+                        : 'Restaurant'}
+                </button>
+              ))}
+            </div>
+            <div className="ai5-preview-channel">
+              <span>{ru ? 'Где показать пример?' : 'Where should the example appear?'}</span>
+              <div role="group" aria-label={ru ? 'Канал примера' : 'Example channel'}>
+                <button
+                  type="button"
+                  aria-pressed={previewChannel === 'app'}
+                  onClick={() => setPreviewChannel('app')}
+                  data-testid="consultant-preview-channel-app"
+                >
+                  {ru ? 'В приложении' : 'In the app'}
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={previewChannel === 'chat'}
+                  onClick={() => setPreviewChannel('chat')}
+                  data-testid="consultant-preview-channel-chat"
+                >
+                  {ru ? 'В Telegram' : 'In Telegram'}
+                </button>
+              </div>
+            </div>
+            <div className="ai3-story-card" data-testid="consultant-story-preview" aria-live="polite">
+              <div className="ai3-story-topline">
+                <span>{ru ? 'ПРИМЕР ДИАЛОГА' : 'EXAMPLE CONVERSATION'}</span>
+                <span>{String(previewIndustries.indexOf(previewIndustry) + 1).padStart(2, '0')} / 03</span>
+              </div>
+              <div className="ai3-story-question" key={previewIndustry}>
+                <div>
+                  <small>{ru ? 'Клиент спрашивает' : 'The customer asks'}</small>
+                  <strong>«{previewBranch.customer}»</strong>
+                </div>
+                <img src={industryArt[previewIndustry]} alt="" loading="lazy" />
+              </div>
+              <div className="ai3-story-answer" key={`${previewIndustry}-answer`}>
+                <span className="ai3-story-avatar">
+                  <img src={orb} alt="" />
+                </span>
+                <div>
+                  <small>{ru ? 'Консультант может ответить' : 'The consultant could reply'}</small>
+                  <p>{previewBranch.answer}</p>
+                </div>
+              </div>
               <button
                 type="button"
-                className="ai2-home-link"
-                onClick={() => openIndustries('demo')}
-                data-testid="consultant-open-demo"
+                className="ai3-story-open"
+                onClick={openPreview}
+                data-testid="consultant-preview-open"
               >
-                <span>
-                  <strong>{ru ? 'Пример диалога' : 'Conversation example'}</strong>
-                  <small>{ru ? 'Побыть клиентом' : 'Try the customer view'}</small>
-                </span>
-                <img src={appArtwork} alt="" loading="lazy" />
-                <ArrowRight size={17} />
+                <span>{ru ? 'Открыть этот диалог' : 'Open this conversation'}</span>
+                <ArrowRight size={18} />
               </button>
+              <p className="ai3-story-disclaimer">
+                {ru ? 'Пример, а не настоящая переписка.' : 'An example, not a real conversation.'}
+              </p>
+            </div>
+            <div className="ai3-more-heading">
+              <span>{ru ? 'ДАЛЬШЕ' : 'EXPLORE'}</span>
+              <h2>{ru ? 'Настройка и условия' : 'Setup and terms'}</h2>
+            </div>
+            <div className="ai2-home-links">
               <button
                 type="button"
                 className="ai2-home-link"
@@ -364,7 +504,7 @@ export default function AIConsultantPage({ onNavigate }: Props) {
               </button>
               <button
                 type="button"
-                className="ai2-home-link is-wide"
+                className="ai2-home-link"
                 onClick={() => moveTo('configure')}
                 data-testid="consultant-open-configure"
               >
