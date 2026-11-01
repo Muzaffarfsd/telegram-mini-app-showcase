@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { AIConsultantSkeleton } from './AIConsultantSkeleton';
@@ -17,13 +17,17 @@ import appArtwork from '../assets/consultant/channel-app-latest.webp';
 import chatArtwork from '../assets/consultant/channel-chat-latest.webp';
 import humanSupport from '../assets/consultant/human-support.webp';
 import knowledgeArt from '../assets/consultant/knowledge-v1.webp';
-import handoffArt from '../assets/consultant/handoff-v1.webp';
+import benefitAnswersArt from '../assets/consultant/benefit-answers-v2.webp';
+import benefitChoiceArt from '../assets/consultant/benefit-choice-v2.webp';
+import benefitHandoffArt from '../assets/consultant/benefit-handoff-v2.webp';
 import tuningArt from '../assets/consultant/tuning-v1.webp';
 import shopArt from '../assets/order/shop-v5.webp';
 import servicesArt from '../assets/order/services-v4.webp';
 import restaurantArt from '../assets/order/restaurant-v2.webp';
 import './AIConsultantPage.css';
 import './AIConsultantExperience.css';
+
+const AIConsultantOrb3D = lazy(() => import('./AIConsultantOrb3D').catch(() => ({ default: () => <></> })));
 
 type Screen = 'home' | 'industries' | 'demo' | 'inside' | 'configure' | 'review';
 type Props = { onNavigate: (path: string) => void };
@@ -60,6 +64,9 @@ export default function AIConsultantPage({ onNavigate }: Props) {
   const [previewIndustry, setPreviewIndustry] = useState<(typeof previewIndustries)[number]>('shop');
   const [previewChannel, setPreviewChannel] = useState<'app' | 'chat'>('app');
   const [artReady, setArtReady] = useState(false);
+  const [orb3DEnabled, setOrb3DEnabled] = useState(false);
+  const [orb3DReady, setOrb3DReady] = useState(false);
+  const [orbReaction, setOrbReaction] = useState(0);
   const rootRef = useRef<HTMLElement>(null);
   const screenRef = useRef<Screen>('home');
   const historyRef = useRef<Screen[]>([]);
@@ -105,6 +112,47 @@ export default function AIConsultantPage({ onNavigate }: Props) {
     }, 300);
     return () => window.clearTimeout(timer);
   }, [artReady]);
+
+  useEffect(() => {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const connection = (
+      navigator as Navigator & {
+        connection?: {
+          addEventListener?: (type: string, cb: () => void) => void;
+          removeEventListener?: (type: string, cb: () => void) => void;
+        };
+      }
+    ).connection;
+    const check = () => {
+      let lowPower = false;
+      try {
+        lowPower = localStorage.getItem('tma-low-performance') === 'true';
+      } catch {}
+      const device = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
+      const limitedDevice =
+        (device.deviceMemory != null && device.deviceMemory <= 2) ||
+        (navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 2) ||
+        Boolean(device.connection?.saveData);
+      setOrb3DEnabled(
+        !motion.matches && !lowPower && !limitedDevice && Boolean(window.WebGL2RenderingContext),
+      );
+    };
+    check();
+    if (typeof motion.addEventListener === 'function') motion.addEventListener('change', check);
+    else motion.addListener(check);
+    connection?.addEventListener?.('change', check);
+    window.addEventListener('performance-mode-change', check);
+    return () => {
+      if (typeof motion.removeEventListener === 'function') motion.removeEventListener('change', check);
+      else motion.removeListener(check);
+      connection?.removeEventListener?.('change', check);
+      window.removeEventListener('performance-mode-change', check);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (screen !== 'home' || !orb3DEnabled) setOrb3DReady(false);
+  }, [screen, orb3DEnabled]);
 
   const moveTo = useCallback((next: Screen, back = false) => {
     const previous = screenRef.current;
@@ -319,11 +367,25 @@ export default function AIConsultantPage({ onNavigate }: Props) {
                 </>
               )}
             </h1>
-            <div className="ai2-hero-art" aria-hidden="true">
+            <div className="ai2-hero-art" data-orb3d={orb3DReady ? 'ready' : 'fallback'}>
               <span className="ai3-hero-greeting">
                 {ru ? 'Привет! Я ваш личный ИИ-консультант.' : 'Hello! I’m your personal AI consultant.'}
               </span>
               <img src={orb} alt="" width="640" height="640" fetchPriority="high" />
+              {orb3DEnabled && (
+                <Suspense fallback={null}>
+                  <AIConsultantOrb3D reaction={orbReaction} onReady={setOrb3DReady} />
+                </Suspense>
+              )}
+              {orb3DReady && (
+                <button
+                  type="button"
+                  className="ai6-orb-touch"
+                  aria-label={ru ? 'Поздороваться с консультантом' : 'Greet the consultant'}
+                  onClick={() => setOrbReaction((value) => value + 1)}
+                  data-testid="consultant-orb-greet"
+                />
+              )}
             </div>
             <p className="ai2-hero-copy">
               {ru
@@ -358,7 +420,7 @@ export default function AIConsultantPage({ onNavigate }: Props) {
             </div>
             <div className="ai5-benefit-list">
               <article>
-                <img src={knowledgeArt} alt="" loading="lazy" />
+                <img src={benefitAnswersArt} alt="" loading="lazy" />
                 <div>
                   <h3>{ru ? 'Ответит на вопросы' : 'Answer questions'}</h3>
                   <p>
@@ -369,7 +431,7 @@ export default function AIConsultantPage({ onNavigate }: Props) {
                 </div>
               </article>
               <article>
-                <img src={appArtwork} alt="" loading="lazy" />
+                <img src={benefitChoiceArt} alt="" loading="lazy" />
                 <div>
                   <h3>{ru ? 'Поможет с выбором' : 'Help customers choose'}</h3>
                   <p>
@@ -380,7 +442,7 @@ export default function AIConsultantPage({ onNavigate }: Props) {
                 </div>
               </article>
               <article>
-                <img src={handoffArt} alt="" loading="lazy" />
+                <img src={benefitHandoffArt} alt="" loading="lazy" />
                 <div>
                   <h3>{ru ? 'Передаст специалисту' : 'Bring in your team'}</h3>
                   <p>
