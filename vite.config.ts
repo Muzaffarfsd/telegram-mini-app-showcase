@@ -117,11 +117,10 @@ export default defineConfig({
     strictPort: true,
     // HMR config:
     //   - On Railway: clientPort 443 (HTTPS proxy fronts the dev server)
-    //   - Locally:    use the same port as the dev server → direct WS
-    // This is what enables sub-200ms hot updates in the iPhone widget.
+    //   - Locally:    Vite attaches HMR to the actual dev server port, including CLI overrides.
     hmr: process.env.RAILWAY_ENVIRONMENT
       ? { clientPort: 443, overlay: false }
-      : { clientPort: 5000, port: 5000, host: 'localhost', overlay: false },
+      : { overlay: false },
     // Native FS watching (no polling) for fastest change detection on Windows
     watch: {
       usePolling: false,

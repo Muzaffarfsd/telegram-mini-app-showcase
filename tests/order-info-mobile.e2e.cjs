@@ -34,6 +34,22 @@ async function closeSheet(page) {
   await page.getByTestId('order-info-sheet').waitFor({ state: 'detached' });
 }
 
+async function acceptSheet(page) {
+  await page.getByTestId('order-info-action').tap();
+  await page.getByTestId('order-info-sheet').waitFor({ state: 'detached' });
+}
+
+async function swipeHandle(page, distance) {
+  const handle = page.locator('.order-info-handle-area');
+  const box = await handle.boundingBox();
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+  const event = { pointerId: 7, pointerType: 'touch', isPrimary: true, button: 0, clientX: x, clientY: y };
+  await handle.dispatchEvent('pointerdown', event);
+  await handle.dispatchEvent('pointermove', { ...event, clientY: y + distance });
+  await handle.dispatchEvent('pointerup', { ...event, clientY: y + distance });
+}
+
 (async () => {
   const browser = await chromium.launch({ headless: true });
   try {
@@ -58,30 +74,25 @@ async function closeSheet(page) {
         assert.ok(footer.y >= 0 && footer.y + footer.height <= height);
         if (width === 320) assert.ok(await sheet.locator('.order-info-footer').evaluate(el => parseFloat(getComputedStyle(el).paddingBottom)) >= 40);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-        await page.locator('.order-info-handle-area').evaluate(el => {
-          const start = new Touch({ identifier: 1, target: el, clientX: 100, clientY: 100 });
-          const end = new Touch({ identifier: 1, target: el, clientX: 102, clientY: 190 });
-          el.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, touches: [start], changedTouches: [start] }));
-          el.dispatchEvent(new TouchEvent('touchend', { bubbles: true, touches: [], changedTouches: [end] }));
-        });
+        await swipeHandle(page, 160);
         await page.getByTestId('order-info-sheet').waitFor({ state: 'detached' });
         assert.equal(await page.locator('#root').evaluate(el => el.inert), false);
         assert.equal(await selection.getAttribute('aria-pressed'), 'false');
       }
       await tap(page.getByTestId('template-info-ecommerce-basic'));
-      await page.getByTestId('order-info-action').tap();
+      await acceptSheet(page);
       assert.equal(await page.getByTestId('template-ecommerce-basic').getAttribute('aria-pressed'), 'true');
       await tap(page.getByTestId('order-continue'));
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /150 000/);
       await tap(page.getByTestId('feature-info-search'));
       assert.match(text(await page.locator('.order-info-price').innerText()), /20 000/);
       assert.equal(await page.getByTestId('feature-search').getAttribute('aria-pressed'), 'false');
-      await page.getByTestId('order-info-action').tap();
+      await acceptSheet(page);
       assert.equal(await page.getByTestId('feature-search').getAttribute('aria-pressed'), 'true');
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /170 000/);
       await tap(page.getByTestId('feature-info-search'));
       assert.equal(await page.getByTestId('order-info-action').innerText(), 'Убрать из заказа');
-      await page.getByTestId('order-info-action').tap();
+      await acceptSheet(page);
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /150 000/);
       assert.deepEqual(errors, []);
       if (width !== 390) {
@@ -137,14 +148,14 @@ async function closeSheet(page) {
       await tap(page.getByTestId('feature-info-payments'));
       assert.match(await page.locator('.order-info-price').innerText(), /Включено/);
       assert.match(await page.locator('.order-info-note').first().innerText(), /комиссии/);
-      await page.getByTestId('order-info-action').tap();
+      await acceptSheet(page);
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /150 000/);
       await tap(page.getByTestId('feature-info-subscriptions'));
       assert.match(await page.locator('.order-info-note').first().innerText(), /функция для клиентов вашего приложения/i);
       assert.match(await page.locator('.order-info-note').first().innerText(), /поддержка вашего приложения/i);
       await closeSheet(page);
       await tap(page.getByTestId('feature-info-ai-chatbot'));
-      await page.getByTestId('order-info-action').tap();
+      await acceptSheet(page);
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /199 000/);
       await tap(page.getByTestId('order-continue'));
       await tap(page.locator('.order-support > summary'));
@@ -176,7 +187,7 @@ async function closeSheet(page) {
       await tap(page.getByRole('button', { name: 'В год', exact: true }));
       await tap(page.getByTestId('plan-info-standard'));
       assert.match(text(await page.locator('.order-info-price').innerText()), /149 000 ₽\/год/);
-      await page.getByTestId('order-info-action').tap();
+      await acceptSheet(page);
       assert.equal(await page.getByTestId('order-plan-standard').getAttribute('aria-pressed'), 'true');
       await page.evaluate(() => { window.__openedOrderUrl = null; window.open = url => { window.__openedOrderUrl = url; }; if (window.Telegram?.WebApp) window.Telegram.WebApp.openTelegramLink = url => { window.__openedOrderUrl = url; }; });
       await tap(page.getByTestId('order-continue'));
@@ -192,11 +203,12 @@ async function closeSheet(page) {
       await tap(page.getByTestId('template-info-ecommerce-basic'));
       assert.equal(await page.locator('#order-info-title').innerText(), 'Online Store');
       assert.match(await page.locator('.order-info-description').innerText(), /Telegram app/);
-      await page.getByTestId('order-info-action').tap();
+      await acceptSheet(page);
       await tap(page.getByTestId('order-continue'));
       await tap(page.getByTestId('feature-info-search'));
       assert.match(await page.locator('.order-info-example').innerText(), /customer/i);
       await page.keyboard.press('Escape');
+      await page.getByTestId('order-info-sheet').waitFor({ state: 'detached' });
       assert.equal(await page.getByTestId('order-info-sheet').count(), 0);
       assert.equal(await page.getByTestId('feature-search').getAttribute('aria-pressed'), 'false');
       await tap(page.getByTestId('order-continue'));
@@ -208,7 +220,7 @@ async function closeSheet(page) {
       assert.match(await page.locator('.order-info-includes').innerText(), /Weekly Backups/);
       await tap(page.getByTestId('info-billing-annual'));
       assert.match(text(await page.locator('.order-info-price').innerText()), /149 000 ₽\/year/);
-      await page.getByTestId('order-info-action').tap();
+      await acceptSheet(page);
       assert.equal(await page.getByTestId('order-plan-standard').getAttribute('aria-pressed'), 'true');
       assert.deepEqual(errors, []);
       await context.close();
@@ -224,13 +236,14 @@ async function closeSheet(page) {
       await page.waitForFunction(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button').at(-1)?.data.is_visible === false);
       await pressNative();
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '1');
-      await page.getByTestId('order-info-action').tap();
+      await acceptSheet(page);
       await page.waitForFunction(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button').at(-1)?.data.is_visible === true);
       assert.equal((await latestButton()).text, 'Продолжить');
       await pressNative();
       await page.waitForFunction(() => document.querySelector('[data-testid="order-page"]')?.dataset.orderStep === '2');
       await tap(page.getByTestId('feature-info-search'));
       await page.locator('.order-info-backdrop').tap({ position: { x: 8, y: 8 } });
+      await page.getByTestId('order-info-sheet').waitFor({ state: 'detached' });
       assert.equal(await page.getByTestId('order-info-sheet').count(), 0);
       assert.equal(await page.getByTestId('feature-search').getAttribute('aria-pressed'), 'false');
       await pressNative();
