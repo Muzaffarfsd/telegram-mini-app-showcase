@@ -10,6 +10,8 @@ import { setupVite, serveStatic, log } from "./vite";
 import { logRequest, logInfo, logError } from "./logger";
 import { errorHandler } from "./errorHandler";
 import { setupSwagger } from "./swagger";
+import { pool } from "./db";
+import { initializeEmptyDatabase } from "./initializeDatabase";
 
 // Initialize Sentry for error tracking
 if (process.env.SENTRY_DSN) {
@@ -223,6 +225,18 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      const result = await initializeEmptyDatabase(pool);
+      if (result === 'created') console.info('[Database] Initialized new empty database.');
+      else if (result === 'nonempty_database' || result === 'unexpected_schema') {
+        console.warn(`[Database] Initialization skipped: ${result}. Existing data was not changed.`);
+      }
+    } catch (error) {
+      const code = (error as { code?: string }).code || 'unknown';
+      console.error(`[Database] Initialization failed (${code}); check database configuration and logs.`);
+    }
+  }
   const server = await registerRoutes(app);
 
   // Setup Swagger API documentation
