@@ -7,6 +7,7 @@ import { preloadDemo } from './demos/DemoRegistry';
 import auraScreen from '../assets/home-v2/demo-skincare-aura.webp';
 import fashionScreen from '../assets/home-v2/demo-clothing-store.webp';
 import beautyScreen from '../assets/home-v2/demo-beauty.webp';
+import sneakerScreen from '../assets/home-v2/demo-nike-sneakers.webp';
 import storeObject from '../assets/home-v2/store-object.webp';
 import bookingObject from '../assets/home-v2/booking-object.webp';
 import './StudioHome.css';
@@ -15,6 +16,7 @@ interface Props { onNavigate: (section: string) => void; onOpenDemo: (id: string
 
 const examples = [
   { id: 'skincare-aura', name: 'AURA', kind: 'Магазин', kindEn: 'Store', title: 'Магазин ухода.', titleEn: 'Skincare store.', label: 'AURA / ДЕМО', labelEn: 'AURA / DEMO', screen: auraScreen, object: storeObject },
+  { id: 'nike-sneakers', name: 'NIKE', kind: 'Кроссовки', kindEn: 'Sneakers', title: 'Магазин кроссовок.', titleEn: 'Sneaker store.', label: 'NIKE / ДЕМО', labelEn: 'NIKE / DEMO', screen: sneakerScreen, object: '/royal-step/jordan-1.webp' },
   { id: 'beauty', name: 'GLOW', kind: 'Услуги', kindEn: 'Services', title: 'Запись онлайн.', titleEn: 'Online booking.', label: 'GLOW / ДЕМО', labelEn: 'GLOW / DEMO', screen: beautyScreen, object: bookingObject },
   { id: 'clothing-store', name: 'RADIANCE', kind: 'Бренд', kindEn: 'Brand', title: 'Бренд и коллекции.', titleEn: 'Brand and collections.', label: 'RADIANCE / ДЕМО', labelEn: 'RADIANCE / DEMO', screen: fashionScreen, object: storeObject },
 ] as const;
@@ -79,7 +81,7 @@ export default function StudioHome({ onNavigate, onOpenDemo }: Props) {
       </section>
 
       <section className="studio-gallery" aria-labelledby="studio-gallery-title">
-        <div className="studio-gallery__heading"><div><span>01 / {ru ? 'ПОПРОБУЙТЕ САМИ' : 'TRY IT YOURSELF'}</span><h2 id="studio-gallery-title">{ru ? 'Посмотрите в действии' : 'See it in action'}</h2></div><span className="studio-gallery__count" aria-live="polite">0{selected + 1} <i>/</i> 03</span></div>
+        <div className="studio-gallery__heading"><div><span>01 / {ru ? 'ПОПРОБУЙТЕ САМИ' : 'TRY IT YOURSELF'}</span><h2 id="studio-gallery-title">{ru ? 'Посмотрите в действии' : 'See it in action'}</h2></div><span className="studio-gallery__count" aria-live="polite">0{selected + 1} <i>/</i> 0{examples.length}</span></div>
         <div className="studio-gallery__tabs" role="group" aria-label={ru ? 'Выбор примера' : 'Choose an example'}>{examples.map((example, index) => <button type="button" key={example.id} aria-pressed={selected === index} onClick={() => choose(index)}>{ru ? example.kind : example.kindEn}</button>)}</div>
         <div ref={exhibitRef} className="studio-exhibit" data-visible={exhibitVisible} data-testid="home-exhibit" onTouchStart={event => { startTouch.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }} onTouchEnd={endSwipe}>
           <div className="studio-exhibit__arc" aria-hidden="true" />

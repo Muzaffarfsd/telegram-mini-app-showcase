@@ -175,7 +175,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   }, []);
 
   const demoApp = useMemo(() => 
-    demoApps.find(app => app.id === demoId) || 
+    demoApps.find(app => app.id === (demoId === 'royal-step' ? 'nike-sneakers' : demoId)) ||
     demoApps.find(app => app.id === getBaseAppType(demoId)),
     [demoId, getBaseAppType]
   );
@@ -269,6 +269,17 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   // Get theme for current demo
   const baseAppType = getBaseAppType(demoId);
   const theme = demoDark ? darkTheme : getTheme(baseAppType);
+
+  // This standalone store uses its own navigation so it can reproduce the
+  // requested shop experience, including a full-screen basket sheet.
+  if (demoId === 'royal-step' || demoId === 'nike-sneakers') {
+    const RoyalStep = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка магазина" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {RoyalStep && <RoyalStep onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
 
   return (
     <>

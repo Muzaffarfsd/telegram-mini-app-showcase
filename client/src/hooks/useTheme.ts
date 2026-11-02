@@ -46,7 +46,7 @@ function applyTheme(theme: Theme, skipTransitions = false) {
   }
   
   // Defer non-critical operations
-  requestIdleCallback(() => {
+  const finishThemeUpdate = () => {
     try {
       localStorage.setItem(STORAGE_KEY, theme);
     } catch (e) {}
@@ -66,7 +66,12 @@ function applyTheme(theme: Theme, skipTransitions = false) {
         }
       } catch (e) {}
     }
-  }, { timeout: 100 });
+  };
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(finishThemeUpdate, { timeout: 100 });
+  } else {
+    window.setTimeout(finishThemeUpdate, 0);
+  }
 }
 
 export function useTheme() {

@@ -508,8 +508,9 @@ function AppContent() {
     }
   }, [route.component]);
 
+  const isRoyalStep = route.component === 'demoApp' && ['nike-sneakers', 'royal-step'].includes(route.params?.id || '');
   const shouldShowBottomNav = !route.component.includes('demo') && route.component !== 'notFound';
-  const shouldShowSidebar = !route.component.includes('demo') && route.component !== 'notFound';
+  const shouldShowSidebar = (!route.component.includes('demo') && route.component !== 'notFound') || isRoyalStep;
 
   return (
     <>
@@ -524,14 +525,14 @@ function AppContent() {
                 {shouldShowSidebar && (
                   <ErrorBoundary fallback={null}>
                     <GlobalSidebar 
-                      currentRoute={route.component} 
+                      currentRoute={isRoyalStep ? 'showcase' : route.component}
                       onNavigate={handleNavigate}
                       user={user}
                     />
                   </ErrorBoundary>
                 )}
                 
-                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={['showcase', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={isRoyalStep ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {visitedTabs.has('showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
@@ -603,9 +604,9 @@ function AppContent() {
 
               <Toaster />
               
-              {shouldShowBottomNav && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
+              {(shouldShowBottomNav || isRoyalStep) && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
                 <Suspense fallback={null}>
-                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'showcase' ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'showcase'} /></div>
+                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'showcase' || isRoyalStep ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'showcase' || isRoyalStep} /></div>
                 </Suspense>
               )}
 

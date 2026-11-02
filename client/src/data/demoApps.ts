@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'nike-sneakers',
+    title: 'КРОССОВКИ NIKE',
+    description: 'Демо магазина Nike с каталогом и корзиной',
+    category: 'Электронная коммерция',
+    image: '/royal-step/jordan-banner.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'stray-store',
     title: 'STRAY',
     description: 'Минималистичный стритвир-магазин: одежда, обувь, аксессуары',

@@ -133,6 +133,7 @@ export const translations = {
       footer: 'Web4TG · Telegram Mini Apps · 2025',
       // Demo app descriptions for project cards
       appDescriptions: {
+        'nike-sneakers': 'Магазин кроссовок с каталогом и корзиной',
         'clothing-store': 'Магазин модной одежды и аксессуаров',
         'electronics': 'Магазин электроники и техники',
         'beauty': 'Салон красоты и SPA-услуги',
@@ -1851,6 +1852,7 @@ export const translations = {
       footer: 'Web4TG · Telegram Mini Apps · 2025',
       // Demo app descriptions for project cards
       appDescriptions: {
+        'nike-sneakers': 'Sneaker store with catalog and shopping bag',
         'clothing-store': 'Fashion clothing and accessories store',
         'electronics': 'Electronics and tech store',
         'beauty': 'Beauty salon and SPA services',
