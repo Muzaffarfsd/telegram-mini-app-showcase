@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowDown, ArrowUpRight, ChevronDown, MoreHorizontal, Search, Share2, SlidersHorizontal, X } from "lucide-react";
 import { AnimatePresence, m, useReducedMotion } from "@/utils/LazyMotionProvider";
 import { useAIAgent, type PageContext } from "@/hooks/useAIAgent";
@@ -51,7 +52,6 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const dragDistance = useRef(0);
   const [dragY, setDragY] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const [keyboardViewport, setKeyboardViewport] = useState<{ bottom: number; height: number } | null>(null);
   const [showActions, setShowActions] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
@@ -87,34 +87,76 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
     if (!root) return;
     const rootScroll = root?.scrollTop ?? 0;
     const rootOverflow = root?.style.overflowY ?? "";
-    const keepRootPosition = () => { if (root.scrollTop !== rootScroll) root.scrollTop = rootScroll; };
     root.style.overflowY = "hidden";
-    root.scrollTop = rootScroll;
-    root.addEventListener("scroll", keepRootPosition, { passive: true });
     return () => {
-      root.removeEventListener("scroll", keepRootPosition);
       root.style.overflowY = rootOverflow;
       root.scrollTop = rootScroll;
     };
   }, [isOpen]);
 
   useEffect(() => {
+    if (!isOpen) return;
     const viewport = window.visualViewport;
     let frame = 0;
+    let keyboardSession: { top: number; viewportHeight: number; viewportWidth: number } | null = null;
+    const isTextField = (target: Element | null) => target instanceof HTMLTextAreaElement ||
+      (target instanceof HTMLInputElement && ["text", "search", "email", "tel", "url"].includes(target.type));
+    const clearKeyboardLayout = () => {
+      const sheet = dialogRef.current;
+      if (!sheet) return;
+      delete sheet.dataset.keyboardAdjusted;
+      sheet.style.removeProperty("--ai-chat-keyboard-top");
+      sheet.style.removeProperty("--ai-chat-keyboard-bottom");
+      keyboardSession = null;
+    };
     const update = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
+        const sheet = dialogRef.current;
+        if (!sheet || !keyboardSession) return;
         const active = document.activeElement;
-        const editing = active instanceof HTMLElement && !!dialogRef.current?.contains(active) && (active.tagName === "TEXTAREA" || active.tagName === "INPUT");
-        const keyboardVisible = editing && viewport && viewport.scale <= 1.01 && window.innerHeight - viewport.height > 80;
-        const next = keyboardVisible ? { bottom: Math.max(0, Math.round(window.innerHeight - viewport.height - viewport.offsetTop)), height: Math.round(viewport.height) } : null;
-        setKeyboardViewport(previous => previous?.bottom === next?.bottom && previous?.height === next?.height ? previous : next);
+        const editing = sheet.contains(active) && isTextField(active);
+        const height = window.innerHeight;
+        const visualBottom = viewport ? Math.min(height, viewport.height + viewport.offsetTop) : height;
+
+        // Rotation changes the baseline; keyboard animation alone must not move the sheet's top edge.
+        if (window.innerWidth !== keyboardSession.viewportWidth) {
+          keyboardSession.viewportWidth = window.innerWidth;
+          keyboardSession.viewportHeight = height;
+          keyboardSession.top = Math.min(keyboardSession.top, Math.round(height * 0.12));
+        }
+        const keyboardStillVisible = keyboardSession.viewportHeight - visualBottom > 60;
+        if (!editing && !keyboardStillVisible) {
+          clearKeyboardLayout();
+          return;
+        }
+
+        const bottom = Math.max(0, Math.round(height - visualBottom));
+        const top = Math.max(0, Math.min(keyboardSession.top, Math.round(visualBottom - 180)));
+        sheet.style.setProperty("--ai-chat-keyboard-top", `${top}px`);
+        sheet.style.setProperty("--ai-chat-keyboard-bottom", `${bottom}px`);
       });
+    };
+    const onFocusIn = (event: FocusEvent) => {
+      const sheet = dialogRef.current;
+      const target = event.target instanceof Element ? event.target : null;
+      if (!sheet || !target || !sheet.contains(target) || !isTextField(target)) return;
+      if (!keyboardSession) {
+        keyboardSession = {
+          top: Math.max(0, Math.round(window.innerHeight - sheet.offsetHeight)),
+          viewportHeight: window.innerHeight,
+          viewportWidth: window.innerWidth,
+        };
+        sheet.style.setProperty("--ai-chat-keyboard-top", `${keyboardSession.top}px`);
+        sheet.style.setProperty("--ai-chat-keyboard-bottom", "0px");
+        sheet.dataset.keyboardAdjusted = "true";
+      }
+      update();
     };
     viewport?.addEventListener("resize", update);
     viewport?.addEventListener("scroll", update);
     window.addEventListener("resize", update);
-    document.addEventListener("focusin", update);
+    document.addEventListener("focusin", onFocusIn);
     document.addEventListener("focusout", update);
     const tg = (window as any).Telegram?.WebApp;
     tg?.onEvent?.("viewportChanged", update);
@@ -123,12 +165,12 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
       viewport?.removeEventListener("resize", update);
       viewport?.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
-      document.removeEventListener("focusin", update);
+      document.removeEventListener("focusin", onFocusIn);
       document.removeEventListener("focusout", update);
       cancelAnimationFrame(frame);
       tg?.offEvent?.("viewportChanged", update);
     };
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -155,7 +197,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
     const el = scrollRef.current;
     const last = messages[messages.length - 1];
     if (el && messages.length > 0 && (atBottom || last?.isStreaming)) el.scrollTop = el.scrollHeight;
-  }, [messages, atBottom, keyboardViewport]);
+  }, [messages, atBottom]);
 
   const close = useCallback(() => {
     queueMicrotask(() => hapticFeedback.light());
@@ -238,7 +280,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const hasMemory = !!(memory?.userName || memory?.businessName || memory?.businessType || memory?.lastTopics?.length);
   let previousDate = "";
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -247,11 +289,10 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
           <m.div
             ref={dialogRef} className="ai-chat-sheet" role="dialog" aria-modal="true" aria-label={ru ? "ИИ-консультант" : "AI consultant"} tabIndex={-1}
             data-testid="ai-chat-panel"
-            initial={reducedMotion ? { opacity: 1 } : { y: "100%" }}
+            initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: dragY }}
-            exit={reducedMotion ? { opacity: 0 } : { y: "100%" }}
-            transition={dragging ? { duration: 0 } : { duration: reducedMotion ? 0.01 : 0.26, ease: [0.22, 1, 0.36, 1] }}
-            style={keyboardViewport ? { bottom: keyboardViewport.bottom, height: keyboardViewport.height } : undefined}
+            exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 24 }}
+            transition={dragging ? { duration: 0 } : { duration: reducedMotion ? 0.01 : 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="ai-chat-grabber" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={onTouchEnd} data-testid="ai-chat-grabber">
               <span />
@@ -350,6 +391,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
           </m.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 });

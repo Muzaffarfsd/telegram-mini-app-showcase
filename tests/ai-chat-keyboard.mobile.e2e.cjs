@@ -42,6 +42,7 @@ const site = process.env.PROFILE_TEST_URL || 'http://127.0.0.1:53731/';
     await panel.waitFor({ state: 'visible' });
     const openScroll = await page.evaluate(() => document.getElementById('root').scrollTop);
     assert.ok(Math.abs(openScroll - rootScroll) < 2, `opening chat should preserve background position (${rootScroll} → ${openScroll})`);
+    const originalTop = (await panel.boundingBox()).y;
     const input = panel.getByRole('textbox', { name: 'Сообщение' });
     await input.tap();
     const focused = await input.evaluate(el => ({ outline: getComputedStyle(el).outlineWidth, style: getComputedStyle(el).outlineStyle, color: getComputedStyle(el).outlineColor, shadow: getComputedStyle(el).boxShadow, fontSize: getComputedStyle(el).fontSize }));
@@ -50,15 +51,14 @@ const site = process.env.PROFILE_TEST_URL || 'http://127.0.0.1:53731/';
     assert.equal(await page.evaluate(() => getComputedStyle(document.getElementById('root')).overflowY), 'hidden', 'background should stay locked while the chat is open');
     for (const [height, top] of [[690, 0], [600, 0], [544, 0], [544, 30]]) {
       await page.evaluate(([h, y]) => window.__setVisualViewport(h, y), [height, top]);
-      await page.waitForFunction(([h, y]) => {
+      await page.waitForFunction(([h, y, originalTop]) => {
         const rect = document.querySelector('[data-testid="ai-chat-panel"]')?.getBoundingClientRect();
-        return rect && Math.abs(rect.top - y) < 2 && Math.abs(rect.bottom - (y + h)) < 2;
-      }, [height, top]);
+        return rect && Math.abs(rect.top - originalTop) < 2 && Math.abs(rect.bottom - (y + h)) < 2;
+      }, [height, top, originalTop]);
       const box = await input.boundingBox();
       assert.ok(box.y >= top && box.y + box.height <= top + height + 1, 'input should stay above the simulated keyboard');
       assert.ok(Math.abs((await page.evaluate(() => window.scrollY)) - originalScroll) < 1, 'window position should not change during keyboard resize');
-      await page.evaluate(value => { document.getElementById('root').scrollTop = value + 90; }, rootScroll);
-      await page.waitForFunction(value => Math.abs(document.getElementById('root').scrollTop - value) < 2, rootScroll);
+      assert.ok(Math.abs((await page.evaluate(() => document.getElementById('root').scrollTop)) - rootScroll) < 2, 'background should not move while typing');
     }
     await input.fill('Сообщение без скачков');
     await input.blur();

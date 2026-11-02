@@ -3,10 +3,10 @@ import { useCallback, useRef, useEffect } from 'react';
 /**
  * Global scroll-to-top utility for consistent navigation behavior
  * Handles both window scroll and scrollable container scroll
- * Aggressive implementation to work with Telegram WebApp scroll preservation
+ * Reset during navigation without overriding a gesture that follows it.
  */
 
-// Force scroll to top - aggressive version for Telegram WebApp
+// Reset the window and the app's scrollable containers.
 function forceScrollToTop(): void {
   // Immediate scroll - no delay
   window.scrollTo(0, 0);
@@ -59,27 +59,6 @@ export function scrollToTop(container?: HTMLElement | null): void {
     }
   });
   
-  // Multiple fallbacks with different timings for Telegram WebApp
-  setTimeout(() => {
-    forceScrollToTop();
-    if (container) {
-      container.scrollTop = 0;
-    }
-  }, 0);
-  
-  setTimeout(() => {
-    forceScrollToTop();
-    if (container) {
-      container.scrollTop = 0;
-    }
-  }, 50);
-  
-  setTimeout(() => {
-    forceScrollToTop();
-    if (container) {
-      container.scrollTop = 0;
-    }
-  }, 100);
 }
 
 // Scroll to top with animation option
