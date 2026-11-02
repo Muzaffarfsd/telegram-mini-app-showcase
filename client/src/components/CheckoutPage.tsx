@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { CreditCard, Lock, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -7,9 +7,8 @@ import { useTelegram } from "@/hooks/useTelegram";
 import { BackHeader } from "./BackHeader";
 import { useLanguage } from "../contexts/LanguageContext";
 
-const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
-  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
-  : null;
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+let cachedStripePromise: ReturnType<typeof loadStripe> | null = null;
 
 interface CheckoutPageProps {
   selectedFeatures: any[];
@@ -129,8 +128,15 @@ const CheckoutForm = ({ totalAmount, projectName, selectedFeatures, onSuccess }:
 const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName, totalAmount, onBack, onSuccess }: CheckoutPageProps) {
   const [clientSecret, setClientSecret] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [stripePromise, setStripePromise] = useState<ReturnType<typeof loadStripe> | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
+
+  useEffect(() => {
+    if (!stripeKey) return;
+    cachedStripePromise ||= loadStripe(stripeKey);
+    setStripePromise(cachedStripePromise);
+  }, []);
 
   useEffect(() => {
     // Create PaymentIntent when component mounts
@@ -170,7 +176,7 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
     }
   }, [totalAmount, projectName, selectedFeatures, toast, t]);
 
-  if (!stripePromise) {
+  if (!stripeKey) {
     return (
       <div className="min-h-screen bg-black text-white p-4 flex items-center justify-center">
         <div className="liquid-glass-card rounded-2xl max-w-md w-full">
@@ -191,7 +197,7 @@ const CheckoutPage = memo(function CheckoutPage({ selectedFeatures, projectName,
     );
   }
 
-  if (isLoading) {
+  if (isLoading || !stripePromise) {
     return (
       <div className="min-h-screen bg-black text-white p-4 flex items-center justify-center">
         <div className="liquid-glass-card rounded-2xl max-w-md w-full">

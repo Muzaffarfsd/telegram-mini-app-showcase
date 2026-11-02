@@ -77,6 +77,7 @@ import GlobalSidebar from "./components/GlobalSidebar";
 import { ProfileDetailSkeleton, ProfileSkeleton } from "./components/ProfileSkeleton";
 import { OrderSkeleton } from "./components/OrderSkeleton";
 import { AIConsultantSkeleton } from "./components/AIConsultantSkeleton";
+import { StudioHomeSkeleton } from "./components/StudioHomeSkeleton";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 const AIAgentButton = lazy(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
@@ -104,7 +105,6 @@ const prefetchAllRoutes = () => {
     () => import("./components/AboutPage"),
     () => import("./components/DemoAppLanding"),
     () => import("./components/DemoAppShell"),
-    () => import("./components/CheckoutPage"),
     () => import("./components/HelpPage"),
     () => import("./components/ReviewPage"),
     () => import("./components/AIConsultantPage"),
@@ -231,7 +231,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
         }}
       >
         <nav 
-          className={`relative flex items-center rounded-[22px] gpu-layer ${isProfile ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : isAI ? 'consultant-nav' : ''}`}
+          className={`relative flex items-center rounded-[22px] gpu-layer ${isProfile ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : isAI ? 'consultant-nav' : route.component === 'showcase' ? 'home-nav' : ''}`}
           style={{
             padding: '5px 6px',
             gap: '2px',
@@ -434,6 +434,11 @@ function AppContent() {
     document.documentElement.classList.toggle('profile-detail-theme', isProfile);
     return () => document.documentElement.classList.remove('profile-detail-theme');
   }, [isProfile]);
+
+  useLayoutEffect(() => {
+    document.documentElement.classList.toggle('studio-home-theme', route.component === 'showcase');
+    return () => document.documentElement.classList.remove('studio-home-theme');
+  }, [route.component]);
   
   useScrollHaptic();
   
@@ -526,10 +531,10 @@ function AppContent() {
                   </ErrorBoundary>
                 )}
                 
-                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={['constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={['showcase', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {visitedTabs.has('showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
-                      <Suspense fallback={null}>
+                      <Suspense fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
                         <ShowcasePage onOpenDemo={handleOpenDemo} onNavigate={handleNavigate} />
                       </Suspense>
                     </div>
@@ -600,7 +605,7 @@ function AppContent() {
               
               {shouldShowBottomNav && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
                 <Suspense fallback={null}>
-                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor'} /></div>
+                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'showcase' ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'showcase'} /></div>
                 </Suspense>
               )}
 

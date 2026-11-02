@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <style>html.profile-detail-theme,html.profile-detail-theme body{background:#fff!important}</style>
+  <style>html.studio-home-theme,html.studio-home-theme body{background:#fff!important}</style>
   <script>
+    if (!location.hash || /^#(?:$|\/(?:\?|$))/.test(location.hash)) {
+      document.documentElement.classList.add('studio-home-theme');
+    }
     if (/^#\/(?:profile|referral|rewards|earning|help|review)(?:\?|$)/.test(location.hash)) {
       document.documentElement.classList.add('profile-detail-theme');
     }
