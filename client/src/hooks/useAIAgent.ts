@@ -12,6 +12,8 @@ export interface AIMessage {
   buttons?: string[];
   widgets?: WidgetData[];
   imageUrl?: string;
+  hadImage?: boolean;
+  isDemo?: boolean;
   persona?: string;
   personaName?: string;
   status?: "sending" | "sent" | "delivered" | "read";
@@ -51,11 +53,12 @@ export interface BehaviorSignals {
 const ALEX_PERSONA: Persona = { id: "alex", name: "Алекс", role: "Консультант", color: "#34d399", emoji: "🧑‍💼", voiceId: "pNInz6obpgDQGcFmaJgB" };
 const PERSONAS: Persona[] = [ALEX_PERSONA];
 
-const STORAGE_KEY = "web4tg_ai_chat";
+export const AI_DEMO_MODE = import.meta.env.VITE_AI_CHAT_MODE !== "live";
+const STORAGE_KEY = AI_DEMO_MODE ? "web4tg_ai_demo_chat" : "web4tg_ai_chat";
 const PAGES_KEY = "web4tg_pages_visited";
 const VISIT_KEY = "web4tg_last_visit";
 const ONBOARDING_KEY = "web4tg_ai_onboarding_done";
-const MEMORY_KEY = "web4tg_ai_memory";
+const MEMORY_KEY = AI_DEMO_MODE ? "web4tg_ai_demo_memory" : "web4tg_ai_memory";
 
 export interface AIMemory {
   userName?: string;
@@ -315,6 +318,7 @@ function playMessageSound() {
 }
 
 function trackAIEvent(eventName: string, metadata?: Record<string, any>) {
+  if (AI_DEMO_MODE) return;
   try {
     fetch("/api/analytics/events", {
       method: "POST",
@@ -548,8 +552,32 @@ export function useAIAgent(pageContext?: PageContext) {
   }, []);
 
   const sendMessage = useCallback(
-    async (content: string, imageBase64?: string, imageMimeType?: string) => {
+    async (content: string, imageBase64?: string, imageMimeType?: string, historyOverride?: AIMessage[]) => {
       if ((!content.trim() && !imageBase64) || isLoading) return;
+
+      if (AI_DEMO_MODE) {
+        let language = getUserLanguage();
+        try { language = localStorage.getItem("app-language") || language; } catch {}
+        const ru = language.startsWith("ru");
+        const query = content.trim().toLowerCase();
+        let example: string;
+        if (imageBase64) {
+          example = ru ? "Фото добавлено для примера и никуда не отправлено. Анализ изображений появится после подключения консультанта." : "The image is included in this example and has not been sent. Image analysis will be available after the consultant is connected.";
+        } else if (query.includes("выбрать mini app") || query.includes("choose a mini app")) {
+          example = ru ? "Например, для магазина можно выбрать приложение с каталогом, корзиной и авторизацией. Нужный набор зависит от задач вашего бизнеса." : "For example, a shop can use an app with a catalog, cart and sign-in. The right features depend on your business.";
+        } else if (query.includes("стоимости разработки") || query.includes("development pricing")) {
+          example = ru ? "Стоимость зависит от типа приложения и выбранных функций. Посмотрите варианты и состав услуг в разделе заказа." : "The price depends on the app and selected features. Explore the available options in the order section.";
+        } else if (query.includes("готовых проектов") || query.includes("finished projects")) {
+          example = ru ? "Посмотрите доступные демонстрации приложений в разделе проектов." : "Explore the available app demos in the projects section.";
+        } else {
+          example = ru ? "Это пример диалога. После подключения ИИ-консультант сможет отвечать на ваши вопросы." : "This is an example conversation. Once connected, the AI consultant will be able to answer your questions.";
+        }
+        const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        const userMessage: AIMessage = { id: `user-${id}`, role: "user", content: content.trim(), timestamp: new Date(), hadImage: !!imageBase64, imageUrl: imageBase64 ? `data:${imageMimeType || "image/jpeg"};base64,${imageBase64}` : undefined };
+        const sampleMessage: AIMessage = { id: `assistant-${id}`, role: "assistant", content: example, timestamp: new Date(), isDemo: true, persona: activePersona.id, personaName: activePersona.name };
+        setMessages(prev => [...prev, userMessage, sampleMessage]);
+        return;
+      }
 
       const navPath = !imageBase64 ? parseVoiceNavigation(content.trim()) : null;
       if (navPath && voiceMode) {
@@ -586,6 +614,7 @@ export function useAIAgent(pageContext?: PageContext) {
         content: content.trim(),
         timestamp: new Date(),
         imageUrl: imageBase64 ? `data:${imageMimeType || "image/jpeg"};base64,${imageBase64}` : undefined,
+        hadImage: !!imageBase64,
         status: "sent",
       };
 
@@ -615,7 +644,7 @@ export function useAIAgent(pageContext?: PageContext) {
       });
 
       const allMessages = [
-        ...messages,
+        ...(historyOverride ?? messages),
         userMessage,
       ].map((msg) => {
         const parts: any[] = [{ text: msg.content || " " }];
@@ -632,7 +661,8 @@ export function useAIAgent(pageContext?: PageContext) {
         });
       }
 
-      abortRef.current = new AbortController();
+      const controller = new AbortController();
+      abortRef.current = controller;
       const ctx = buildPageContext();
       const memory = getMemoryForAPI();
 
@@ -646,7 +676,7 @@ export function useAIAgent(pageContext?: PageContext) {
             persona: activePersona.id,
             memory,
           }),
-          signal: abortRef.current.signal,
+          signal: controller.signal,
         });
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -661,6 +691,7 @@ export function useAIAgent(pageContext?: PageContext) {
         const decoder = new TextDecoder();
         let fullText = "";
         let buffer = "";
+        let streamFinished = false;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -691,6 +722,7 @@ export function useAIAgent(pageContext?: PageContext) {
                     return updated;
                   });
                 } else if (data.type === "done") {
+                  streamFinished = true;
                   const buttons = parseButtons(fullText);
                   const widgets = parseWidgets(fullText);
 
@@ -732,11 +764,13 @@ export function useAIAgent(pageContext?: PageContext) {
                     if (cleanText) speakTextInternal(cleanText);
                   }
                 } else if (data.type === "error") {
-                  fullText = "Ох, что-то пошло не так. Попробуйте ещё раз)";
+                  streamFinished = true;
+                  const notice = getUserLanguage().startsWith("en") ? "The AI service is unavailable. Please try again." : "ИИ сейчас недоступен. Попробуйте ещё раз.";
                   setMessages((prev) => {
                     const updated = [...prev];
                     const lastIdx = updated.length - 1;
-                    updated[lastIdx] = { ...updated[lastIdx], content: fullText, isStreaming: false, isError: true };
+                    const previous = updated[lastIdx];
+                    updated[lastIdx] = { ...previous, content: previous.content ? `${previous.content}\n\n${notice}` : notice, isStreaming: false, isError: true };
                     return updated;
                   });
                 }
@@ -745,19 +779,24 @@ export function useAIAgent(pageContext?: PageContext) {
           }
         }
 
+        if (!streamFinished) throw new Error("AI response ended before completion");
         processActions(fullText);
       } catch (error: any) {
         if (error.name !== "AbortError") {
           setMessages((prev) => {
             const updated = [...prev];
             const lastIdx = updated.length - 1;
-            updated[lastIdx] = { ...updated[lastIdx], content: "Ох, связь подвела. Попробуйте ещё раз)", isStreaming: false, isError: true };
+            const previous = updated[lastIdx];
+            const notice = getUserLanguage().startsWith("en") ? "The response was interrupted. Please try again." : "Ответ прервался. Попробуйте ещё раз.";
+            updated[lastIdx] = { ...previous, content: previous.content ? `${previous.content}\n\n${notice}` : notice, isStreaming: false, isError: true };
             return updated;
           });
         }
       } finally {
-        setIsLoading(false);
-        abortRef.current = null;
+        if (abortRef.current === controller) {
+          setIsLoading(false);
+          abortRef.current = null;
+        }
       }
     },
     [messages, isLoading, processActions, parseButtons, parseWidgets, activePersona, buildPageContext, getMemoryForAPI, voiceMode, dealStage]
@@ -808,7 +847,8 @@ export function useAIAgent(pageContext?: PageContext) {
         const updated = [...prev];
         const lastIdx = updated.length - 1;
         if (updated[lastIdx]?.isStreaming) {
-          updated[lastIdx] = { ...updated[lastIdx], isStreaming: false };
+          const notice = getUserLanguage().startsWith("en") ? "Response stopped." : "Ответ остановлен.";
+          updated[lastIdx] = { ...updated[lastIdx], content: updated[lastIdx].content || notice, isStreaming: false, isError: true };
         }
         return updated;
       });
@@ -817,20 +857,29 @@ export function useAIAgent(pageContext?: PageContext) {
   }, []);
 
   const retryMessage = useCallback((errorMessageId: string) => {
-    setMessages(prev => {
-      const errorIdx = prev.findIndex(m => m.id === errorMessageId);
-      if (errorIdx === -1) return prev;
-      let userIdx = -1;
-      for (let i = errorIdx - 1; i >= 0; i--) {
-        if (prev[i].role === "user") { userIdx = i; break; }
-      }
-      if (userIdx === -1) return prev;
-      const userMsg = prev[userIdx];
-      const trimmed = prev.filter((_m, i) => i < userIdx || i > errorIdx);
-      setTimeout(() => sendMessage(userMsg.content), 0);
-      return trimmed;
-    });
-  }, [sendMessage]);
+    if (isLoading) return;
+    const errorIdx = messages.findIndex(m => m.id === errorMessageId);
+    if (errorIdx < 0) return;
+    let userIdx = -1;
+    for (let i = errorIdx - 1; i >= 0; i--) {
+      if (messages[i].role === "user") { userIdx = i; break; }
+    }
+    if (userIdx < 0) return;
+    const userMsg = messages[userIdx];
+    const image = userMsg.imageUrl?.match(/^data:([^;]+);base64,([\s\S]+)$/);
+    if (userMsg.hadImage && !image) {
+      setMessages(prev => prev.map(m => m.id === errorMessageId ? {
+        ...m,
+        content: getUserLanguage().startsWith("en")
+          ? "The image is no longer available. Please attach it again."
+          : "Изображение больше недоступно. Прикрепите его снова.",
+      } : m));
+      return;
+    }
+    const history = messages.filter((_m, i) => i < userIdx || i > errorIdx);
+    setMessages(history);
+    setTimeout(() => sendMessage(userMsg.content, image?.[2], image?.[1], history), 0);
+  }, [isLoading, messages, sendMessage]);
 
   const clearHistory = useCallback(() => {
     setMessages([]);
@@ -890,19 +939,28 @@ export function useAIAgent(pageContext?: PageContext) {
     return lines.join("\n\n---\n\n");
   }, [messages]);
 
-  const shareConversation = useCallback(() => {
+  const shareConversation = useCallback(async (): Promise<"shared" | "copied" | "cancelled" | "unavailable"> => {
     const text = exportConversation();
-    if (!text) return;
+    if (!text) return "unavailable";
 
     if (navigator.share) {
-      navigator.share({ title: "Диалог с WEB4TG AI", text: text.slice(0, 4000) }).catch(() => {});
-      return;
+      try {
+        await navigator.share({ title: "Диалог с WEB4TG AI", text: text.slice(0, 4000) });
+        return "shared";
+      } catch (error) {
+        return error instanceof DOMException && error.name === "AbortError" ? "cancelled" : "unavailable";
+      }
     }
 
-    navigator.clipboard.writeText(text).catch(() => {});
+    try {
+      if (!navigator.clipboard?.writeText) return "unavailable";
+      await navigator.clipboard.writeText(text);
+      return "copied";
+    } catch { return "unavailable"; }
   }, [exportConversation]);
 
   const scheduleFollowup = useCallback(() => {
+    if (AI_DEMO_MODE) return;
     const tg = (window as any).Telegram?.WebApp;
     const telegramId = tg?.initDataUnsafe?.user?.id;
     const initData = tg?.initData;
@@ -931,6 +989,7 @@ export function useAIAgent(pageContext?: PageContext) {
   }, []);
 
   const cancelFollowup = useCallback(() => {
+    if (AI_DEMO_MODE) return;
     const tg = (window as any).Telegram?.WebApp;
     const telegramId = tg?.initDataUnsafe?.user?.id;
     const initData = tg?.initData;
@@ -947,6 +1006,7 @@ export function useAIAgent(pageContext?: PageContext) {
   }, []);
 
   return {
+    demoMode: AI_DEMO_MODE,
     messages,
     filteredMessages,
     isLoading,

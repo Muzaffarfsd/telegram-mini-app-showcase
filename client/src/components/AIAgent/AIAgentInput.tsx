@@ -1,4 +1,12 @@
 import { useState, useRef, useCallback, useEffect, memo, useMemo } from "react";
+import { Plus, X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+export interface AIAgentDraft {
+  input: string;
+  previewImage: string | null;
+  imageData: { base64: string; mimeType: string } | null;
+}
 
 interface AIAgentInputProps {
   onSend: (message: string, imageBase64?: string, imageMimeType?: string) => void;
@@ -8,6 +16,10 @@ interface AIAgentInputProps {
   voiceMode?: boolean;
   onToggleVoiceMode?: () => void;
   speechLang?: string;
+  draftRef: React.MutableRefObject<AIAgentDraft>;
+  demoMode: boolean;
+  replyDraft: { id: number; text: string } | null;
+  onReplyApplied: () => void;
 }
 
 const ArrowUpIcon = ({ size = 16, color = "currentColor" }: { size?: number; color?: string }) => (
@@ -125,7 +137,7 @@ function EmojiPicker({ onSelect, onClose }: { onSelect: (emoji: string) => void;
   }, [activeCategory, categoriesWithRecent]);
 
   return (
-    <div ref={panelRef} style={{
+    <div ref={panelRef} className="ai-chat-emoji-picker" style={{
       position: "absolute", bottom: "100%", left: 0, right: 0,
       marginBottom: "4px", background: "rgba(28,28,30,0.96)",
       backdropFilter: "saturate(180%) blur(40px)",
@@ -275,23 +287,36 @@ function VoiceWaveform({ analyserRef, isActive, color }: {
 }
 
 export const AIAgentInput = memo(
-  ({ onSend, isLoading, onStop, placeholder, voiceMode, onToggleVoiceMode, speechLang }: AIAgentInputProps) => {
-    const [input, setInput] = useState("");
-    const [isRecording, setIsRecording] = useState(false);
+  ({ onSend, isLoading, onStop, placeholder, voiceMode, onToggleVoiceMode, speechLang, draftRef, demoMode, replyDraft, onReplyApplied }: AIAgentInputProps) => {
+    const { language } = useLanguage();
+    const ru = language === "ru";
+    const [input, setInput] = useState(() => draftRef.current.input);
     const [isListening, setIsListening] = useState(false);
-    const [previewImage, setPreviewImage] = useState<string | null>(null);
-    const [imageData, setImageData] = useState<{ base64: string; mimeType: string } | null>(null);
+    const [previewImage, setPreviewImage] = useState<string | null>(() => draftRef.current.previewImage);
+    const [imageData, setImageData] = useState<{ base64: string; mimeType: string } | null>(() => draftRef.current.imageData);
     const [recordingTime, setRecordingTime] = useState(0);
     const [showEmoji, setShowEmoji] = useState(false);
+    const [showTools, setShowTools] = useState(false);
+    const [notice, setNotice] = useState<string | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    const chunksRef = useRef<Blob[]>([]);
     const recognitionRef = useRef<any>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const analyserRef = useRef<AnalyserNode | null>(null);
     const audioCtxRef = useRef<AudioContext | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    useEffect(() => {
+      draftRef.current = { input, previewImage, imageData };
+    }, [draftRef, input, previewImage, imageData]);
+
+    useEffect(() => {
+      if (!replyDraft) return;
+      const quote = replyDraft.text.slice(0, 60) + (replyDraft.text.length > 60 ? "..." : "");
+      setInput(previous => `> ${quote}\n\n${previous}`);
+      textareaRef.current?.focus();
+      onReplyApplied();
+    }, [replyDraft, onReplyApplied]);
 
     const handleSend = useCallback(() => {
       if ((input.trim() || imageData) && !isLoading) {
@@ -326,7 +351,17 @@ export const AIAgentInput = memo(
     const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      if (file.size > 4 * 1024 * 1024) return;
+      if (file.size > 4 * 1024 * 1024) {
+        setNotice(ru ? "Изображение должно быть меньше 4 МБ." : "The image must be smaller than 4 MB.");
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        return;
+      }
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        setNotice(ru ? "Выберите изображение JPG, PNG или WebP." : "Choose a JPG, PNG or WebP image.");
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        return;
+      }
+      setNotice(null);
 
       const reader = new FileReader();
       reader.onload = () => {
@@ -336,9 +371,10 @@ export const AIAgentInput = memo(
         setPreviewImage(result);
         setImageData({ base64, mimeType });
       };
+      reader.onerror = () => setNotice(ru ? "Не удалось открыть изображение. Попробуйте ещё раз." : "Couldn't open the image. Please try again.");
       reader.readAsDataURL(file);
       if (fileInputRef.current) fileInputRef.current.value = "";
-    }, []);
+    }, [ru]);
 
     const clearImage = useCallback(() => {
       setPreviewImage(null);
@@ -383,11 +419,20 @@ export const AIAgentInput = memo(
     }, []);
 
     const startSpeechRecognition = useCallback(() => {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        toggleRecording();
+      if (demoMode) {
+        setNotice(ru ? "Голосовой ввод появится после подключения консультанта." : "Voice input will be available after the consultant is connected.");
         return;
       }
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        setNotice(ru ? "Голосовой ввод недоступен в этом браузере. Напишите сообщение." : "Voice input isn't available in this browser. Please type your message.");
+        return;
+      }
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setNotice(ru ? "Микрофон недоступен в этом браузере." : "The microphone isn't available in this browser.");
+        return;
+      }
+      setNotice(null);
 
       if (isListening) {
         recognitionRef.current?.stop();
@@ -436,51 +481,13 @@ export const AIAgentInput = memo(
         recognition.onerror = () => {
           setIsListening(false);
           cleanupAudioPipeline();
+          setNotice(ru ? "Не удалось распознать речь. Проверьте доступ к микрофону." : "Couldn't recognize speech. Check microphone access.");
         };
 
         recognition.start();
         setIsListening(true);
-      }).catch(() => {});
-    }, [isListening, voiceMode, onSend, speechLang, cleanupAudioPipeline, setupAnalyser]);
-
-    const toggleRecording = useCallback(async () => {
-      if (isRecording) {
-        mediaRecorderRef.current?.stop();
-        setIsRecording(false);
-        cleanupAudioPipeline();
-        return;
-      }
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        streamRef.current = stream;
-        setupAnalyser(stream);
-
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
-        chunksRef.current = [];
-        setRecordingTime(0);
-        timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
-
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size > 0) chunksRef.current.push(e.data);
-        };
-
-        mediaRecorder.onstop = () => {
-          cleanupAudioPipeline();
-          setIsRecording(false);
-        };
-
-        mediaRecorder.start();
-        setIsRecording(true);
-
-        setTimeout(() => {
-          if (mediaRecorder.state === "recording") mediaRecorder.stop();
-        }, 30000);
-      } catch {
-        setIsRecording(false);
-      }
-    }, [isRecording, cleanupAudioPipeline, setupAnalyser]);
+      }).catch(() => setNotice(ru ? "Не удалось получить доступ к микрофону." : "Microphone access was not available."));
+    }, [isListening, voiceMode, onSend, speechLang, cleanupAudioPipeline, setupAnalyser, ru, demoMode]);
 
     useEffect(() => {
       return () => {
@@ -488,14 +495,11 @@ export const AIAgentInput = memo(
           try { recognitionRef.current.stop(); } catch {}
           recognitionRef.current = null;
         }
-        if (mediaRecorderRef.current?.state === "recording") {
-          try { mediaRecorderRef.current.stop(); } catch {}
-        }
         cleanupAudioPipeline();
       };
     }, [cleanupAudioPipeline]);
 
-    const isActive = isRecording || isListening;
+    const isActive = isListening;
     const hasDraft = !!(input.trim() || imageData);
 
     const formatTime = (s: number) => {
@@ -505,219 +509,24 @@ export const AIAgentInput = memo(
     };
 
     return (
-      <div style={{
-        padding: "10px 16px",
-        paddingBottom: "max(10px, env(safe-area-inset-bottom))",
-        borderTop: "1px solid rgba(255,255,255,0.06)",
-        /* v7 wave 3: opaque OLED instead of heavy backdrop-filter — kills keyboard-open lag on mobile */
-        background: "#0a0a0c",
-        position: "relative",
-      }}>
-        {showEmoji && (
-          <EmojiPicker
-            onSelect={insertEmoji}
-            onClose={() => setShowEmoji(false)}
-          />
-        )}
-        {previewImage && (
-          <div style={{ marginBottom: "8px", position: "relative", display: "inline-block" }}>
-            <img src={previewImage} alt="" style={{
-              maxHeight: "72px", borderRadius: "12px",
-              border: "0.5px solid rgba(255,255,255,0.12)",
-              boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
-            }} />
-            <button type="button" onClick={clearImage} style={{
-              position: "absolute", top: "-5px", right: "-5px",
-              width: "18px", height: "18px", borderRadius: "9px",
-              background: "rgba(120,120,128,0.6)", border: "none",
-              color: "#fff", fontSize: "10px", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontWeight: 600, lineHeight: 1,
-            }}>×</button>
-          </div>
-        )}
-
-        {isActive && (
-          <div style={{
-            marginBottom: "8px", padding: "10px 14px",
-            background: "rgba(52,211,153,0.06)", borderRadius: "16px",
-            border: "0.5px solid rgba(52,211,153,0.15)",
-          }}>
-            <div style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              marginBottom: "6px",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <div style={{
-                  width: "8px", height: "8px", borderRadius: "4px",
-                  background: "#ef4444",
-                  animation: "ai-pulse 1s ease-in-out infinite",
-                  boxShadow: "0 0 8px rgba(239,68,68,0.5)",
-                }} />
-                <span style={{
-                  fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.6)",
-                  letterSpacing: "-0.01em",
-                }}>
-                  {isListening ? "Распознаю речь" : "Запись"}
-                </span>
-              </div>
-              <span style={{
-                fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.4)",
-                fontVariantNumeric: "tabular-nums",
-              }}>
-                {formatTime(recordingTime)}
-              </span>
-            </div>
-            <VoiceWaveform
-              analyserRef={analyserRef}
-              isActive={isActive}
-              color="#34d399"
-            />
-          </div>
-        )}
-
-        {voiceMode && !isActive && (
-          <div style={{
-            display: "flex", alignItems: "center", gap: "8px",
-            marginBottom: "8px", padding: "8px 12px",
-            background: "rgba(52,211,153,0.06)", borderRadius: "12px",
-            border: "0.5px solid rgba(52,211,153,0.12)",
-          }}>
-            <div style={{
-              width: "6px", height: "6px", borderRadius: "3px",
-              background: "rgba(52,211,153,0.4)",
-            }} />
-            <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", letterSpacing: "-0.01em" }}>
-              Голосовой режим — нажмите микрофон
-            </span>
-          </div>
-        )}
-
-        <div style={{
-          display: "flex", alignItems: "flex-end", gap: "4px",
-          background: "rgba(255,255,255,0.06)",
-          borderRadius: "24px", padding: "4px 4px 4px 6px",
-          border: `0.5px solid ${isActive ? "rgba(52,211,153,0.3)" : "rgba(255,255,255,0.1)"}`,
-          transition: "border-color 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
-          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 1px 3px rgba(0,0,0,0.15)",
-        }}>
-          <input
-            ref={fileInputRef} type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleImageSelect} style={{ display: "none" }}
-          />
-
-          <button type="button"
-            onClick={() => fileInputRef.current?.click()}
-            style={{
-              width: "34px", height: "36px", borderRadius: "17px",
-              border: "none", background: "transparent",
-              color: "rgba(255,255,255,0.35)", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0, transition: "color 0.2s",
-            }}
-            aria-label="Attach image"
-          >
-            <CameraIcon />
-          </button>
-
-          <button type="button"
-            onClick={() => setShowEmoji(prev => !prev)}
-            style={{
-              width: "34px", height: "36px", borderRadius: "17px",
-              border: "none",
-              background: showEmoji ? "rgba(52,211,153,0.12)" : "transparent",
-              color: showEmoji ? "#34d399" : "rgba(255,255,255,0.35)",
-              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0, transition: "all 0.2s",
-            }}
-            aria-label="Emoji"
-          >
-            <SmileIcon />
-          </button>
-
-          <textarea
-            ref={textareaRef} value={input}
-            onChange={handleInput} onKeyDown={handleKeyDown}
-            placeholder={voiceMode ? "Или напишите текстом..." : (placeholder || "Message...")}
-            rows={1}
-            style={{
-              flex: 1, background: "transparent", border: "none",
-              outline: "none", color: "#fff", fontSize: "15px",
-              lineHeight: "1.45", resize: "none", height: "40px",
-              maxHeight: "120px", padding: "8px 0", fontFamily: "inherit",
-              letterSpacing: "-0.01em",
-            }}
-          />
-
-          {onToggleVoiceMode && (
-            <button type="button" onClick={onToggleVoiceMode}
-              style={{
-                width: "34px", height: "36px", borderRadius: "17px",
-                border: "none",
-                background: voiceMode ? "rgba(52,211,153,0.12)" : "transparent",
-                color: voiceMode ? "#34d399" : "rgba(255,255,255,0.28)",
-                cursor: "pointer", display: "flex", alignItems: "center",
-                justifyContent: "center", flexShrink: 0,
-                transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
-              }}
-              aria-label={voiceMode ? "Disable voice mode" : "Enable voice mode"}
-            >
-              <PhoneIcon />
-            </button>
-          )}
-
-          <button type="button"
-            onClick={isActive ? () => { recognitionRef.current?.stop(); if (mediaRecorderRef.current?.state === "recording") mediaRecorderRef.current.stop(); setIsListening(false); setIsRecording(false); cleanupAudioPipeline(); } : startSpeechRecognition}
-            style={{
-              width: "34px", height: "36px", borderRadius: "17px",
-              border: "none",
-              background: isActive ? "rgba(239,68,68,0.15)" : "transparent",
-              color: isActive ? "#ef4444" : "rgba(255,255,255,0.35)",
-              cursor: "pointer", display: "flex", alignItems: "center",
-              justifyContent: "center", flexShrink: 0,
-              transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
-            }}
-            aria-label={isActive ? "Stop recording" : "Voice input"}
-          >
-            {isActive ? <StopIcon /> : <MicIcon />}
-          </button>
-
-          {isLoading && onStop ? (
-            <button type="button" onClick={onStop}
-              style={{
-                width: "34px", height: "34px", borderRadius: "17px",
-                border: "none",
-                background: "rgba(239,68,68,0.15)",
-                color: "#ef4444",
-                cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0, transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
-                boxShadow: "0 2px 8px rgba(239,68,68,0.2)",
-              }}
-              aria-label="Stop generation"
-            >
-              <StopIcon size={13} />
-            </button>
-          ) : (
-            <button type="button" onClick={handleSend} disabled={!hasDraft && !isLoading}
-              style={{
-                width: "34px", height: "34px", borderRadius: "17px",
-                border: "none",
-                background: hasDraft
-                  ? "linear-gradient(145deg, #34d399, #059669)"
-                  : "rgba(255,255,255,0.06)",
-                color: hasDraft ? "#fff" : "rgba(255,255,255,0.15)",
-                cursor: hasDraft ? "pointer" : "default",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0, transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
-                boxShadow: hasDraft ? "0 2px 8px rgba(52,211,153,0.3)" : "none",
-              }}
-              aria-label="Send message"
-            >
-              <ArrowUpIcon size={15} />
-            </button>
-          )}
+      <div className="ai-chat-composer">
+        {showEmoji && <EmojiPicker onSelect={emoji => { insertEmoji(emoji); setShowEmoji(false); }} onClose={() => setShowEmoji(false)} />}
+        {showTools && <div className="ai-chat-tools" data-testid="ai-chat-tools">
+          <button type="button" aria-label="Attach image" onClick={() => { setShowTools(false); fileInputRef.current?.click(); }}><CameraIcon size={19} />{ru ? "Добавить фото" : "Add image"}</button>
+          <button type="button" aria-label="Emoji" onClick={() => { setShowTools(false); setShowEmoji(true); }}><SmileIcon size={19} />{ru ? "Эмодзи" : "Emoji"}</button>
+          {onToggleVoiceMode && <button type="button" aria-label={voiceMode ? "Disable voice mode" : "Enable voice mode"} onClick={() => { onToggleVoiceMode(); setShowTools(false); }}><PhoneIcon size={19} />{voiceMode ? (ru ? "Выключить голосовой режим" : "Turn voice mode off") : (ru ? "Включить голосовой режим" : "Turn voice mode on")}</button>}
+        </div>}
+        {notice && <div className="ai-chat-notice" role="status"><span>{notice}</span><button type="button" aria-label={ru ? "Закрыть уведомление" : "Dismiss notice"} onClick={() => setNotice(null)}><X size={15} /></button></div>}
+        {previewImage && <div className="ai-chat-image-preview"><img src={previewImage} alt={ru ? "Прикреплённое изображение" : "Attached image"} /><button type="button" onClick={clearImage} aria-label={ru ? "Удалить изображение" : "Remove image"}><X size={14} /></button></div>}
+        {isActive && <div className="ai-chat-recording"><span className="ai-chat-recording-dot" /> <span>{ru ? "Распознаю речь" : "Listening"}</span><VoiceWaveform analyserRef={analyserRef} isActive={isActive} color="#756093" /><span>{formatTime(recordingTime)}</span></div>}
+        {voiceMode && !isActive && <div className="ai-chat-voice-mode">{ru ? "Голосовой режим включён" : "Voice mode is on"}</div>}
+        <div className="ai-chat-composer-field">
+          <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageSelect} style={{ display: "none" }} />
+          <button type="button" className="ai-chat-compose-action" aria-label={ru ? "Вложения и возможности" : "Attachments and tools"} aria-expanded={showTools} onClick={() => { setShowEmoji(false); setShowTools(value => !value); }}><Plus size={21} /></button>
+          <textarea ref={textareaRef} value={input} onChange={handleInput} onKeyDown={handleKeyDown} aria-label={ru ? "Сообщение" : "Message"} placeholder={voiceMode ? (ru ? "Или напишите сообщение..." : "Or type a message...") : (placeholder || "Message...")} rows={1} />
+          <button type="button" className="ai-chat-compose-action" disabled={isLoading} onClick={isActive ? () => { recognitionRef.current?.stop(); setIsListening(false); cleanupAudioPipeline(); } : startSpeechRecognition} aria-label={isActive ? "Stop recording" : "Voice input"}>{isActive ? <StopIcon size={15} /> : <MicIcon size={19} />}</button>
+          {isLoading && onStop ? <button type="button" className="ai-chat-send is-stop" onClick={onStop} aria-label="Stop generation"><StopIcon size={14} /></button> :
+            <button type="button" className="ai-chat-send" onClick={handleSend} disabled={!hasDraft} aria-label="Send message"><ArrowUpIcon size={18} /></button>}
         </div>
       </div>
     );

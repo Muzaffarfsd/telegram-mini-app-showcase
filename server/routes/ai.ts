@@ -9,28 +9,13 @@ const MAX_MESSAGES = 30;
 const MAX_MESSAGE_LENGTH = 4000;
 const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
 
-const CONTEXTUAL_FALLBACKS: Record<string, string> = {
-  price: "Шаблоны стоят от 150 000₽ (магазин) до 200 000₽ (фитнес). Подписки: Мини 9 900₽/мес, Стандарт 14 900₽/мес, Премиум 24 900₽/мес. Предоплата 35%, 14 дней правок. Напишите нишу — подберу оптимальный вариант)",
-  portfolio: "У нас 20+ реализованных проектов. Radiance — магазин одежды, окупился за 25 дней. GlowSpa — салон красоты, no-show снизился на 45%. DeluxeDine — ресторан, экономия 35к/мес на комиссиях. Хотите посмотреть демо?",
-  timeline: "Сроки зависят от сложности: стандартный шаблон — 7-10 дней, с доработками — до 15 дней. Что планируете — магазин, запись на услуги, ресторан?",
-  payment: "Схема оплаты: 35% предоплата + 65% после сдачи проекта. 14 дней бесплатных правок включены. Возможна рассрочка. Какой проект планируете?",
-  subscription: "Тарифы подписки: Мини (9 900₽/мес) — базовая поддержка, Стандарт (14 900₽/мес) — рекомендуемый, Премиум (24 900₽/мес) — полный пакет. Расскажите о бизнесе — подберу подходящий)",
-  discount: "У нас есть система лояльности — монеты за подписки, рефералы и задания. Скидки до 25%. Также работает реферальная программа с 3 уровнями. Хотите узнать подробнее?",
-  consultation: "Хорошо, давайте организую консультацию с нашим менеджером. Расскажите коротко — какая у вас ниша и какие задачи хотите решить?",
-  default: "Привет! Я Алекс, консультант WEB4TG Studio. Мы делаем Telegram Mini Apps для бизнеса — магазины, рестораны, салоны, фитнес и другие ниши. Запуск за 7-15 дней. Расскажите о вашем бизнесе — подберу решение)"
-};
-
-function detectFallbackTopic(lastMessage: string): string {
-  const lower = lastMessage.toLowerCase();
-  if (/цен[аы]|стоимость|сколько стоит|прайс|бюджет|дорого/.test(lower)) return "price";
-  if (/портфолио|примеры|работы|кейс|проект/.test(lower)) return "portfolio";
-  if (/сроки|когда|быстро|долго|время|дней/.test(lower)) return "timeline";
-  if (/оплат[аы]|реквизит|перевод|счёт|счет|рассрочк/.test(lower)) return "payment";
-  if (/подписк|тариф|пакет|план/.test(lower)) return "subscription";
-  if (/скидк|бонус|монет|промокод|акци/.test(lower)) return "discount";
-  if (/консультац|менеджер|позвонить|связаться/.test(lower)) return "consultation";
-  return "default";
-}
+// The consultant is an interactive local demonstration until a provider is deliberately enabled.
+router.use(["/api/ai/chat", "/api/ai/tts", "/api/ai/voices", "/api/ai/followup", "/api/ai/followup/cancel"], (_req, res, next) => {
+  if (process.env.WEB4TG_AI_PROVIDER_ENABLED !== "true") {
+    return res.status(503).json({ error: "AI provider is not connected", code: "AI_DISABLED" });
+  }
+  next();
+});
 
 function validatePart(p: any): p is ChatMessagePart {
   if (!p) return false;
@@ -145,14 +130,9 @@ router.post("/api/ai/chat", async (req: Request, res: Response) => {
       },
       (error) => {
         if (!closed) {
-          const lastUserMsg = messages.filter((m: ChatMessage) => m.role === "user").pop();
-          const lastText = lastUserMsg?.parts?.find((p: ChatMessagePart) => p.text)?.text || "";
-          const topic = detectFallbackTopic(lastText);
-          const fallback = CONTEXTUAL_FALLBACKS[topic] || CONTEXTUAL_FALLBACKS.default;
-          res.write(`data: ${JSON.stringify({ type: "chunk", text: fallback })}\n\n`);
-          res.write(`data: ${JSON.stringify({ type: "done", persona: activePersona, personaName })}\n\n`);
+          res.write(`data: ${JSON.stringify({ type: "error", code: "AI_UNAVAILABLE" })}\n\n`);
           res.end();
-          console.error("[AI Chat] Error, used fallback:", error.message, "topic:", topic);
+          console.error("[AI Chat] Provider unavailable:", error.name);
         }
       },
       abortController.signal,
@@ -160,14 +140,9 @@ router.post("/api/ai/chat", async (req: Request, res: Response) => {
     );
   } catch (error: any) {
     if (!closed) {
-      const lastUserMsg = messages.filter((m: ChatMessage) => m.role === "user").pop();
-      const lastText = lastUserMsg?.parts?.find((p: ChatMessagePart) => p.text)?.text || "";
-      const topic = detectFallbackTopic(lastText);
-      const fallback = CONTEXTUAL_FALLBACKS[topic] || CONTEXTUAL_FALLBACKS.default;
-      res.write(`data: ${JSON.stringify({ type: "chunk", text: fallback })}\n\n`);
-      res.write(`data: ${JSON.stringify({ type: "done", persona: activePersona, personaName })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: "error", code: "AI_UNAVAILABLE" })}\n\n`);
       res.end();
-      console.error("[AI Chat] Catch error, used fallback:", (error as Error).message, "topic:", topic);
+      console.error("[AI Chat] Provider unavailable:", error instanceof Error ? error.name : "UnknownError");
     }
   }
 });

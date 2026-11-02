@@ -1,5 +1,6 @@
 import { memo, useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type { AIMessage, WidgetData } from "@/hooks/useAIAgent";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AIAgentMessageProps {
   message: AIMessage;
@@ -48,97 +49,16 @@ function detectDemos(content: string): DemoMini[] {
 }
 
 /* v7 — Live demo preview card. iPhone-frame mock + name + open CTA */
-const DemoPreviewCard = memo(function DemoPreviewCard({
-  demo, onOpen, language,
-}: { demo: DemoMini; onOpen?: (id: string) => void; language: string }) {
+
+const DemoPreviewCard = memo(function DemoPreviewCard({ demo, onOpen, language }: { demo: DemoMini; onOpen?: (id: string) => void; language: string }) {
   return (
-    <div style={{
-      marginTop: 12,
-      padding: 14,
-      borderRadius: 22,
-      background: "rgba(255,255,255,0.035)",
-      border: "1px solid rgba(255,255,255,0.08)",
-      display: "flex", alignItems: "center", gap: 14,
-      position: "relative", overflow: "hidden",
-    }} data-testid={`demo-preview-${demo.id}`}>
-      <div aria-hidden="true" style={{
-        position: "absolute", inset: 0,
-        background: `radial-gradient(60% 100% at 14% 50%, ${demo.accent}14 0%, transparent 70%)`,
-        pointerEvents: "none",
-      }} />
-      {/* iPhone mock frame */}
-      <div style={{
-        position: "relative", flexShrink: 0,
-        width: 64, height: 132,
-        borderRadius: 14,
-        background: "#0a0a0c",
-        border: "1.5px solid rgba(255,255,255,0.14)",
-        boxShadow: `0 8px 24px rgba(0,0,0,0.45), 0 0 28px ${demo.accent}22, inset 0 1px 0 rgba(255,255,255,0.06)`,
-        overflow: "hidden",
-      }}>
-        {/* dynamic island */}
-        <div style={{
-          position: "absolute", top: 5, left: "50%", transform: "translateX(-50%)",
-          width: 22, height: 6, borderRadius: 99,
-          background: "#000",
-          zIndex: 2,
-        }} />
-        {/* image */}
-        <img src={demo.image} alt="" loading="lazy" draggable={false}
-          style={{
-            position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover", opacity: 0.92,
-          }} />
-        <div aria-hidden="true" style={{
-          position: "absolute", inset: 0,
-          background: "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.55) 100%)",
-        }} />
-      </div>
-      {/* meta */}
-      <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-        <div style={{
-          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-          fontSize: "0.52rem", fontWeight: 700,
-          letterSpacing: "0.14em", textTransform: "uppercase" as const,
-          color: demo.accent,
-        }}>
-          {language === "ru" ? "Демо · WEB4TG" : "Demo · WEB4TG"}
-        </div>
-        <div style={{
-          fontFamily: '"Stengazeta", "Manrope", system-ui, sans-serif',
-          fontSize: "1.16rem", fontWeight: 700,
-          color: "rgba(255,255,255,0.96)",
-          letterSpacing: "0.012em", marginTop: 6, lineHeight: 1.1,
-        }}>
-          {demo.name}
-        </div>
-        <div style={{
-          fontFamily: "Manrope, system-ui, sans-serif",
-          fontSize: "0.78rem", color: "rgba(255,255,255,0.62)",
-          marginTop: 4, letterSpacing: "-0.005em",
-        }}>
-          {demo.category}
-        </div>
-        <button
-          type="button"
-          onClick={() => onOpen?.(demo.id)}
-          className="active:scale-[0.97]"
-          style={{
-            marginTop: 12, minHeight: 36,
-            padding: "8px 14px", borderRadius: 999,
-            background: "rgba(255,255,255,0.06)",
-            border: `1px solid ${demo.accent}55`,
-            color: "rgba(255,255,255,0.96)",
-            fontFamily: "Manrope, system-ui, sans-serif",
-            fontSize: "0.82rem", fontWeight: 600,
-            display: "inline-flex", alignItems: "center", gap: 6,
-            cursor: "pointer",
-            transition: "transform 0.18s cubic-bezier(0.32,0.72,0,1), background 0.2s",
-          }}
-          data-testid={`demo-preview-open-${demo.id}`}
-        >
-          {language === "ru" ? "Открыть демо" : "Open demo"}
-          <span style={{ color: demo.accent, fontWeight: 700 }}>→</span>
+    <div className="ai-chat-demo" data-testid={'demo-preview-' + demo.id}>
+      <img src={demo.image} alt="" loading="lazy" draggable={false} />
+      <div>
+        <span>{language === "ru" ? "Демо · WEB4TG" : "Demo · WEB4TG"}</span>
+        <strong>{demo.name}</strong><small>{demo.category}</small>
+        <button type="button" onClick={() => onOpen?.(demo.id)} data-testid={'demo-preview-open-' + demo.id}>
+          {language === "ru" ? "Открыть демо" : "Open demo"} <span aria-hidden="true">↗</span>
         </button>
       </div>
     </div>
@@ -198,11 +118,10 @@ const PERSONA_EMOJIS: Record<string, string> = {
 };
 
 const GLASS_MSG = {
-  /* v7 wave 4: neutral assistant material; user keeps emerald accent */
-  assistant: "rgba(255,255,255,0.045)",
-  assistantBorder: "rgba(255,255,255,0.10)",
-  user: "linear-gradient(155deg, rgba(52,211,153,0.22) 0%, rgba(52,211,153,0.14) 100%)",
-  userBorder: "rgba(52,211,153,0.32)",
+  assistant: "#f6f6f7",
+  assistantBorder: "#eeeeF1",
+  user: "#eeebf2",
+  userBorder: "#e9e4ed",
 };
 
 const CopyIcon = ({ size = 12 }: { size?: number }) => (
@@ -303,7 +222,7 @@ function useTypewriter(content: string, isStreaming: boolean) {
 function ThinkingIndicator({ seconds, personaColor, phrase }: { seconds: number; personaColor: string; phrase?: string }) {
   /* v7: emerald block-caret + breathing dot + tabular-nums seconds */
   return (
-    <div style={{
+    <div className="ai-chat-thinking" style={{
       display: "flex", alignItems: "center", gap: "12px",
       padding: "6px 0",
     }}>
@@ -346,200 +265,47 @@ function ThinkingIndicator({ seconds, personaColor, phrase }: { seconds: number;
   );
 }
 
+
 function ROICalculatorWidget({ data }: { data: WidgetData }) {
   const [clients, setClients] = useState(100);
   const [avgCheck, setAvgCheck] = useState(1500);
-  const monthlyLoss = data.monthlyLoss || (clients * avgCheck * 0.2);
+  const monthlyLoss = data.monthlyLoss || clients * avgCheck * 0.2;
   const cost = data.templateCost || 150000;
   const paybackDays = Math.ceil(cost / (monthlyLoss / 30));
-  const yearSavings = monthlyLoss * 12;
-
-  return (
-    <div style={{
-      background: "rgba(255,255,255,0.04)",
-      border: "0.5px solid rgba(52,211,153,0.2)",
-      borderRadius: "16px", padding: "16px", marginTop: "10px",
-      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
-    }}>
-      <div style={{ fontSize: "12px", fontWeight: 600, color: "#34d399", marginBottom: "12px", display: "flex", alignItems: "center", gap: "6px", letterSpacing: "-0.01em" }}>
-        <span style={{ fontSize: "14px" }}>📊</span> ROI-калькулятор
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <label style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", letterSpacing: "-0.01em" }}>
-          Клиентов в месяц
-          <input type="range" min="10" max="500" value={clients}
-            onChange={e => setClients(Number(e.target.value))}
-            style={{ width: "100%", marginTop: "4px", accentColor: "#34d399", height: "3px" }}
-          />
-          <span style={{ color: "#fff", fontWeight: 600, fontSize: "13px" }}>{clients}</span>
-        </label>
-        <label style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", letterSpacing: "-0.01em" }}>
-          Средний чек (₽)
-          <input type="range" min="300" max="10000" step="100" value={avgCheck}
-            onChange={e => setAvgCheck(Number(e.target.value))}
-            style={{ width: "100%", marginTop: "4px", accentColor: "#34d399", height: "3px" }}
-          />
-          <span style={{ color: "#fff", fontWeight: 600, fontSize: "13px" }}>{avgCheck.toLocaleString()} ₽</span>
-        </label>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginTop: "12px" }}>
-        {[
-          { label: "Потери/мес", value: `${Math.round(monthlyLoss).toLocaleString()} ₽`, color: "#ef4444" },
-          { label: "Окупаемость", value: `${paybackDays} дн.`, color: "#34d399" },
-        ].map((item, i) => (
-          <div key={i} style={{
-            background: "rgba(0,0,0,0.2)", borderRadius: "12px", padding: "10px",
-            textAlign: "center", border: "0.5px solid rgba(255,255,255,0.04)",
-          }}>
-            <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.35)", letterSpacing: "0.02em" }}>{item.label}</div>
-            <div style={{ fontSize: "17px", fontWeight: 700, color: item.color, letterSpacing: "-0.02em" }}>{item.value}</div>
-          </div>
-        ))}
-        <div style={{
-          background: "rgba(0,0,0,0.2)", borderRadius: "12px", padding: "10px",
-          textAlign: "center", gridColumn: "1 / -1", border: "0.5px solid rgba(255,255,255,0.04)",
-        }}>
-          <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.35)", letterSpacing: "0.02em" }}>Экономия за год</div>
-          <div style={{ fontSize: "20px", fontWeight: 700, color: "#34d399", letterSpacing: "-0.02em" }}>{Math.round(yearSavings).toLocaleString()} ₽</div>
-        </div>
-      </div>
-    </div>
-  );
+  return <div className="ai-chat-widget">
+    <strong>Расчёт окупаемости</strong><p>Оценка по заданным параметрам</p>
+    <label>Клиентов в месяц <b>{clients}</b><input type="range" min="10" max="500" value={clients} onChange={e => setClients(Number(e.target.value))} /></label>
+    <label>Средний чек <b>{avgCheck.toLocaleString()} ₽</b><input type="range" min="300" max="10000" step="100" value={avgCheck} onChange={e => setAvgCheck(Number(e.target.value))} /></label>
+    <div className="ai-chat-widget-grid"><div><span>Потери в месяц</span><b>{Math.round(monthlyLoss).toLocaleString()} ₽</b></div><div><span>Окупаемость</span><b>{paybackDays} дн.</b></div><div><span>Экономия за год</span><b>{Math.round(monthlyLoss * 12).toLocaleString()} ₽</b></div></div>
+  </div>;
 }
 
 function PriceComparisonWidget({ data }: { data: WidgetData }) {
-  const packages = data.packages || [];
-  return (
-    <div style={{
-      display: "flex", gap: "6px", overflowX: "auto", marginTop: "10px",
-      padding: "2px", scrollSnapType: "x mandatory", scrollbarWidth: "none",
-    }}>
-      {packages.map((pkg: any, i: number) => (
-        <div key={i} style={{
-          minWidth: "130px", flex: "1",
-          background: pkg.recommended ? "rgba(52,211,153,0.08)" : "rgba(255,255,255,0.03)",
-          border: pkg.recommended ? "0.5px solid rgba(52,211,153,0.25)" : "0.5px solid rgba(255,255,255,0.06)",
-          borderRadius: "14px", padding: "14px", scrollSnapAlign: "start",
-          position: "relative",
-          boxShadow: pkg.recommended ? "inset 0 1px 0 rgba(52,211,153,0.1)" : "inset 0 1px 0 rgba(255,255,255,0.04)",
-        }}>
-          {pkg.recommended && (
-            <div style={{
-              position: "absolute", top: "-1px", left: "50%", transform: "translateX(-50%)",
-              background: "linear-gradient(135deg, #34d399, #059669)", color: "#000",
-              fontSize: "8px", fontWeight: 700, padding: "2px 10px",
-              borderRadius: "0 0 8px 8px", letterSpacing: "0.08em",
-            }}>ТОП</div>
-          )}
-          <div style={{ fontSize: "12.5px", fontWeight: 600, color: "#fff", marginBottom: "4px", letterSpacing: "-0.01em" }}>{pkg.name}</div>
-          <div style={{ fontSize: "15px", fontWeight: 700, color: pkg.recommended ? "#34d399" : "rgba(255,255,255,0.65)", marginBottom: "10px", letterSpacing: "-0.02em" }}>{pkg.price}</div>
-          {(pkg.features || []).map((f: string, fi: number) => (
-            <div key={fi} style={{ fontSize: "10.5px", color: "rgba(255,255,255,0.45)", display: "flex", gap: "4px", marginBottom: "3px" }}>
-              <span style={{ color: "#34d399", fontSize: "9px" }}>✓</span> {f}
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+  return <div className="ai-chat-widget"><strong>Сравнение вариантов</strong><div className="ai-chat-widget-packages">
+    {(data.packages || []).map((pkg: any, index: number) => <div key={index}>
+      <b>{pkg.name}</b><strong>{pkg.price}</strong>{pkg.recommended && <small>Рекомендуется</small>}
+      {(pkg.features || []).map((feature: string, i: number) => <span key={i}>{feature}</span>)}
+    </div>)}
+  </div></div>;
 }
 
 function ProposalWidget({ data }: { data: WidgetData }) {
-  return (
-    <div style={{
-      background: "linear-gradient(145deg, rgba(15,32,39,0.9), rgba(32,58,67,0.7), rgba(44,83,100,0.5))",
-      border: "0.5px solid rgba(52,211,153,0.2)",
-      borderRadius: "18px", padding: "18px", marginTop: "10px",
-      position: "relative", overflow: "hidden",
-      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.3)",
-    }}>
-      <div style={{
-        position: "absolute", top: "-20px", right: "-20px", width: "100px", height: "100px",
-        background: "radial-gradient(circle, rgba(52,211,153,0.1), transparent 70%)",
-      }} />
-      <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.35)", letterSpacing: "0.18em", fontWeight: 600, marginBottom: "6px" }}>
-        ПЕРСОНАЛЬНОЕ ПРЕДЛОЖЕНИЕ
-      </div>
-      <div style={{ fontSize: "16px", fontWeight: 700, color: "#fff", marginBottom: "2px", letterSpacing: "-0.02em" }}>
-        {data.clientName || "Ваш проект"}
-      </div>
-      <div style={{ fontSize: "11.5px", color: "rgba(255,255,255,0.4)", marginBottom: "14px" }}>
-        {data.niche} · {data.template}
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", marginBottom: "14px" }}>
-        {[
-          { label: "Стоимость", value: data.price, color: "#fff" },
-          { label: "Срок", value: data.timeline, color: "#60a5fa" },
-          { label: "ROI", value: data.roi, color: "#34d399" },
-        ].map((item, i) => (
-          <div key={i} style={{
-            textAlign: "center", background: "rgba(0,0,0,0.15)",
-            borderRadius: "10px", padding: "8px 4px",
-            border: "0.5px solid rgba(255,255,255,0.04)",
-          }}>
-            <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.35)", letterSpacing: "0.03em" }}>{item.label}</div>
-            <div style={{ fontSize: "13px", fontWeight: 700, color: item.color, letterSpacing: "-0.01em" }}>{item.value}</div>
-          </div>
-        ))}
-      </div>
-      {data.features && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-          {data.features.map((f: string, i: number) => (
-            <span key={i} style={{
-              fontSize: "9.5px", background: "rgba(52,211,153,0.1)", color: "#34d399",
-              padding: "3px 8px", borderRadius: "8px", fontWeight: 500,
-              border: "0.5px solid rgba(52,211,153,0.15)",
-            }}>{f}</span>
-          ))}
-        </div>
-      )}
-      <div style={{
-        marginTop: "12px", textAlign: "center", fontSize: "9.5px",
-        color: "rgba(255,255,255,0.25)", fontStyle: "italic", letterSpacing: "-0.01em",
-      }}>
-        Предоплата 35% · 14 дней правок · Договор
-      </div>
+  return <div className="ai-chat-widget"><strong>Предложение для проекта</strong><p>{data.clientName || "Ваш проект"}{data.niche ? ' · ' + data.niche : ''}{data.template ? ' · ' + data.template : ''}</p>
+    <div className="ai-chat-widget-grid">
+      {data.price && <div><span>Стоимость</span><b>{data.price}</b></div>}
+      {data.timeline && <div><span>Срок</span><b>{data.timeline}</b></div>}
+      {data.roi && <div><span>ROI</span><b>{data.roi}</b></div>}
     </div>
-  );
+    {Array.isArray(data.features) && <ul>{data.features.map((feature: string, index: number) => <li key={index}>{feature}</li>)}</ul>}
+  </div>;
 }
 
 function DealProgressWidget({ data }: { data: WidgetData }) {
-  const stages = data.stages || ["awareness", "interest", "consideration", "decision", "action"];
-  const stageLabels: Record<string, string> = {
-    awareness: "Знакомство", interest: "Интерес", consideration: "Выбор",
-    decision: "Решение", action: "Сделка",
-  };
-  const currentIdx = stages.indexOf(data.stage || "awareness");
-
-  return (
-    <div style={{
-      background: "rgba(255,255,255,0.03)", border: "0.5px solid rgba(255,255,255,0.06)",
-      borderRadius: "14px", padding: "12px", marginTop: "10px",
-      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "3px", marginBottom: "4px" }}>
-        {stages.map((s: string, i: number) => (
-          <div key={s} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "5px" }}>
-            <div style={{
-              height: "3px", width: "100%", borderRadius: "1.5px",
-              background: i <= currentIdx
-                ? `linear-gradient(90deg, #059669, #34d399)`
-                : "rgba(255,255,255,0.06)",
-              transition: "background 0.6s cubic-bezier(0.32, 0.72, 0, 1)",
-              boxShadow: i <= currentIdx ? "0 0 6px rgba(52,211,153,0.3)" : "none",
-            }} />
-            <div style={{
-              fontSize: "8.5px", fontWeight: i === currentIdx ? 600 : 400,
-              color: i <= currentIdx ? "#34d399" : "rgba(255,255,255,0.2)",
-              textAlign: "center", lineHeight: "1.2", letterSpacing: "-0.01em",
-            }}>
-              {stageLabels[s] || s}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  const labels: Record<string, string> = { awareness: "Знакомство", interest: "Возможности", consideration: "Выбор", decision: "Планирование", action: "Следующий шаг" };
+  const stages = data.stages || Object.keys(labels);
+  return <div className="ai-chat-widget"><strong>Этапы проекта</strong><div className="ai-chat-widget-stages">
+    {stages.map((stage: string) => <span key={stage} className={stage === data.stage ? "is-current" : undefined}>{labels[stage] || stage}</span>)}
+  </div></div>;
 }
 
 function WidgetRenderer({ widget }: { widget: WidgetData }) {
@@ -581,6 +347,7 @@ function LongPressMenu({ x, y, onCopy, onReply, onSpeak, onClose }: {
 
   return (
     <div
+      className="ai-chat-longpress-menu"
       ref={menuRef}
       style={{
         position: "fixed",
@@ -631,7 +398,9 @@ const RetryIcon = ({ size = 12 }: { size?: number }) => (
 
 export const AIAgentMessage = memo(
   ({ message, onSpeak, onButtonClick, onReply, onRetry, onFeedback, onOpenDemo, isSpeaking, thinkingSeconds, thinkingPhrase }: AIAgentMessageProps) => {
+    const { language } = useLanguage();
     const [copied, setCopied] = useState(false);
+    const [copyFailed, setCopyFailed] = useState(false);
     const [feedback, setFeedback] = useState<"up" | "down" | null>(message.feedback || null);
     const [feedbackToast, setFeedbackToast] = useState(false);
     const [showTime, setShowTime] = useState(false);
@@ -656,10 +425,16 @@ export const AIAgentMessage = memo(
       };
     }, []);
 
-    const handleCopy = useCallback(() => {
-      navigator.clipboard.writeText(message.content);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    const handleCopy = useCallback(async () => {
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+        await navigator.clipboard.writeText(message.content);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        setCopyFailed(true);
+        setTimeout(() => setCopyFailed(false), 3000);
+      }
     }, [message.content]);
 
     const renderedContent = useMemo(() => {
@@ -692,7 +467,7 @@ export const AIAgentMessage = memo(
     const isError = !!message.isError;
 
     return (
-      <div style={{
+      <div className={`ai-chat-message ${isUser ? "is-user" : "is-assistant"}`} style={{
         display: "flex", flexDirection: "column",
         alignItems: isUser ? "flex-end" : "flex-start",
         gap: "4px", padding: "2px 16px",
@@ -717,6 +492,7 @@ export const AIAgentMessage = memo(
         )}
 
         <div
+          className="ai-chat-bubble"
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerCancel}
@@ -728,8 +504,8 @@ export const AIAgentMessage = memo(
             borderRadius: isUser ? "20px 20px 6px 20px" : "20px 20px 20px 6px",
             background: isUser ? GLASS_MSG.user : GLASS_MSG.assistant,
             border: `1px solid ${isUser ? GLASS_MSG.userBorder : (message.persona && message.persona !== "alex" ? personaColor + "26" : GLASS_MSG.assistantBorder)}`,
-            color: isUser ? "#fff" : "rgba(255,255,255,0.94)",
-            fontSize: "14.5px", lineHeight: "1.62", wordBreak: "break-word",
+            color: "#24232a",
+            fontSize: "15px", lineHeight: "1.55", wordBreak: "break-word",
             letterSpacing: "-0.005em",
             position: "relative",
             boxShadow: isUser
@@ -749,6 +525,7 @@ export const AIAgentMessage = memo(
                   marginBottom: "4px",
                 }} />
               )}
+              {message.hadImage && !message.imageUrl && <div className="ai-chat-image-unavailable">{language === "ru" ? "Изображение не сохранено" : "Image not saved"}</div>}
               <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
                 <span style={{ flex: 1 }}>{message.content}</span>
                 <span style={{
@@ -822,7 +599,7 @@ export const AIAgentMessage = memo(
         </div>
 
         {showTime && (
-          <div style={{
+          <div className="ai-chat-message-time" style={{
             fontSize: "10px", color: "rgba(255,255,255,0.25)",
             padding: isUser ? "0 8px 0 0" : "0 0 0 8px",
             letterSpacing: "-0.01em",
@@ -834,7 +611,7 @@ export const AIAgentMessage = memo(
         )}
 
         {!isUser && message.buttons && message.buttons.length > 0 && !message.isStreaming && (
-          <div style={{
+          <div className="ai-chat-message-replies" style={{
             display: "flex", gap: "6px", flexWrap: "wrap",
             paddingLeft: "6px", marginTop: "2px", maxWidth: "85%",
           }}>
@@ -873,7 +650,7 @@ export const AIAgentMessage = memo(
         )}
 
         {!isUser && message.content && !message.isStreaming && (
-          <div style={{ display: "flex", gap: "2px", paddingLeft: "6px" }}>
+          <div className="ai-chat-message-actions" style={{ display: "flex", gap: "2px", paddingLeft: "6px" }}>
             <button type="button" onClick={handleCopy}
               style={{
                 background: "none", border: "none", padding: "4px 6px",
@@ -924,7 +701,7 @@ export const AIAgentMessage = memo(
                 transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
                 transform: feedback === "up" ? "scale(1.15)" : "scale(1)",
               }}
-              aria-label="Helpful"
+              aria-label="Helpful" aria-pressed={feedback === "up"}
             >
               <ThumbsUpIcon filled={feedback === "up"} />
             </button>
@@ -941,7 +718,7 @@ export const AIAgentMessage = memo(
                 transition: "all 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
                 transform: feedback === "down" ? "scale(1.15)" : "scale(1)",
               }}
-              aria-label="Not helpful"
+              aria-label="Not helpful" aria-pressed={feedback === "down"}
             >
               <ThumbsDownIcon filled={feedback === "down"} />
             </button>
@@ -957,6 +734,8 @@ export const AIAgentMessage = memo(
             {feedback === "up" ? "Спасибо за отзыв! 👍" : "Учтём, спасибо 🙏"}
           </div>
         )}
+
+        {copyFailed && <div className="ai-chat-copy-error" role="status">{language === "ru" ? "Не удалось скопировать текст" : "Couldn't copy the text"}</div>}
 
         {menuPos && (
           <LongPressMenu

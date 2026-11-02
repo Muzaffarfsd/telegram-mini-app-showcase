@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, memo, lazy, Suspense, useMemo, useCallback
 import { AnimatePresence, m } from "@/utils/LazyMotionProvider";
 import { useTelegram } from "@/hooks/useTelegram";
 import { useRouting, navigate } from "@/hooks/useRouting";
-import type { PageContext } from "@/hooks/useAIAgent";
+import { AI_DEMO_MODE, type PageContext } from "@/hooks/useAIAgent";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAIInteractions, useSwipeGesture } from "@/hooks/useAIInteractions";
 import type { TourStep } from "./AIGuidedTour";
@@ -148,7 +148,7 @@ export const AIAgentButton = memo(({ profileMode = false }: { profileMode?: bool
   const { clipboardSuggestion, dismissClipboard } = useAIInteractions({
     pageComponent: route.component,
     language,
-    isOpen,
+    isOpen: isOpen || AI_DEMO_MODE,
     onToast: handleToast,
     onOpen: () => handleOpenRef.current(),
   });
@@ -159,12 +159,14 @@ export const AIAgentButton = memo(({ profileMode = false }: { profileMode?: bool
       handleOpenRef.current();
     },
     onSwipeLeft: () => {
+      if (AI_DEMO_MODE) return;
       queueMicrotask(() => hapticFeedback.light());
       const personaSwitchEvent = new CustomEvent("ai-persona-cycle", { detail: "next" });
       window.dispatchEvent(personaSwitchEvent);
       handleToast(language === "ru" ? "🔄 Переключена персона" : "🔄 Persona switched");
     },
     onSwipeRight: () => {
+      if (AI_DEMO_MODE) return;
       queueMicrotask(() => hapticFeedback.light());
       const personaSwitchEvent = new CustomEvent("ai-persona-cycle", { detail: "prev" });
       window.dispatchEvent(personaSwitchEvent);
@@ -197,7 +199,7 @@ export const AIAgentButton = memo(({ profileMode = false }: { profileMode?: bool
     setProactiveMessage(null);
 
     if (proactiveTimer.current) clearTimeout(proactiveTimer.current);
-    if (isOpen || dismissedPages.current.has(route.component)) return;
+    if (AI_DEMO_MODE || isOpen || dismissedPages.current.has(route.component)) return;
 
     const messages = PROACTIVE_MESSAGES[route.component];
     if (messages) {
