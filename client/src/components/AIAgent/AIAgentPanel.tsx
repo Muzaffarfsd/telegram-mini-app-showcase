@@ -51,7 +51,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const dragDistance = useRef(0);
   const [dragY, setDragY] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [keyboardViewport, setKeyboardViewport] = useState<{ bottom: number; height: number } | null>(null);
   const [showActions, setShowActions] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
@@ -72,14 +72,50 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   }, [isOpen]);
 
   useEffect(() => {
+    if (!isOpen) return;
+    document.body.dataset.aiChatOpen = "true";
+    window.dispatchEvent(new CustomEvent("web4tg:ai-chat-open", { detail: true }));
+    return () => {
+      delete document.body.dataset.aiChatOpen;
+      window.dispatchEvent(new CustomEvent("web4tg:ai-chat-open", { detail: false }));
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const root = document.getElementById("root");
+    if (!root) return;
+    const rootScroll = root?.scrollTop ?? 0;
+    const rootOverflow = root?.style.overflowY ?? "";
+    const keepRootPosition = () => { if (root.scrollTop !== rootScroll) root.scrollTop = rootScroll; };
+    root.style.overflowY = "hidden";
+    root.scrollTop = rootScroll;
+    root.addEventListener("scroll", keepRootPosition, { passive: true });
+    return () => {
+      root.removeEventListener("scroll", keepRootPosition);
+      root.style.overflowY = rootOverflow;
+      root.scrollTop = rootScroll;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     const viewport = window.visualViewport;
+    let frame = 0;
     const update = () => {
-      const offset = viewport ? Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop) : 0;
-      setKeyboardHeight(offset > 80 ? offset : 0);
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const active = document.activeElement;
+        const editing = active instanceof HTMLElement && !!dialogRef.current?.contains(active) && (active.tagName === "TEXTAREA" || active.tagName === "INPUT");
+        const keyboardVisible = editing && viewport && viewport.scale <= 1.01 && window.innerHeight - viewport.height > 80;
+        const next = keyboardVisible ? { bottom: Math.max(0, Math.round(window.innerHeight - viewport.height - viewport.offsetTop)), height: Math.round(viewport.height) } : null;
+        setKeyboardViewport(previous => previous?.bottom === next?.bottom && previous?.height === next?.height ? previous : next);
+      });
     };
     viewport?.addEventListener("resize", update);
     viewport?.addEventListener("scroll", update);
     window.addEventListener("resize", update);
+    document.addEventListener("focusin", update);
+    document.addEventListener("focusout", update);
     const tg = (window as any).Telegram?.WebApp;
     tg?.onEvent?.("viewportChanged", update);
     update();
@@ -87,6 +123,9 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
       viewport?.removeEventListener("resize", update);
       viewport?.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
+      document.removeEventListener("focusin", update);
+      document.removeEventListener("focusout", update);
+      cancelAnimationFrame(frame);
       tg?.offEvent?.("viewportChanged", update);
     };
   }, []);
@@ -115,8 +154,8 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   useEffect(() => {
     const el = scrollRef.current;
     const last = messages[messages.length - 1];
-    if (el && messages.length > 0 && (atBottom || last?.isStreaming || keyboardHeight > 0)) el.scrollTop = el.scrollHeight;
-  }, [messages, atBottom, keyboardHeight]);
+    if (el && messages.length > 0 && (atBottom || last?.isStreaming)) el.scrollTop = el.scrollHeight;
+  }, [messages, atBottom, keyboardViewport]);
 
   const close = useCallback(() => {
     queueMicrotask(() => hapticFeedback.light());
@@ -212,7 +251,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
             animate={{ opacity: 1, y: dragY }}
             exit={reducedMotion ? { opacity: 0 } : { y: "100%" }}
             transition={dragging ? { duration: 0 } : { duration: reducedMotion ? 0.01 : 0.26, ease: [0.22, 1, 0.36, 1] }}
-            style={keyboardHeight > 0 ? { bottom: keyboardHeight, height: `calc(100dvh - ${keyboardHeight}px)` } : undefined}
+            style={keyboardViewport ? { bottom: keyboardViewport.bottom, height: keyboardViewport.height } : undefined}
           >
             <div className="ai-chat-grabber" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={onTouchEnd} data-testid="ai-chat-grabber">
               <span />

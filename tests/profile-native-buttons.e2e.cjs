@@ -31,6 +31,11 @@ const site = process.env.PROFILE_TEST_URL || 'http://127.0.0.1:5000/';
     assert.equal(profileButton.color.toUpperCase(), '#FFFFFF');
     assert.equal(profileButton.text_color.toUpperCase(), '#1C1C1E');
     assert.match(profileButton.text, /Пригласить/);
+    await page.getByRole('button', { name: 'Chat with Alex' }).tap();
+    await page.getByTestId('ai-chat-panel').waitFor({ state: 'visible' });
+    await page.waitForFunction(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button').at(-1)?.data.is_visible === false);
+    await page.getByTestId('ai-chat-panel').getByRole('button', { name: 'Close', exact: true }).tap();
+    await page.waitForFunction(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button').at(-1)?.data.is_visible === true);
     await page.evaluate(() => window.TelegramGameProxy_receiveEvent('main_button_pressed'));
     await page.waitForFunction(() => window.__nativeEvents.some(e => e.type === 'web_app_open_tg_link'));
 
@@ -60,8 +65,18 @@ const site = process.env.PROFILE_TEST_URL || 'http://127.0.0.1:5000/';
       assert.equal(button.color.toUpperCase(), '#FFFFFF');
       assert.equal(button.text_color.toUpperCase(), '#1C1C1E');
     }
+    const floatingAI = page.getByRole('button', { name: 'Chat with Alex' });
+    const floatingBox = await floatingAI.boundingBox();
+    await page.touchscreen.tap(floatingBox.x + floatingBox.width / 2, floatingBox.y + floatingBox.height / 2);
+    await page.waitForFunction(() => ['web_app_setup_main_button', 'web_app_setup_secondary_button'].every(type => window.__nativeEvents.filter(e => e.type === type).at(-1)?.data.is_visible === false));
+    await page.getByTestId('ai-chat-panel').getByRole('button', { name: 'Close', exact: true }).tap();
+    await page.waitForFunction(() => ['web_app_setup_main_button', 'web_app_setup_secondary_button'].every(type => window.__nativeEvents.filter(e => e.type === type).at(-1)?.data.is_visible === true));
     await page.evaluate(() => window.TelegramGameProxy_receiveEvent('main_button_pressed'));
     await page.waitForURL('**/#/constructor');
+    await page.getByRole('button', { name: 'Chat with Alex' }).tap();
+    await page.waitForFunction(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button').at(-1)?.data.is_visible === false);
+    await page.getByTestId('ai-chat-panel').getByRole('button', { name: 'Close', exact: true }).tap();
+    await page.waitForFunction(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button').at(-1)?.data.is_visible === true);
     await page.getByTestId('nav-showcase').tap();
     await page.waitForURL('**/#/');
     await page.waitForFunction(() => {
@@ -69,7 +84,7 @@ const site = process.env.PROFILE_TEST_URL || 'http://127.0.0.1:5000/';
       return events.length && events.at(-1).data.is_visible === false;
     });
     assert.deepEqual(errors, []);
-    console.log('Telegram bridge: white buttons, dark text, invite, route changes and cleanup passed');
+    console.log('Telegram bridge: white buttons, hide and restore during AI chat, invite, route changes and cleanup passed');
     await context.close();
   } finally {
     await browser.close();

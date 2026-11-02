@@ -22,6 +22,9 @@ async function checkHeaderButton(page, label) {
       after: getComputedStyle(el, '::after').content,
       alt: image.alt, opacity: getComputedStyle(image).opacity,
       naturalWidth: image.naturalWidth,
+      aura: getComputedStyle(el, '::before').backgroundImage,
+      auraAnimation: getComputedStyle(el, '::before').animationName,
+      auraFilter: getComputedStyle(el, '::before').filter,
     };
   });
   assert.equal(sizes.width, 44, `${label}: original button width changed`);
@@ -30,6 +33,9 @@ async function checkHeaderButton(page, label) {
   assert.equal(sizes.artHeight, 30);
   assert.ok(Math.abs(sizes.centerX) < 1 && Math.abs(sizes.centerY) < 1, `${label}: artwork is off center`);
   assert.ok(sizes.naturalWidth > 0 && sizes.opacity === '1');
+  assert.match(sizes.aura, /radial-gradient/, `${label}: the subtle glow should be visible on low-performance phones`);
+  assert.equal(sizes.auraAnimation, 'none', `${label}: the glow should not require animation`);
+  assert.equal(sizes.auraFilter, 'none', `${label}: the glow should not use a blur filter`);
   assert.ok(sizes.after === 'none' || sizes.after === 'normal', `${label}: old AI text still overlays the artwork`);
   assert.equal(sizes.alt, '');
   assert.equal(await button.getAttribute('aria-label'), 'Chat with Alex');

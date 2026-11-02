@@ -314,7 +314,7 @@ export const AIAgentInput = memo(
       if (!replyDraft) return;
       const quote = replyDraft.text.slice(0, 60) + (replyDraft.text.length > 60 ? "..." : "");
       setInput(previous => `> ${quote}\n\n${previous}`);
-      textareaRef.current?.focus();
+      textareaRef.current?.focus({ preventScroll: true });
       onReplyApplied();
     }, [replyDraft, onReplyApplied]);
 
@@ -384,7 +384,7 @@ export const AIAgentInput = memo(
     const insertEmoji = useCallback((emoji: string) => {
       setInput(prev => prev + emoji);
       if (textareaRef.current) {
-        textareaRef.current.focus();
+        textareaRef.current.focus({ preventScroll: true });
       }
     }, []);
 

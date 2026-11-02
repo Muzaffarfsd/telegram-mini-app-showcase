@@ -180,23 +180,35 @@ export function useTelegramButtons(
 
     let orderButtonText = config.mainButton?.text || '';
     let orderInfoOpen = currentRoute === 'constructor' && document.body.dataset.orderInfoOpen === 'true';
+    let aiChatOpen = document.body.dataset.aiChatOpen === 'true';
     const updateOrderLabel = (event: Event) => {
       if (currentRoute !== 'constructor') return;
       orderButtonText = (event as CustomEvent<string>).detail;
-      if (!orderInfoOpen) mainButton.setText(orderButtonText);
+      if (!orderInfoOpen && !aiChatOpen) mainButton.setText(orderButtonText);
     };
     const updateOrderInfo = (event: Event) => {
       if (currentRoute !== 'constructor' || !config.mainButton) return;
       orderInfoOpen = (event as CustomEvent<boolean>).detail;
-      if (orderInfoOpen) mainButton.hide();
+      if (orderInfoOpen || aiChatOpen) mainButton.hide();
       else mainButton.show(orderButtonText, config.mainButton.onClick, NATIVE_BUTTON_COLOR, NATIVE_BUTTON_TEXT_COLOR);
     };
+    const updateAiChat = (event: Event) => {
+      aiChatOpen = (event as CustomEvent<boolean>).detail;
+      if (aiChatOpen) {
+        mainButton.hide();
+        secondaryButton.hide();
+      } else {
+        if (config.mainButton && !orderInfoOpen) mainButton.show(orderButtonText, config.mainButton.onClick, NATIVE_BUTTON_COLOR, NATIVE_BUTTON_TEXT_COLOR);
+        if (config.secondaryButton) secondaryButton.show(config.secondaryButton.text, config.secondaryButton.onClick, NATIVE_BUTTON_COLOR, NATIVE_BUTTON_TEXT_COLOR);
+      }
+    };
+    window.addEventListener('web4tg:ai-chat-open', updateAiChat);
     if (currentRoute === 'constructor') {
       window.addEventListener('web4tg:order-label', updateOrderLabel);
       window.addEventListener('web4tg:order-info', updateOrderInfo);
     }
 
-    if (config.mainButton && !orderInfoOpen) {
+    if (config.mainButton && !orderInfoOpen && !aiChatOpen) {
       mainButton.show(
         config.mainButton.text,
         config.mainButton.onClick,
@@ -205,7 +217,7 @@ export function useTelegramButtons(
       );
     }
 
-    if (config.secondaryButton) {
+    if (config.secondaryButton && !aiChatOpen) {
       secondaryButton.show(
         config.secondaryButton.text,
         config.secondaryButton.onClick,
@@ -217,6 +229,7 @@ export function useTelegramButtons(
     cleanupRef.current = () => {
       window.removeEventListener('web4tg:order-label', updateOrderLabel);
       window.removeEventListener('web4tg:order-info', updateOrderInfo);
+      window.removeEventListener('web4tg:ai-chat-open', updateAiChat);
       mainButton.hide();
       secondaryButton.hide();
     };
